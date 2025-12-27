@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import { useAuditLog } from './useAuditLog';
 
 export type Subscription = Tables<'subscriptions'>;
 export type SubscriptionInsert = TablesInsert<'subscriptions'>;
@@ -12,6 +13,7 @@ export type SubscriptionUpdate = TablesUpdate<'subscriptions'>;
 export function useSubscriptions() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { logEvent } = useAuditLog();
 
   const subscriptionsQuery = useQuery({
     queryKey: ['subscriptions'],
@@ -42,9 +44,16 @@ export function useSubscriptions() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
       toast.success(t('subscriptions.createSuccess'));
+      logEvent({
+        tenant_id: data.tenant_id,
+        entity_type: 'subscription',
+        entity_id: data.id,
+        action: 'create',
+        changes: { after: data },
+      });
     },
     onError: (error) => {
       toast.error(t('subscriptions.createError'));
@@ -54,6 +63,13 @@ export function useSubscriptions() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...updates }: SubscriptionUpdate & { id: string }) => {
+      // Fetch current data for audit log
+      const { data: before } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('id', id)
+        .single();
+
       const { data, error } = await supabase
         .from('subscriptions')
         .update(updates)
@@ -62,11 +78,18 @@ export function useSubscriptions() {
         .single();
 
       if (error) throw error;
-      return data;
+      return { data, before };
     },
-    onSuccess: () => {
+    onSuccess: ({ data, before }) => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
       toast.success(t('subscriptions.updateSuccess'));
+      logEvent({
+        tenant_id: data.tenant_id,
+        entity_type: 'subscription',
+        entity_id: data.id,
+        action: 'update',
+        changes: { before, after: data },
+      });
     },
     onError: (error) => {
       toast.error(t('subscriptions.updateError'));
@@ -76,6 +99,13 @@ export function useSubscriptions() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
+      // Fetch current data for audit log
+      const { data: before } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('id', id)
+        .single();
+
       // Soft delete
       const { error } = await supabase
         .from('subscriptions')
@@ -83,10 +113,20 @@ export function useSubscriptions() {
         .eq('id', id);
 
       if (error) throw error;
+      return before;
     },
-    onSuccess: () => {
+    onSuccess: (before) => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
       toast.success(t('subscriptions.deleteSuccess'));
+      if (before) {
+        logEvent({
+          tenant_id: before.tenant_id,
+          entity_type: 'subscription',
+          entity_id: before.id,
+          action: 'delete',
+          changes: { before },
+        });
+      }
     },
     onError: (error) => {
       toast.error(t('subscriptions.deleteError'));
