@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 const languages = [
   { code: 'en', name: 'English', dir: 'ltr' },
   { code: 'ar', name: 'العربية', dir: 'rtl' },
-  { code: 'so', name: 'Soomaali', dir: 'ltr' },
 ];
 
 export function LanguageSelector() {
