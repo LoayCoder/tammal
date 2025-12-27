@@ -14,9 +14,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Settings2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { TenantStatusBadge } from './TenantStatusBadge';
 import type { Tenant } from '@/hooks/useTenants';
 
 interface TenantTableProps {
@@ -28,20 +28,6 @@ interface TenantTableProps {
 
 export function TenantTable({ tenants, isLoading, onEdit, onDelete }: TenantTableProps) {
   const { t } = useTranslation();
-
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-      active: 'default',
-      trial: 'secondary',
-      suspended: 'destructive',
-      inactive: 'outline',
-    };
-    return (
-      <Badge variant={variants[status] || 'outline'}>
-        {t(`common.${status}`)}
-      </Badge>
-    );
-  };
 
   if (isLoading) {
     return (
@@ -72,9 +58,11 @@ export function TenantTable({ tenants, isLoading, onEdit, onDelete }: TenantTabl
         {tenants.map((tenant) => (
           <TableRow key={tenant.id}>
             <TableCell className="font-medium">{tenant.name}</TableCell>
-            <TableCell>{tenant.domain || '-'}</TableCell>
-            <TableCell>{getStatusBadge(tenant.status)}</TableCell>
+            <TableCell className="text-muted-foreground">{tenant.domain || '-'}</TableCell>
             <TableCell>
+              <TenantStatusBadge status={tenant.status} />
+            </TableCell>
+            <TableCell className="text-muted-foreground">
               {new Date(tenant.created_at).toLocaleDateString()}
             </TableCell>
             <TableCell className="text-end">
@@ -86,8 +74,8 @@ export function TenantTable({ tenants, isLoading, onEdit, onDelete }: TenantTabl
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => onEdit(tenant)}>
-                    <Pencil className="me-2 h-4 w-4" />
-                    {t('common.edit')}
+                    <Settings2 className="me-2 h-4 w-4" />
+                    {t('tenants.manage')}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => onDelete(tenant.id)}
