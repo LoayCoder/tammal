@@ -35,7 +35,8 @@
     "brandManagement": "إدارة العلامة التجارية",
     "documentSettings": "إعدادات المستندات",
     "help": "المساعدة",
-    "support": "الدعم"
+    "support": "الدعم",
+    "installApp": "تثبيت التطبيق"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -86,7 +87,14 @@
     "featureOffline": "يعمل بدون اتصال",
     "featureFast": "سريع ومتجاوب",
     "featureNative": "تجربة أصلية",
-    "featureNotifications": "إشعارات فورية"
+    "featureNotifications": "إشعارات فورية",
+    "notificationsTitle": "الإشعارات الفورية",
+    "notificationsDescription": "فعّل الإشعارات الفورية للبقاء على اطلاع",
+    "enableNotifications": "تفعيل الإشعارات",
+    "notificationsEnabled": "الإشعارات مفعّلة",
+    "notificationsDenied": "الإشعارات محظورة. يرجى تفعيلها من إعدادات المتصفح.",
+    "notificationEnabled": "تم تفعيل الإشعارات!",
+    "notificationEnabledBody": "ستتلقى الآن الإشعارات الفورية."
   },
   "tenants": {
     "title": "إدارة المستأجرين",
@@ -113,15 +121,28 @@
   },
   "subscriptions": {
     "title": "إدارة الاشتراكات",
+    "addSubscription": "إضافة اشتراك",
+    "editSubscription": "تعديل الاشتراك",
+    "deleteSubscription": "حذف الاشتراك",
+    "confirmDelete": "هل أنت متأكد من حذف هذا الاشتراك؟ لا يمكن التراجع عن هذا الإجراء.",
     "tenant": "المستأجر",
     "plan": "الباقة",
+    "selectTenant": "اختر مستأجر",
+    "selectPlan": "اختر باقة",
     "startDate": "تاريخ البدء",
     "endDate": "تاريخ الانتهاء",
     "renewalDate": "تاريخ التجديد",
     "paymentStatus": "حالة الدفع",
     "paid": "مدفوع",
     "pending": "معلق",
-    "overdue": "متأخر"
+    "overdue": "متأخر",
+    "cancelled": "ملغي",
+    "createSuccess": "تم إنشاء الاشتراك بنجاح",
+    "createError": "فشل في إنشاء الاشتراك",
+    "updateSuccess": "تم تحديث الاشتراك بنجاح",
+    "updateError": "فشل في تحديث الاشتراك",
+    "deleteSuccess": "تم حذف الاشتراك بنجاح",
+    "deleteError": "فشل في حذف الاشتراك"
   },
   "users": {
     "title": "إدارة المستخدمين",

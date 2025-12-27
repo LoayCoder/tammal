@@ -13,15 +13,19 @@ import {
   Wifi,
   Zap,
   Bell,
-  ArrowLeft
+  ArrowLeft,
+  BellRing,
+  BellOff
 } from 'lucide-react';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useBranding } from '@/hooks/useBranding';
 import { ThemeLogo } from '@/components/branding/ThemeLogo';
 
 export default function InstallApp() {
   const { t } = useTranslation();
   const { canInstall, isInstalled, isIOS, isAndroid, installApp } = usePWAInstall();
+  const { isSupported: notificationsSupported, isGranted, isDenied, requestPermission, sendNotification } = usePushNotifications();
   const { branding } = useBranding();
 
   const features = [
@@ -30,6 +34,15 @@ export default function InstallApp() {
     { icon: Smartphone, key: 'featureNative' },
     { icon: Bell, key: 'featureNotifications' },
   ];
+
+  const handleEnableNotifications = async () => {
+    const granted = await requestPermission();
+    if (granted) {
+      sendNotification(t('install.notificationEnabled'), {
+        body: t('install.notificationEnabledBody'),
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -101,6 +114,37 @@ export default function InstallApp() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Notifications Section */}
+        {notificationsSupported && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Bell className="h-5 w-5" />
+                {t('install.notificationsTitle')}
+              </CardTitle>
+              <CardDescription>{t('install.notificationsDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isGranted ? (
+                <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                  <BellRing className="h-5 w-5" />
+                  <span className="font-medium">{t('install.notificationsEnabled')}</span>
+                </div>
+              ) : isDenied ? (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <BellOff className="h-5 w-5" />
+                  <span>{t('install.notificationsDenied')}</span>
+                </div>
+              ) : (
+                <Button variant="outline" onClick={handleEnableNotifications} className="gap-2">
+                  <Bell className="h-4 w-4" />
+                  {t('install.enableNotifications')}
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Platform Instructions */}
         {!isInstalled && (

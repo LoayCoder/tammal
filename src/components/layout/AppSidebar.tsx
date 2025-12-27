@@ -1,7 +1,7 @@
 import { 
   Users, Building2, CreditCard, 
   HelpCircle, Palette, FileText, LayoutDashboard,
-  Layers, BarChart3, Network, Building
+  Layers, BarChart3, Network, Building, Download
 } from 'lucide-react';
 import {
   Sidebar,
@@ -61,6 +61,7 @@ export function AppSidebar() {
       label: t('nav.help'),
       items: [
         { title: t('nav.support'), url: "/support", icon: HelpCircle },
+        { title: t('nav.installApp'), url: "/install", icon: Download },
       ]
     }
   ];
