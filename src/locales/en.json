@@ -104,10 +104,11 @@
   },
   "tenants": {
     "title": "Tenant Management",
+    "subtitle": "Manage companies and their system access",
     "addTenant": "Add Tenant",
     "editTenant": "Edit Tenant",
     "addTenantDescription": "Add a new tenant to your platform",
-    "editTenantDescription": "Update tenant information",
+    "editTenantDescription": "Update tenant information and branding",
     "name": "Company Name",
     "domain": "Domain",
     "plan": "Plan",
@@ -119,7 +120,10 @@
     "updateSuccess": "Tenant updated successfully",
     "updateError": "Failed to update tenant",
     "deleteSuccess": "Tenant deleted successfully",
-    "deleteError": "Failed to delete tenant"
+    "deleteError": "Failed to delete tenant",
+    "searchPlaceholder": "Search tenants...",
+    "generalTab": "General",
+    "manage": "Manage"
   },
   "plans": {
     "title": "Plan Management",

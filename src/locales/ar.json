@@ -104,10 +104,11 @@
   },
   "tenants": {
     "title": "إدارة المستأجرين",
+    "subtitle": "إدارة الشركات وصلاحيات الوصول للنظام",
     "addTenant": "إضافة مستأجر",
     "editTenant": "تعديل المستأجر",
     "addTenantDescription": "إضافة مستأجر جديد إلى المنصة",
-    "editTenantDescription": "تحديث معلومات المستأجر",
+    "editTenantDescription": "تحديث معلومات المستأجر والعلامة التجارية",
     "name": "اسم الشركة",
     "domain": "النطاق",
     "plan": "الباقة",
@@ -119,7 +120,10 @@
     "updateSuccess": "تم تحديث المستأجر بنجاح",
     "updateError": "فشل في تحديث المستأجر",
     "deleteSuccess": "تم حذف المستأجر بنجاح",
-    "deleteError": "فشل في حذف المستأجر"
+    "deleteError": "فشل في حذف المستأجر",
+    "searchPlaceholder": "البحث عن مستأجرين...",
+    "generalTab": "عام",
+    "manage": "إدارة"
   },
   "plans": {
     "title": "إدارة الباقات",
