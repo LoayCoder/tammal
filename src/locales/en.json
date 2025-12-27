@@ -165,7 +165,9 @@
     "secondaryButton": "Secondary",
     "accentButton": "Accent",
     "sampleCardTitle": "Sample Card",
-    "sampleCardDescription": "This is how your brand colors appear in card components"
+    "sampleCardDescription": "This is how your brand colors appear in card components",
+    "themeLogo": "Company Logo",
+    "themeIcon": "Company Icon"
   },
   "billing": {
     "title": "Usage & Billing",

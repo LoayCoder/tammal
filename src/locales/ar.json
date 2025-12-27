@@ -165,7 +165,9 @@
     "secondaryButton": "ثانوي",
     "accentButton": "تمييز",
     "sampleCardTitle": "بطاقة نموذجية",
-    "sampleCardDescription": "هكذا تظهر ألوان علامتك التجارية في مكونات البطاقات"
+    "sampleCardDescription": "هكذا تظهر ألوان علامتك التجارية في مكونات البطاقات",
+    "themeLogo": "شعار الشركة",
+    "themeIcon": "أيقونة الشركة"
   },
   "billing": {
     "title": "الاستخدام والفواتير",
