@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
 export type Subscription = Tables<'subscriptions'>;
@@ -92,6 +93,30 @@ export function useSubscriptions() {
       console.error('Delete subscription error:', error);
     },
   });
+
+  // Subscribe to realtime changes
+  useEffect(() => {
+    const channel = supabase
+      .channel('subscriptions-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'subscriptions',
+        },
+        (payload) => {
+          console.log('Subscription realtime update:', payload);
+          queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+          queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   return {
     subscriptions: subscriptionsQuery.data ?? [],
