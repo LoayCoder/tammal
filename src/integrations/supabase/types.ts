@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      plans: {
+        Row: {
+          billing_period: string
+          created_at: string
+          deleted_at: string | null
+          description: string | null
+          features: Json | null
+          id: string
+          is_active: boolean
+          max_storage_gb: number | null
+          max_users: number | null
+          name: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          billing_period?: string
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          max_storage_gb?: number | null
+          max_users?: number | null
+          name: string
+          price?: number
+          updated_at?: string
+        }
+        Update: {
+          billing_period?: string
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          max_storage_gb?: number | null
+          max_users?: number | null
+          name?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -45,6 +90,72 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          deleted_at: string | null
+          end_date: string | null
+          id: string
+          metadata: Json | null
+          payment_status: string
+          plan_id: string
+          renewal_date: string | null
+          start_date: string
+          status: string
+          tenant_id: string
+          trial_ends_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          end_date?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_status?: string
+          plan_id: string
+          renewal_date?: string | null
+          start_date?: string
+          status?: string
+          tenant_id: string
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          end_date?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_status?: string
+          plan_id?: string
+          renewal_date?: string | null
+          start_date?: string
+          status?: string
+          tenant_id?: string
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
