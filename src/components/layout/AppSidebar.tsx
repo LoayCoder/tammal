@@ -1,6 +1,6 @@
 import { 
   Users, Building2, CreditCard, 
-  Settings, HelpCircle, Palette, FileText, LayoutDashboard,
+  HelpCircle, Palette, FileText, LayoutDashboard,
   Layers, BarChart3, Network
 } from 'lucide-react';
 import {
@@ -17,7 +17,9 @@ import { NavLink } from "@/components/NavLink";
 import { useTranslation } from 'react-i18next';
 
 export function AppSidebar() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.dir() === 'rtl' || document.documentElement.dir === 'rtl';
+  const sidebarSide = isRTL ? 'right' : 'left';
 
   const menuItems = [
     {
@@ -58,7 +60,7 @@ export function AppSidebar() {
   ];
 
   return (
-    <Sidebar variant="sidebar" collapsible="icon">
+    <Sidebar variant="sidebar" collapsible="icon" side={sidebarSide}>
       <SidebarContent className="pt-4">
         {menuItems.map((group) => (
           <SidebarGroup key={group.label}>
