@@ -14,13 +14,19 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Pencil, Trash2, Settings2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { MoreHorizontal, Trash2, Settings2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TenantStatusBadge } from './TenantStatusBadge';
 import type { Tenant } from '@/hooks/useTenants';
+import type { Plan } from '@/hooks/usePlans';
+
+type TenantWithPlan = Tenant & {
+  plan?: Plan | null;
+};
 
 interface TenantTableProps {
-  tenants: Tenant[];
+  tenants: TenantWithPlan[];
   isLoading: boolean;
   onEdit: (tenant: Tenant) => void;
   onDelete: (id: string) => void;
@@ -48,7 +54,8 @@ export function TenantTable({ tenants, isLoading, onEdit, onDelete }: TenantTabl
       <TableHeader>
         <TableRow>
           <TableHead>{t('tenants.name')}</TableHead>
-          <TableHead>{t('tenants.domain')}</TableHead>
+          <TableHead>{t('tenants.slug')}</TableHead>
+          <TableHead>{t('tenants.plan')}</TableHead>
           <TableHead>{t('common.status')}</TableHead>
           <TableHead>{t('tenants.createdAt')}</TableHead>
           <TableHead className="text-end">{t('common.actions')}</TableHead>
@@ -57,8 +64,24 @@ export function TenantTable({ tenants, isLoading, onEdit, onDelete }: TenantTabl
       <TableBody>
         {tenants.map((tenant) => (
           <TableRow key={tenant.id}>
-            <TableCell className="font-medium">{tenant.name}</TableCell>
-            <TableCell className="text-muted-foreground">{tenant.domain || '-'}</TableCell>
+            <TableCell>
+              <div>
+                <span className="font-medium">{tenant.name}</span>
+                {tenant.domain && (
+                  <p className="text-xs text-muted-foreground">{tenant.domain}</p>
+                )}
+              </div>
+            </TableCell>
+            <TableCell className="text-muted-foreground font-mono text-sm">
+              {tenant.slug || '-'}
+            </TableCell>
+            <TableCell>
+              {tenant.plan ? (
+                <Badge variant="outline">{tenant.plan.name}</Badge>
+              ) : (
+                <Badge variant="secondary">{t('tenants.noPlan')}</Badge>
+              )}
+            </TableCell>
             <TableCell>
               <TenantStatusBadge status={tenant.status} />
             </TableCell>
