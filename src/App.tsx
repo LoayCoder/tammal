@@ -16,6 +16,7 @@ import AdminBranding from "@/pages/admin/AdminBranding";
 import DocumentSettings from "@/pages/admin/DocumentSettings";
 import UsageBilling from "@/pages/settings/UsageBilling";
 import Support from "@/pages/Support";
+import InstallApp from "@/pages/InstallApp";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/auth" element={<Auth />} />
+          <Route path="/install" element={<InstallApp />} />
           <Route element={<MainLayout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/admin/tenants" element={<TenantManagement />} />

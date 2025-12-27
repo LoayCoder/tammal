@@ -63,7 +63,30 @@
     "activeSubscriptions": "Active Subscriptions",
     "monthlyRevenue": "Monthly Revenue",
     "pendingTickets": "Pending Tickets",
-    "recentActivity": "Recent Activity"
+    "recentActivity": "Recent Activity",
+    "brandingPreview": "Your Branding",
+    "customizeBranding": "Customize"
+  },
+  "install": {
+    "title": "Install App",
+    "subtitle": "Get the best experience by installing our app",
+    "installButton": "Install App",
+    "alreadyInstalled": "App is already installed!",
+    "openApp": "Open App",
+    "iosTitle": "Install on iOS",
+    "iosStep1": "Tap the Share button",
+    "iosStep2": "Scroll down and tap 'Add to Home Screen'",
+    "iosStep3": "Tap 'Add' in the top right corner",
+    "androidTitle": "Install on Android",
+    "androidStep1": "Tap the menu button (⋮)",
+    "androidStep2": "Tap 'Install app' or 'Add to Home screen'",
+    "desktopTitle": "Install on Desktop",
+    "desktopStep1": "Click the install icon in the address bar",
+    "desktopStep2": "Or click the Install button above",
+    "featureOffline": "Works offline",
+    "featureFast": "Fast and responsive",
+    "featureNative": "Native-like experience",
+    "featureNotifications": "Push notifications"
   },
   "tenants": {
     "title": "Tenant Management",

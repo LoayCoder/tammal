@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building2, CreditCard, DollarSign, Ticket } from 'lucide-react';
+import { DashboardBrandingPreview } from '@/components/branding/DashboardBrandingPreview';
 
 export default function Dashboard() {
   const { t } = useTranslation();
@@ -68,14 +69,7 @@ export default function Dashboard() {
             <p className="text-muted-foreground text-sm">No recent activity</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">Coming soon...</p>
-          </CardContent>
-        </Card>
+        <DashboardBrandingPreview />
       </div>
     </div>
   );
