@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          changes: Json | null
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          metadata: Json | null
+          tenant_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          changes?: Json | null
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+          tenant_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          changes?: Json | null
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+          tenant_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plans: {
         Row: {
           billing_period: string
@@ -156,6 +200,53 @@ export type Database = {
           },
           {
             foreignKeyName: "subscriptions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_usage: {
+        Row: {
+          active_users: number | null
+          api_calls: number | null
+          created_at: string
+          id: string
+          period_end: string
+          period_start: string
+          storage_used_mb: number | null
+          tenant_id: string
+          total_users: number | null
+          updated_at: string
+        }
+        Insert: {
+          active_users?: number | null
+          api_calls?: number | null
+          created_at?: string
+          id?: string
+          period_end: string
+          period_start: string
+          storage_used_mb?: number | null
+          tenant_id: string
+          total_users?: number | null
+          updated_at?: string
+        }
+        Update: {
+          active_users?: number | null
+          api_calls?: number | null
+          created_at?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          storage_used_mb?: number | null
+          tenant_id?: string
+          total_users?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_usage_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"

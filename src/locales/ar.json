@@ -38,6 +38,7 @@
     "usageBilling": "الاستخدام والفواتير",
     "brandManagement": "إدارة العلامة التجارية",
     "documentSettings": "إعدادات المستندات",
+    "auditLogs": "سجلات التدقيق",
     "help": "المساعدة",
     "support": "الدعم",
     "installApp": "تثبيت التطبيق"
@@ -150,7 +151,61 @@
       "org_structureDescription": "إدارة الأقسام والتسلسلات الهرمية",
       "documents": "إدارة المستندات",
       "documentsDescription": "الوصول لقوالب المستندات والإعدادات"
+    },
+    "viewDashboard": "عرض لوحة التحكم"
+  },
+  "audit": {
+    "title": "سجلات التدقيق",
+    "subtitle": "تتبع جميع تغييرات النظام للامتثال وتصحيح الأخطاء",
+    "filters": "الفلاتر",
+    "filterDescription": "تصفية السجلات حسب المستأجر أو نوع الإجراء أو البحث",
+    "searchPlaceholder": "البحث في السجلات...",
+    "selectTenant": "اختر المستأجر",
+    "selectAction": "اختر الإجراء",
+    "refresh": "تحديث",
+    "logEntries": "إدخالات السجل",
+    "showingEntries": "عرض {{count}} إدخال",
+    "noLogs": "لا توجد سجلات تدقيق",
+    "action": "الإجراء",
+    "entity": "الكيان",
+    "changes": "التغييرات",
+    "timestamp": "الوقت",
+    "actions": {
+      "create": "إنشاء",
+      "update": "تحديث",
+      "delete": "حذف",
+      "module_toggle": "تبديل الوحدة",
+      "status_change": "تغيير الحالة"
+    },
+    "entities": {
+      "tenant": "المستأجر",
+      "subscription": "الاشتراك",
+      "user": "المستخدم",
+      "plan": "الباقة"
     }
+  },
+  "tenantDashboard": {
+    "notFound": "المستأجر غير موجود",
+    "subscription": "الاشتراك",
+    "plan": "الباقة",
+    "createdAt": "تاريخ الإنشاء",
+    "renewsOn": "يتجدد في",
+    "noSubscription": "لا يوجد اشتراك نشط",
+    "activeUsers": "المستخدمون النشطون",
+    "totalUsers": "إجمالي المستخدمين",
+    "userQuota": "حصة المستخدمين",
+    "storage": "التخزين",
+    "apiCalls": "استدعاءات API",
+    "thisPeriod": "فترة الفوترة الحالية",
+    "ofTotal": "من {{count}} مستخدم إجمالي",
+    "of": "من",
+    "used": "مستخدم",
+    "unlimited": "غير محدود",
+    "userGrowth": "نمو المستخدمين",
+    "storageUsage": "استخدام التخزين",
+    "recentActivity": "النشاط الأخير",
+    "recentActivityDescription": "آخر التغييرات لهذا المستأجر",
+    "viewAll": "عرض الكل"
   },
   "plans": {
     "title": "إدارة الباقات",

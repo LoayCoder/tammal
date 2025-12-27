@@ -38,6 +38,7 @@
     "usageBilling": "Usage & Billing",
     "brandManagement": "Brand Management",
     "documentSettings": "Document Settings",
+    "auditLogs": "Audit Logs",
     "help": "Help",
     "support": "Support",
     "installApp": "Install App"
@@ -150,7 +151,61 @@
       "org_structureDescription": "Manage departments and hierarchies",
       "documents": "Document Management",
       "documentsDescription": "Access document templates and settings"
+    },
+    "viewDashboard": "View Dashboard"
+  },
+  "audit": {
+    "title": "Audit Logs",
+    "subtitle": "Track all system changes for compliance and debugging",
+    "filters": "Filters",
+    "filterDescription": "Filter logs by tenant, action type, or search",
+    "searchPlaceholder": "Search logs...",
+    "selectTenant": "Select tenant",
+    "selectAction": "Select action",
+    "refresh": "Refresh",
+    "logEntries": "Log Entries",
+    "showingEntries": "Showing {{count}} entries",
+    "noLogs": "No audit logs found",
+    "action": "Action",
+    "entity": "Entity",
+    "changes": "Changes",
+    "timestamp": "Timestamp",
+    "actions": {
+      "create": "Created",
+      "update": "Updated",
+      "delete": "Deleted",
+      "module_toggle": "Module Toggle",
+      "status_change": "Status Change"
+    },
+    "entities": {
+      "tenant": "Tenant",
+      "subscription": "Subscription",
+      "user": "User",
+      "plan": "Plan"
     }
+  },
+  "tenantDashboard": {
+    "notFound": "Tenant not found",
+    "subscription": "Subscription",
+    "plan": "Plan",
+    "createdAt": "Created",
+    "renewsOn": "Renews on",
+    "noSubscription": "No active subscription",
+    "activeUsers": "Active Users",
+    "totalUsers": "Total Users",
+    "userQuota": "User Quota",
+    "storage": "Storage",
+    "apiCalls": "API Calls",
+    "thisPeriod": "This billing period",
+    "ofTotal": "of {{count}} total users",
+    "of": "of",
+    "used": "used",
+    "unlimited": "Unlimited",
+    "userGrowth": "User Growth",
+    "storageUsage": "Storage Usage",
+    "recentActivity": "Recent Activity",
+    "recentActivityDescription": "Latest changes for this tenant",
+    "viewAll": "View All"
   },
   "plans": {
     "title": "Plan Management",

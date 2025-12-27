@@ -3,12 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building2, CreditCard, DollarSign, Ticket } from 'lucide-react';
 import { DashboardBrandingPreview } from '@/components/branding/DashboardBrandingPreview';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
+import { useAuditLog } from '@/hooks/useAuditLog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AuditLogTable } from '@/components/audit/AuditLogTable';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 export default function Dashboard() {
   const { t } = useTranslation();
   const { stats, isLoading } = useDashboardStats();
+  const { logs, isLoading: isLoadingLogs } = useAuditLog({ limit: 5 });
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -156,7 +159,7 @@ export default function Dashboard() {
             <CardTitle>{t('dashboard.recentActivity')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground text-sm">{t('common.noData')}</p>
+            <AuditLogTable logs={logs} isLoading={isLoadingLogs} compact />
           </CardContent>
         </Card>
         <DashboardBrandingPreview />

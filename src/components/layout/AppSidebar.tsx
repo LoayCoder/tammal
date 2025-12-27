@@ -1,7 +1,7 @@
 import { 
   Users, Building2, CreditCard, 
   HelpCircle, Palette, FileText, LayoutDashboard,
-  Layers, BarChart3, Network, Building, Download
+  Layers, BarChart3, Network, Building, Download, History
 } from 'lucide-react';
 import {
   Sidebar,
@@ -55,6 +55,7 @@ export function AppSidebar() {
         { title: t('nav.usageBilling'), url: "/settings/usage", icon: BarChart3 },
         { title: t('nav.brandManagement'), url: "/admin/branding", icon: Palette },
         { title: t('nav.documentSettings'), url: "/admin/docs", icon: FileText },
+        { title: t('nav.auditLogs'), url: "/admin/audit-logs", icon: History },
       ]
     },
     {
