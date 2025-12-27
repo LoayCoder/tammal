@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 import type { Plan } from './usePlans';
+import { useAuditLog } from './useAuditLog';
 
 export type Tenant = Tables<'tenants'> & {
   plan?: Plan | null;
@@ -14,6 +15,7 @@ export type TenantUpdate = TablesUpdate<'tenants'>;
 export function useTenants() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { logEvent } = useAuditLog();
 
   const tenantsQuery = useQuery({
     queryKey: ['tenants-full'],
@@ -56,11 +58,20 @@ export function useTenants() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['tenants-full'] });
       queryClient.invalidateQueries({ queryKey: ['tenants'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success(t('tenants.createSuccess'));
+      
+      // Log audit event
+      logEvent({
+        tenant_id: data.id,
+        entity_type: 'tenant',
+        entity_id: data.id,
+        action: 'create',
+        changes: { after: data },
+      });
     },
     onError: (error) => {
       toast.error(t('tenants.createError'));
@@ -70,6 +81,13 @@ export function useTenants() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...updates }: TenantUpdate & { id: string }) => {
+      // Fetch current state for audit logging
+      const { data: before } = await supabase
+        .from('tenants')
+        .select('*')
+        .eq('id', id)
+        .single();
+
       const { data, error } = await supabase
         .from('tenants')
         .update(updates as any)
@@ -78,13 +96,28 @@ export function useTenants() {
         .single();
 
       if (error) throw error;
-      return data;
+      return { data, before };
     },
-    onSuccess: () => {
+    onSuccess: ({ data, before }) => {
       queryClient.invalidateQueries({ queryKey: ['tenants-full'] });
       queryClient.invalidateQueries({ queryKey: ['tenants'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success(t('tenants.updateSuccess'));
+      
+      // Determine action type
+      const beforeSettings = before?.settings as any;
+      const afterSettings = data.settings as any;
+      const isModuleToggle = beforeSettings?.modules && afterSettings?.modules &&
+        JSON.stringify(beforeSettings.modules) !== JSON.stringify(afterSettings.modules);
+      const isStatusChange = before?.status !== data.status;
+      
+      logEvent({
+        tenant_id: data.id,
+        entity_type: 'tenant',
+        entity_id: data.id,
+        action: isModuleToggle ? 'module_toggle' : isStatusChange ? 'status_change' : 'update',
+        changes: { before, after: data },
+      });
     },
     onError: (error) => {
       toast.error(t('tenants.updateError'));
@@ -94,6 +127,13 @@ export function useTenants() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
+      // Fetch current state for audit logging
+      const { data: before } = await supabase
+        .from('tenants')
+        .select('*')
+        .eq('id', id)
+        .single();
+
       // Soft delete
       const { error } = await supabase
         .from('tenants')
@@ -101,12 +141,21 @@ export function useTenants() {
         .eq('id', id);
 
       if (error) throw error;
+      return { id, before };
     },
-    onSuccess: () => {
+    onSuccess: ({ id, before }) => {
       queryClient.invalidateQueries({ queryKey: ['tenants-full'] });
       queryClient.invalidateQueries({ queryKey: ['tenants'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success(t('tenants.deleteSuccess'));
+      
+      logEvent({
+        tenant_id: id,
+        entity_type: 'tenant',
+        entity_id: id,
+        action: 'delete',
+        changes: { before },
+      });
     },
     onError: (error) => {
       toast.error(t('tenants.deleteError'));

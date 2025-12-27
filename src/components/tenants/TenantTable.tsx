@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -11,11 +12,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Trash2, Settings2 } from 'lucide-react';
+import { MoreHorizontal, Trash2, Settings2, BarChart3 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TenantStatusBadge } from './TenantStatusBadge';
 import type { Tenant } from '@/hooks/useTenants';
@@ -34,6 +36,7 @@ interface TenantTableProps {
 
 export function TenantTable({ tenants, isLoading, onEdit, onDelete }: TenantTableProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -96,10 +99,15 @@ export function TenantTable({ tenants, isLoading, onEdit, onDelete }: TenantTabl
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => navigate(`/admin/tenants/${tenant.id}`)}>
+                    <BarChart3 className="me-2 h-4 w-4" />
+                    {t('tenants.viewDashboard')}
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onEdit(tenant)}>
                     <Settings2 className="me-2 h-4 w-4" />
                     {t('tenants.manage')}
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => onDelete(tenant.id)}
                     className="text-destructive"

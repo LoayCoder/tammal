@@ -18,6 +18,8 @@ import UsageBilling from "@/pages/settings/UsageBilling";
 import Support from "@/pages/Support";
 import InstallApp from "@/pages/InstallApp";
 import NotFound from "@/pages/NotFound";
+import TenantDashboard from "@/pages/admin/TenantDashboard";
+import AuditLogs from "@/pages/admin/AuditLogs";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +35,8 @@ const App = () => (
           <Route element={<MainLayout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/admin/tenants" element={<TenantManagement />} />
+            <Route path="/admin/tenants/:id" element={<TenantDashboard />} />
+            <Route path="/admin/audit-logs" element={<AuditLogs />} />
             <Route path="/admin/plans" element={<PlanManagement />} />
             <Route path="/admin/subscriptions" element={<SubscriptionManagement />} />
             <Route path="/admin/users" element={<UserManagement />} />
