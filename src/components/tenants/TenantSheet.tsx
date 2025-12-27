@@ -30,14 +30,18 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TenantBrandingTab } from './TenantBrandingTab';
+import { TenantModuleControl, DEFAULT_SETTINGS, type TenantSettings } from './TenantModuleControl';
+import { usePlansManagement } from '@/hooks/usePlans';
 import type { Tenant } from '@/hooks/useTenants';
 
 const TENANT_STATUSES = ['active', 'trial', 'suspended', 'inactive'] as const;
 
 const tenantSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
+  slug: z.string().max(100).optional().or(z.literal('')),
   domain: z.string().max(255).optional().or(z.literal('')),
   status: z.enum(TENANT_STATUSES),
+  plan_id: z.string().optional().or(z.literal('')),
 });
 
 type TenantFormValues = z.infer<typeof tenantSchema>;
@@ -54,7 +58,7 @@ interface TenantSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   tenant?: Tenant | null;
-  onSubmit: (data: TenantFormValues & { branding_config?: BrandingConfig }) => void;
+  onSubmit: (data: any) => void;
   isSubmitting: boolean;
 }
 
@@ -66,15 +70,19 @@ export function TenantSheet({
   isSubmitting,
 }: TenantSheetProps) {
   const { t } = useTranslation();
+  const { plans } = usePlansManagement();
   const isEditing = !!tenant;
   const [branding, setBranding] = useState<BrandingConfig>({});
+  const [settings, setSettings] = useState<TenantSettings>(DEFAULT_SETTINGS);
 
   const form = useForm<TenantFormValues>({
     resolver: zodResolver(tenantSchema),
     defaultValues: {
       name: '',
+      slug: '',
       domain: '',
       status: 'trial',
+      plan_id: '',
     },
   });
 
@@ -82,27 +90,38 @@ export function TenantSheet({
     if (tenant) {
       form.reset({
         name: tenant.name,
+        slug: (tenant as any).slug || '',
         domain: tenant.domain || '',
         status: tenant.status,
+        plan_id: (tenant as any).plan_id || '',
       });
       setBranding((tenant.branding_config as BrandingConfig) || {});
+      setSettings((tenant as any).settings || DEFAULT_SETTINGS);
     } else {
       form.reset({
         name: '',
+        slug: '',
         domain: '',
         status: 'trial',
+        plan_id: '',
       });
       setBranding({});
+      setSettings(DEFAULT_SETTINGS);
     }
   }, [tenant, form]);
 
   const handleSubmit = (data: TenantFormValues) => {
     onSubmit({
       ...data,
+      slug: data.slug || null,
       domain: data.domain || null,
+      plan_id: data.plan_id || null,
       branding_config: branding,
-    } as any);
+      settings,
+    });
   };
+
+  const activePlans = plans.filter(p => p.is_active);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -119,8 +138,9 @@ export function TenantSheet({
         </SheetHeader>
 
         <Tabs defaultValue="general" className="mt-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="general">{t('tenants.generalTab')}</TabsTrigger>
+            <TabsTrigger value="modules">{t('tenants.modulesTab')}</TabsTrigger>
             <TabsTrigger value="branding">{t('branding.title')}</TabsTrigger>
           </TabsList>
 
@@ -143,6 +163,21 @@ export function TenantSheet({
 
                 <FormField
                   control={form.control}
+                  name="slug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('tenants.slug')}</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="company-name" />
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground">{t('tenants.slugDescription')}</p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="domain"
                   render={({ field }) => (
                     <FormItem>
@@ -150,6 +185,32 @@ export function TenantSheet({
                       <FormControl>
                         <Input {...field} placeholder="example.com" />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="plan_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('tenants.plan')}</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value || ''}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={t('tenants.selectPlan')} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">{t('tenants.noPlan')}</SelectItem>
+                          {activePlans.map((plan) => (
+                            <SelectItem key={plan.id} value={plan.id}>
+                              {plan.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -181,6 +242,10 @@ export function TenantSheet({
                 />
               </form>
             </Form>
+          </TabsContent>
+
+          <TabsContent value="modules" className="mt-4">
+            <TenantModuleControl settings={settings} onChange={setSettings} />
           </TabsContent>
 
           <TabsContent value="branding" className="mt-4">

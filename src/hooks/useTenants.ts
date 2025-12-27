@@ -3,8 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import type { Plan } from './usePlans';
 
-export type Tenant = Tables<'tenants'>;
+export type Tenant = Tables<'tenants'> & {
+  plan?: Plan | null;
+};
 export type TenantInsert = TablesInsert<'tenants'>;
 export type TenantUpdate = TablesUpdate<'tenants'>;
 
@@ -15,14 +18,30 @@ export function useTenants() {
   const tenantsQuery = useQuery({
     queryKey: ['tenants-full'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Fetch tenants with their associated plans
+      const { data: tenants, error: tenantsError } = await supabase
         .from('tenants')
         .select('*')
         .is('deleted_at', null)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data;
+      if (tenantsError) throw tenantsError;
+
+      // Fetch all plans to map them
+      const { data: plans, error: plansError } = await supabase
+        .from('plans')
+        .select('*')
+        .is('deleted_at', null);
+
+      if (plansError) throw plansError;
+
+      // Map plans to tenants
+      const plansMap = new Map(plans?.map(p => [p.id, p]) || []);
+      
+      return (tenants || []).map(tenant => ({
+        ...tenant,
+        plan: (tenant as any).plan_id ? plansMap.get((tenant as any).plan_id) || null : null,
+      }));
     },
   });
 
@@ -30,7 +49,7 @@ export function useTenants() {
     mutationFn: async (tenant: TenantInsert) => {
       const { data, error } = await supabase
         .from('tenants')
-        .insert(tenant)
+        .insert(tenant as any)
         .select()
         .single();
 
@@ -53,7 +72,7 @@ export function useTenants() {
     mutationFn: async ({ id, ...updates }: TenantUpdate & { id: string }) => {
       const { data, error } = await supabase
         .from('tenants')
-        .update(updates)
+        .update(updates as any)
         .eq('id', id)
         .select()
         .single();
