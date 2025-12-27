@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import { useAuditLog } from './useAuditLog';
 
 export type Plan = Tables<'plans'>;
 export type PlanInsert = TablesInsert<'plans'>;
@@ -11,6 +12,7 @@ export type PlanUpdate = TablesUpdate<'plans'>;
 export function usePlansManagement() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { logEvent } = useAuditLog();
 
   const plansQuery = useQuery({
     queryKey: ['plans-full'],
@@ -37,11 +39,17 @@ export function usePlansManagement() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['plans-full'] });
       queryClient.invalidateQueries({ queryKey: ['plans'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success(t('plans.createSuccess'));
+      logEvent({
+        entity_type: 'plan',
+        entity_id: data.id,
+        action: 'create',
+        changes: { after: data },
+      });
     },
     onError: (error) => {
       toast.error(t('plans.createError'));
@@ -51,6 +59,13 @@ export function usePlansManagement() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...updates }: PlanUpdate & { id: string }) => {
+      // Fetch current data for audit log
+      const { data: before } = await supabase
+        .from('plans')
+        .select('*')
+        .eq('id', id)
+        .single();
+
       const { data, error } = await supabase
         .from('plans')
         .update(updates)
@@ -59,13 +74,19 @@ export function usePlansManagement() {
         .single();
 
       if (error) throw error;
-      return data;
+      return { data, before };
     },
-    onSuccess: () => {
+    onSuccess: ({ data, before }) => {
       queryClient.invalidateQueries({ queryKey: ['plans-full'] });
       queryClient.invalidateQueries({ queryKey: ['plans'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success(t('plans.updateSuccess'));
+      logEvent({
+        entity_type: 'plan',
+        entity_id: data.id,
+        action: 'update',
+        changes: { before, after: data },
+      });
     },
     onError: (error) => {
       toast.error(t('plans.updateError'));
@@ -75,6 +96,13 @@ export function usePlansManagement() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
+      // Fetch current data for audit log
+      const { data: before } = await supabase
+        .from('plans')
+        .select('*')
+        .eq('id', id)
+        .single();
+
       // Soft delete
       const { error } = await supabase
         .from('plans')
@@ -82,12 +110,21 @@ export function usePlansManagement() {
         .eq('id', id);
 
       if (error) throw error;
+      return before;
     },
-    onSuccess: () => {
+    onSuccess: (before) => {
       queryClient.invalidateQueries({ queryKey: ['plans-full'] });
       queryClient.invalidateQueries({ queryKey: ['plans'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success(t('plans.deleteSuccess'));
+      if (before) {
+        logEvent({
+          entity_type: 'plan',
+          entity_id: before.id,
+          action: 'delete',
+          changes: { before },
+        });
+      }
     },
     onError: (error) => {
       toast.error(t('plans.deleteError'));
