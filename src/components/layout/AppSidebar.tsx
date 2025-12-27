@@ -1,7 +1,7 @@
 import { 
   Users, Building2, CreditCard, 
   HelpCircle, Palette, FileText, LayoutDashboard,
-  Layers, BarChart3, Network
+  Layers, BarChart3, Network, Building
 } from 'lucide-react';
 import {
   Sidebar,
@@ -12,15 +12,21 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarHeader,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { NavLink } from "@/components/NavLink";
 import { useTranslation } from 'react-i18next';
-
+import { ThemeLogo } from "@/components/branding/ThemeLogo";
+import { ThemeIcon } from "@/components/branding/ThemeIcon";
+import { useBranding } from "@/hooks/useBranding";
 export function AppSidebar() {
   const { t, i18n } = useTranslation();
+  const { branding } = useBranding();
+  const { state } = useSidebar();
+  const isCollapsed = state === 'collapsed';
   const isRTL = i18n.dir() === 'rtl' || document.documentElement.dir === 'rtl';
   const sidebarSide = isRTL ? 'right' : 'left';
-
   const menuItems = [
     {
       label: t('nav.dashboard'),
@@ -61,6 +67,31 @@ export function AppSidebar() {
 
   return (
     <Sidebar variant="sidebar" collapsible="icon" side={sidebarSide}>
+      <SidebarHeader className="border-b border-sidebar-border p-4">
+        {isCollapsed ? (
+          <ThemeIcon
+            iconLightUrl={branding.icon_light_url}
+            iconDarkUrl={branding.icon_dark_url}
+            className="h-8 w-8 object-contain mx-auto"
+            alt={t('branding.themeIcon')}
+            fallback={<Building className="h-8 w-8 text-sidebar-foreground" />}
+          />
+        ) : (
+          <ThemeLogo
+            logoUrl={branding.logo_url}
+            logoLightUrl={branding.logo_light_url}
+            logoDarkUrl={branding.logo_dark_url}
+            className="h-8 max-w-full object-contain"
+            alt={t('branding.themeLogo')}
+            fallback={
+              <div className="flex items-center gap-2">
+                <Building className="h-6 w-6 text-sidebar-foreground" />
+                <span className="font-semibold text-sidebar-foreground">SaaS Admin</span>
+              </div>
+            }
+          />
+        )}
+      </SidebarHeader>
       <SidebarContent className="pt-4">
         {menuItems.map((group) => (
           <SidebarGroup key={group.label}>
