@@ -4,6 +4,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import type { HSLColor } from '@/components/branding/HSLColorPicker';
 
+export type AssetType = 'logo' | 'logo_light' | 'logo_dark' | 'favicon' | 'icon_light' | 'icon_dark' | 'pwa_icon';
+
 export interface BrandingConfig {
   colors: {
     primary: HSLColor;
@@ -11,7 +13,12 @@ export interface BrandingConfig {
     accent: HSLColor;
   };
   logo_url: string | null;
+  logo_light_url: string | null;
+  logo_dark_url: string | null;
   favicon_url: string | null;
+  icon_light_url: string | null;
+  icon_dark_url: string | null;
+  pwa_icon_url: string | null;
 }
 
 const DEFAULT_BRANDING: BrandingConfig = {
@@ -21,7 +28,12 @@ const DEFAULT_BRANDING: BrandingConfig = {
     accent: { h: 142, s: 76, l: 36 }
   },
   logo_url: null,
-  favicon_url: null
+  logo_light_url: null,
+  logo_dark_url: null,
+  favicon_url: null,
+  icon_light_url: null,
+  icon_dark_url: null,
+  pwa_icon_url: null
 };
 
 export function useBranding(tenantId?: string) {
@@ -70,7 +82,7 @@ export function useBranding(tenantId?: string) {
   }, [fetchBranding]);
 
   // Upload file to storage
-  const uploadFile = async (file: File, type: 'logo' | 'favicon'): Promise<string | null> => {
+  const uploadFile = async (file: File, type: AssetType): Promise<string | null> => {
     if (!tenantId) return null;
 
     const fileExt = file.name.split('.').pop();
@@ -96,8 +108,7 @@ export function useBranding(tenantId?: string) {
   // Save branding config
   const saveBranding = async (
     config: BrandingConfig,
-    logoFile?: File | null,
-    faviconFile?: File | null
+    files?: Partial<Record<AssetType, File | null>>
   ) => {
     if (!tenantId) {
       toast({
@@ -113,16 +124,18 @@ export function useBranding(tenantId?: string) {
     try {
       let updatedConfig = { ...config };
 
-      // Upload logo if provided
-      if (logoFile) {
-        const logoUrl = await uploadFile(logoFile, 'logo');
-        updatedConfig.logo_url = logoUrl;
-      }
-
-      // Upload favicon if provided
-      if (faviconFile) {
-        const faviconUrl = await uploadFile(faviconFile, 'favicon');
-        updatedConfig.favicon_url = faviconUrl;
+      // Upload each file type if provided
+      if (files) {
+        const fileTypes: AssetType[] = ['logo', 'logo_light', 'logo_dark', 'favicon', 'icon_light', 'icon_dark', 'pwa_icon'];
+        
+        for (const type of fileTypes) {
+          const file = files[type];
+          if (file) {
+            const url = await uploadFile(file, type);
+            const urlKey = `${type}_url` as keyof BrandingConfig;
+            (updatedConfig as any)[urlKey] = url;
+          }
+        }
       }
 
       // Update tenant branding config
