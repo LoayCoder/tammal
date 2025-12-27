@@ -14,7 +14,12 @@ export default function AdminBranding() {
   const { t } = useTranslation();
   const [tenantId, setTenantId] = useState<string | undefined>();
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoLightFile, setLogoLightFile] = useState<File | null>(null);
+  const [logoDarkFile, setLogoDarkFile] = useState<File | null>(null);
   const [faviconFile, setFaviconFile] = useState<File | null>(null);
+  const [iconLightFile, setIconLightFile] = useState<File | null>(null);
+  const [iconDarkFile, setIconDarkFile] = useState<File | null>(null);
+  const [pwaIconFile, setPwaIconFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   // Fetch user's tenant ID
@@ -74,20 +79,42 @@ export default function AdminBranding() {
     }
   };
 
-  const handleFaviconChange = (file: File | null) => {
-    setFaviconFile(file);
-  };
+  const handleFaviconChange = (file: File | null) => setFaviconFile(file);
+  const handleLogoLightChange = (file: File | null) => setLogoLightFile(file);
+  const handleLogoDarkChange = (file: File | null) => setLogoDarkFile(file);
+  const handleIconLightChange = (file: File | null) => setIconLightFile(file);
+  const handleIconDarkChange = (file: File | null) => setIconDarkFile(file);
+  const handlePwaIconChange = (file: File | null) => setPwaIconFile(file);
 
   const handleSave = async () => {
-    await saveBranding(branding, logoFile, faviconFile);
+    await saveBranding(branding, {
+      logo: logoFile,
+      logo_light: logoLightFile,
+      logo_dark: logoDarkFile,
+      favicon: faviconFile,
+      icon_light: iconLightFile,
+      icon_dark: iconDarkFile,
+      pwa_icon: pwaIconFile,
+    });
+    // Reset all file states
     setLogoFile(null);
+    setLogoLightFile(null);
+    setLogoDarkFile(null);
     setFaviconFile(null);
+    setIconLightFile(null);
+    setIconDarkFile(null);
+    setPwaIconFile(null);
   };
 
   const handleReset = () => {
     resetBranding();
     setLogoFile(null);
+    setLogoLightFile(null);
+    setLogoDarkFile(null);
     setFaviconFile(null);
+    setIconLightFile(null);
+    setIconDarkFile(null);
+    setPwaIconFile(null);
     setLogoPreview(null);
   };
 
@@ -177,7 +204,7 @@ export default function AdminBranding() {
             </CardContent>
           </Card>
 
-          {/* Assets Section */}
+          {/* Primary Assets Section */}
           <Card>
             <CardHeader>
               <CardTitle>{t('branding.assetsSection')}</CardTitle>
@@ -201,6 +228,73 @@ export default function AdminBranding() {
                   maxSizeKB={500}
                   previewSize="small"
                 />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Logo Variants Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('branding.logosSection')}</CardTitle>
+              <CardDescription>{t('branding.logosDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2">
+                <ImageUploader
+                  label={t('branding.uploadLogoLight')}
+                  value={branding.logo_light_url || undefined}
+                  onChange={handleLogoLightChange}
+                  accept="image/png,image/jpeg,image/svg+xml"
+                  maxSizeKB={2048}
+                  previewSize="large"
+                />
+                <ImageUploader
+                  label={t('branding.uploadLogoDark')}
+                  value={branding.logo_dark_url || undefined}
+                  onChange={handleLogoDarkChange}
+                  accept="image/png,image/jpeg,image/svg+xml"
+                  maxSizeKB={2048}
+                  previewSize="large"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Icon Variants Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('branding.iconsSection')}</CardTitle>
+              <CardDescription>{t('branding.iconsDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-3">
+                <ImageUploader
+                  label={t('branding.uploadIconLight')}
+                  value={branding.icon_light_url || undefined}
+                  onChange={handleIconLightChange}
+                  accept="image/png,image/svg+xml"
+                  maxSizeKB={500}
+                  previewSize="small"
+                />
+                <ImageUploader
+                  label={t('branding.uploadIconDark')}
+                  value={branding.icon_dark_url || undefined}
+                  onChange={handleIconDarkChange}
+                  accept="image/png,image/svg+xml"
+                  maxSizeKB={500}
+                  previewSize="small"
+                />
+                <div>
+                  <ImageUploader
+                    label={t('branding.uploadPwaIcon')}
+                    value={branding.pwa_icon_url || undefined}
+                    onChange={handlePwaIconChange}
+                    accept="image/png"
+                    maxSizeKB={1024}
+                    previewSize="small"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">{t('branding.pwaIconHint')}</p>
+                </div>
               </div>
             </CardContent>
           </Card>
