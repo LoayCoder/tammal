@@ -171,6 +171,9 @@ export type Database = {
           domain: string | null
           id: string
           name: string
+          plan_id: string | null
+          settings: Json | null
+          slug: string | null
           status: Database["public"]["Enums"]["tenant_status"]
           updated_at: string
         }
@@ -181,6 +184,9 @@ export type Database = {
           domain?: string | null
           id?: string
           name: string
+          plan_id?: string | null
+          settings?: Json | null
+          slug?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
           updated_at?: string
         }
@@ -191,10 +197,21 @@ export type Database = {
           domain?: string | null
           id?: string
           name?: string
+          plan_id?: string | null
+          settings?: Json | null
+          slug?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tenants_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
