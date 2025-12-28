@@ -1,7 +1,8 @@
 import { 
   Users, Building2, CreditCard, 
   HelpCircle, Palette, FileText, LayoutDashboard,
-  Layers, BarChart3, Network, Building, Download, History
+  Layers, BarChart3, Network, Building, Download, History,
+  MessageSquare, Tags, UserCheck
 } from 'lucide-react';
 import {
   Sidebar,
@@ -40,6 +41,14 @@ export function AppSidebar() {
         { title: t('nav.tenantManagement'), url: "/admin/tenants", icon: Building2 },
         { title: t('nav.planManagement'), url: "/admin/plans", icon: Layers },
         { title: t('nav.subscriptionManagement'), url: "/admin/subscriptions", icon: CreditCard },
+      ]
+    },
+    {
+      label: t('nav.surveySystem'),
+      items: [
+        { title: t('nav.questions'), url: "/admin/questions", icon: MessageSquare },
+        { title: t('nav.categories'), url: "/admin/question-categories", icon: Tags },
+        { title: t('nav.employees'), url: "/admin/employees", icon: UserCheck },
       ]
     },
     {

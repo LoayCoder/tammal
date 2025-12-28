@@ -20,6 +20,9 @@ import InstallApp from "@/pages/InstallApp";
 import NotFound from "@/pages/NotFound";
 import TenantDashboard from "@/pages/admin/TenantDashboard";
 import AuditLogs from "@/pages/admin/AuditLogs";
+import QuestionManagement from "@/pages/admin/QuestionManagement";
+import CategoryManagement from "@/pages/admin/CategoryManagement";
+import EmployeeManagement from "@/pages/admin/EmployeeManagement";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +40,9 @@ const App = () => (
             <Route path="/admin/tenants" element={<TenantManagement />} />
             <Route path="/admin/tenants/:id" element={<TenantDashboard />} />
             <Route path="/admin/audit-logs" element={<AuditLogs />} />
+            <Route path="/admin/questions" element={<QuestionManagement />} />
+            <Route path="/admin/question-categories" element={<CategoryManagement />} />
+            <Route path="/admin/employees" element={<EmployeeManagement />} />
             <Route path="/admin/plans" element={<PlanManagement />} />
             <Route path="/admin/subscriptions" element={<SubscriptionManagement />} />
             <Route path="/admin/users" element={<UserManagement />} />
