@@ -1,0 +1,181 @@
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { CategoryBadge } from "./CategoryBadge";
+import { Question } from "@/hooks/useQuestions";
+import { Edit2, Trash2, MoreHorizontal, Eye, EyeOff } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+
+interface QuestionTableProps {
+  questions: Question[];
+  selectedIds: string[];
+  onSelectionChange: (ids: string[]) => void;
+  onEdit: (question: Question) => void;
+  onDelete: (id: string) => void;
+  onToggleStatus: (id: string, isActive: boolean) => void;
+}
+
+export function QuestionTable({
+  questions,
+  selectedIds,
+  onSelectionChange,
+  onEdit,
+  onDelete,
+  onToggleStatus,
+}: QuestionTableProps) {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.dir() === 'rtl';
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const toggleAll = () => {
+    if (selectedIds.length === questions.length) {
+      onSelectionChange([]);
+    } else {
+      onSelectionChange(questions.map((q) => q.id));
+    }
+  };
+
+  const toggleOne = (id: string) => {
+    if (selectedIds.includes(id)) {
+      onSelectionChange(selectedIds.filter((i) => i !== id));
+    } else {
+      onSelectionChange([...selectedIds, id]);
+    }
+  };
+
+  const getTypeLabel = (type: string) => {
+    return t(`questions.types.${type}`);
+  };
+
+  return (
+    <>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-12">
+                <Checkbox
+                  checked={selectedIds.length === questions.length && questions.length > 0}
+                  onCheckedChange={toggleAll}
+                />
+              </TableHead>
+              <TableHead>{t('questions.questionText')}</TableHead>
+              <TableHead>{t('questions.category')}</TableHead>
+              <TableHead>{t('questions.type')}</TableHead>
+              <TableHead>{t('common.status')}</TableHead>
+              <TableHead className="w-12">{t('common.actions')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {questions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  {t('questions.noQuestions')}
+                </TableCell>
+              </TableRow>
+            ) : (
+              questions.map((question) => (
+                <TableRow key={question.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedIds.includes(question.id)}
+                      onCheckedChange={() => toggleOne(question.id)}
+                    />
+                  </TableCell>
+                  <TableCell className="max-w-md">
+                    <p className="line-clamp-2">
+                      {isRTL && question.text_ar ? question.text_ar : question.text}
+                    </p>
+                    {question.is_global && (
+                      <Badge variant="secondary" className="mt-1">{t('questions.global')}</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {question.category && (
+                      <CategoryBadge
+                        name={question.category.name}
+                        nameAr={question.category.name_ar}
+                        color={question.category.color}
+                      />
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{getTypeLabel(question.type)}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={question.is_active ? "default" : "secondary"}>
+                      {question.is_active ? t('common.active') : t('common.inactive')}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => onEdit(question)}>
+                          <Edit2 className="h-4 w-4 me-2" />
+                          {t('common.edit')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onToggleStatus(question.id, !question.is_active)}>
+                          {question.is_active ? (
+                            <>
+                              <EyeOff className="h-4 w-4 me-2" />
+                              {t('questions.deactivate')}
+                            </>
+                          ) : (
+                            <>
+                              <Eye className="h-4 w-4 me-2" />
+                              {t('questions.activate')}
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => setDeleteId(question.id)}
+                        >
+                          <Trash2 className="h-4 w-4 me-2" />
+                          {t('common.delete')}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('questions.deleteQuestion')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('questions.confirmDelete')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deleteId) {
+                  onDelete(deleteId);
+                  setDeleteId(null);
+                }
+              }}
+            >
+              {t('common.delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}

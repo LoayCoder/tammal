@@ -58,6 +58,75 @@ export type Database = {
           },
         ]
       }
+      employees: {
+        Row: {
+          created_at: string | null
+          deleted_at: string | null
+          department: string | null
+          email: string
+          employee_number: string | null
+          full_name: string
+          hire_date: string | null
+          id: string
+          manager_id: string | null
+          metadata: Json | null
+          role_title: string | null
+          status: string | null
+          tenant_id: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          deleted_at?: string | null
+          department?: string | null
+          email: string
+          employee_number?: string | null
+          full_name: string
+          hire_date?: string | null
+          id?: string
+          manager_id?: string | null
+          metadata?: Json | null
+          role_title?: string | null
+          status?: string | null
+          tenant_id: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          deleted_at?: string | null
+          department?: string | null
+          email?: string
+          employee_number?: string | null
+          full_name?: string
+          hire_date?: string | null
+          id?: string
+          manager_id?: string | null
+          metadata?: Json | null
+          role_title?: string | null
+          status?: string | null
+          tenant_id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plans: {
         Row: {
           billing_period: string
@@ -134,6 +203,131 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      question_categories: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          deleted_at: string | null
+          description: string | null
+          description_ar: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          is_global: boolean | null
+          name: string
+          name_ar: string | null
+          tenant_id: string | null
+          updated_at: string | null
+          weight: number | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_global?: boolean | null
+          name: string
+          name_ar?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          weight?: number | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_global?: boolean | null
+          name?: string
+          name_ar?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_categories_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      questions: {
+        Row: {
+          ai_generated: boolean | null
+          category_id: string | null
+          created_at: string | null
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          is_active: boolean | null
+          is_global: boolean | null
+          options: Json | null
+          tenant_id: string | null
+          text: string
+          text_ar: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          ai_generated?: boolean | null
+          category_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_global?: boolean | null
+          options?: Json | null
+          tenant_id?: string | null
+          text: string
+          text_ar?: string | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          ai_generated?: boolean | null
+          category_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_global?: boolean | null
+          options?: Json | null
+          tenant_id?: string | null
+          text?: string
+          text_ar?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "question_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "questions_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
