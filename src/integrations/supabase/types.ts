@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_generation_logs: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          focus_areas: Json | null
+          id: string
+          model_used: string | null
+          prompt_type: string
+          questions_approved: number | null
+          questions_generated: number | null
+          success: boolean | null
+          tenant_id: string | null
+          tokens_used: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          focus_areas?: Json | null
+          id?: string
+          model_used?: string | null
+          prompt_type: string
+          questions_approved?: number | null
+          questions_generated?: number | null
+          success?: boolean | null
+          tenant_id?: string | null
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          focus_areas?: Json | null
+          id?: string
+          model_used?: string | null
+          prompt_type?: string
+          questions_approved?: number | null
+          questions_generated?: number | null
+          success?: boolean | null
+          tenant_id?: string | null
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_generation_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -51,6 +104,80 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "audit_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_responses: {
+        Row: {
+          answer_text: string | null
+          answer_value: Json
+          created_at: string | null
+          device_type: string | null
+          employee_id: string
+          id: string
+          question_id: string
+          responded_at: string | null
+          response_time_seconds: number | null
+          scheduled_question_id: string | null
+          session_id: string | null
+          tenant_id: string
+        }
+        Insert: {
+          answer_text?: string | null
+          answer_value: Json
+          created_at?: string | null
+          device_type?: string | null
+          employee_id: string
+          id?: string
+          question_id: string
+          responded_at?: string | null
+          response_time_seconds?: number | null
+          scheduled_question_id?: string | null
+          session_id?: string | null
+          tenant_id: string
+        }
+        Update: {
+          answer_text?: string | null
+          answer_value?: Json
+          created_at?: string | null
+          device_type?: string | null
+          employee_id?: string
+          id?: string
+          question_id?: string
+          responded_at?: string | null
+          response_time_seconds?: number | null
+          scheduled_question_id?: string | null
+          session_id?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_responses_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_responses_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_responses_scheduled_question_id_fkey"
+            columns: ["scheduled_question_id"]
+            isOneToOne: false
+            referencedRelation: "scheduled_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_responses_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -269,6 +396,83 @@ export type Database = {
           },
         ]
       }
+      question_schedules: {
+        Row: {
+          active_categories: Json | null
+          avoid_holidays: boolean | null
+          avoid_weekends: boolean | null
+          created_at: string | null
+          created_by: string | null
+          custom_schedule: Json | null
+          deleted_at: string | null
+          description: string | null
+          enable_ai_generation: boolean | null
+          enable_validation: boolean | null
+          frequency: string
+          id: string
+          name: string
+          preferred_time: string | null
+          questions_per_delivery: number | null
+          status: string
+          target_audience: Json | null
+          tenant_id: string
+          timezone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          active_categories?: Json | null
+          avoid_holidays?: boolean | null
+          avoid_weekends?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          custom_schedule?: Json | null
+          deleted_at?: string | null
+          description?: string | null
+          enable_ai_generation?: boolean | null
+          enable_validation?: boolean | null
+          frequency?: string
+          id?: string
+          name: string
+          preferred_time?: string | null
+          questions_per_delivery?: number | null
+          status?: string
+          target_audience?: Json | null
+          tenant_id: string
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          active_categories?: Json | null
+          avoid_holidays?: boolean | null
+          avoid_weekends?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          custom_schedule?: Json | null
+          deleted_at?: string | null
+          description?: string | null
+          enable_ai_generation?: boolean | null
+          enable_validation?: boolean | null
+          frequency?: string
+          id?: string
+          name?: string
+          preferred_time?: string | null
+          questions_per_delivery?: number | null
+          status?: string
+          target_audience?: Json | null
+          tenant_id?: string
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_schedules_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       questions: {
         Row: {
           ai_generated: boolean | null
@@ -328,6 +532,77 @@ export type Database = {
           },
           {
             foreignKeyName: "questions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scheduled_questions: {
+        Row: {
+          actual_delivery: string | null
+          created_at: string | null
+          delivery_channel: string | null
+          employee_id: string
+          id: string
+          question_id: string
+          reminder_count: number | null
+          schedule_id: string
+          scheduled_delivery: string
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          actual_delivery?: string | null
+          created_at?: string | null
+          delivery_channel?: string | null
+          employee_id: string
+          id?: string
+          question_id: string
+          reminder_count?: number | null
+          schedule_id: string
+          scheduled_delivery: string
+          status?: string
+          tenant_id: string
+        }
+        Update: {
+          actual_delivery?: string | null
+          created_at?: string | null
+          delivery_channel?: string | null
+          employee_id?: string
+          id?: string
+          question_id?: string
+          reminder_count?: number | null
+          schedule_id?: string
+          scheduled_delivery?: string
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_questions_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_questions_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_questions_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "question_schedules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_questions_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -518,6 +793,64 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      validation_pairs: {
+        Row: {
+          created_at: string | null
+          expected_consistency_logic: string | null
+          id: string
+          is_active: boolean | null
+          primary_question_id: string
+          tenant_id: string | null
+          tolerance_threshold: number | null
+          validation_method: string | null
+          validation_question_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expected_consistency_logic?: string | null
+          id?: string
+          is_active?: boolean | null
+          primary_question_id: string
+          tenant_id?: string | null
+          tolerance_threshold?: number | null
+          validation_method?: string | null
+          validation_question_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expected_consistency_logic?: string | null
+          id?: string
+          is_active?: boolean | null
+          primary_question_id?: string
+          tenant_id?: string | null
+          tolerance_threshold?: number | null
+          validation_method?: string | null
+          validation_question_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "validation_pairs_primary_question_id_fkey"
+            columns: ["primary_question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "validation_pairs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "validation_pairs_validation_question_id_fkey"
+            columns: ["validation_question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

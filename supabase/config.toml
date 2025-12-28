@@ -1,1 +1,13 @@
 project_id = "eojxreaidrfmggglmspr"
+
+[functions.generate-questions]
+verify_jwt = true
+
+[functions.schedule-engine]
+verify_jwt = true
+
+[functions.deliver-questions]
+verify_jwt = false
+
+[functions.submit-response]
+verify_jwt = true
