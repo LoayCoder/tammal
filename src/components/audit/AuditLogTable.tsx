@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow, format } from 'date-fns';
 import { 
@@ -6,9 +7,16 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { 
   Plus, Edit, Trash2, ToggleLeft, RefreshCw, 
-  Building2, CreditCard, Users, Layers 
+  Building2, CreditCard, Users, Layers, Eye 
 } from 'lucide-react';
 import type { AuditLog } from '@/hooks/useAuditLog';
 
@@ -43,6 +51,7 @@ const actionColors: Record<string, string> = {
 
 export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTableProps) {
   const { t } = useTranslation();
+  const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
 
   const formatChanges = (changes: Record<string, any> | null) => {
     if (!changes || Object.keys(changes).length === 0) return '—';
@@ -98,7 +107,8 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
             return (
               <div 
                 key={log.id} 
-                className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+                onClick={() => setSelectedLog(log)}
               >
                 <div className={`p-2 rounded-full ${actionColors[log.action]}`}>
                   <ActionIcon className="h-4 w-4" />
@@ -126,6 +136,7 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
   }
 
   return (
+    <>
     <Table>
       <TableHeader>
         <TableRow>
@@ -141,7 +152,7 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
           const EntityIcon = entityIcons[log.entity_type] || Building2;
           
           return (
-            <TableRow key={log.id}>
+            <TableRow key={log.id} className="cursor-pointer hover:bg-accent/50" onClick={() => setSelectedLog(log)}>
               <TableCell>
                 <div className="flex items-center gap-2">
                   <Badge 
@@ -179,5 +190,96 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
         })}
       </TableBody>
     </Table>
+
+    <AuditLogDetailsModal 
+      log={selectedLog} 
+      open={!!selectedLog} 
+      onOpenChange={(open) => !open && setSelectedLog(null)} 
+    />
+  </>
+  );
+}
+
+interface AuditLogDetailsModalProps {
+  log: AuditLog | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+function AuditLogDetailsModal({ log, open, onOpenChange }: AuditLogDetailsModalProps) {
+  const { t } = useTranslation();
+
+  if (!log) return null;
+
+  const ActionIcon = actionIcons[log.action] || Edit;
+  const EntityIcon = entityIcons[log.entity_type] || Building2;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Eye className="h-5 w-5" />
+            {t('audit.logDetails')}
+          </DialogTitle>
+          <DialogDescription>
+            {format(new Date(log.created_at), 'PPpp')}
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 overflow-y-auto flex-1">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className={actionColors[log.action]}>
+                <ActionIcon className="h-3 w-3 me-1" />
+                {t(`audit.actions.${log.action}`)}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <EntityIcon className="h-4 w-4 text-muted-foreground" />
+              <span className="capitalize text-sm">
+                {t(`audit.entities.${log.entity_type}`)}
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium">{t('audit.entityId')}</h4>
+            <code className="block p-2 bg-muted rounded text-xs font-mono break-all">
+              {log.entity_id}
+            </code>
+          </div>
+
+          {log.user_id && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">{t('audit.userId')}</h4>
+              <code className="block p-2 bg-muted rounded text-xs font-mono break-all">
+                {log.user_id}
+              </code>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium">{t('audit.changes')}</h4>
+            <ScrollArea className="h-[200px] rounded border">
+              <pre className="p-4 text-xs font-mono whitespace-pre-wrap break-all">
+                {JSON.stringify(log.changes, null, 2)}
+              </pre>
+            </ScrollArea>
+          </div>
+
+          {log.metadata && Object.keys(log.metadata as object).length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">{t('audit.metadata')}</h4>
+              <ScrollArea className="h-[100px] rounded border">
+                <pre className="p-4 text-xs font-mono whitespace-pre-wrap break-all">
+                  {JSON.stringify(log.metadata, null, 2)}
+                </pre>
+              </ScrollArea>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

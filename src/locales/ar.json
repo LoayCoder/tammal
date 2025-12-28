@@ -186,7 +186,11 @@
       "subscription": "الاشتراك",
       "user": "المستخدم",
       "plan": "الباقة"
-    }
+    },
+    "logDetails": "تفاصيل السجل",
+    "entityId": "معرف الكيان",
+    "userId": "معرف المستخدم",
+    "metadata": "البيانات الوصفية"
   },
   "tenantDashboard": {
     "notFound": "المستأجر غير موجود",
