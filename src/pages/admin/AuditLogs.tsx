@@ -4,17 +4,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Search, Filter, History, RefreshCw } from 'lucide-react';
-import { useAuditLog } from '@/hooks/useAuditLog';
+import { Search, Filter, History, RefreshCw, Download } from 'lucide-react';
+import { useAuditLog, AuditLog } from '@/hooks/useAuditLog';
 import { useTenants } from '@/hooks/useTenants';
 import { AuditLogTable } from '@/components/audit/AuditLogTable';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 export default function AuditLogs() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [selectedTenant, setSelectedTenant] = useState<string>('all');
   const [actionFilter, setActionFilter] = useState<string>('all');
+  const [entityFilter, setEntityFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   const { tenants } = useTenants();
@@ -25,6 +27,9 @@ export default function AuditLogs() {
 
   const filteredLogs = logs.filter(log => {
     if (actionFilter !== 'all' && log.action !== actionFilter) {
+      return false;
+    }
+    if (entityFilter !== 'all' && log.entity_type !== entityFilter) {
       return false;
     }
     if (searchQuery) {
@@ -41,6 +46,41 @@ export default function AuditLogs() {
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ['audit-logs'] });
+  };
+
+  const exportToCSV = () => {
+    if (filteredLogs.length === 0) {
+      toast.error(t('audit.noDataToExport'));
+      return;
+    }
+
+    const headers = ['Date', 'Entity Type', 'Entity ID', 'Action', 'Changes', 'User ID', 'Tenant ID'];
+    const rows = filteredLogs.map((log: AuditLog) => [
+      new Date(log.created_at).toLocaleString(),
+      log.entity_type,
+      log.entity_id,
+      log.action,
+      JSON.stringify(log.changes || {}),
+      log.user_id || '',
+      log.tenant_id || ''
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `audit-logs-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast.success(t('audit.exportSuccess'));
   };
 
   return (
@@ -63,10 +103,16 @@ export default function AuditLogs() {
               </CardTitle>
               <CardDescription>{t('audit.filterDescription')}</CardDescription>
             </div>
-            <Button variant="outline" size="sm" onClick={handleRefresh}>
-              <RefreshCw className="h-4 w-4 me-2" />
-              {t('audit.refresh')}
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={exportToCSV}>
+                <Download className="h-4 w-4 me-2" />
+                {t('audit.export')}
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleRefresh}>
+                <RefreshCw className="h-4 w-4 me-2" />
+                {t('audit.refresh')}
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -91,6 +137,18 @@ export default function AuditLogs() {
                     {tenant.name}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+            <Select value={entityFilter} onValueChange={setEntityFilter}>
+              <SelectTrigger className="w-full md:w-[160px]">
+                <SelectValue placeholder={t('audit.selectEntity')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('common.all')}</SelectItem>
+                <SelectItem value="tenant">{t('audit.entities.tenant')}</SelectItem>
+                <SelectItem value="subscription">{t('audit.entities.subscription')}</SelectItem>
+                <SelectItem value="plan">{t('audit.entities.plan')}</SelectItem>
+                <SelectItem value="user">{t('audit.entities.user')}</SelectItem>
               </SelectContent>
             </Select>
             <Select value={actionFilter} onValueChange={setActionFilter}>
