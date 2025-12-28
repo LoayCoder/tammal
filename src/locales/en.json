@@ -186,7 +186,11 @@
       "subscription": "Subscription",
       "user": "User",
       "plan": "Plan"
-    }
+    },
+    "logDetails": "Log Details",
+    "entityId": "Entity ID",
+    "userId": "User ID",
+    "metadata": "Metadata"
   },
   "tenantDashboard": {
     "notFound": "Tenant not found",
