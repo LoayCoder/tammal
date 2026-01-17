@@ -51,9 +51,9 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => navigate('/profile')}>
+        <DropdownMenuItem onClick={() => navigate('/settings/profile')}>
           <User className="me-2 h-4 w-4" />
-          <span>Profile</span>
+          <span>{t('profile.title')}</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate('/settings')}>
           <Settings className="me-2 h-4 w-4" />
