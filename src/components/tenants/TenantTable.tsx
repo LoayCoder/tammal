@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Trash2, Settings2, BarChart3 } from 'lucide-react';
+import { MoreHorizontal, Trash2, Settings2, BarChart3, Eye } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TenantStatusBadge } from './TenantStatusBadge';
 import type { Tenant } from '@/hooks/useTenants';
@@ -32,9 +32,10 @@ interface TenantTableProps {
   isLoading: boolean;
   onEdit: (tenant: Tenant) => void;
   onDelete: (id: string) => void;
+  onViewDetails?: (tenant: Tenant) => void;
 }
 
-export function TenantTable({ tenants, isLoading, onEdit, onDelete }: TenantTableProps) {
+export function TenantTable({ tenants, isLoading, onEdit, onDelete, onViewDetails }: TenantTableProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -76,7 +77,7 @@ export function TenantTable({ tenants, isLoading, onEdit, onDelete }: TenantTabl
               </div>
             </TableCell>
             <TableCell className="text-muted-foreground font-mono text-sm">
-              {tenant.slug || '-'}
+              {(tenant as any).slug || '-'}
             </TableCell>
             <TableCell>
               {tenant.plan ? (
@@ -99,6 +100,12 @@ export function TenantTable({ tenants, isLoading, onEdit, onDelete }: TenantTabl
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  {onViewDetails && (
+                    <DropdownMenuItem onClick={() => onViewDetails(tenant)}>
+                      <Eye className="me-2 h-4 w-4" />
+                      {t('tenants.viewDetails')}
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={() => navigate(`/admin/tenants/${tenant.id}`)}>
                     <BarChart3 className="me-2 h-4 w-4" />
                     {t('tenants.viewDashboard')}

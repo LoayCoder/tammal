@@ -24,6 +24,8 @@ import {
 import { useTenants, type Tenant } from '@/hooks/useTenants';
 import { TenantTable } from '@/components/tenants/TenantTable';
 import { TenantSheet } from '@/components/tenants/TenantSheet';
+import { TenantDetailDialog } from '@/components/tenants/TenantDetailDialog';
+import type { SecuritySettings } from '@/components/tenants/TenantSecurityControl';
 
 const TENANT_STATUSES = ['all', 'active', 'trial', 'suspended', 'inactive'] as const;
 
@@ -38,11 +40,19 @@ export default function TenantManagement() {
     isCreating,
     isUpdating,
     isDeleting,
+    startTrial,
+    extendTrial,
+    endTrial,
+    isTrialUpdating,
+    updateSecuritySettings,
+    isSecurityUpdating,
   } = useTenants();
 
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
+  const [detailTenant, setDetailTenant] = useState<Tenant | null>(null);
   const [tenantToDelete, setTenantToDelete] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -67,6 +77,11 @@ export default function TenantManagement() {
     setSheetOpen(true);
   };
 
+  const handleViewDetails = (tenant: Tenant) => {
+    setDetailTenant(tenant);
+    setDetailDialogOpen(true);
+  };
+
   const handleDelete = (id: string) => {
     setTenantToDelete(id);
     setDeleteDialogOpen(true);
@@ -87,6 +102,24 @@ export default function TenantManagement() {
       createTenant(data);
     }
     setSheetOpen(false);
+  };
+
+  const handleUpdateTrial = (tenantId: string, action: 'start' | 'extend' | 'end', params?: any) => {
+    switch (action) {
+      case 'start':
+        startTrial({ tenantId, days: params.days });
+        break;
+      case 'extend':
+        extendTrial({ tenantId, ...params });
+        break;
+      case 'end':
+        endTrial(tenantId);
+        break;
+    }
+  };
+
+  const handleUpdateSecurity = (tenantId: string, settings: SecuritySettings) => {
+    updateSecuritySettings({ tenantId, settings });
   };
 
   return (
@@ -137,6 +170,7 @@ export default function TenantManagement() {
             isLoading={isLoading}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onViewDetails={handleViewDetails}
           />
         </CardContent>
       </Card>
@@ -147,6 +181,15 @@ export default function TenantManagement() {
         tenant={selectedTenant}
         onSubmit={handleSubmit}
         isSubmitting={isCreating || isUpdating}
+      />
+
+      <TenantDetailDialog
+        open={detailDialogOpen}
+        onOpenChange={setDetailDialogOpen}
+        tenant={detailTenant}
+        onUpdateTrial={handleUpdateTrial}
+        onUpdateSecurity={handleUpdateSecurity}
+        isUpdating={isTrialUpdating || isSecurityUpdating}
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
