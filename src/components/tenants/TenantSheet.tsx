@@ -198,18 +198,18 @@ export function TenantSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <Tabs defaultValue="general" className="mt-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="general">{t('tenants.generalTab')}</TabsTrigger>
-            <TabsTrigger value="contact">{t('tenants.contactTab')}</TabsTrigger>
-            <TabsTrigger value="security">{t('tenants.securityTab')}</TabsTrigger>
-            <TabsTrigger value="modules">{t('tenants.modulesTab')}</TabsTrigger>
-            <TabsTrigger value="branding">{t('branding.title')}</TabsTrigger>
-          </TabsList>
+        <Form {...form}>
+          <form id="tenant-form" onSubmit={form.handleSubmit(handleSubmit)}>
+            <Tabs defaultValue="general" className="mt-6">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="general">{t('tenants.generalTab')}</TabsTrigger>
+                <TabsTrigger value="contact">{t('tenants.contactTab')}</TabsTrigger>
+                <TabsTrigger value="security">{t('tenants.securityTab')}</TabsTrigger>
+                <TabsTrigger value="modules">{t('tenants.modulesTab')}</TabsTrigger>
+                <TabsTrigger value="branding">{t('branding.title')}</TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="general" className="mt-4">
-            <Form {...form}>
-              <form id="tenant-form" onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+              <TabsContent value="general" className="mt-4 space-y-4">
                 <FormField
                   control={form.control}
                   name="name"
@@ -306,26 +306,26 @@ export function TenantSheet({
                     </FormItem>
                   )}
                 />
-              </form>
-            </Form>
-          </TabsContent>
+              </TabsContent>
 
-          <TabsContent value="contact" className="mt-4">
-            <TenantContactTab form={form} />
-          </TabsContent>
+              <TabsContent value="contact" className="mt-4">
+                <TenantContactTab form={form} />
+              </TabsContent>
 
-          <TabsContent value="security" className="mt-4">
-            <TenantSecurityControl settings={security} onChange={setSecurity} />
-          </TabsContent>
+              <TabsContent value="security" className="mt-4">
+                <TenantSecurityControl settings={security} onChange={setSecurity} />
+              </TabsContent>
 
-          <TabsContent value="modules" className="mt-4">
-            <TenantModuleControl settings={settings} onChange={setSettings} />
-          </TabsContent>
+              <TabsContent value="modules" className="mt-4">
+                <TenantModuleControl settings={settings} onChange={setSettings} />
+              </TabsContent>
 
-          <TabsContent value="branding" className="mt-4">
-            <TenantBrandingTab branding={branding} onChange={setBranding} />
-          </TabsContent>
-        </Tabs>
+              <TabsContent value="branding" className="mt-4">
+                <TenantBrandingTab branding={branding} onChange={setBranding} />
+              </TabsContent>
+            </Tabs>
+          </form>
+        </Form>
 
         <SheetFooter className="mt-6">
           <Button
