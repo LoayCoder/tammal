@@ -259,14 +259,17 @@ export function TenantSheet({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t('tenants.plan')}</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ''}>
+                      <Select 
+                        onValueChange={(val) => field.onChange(val === '_none' ? '' : val)} 
+                        value={field.value || '_none'}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder={t('tenants.selectPlan')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">{t('tenants.noPlan')}</SelectItem>
+                          <SelectItem value="_none">{t('tenants.noPlan')}</SelectItem>
                           {activePlans.map((plan) => (
                             <SelectItem key={plan.id} value={plan.id}>
                               {plan.name}
