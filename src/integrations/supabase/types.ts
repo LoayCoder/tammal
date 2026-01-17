@@ -331,6 +331,39 @@ export type Database = {
           },
         ]
       }
+      permissions: {
+        Row: {
+          category: string
+          code: string
+          created_at: string | null
+          description: string | null
+          description_ar: string | null
+          id: string
+          name: string
+          name_ar: string | null
+        }
+        Insert: {
+          category: string
+          code: string
+          created_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          name: string
+          name_ar?: string | null
+        }
+        Update: {
+          category?: string
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          name?: string
+          name_ar?: string | null
+        }
+        Relationships: []
+      }
       plans: {
         Row: {
           billing_period: string
@@ -609,6 +642,95 @@ export type Database = {
           },
           {
             foreignKeyName: "questions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_permissions: {
+        Row: {
+          created_at: string | null
+          id: string
+          permission_id: string
+          role_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          permission_id: string
+          role_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          permission_id?: string
+          role_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_permissions_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      roles: {
+        Row: {
+          base_role: Database["public"]["Enums"]["app_role"] | null
+          color: string | null
+          created_at: string | null
+          deleted_at: string | null
+          description: string | null
+          description_ar: string | null
+          id: string
+          is_system_role: boolean | null
+          name: string
+          name_ar: string | null
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          base_role?: Database["public"]["Enums"]["app_role"] | null
+          color?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          is_system_role?: boolean | null
+          name: string
+          name_ar?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          base_role?: Database["public"]["Enums"]["app_role"] | null
+          color?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          is_system_role?: boolean | null
+          name?: string
+          name_ar?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roles_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -913,23 +1035,34 @@ export type Database = {
       user_roles: {
         Row: {
           created_at: string
+          custom_role_id: string | null
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
           created_at?: string
+          custom_role_id?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
           created_at?: string
+          custom_role_id?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_custom_role_id_fkey"
+            columns: ["custom_role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       validation_pairs: {
         Row: {
@@ -995,6 +1128,10 @@ export type Database = {
     }
     Functions: {
       get_user_tenant_id: { Args: { _user_id: string }; Returns: string }
+      has_permission: {
+        Args: { _permission_code: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
