@@ -66,7 +66,7 @@ export default function AIQuestionGenerator() {
         text_ar: question.text_ar,
         type: question.type,
         category_id: category?.id,
-        options: question.options || [],
+        options: question.options?.map(opt => opt.text) || null,
         is_active: true,
         ai_generated: true,
       });
