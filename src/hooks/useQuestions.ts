@@ -34,9 +34,10 @@ export interface CreateQuestionInput {
   text_ar?: string;
   type: QuestionType;
   category_id?: string;
-  options?: string[];
+  options?: string[] | null;
   is_global?: boolean;
   is_active?: boolean;
+  ai_generated?: boolean;
   tenant_id?: string;
 }
 

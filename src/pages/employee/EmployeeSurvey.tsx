@@ -129,7 +129,7 @@ export default function EmployeeSurvey() {
             />
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>1</span>
-              <span className="text-2xl font-bold text-primary">{answer || 5}</span>
+              <span className="text-2xl font-bold text-primary">{String(answer ?? 5)}</span>
               <span>10</span>
             </div>
           </div>
