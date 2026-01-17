@@ -23,6 +23,9 @@ import AuditLogs from "@/pages/admin/AuditLogs";
 import QuestionManagement from "@/pages/admin/QuestionManagement";
 import CategoryManagement from "@/pages/admin/CategoryManagement";
 import EmployeeManagement from "@/pages/admin/EmployeeManagement";
+import AIQuestionGenerator from "@/pages/admin/AIQuestionGenerator";
+import ScheduleManagement from "@/pages/admin/ScheduleManagement";
+import EmployeeSurvey from "@/pages/employee/EmployeeSurvey";
 
 const queryClient = new QueryClient();
 
@@ -35,14 +38,17 @@ const App = () => (
         <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route path="/install" element={<InstallApp />} />
+          <Route path="/employee/survey" element={<EmployeeSurvey />} />
           <Route element={<MainLayout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/admin/tenants" element={<TenantManagement />} />
             <Route path="/admin/tenants/:id" element={<TenantDashboard />} />
             <Route path="/admin/audit-logs" element={<AuditLogs />} />
             <Route path="/admin/questions" element={<QuestionManagement />} />
+            <Route path="/admin/questions/generate" element={<AIQuestionGenerator />} />
             <Route path="/admin/question-categories" element={<CategoryManagement />} />
             <Route path="/admin/employees" element={<EmployeeManagement />} />
+            <Route path="/admin/schedules" element={<ScheduleManagement />} />
             <Route path="/admin/plans" element={<PlanManagement />} />
             <Route path="/admin/subscriptions" element={<SubscriptionManagement />} />
             <Route path="/admin/users" element={<UserManagement />} />

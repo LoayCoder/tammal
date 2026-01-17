@@ -2,7 +2,7 @@ import {
   Users, Building2, CreditCard, 
   HelpCircle, Palette, FileText, LayoutDashboard,
   Layers, BarChart3, Network, Building, Download, History,
-  MessageSquare, Tags, UserCheck
+  MessageSquare, Tags, UserCheck, Sparkles, Calendar, ClipboardList
 } from 'lucide-react';
 import {
   Sidebar,
@@ -47,8 +47,11 @@ export function AppSidebar() {
       label: t('nav.surveySystem'),
       items: [
         { title: t('nav.questions'), url: "/admin/questions", icon: MessageSquare },
+        { title: t('nav.aiGenerator'), url: "/admin/questions/generate", icon: Sparkles },
+        { title: t('nav.schedules'), url: "/admin/schedules", icon: Calendar },
         { title: t('nav.categories'), url: "/admin/question-categories", icon: Tags },
         { title: t('nav.employees'), url: "/admin/employees", icon: UserCheck },
+        { title: t('nav.employeeSurvey'), url: "/employee/survey", icon: ClipboardList },
       ]
     },
     {
