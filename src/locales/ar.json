@@ -806,5 +806,23 @@
       "skipped": "تم التخطي",
       "expired": "منتهي الصلاحية"
     }
+  },
+  "profile": {
+    "title": "ملفي الشخصي",
+    "description": "عرض معلومات حسابك وأدوارك وصلاحياتك",
+    "accountInfo": "معلومات الحساب",
+    "accountInfoDescription": "تفاصيل حسابك الشخصي",
+    "yourRoles": "أدوارك",
+    "rolesDescription": "الأدوار المخصصة لحسابك",
+    "yourPermissions": "صلاحياتك",
+    "permissionsDescription": "الصلاحيات الممنوحة من خلال أدوارك",
+    "allPermissionsGranted": "لديك صلاحيات المسؤول الأعلى - جميع الصلاحيات ممنوحة",
+    "memberSince": "عضو منذ",
+    "lastSignIn": "آخر تسجيل دخول",
+    "noName": "لم يتم تعيين اسم",
+    "noRoles": "لا توجد أدوار مخصصة",
+    "noPermissions": "لا توجد صلاحيات مخصصة",
+    "superAdmin": "مسؤول أعلى",
+    "superAdminDescription": "لديك وصول إداري كامل لجميع ميزات النظام"
   }
 }

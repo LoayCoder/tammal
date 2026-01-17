@@ -806,5 +806,23 @@
       "skipped": "Skipped",
       "expired": "Expired"
     }
+  },
+  "profile": {
+    "title": "My Profile",
+    "description": "View your account information, roles, and permissions",
+    "accountInfo": "Account Information",
+    "accountInfoDescription": "Your personal account details",
+    "yourRoles": "Your Roles",
+    "rolesDescription": "Roles assigned to your account",
+    "yourPermissions": "Your Permissions",
+    "permissionsDescription": "Permissions granted through your roles",
+    "allPermissionsGranted": "You have super admin access - all permissions are granted",
+    "memberSince": "Member Since",
+    "lastSignIn": "Last Sign In",
+    "noName": "No name set",
+    "noRoles": "No roles assigned",
+    "noPermissions": "No permissions assigned",
+    "superAdmin": "Super Admin",
+    "superAdminDescription": "You have full administrative access to all system features"
   }
 }

@@ -15,6 +15,7 @@ import OrgStructure from "@/pages/admin/OrgStructure";
 import AdminBranding from "@/pages/admin/AdminBranding";
 import DocumentSettings from "@/pages/admin/DocumentSettings";
 import UsageBilling from "@/pages/settings/UsageBilling";
+import UserProfile from "@/pages/settings/UserProfile";
 import Support from "@/pages/Support";
 import InstallApp from "@/pages/InstallApp";
 import NotFound from "@/pages/NotFound";
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="/admin/branding" element={<AdminBranding />} />
             <Route path="/admin/docs" element={<DocumentSettings />} />
             <Route path="/settings/usage" element={<UsageBilling />} />
+            <Route path="/settings/profile" element={<UserProfile />} />
             <Route path="/support" element={<Support />} />
           </Route>
           <Route path="*" element={<NotFound />} />
