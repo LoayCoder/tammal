@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 import type { Plan } from './usePlans';
 import { useAuditLog } from './useAuditLog';
+import { addDays } from 'date-fns';
+import type { SecuritySettings } from '@/components/tenants/TenantSecurityControl';
 
 export type Tenant = Tables<'tenants'> & {
   plan?: Plan | null;
@@ -163,6 +165,123 @@ export function useTenants() {
     },
   });
 
+  // Trial Management
+  const startTrialMutation = useMutation({
+    mutationFn: async ({ tenantId, days }: { tenantId: string; days: number }) => {
+      const now = new Date();
+      const endDate = addDays(now, days);
+
+      const { data, error } = await supabase
+        .from('tenants')
+        .update({
+          subscription_status: 'trialing',
+          trial_start_date: now.toISOString(),
+          trial_end_date: endDate.toISOString(),
+        } as any)
+        .eq('id', tenantId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tenants-full'] });
+      toast.success(t('tenants.trialStarted'));
+    },
+    onError: (error) => {
+      toast.error(t('tenants.updateError'));
+      console.error('Start trial error:', error);
+    },
+  });
+
+  const extendTrialMutation = useMutation({
+    mutationFn: async ({ tenantId, days, endDate }: { tenantId: string; days?: number; endDate?: string }) => {
+      // Get current trial end date
+      const { data: tenant } = await supabase
+        .from('tenants')
+        .select('trial_end_date')
+        .eq('id', tenantId)
+        .single();
+
+      let newEndDate: Date;
+      if (endDate) {
+        newEndDate = new Date(endDate);
+      } else if (days && tenant?.trial_end_date) {
+        newEndDate = addDays(new Date(tenant.trial_end_date), days);
+      } else {
+        throw new Error('Either days or endDate must be provided');
+      }
+
+      const { data, error } = await supabase
+        .from('tenants')
+        .update({
+          trial_end_date: newEndDate.toISOString(),
+        } as any)
+        .eq('id', tenantId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tenants-full'] });
+      toast.success(t('tenants.trialExtended'));
+    },
+    onError: (error) => {
+      toast.error(t('tenants.updateError'));
+      console.error('Extend trial error:', error);
+    },
+  });
+
+  const endTrialMutation = useMutation({
+    mutationFn: async (tenantId: string) => {
+      const { data, error } = await supabase
+        .from('tenants')
+        .update({
+          subscription_status: 'inactive',
+        } as any)
+        .eq('id', tenantId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tenants-full'] });
+      toast.success(t('tenants.trialEnded'));
+    },
+    onError: (error) => {
+      toast.error(t('tenants.updateError'));
+      console.error('End trial error:', error);
+    },
+  });
+
+  // Security Settings
+  const updateSecurityMutation = useMutation({
+    mutationFn: async ({ tenantId, settings }: { tenantId: string; settings: SecuritySettings }) => {
+      const { data, error } = await supabase
+        .from('tenants')
+        .update(settings as any)
+        .eq('id', tenantId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tenants-full'] });
+      toast.success(t('tenants.updateSuccess'));
+    },
+    onError: (error) => {
+      toast.error(t('tenants.updateError'));
+      console.error('Update security error:', error);
+    },
+  });
+
   return {
     tenants: tenantsQuery.data ?? [],
     isLoading: tenantsQuery.isLoading,
@@ -173,5 +292,13 @@ export function useTenants() {
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
+    // Trial management
+    startTrial: startTrialMutation.mutate,
+    extendTrial: extendTrialMutation.mutate,
+    endTrial: endTrialMutation.mutate,
+    isTrialUpdating: startTrialMutation.isPending || extendTrialMutation.isPending || endTrialMutation.isPending,
+    // Security settings
+    updateSecuritySettings: updateSecurityMutation.mutate,
+    isSecurityUpdating: updateSecurityMutation.isPending,
   };
 }
