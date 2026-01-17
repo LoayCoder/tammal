@@ -254,6 +254,83 @@ export type Database = {
           },
         ]
       }
+      invitations: {
+        Row: {
+          branch_id: string | null
+          code: string
+          created_at: string | null
+          created_by: string | null
+          deleted_at: string | null
+          delivery_channel: string | null
+          delivery_status: string | null
+          email: string
+          email_sent_at: string | null
+          expires_at: string
+          full_name: string | null
+          id: string
+          last_send_error: string | null
+          metadata: Json | null
+          phone_number: string | null
+          tenant_id: string
+          used: boolean | null
+          used_at: string | null
+          used_by: string | null
+          whatsapp_sent_at: string | null
+        }
+        Insert: {
+          branch_id?: string | null
+          code: string
+          created_at?: string | null
+          created_by?: string | null
+          deleted_at?: string | null
+          delivery_channel?: string | null
+          delivery_status?: string | null
+          email: string
+          email_sent_at?: string | null
+          expires_at: string
+          full_name?: string | null
+          id?: string
+          last_send_error?: string | null
+          metadata?: Json | null
+          phone_number?: string | null
+          tenant_id: string
+          used?: boolean | null
+          used_at?: string | null
+          used_by?: string | null
+          whatsapp_sent_at?: string | null
+        }
+        Update: {
+          branch_id?: string | null
+          code?: string
+          created_at?: string | null
+          created_by?: string | null
+          deleted_at?: string | null
+          delivery_channel?: string | null
+          delivery_status?: string | null
+          email?: string
+          email_sent_at?: string | null
+          expires_at?: string
+          full_name?: string | null
+          id?: string
+          last_send_error?: string | null
+          metadata?: Json | null
+          phone_number?: string | null
+          tenant_id?: string
+          used?: boolean | null
+          used_at?: string | null
+          used_by?: string | null
+          whatsapp_sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plans: {
         Row: {
           billing_period: string
@@ -725,43 +802,103 @@ export type Database = {
       }
       tenants: {
         Row: {
+          billing_email: string | null
           branding_config: Json | null
+          city: string | null
+          contact_email: string | null
+          contact_person: string | null
+          contact_phone: string | null
+          country: string | null
+          cr_number: string | null
           created_at: string
           deleted_at: string | null
           domain: string | null
+          employee_count: number | null
+          glass_break_active: boolean | null
           id: string
+          industry: string | null
+          max_concurrent_sessions: number | null
+          max_users_override: number | null
+          mfa_trust_duration_days: number | null
           name: string
+          notes: string | null
           plan_id: string | null
+          preferred_currency: string | null
+          session_timeout_minutes: number | null
           settings: Json | null
           slug: string | null
           status: Database["public"]["Enums"]["tenant_status"]
+          subscription_status: string | null
+          trial_end_date: string | null
+          trial_start_date: string | null
           updated_at: string
+          vat_number: string | null
         }
         Insert: {
+          billing_email?: string | null
           branding_config?: Json | null
+          city?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          cr_number?: string | null
           created_at?: string
           deleted_at?: string | null
           domain?: string | null
+          employee_count?: number | null
+          glass_break_active?: boolean | null
           id?: string
+          industry?: string | null
+          max_concurrent_sessions?: number | null
+          max_users_override?: number | null
+          mfa_trust_duration_days?: number | null
           name: string
+          notes?: string | null
           plan_id?: string | null
+          preferred_currency?: string | null
+          session_timeout_minutes?: number | null
           settings?: Json | null
           slug?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
+          subscription_status?: string | null
+          trial_end_date?: string | null
+          trial_start_date?: string | null
           updated_at?: string
+          vat_number?: string | null
         }
         Update: {
+          billing_email?: string | null
           branding_config?: Json | null
+          city?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          cr_number?: string | null
           created_at?: string
           deleted_at?: string | null
           domain?: string | null
+          employee_count?: number | null
+          glass_break_active?: boolean | null
           id?: string
+          industry?: string | null
+          max_concurrent_sessions?: number | null
+          max_users_override?: number | null
+          mfa_trust_duration_days?: number | null
           name?: string
+          notes?: string | null
           plan_id?: string | null
+          preferred_currency?: string | null
+          session_timeout_minutes?: number | null
           settings?: Json | null
           slug?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
+          subscription_status?: string | null
+          trial_end_date?: string | null
+          trial_start_date?: string | null
           updated_at?: string
+          vat_number?: string | null
         }
         Relationships: [
           {
