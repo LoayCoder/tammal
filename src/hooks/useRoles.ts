@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { useAuditLog } from './useAuditLog';
 
 export interface Role {
   id: string;
@@ -41,6 +42,7 @@ export interface UpdateRoleInput {
 export function useRoles(tenantId?: string) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { logEvent } = useAuditLog();
 
   const rolesQuery = useQuery({
     queryKey: ['roles', tenantId],
@@ -80,9 +82,18 @@ export function useRoles(tenantId?: string) {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['roles'] });
       toast.success(t('roles.createSuccess'));
+      
+      logEvent({
+        tenant_id: data.tenant_id,
+        entity_type: 'role',
+        entity_id: data.id,
+        action: 'create',
+        changes: { after: data },
+        metadata: { role_name: data.name },
+      });
     },
     onError: (error) => {
       toast.error(t('roles.createError'));
@@ -93,6 +104,14 @@ export function useRoles(tenantId?: string) {
   const updateRole = useMutation({
     mutationFn: async (input: UpdateRoleInput) => {
       const { id, ...updates } = input;
+      
+      // Fetch before state for audit
+      const { data: before } = await supabase
+        .from('roles')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
       const { data, error } = await supabase
         .from('roles')
         .update({
@@ -104,11 +123,20 @@ export function useRoles(tenantId?: string) {
         .single();
 
       if (error) throw error;
-      return data;
+      return { data, before };
     },
-    onSuccess: () => {
+    onSuccess: ({ data, before }) => {
       queryClient.invalidateQueries({ queryKey: ['roles'] });
       toast.success(t('roles.updateSuccess'));
+      
+      logEvent({
+        tenant_id: data.tenant_id,
+        entity_type: 'role',
+        entity_id: data.id,
+        action: 'update',
+        changes: { before, after: data },
+        metadata: { role_name: data.name },
+      });
     },
     onError: (error) => {
       toast.error(t('roles.updateError'));
@@ -118,16 +146,33 @@ export function useRoles(tenantId?: string) {
 
   const deleteRole = useMutation({
     mutationFn: async (roleId: string) => {
+      // Fetch before state for audit
+      const { data: before } = await supabase
+        .from('roles')
+        .select('*')
+        .eq('id', roleId)
+        .single();
+      
       const { error } = await supabase
         .from('roles')
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', roleId);
 
       if (error) throw error;
+      return { roleId, before };
     },
-    onSuccess: () => {
+    onSuccess: ({ roleId, before }) => {
       queryClient.invalidateQueries({ queryKey: ['roles'] });
       toast.success(t('roles.deleteSuccess'));
+      
+      logEvent({
+        tenant_id: before?.tenant_id,
+        entity_type: 'role',
+        entity_id: roleId,
+        action: 'delete',
+        changes: { before },
+        metadata: { role_name: before?.name },
+      });
     },
     onError: (error) => {
       toast.error(t('roles.deleteError'));

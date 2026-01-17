@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { useAuditLog } from './useAuditLog';
 
 export interface Permission {
   id: string;
@@ -67,6 +68,7 @@ export function usePermissions() {
 export function useRolePermissions(roleId?: string) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { logEvent } = useAuditLog();
 
   const rolePermissionsQuery = useQuery({
     queryKey: ['role-permissions', roleId],
@@ -127,6 +129,14 @@ export function useRolePermissions(roleId?: string) {
 
   const updateRolePermissions = useMutation({
     mutationFn: async ({ roleId, permissionIds }: { roleId: string; permissionIds: string[] }) => {
+      // Fetch before state for audit
+      const { data: beforePerms } = await supabase
+        .from('role_permissions')
+        .select('permission_id')
+        .eq('role_id', roleId);
+      
+      const beforePermissionIds = beforePerms?.map(p => p.permission_id) ?? [];
+      
       // Delete all existing permissions for this role
       const { error: deleteError } = await supabase
         .from('role_permissions')
@@ -143,10 +153,28 @@ export function useRolePermissions(roleId?: string) {
 
         if (insertError) throw insertError;
       }
+      
+      return { roleId, beforePermissionIds, afterPermissionIds: permissionIds };
     },
-    onSuccess: () => {
+    onSuccess: ({ roleId, beforePermissionIds, afterPermissionIds }) => {
       queryClient.invalidateQueries({ queryKey: ['role-permissions'] });
       toast.success(t('permissions.updateSuccess'));
+      
+      logEvent({
+        entity_type: 'permission',
+        entity_id: roleId,
+        action: 'permission_change',
+        changes: { 
+          before: beforePermissionIds, 
+          after: afterPermissionIds,
+          added: afterPermissionIds.filter(id => !beforePermissionIds.includes(id)),
+          removed: beforePermissionIds.filter(id => !afterPermissionIds.includes(id)),
+        },
+        metadata: { 
+          role_id: roleId,
+          permissions_count: afterPermissionIds.length,
+        },
+      });
     },
     onError: (error) => {
       toast.error(t('permissions.updateError'));
