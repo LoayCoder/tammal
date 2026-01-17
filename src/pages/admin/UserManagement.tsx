@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Search, Users, Shield, Key } from 'lucide-react';
+import { Plus, Search, Users, Shield, UserPlus } from 'lucide-react';
 import { useUsers, type UserWithRoles } from '@/hooks/useUsers';
 import { useRoles, type Role, type CreateRoleInput, type UpdateRoleInput } from '@/hooks/useRoles';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,6 +13,7 @@ import { UserRoleDialog } from '@/components/users/UserRoleDialog';
 import { RoleTable } from '@/components/roles/RoleTable';
 import { RoleDialog } from '@/components/roles/RoleDialog';
 import { PermissionMatrix } from '@/components/roles/PermissionMatrix';
+import { InviteUserDialog } from '@/components/users/InviteUserDialog';
 
 export default function UserManagement() {
   const { t } = useTranslation();
@@ -24,6 +25,7 @@ export default function UserManagement() {
   const [userSearch, setUserSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserWithRoles | null>(null);
   const [isUserRoleDialogOpen, setIsUserRoleDialogOpen] = useState(false);
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
@@ -109,6 +111,10 @@ export default function UserManagement() {
                       className="ps-9 w-[250px]"
                     />
                   </div>
+                  <Button onClick={() => setIsInviteDialogOpen(true)}>
+                    <UserPlus className="me-2 h-4 w-4" />
+                    {t('users.inviteUser')}
+                  </Button>
                 </div>
               </div>
             </CardHeader>
@@ -171,6 +177,12 @@ export default function UserManagement() {
         open={isPermissionMatrixOpen}
         onOpenChange={setIsPermissionMatrixOpen}
         role={selectedRole}
+      />
+
+      <InviteUserDialog
+        open={isInviteDialogOpen}
+        onOpenChange={setIsInviteDialogOpen}
+        tenantId={tenantId}
       />
     </div>
   );

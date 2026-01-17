@@ -422,7 +422,11 @@
     "roleRemoveSuccess": "Role removed successfully",
     "roleRemoveError": "Failed to remove role",
     "roleUpdateSuccess": "Role updated successfully",
-    "roleUpdateError": "Failed to update role"
+    "roleUpdateError": "Failed to update role",
+    "inviteUser": "Invite User",
+    "inviteUserDescription": "Send an invitation to join this workspace",
+    "preAssignRoles": "Pre-assign Roles",
+    "preAssignRolesHint": "Roles will be assigned when user accepts invitation"
   },
   "roles": {
     "title": "Roles",
@@ -466,7 +470,9 @@
     "removeSuccess": "Permission removed",
     "removeError": "Failed to remove permission",
     "updateSuccess": "Permissions updated",
-    "updateError": "Failed to update permissions"
+    "updateError": "Failed to update permissions",
+    "noAccess": "You don't have permission to access this feature",
+    "accessDenied": "Access Denied"
   },
   "organization": {
     "title": "Organization Structure",

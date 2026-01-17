@@ -422,7 +422,11 @@
     "roleRemoveSuccess": "تم إزالة الدور بنجاح",
     "roleRemoveError": "فشل في إزالة الدور",
     "roleUpdateSuccess": "تم تحديث الدور بنجاح",
-    "roleUpdateError": "فشل في تحديث الدور"
+    "roleUpdateError": "فشل في تحديث الدور",
+    "inviteUser": "دعوة مستخدم",
+    "inviteUserDescription": "إرسال دعوة للانضمام إلى مساحة العمل",
+    "preAssignRoles": "تعيين الأدوار مسبقاً",
+    "preAssignRolesHint": "سيتم تعيين الأدوار عند قبول المستخدم للدعوة"
   },
   "roles": {
     "title": "الأدوار",
@@ -466,7 +470,9 @@
     "removeSuccess": "تم إزالة الصلاحية",
     "removeError": "فشل في إزالة الصلاحية",
     "updateSuccess": "تم تحديث الصلاحيات",
-    "updateError": "فشل في تحديث الصلاحيات"
+    "updateError": "فشل في تحديث الصلاحيات",
+    "noAccess": "ليس لديك صلاحية للوصول إلى هذه الميزة",
+    "accessDenied": "الوصول مرفوض"
   },
   "organization": {
     "title": "الهيكل التنظيمي",
