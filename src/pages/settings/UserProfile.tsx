@@ -9,10 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-import { User, Shield, Key, Mail, Calendar, Pencil } from 'lucide-react';
+import { User, Shield, Key, Mail, Calendar, Pencil, Lock } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { EditProfileDialog } from '@/components/profile/EditProfileDialog';
+import { ChangeEmailDialog } from '@/components/profile/ChangeEmailDialog';
+import { ChangePasswordDialog } from '@/components/profile/ChangePasswordDialog';
 
 export default function UserProfile() {
   const { t, i18n } = useTranslation();
@@ -20,6 +22,8 @@ export default function UserProfile() {
   const { permissions, isLoading: permissionsLoading, isSuperAdmin } = useUserPermissions();
   const { userRoles, isLoading: rolesLoading } = useUserRoles(user?.id);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
 
   // Fetch profile data
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -165,6 +169,31 @@ export default function UserProfile() {
                 <span>{user?.last_sign_in_at ? formatDate(user.last_sign_in_at) : '-'}</span>
               </div>
             </div>
+
+            <Separator />
+
+            {/* Security Actions */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium">{t('profile.securitySettings')}</h4>
+              <div className="flex flex-wrap gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setEmailDialogOpen(true)}
+                >
+                  <Mail className="me-2 h-4 w-4" />
+                  {t('profile.changeEmail')}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setPasswordDialogOpen(true)}
+                >
+                  <Lock className="me-2 h-4 w-4" />
+                  {t('profile.changePassword')}
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -289,6 +318,19 @@ export default function UserProfile() {
         onSuccess={() => {
           // Refetch is handled by the hook
         }}
+      />
+
+      {/* Change Email Dialog */}
+      <ChangeEmailDialog
+        open={emailDialogOpen}
+        onOpenChange={setEmailDialogOpen}
+        currentEmail={user?.email}
+      />
+
+      {/* Change Password Dialog */}
+      <ChangePasswordDialog
+        open={passwordDialogOpen}
+        onOpenChange={setPasswordDialogOpen}
       />
     </div>
   );
