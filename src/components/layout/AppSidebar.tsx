@@ -2,7 +2,8 @@ import {
   Users, Building2, CreditCard, 
   HelpCircle, Palette, FileText, LayoutDashboard,
   Layers, BarChart3, Network, Building, Download, History,
-  MessageSquare, Tags, UserCheck, Sparkles, Calendar, ClipboardList
+  MessageSquare, Tags, UserCheck, Sparkles, Calendar, ClipboardList,
+  User
 } from 'lucide-react';
 import {
   Sidebar,
@@ -64,6 +65,7 @@ export function AppSidebar() {
     {
       label: t('nav.settings'),
       items: [
+        { title: t('nav.userProfile'), url: "/settings/profile", icon: User },
         { title: t('nav.usageBilling'), url: "/settings/usage", icon: BarChart3 },
         { title: t('nav.brandManagement'), url: "/admin/branding", icon: Palette },
         { title: t('nav.documentSettings'), url: "/admin/docs", icon: FileText },
