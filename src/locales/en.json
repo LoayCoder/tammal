@@ -823,6 +823,21 @@
     "noRoles": "No roles assigned",
     "noPermissions": "No permissions assigned",
     "superAdmin": "Super Admin",
-    "superAdminDescription": "You have full administrative access to all system features"
+    "superAdminDescription": "You have full administrative access to all system features",
+    "editProfile": "Edit Profile",
+    "editProfileDescription": "Update your name and profile picture",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "fullNameRequired": "Name is required",
+    "fullNameTooLong": "Name must be less than 100 characters",
+    "avatar": "Profile Picture",
+    "avatarHint": "Upload a profile picture (max 1MB, JPG/PNG/WebP/GIF)",
+    "uploadAvatar": "Upload",
+    "changeAvatar": "Change",
+    "removeAvatar": "Remove",
+    "updateSuccess": "Profile updated successfully",
+    "updateError": "Failed to update profile",
+    "invalidFileType": "Invalid file type. Please use JPG, PNG, WebP or GIF",
+    "fileTooLarge": "File is too large. Maximum size is 1MB"
   }
 }
