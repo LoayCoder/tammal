@@ -9,12 +9,15 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-import { User, Shield, Key, Mail, Calendar, Pencil, Lock } from 'lucide-react';
+import { User, Shield, Key, Mail, Calendar, Pencil, Lock, Smartphone, Monitor, Trash2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { EditProfileDialog } from '@/components/profile/EditProfileDialog';
 import { ChangeEmailDialog } from '@/components/profile/ChangeEmailDialog';
 import { ChangePasswordDialog } from '@/components/profile/ChangePasswordDialog';
+import { DeleteAccountDialog } from '@/components/profile/DeleteAccountDialog';
+import { SessionManagementDialog } from '@/components/profile/SessionManagementDialog';
+import { MFASetupDialog } from '@/components/profile/MFASetupDialog';
 
 export default function UserProfile() {
   const { t, i18n } = useTranslation();
@@ -24,6 +27,9 @@ export default function UserProfile() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [deleteAccountDialogOpen, setDeleteAccountDialogOpen] = useState(false);
+  const [sessionDialogOpen, setSessionDialogOpen] = useState(false);
+  const [mfaDialogOpen, setMfaDialogOpen] = useState(false);
 
   // Fetch profile data
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -192,7 +198,39 @@ export default function UserProfile() {
                   <Lock className="me-2 h-4 w-4" />
                   {t('profile.changePassword')}
                 </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setMfaDialogOpen(true)}
+                >
+                  <Smartphone className="me-2 h-4 w-4" />
+                  {t('profile.twoFactorAuth')}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setSessionDialogOpen(true)}
+                >
+                  <Monitor className="me-2 h-4 w-4" />
+                  {t('profile.manageSessions')}
+                </Button>
               </div>
+            </div>
+
+            <Separator />
+
+            {/* Danger Zone */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium text-destructive">{t('profile.dangerZone')}</h4>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                onClick={() => setDeleteAccountDialogOpen(true)}
+              >
+                <Trash2 className="me-2 h-4 w-4" />
+                {t('profile.deleteAccount')}
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -331,6 +369,24 @@ export default function UserProfile() {
       <ChangePasswordDialog
         open={passwordDialogOpen}
         onOpenChange={setPasswordDialogOpen}
+      />
+
+      {/* Delete Account Dialog */}
+      <DeleteAccountDialog
+        open={deleteAccountDialogOpen}
+        onOpenChange={setDeleteAccountDialogOpen}
+      />
+
+      {/* Session Management Dialog */}
+      <SessionManagementDialog
+        open={sessionDialogOpen}
+        onOpenChange={setSessionDialogOpen}
+      />
+
+      {/* MFA Setup Dialog */}
+      <MFASetupDialog
+        open={mfaDialogOpen}
+        onOpenChange={setMfaDialogOpen}
       />
     </div>
   );
