@@ -823,6 +823,21 @@
     "noRoles": "لا توجد أدوار مخصصة",
     "noPermissions": "لا توجد صلاحيات مخصصة",
     "superAdmin": "مسؤول أعلى",
-    "superAdminDescription": "لديك وصول إداري كامل لجميع ميزات النظام"
+    "superAdminDescription": "لديك وصول إداري كامل لجميع ميزات النظام",
+    "editProfile": "تعديل الملف الشخصي",
+    "editProfileDescription": "تحديث الاسم والصورة الشخصية",
+    "fullName": "الاسم الكامل",
+    "fullNamePlaceholder": "أدخل اسمك الكامل",
+    "fullNameRequired": "الاسم مطلوب",
+    "fullNameTooLong": "يجب أن يكون الاسم أقل من 100 حرف",
+    "avatar": "الصورة الشخصية",
+    "avatarHint": "ارفع صورة شخصية (الحد الأقصى 1 ميجابايت، JPG/PNG/WebP/GIF)",
+    "uploadAvatar": "رفع",
+    "changeAvatar": "تغيير",
+    "removeAvatar": "إزالة",
+    "updateSuccess": "تم تحديث الملف الشخصي بنجاح",
+    "updateError": "فشل تحديث الملف الشخصي",
+    "invalidFileType": "نوع الملف غير صالح. استخدم JPG أو PNG أو WebP أو GIF",
+    "fileTooLarge": "الملف كبير جداً. الحد الأقصى 1 ميجابايت"
   }
 }

@@ -1,21 +1,25 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { useUserRoles } from '@/hooks/useUsers';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-import { User, Shield, Key, Mail, Calendar } from 'lucide-react';
+import { User, Shield, Key, Mail, Calendar, Pencil } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { EditProfileDialog } from '@/components/profile/EditProfileDialog';
 
 export default function UserProfile() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { permissions, isLoading: permissionsLoading, isSuperAdmin } = useUserPermissions();
   const { userRoles, isLoading: rolesLoading } = useUserRoles(user?.id);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   // Fetch profile data
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -110,12 +114,22 @@ export default function UserProfile() {
       <div className="grid gap-6 md:grid-cols-2">
         {/* User Info Card */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              {t('profile.accountInfo')}
-            </CardTitle>
-            <CardDescription>{t('profile.accountInfoDescription')}</CardDescription>
+          <CardHeader className="flex flex-row items-start justify-between space-y-0">
+            <div className="space-y-1">
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                {t('profile.accountInfo')}
+              </CardTitle>
+              <CardDescription>{t('profile.accountInfoDescription')}</CardDescription>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setEditDialogOpen(true)}
+            >
+              <Pencil className="me-2 h-4 w-4" />
+              {t('profile.editProfile')}
+            </Button>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center gap-4">
@@ -262,6 +276,20 @@ export default function UserProfile() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Profile Dialog */}
+      <EditProfileDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        currentProfile={{
+          full_name: profile?.full_name || null,
+          avatar_url: profile?.avatar_url || null,
+          email: user?.email,
+        }}
+        onSuccess={() => {
+          // Refetch is handled by the hook
+        }}
+      />
     </div>
   );
 }
