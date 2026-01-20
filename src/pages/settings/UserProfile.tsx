@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-import { User, Shield, Key, Mail, Calendar, Pencil, Lock, Smartphone, Monitor, Trash2 } from 'lucide-react';
+import { User, Shield, Key, Mail, Calendar, Pencil, Lock, Smartphone, Monitor, Trash2, History } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { EditProfileDialog } from '@/components/profile/EditProfileDialog';
@@ -18,6 +18,7 @@ import { ChangePasswordDialog } from '@/components/profile/ChangePasswordDialog'
 import { DeleteAccountDialog } from '@/components/profile/DeleteAccountDialog';
 import { SessionManagementDialog } from '@/components/profile/SessionManagementDialog';
 import { MFASetupDialog } from '@/components/profile/MFASetupDialog';
+import { LoginActivityDialog } from '@/components/profile/LoginActivityDialog';
 
 export default function UserProfile() {
   const { t, i18n } = useTranslation();
@@ -30,6 +31,7 @@ export default function UserProfile() {
   const [deleteAccountDialogOpen, setDeleteAccountDialogOpen] = useState(false);
   const [sessionDialogOpen, setSessionDialogOpen] = useState(false);
   const [mfaDialogOpen, setMfaDialogOpen] = useState(false);
+  const [loginActivityDialogOpen, setLoginActivityDialogOpen] = useState(false);
 
   // Fetch profile data
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -214,6 +216,14 @@ export default function UserProfile() {
                   <Monitor className="me-2 h-4 w-4" />
                   {t('profile.manageSessions')}
                 </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setLoginActivityDialogOpen(true)}
+                >
+                  <History className="me-2 h-4 w-4" />
+                  {t('profile.loginActivity')}
+                </Button>
               </div>
             </div>
 
@@ -387,6 +397,12 @@ export default function UserProfile() {
       <MFASetupDialog
         open={mfaDialogOpen}
         onOpenChange={setMfaDialogOpen}
+      />
+
+      {/* Login Activity Dialog */}
+      <LoginActivityDialog
+        open={loginActivityDialogOpen}
+        onOpenChange={setLoginActivityDialogOpen}
       />
     </div>
   );

@@ -928,7 +928,18 @@
     "mfaDisableError": "فشل تعطيل المصادقة الثنائية",
     "disableMFAWarning": "تعطيل المصادقة الثنائية سيجعل حسابك أقل أماناً!",
     "disableMFADescription": "بعد تعطيل المصادقة الثنائية، ستحتاج فقط كلمة المرور لتسجيل الدخول. هذا يجعل حسابك أكثر عرضة للوصول غير المصرح به.",
-    "confirmDisableMFA": "تعطيل المصادقة الثنائية"
+    "confirmDisableMFA": "تعطيل المصادقة الثنائية",
+    "loginActivity": "سجل تسجيل الدخول",
+    "loginActivityDescription": "عرض محاولات تسجيل الدخول الأخيرة وسجل الوصول إلى حسابك",
+    "noLoginHistory": "لا يوجد سجل تسجيل دخول حتى الآن",
+    "mostRecent": "الحالي",
+    "failedLogin": "محاولة تسجيل دخول فاشلة",
+    "unknownBrowser": "متصفح غير معروف",
+    "eventTypes": {
+      "login": "تسجيل دخول ناجح",
+      "logout": "تسجيل خروج",
+      "failed_login": "تسجيل دخول فاشل"
+    }
   },
   "common": {
     "done": "تم"
