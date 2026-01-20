@@ -928,7 +928,18 @@
     "mfaDisableError": "Failed to disable two-factor authentication",
     "disableMFAWarning": "Disabling two-factor authentication will make your account less secure!",
     "disableMFADescription": "After disabling 2FA, you will only need your password to sign in. This makes your account more vulnerable to unauthorized access.",
-    "confirmDisableMFA": "Disable 2FA"
+    "confirmDisableMFA": "Disable 2FA",
+    "loginActivity": "Login Activity",
+    "loginActivityDescription": "View your recent sign-in attempts and account access history",
+    "noLoginHistory": "No login history available yet",
+    "mostRecent": "Current",
+    "failedLogin": "Failed login attempt",
+    "unknownBrowser": "Unknown browser",
+    "eventTypes": {
+      "login": "Successful sign-in",
+      "logout": "Signed out",
+      "failed_login": "Failed sign-in"
+    }
   },
   "common": {
     "done": "Done"
