@@ -61,6 +61,14 @@ serve(async (req) => {
         .eq("status", "active")
         .is("deleted_at", null);
 
+      // Branch/Site Scoping
+      if (schedule.branch_id) {
+        employeesQuery = employeesQuery.eq("branch_id", schedule.branch_id);
+      }
+      if (schedule.site_id) {
+        employeesQuery = employeesQuery.eq("site_id", schedule.site_id);
+      }
+
       if (!targetAudience.all) {
         if (targetAudience.departments?.length) {
           employeesQuery = employeesQuery.in("department", targetAudience.departments);
@@ -200,6 +208,8 @@ serve(async (req) => {
               employee_id: employee.id,
               question_id: question.id,
               tenant_id: schedule.tenant_id,
+              branch_id: schedule.branch_id || null,
+              site_id: schedule.site_id || null,
               scheduled_delivery: deliveryDate.toISOString(),
               status: "pending",
               delivery_channel: "app",
