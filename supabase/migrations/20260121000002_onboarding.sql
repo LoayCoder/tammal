@@ -11,13 +11,13 @@ DECLARE
   v_site_id UUID;
 BEGIN
   -- 1. Create Default Branch
-  INSERT INTO public.branches (tenant_id, name, is_active)
-  VALUES (NEW.id, 'Main Branch', true)
+  INSERT INTO public.branches (tenant_id, name, name_ar, is_active)
+  VALUES (NEW.id, 'Main Branch', 'الفرع الرئيسي', true)
   RETURNING id INTO v_branch_id;
 
   -- 2. Create Default Site
-  INSERT INTO public.sites (tenant_id, branch_id, name, is_active)
-  VALUES (NEW.id, v_branch_id, 'Main Site', true)
+  INSERT INTO public.sites (tenant_id, branch_id, name, name_ar, is_active)
+  VALUES (NEW.id, v_branch_id, 'Main Site', 'الموقع الرئيسي', true)
   RETURNING id INTO v_site_id;
 
   -- 3. Log the event
