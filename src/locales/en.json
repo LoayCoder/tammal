@@ -483,6 +483,32 @@
     "parent": "Parent Department",
     "members": "Members"
   },
+  "branches": {
+    "title": "Branches",
+    "addBranch": "Add Branch",
+    "editBranch": "Edit Branch",
+    "name": "Branch Name",
+    "nameAr": "Branch Name (Arabic)",
+    "address": "Address",
+    "addressAr": "Address (Arabic)",
+    "phone": "Phone",
+    "email": "Email",
+    "deleteBranch": "Delete Branch",
+    "confirmDelete": "Are you sure you want to delete this branch? This might affect associated sites and employees."
+  },
+  "sites": {
+    "title": "Sites",
+    "addSite": "Add Site",
+    "editSite": "Edit Site",
+    "name": "Site Name",
+    "nameAr": "Site Name (Arabic)",
+    "branch": "Branch",
+    "selectBranch": "Select Branch",
+    "address": "Address",
+    "addressAr": "Address (Arabic)",
+    "deleteSite": "Delete Site",
+    "confirmDelete": "Are you sure you want to delete this site?"
+  },
   "branding": {
     "title": "Brand Management",
     "description": "Customize your organization's brand identity",
