@@ -162,6 +162,7 @@ export default function EmployeeSurvey() {
             onChange={(e) => setAnswer(e.target.value)}
             placeholder={t('survey.typeYourAnswer')}
             className="min-h-[150px]"
+            dir="auto"
           />
         );
 
@@ -191,7 +192,7 @@ export default function EmployeeSurvey() {
             </Badge>
           )}
           
-          <h2 className="text-2xl font-semibold mb-8" dir={isRTL ? 'rtl' : 'ltr'}>
+          <h2 className="text-2xl font-semibold mb-8" dir="auto">
             {questionText}
           </h2>
 

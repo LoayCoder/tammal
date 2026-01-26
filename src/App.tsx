@@ -27,11 +27,24 @@ import EmployeeManagement from "@/pages/admin/EmployeeManagement";
 import AIQuestionGenerator from "@/pages/admin/AIQuestionGenerator";
 import ScheduleManagement from "@/pages/admin/ScheduleManagement";
 import EmployeeSurvey from "@/pages/employee/EmployeeSurvey";
+import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
+const I18nDirection = () => {
+  const { i18n } = useTranslation();
+  useEffect(() => {
+    const dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.dir = dir;
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <I18nDirection />
     <TooltipProvider>
       <Toaster />
       <Sonner />

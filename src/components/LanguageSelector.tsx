@@ -17,12 +17,7 @@ export function LanguageSelector() {
   const { i18n } = useTranslation();
 
   const changeLanguage = (langCode: string) => {
-    const lang = languages.find(l => l.code === langCode);
     i18n.changeLanguage(langCode);
-    
-    // Update document direction for RTL support
-    document.documentElement.dir = lang?.dir || 'ltr';
-    document.documentElement.lang = langCode;
   };
 
   const currentLang = languages.find(l => l.code === i18n.language) || languages[0];
