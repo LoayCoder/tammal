@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
+import { ar, enUS } from 'date-fns/locale';
 import { Plus, Mail, RefreshCw, Trash2, Copy, Check, Phone } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,12 +35,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTenantInvitations, type Invitation, type CreateInvitationInput } from '@/hooks/useTenantInvitations';
 import { toast } from 'sonner';
 
-const EXPIRY_OPTIONS = [
-  { value: '1', label: '1 day' },
-  { value: '7', label: '7 days' },
-  { value: '14', label: '14 days' },
-  { value: '30', label: '30 days' },
-  { value: '90', label: '90 days' },
+const getExpiryOptions = (t: (key: string) => string) => [
+  { value: '1', label: t('expiryOptions.1day') },
+  { value: '7', label: t('expiryOptions.7days') },
+  { value: '14', label: t('expiryOptions.14days') },
+  { value: '30', label: t('expiryOptions.30days') },
+  { value: '90', label: t('expiryOptions.90days') },
 ];
 
 interface InvitationManagementProps {
@@ -47,7 +48,9 @@ interface InvitationManagementProps {
 }
 
 export function InvitationManagement({ tenantId }: InvitationManagementProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language === 'ar' ? ar : enUS;
+  const expiryOptions = getExpiryOptions(t);
   const {
     invitations,
     isLoading,
@@ -182,7 +185,7 @@ export function InvitationManagement({ tenantId }: InvitationManagementProps) {
                           </span>
                         ) : (
                           <span className="text-sm text-muted-foreground">
-                            {format(new Date(invitation.expires_at), 'PP')}
+                            {format(new Date(invitation.expires_at), 'PP', { locale: dateLocale })}
                           </span>
                         )}
                       </TableCell>
@@ -236,7 +239,7 @@ export function InvitationManagement({ tenantId }: InvitationManagementProps) {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="user@example.com"
+                placeholder={t('placeholders.email')}
               />
             </div>
             <div className="space-y-2">
@@ -252,7 +255,7 @@ export function InvitationManagement({ tenantId }: InvitationManagementProps) {
                 value={formData.phone_number}
                 onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
                 dir="ltr"
-                placeholder="+966XXXXXXXXX"
+                placeholder={t('placeholders.phoneShort')}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -266,7 +269,7 @@ export function InvitationManagement({ tenantId }: InvitationManagementProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {EXPIRY_OPTIONS.map((opt) => (
+                    {expiryOptions.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         {opt.label}
                       </SelectItem>

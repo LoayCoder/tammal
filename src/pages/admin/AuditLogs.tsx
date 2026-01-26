@@ -54,7 +54,15 @@ export default function AuditLogs() {
       return;
     }
 
-    const headers = ['Date', 'Entity Type', 'Entity ID', 'Action', 'Changes', 'User ID', 'Tenant ID'];
+    const headers = [
+      t('csv.headers.date'),
+      t('csv.headers.entityType'),
+      t('csv.headers.entityId'),
+      t('csv.headers.action'),
+      t('csv.headers.changes'),
+      t('csv.headers.userId'),
+      t('csv.headers.tenantId')
+    ];
     const rows = filteredLogs.map((log: AuditLog) => [
       new Date(log.created_at).toLocaleString(),
       log.entity_type,

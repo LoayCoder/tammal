@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow, format } from 'date-fns';
+import { ar, enUS } from 'date-fns/locale';
 import { 
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow 
 } from '@/components/ui/table';
@@ -50,8 +51,9 @@ const actionColors: Record<string, string> = {
 };
 
 export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTableProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
+  const dateLocale = i18n.language === 'ar' ? ar : enUS;
 
   const formatChanges = (changes: Record<string, any> | null) => {
     if (!changes || Object.keys(changes).length === 0) return '—';
@@ -125,7 +127,7 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
                   </p>
                 </div>
                 <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  {formatDistanceToNow(new Date(log.created_at), { addSuffix: true })}
+                  {formatDistanceToNow(new Date(log.created_at), { addSuffix: true, locale: dateLocale })}
                 </span>
               </div>
             );
@@ -179,9 +181,9 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
               </TableCell>
               <TableCell>
                 <div className="text-sm">
-                  <p>{format(new Date(log.created_at), 'PP')}</p>
+                  <p>{format(new Date(log.created_at), 'PP', { locale: dateLocale })}</p>
                   <p className="text-muted-foreground text-xs">
-                    {format(new Date(log.created_at), 'p')}
+                    {format(new Date(log.created_at), 'p', { locale: dateLocale })}
                   </p>
                 </div>
               </TableCell>
@@ -207,7 +209,8 @@ interface AuditLogDetailsModalProps {
 }
 
 function AuditLogDetailsModal({ log, open, onOpenChange }: AuditLogDetailsModalProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language === 'ar' ? ar : enUS;
 
   if (!log) return null;
 
@@ -223,7 +226,7 @@ function AuditLogDetailsModal({ log, open, onOpenChange }: AuditLogDetailsModalP
             {t('audit.logDetails')}
           </DialogTitle>
           <DialogDescription>
-            {format(new Date(log.created_at), 'PPpp')}
+            {format(new Date(log.created_at), 'PPpp', { locale: dateLocale })}
           </DialogDescription>
         </DialogHeader>
         
