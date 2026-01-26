@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { MoreHorizontal, Edit, Key, Trash2, Shield } from 'lucide-react';
-import { format } from 'date-fns';
+import { formatDate } from '@/lib/utils';
 import type { Role } from '@/hooks/useRoles';
 import { useState } from 'react';
 
@@ -100,7 +100,7 @@ export function RoleTable({ roles, isLoading, onEdit, onManagePermissions, onDel
                 <Badge variant="outline">{role.base_role}</Badge>
               </TableCell>
               <TableCell className="text-muted-foreground">
-                {format(new Date(role.created_at), 'MMM d, yyyy')}
+                {formatDate(role.created_at, i18n.language)}
               </TableCell>
               <TableCell>
                 <DropdownMenu>

@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { Loader2 } from 'lucide-react';
 
@@ -53,9 +54,10 @@ export function PermissionGate({
 
 // Utility component for showing "No Permission" message
 export function NoPermission({ message }: { message?: string }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
-      <p>{message || "You don't have permission to access this feature"}</p>
+      <p>{message || t('permissions.noAccess')}</p>
     </div>
   );
 }

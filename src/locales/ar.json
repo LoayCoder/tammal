@@ -968,6 +968,96 @@
     }
   },
   "common": {
-    "done": "تم"
+    "done": "تم",
+    "close": "إغلاق",
+    "previous": "السابق",
+    "more": "المزيد",
+    "error": "خطأ",
+    "success": "نجاح"
+  },
+  "accessibility": {
+    "selectLanguage": "اختر اللغة",
+    "toggleTheme": "تبديل السمة",
+    "toggleSidebar": "تبديل الشريط الجانبي",
+    "close": "إغلاق",
+    "pagination": "التصفح",
+    "previousPage": "الذهاب للصفحة السابقة",
+    "nextPage": "الذهاب للصفحة التالية",
+    "morePages": "المزيد من الصفحات",
+    "breadcrumb": "مسار التنقل",
+    "previousSlide": "الشريحة السابقة",
+    "nextSlide": "الشريحة التالية"
+  },
+  "errors": {
+    "notFound": {
+      "code": "404",
+      "title": "الصفحة غير موجودة",
+      "message": "عفواً! الصفحة التي تبحث عنها غير موجودة.",
+      "returnHome": "العودة للرئيسية"
+    }
+  },
+  "validation": {
+    "invalidEmail": "عنوان البريد الإلكتروني غير صالح",
+    "passwordMinLength": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+    "roleNameRequired": "اسم الدور مطلوب",
+    "invalidColorFormat": "صيغة اللون غير صالحة"
+  },
+  "toast": {
+    "error": "خطأ",
+    "success": "نجاح",
+    "loggedIn": "تم تسجيل الدخول بنجاح",
+    "accountCreated": "تم إنشاء الحساب بنجاح. يمكنك الآن تسجيل الدخول."
+  },
+  "placeholders": {
+    "email": "name@example.com",
+    "phone": "+966 5XX XXX XXXX",
+    "phoneShort": "+966XXXXXXXXX",
+    "companySlug": "company-name",
+    "domain": "example.com",
+    "url": "https://...",
+    "crNumber": "1010XXXXXX",
+    "vatNumber": "3XXXXXXXXXX0003",
+    "hslColor": "222.2 47.4% 11.2%",
+    "roleNameEn": "e.g., Safety Officer",
+    "roleNameAr": "مثال: مسؤول السلامة",
+    "roleDescription": "Role description...",
+    "roleDescriptionAr": "وصف الدور...",
+    "mfaCode": "000000"
+  },
+  "imageAlt": {
+    "logoPreview": "معاينة الشعار",
+    "headerLogo": "شعار الرأس",
+    "appLogo": "شعار التطبيق",
+    "avatar": "الصورة الرمزية",
+    "mfaQrCode": "رمز QR للمصادقة"
+  },
+  "csv": {
+    "headers": {
+      "date": "التاريخ",
+      "entityType": "نوع الكيان",
+      "entityId": "معرف الكيان",
+      "action": "الإجراء",
+      "changes": "التغييرات",
+      "userId": "معرف المستخدم",
+      "tenantId": "معرف المستأجر"
+    }
+  },
+  "expiryOptions": {
+    "1day": "يوم واحد",
+    "7days": "7 أيام",
+    "14days": "14 يوم",
+    "30days": "30 يوم",
+    "90days": "90 يوم"
+  },
+  "email": {
+    "invitation": {
+      "subject": "لقد تمت دعوتك للانضمام إلى {{tenantName}}",
+      "greeting": "مرحباً",
+      "welcomeTitle": "مرحباً بك في {{tenantName}}!",
+      "body": "لقد تمت دعوتك للانضمام إلى",
+      "codeLabel": "رمز الدعوة الخاص بك",
+      "buttonText": "قبول الدعوة",
+      "expiresOn": "تنتهي في"
+    }
   }
 }

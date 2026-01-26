@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatCurrency } from '@/lib/utils';
 import type { Plan } from '@/hooks/usePlans';
 
 interface PlanTableProps {
@@ -27,13 +28,10 @@ interface PlanTableProps {
 }
 
 export function PlanTable({ plans, isLoading, onEdit, onDelete }: PlanTableProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(price);
+    return formatCurrency(price, i18n.language);
   };
 
   const formatMaxUsers = (maxUsers: number | null) => {

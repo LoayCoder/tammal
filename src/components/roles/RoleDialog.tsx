@@ -32,16 +32,16 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import type { Role, CreateRoleInput, UpdateRoleInput } from '@/hooks/useRoles';
 
-const roleSchema = z.object({
-  name: z.string().min(1, 'Role name is required'),
+const createRoleSchema = (t: (key: string) => string) => z.object({
+  name: z.string().min(1, t('validation.roleNameRequired')),
   name_ar: z.string().optional(),
   description: z.string().optional(),
   description_ar: z.string().optional(),
   base_role: z.enum(['super_admin', 'tenant_admin', 'manager', 'user']),
-  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid color format'),
+  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, t('validation.invalidColorFormat')),
 });
 
-type RoleFormValues = z.infer<typeof roleSchema>;
+type RoleFormValues = z.infer<ReturnType<typeof createRoleSchema>>;
 
 interface RoleDialogProps {
   open: boolean;
@@ -67,6 +67,7 @@ const ROLE_COLORS = [
 
 export function RoleDialog({ open, onOpenChange, role, tenantId, onSave, isSaving }: RoleDialogProps) {
   const { t } = useTranslation();
+  const roleSchema = createRoleSchema(t);
 
   const form = useForm<RoleFormValues>({
     resolver: zodResolver(roleSchema),
@@ -132,7 +133,7 @@ export function RoleDialog({ open, onOpenChange, role, tenantId, onSave, isSavin
                   <FormItem>
                     <FormLabel>{t('roles.nameEn')}</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="e.g., Safety Officer" />
+                      <Input {...field} placeholder={t('placeholders.roleNameEn')} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -145,7 +146,7 @@ export function RoleDialog({ open, onOpenChange, role, tenantId, onSave, isSavin
                   <FormItem>
                     <FormLabel>{t('roles.nameAr')}</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="مثال: مسؤول السلامة" dir="rtl" />
+                      <Input {...field} placeholder={t('placeholders.roleNameAr')} dir="rtl" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -161,7 +162,7 @@ export function RoleDialog({ open, onOpenChange, role, tenantId, onSave, isSavin
                   <FormItem>
                     <FormLabel>{t('roles.descriptionEn')}</FormLabel>
                     <FormControl>
-                      <Textarea {...field} rows={2} placeholder="Role description..." />
+                      <Textarea {...field} rows={2} placeholder={t('placeholders.roleDescription')} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -174,7 +175,7 @@ export function RoleDialog({ open, onOpenChange, role, tenantId, onSave, isSavin
                   <FormItem>
                     <FormLabel>{t('roles.descriptionAr')}</FormLabel>
                     <FormControl>
-                      <Textarea {...field} rows={2} placeholder="وصف الدور..." dir="rtl" />
+                      <Textarea {...field} rows={2} placeholder={t('placeholders.roleDescriptionAr')} dir="rtl" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

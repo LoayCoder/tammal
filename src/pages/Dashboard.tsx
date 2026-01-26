@@ -7,19 +7,12 @@ import { useAuditLog } from '@/hooks/useAuditLog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AuditLogTable } from '@/components/audit/AuditLogTable';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { formatCurrency } from '@/lib/utils';
 
 export default function Dashboard() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { stats, isLoading } = useDashboardStats();
   const { logs, isLoading: isLoadingLogs } = useAuditLog({ limit: 5 });
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-    }).format(value);
-  };
 
   const statCards = [
     {
@@ -34,7 +27,7 @@ export default function Dashboard() {
     },
     {
       title: t('dashboard.monthlyRevenue'),
-      value: isLoading ? null : formatCurrency(stats?.monthlyRevenue ?? 0),
+      value: isLoading ? null : formatCurrency(stats?.monthlyRevenue ?? 0, i18n.language),
       icon: DollarSign,
     },
     {
