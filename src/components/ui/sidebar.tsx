@@ -2,7 +2,7 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { VariantProps, cva } from "class-variance-authority";
 import { PanelLeft } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -220,7 +220,6 @@ Sidebar.displayName = "Sidebar";
 const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.ComponentProps<typeof Button>>(
   ({ className, onClick, ...props }, ref) => {
     const { toggleSidebar } = useSidebar();
-    const { t } = useTranslation();
 
     return (
       <Button
@@ -236,7 +235,7 @@ const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.C
         {...props}
       >
         <PanelLeft className="rtl:-scale-x-100" />
-        <span className="sr-only">{t('accessibility.toggleSidebar')}</span>
+        <span className="sr-only">{i18n.t('accessibility.toggleSidebar')}</span>
       </Button>
     );
   },
@@ -246,8 +245,7 @@ SidebarTrigger.displayName = "SidebarTrigger";
 const SidebarRail = React.forwardRef<HTMLButtonElement, React.ComponentProps<"button">>(
   ({ className, ...props }, ref) => {
     const { toggleSidebar } = useSidebar();
-    const { t } = useTranslation();
-    const toggleLabel = t('accessibility.toggleSidebar');
+    const toggleLabel = i18n.t('accessibility.toggleSidebar');
 
     return (
       <button
