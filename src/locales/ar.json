@@ -22,7 +22,13 @@
     "pending": "معلق",
     "cancelled": "ملغي",
     "overdue": "متأخر",
-    "paid": "مدفوع"
+    "paid": "مدفوع",
+    "done": "تم",
+    "close": "إغلاق",
+    "previous": "السابق",
+    "more": "المزيد",
+    "error": "خطأ",
+    "success": "نجاح"
   },
   "nav": {
     "dashboard": "لوحة التحكم",
@@ -966,14 +972,6 @@
       "logout": "تسجيل خروج",
       "failed_login": "تسجيل دخول فاشل"
     }
-  },
-  "common": {
-    "done": "تم",
-    "close": "إغلاق",
-    "previous": "السابق",
-    "more": "المزيد",
-    "error": "خطأ",
-    "success": "نجاح"
   },
   "accessibility": {
     "selectLanguage": "اختر اللغة",

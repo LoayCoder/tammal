@@ -22,7 +22,13 @@
     "pending": "Pending",
     "cancelled": "Cancelled",
     "overdue": "Overdue",
-    "paid": "Paid"
+    "paid": "Paid",
+    "done": "Done",
+    "close": "Close",
+    "previous": "Previous",
+    "more": "More",
+    "error": "Error",
+    "success": "Success"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -966,14 +972,6 @@
       "logout": "Signed out",
       "failed_login": "Failed sign-in"
     }
-  },
-  "common": {
-    "done": "Done",
-    "close": "Close",
-    "previous": "Previous",
-    "more": "More",
-    "error": "Error",
-    "success": "Success"
   },
   "accessibility": {
     "selectLanguage": "Select language",
