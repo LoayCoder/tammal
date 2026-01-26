@@ -11,13 +11,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageSelector } from '@/components/LanguageSelector';
 
-const authSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
 export default function Auth() {
   const { t } = useTranslation();
+
+  const authSchema = z.object({
+    email: z.string().email(t('validation.invalidEmail')),
+    password: z.string().min(6, t('validation.passwordMinLength')),
+  });
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, signIn, signUp, loading } = useAuth();
@@ -70,13 +70,13 @@ export default function Auth() {
         if (error) {
           toast({
             variant: 'destructive',
-            title: 'Error',
+            title: t('toast.error'),
             description: error.message || t('auth.invalidCredentials'),
           });
         } else {
           toast({
-            title: 'Success',
-            description: 'Logged in successfully',
+            title: t('toast.success'),
+            description: t('toast.loggedIn'),
           });
         }
       } else {
@@ -84,13 +84,13 @@ export default function Auth() {
         if (error) {
           toast({
             variant: 'destructive',
-            title: 'Error',
+            title: t('toast.error'),
             description: error.message,
           });
         } else {
           toast({
-            title: 'Success',
-            description: 'Account created successfully. You can now log in.',
+            title: t('toast.success'),
+            description: t('toast.accountCreated'),
           });
           setIsLogin(true);
         }
@@ -132,10 +132,11 @@ export default function Auth() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="name@example.com"
+                  placeholder={t('placeholders.email')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  dir="ltr"
                 />
                 {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
               </div>

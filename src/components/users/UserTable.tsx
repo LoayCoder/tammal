@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Shield, UserCog, Trash2 } from 'lucide-react';
-import { format } from 'date-fns';
+import { formatDate } from '@/lib/utils';
 import type { UserWithRoles } from '@/hooks/useUsers';
 
 interface UserTableProps {
@@ -116,7 +116,7 @@ export function UserTable({ users, isLoading, onEditRoles, onViewDetails }: User
               ))}
             </TableCell>
             <TableCell className="text-muted-foreground">
-              {format(new Date(user.created_at), 'MMM d, yyyy')}
+              {formatDate(user.created_at, i18n.language)}
             </TableCell>
             <TableCell>
               <DropdownMenu>

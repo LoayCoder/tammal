@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, Trash2, Settings2, BarChart3, Eye } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TenantStatusBadge } from './TenantStatusBadge';
+import { formatDate } from '@/lib/utils';
 import type { Tenant } from '@/hooks/useTenants';
 import type { Plan } from '@/hooks/usePlans';
 
@@ -36,7 +37,7 @@ interface TenantTableProps {
 }
 
 export function TenantTable({ tenants, isLoading, onEdit, onDelete, onViewDetails }: TenantTableProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -90,7 +91,7 @@ export function TenantTable({ tenants, isLoading, onEdit, onDelete, onViewDetail
               <TenantStatusBadge status={tenant.status} />
             </TableCell>
             <TableCell className="text-muted-foreground">
-              {new Date(tenant.created_at).toLocaleDateString()}
+              {formatDate(tenant.created_at, i18n.language)}
             </TableCell>
             <TableCell className="text-end">
               <DropdownMenu>

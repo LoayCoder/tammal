@@ -14,7 +14,7 @@ const languages = [
 ];
 
 export function LanguageSelector() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   const changeLanguage = (langCode: string) => {
     i18n.changeLanguage(langCode);
@@ -25,7 +25,7 @@ export function LanguageSelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Select language">
+        <Button variant="ghost" size="icon" aria-label={t('accessibility.selectLanguage')}>
           <Globe className="h-5 w-5" />
         </Button>
       </DropdownMenuTrigger>

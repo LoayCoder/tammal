@@ -968,6 +968,96 @@
     }
   },
   "common": {
-    "done": "Done"
+    "done": "Done",
+    "close": "Close",
+    "previous": "Previous",
+    "more": "More",
+    "error": "Error",
+    "success": "Success"
+  },
+  "accessibility": {
+    "selectLanguage": "Select language",
+    "toggleTheme": "Toggle theme",
+    "toggleSidebar": "Toggle Sidebar",
+    "close": "Close",
+    "pagination": "Pagination",
+    "previousPage": "Go to previous page",
+    "nextPage": "Go to next page",
+    "morePages": "More pages",
+    "breadcrumb": "Breadcrumb navigation",
+    "previousSlide": "Previous slide",
+    "nextSlide": "Next slide"
+  },
+  "errors": {
+    "notFound": {
+      "code": "404",
+      "title": "Page not found",
+      "message": "Oops! The page you're looking for doesn't exist.",
+      "returnHome": "Return to Home"
+    }
+  },
+  "validation": {
+    "invalidEmail": "Invalid email address",
+    "passwordMinLength": "Password must be at least 6 characters",
+    "roleNameRequired": "Role name is required",
+    "invalidColorFormat": "Invalid color format"
+  },
+  "toast": {
+    "error": "Error",
+    "success": "Success",
+    "loggedIn": "Logged in successfully",
+    "accountCreated": "Account created successfully. You can now log in."
+  },
+  "placeholders": {
+    "email": "name@example.com",
+    "phone": "+966 5XX XXX XXXX",
+    "phoneShort": "+966XXXXXXXXX",
+    "companySlug": "company-name",
+    "domain": "example.com",
+    "url": "https://...",
+    "crNumber": "1010XXXXXX",
+    "vatNumber": "3XXXXXXXXXX0003",
+    "hslColor": "222.2 47.4% 11.2%",
+    "roleNameEn": "e.g., Safety Officer",
+    "roleNameAr": "مثال: مسؤول السلامة",
+    "roleDescription": "Role description...",
+    "roleDescriptionAr": "وصف الدور...",
+    "mfaCode": "000000"
+  },
+  "imageAlt": {
+    "logoPreview": "Logo preview",
+    "headerLogo": "Header logo",
+    "appLogo": "App Logo",
+    "avatar": "Avatar",
+    "mfaQrCode": "MFA QR Code"
+  },
+  "csv": {
+    "headers": {
+      "date": "Date",
+      "entityType": "Entity Type",
+      "entityId": "Entity ID",
+      "action": "Action",
+      "changes": "Changes",
+      "userId": "User ID",
+      "tenantId": "Tenant ID"
+    }
+  },
+  "expiryOptions": {
+    "1day": "1 day",
+    "7days": "7 days",
+    "14days": "14 days",
+    "30days": "30 days",
+    "90days": "90 days"
+  },
+  "email": {
+    "invitation": {
+      "subject": "You've been invited to join {{tenantName}}",
+      "greeting": "Hello",
+      "welcomeTitle": "Welcome to {{tenantName}}!",
+      "body": "You've been invited to join",
+      "codeLabel": "Your Invitation Code",
+      "buttonText": "Accept Invitation",
+      "expiresOn": "Expires on"
+    }
   }
 }
