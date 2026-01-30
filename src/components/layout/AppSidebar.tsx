@@ -1,5 +1,5 @@
-import { 
-  Users, Building2, CreditCard, 
+import {
+  Users, Building2, CreditCard,
   HelpCircle, Palette, FileText, LayoutDashboard,
   Layers, BarChart3, Network, Building, Download, History,
   MessageSquare, Tags, UserCheck, Sparkles, Calendar, ClipboardList,
@@ -27,8 +27,7 @@ export function AppSidebar() {
   const { branding } = useBranding();
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
-  const isRTL = i18n.dir() === 'rtl' || document.documentElement.dir === 'rtl';
-  const sidebarSide = isRTL ? 'right' : 'left';
+
   const menuItems = [
     {
       label: t('nav.dashboard'),
@@ -82,7 +81,7 @@ export function AppSidebar() {
   ];
 
   return (
-    <Sidebar variant="sidebar" collapsible="icon" side={sidebarSide}>
+    <Sidebar variant="sidebar" collapsible="icon" side="left">
       <SidebarHeader className="border-b border-sidebar-border p-4">
         {isCollapsed ? (
           <ThemeIcon
@@ -117,8 +116,8 @@ export function AppSidebar() {
                 {group.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={item.title}>
-                      <NavLink 
-                        to={item.url} 
+                      <NavLink
+                        to={item.url}
                         end={item.url === '/'}
                         className="flex items-center gap-2"
                         activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
