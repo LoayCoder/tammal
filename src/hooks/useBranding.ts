@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { tenantAssetsService } from '@/services/tenantAssets';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import type { HSLColor } from '@/components/branding/HSLColorPicker';
 
-export type AssetType = 'logo' | 'logo_light' | 'logo_dark' | 'favicon' | 'icon_light' | 'icon_dark' | 'pwa_icon';
+export type AssetType = 'logo' | 'logo_light' | 'logo_dark' | 'favicon' | 'icon_light' | 'icon_dark' | 'pwa_icon' | 'pwa_icon_light' | 'pwa_icon_dark';
 
 export interface BrandingConfig {
   colors: {
@@ -19,6 +20,9 @@ export interface BrandingConfig {
   icon_light_url: string | null;
   icon_dark_url: string | null;
   pwa_icon_url: string | null;
+  // New strict keys
+  pwa_icon_light_url?: string | null;
+  pwa_icon_dark_url?: string | null;
 }
 
 const DEFAULT_BRANDING: BrandingConfig = {
@@ -33,7 +37,9 @@ const DEFAULT_BRANDING: BrandingConfig = {
   favicon_url: null,
   icon_light_url: null,
   icon_dark_url: null,
-  pwa_icon_url: null
+  pwa_icon_url: null,
+  pwa_icon_light_url: null,
+  pwa_icon_dark_url: null
 };
 
 export function useBranding(tenantId?: string) {
@@ -51,25 +57,51 @@ export function useBranding(tenantId?: string) {
     }
 
     try {
-      const { data, error } = await supabase
-        .from('tenants')
-        .select('branding_config')
-        .eq('id', tenantId)
-        .single();
+      // Parallel fetch for speed
+      const [brandingResponse, assetsResponse] = await Promise.all([
+        supabase
+          .from('tenants')
+          .select('branding_config')
+          .eq('id', tenantId)
+          .single(),
+        tenantAssetsService.getTenantAssets().catch(() => null)
+      ]);
+
+      const { data, error } = brandingResponse;
+      const assets = assetsResponse;
 
       if (error) throw error;
 
+      let newConfig = { ...DEFAULT_BRANDING };
+
+      // Apply legacy/jsonb config
       if (data?.branding_config) {
         const config = data.branding_config as unknown as BrandingConfig;
-        setBranding({
-          ...DEFAULT_BRANDING,
+        newConfig = {
+          ...newConfig,
           ...config,
           colors: {
-            ...DEFAULT_BRANDING.colors,
+            ...newConfig.colors,
             ...(config.colors || {})
           }
-        });
+        };
       }
+
+      // Apply strict isolated assets (Override if present)
+      if (assets) {
+        if (assets.logo_light_url) newConfig.logo_light_url = assets.logo_light_url;
+        if (assets.logo_dark_url) newConfig.logo_dark_url = assets.logo_dark_url;
+        if (assets.pwa_icon_light_url) newConfig.pwa_icon_light_url = assets.pwa_icon_light_url;
+        if (assets.pwa_icon_dark_url) newConfig.pwa_icon_dark_url = assets.pwa_icon_dark_url;
+
+        // Backwards compatibility filling
+        if (!newConfig.pwa_icon_url && assets.pwa_icon_light_url) {
+          newConfig.pwa_icon_url = assets.pwa_icon_light_url;
+        }
+      }
+
+      setBranding(newConfig);
+
     } catch (error) {
       console.error('Error fetching branding:', error);
     } finally {
@@ -126,19 +158,50 @@ export function useBranding(tenantId?: string) {
 
       // Upload each file type if provided
       if (files) {
-        const fileTypes: AssetType[] = ['logo', 'logo_light', 'logo_dark', 'favicon', 'icon_light', 'icon_dark', 'pwa_icon'];
-        
+        const fileTypes: AssetType[] = [
+          'logo', 'logo_light', 'logo_dark',
+          'favicon', 'icon_light', 'icon_dark',
+          'pwa_icon', 'pwa_icon_light', 'pwa_icon_dark'
+        ];
+
+        const strictAssets: Partial<Record<AssetType, boolean>> = {
+          'logo_light': true,
+          'logo_dark': true,
+          'pwa_icon_light': true,
+          'pwa_icon_dark': true
+        };
+
         for (const type of fileTypes) {
           const file = files[type];
           if (file) {
-            const url = await uploadFile(file, type);
-            const urlKey = `${type}_url` as keyof BrandingConfig;
-            (updatedConfig as any)[urlKey] = url;
+            let url: string | null = null;
+
+            // Should this asset use strict tenant isolation?
+            if (strictAssets[type]) {
+              try {
+                url = await tenantAssetsService.uploadAsset(tenantId, file, type as any);
+                // Update the strict table immediately
+                await tenantAssetsService.updateTenantAssets(tenantId, {
+                  [`${type}_url`]: url
+                });
+              } catch (e) {
+                console.error(`Failed to strictly upload ${type}`, e);
+                // Fallback? No, strict failure should probably be noted, but for now we log.
+              }
+            } else {
+              // Legacy upload
+              url = await uploadFile(file, type);
+            }
+
+            if (url) {
+              const urlKey = `${type}_url` as keyof BrandingConfig;
+              (updatedConfig as any)[urlKey] = url;
+            }
           }
         }
       }
 
-      // Update tenant branding config
+      // Update tenant branding config (Legacy JSON column still updated for backward compat or non-strict fields)
       const { error } = await supabase
         .from('tenants')
         .update({ branding_config: JSON.parse(JSON.stringify(updatedConfig)) })

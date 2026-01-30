@@ -7,44 +7,96 @@ import type { BrandingConfig } from './useBranding';
  */
 export function useDynamicPWA(branding: BrandingConfig | null) {
   useEffect(() => {
-    if (!branding?.pwa_icon_url) return;
+    if (!branding) return;
 
-    // Create or update manifest link for dynamic PWA icons
-    const existingManifestLink = document.querySelector('link[rel="manifest"]') as HTMLLinkElement | null;
-    
-    // For runtime PWA icon updates, we inject the icon into the apple-touch-icon
-    // The service worker manifest is static, but apple-touch-icon can be dynamic
-    const appleTouchIcon = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement | null;
-    if (appleTouchIcon && branding.pwa_icon_url) {
-      appleTouchIcon.href = branding.pwa_icon_url;
-    }
+    // Helper to Create Manifest Blob
+    const createManifestBlob = () => {
+      // Default to what we have
+      const existingIcons = [];
 
-    // Add additional PWA icons for different sizes
-    const existingIcons = document.querySelectorAll('link[rel="icon"][sizes]');
-    existingIcons.forEach(icon => icon.remove());
+      // We prioritize the strictly isolated assets
+      const iconLight = branding.pwa_icon_light_url || branding.pwa_icon_url || '/pwa-192x192.png';
+      const iconDark = branding.pwa_icon_dark_url || branding.pwa_icon_url || '/pwa-192x192.png';
 
-    if (branding.pwa_icon_url) {
-      // Add 192x192 icon
-      const icon192 = document.createElement('link');
-      icon192.rel = 'icon';
-      icon192.type = 'image/png';
-      icon192.sizes = '192x192';
-      icon192.href = branding.pwa_icon_url;
-      document.head.appendChild(icon192);
+      const manifestContent = {
+        name: "Tammal",
+        short_name: "Tammal",
+        description: "Multi-tenant SaaS Application",
+        theme_color: "#ffffff",
+        background_color: "#ffffff",
+        display: "standalone",
+        start_url: "/",
+        icons: [
+          {
+            src: iconLight,
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "any maskable"
+          },
+          {
+            src: iconLight,
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any maskable"
+          },
+          // We can add "dark" specific icons if browsers support 'media' in manifest icons in the future of this project,
+          // but currently switching manifests or standard icons is the way. 
+          // For now, we will use the 'light' icon as the default standard one for the manifest, 
+          // as dynamic OS theme switching for manifest icons is tricky without a separate dark manifest.
+        ]
+      };
 
-      // Add 512x512 icon
-      const icon512 = document.createElement('link');
-      icon512.rel = 'icon';
-      icon512.type = 'image/png';
-      icon512.sizes = '512x512';
-      icon512.href = branding.pwa_icon_url;
-      document.head.appendChild(icon512);
-    }
+      const stringManifest = JSON.stringify(manifestContent);
+      const blob = new Blob([stringManifest], { type: 'application/json' });
+      return URL.createObjectURL(blob);
+    };
+
+    // Update Manifest Link
+    const updateManifest = () => {
+      const manifestUrl = createManifestBlob();
+      let link = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
+
+      if (link) {
+        URL.revokeObjectURL(link.href); // Clean up old
+        link.href = manifestUrl;
+      } else {
+        link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestUrl;
+        document.head.appendChild(link);
+      }
+    };
+
+    updateManifest();
+
+    // Update Apple Touch Icon & Favicon (Dynamic based on system preference is valid via matchMedia)
+    const updateFavicons = () => {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const activeIcon = isDark
+        ? (branding.pwa_icon_dark_url || branding.pwa_icon_url)
+        : (branding.pwa_icon_light_url || branding.pwa_icon_url);
+
+      if (activeIcon) {
+        let appleLink = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement;
+        if (appleLink) appleLink.href = activeIcon;
+
+        let favLink = document.querySelector('link[rel="icon"][sizes="any"]') as HTMLLinkElement;
+        if (!favLink) favLink = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
+        if (favLink) favLink.href = activeIcon;
+      }
+    };
+
+    // Initial call
+    updateFavicons();
+
+    // Listen for theme changes to update favicon dynamically
+    const matcher = window.matchMedia('(prefers-color-scheme: dark)');
+    const changeHandler = () => updateFavicons();
+    matcher.addEventListener('change', changeHandler);
 
     return () => {
-      // Cleanup dynamically added icons
-      const addedIcons = document.querySelectorAll('link[rel="icon"][sizes]');
-      addedIcons.forEach(icon => icon.remove());
+      matcher.removeEventListener('change', changeHandler);
     };
-  }, [branding?.pwa_icon_url]);
+
+  }, [branding?.pwa_icon_url, branding?.pwa_icon_light_url, branding?.pwa_icon_dark_url]);
 }

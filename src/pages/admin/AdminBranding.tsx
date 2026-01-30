@@ -20,6 +20,8 @@ export default function AdminBranding() {
   const [iconLightFile, setIconLightFile] = useState<File | null>(null);
   const [iconDarkFile, setIconDarkFile] = useState<File | null>(null);
   const [pwaIconFile, setPwaIconFile] = useState<File | null>(null);
+  const [pwaIconLightFile, setPwaIconLightFile] = useState<File | null>(null);
+  const [pwaIconDarkFile, setPwaIconDarkFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   // Fetch user's tenant ID
@@ -32,7 +34,7 @@ export default function AdminBranding() {
           .select('tenant_id')
           .eq('user_id', user.id)
           .single();
-        
+
         if (data?.tenant_id) {
           setTenantId(data.tenant_id);
         }
@@ -41,14 +43,14 @@ export default function AdminBranding() {
     fetchTenantId();
   }, []);
 
-  const { 
-    branding, 
-    setBranding, 
-    isLoading, 
-    isSaving, 
-    saveBranding, 
+  const {
+    branding,
+    setBranding,
+    isLoading,
+    isSaving,
+    saveBranding,
     resetBranding,
-    defaultBranding 
+    defaultBranding
   } = useBranding(tenantId);
 
   // Update logo preview when branding changes
@@ -85,6 +87,8 @@ export default function AdminBranding() {
   const handleIconLightChange = (file: File | null) => setIconLightFile(file);
   const handleIconDarkChange = (file: File | null) => setIconDarkFile(file);
   const handlePwaIconChange = (file: File | null) => setPwaIconFile(file);
+  const handlePwaIconLightChange = (file: File | null) => setPwaIconLightFile(file);
+  const handlePwaIconDarkChange = (file: File | null) => setPwaIconDarkFile(file);
 
   const handleSave = async () => {
     await saveBranding(branding, {
@@ -95,6 +99,8 @@ export default function AdminBranding() {
       icon_light: iconLightFile,
       icon_dark: iconDarkFile,
       pwa_icon: pwaIconFile,
+      pwa_icon_light: pwaIconLightFile,
+      pwa_icon_dark: pwaIconDarkFile,
     });
     // Reset all file states
     setLogoFile(null);
@@ -104,6 +110,8 @@ export default function AdminBranding() {
     setIconLightFile(null);
     setIconDarkFile(null);
     setPwaIconFile(null);
+    setPwaIconLightFile(null);
+    setPwaIconDarkFile(null);
   };
 
   const handleReset = () => {
@@ -115,6 +123,8 @@ export default function AdminBranding() {
     setIconLightFile(null);
     setIconDarkFile(null);
     setPwaIconFile(null);
+    setPwaIconLightFile(null);
+    setPwaIconDarkFile(null);
     setLogoPreview(null);
   };
 
@@ -294,6 +304,29 @@ export default function AdminBranding() {
                     previewSize="small"
                   />
                   <p className="text-xs text-muted-foreground mt-1">{t('branding.pwaIconHint')}</p>
+                </div>
+
+                <div>
+                  <ImageUploader
+                    label="PWA Icon (Light)"
+                    value={branding.pwa_icon_light_url || undefined}
+                    onChange={handlePwaIconLightChange}
+                    accept="image/png"
+                    maxSizeKB={1024}
+                    previewSize="small"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">For strictly isolated light theme</p>
+                </div>
+                <div>
+                  <ImageUploader
+                    label="PWA Icon (Dark)"
+                    value={branding.pwa_icon_dark_url || undefined}
+                    onChange={handlePwaIconDarkChange}
+                    accept="image/png"
+                    maxSizeKB={1024}
+                    previewSize="small"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">For strictly isolated dark theme</p>
                 </div>
               </div>
             </CardContent>
