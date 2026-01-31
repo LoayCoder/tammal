@@ -181,11 +181,13 @@ export function TenantSheet({
   }, [tenant, form]);
 
   const handleSubmit = (data: TenantFormValues) => {
+    // Extract terms_accepted (form-only field) and exclude from database submission
+    const { terms_accepted, ...tenantData } = data;
     onSubmit({
-      ...data,
-      slug: data.slug || null,
-      domain: data.domain || null,
-      plan_id: data.plan_id || null,
+      ...tenantData,
+      slug: tenantData.slug || null,
+      domain: tenantData.domain || null,
+      plan_id: tenantData.plan_id || null,
       branding_config: branding,
       settings,
       ...security,
