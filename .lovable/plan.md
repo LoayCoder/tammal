@@ -1,192 +1,126 @@
 
-# Fix User Management Display and Add Full User Actions
+
+# Enhanced User Edit Dialog with Full Profile Management
 
 ## Problem Summary
 
-Based on my investigation, there are two main issues:
+The current `UserEditDialog` only allows editing:
+- Full Name
+- Status (active/inactive/suspended)
 
-| Issue | Current Behavior | Expected Behavior |
-|-------|------------------|-------------------|
-| **UUID showing as subtitle** | User `276100d6-b28d-491b-9c6e-e54cb3cd306d` shows UUID instead of email | Should show user's email (`luay@dhuud.com`) |
-| **Missing user actions** | Only "View Details" and "Manage Roles" in dropdown | Need Edit, Deactivate, Suspend, Delete actions |
+Missing features requested:
+1. **Reset Password** - Admin ability to trigger password reset for users
+2. **Upload Profile Photo** - Admin ability to change user avatar
+3. **Extended User Information** - Fields for position, department, location, etc.
 
-### Root Cause Analysis
+## Current Architecture Analysis
 
-1. **UUID Display Issue**:
-   - The profile for user `276100d6-b28d-491b-9c6e-e54cb3cd306d` has `full_name: null`
-   - The `UserTable.tsx` displays `user.user_id` (the UUID) as the subtitle
-   - The email is stored in `auth.users` table, not accessible directly from client
-
-2. **Missing Actions**:
-   - The profiles table has no `status` field for deactivation/suspension
-   - The UserTable dropdown only has 2 menu items (View Details, Manage Roles)
-   - No mutations exist in useUsers hook for update/delete operations
-
----
+| Component | Current State | Gap |
+|-----------|--------------|-----|
+| `profiles` table | Has: `id`, `user_id`, `tenant_id`, `full_name`, `avatar_url`, `status` | Missing: `job_title`, `department`, `location`, `phone` |
+| `employees` table | Has organizational fields: `department`, `role_title`, `employee_number`, `manager_id` | Separate from profiles - HR data |
+| `UserEditDialog.tsx` | Only edits `full_name` and `status` | No avatar upload, no extended fields |
+| Password Reset | Only self-service via `ChangePasswordDialog` | No admin-triggered reset via email |
 
 ## Solution Overview
 
-### Step 1: Database Changes
+### Approach: Extend Profiles Table
+Rather than duplicating employee data, we'll add organizational context fields directly to the `profiles` table since this is for system users (login accounts), not just HR records.
 
-**A. Add status field to profiles table**
-```sql
--- Add status column for user account states
-ALTER TABLE public.profiles 
-ADD COLUMN status TEXT NOT NULL DEFAULT 'active' 
-CHECK (status IN ('active', 'inactive', 'suspended'));
-```
+### Step 1: Database Migration - Extend Profiles Table
 
-**B. Create a database function to fetch user emails**
-Since we cannot query `auth.users` directly from the client, we need a security-definer function:
+Add new columns to store organizational information:
 
 ```sql
-CREATE OR REPLACE FUNCTION public.get_user_email(_user_id uuid)
-RETURNS text
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT email FROM auth.users WHERE id = _user_id
-$$;
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS job_title TEXT,
+ADD COLUMN IF NOT EXISTS department TEXT,
+ADD COLUMN IF NOT EXISTS phone TEXT,
+ADD COLUMN IF NOT EXISTS location TEXT;
 ```
 
-**C. Create a view that includes email**
-```sql
-CREATE VIEW public.profiles_with_email
-WITH (security_invoker=on) AS
-SELECT 
-  p.*,
-  public.get_user_email(p.user_id) as email
-FROM public.profiles p;
-```
+### Step 2: Create Admin Password Reset Edge Function
 
-### Step 2: Update useUsers Hook
-
-Modify the hook to:
-1. Query the new view instead of profiles table directly
-2. Add mutations for update and delete operations
-3. Add status filtering support
+Since admins cannot directly change other users' passwords, we need an edge function that uses the Supabase Admin API to send a password reset email:
 
 ```typescript
-// Fetch from profiles_with_email view
-const { data: profiles, error } = await supabase
-  .from('profiles_with_email')
-  .select('*')
-  .eq('tenant_id', filters.tenantId)
-  .order('created_at', { ascending: false });
-
-// Add new mutations
-const updateProfile = useMutation({
-  mutationFn: async ({ id, ...updates }) => {
-    // Update profile status, name, etc.
-  },
-});
-
-const deleteUser = useMutation({
-  mutationFn: async (userId: string) => {
-    // Soft delete or deactivate
-  },
-});
+// supabase/functions/admin-reset-password/index.ts
+- Accepts user_id parameter
+- Verifies caller is super_admin or tenant_admin
+- Uses Supabase Admin API to send password reset email
+- Returns success/failure
 ```
 
-### Step 3: Update UserTable.tsx
+### Step 3: Update useUsers Hook
 
-**A. Display email instead of UUID**
-```tsx
-<div>
-  <div className="font-medium">{user.full_name || t('users.unnamed')}</div>
-  <div className="text-sm text-muted-foreground">{user.email || user.user_id}</div>
-</div>
-```
+Add new mutation functions:
+- `updateProfile` - Extended to support new fields (job_title, department, phone, location)
+- `sendPasswordReset` - Calls the edge function to trigger password reset email
 
-**B. Add action menu items**
-```tsx
-<DropdownMenuContent align="end">
-  <DropdownMenuItem onClick={() => onViewDetails(user)}>
-    <UserCog className="me-2 h-4 w-4" />
-    {t('users.viewDetails')}
-  </DropdownMenuItem>
-  <DropdownMenuItem onClick={() => onEditRoles(user)}>
-    <Shield className="me-2 h-4 w-4" />
-    {t('users.manageRoles')}
-  </DropdownMenuItem>
-  <DropdownMenuSeparator />
-  <DropdownMenuItem onClick={() => onEdit(user)}>
-    <Pencil className="me-2 h-4 w-4" />
-    {t('users.editUser')}
-  </DropdownMenuItem>
-  <DropdownMenuItem onClick={() => onDeactivate(user)}>
-    <UserX className="me-2 h-4 w-4" />
-    {t('users.deactivateUser')}
-  </DropdownMenuItem>
-  <DropdownMenuItem onClick={() => onSuspend(user)}>
-    <Ban className="me-2 h-4 w-4" />
-    {t('users.suspendUser')}
-  </DropdownMenuItem>
-  <DropdownMenuSeparator />
-  <DropdownMenuItem onClick={() => onDelete(user)} className="text-destructive">
-    <Trash2 className="me-2 h-4 w-4" />
-    {t('users.deleteUser')}
-  </DropdownMenuItem>
-</DropdownMenuContent>
-```
+### Step 4: Rebuild UserEditDialog.tsx
 
-### Step 4: Create User Edit Dialog
+Transform into a comprehensive user management dialog with:
 
-Create a new `UserEditDialog.tsx` component to:
-- Edit user profile (full_name)
-- Change user status (active/inactive/suspended)
-- View user details
+**Section 1: Avatar Management**
+- Display current avatar with fallback initials
+- Upload new avatar button (reuse existing pattern from EditProfileDialog)
+- Remove avatar button
 
-### Step 5: Create Confirmation Dialogs
+**Section 2: Basic Information**
+- Full Name (existing)
+- Email (read-only, display only)
+- Phone Number (new)
 
-- **Deactivation Dialog**: Confirm before deactivating a user
-- **Suspension Dialog**: Confirm before suspending a user  
-- **Delete Dialog**: Confirm before soft-deleting a user
+**Section 3: Organizational Info**
+- Job Title / Position (new)
+- Department (new)
+- Location (new)
 
-### Step 6: Update Translation Files
+**Section 4: Account Status**
+- Status select (existing: active/inactive/suspended)
 
-Add new translation keys:
+**Section 5: Security Actions**
+- "Send Password Reset Email" button
+- Confirmation before sending
 
-**English (en.json)**
+### Step 5: Update Locale Files
+
+**English (en.json)** - Add to `users` section:
 ```json
-"editUser": "Edit User",
-"deleteUser": "Delete User",
-"deactivateUser": "Deactivate User",
-"suspendUser": "Suspend User",
-"reactivateUser": "Reactivate User",
-"userStatus": "Status",
-"statusActive": "Active",
-"statusInactive": "Inactive", 
-"statusSuspended": "Suspended",
-"confirmDeactivate": "Are you sure you want to deactivate this user?",
-"confirmSuspend": "Are you sure you want to suspend this user?",
-"confirmDelete": "Are you sure you want to delete this user?",
-"updateSuccess": "User updated successfully",
-"updateError": "Failed to update user",
-"deleteSuccess": "User deleted successfully",
-"deleteError": "Failed to delete user"
+"jobTitle": "Job Title",
+"department": "Department",
+"phone": "Phone Number",
+"location": "Location",
+"avatarSection": "Profile Photo",
+"uploadPhoto": "Upload Photo",
+"removePhoto": "Remove Photo",
+"basicInfo": "Basic Information",
+"organizationalInfo": "Organization",
+"securityActions": "Security",
+"sendPasswordReset": "Send Password Reset",
+"sendPasswordResetDescription": "Send a password reset email to this user",
+"passwordResetSent": "Password reset email sent successfully",
+"passwordResetError": "Failed to send password reset email",
+"confirmPasswordReset": "Are you sure you want to send a password reset email to {{email}}?"
 ```
 
-**Arabic (ar.json)**
+**Arabic (ar.json)** - Add translations:
 ```json
-"editUser": "تعديل المستخدم",
-"deleteUser": "حذف المستخدم",
-"deactivateUser": "تعطيل المستخدم",
-"suspendUser": "تعليق المستخدم",
-"reactivateUser": "إعادة تفعيل المستخدم",
-"userStatus": "الحالة",
-"statusActive": "نشط",
-"statusInactive": "غير نشط",
-"statusSuspended": "معلّق",
-"confirmDeactivate": "هل أنت متأكد من تعطيل هذا المستخدم؟",
-"confirmSuspend": "هل أنت متأكد من تعليق هذا المستخدم؟",
-"confirmDelete": "هل أنت متأكد من حذف هذا المستخدم؟",
-"updateSuccess": "تم تحديث المستخدم بنجاح",
-"updateError": "فشل تحديث المستخدم",
-"deleteSuccess": "تم حذف المستخدم بنجاح",
-"deleteError": "فشل حذف المستخدم"
+"jobTitle": "المسمى الوظيفي",
+"department": "القسم",
+"phone": "رقم الهاتف",
+"location": "الموقع",
+"avatarSection": "صورة الملف الشخصي",
+"uploadPhoto": "رفع صورة",
+"removePhoto": "إزالة الصورة",
+"basicInfo": "المعلومات الأساسية",
+"organizationalInfo": "المعلومات التنظيمية",
+"securityActions": "الأمان",
+"sendPasswordReset": "إرسال رابط إعادة تعيين كلمة المرور",
+"sendPasswordResetDescription": "إرسال بريد إلكتروني لإعادة تعيين كلمة المرور",
+"passwordResetSent": "تم إرسال بريد إعادة تعيين كلمة المرور بنجاح",
+"passwordResetError": "فشل إرسال بريد إعادة تعيين كلمة المرور",
+"confirmPasswordReset": "هل أنت متأكد من إرسال بريد إعادة تعيين كلمة المرور إلى {{email}}؟"
 ```
 
 ---
@@ -195,31 +129,81 @@ Add new translation keys:
 
 | File | Action | Description |
 |------|--------|-------------|
-| Database Migration | Create | Add status field, create email function and view |
-| `src/hooks/useUsers.ts` | Modify | Use new view, add update/delete mutations |
-| `src/components/users/UserTable.tsx` | Modify | Show email, add action buttons |
-| `src/components/users/UserEditDialog.tsx` | Create | Dialog for editing user profile |
-| `src/components/users/UserStatusDialog.tsx` | Create | Confirmation dialog for status changes |
-| `src/pages/admin/UserManagement.tsx` | Modify | Wire up new dialogs and handlers |
+| Database Migration | Create | Add job_title, department, phone, location to profiles |
+| `supabase/functions/admin-reset-password/index.ts` | Create | Edge function for admin password reset |
+| `src/hooks/useUsers.ts` | Modify | Add extended update fields + password reset mutation |
+| `src/components/users/UserEditDialog.tsx` | Rebuild | Full profile editor with avatar, org info, password reset |
 | `src/locales/en.json` | Modify | Add new translation keys |
 | `src/locales/ar.json` | Modify | Add Arabic translations |
 
 ---
 
-## User Flow After Implementation
+## UI Wireframe for New UserEditDialog
 
-1. **View Users**: See list with proper names and emails (not UUIDs)
-2. **Edit User**: Click menu → Edit → Change name, save
-3. **Deactivate User**: Click menu → Deactivate → Confirm → User marked inactive
-4. **Suspend User**: Click menu → Suspend → Confirm → User marked suspended
-5. **Delete User**: Click menu → Delete → Confirm → User soft-deleted
-6. **Reactivate User**: For inactive/suspended users, show reactivate option
+```text
++------------------------------------------+
+| Edit User                            [X] |
+| Update user profile and settings         |
++------------------------------------------+
+|                                          |
+|  [Profile Photo Section]                 |
+|  +------+  Full Name Here                |
+|  |Avatar|  email@example.com             |
+|  +------+  Status: Active                |
+|                                          |
+|  [Upload Photo] [Remove]                 |
+|                                          |
++------------------------------------------+
+|  Basic Information                       |
+|  ┌─────────────────────────────────────┐ |
+|  │ Full Name                           │ |
+|  └─────────────────────────────────────┘ |
+|  ┌─────────────────────────────────────┐ |
+|  │ Phone Number                        │ |
+|  └─────────────────────────────────────┘ |
++------------------------------------------+
+|  Organization                            |
+|  ┌─────────────────────────────────────┐ |
+|  │ Job Title                           │ |
+|  └─────────────────────────────────────┘ |
+|  ┌─────────────────────────────────────┐ |
+|  │ Department                          │ |
+|  └─────────────────────────────────────┘ |
+|  ┌─────────────────────────────────────┐ |
+|  │ Location                            │ |
+|  └─────────────────────────────────────┘ |
++------------------------------------------+
+|  Status                                  |
+|  ┌─────────────────────────────────────┐ |
+|  │ [Active ▼]                          │ |
+|  └─────────────────────────────────────┘ |
++------------------------------------------+
+|  Security                                |
+|  [🔐 Send Password Reset Email]          |
+|  Sends a password reset link to user     |
++------------------------------------------+
+|                    [Cancel] [Save]       |
++------------------------------------------+
+```
 
 ---
 
 ## Technical Considerations
 
-- **Security**: Email function uses SECURITY DEFINER to safely expose auth.users email
-- **Soft Delete**: Never hard delete - use status changes or deleted_at timestamp
-- **RLS**: Existing policies will work with the new view (security_invoker=on)
-- **RTL Support**: All new components will use logical properties (me-, ms-)
+1. **Avatar Upload**: Reuse the storage pattern from `EditProfileDialog.tsx` using the existing `avatars` bucket
+2. **Password Reset Security**: Edge function must verify the caller has admin permissions before sending reset email
+3. **RTL Support**: All new fields will use logical properties (`me-`, `ms-`, `ps-`, `pe-`)
+4. **Soft Delete**: No hard deletes - status changes handle deactivation
+5. **View Refresh**: The `profiles_with_email` view will automatically include new columns
+
+---
+
+## User Flow After Implementation
+
+1. **Admin clicks "Edit" on a user** → Opens enhanced UserEditDialog
+2. **Avatar Management**: Upload/remove profile photo immediately saved
+3. **Edit Profile**: Change name, phone, job title, department, location
+4. **Change Status**: Switch between active/inactive/suspended
+5. **Password Reset**: Click button → Confirm → User receives password reset email
+6. **Save Changes**: All profile updates saved at once
+
