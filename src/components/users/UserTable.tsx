@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Table,
@@ -18,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Shield, UserCog, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Shield, UserCog, Pencil, UserX, Ban, UserCheck, Trash2 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import type { UserWithRoles } from '@/hooks/useUsers';
 
@@ -27,9 +26,24 @@ interface UserTableProps {
   isLoading: boolean;
   onEditRoles: (user: UserWithRoles) => void;
   onViewDetails: (user: UserWithRoles) => void;
+  onEdit?: (user: UserWithRoles) => void;
+  onDeactivate?: (user: UserWithRoles) => void;
+  onSuspend?: (user: UserWithRoles) => void;
+  onReactivate?: (user: UserWithRoles) => void;
+  onDelete?: (user: UserWithRoles) => void;
 }
 
-export function UserTable({ users, isLoading, onEditRoles, onViewDetails }: UserTableProps) {
+export function UserTable({ 
+  users, 
+  isLoading, 
+  onEditRoles, 
+  onViewDetails,
+  onEdit,
+  onDeactivate,
+  onSuspend,
+  onReactivate,
+  onDelete,
+}: UserTableProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
@@ -46,6 +60,28 @@ export function UserTable({ users, isLoading, onEditRoles, onViewDetails }: User
       'user': t('users.user'),
     };
     return roleLabels[role] || role;
+  };
+
+  const getStatusLabel = (status: string) => {
+    const statusLabels: Record<string, string> = {
+      active: t('users.statusActive'),
+      inactive: t('users.statusInactive'),
+      suspended: t('users.statusSuspended'),
+    };
+    return statusLabels[status] || status;
+  };
+
+  const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
+    switch (status) {
+      case 'active':
+        return 'default';
+      case 'inactive':
+        return 'secondary';
+      case 'suspended':
+        return 'destructive';
+      default:
+        return 'outline';
+    }
   };
 
   const getRoleBadges = (user: UserWithRoles) => {
@@ -92,6 +128,7 @@ export function UserTable({ users, isLoading, onEditRoles, onViewDetails }: User
       <TableHeader>
         <TableRow>
           <TableHead>{t('users.user')}</TableHead>
+          <TableHead>{t('users.userStatus')}</TableHead>
           <TableHead>{t('users.roles')}</TableHead>
           <TableHead>{t('users.systemRole')}</TableHead>
           <TableHead>{t('users.createdAt')}</TableHead>
@@ -109,9 +146,14 @@ export function UserTable({ users, isLoading, onEditRoles, onViewDetails }: User
                 </Avatar>
                 <div>
                   <div className="font-medium">{user.full_name || t('users.unnamed')}</div>
-                  <div className="text-sm text-muted-foreground">{user.user_id}</div>
+                  <div className="text-sm text-muted-foreground">{user.email || user.user_id}</div>
                 </div>
               </div>
+            </TableCell>
+            <TableCell>
+              <Badge variant={getStatusVariant(user.status || 'active')}>
+                {getStatusLabel(user.status || 'active')}
+              </Badge>
             </TableCell>
             <TableCell>
               <div className="flex flex-wrap gap-1">
@@ -144,6 +186,48 @@ export function UserTable({ users, isLoading, onEditRoles, onViewDetails }: User
                     <Shield className="me-2 h-4 w-4" />
                     {t('users.manageRoles')}
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {onEdit && (
+                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(user); }}>
+                      <Pencil className="me-2 h-4 w-4" />
+                      {t('users.editUser')}
+                    </DropdownMenuItem>
+                  )}
+                  {user.status === 'active' ? (
+                    <>
+                      {onDeactivate && (
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDeactivate(user); }}>
+                          <UserX className="me-2 h-4 w-4" />
+                          {t('users.deactivateUser')}
+                        </DropdownMenuItem>
+                      )}
+                      {onSuspend && (
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onSuspend(user); }}>
+                          <Ban className="me-2 h-4 w-4" />
+                          {t('users.suspendUser')}
+                        </DropdownMenuItem>
+                      )}
+                    </>
+                  ) : (
+                    onReactivate && (
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onReactivate(user); }}>
+                        <UserCheck className="me-2 h-4 w-4" />
+                        {t('users.reactivateUser')}
+                      </DropdownMenuItem>
+                    )
+                  )}
+                  {onDelete && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={(e) => { e.stopPropagation(); onDelete(user); }}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="me-2 h-4 w-4" />
+                        {t('users.deleteUser')}
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </TableCell>

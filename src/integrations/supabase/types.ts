@@ -474,6 +474,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          status: string
           tenant_id: string | null
           updated_at: string
           user_id: string
@@ -483,6 +484,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          status?: string
           tenant_id?: string | null
           updated_at?: string
           user_id: string
@@ -492,6 +494,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          status?: string
           tenant_id?: string | null
           updated_at?: string
           user_id?: string
@@ -1186,9 +1189,53 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles_with_email: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string | null
+          status: string | null
+          tenant_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: never
+          full_name?: string | null
+          id?: string | null
+          status?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: never
+          full_name?: string | null
+          id?: string | null
+          status?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      get_user_email: { Args: { _user_id: string }; Returns: string }
       get_user_tenant_id: { Args: { _user_id: string }; Returns: string }
       has_permission: {
         Args: { _permission_code: string; _user_id: string }

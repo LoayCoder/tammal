@@ -7,7 +7,7 @@ import type { Tables } from '@/integrations/supabase/types';
 export type Profile = Tables<'profiles'>;
 export type UserRole = Tables<'user_roles'>;
 
-export interface UserWithRoles extends Profile {
+export interface UserWithRoles extends Omit<Profile, 'status'> {
   user_roles: (UserRole & { 
     roles?: {
       id: string;
@@ -17,12 +17,14 @@ export interface UserWithRoles extends Profile {
     } | null;
   })[];
   email?: string;
+  status: string;
 }
 
 export interface UserFilters {
   tenantId?: string;
   role?: string;
   search?: string;
+  status?: string;
 }
 
 export function useUsers(filters?: UserFilters) {
@@ -37,14 +39,19 @@ export function useUsers(filters?: UserFilters) {
         return [] as UserWithRoles[];
       }
 
+      // Query from the profiles_with_email view to get emails
       let query = supabase
-        .from('profiles')
+        .from('profiles_with_email' as any)
         .select('*')
         .eq('tenant_id', filters.tenantId)
         .order('created_at', { ascending: false });
 
       if (filters?.search) {
-        query = query.or(`full_name.ilike.%${filters.search}%`);
+        query = query.or(`full_name.ilike.%${filters.search}%,email.ilike.%${filters.search}%`);
+      }
+
+      if (filters?.status) {
+        query = query.eq('status', filters.status);
       }
 
       const { data: profiles, error } = await query;
@@ -55,7 +62,7 @@ export function useUsers(filters?: UserFilters) {
       }
 
       // Fetch user roles WITH custom role details
-      const userIds = profiles.map(p => p.user_id);
+      const userIds = profiles.map((p: any) => p.user_id);
       const { data: userRolesData, error: rolesError } = await supabase
         .from('user_roles')
         .select(`
@@ -73,7 +80,7 @@ export function useUsers(filters?: UserFilters) {
       }
 
       // Map roles to users
-      return profiles.map(profile => ({
+      return profiles.map((profile: any) => ({
         ...profile,
         user_roles: (userRolesData || [])
           .filter(ur => ur.user_id === profile.user_id)
@@ -86,11 +93,68 @@ export function useUsers(filters?: UserFilters) {
     enabled: !!filters?.tenantId,
   });
 
+  // Mutation to update profile (name, status)
+  const updateProfile = useMutation({
+    mutationFn: async ({ id, full_name, status }: { id: string; full_name?: string; status?: string }) => {
+      const updates: Record<string, any> = {};
+      if (full_name !== undefined) updates.full_name = full_name;
+      if (status !== undefined) updates.status = status;
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success(t('users.updateSuccess'));
+    },
+    onError: (error) => {
+      toast.error(t('users.updateError'));
+      console.error('Update profile error:', error);
+    },
+  });
+
+  // Mutation to change user status
+  const changeUserStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: 'active' | 'inactive' | 'suspended' }) => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ status })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      const statusMessage = variables.status === 'active' 
+        ? t('users.reactivateSuccess')
+        : variables.status === 'suspended'
+          ? t('users.suspendSuccess')
+          : t('users.deactivateSuccess');
+      toast.success(statusMessage);
+    },
+    onError: (error) => {
+      toast.error(t('users.statusChangeError'));
+      console.error('Change status error:', error);
+    },
+  });
+
   return {
     users: usersQuery.data ?? [],
     isLoading: usersQuery.isLoading,
     error: usersQuery.error,
     refetch: usersQuery.refetch,
+    updateProfile,
+    changeUserStatus,
   };
 }
 
