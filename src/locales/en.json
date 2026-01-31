@@ -459,7 +459,22 @@
     "deactivateSuccess": "User deactivated successfully",
     "suspendSuccess": "User suspended successfully",
     "reactivateSuccess": "User reactivated successfully",
-    "statusChangeError": "Failed to change user status"
+    "statusChangeError": "Failed to change user status",
+    "jobTitle": "Job Title",
+    "department": "Department",
+    "phone": "Phone Number",
+    "location": "Location",
+    "uploadPhoto": "Upload Photo",
+    "removePhoto": "Remove Photo",
+    "basicInfo": "Basic Information",
+    "organizationalInfo": "Organization",
+    "securityActions": "Security",
+    "sendPasswordReset": "Send Password Reset",
+    "sendPasswordResetDescription": "Send a password reset email to this user",
+    "passwordResetSent": "Password reset email sent successfully",
+    "passwordResetError": "Failed to send password reset email",
+    "confirmPasswordReset": "Are you sure you want to send a password reset email to {{email}}?",
+    "noEmailForReset": "No email address found for this user"
   },
   "roles": {
     "title": "Roles",
