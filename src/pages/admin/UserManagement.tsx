@@ -75,7 +75,8 @@ export default function UserManagement() {
   };
 
   const handleViewUserDetails = (user: UserWithRoles) => {
-    handleEditUserRoles(user);
+    setSelectedUser(user);
+    setIsEditDialogOpen(true);
   };
 
   const handleEditUser = (user: UserWithRoles) => {
