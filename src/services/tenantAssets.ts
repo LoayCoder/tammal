@@ -19,11 +19,11 @@ export const tenantAssetsService = {
      * Fetch the assets for the current user's tenant.
      * RLS ensures we only get the row if the user belongs to the tenant.
      */
-    async getTenantAssets() {
-        const { data, error } = await supabase
-            .from('tenant_assets')
+    async getTenantAssets(): Promise<TenantAssets | null> {
+        const { data, error } = await (supabase
+            .from('tenant_assets' as any) as any)
             .select('*')
-            .single();
+            .maybeSingle();
 
         if (error) {
             // If code is PGRST116, it means no row exists yet for this tenant. 
@@ -34,7 +34,7 @@ export const tenantAssetsService = {
             throw error;
         }
 
-        return data as TenantAssets;
+        return data as TenantAssets | null;
     },
 
     /**
@@ -42,32 +42,29 @@ export const tenantAssetsService = {
      * If the row doesn't exist, we fallback to Insert (Upsert).
      * Note: RLS policies must allow INSERT for own tenant.
      */
-    async updateTenantAssets(tenantId: string, updates: Partial<TenantAssets>) {
+    async updateTenantAssets(tenantId: string, updates: Partial<TenantAssets>): Promise<TenantAssets> {
         // First try to update
-        const { data, error } = await supabase
-            .from('tenant_assets')
+        const { data, error } = await (supabase
+            .from('tenant_assets' as any) as any)
             .update(updates)
             .eq('tenant_id', tenantId)
             .select()
-            .single();
+            .maybeSingle();
 
         if (error) {
-            // If no row found (and not an RLS error), try to insert
-            // Note: This relies on the user knowing their tenant_id, which we should get from their profile/session context
-            // securely on the client side before calling this, OR rely on a trigger.
-            // However, simplified approach: existing tenant_assets row should ideally be created on tenant creation.
-            // If not, we allow insert here.
-            if (data === null) {
-                const { data: insertData, error: insertError } = await supabase
-                    .from('tenant_assets')
-                    .insert([{ tenant_id: tenantId, ...updates }])
-                    .select()
-                    .single();
-
-                if (insertError) throw insertError;
-                return insertData as TenantAssets;
-            }
             throw error;
+        }
+        
+        // If no row found, try to insert
+        if (data === null) {
+            const { data: insertData, error: insertError } = await (supabase
+                .from('tenant_assets' as any) as any)
+                .insert([{ tenant_id: tenantId, ...updates }])
+                .select()
+                .single();
+
+            if (insertError) throw insertError;
+            return insertData as TenantAssets;
         }
 
         return data as TenantAssets;
