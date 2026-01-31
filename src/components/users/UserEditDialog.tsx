@@ -42,9 +42,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
+import { AvatarCropperDialog } from '@/components/ui/avatar-cropper-dialog';
 import { Camera, Trash2, KeyRound, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { readFile } from '@/lib/cropImage';
 import type { UserWithRoles } from '@/hooks/useUsers';
 
 const formSchema = z.object({
@@ -81,6 +83,8 @@ export function UserEditDialog({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
   const [showPasswordResetConfirm, setShowPasswordResetConfirm] = useState(false);
 
   const form = useForm<FormValues>({
@@ -146,21 +150,40 @@ export function UserEditDialog({
       return;
     }
 
-    // Validate file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
+    // Validate file size (max 5MB for cropping source)
+    if (file.size > 5 * 1024 * 1024) {
       toast.error(t('profile.fileTooLarge'));
       return;
     }
 
+    try {
+      // Read file and open cropper
+      const imageDataUrl = await readFile(file);
+      setImageToCrop(imageDataUrl);
+      setIsCropperOpen(true);
+    } catch (error) {
+      console.error('Error reading file:', error);
+      toast.error(t('profile.avatarUpdateError'));
+    }
+
+    // Reset input so same file can be selected again
+    event.target.value = '';
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    if (!user) return;
+
     setIsUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.user_id}-${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const fileName = `${user.user_id}-${Date.now()}.jpeg`;
+      const filePath = fileName;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, croppedBlob, { 
+          upsert: true,
+          contentType: 'image/jpeg'
+        });
 
       if (uploadError) throw uploadError;
 
@@ -175,6 +198,7 @@ export function UserEditDialog({
       toast.error(t('profile.avatarUpdateError'));
     } finally {
       setIsUploading(false);
+      setImageToCrop(null);
     }
   };
 
@@ -434,6 +458,19 @@ export function UserEditDialog({
           </Form>
         </DialogContent>
       </Dialog>
+
+      {/* Avatar Cropper Dialog */}
+      {imageToCrop && (
+        <AvatarCropperDialog
+          open={isCropperOpen}
+          onOpenChange={(open) => {
+            setIsCropperOpen(open);
+            if (!open) setImageToCrop(null);
+          }}
+          imageSrc={imageToCrop}
+          onCropComplete={handleCropComplete}
+        />
+      )}
 
       {/* Password Reset Confirmation Dialog */}
       <AlertDialog open={showPasswordResetConfirm} onOpenChange={setShowPasswordResetConfirm}>
