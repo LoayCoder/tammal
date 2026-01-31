@@ -433,7 +433,11 @@
     "inviteUser": "Invite User",
     "inviteUserDescription": "Send an invitation to join this workspace",
     "preAssignRoles": "Pre-assign Roles",
-    "preAssignRolesHint": "Roles will be assigned when user accepts invitation"
+    "preAssignRolesHint": "Roles will be assigned when user accepts invitation",
+    "selectTenant": "Select Tenant",
+    "noTenantSelected": "No Tenant Selected",
+    "selectTenantToManage": "Please select a tenant to manage its users",
+    "managingUsersFor": "Managing users for {{tenant}}"
   },
   "roles": {
     "title": "Roles",
@@ -467,7 +471,8 @@
       "manager": "Manager",
       "tenantAdmin": "Tenant Admin",
       "superAdmin": "Super Admin"
-    }
+    },
+    "managingRolesFor": "Managing roles for {{tenant}}"
   },
   "permissions": {
     "selectAll": "Select All",

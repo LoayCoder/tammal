@@ -433,7 +433,11 @@
     "inviteUser": "دعوة مستخدم",
     "inviteUserDescription": "إرسال دعوة للانضمام إلى مساحة العمل",
     "preAssignRoles": "تعيين الأدوار مسبقاً",
-    "preAssignRolesHint": "سيتم تعيين الأدوار عند قبول المستخدم للدعوة"
+    "preAssignRolesHint": "سيتم تعيين الأدوار عند قبول المستخدم للدعوة",
+    "selectTenant": "اختر المستأجر",
+    "noTenantSelected": "لم يتم اختيار مستأجر",
+    "selectTenantToManage": "يرجى اختيار مستأجر لإدارة مستخدميه",
+    "managingUsersFor": "إدارة مستخدمي {{tenant}}"
   },
   "roles": {
     "title": "الأدوار",
@@ -467,7 +471,8 @@
       "manager": "مشرف",
       "tenantAdmin": "مدير المستأجر",
       "superAdmin": "المدير الأعلى"
-    }
+    },
+    "managingRolesFor": "إدارة أدوار {{tenant}}"
   },
   "permissions": {
     "selectAll": "تحديد الكل",

@@ -32,14 +32,16 @@ export function useUsers(filters?: UserFilters) {
   const usersQuery = useQuery({
     queryKey: ['users', filters],
     queryFn: async () => {
+      // If no tenantId provided, return empty array
+      if (!filters?.tenantId) {
+        return [] as UserWithRoles[];
+      }
+
       let query = supabase
         .from('profiles')
         .select('*')
+        .eq('tenant_id', filters.tenantId)
         .order('created_at', { ascending: false });
-
-      if (filters?.tenantId) {
-        query = query.eq('tenant_id', filters.tenantId);
-      }
 
       if (filters?.search) {
         query = query.or(`full_name.ilike.%${filters.search}%`);
@@ -48,19 +50,40 @@ export function useUsers(filters?: UserFilters) {
       const { data: profiles, error } = await query;
       if (error) throw error;
 
-      // Fetch user roles separately
+      if (!profiles || profiles.length === 0) {
+        return [] as UserWithRoles[];
+      }
+
+      // Fetch user roles WITH custom role details
       const userIds = profiles.map(p => p.user_id);
-      const { data: userRolesData } = await supabase
+      const { data: userRolesData, error: rolesError } = await supabase
         .from('user_roles')
-        .select('*')
+        .select(`
+          id,
+          user_id,
+          role,
+          custom_role_id,
+          created_at,
+          roles:custom_role_id(id, name, name_ar, color)
+        `)
         .in('user_id', userIds);
+
+      if (rolesError) {
+        console.error('Error fetching user roles:', rolesError);
+      }
 
       // Map roles to users
       return profiles.map(profile => ({
         ...profile,
-        user_roles: (userRolesData || []).filter(ur => ur.user_id === profile.user_id)
+        user_roles: (userRolesData || [])
+          .filter(ur => ur.user_id === profile.user_id)
+          .map(ur => ({
+            ...ur,
+            roles: ur.roles as { id: string; name: string; name_ar: string | null; color: string } | null
+          }))
       })) as UserWithRoles[];
     },
+    enabled: !!filters?.tenantId,
   });
 
   return {

@@ -1,26 +1,53 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Search, Users, Shield, UserPlus } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Plus, Search, Users, Shield, UserPlus, Building2 } from 'lucide-react';
 import { useUsers, type UserWithRoles } from '@/hooks/useUsers';
 import { useRoles, type Role, type CreateRoleInput, type UpdateRoleInput } from '@/hooks/useRoles';
-import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
+import { useTenants } from '@/hooks/useTenants';
+import { useHasRole } from '@/hooks/useUserPermissions';
 import { UserTable } from '@/components/users/UserTable';
 import { UserRoleDialog } from '@/components/users/UserRoleDialog';
 import { RoleTable } from '@/components/roles/RoleTable';
 import { RoleDialog } from '@/components/roles/RoleDialog';
 import { PermissionMatrix } from '@/components/roles/PermissionMatrix';
 import { InviteUserDialog } from '@/components/users/InviteUserDialog';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function UserManagement() {
-  const { t } = useTranslation();
-  const { user } = useAuth();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   
-  // For now, we'll use a placeholder tenant ID. In production, this would come from user context.
-  const tenantId = 'placeholder-tenant-id';
+  // Get profile for tenant_id and check if user is super_admin
+  const { profile, isLoading: profileLoading } = useProfile();
+  const isSuperAdmin = useHasRole('super_admin');
+  const { tenants, isLoading: tenantsLoading } = useTenants();
+  
+  // State for tenant selection (super_admin only)
+  const [selectedTenantId, setSelectedTenantId] = useState<string | undefined>(undefined);
+  
+  // Determine effective tenant ID
+  const effectiveTenantId = isSuperAdmin 
+    ? (selectedTenantId || tenants?.[0]?.id)
+    : profile?.tenant_id || undefined;
+  
+  // Auto-select first tenant for super_admin when tenants load
+  useEffect(() => {
+    if (isSuperAdmin && tenants && tenants.length > 0 && !selectedTenantId) {
+      setSelectedTenantId(tenants[0].id);
+    }
+  }, [isSuperAdmin, tenants, selectedTenantId]);
   
   const [userSearch, setUserSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserWithRoles | null>(null);
@@ -31,8 +58,11 @@ export default function UserManagement() {
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [isPermissionMatrixOpen, setIsPermissionMatrixOpen] = useState(false);
   
-  const { users, isLoading: usersLoading } = useUsers({ search: userSearch });
-  const { roles, isLoading: rolesLoading, createRole, updateRole, deleteRole } = useRoles();
+  const { users, isLoading: usersLoading } = useUsers({ 
+    tenantId: effectiveTenantId, 
+    search: userSearch 
+  });
+  const { roles, isLoading: rolesLoading, createRole, updateRole, deleteRole } = useRoles(effectiveTenantId);
 
   const handleEditUserRoles = (user: UserWithRoles) => {
     setSelectedUser(user);
@@ -40,7 +70,6 @@ export default function UserManagement() {
   };
 
   const handleViewUserDetails = (user: UserWithRoles) => {
-    // For now, just open role dialog. Could expand to full user sheet.
     handleEditUserRoles(user);
   };
 
@@ -72,13 +101,59 @@ export default function UserManagement() {
     await deleteRole.mutateAsync(roleId);
   };
 
+  // Get selected tenant name for display
+  const selectedTenant = tenants?.find(t => t.id === effectiveTenantId);
+
+  // Show loading state while fetching initial data
+  if (profileLoading || (isSuperAdmin && tenantsLoading)) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
+
+  // Show message if no tenant is available
+  if (!effectiveTenantId) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
+        <h3 className="text-lg font-medium">{t('users.noTenantSelected')}</h3>
+        <p className="text-muted-foreground">{t('users.selectTenantToManage')}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{t('users.title')}</h1>
           <p className="text-muted-foreground">{t('users.description')}</p>
         </div>
+        
+        {/* Tenant Selector for Super Admins */}
+        {isSuperAdmin && tenants && tenants.length > 0 && (
+          <div className="flex items-center gap-2">
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <Select 
+              value={effectiveTenantId} 
+              onValueChange={setSelectedTenantId}
+            >
+              <SelectTrigger className="w-[250px]">
+                <SelectValue placeholder={t('users.selectTenant')} />
+              </SelectTrigger>
+              <SelectContent>
+                {tenants.map(tenant => (
+                  <SelectItem key={tenant.id} value={tenant.id}>
+                    {tenant.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </div>
 
       <Tabs defaultValue="users" className="space-y-4">
@@ -96,10 +171,15 @@ export default function UserManagement() {
         <TabsContent value="users" className="space-y-4">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <CardTitle>{t('users.allUsers')}</CardTitle>
-                  <CardDescription>{t('users.allUsersDescription')}</CardDescription>
+                  <CardDescription>
+                    {selectedTenant 
+                      ? t('users.managingUsersFor', { tenant: selectedTenant.name })
+                      : t('users.allUsersDescription')
+                    }
+                  </CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="relative">
@@ -108,7 +188,7 @@ export default function UserManagement() {
                       placeholder={t('users.searchPlaceholder')}
                       value={userSearch}
                       onChange={(e) => setUserSearch(e.target.value)}
-                      className="ps-9 w-[250px]"
+                      className="ps-9 w-full sm:w-[250px]"
                     />
                   </div>
                   <Button onClick={() => setIsInviteDialogOpen(true)}>
@@ -132,10 +212,15 @@ export default function UserManagement() {
         <TabsContent value="roles" className="space-y-4">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <CardTitle>{t('roles.title')}</CardTitle>
-                  <CardDescription>{t('roles.description')}</CardDescription>
+                  <CardDescription>
+                    {selectedTenant
+                      ? t('roles.managingRolesFor', { tenant: selectedTenant.name })
+                      : t('roles.description')
+                    }
+                  </CardDescription>
                 </div>
                 <Button onClick={handleCreateRole}>
                   <Plus className="me-2 h-4 w-4" />
@@ -161,14 +246,14 @@ export default function UserManagement() {
         open={isUserRoleDialogOpen}
         onOpenChange={setIsUserRoleDialogOpen}
         user={selectedUser}
-        tenantId={tenantId}
+        tenantId={effectiveTenantId}
       />
 
       <RoleDialog
         open={isRoleDialogOpen}
         onOpenChange={setIsRoleDialogOpen}
         role={selectedRole}
-        tenantId={tenantId}
+        tenantId={effectiveTenantId}
         onSave={handleSaveRole}
         isSaving={createRole.isPending || updateRole.isPending}
       />
@@ -182,7 +267,7 @@ export default function UserManagement() {
       <InviteUserDialog
         open={isInviteDialogOpen}
         onOpenChange={setIsInviteDialogOpen}
-        tenantId={tenantId}
+        tenantId={effectiveTenantId}
       />
     </div>
   );
