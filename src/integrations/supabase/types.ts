@@ -992,6 +992,7 @@ export type Database = {
           country: string | null
           cr_number: string | null
           created_at: string
+          default_language: string
           deleted_at: string | null
           domain: string | null
           employee_count: number | null
@@ -1025,6 +1026,7 @@ export type Database = {
           country?: string | null
           cr_number?: string | null
           created_at?: string
+          default_language?: string
           deleted_at?: string | null
           domain?: string | null
           employee_count?: number | null
@@ -1058,6 +1060,7 @@ export type Database = {
           country?: string | null
           cr_number?: string | null
           created_at?: string
+          default_language?: string
           deleted_at?: string | null
           domain?: string | null
           employee_count?: number | null
