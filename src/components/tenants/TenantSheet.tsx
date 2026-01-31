@@ -48,7 +48,7 @@ const tenantSchema = z.object({
   industry: z.string().optional().or(z.literal('')),
   country: z.string().optional().or(z.literal('')),
   city: z.string().optional().or(z.literal('')),
-  contact_email: z.string().email().optional().or(z.literal('')),
+  contact_email: z.string().email('Primary Admin Email is required'),
   contact_phone: z.string().optional().or(z.literal('')),
   contact_person: z.string().optional().or(z.literal('')),
   notes: z.string().optional().or(z.literal('')),
@@ -57,6 +57,10 @@ const tenantSchema = z.object({
   employee_count: z.number().nullable().optional(),
   preferred_currency: z.string().optional(),
   billing_email: z.string().email().optional().or(z.literal('')),
+  default_language: z.enum(['en', 'ar'], { required_error: 'Default language is required' }),
+  terms_accepted: z.boolean().refine(val => val === true, {
+    message: 'You must accept the terms and conditions',
+  }),
 });
 
 type TenantFormValues = z.infer<typeof tenantSchema>;
@@ -111,6 +115,8 @@ export function TenantSheet({
       employee_count: null,
       preferred_currency: 'SAR',
       billing_email: '',
+      default_language: 'en',
+      terms_accepted: false,
     },
   });
 
@@ -135,6 +141,8 @@ export function TenantSheet({
         employee_count: t.employee_count || null,
         preferred_currency: t.preferred_currency || 'SAR',
         billing_email: t.billing_email || '',
+        default_language: t.default_language || 'en',
+        terms_accepted: true, // Editing existing tenant implies terms were accepted
       });
       setBranding((tenant.branding_config as BrandingConfig) || {});
       setSettings(t.settings || DEFAULT_SETTINGS);
@@ -163,6 +171,8 @@ export function TenantSheet({
         employee_count: null,
         preferred_currency: 'SAR',
         billing_email: '',
+        default_language: 'en',
+        terms_accepted: false,
       });
       setBranding({});
       setSettings(DEFAULT_SETTINGS);
@@ -259,8 +269,8 @@ export function TenantSheet({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t('tenants.plan')}</FormLabel>
-                      <Select 
-                        onValueChange={(val) => field.onChange(val === '_none' ? '' : val)} 
+                      <Select
+                        onValueChange={(val) => field.onChange(val === '_none' ? '' : val)}
                         value={field.value || '_none'}
                       >
                         <FormControl>
@@ -305,7 +315,74 @@ export function TenantSheet({
                       <FormMessage />
                     </FormItem>
                   )}
+
                 />
+
+                <FormField
+                  control={form.control}
+                  name="contact_email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('tenants.contactEmail')} *</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="email" placeholder="admin@company.com" />
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground">{t('tenants.adminEmailHint')}</p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="default_language"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('tenants.defaultLanguage')} *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="en">English</SelectItem>
+                          <SelectItem value="ar">العربية</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {!isEditing && (
+                  <FormField
+                    control={form.control}
+                    name="terms_accepted"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary mt-1"
+                            checked={field.value}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>
+                            {t('tenants.acceptTerms')}
+                          </FormLabel>
+                          <p className="text-sm text-muted-foreground">
+                            {t('tenants.acceptTermsDescription')}
+                          </p>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
               </TabsContent>
 
               <TabsContent value="contact" className="mt-4">
@@ -335,8 +412,8 @@ export function TenantSheet({
           >
             {t('common.cancel')}
           </Button>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             form="tenant-form"
             disabled={isSubmitting}
           >

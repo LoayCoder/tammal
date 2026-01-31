@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useTenants, type Tenant } from '@/hooks/useTenants';
+import { useTenantInvitations } from '@/hooks/useTenantInvitations';
 import { TenantTable } from '@/components/tenants/TenantTable';
 import { TenantSheet } from '@/components/tenants/TenantSheet';
 import { TenantDetailDialog } from '@/components/tenants/TenantDetailDialog';
@@ -47,6 +48,8 @@ export default function TenantManagement() {
     updateSecuritySettings,
     isSecurityUpdating,
   } = useTenants();
+
+  const { createInvitation } = useTenantInvitations();
 
   const [sheetOpen, setSheetOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
@@ -99,7 +102,20 @@ export default function TenantManagement() {
     if (selectedTenant) {
       updateTenant({ id: selectedTenant.id, ...data });
     } else {
-      createTenant(data);
+      createTenant(data, {
+        onSuccess: (newTenant) => {
+          // Auto-invite the admin
+          if (data.contact_email) {
+            createInvitation({
+              email: data.contact_email,
+              full_name: data.contact_person || 'Admin',
+              tenant_id: newTenant.id,
+              // We'll use the default expiry of 7 days
+              // delivery_channel: 'email', // Default
+            });
+          }
+        }
+      });
     }
     setSheetOpen(false);
   };

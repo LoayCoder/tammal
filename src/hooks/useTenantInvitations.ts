@@ -56,7 +56,7 @@ export function useTenantInvitations(tenantId?: string) {
     queryKey: ['invitations', tenantId],
     queryFn: async () => {
       if (!tenantId) return [];
-      
+
       const { data, error } = await supabase
         .from('invitations')
         .select('*')
@@ -96,12 +96,34 @@ export function useTenantInvitations(tenantId?: string) {
         .single();
 
       if (error) throw error;
+      if (error) throw error;
+
+      // Trigger email sending
+      try {
+        await supabase.functions.invoke('send-invitation-email', {
+          body: {
+            email: input.email,
+            code,
+            tenantName: 'New Tenant', // We might need to fetch this or pass it in
+            fullName: input.full_name,
+            expiresAt: expiresAt.toISOString(),
+            inviteUrl: `${window.location.origin}/auth/accept-invite?code=${code}`,
+            language: 'en', // Todo: Pass this from input
+            tenant_id: input.tenant_id
+          },
+        });
+      } catch (emailError) {
+        console.error('Failed to send invitation email:', emailError);
+        // We don't throw here to avoid rolling back the invitation creation
+        toast.error(t('invitations.emailSendError'));
+      }
+
       return data as Invitation;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['invitations', tenantId] });
       toast.success(t('invitations.createSuccess'));
-      
+
       logEvent({
         tenant_id: data.tenant_id,
         entity_type: 'tenant',
@@ -130,8 +152,35 @@ export function useTenantInvitations(tenantId?: string) {
         .single();
 
       if (error) throw error;
-      
-      // TODO: Trigger edge function to send email
+
+      if (error) throw error;
+
+      // Fetch tenant details for the email
+      const { data: tenant } = await supabase
+        .from('tenants')
+        .select('name')
+        .eq('id', (data as any).tenant_id)
+        .single();
+
+      // Trigger edge function to send email
+      try {
+        await supabase.functions.invoke('send-invitation-email', {
+          body: {
+            email: (data as any).email,
+            code: (data as any).code,
+            tenantName: tenant?.name || 'Tammal',
+            fullName: (data as any).full_name,
+            expiresAt: (data as any).expires_at,
+            inviteUrl: `${window.location.origin}/auth/accept-invite?code=${(data as any).code}`,
+            // We ideally store language preference in invitation metadata or default to en
+            language: (data as any).metadata?.language || 'en'
+          },
+        });
+      } catch (emailError) {
+        console.error('Failed to resend invitation email:', emailError);
+        throw emailError;
+      }
+
       return data as Invitation;
     },
     onSuccess: () => {
@@ -163,7 +212,7 @@ export function useTenantInvitations(tenantId?: string) {
     onSuccess: ({ id, before }) => {
       queryClient.invalidateQueries({ queryKey: ['invitations', tenantId] });
       toast.success(t('invitations.revokeSuccess'));
-      
+
       logEvent({
         tenant_id: tenantId,
         entity_type: 'tenant',
@@ -216,7 +265,7 @@ export function useVerifyInvitation(code?: string) {
     queryKey: ['invitation-verify', code],
     queryFn: async () => {
       if (!code) return null;
-      
+
       const { data, error } = await supabase
         .from('invitations')
         .select('*, tenants(name)')
