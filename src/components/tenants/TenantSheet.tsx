@@ -95,6 +95,25 @@ export function TenantSheet({
   const [settings, setSettings] = useState<TenantSettings>(DEFAULT_SETTINGS);
   const [security, setSecurity] = useState<SecuritySettings>(DEFAULT_SECURITY_SETTINGS);
 
+  // Wizard navigation state
+  const TAB_ORDER = ['general', 'contact', 'security', 'modules', 'branding'] as const;
+  const [activeTab, setActiveTab] = useState<string>(TAB_ORDER[0]);
+  const currentIndex = TAB_ORDER.indexOf(activeTab as typeof TAB_ORDER[number]);
+  const isFirstTab = currentIndex === 0;
+  const isLastTab = currentIndex === TAB_ORDER.length - 1;
+
+  const handleNext = () => {
+    if (!isLastTab) {
+      setActiveTab(TAB_ORDER[currentIndex + 1]);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (!isFirstTab) {
+      setActiveTab(TAB_ORDER[currentIndex - 1]);
+    }
+  };
+
   const form = useForm<TenantFormValues>({
     resolver: zodResolver(tenantSchema),
     defaultValues: {
@@ -212,7 +231,7 @@ export function TenantSheet({
 
         <Form {...form}>
           <form id="tenant-form" onSubmit={form.handleSubmit(handleSubmit)}>
-            <Tabs defaultValue="general" className="mt-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
               <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="general">{t('tenants.generalTab')}</TabsTrigger>
                 <TabsTrigger value="contact">{t('tenants.contactTab')}</TabsTrigger>
@@ -227,7 +246,7 @@ export function TenantSheet({
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('tenants.name')}</FormLabel>
+                      <FormLabel>{t('tenants.name')} <span className="text-destructive">*</span></FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -299,7 +318,7 @@ export function TenantSheet({
                   name="status"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('common.status')}</FormLabel>
+                      <FormLabel>{t('common.status')} <span className="text-destructive">*</span></FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
@@ -325,7 +344,7 @@ export function TenantSheet({
                   name="contact_email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('tenants.contactEmail')} *</FormLabel>
+                      <FormLabel>{t('tenants.contactEmail')} <span className="text-destructive">*</span></FormLabel>
                       <FormControl>
                         <Input {...field} type="email" placeholder="admin@company.com" />
                       </FormControl>
@@ -340,7 +359,7 @@ export function TenantSheet({
                   name="default_language"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('tenants.defaultLanguage')} *</FormLabel>
+                      <FormLabel>{t('tenants.defaultLanguage')} <span className="text-destructive">*</span></FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
@@ -357,34 +376,6 @@ export function TenantSheet({
                   )}
                 />
 
-                {!isEditing && (
-                  <FormField
-                    control={form.control}
-                    name="terms_accepted"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                        <FormControl>
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary mt-1"
-                            checked={field.value}
-                            onChange={(e) => field.onChange(e.target.checked)}
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>
-                            {t('tenants.acceptTerms')}
-                          </FormLabel>
-                          <p className="text-sm text-muted-foreground">
-                            {t('tenants.acceptTermsDescription')}
-                          </p>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-
               </TabsContent>
 
               <TabsContent value="contact" className="mt-4">
@@ -399,28 +390,73 @@ export function TenantSheet({
                 <TenantModuleControl settings={settings} onChange={setSettings} />
               </TabsContent>
 
-              <TabsContent value="branding" className="mt-4">
+              <TabsContent value="branding" className="mt-4 space-y-4">
                 <TenantBrandingTab branding={branding} onChange={setBranding} />
+                
+                {!isEditing && (
+                  <FormField
+                    control={form.control}
+                    name="terms_accepted"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start gap-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary mt-1"
+                            checked={field.value}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>
+                            {t('tenants.acceptTerms')} <span className="text-destructive">*</span>
+                          </FormLabel>
+                          <p className="text-sm text-muted-foreground">
+                            {t('tenants.acceptTermsDescription')}
+                          </p>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </TabsContent>
             </Tabs>
           </form>
         </Form>
 
-        <SheetFooter className="mt-6">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button
-            type="submit"
-            form="tenant-form"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? t('common.loading') : t('common.save')}
-          </Button>
+        <SheetFooter className="mt-6 flex justify-between gap-2">
+          {isFirstTab ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              {t('common.cancel')}
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handlePrevious}
+            >
+              {t('common.previous')}
+            </Button>
+          )}
+          
+          {isLastTab ? (
+            <Button
+              type="submit"
+              form="tenant-form"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? t('common.loading') : t('common.save')}
+            </Button>
+          ) : (
+            <Button type="button" onClick={handleNext}>
+              {t('common.next')}
+            </Button>
+          )}
         </SheetFooter>
       </SheetContent>
     </Sheet>
