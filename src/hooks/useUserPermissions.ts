@@ -81,3 +81,31 @@ export function useUserPermissions() {
     isSuperAdmin: permissions.includes('*'),
   };
 }
+
+export function useHasRole(role: 'super_admin' | 'tenant_admin' | 'manager' | 'user') {
+  const { user } = useAuth();
+
+  const { data: hasRole = false } = useQuery({
+    queryKey: ['has-role', user?.id, role],
+    queryFn: async () => {
+      if (!user?.id) return false;
+
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', role)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error checking role:', error);
+        return false;
+      }
+
+      return !!data;
+    },
+    enabled: !!user?.id,
+  });
+
+  return hasRole;
+}
