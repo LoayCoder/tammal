@@ -38,6 +38,16 @@ export function UserTable({ users, isLoading, onEditRoles, onViewDetails }: User
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
+  const getSystemRoleLabel = (role: string) => {
+    const roleLabels: Record<string, string> = {
+      'super_admin': t('users.superAdmin'),
+      'tenant_admin': t('roles.baseRoles.tenantAdmin'),
+      'manager': t('users.manager'),
+      'user': t('users.user'),
+    };
+    return roleLabels[role] || role;
+  };
+
   const getRoleBadges = (user: UserWithRoles) => {
     const roles = user.user_roles
       ?.filter(ur => ur.roles)
@@ -111,7 +121,7 @@ export function UserTable({ users, isLoading, onEditRoles, onViewDetails }: User
             <TableCell>
               {user.user_roles?.map(ur => (
                 <Badge key={ur.id} variant="secondary" className="me-1">
-                  {ur.role}
+                  {getSystemRoleLabel(ur.role)}
                 </Badge>
               ))}
             </TableCell>

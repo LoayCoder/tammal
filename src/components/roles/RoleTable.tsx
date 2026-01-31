@@ -44,6 +44,16 @@ export function RoleTable({ roles, isLoading, onEdit, onManagePermissions, onDel
   const isRTL = i18n.language === 'ar';
   const [deleteRole, setDeleteRole] = useState<Role | null>(null);
 
+  const getBaseRoleLabel = (baseRole: string) => {
+    const roleLabels: Record<string, string> = {
+      'user': t('roles.baseRoles.user'),
+      'manager': t('roles.baseRoles.manager'),
+      'tenant_admin': t('roles.baseRoles.tenantAdmin'),
+      'super_admin': t('roles.baseRoles.superAdmin'),
+    };
+    return roleLabels[baseRole] || baseRole;
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -97,7 +107,7 @@ export function RoleTable({ roles, isLoading, onEdit, onManagePermissions, onDel
                 {isRTL && role.description_ar ? role.description_ar : role.description || '-'}
               </TableCell>
               <TableCell>
-                <Badge variant="outline">{role.base_role}</Badge>
+                <Badge variant="outline">{getBaseRoleLabel(role.base_role || '')}</Badge>
               </TableCell>
               <TableCell className="text-muted-foreground">
                 {formatDate(role.created_at, i18n.language)}
