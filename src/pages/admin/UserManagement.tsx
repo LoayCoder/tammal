@@ -19,6 +19,8 @@ import { useTenants } from '@/hooks/useTenants';
 import { useHasRole } from '@/hooks/useUserPermissions';
 import { UserTable } from '@/components/users/UserTable';
 import { UserRoleDialog } from '@/components/users/UserRoleDialog';
+import { UserEditDialog } from '@/components/users/UserEditDialog';
+import { UserStatusDialog, type StatusAction } from '@/components/users/UserStatusDialog';
 import { RoleTable } from '@/components/roles/RoleTable';
 import { RoleDialog } from '@/components/roles/RoleDialog';
 import { PermissionMatrix } from '@/components/roles/PermissionMatrix';
@@ -53,12 +55,15 @@ export default function UserManagement() {
   const [selectedUser, setSelectedUser] = useState<UserWithRoles | null>(null);
   const [isUserRoleDialogOpen, setIsUserRoleDialogOpen] = useState(false);
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
+  const [statusAction, setStatusAction] = useState<StatusAction>('deactivate');
   
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [isPermissionMatrixOpen, setIsPermissionMatrixOpen] = useState(false);
   
-  const { users, isLoading: usersLoading } = useUsers({ 
+  const { users, isLoading: usersLoading, updateProfile, changeUserStatus } = useUsers({ 
     tenantId: effectiveTenantId, 
     search: userSearch 
   });
@@ -71,6 +76,38 @@ export default function UserManagement() {
 
   const handleViewUserDetails = (user: UserWithRoles) => {
     handleEditUserRoles(user);
+  };
+
+  const handleEditUser = (user: UserWithRoles) => {
+    setSelectedUser(user);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleStatusAction = (user: UserWithRoles, action: StatusAction) => {
+    setSelectedUser(user);
+    setStatusAction(action);
+    setIsStatusDialogOpen(true);
+  };
+
+  const handleSaveUser = async (userId: string, data: { full_name?: string; status?: string }) => {
+    await updateProfile.mutateAsync({ id: userId, ...data });
+  };
+
+  const handleConfirmStatusChange = async () => {
+    if (!selectedUser) return;
+    
+    const statusMap: Record<StatusAction, 'active' | 'inactive' | 'suspended'> = {
+      deactivate: 'inactive',
+      suspend: 'suspended',
+      reactivate: 'active',
+      delete: 'inactive', // For delete, we'll set to inactive (soft delete)
+    };
+    
+    await changeUserStatus.mutateAsync({ 
+      id: selectedUser.id, 
+      status: statusMap[statusAction] 
+    });
+    setIsStatusDialogOpen(false);
   };
 
   const handleCreateRole = () => {
@@ -204,6 +241,11 @@ export default function UserManagement() {
                 isLoading={usersLoading}
                 onEditRoles={handleEditUserRoles}
                 onViewDetails={handleViewUserDetails}
+                onEdit={handleEditUser}
+                onDeactivate={(user) => handleStatusAction(user, 'deactivate')}
+                onSuspend={(user) => handleStatusAction(user, 'suspend')}
+                onReactivate={(user) => handleStatusAction(user, 'reactivate')}
+                onDelete={(user) => handleStatusAction(user, 'delete')}
               />
             </CardContent>
           </Card>
@@ -247,6 +289,23 @@ export default function UserManagement() {
         onOpenChange={setIsUserRoleDialogOpen}
         user={selectedUser}
         tenantId={effectiveTenantId}
+      />
+
+      <UserEditDialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        user={selectedUser}
+        onSave={handleSaveUser}
+        isSaving={updateProfile.isPending}
+      />
+
+      <UserStatusDialog
+        open={isStatusDialogOpen}
+        onOpenChange={setIsStatusDialogOpen}
+        user={selectedUser}
+        action={statusAction}
+        onConfirm={handleConfirmStatusChange}
+        isLoading={changeUserStatus.isPending}
       />
 
       <RoleDialog
