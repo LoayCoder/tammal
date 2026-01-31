@@ -63,7 +63,7 @@ export default function UserManagement() {
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [isPermissionMatrixOpen, setIsPermissionMatrixOpen] = useState(false);
   
-  const { users, isLoading: usersLoading, updateProfile, changeUserStatus } = useUsers({ 
+  const { users, isLoading: usersLoading, updateProfile, changeUserStatus, sendPasswordReset } = useUsers({ 
     tenantId: effectiveTenantId, 
     search: userSearch 
   });
@@ -89,8 +89,12 @@ export default function UserManagement() {
     setIsStatusDialogOpen(true);
   };
 
-  const handleSaveUser = async (userId: string, data: { full_name?: string; status?: string }) => {
+  const handleSaveUser = async (userId: string, data: { full_name?: string; status?: string; job_title?: string; department?: string; phone?: string; location?: string; avatar_url?: string | null }) => {
     await updateProfile.mutateAsync({ id: userId, ...data });
+  };
+
+  const handlePasswordReset = async (userId: string, email: string) => {
+    await sendPasswordReset.mutateAsync({ userId, email });
   };
 
   const handleConfirmStatusChange = async () => {
@@ -296,7 +300,9 @@ export default function UserManagement() {
         onOpenChange={setIsEditDialogOpen}
         user={selectedUser}
         onSave={handleSaveUser}
+        onPasswordReset={handlePasswordReset}
         isSaving={updateProfile.isPending}
+        isResettingPassword={sendPasswordReset.isPending}
       />
 
       <UserStatusDialog

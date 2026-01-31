@@ -459,7 +459,22 @@
     "deactivateSuccess": "تم تعطيل المستخدم بنجاح",
     "suspendSuccess": "تم تعليق المستخدم بنجاح",
     "reactivateSuccess": "تم إعادة تفعيل المستخدم بنجاح",
-    "statusChangeError": "فشل تغيير حالة المستخدم"
+    "statusChangeError": "فشل تغيير حالة المستخدم",
+    "jobTitle": "المسمى الوظيفي",
+    "department": "القسم",
+    "phone": "رقم الهاتف",
+    "location": "الموقع",
+    "uploadPhoto": "رفع صورة",
+    "removePhoto": "إزالة الصورة",
+    "basicInfo": "المعلومات الأساسية",
+    "organizationalInfo": "المعلومات التنظيمية",
+    "securityActions": "الأمان",
+    "sendPasswordReset": "إرسال رابط إعادة تعيين كلمة المرور",
+    "sendPasswordResetDescription": "إرسال بريد إلكتروني لإعادة تعيين كلمة المرور",
+    "passwordResetSent": "تم إرسال بريد إعادة تعيين كلمة المرور بنجاح",
+    "passwordResetError": "فشل إرسال بريد إعادة تعيين كلمة المرور",
+    "confirmPasswordReset": "هل أنت متأكد من إرسال بريد إعادة تعيين كلمة المرور إلى {{email}}؟",
+    "noEmailForReset": "لم يتم العثور على بريد إلكتروني لهذا المستخدم"
   },
   "roles": {
     "title": "الأدوار",

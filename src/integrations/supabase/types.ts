@@ -472,8 +472,12 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          department: string | null
           full_name: string | null
           id: string
+          job_title: string | null
+          location: string | null
+          phone: string | null
           status: string
           tenant_id: string | null
           updated_at: string
@@ -482,8 +486,12 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          department?: string | null
           full_name?: string | null
           id?: string
+          job_title?: string | null
+          location?: string | null
+          phone?: string | null
           status?: string
           tenant_id?: string | null
           updated_at?: string
@@ -492,8 +500,12 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          department?: string | null
           full_name?: string | null
           id?: string
+          job_title?: string | null
+          location?: string | null
+          phone?: string | null
           status?: string
           tenant_id?: string | null
           updated_at?: string
@@ -1193,9 +1205,13 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string | null
+          department: string | null
           email: string | null
           full_name: string | null
           id: string | null
+          job_title: string | null
+          location: string | null
+          phone: string | null
           status: string | null
           tenant_id: string | null
           updated_at: string | null
@@ -1204,9 +1220,13 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string | null
+          department?: string | null
           email?: never
           full_name?: string | null
           id?: string | null
+          job_title?: string | null
+          location?: string | null
+          phone?: string | null
           status?: string | null
           tenant_id?: string | null
           updated_at?: string | null
@@ -1215,9 +1235,13 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string | null
+          department?: string | null
           email?: never
           full_name?: string | null
           id?: string | null
+          job_title?: string | null
+          location?: string | null
+          phone?: string | null
           status?: string | null
           tenant_id?: string | null
           updated_at?: string | null

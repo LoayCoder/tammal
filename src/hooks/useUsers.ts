@@ -93,12 +93,35 @@ export function useUsers(filters?: UserFilters) {
     enabled: !!filters?.tenantId,
   });
 
-  // Mutation to update profile (name, status)
+  // Mutation to update profile (name, status, job_title, department, phone, location, avatar_url)
   const updateProfile = useMutation({
-    mutationFn: async ({ id, full_name, status }: { id: string; full_name?: string; status?: string }) => {
+    mutationFn: async ({ 
+      id, 
+      full_name, 
+      status, 
+      job_title, 
+      department, 
+      phone, 
+      location,
+      avatar_url 
+    }: { 
+      id: string; 
+      full_name?: string; 
+      status?: string;
+      job_title?: string;
+      department?: string;
+      phone?: string;
+      location?: string;
+      avatar_url?: string | null;
+    }) => {
       const updates: Record<string, any> = {};
       if (full_name !== undefined) updates.full_name = full_name;
       if (status !== undefined) updates.status = status;
+      if (job_title !== undefined) updates.job_title = job_title;
+      if (department !== undefined) updates.department = department;
+      if (phone !== undefined) updates.phone = phone;
+      if (location !== undefined) updates.location = location;
+      if (avatar_url !== undefined) updates.avatar_url = avatar_url;
 
       const { data, error } = await supabase
         .from('profiles')
@@ -117,6 +140,40 @@ export function useUsers(filters?: UserFilters) {
     onError: (error) => {
       toast.error(t('users.updateError'));
       console.error('Update profile error:', error);
+    },
+  });
+
+  // Mutation to send password reset email
+  const sendPasswordReset = useMutation({
+    mutationFn: async ({ userId, email }: { userId: string; email: string }) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-reset-password`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ user_id: userId, email }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to send password reset');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      toast.success(t('users.passwordResetSent'));
+    },
+    onError: (error) => {
+      toast.error(t('users.passwordResetError'));
+      console.error('Password reset error:', error);
     },
   });
 
@@ -155,6 +212,7 @@ export function useUsers(filters?: UserFilters) {
     refetch: usersQuery.refetch,
     updateProfile,
     changeUserStatus,
+    sendPasswordReset,
   };
 }
 
