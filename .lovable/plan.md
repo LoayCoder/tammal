@@ -1,207 +1,135 @@
 
+# Enable Login Accounts for Employees
 
-# Full Avatar Upload System with Image Cropping
+## Overview
 
-## Problem Summary
+This feature will allow administrators to send login invitations to employees directly from the Employee Management page. When an employee accepts the invitation and creates their account, the system will automatically link their new user account to their employee record.
 
-### Issue 1: Storage RLS Policy Blocking Uploads
-The upload fails with error: `"new row violates row-level security policy"`
+## Current System Architecture
 
-**Root Cause**: Current RLS policy structure:
-```sql
--- Current INSERT policy:
-((auth.uid())::text = (storage.foldername(name))[1])
 ```
-This requires:
-- Files must be in a folder named with the uploader's user ID
-- Only the file owner can upload
-
-**But the code does**:
-```typescript
-const filePath = `${user.user_id}-${Date.now()}.${fileExt}`;  // Flat path, no folder
-```
-
-**Problems**:
-1. Path structure doesn't match policy expectation (no folder)
-2. Admins uploading for OTHER users will never match `auth.uid()`
-
-### Issue 2: No Image Cropping
-User requested full photo setup with crop functionality for proper avatar sizing.
-
----
-
-## Solution Architecture
-
-### Part 1: Fix Storage RLS Policies
-
-Update storage policies to:
-1. Allow users to upload their own avatars (current behavior)
-2. Allow `super_admin` and `tenant_admin` to upload avatars for any user
-3. Use flat file paths (no folder structure needed)
-
-**New Policy Logic**:
-```sql
--- INSERT: Allow if user owns the file OR is admin
-((bucket_id = 'avatars') AND (
-  (auth.uid()::text = split_part(name, '-', 1)) -- File starts with uploader's ID
-  OR has_role(auth.uid(), 'super_admin')
-  OR (has_role(auth.uid(), 'tenant_admin') AND EXISTS (
-    SELECT 1 FROM profiles p 
-    WHERE p.user_id::text = split_part(name, '-', 1)
-    AND p.tenant_id = get_user_tenant_id(auth.uid())
-  ))
-))
++------------------+       +------------------+       +------------------+
+|    employees     |       |   invitations    |       |   auth.users     |
++------------------+       +------------------+       +------------------+
+| id               |       | id               |       | id               |
+| user_id (null)   |<----->| code             |<----->| email            |
+| email            |       | email            |       | ...              |
+| full_name        |       | employee_id (new)|       +------------------+
+| tenant_id        |       | tenant_id        |              |
+| ...              |       | ...              |              v
++------------------+       +------------------+       +------------------+
+                                                      |    profiles      |
+                                                      +------------------+
+                                                      | user_id          |
+                                                      | tenant_id        |
+                                                      +------------------+
 ```
 
-### Part 2: Install Image Cropping Library
+## Implementation Plan
 
-Use **react-easy-crop** - popular, maintained, TypeScript support, works with circles.
+### Part 1: Database Changes
 
-```bash
-npm install react-easy-crop
+Add `employee_id` column to `invitations` table to track which employee record to link:
+
+| Column | Type | Purpose |
+|--------|------|---------|
+| `employee_id` | uuid (nullable) | Links invitation to an employee record for auto-linking on signup |
+
+### Part 2: Create "Send Invite" Action in Employee Table
+
+Add a new action button in the EmployeeTable dropdown menu:
+
+- **Icon**: Mail or UserPlus
+- **Label**: "Send Login Invite" / "ارسال دعوة تسجيل"
+- **Condition**: Only show if employee has no `user_id` (no account yet)
+- **Action**: Opens dialog to send invitation email
+
+### Part 3: Create EmployeeInviteDialog Component
+
+A simplified dialog for inviting employees:
+
 ```
-
-### Part 3: Create AvatarCropperDialog Component
-
-A new modal component that:
-1. Accepts an image file/URL
-2. Displays circular crop area (for avatar)
-3. Allows zoom and pan
-4. Outputs cropped image as Blob for upload
-
----
-
-## Detailed Implementation
-
-### Step 1: Database Migration - Fix Storage Policies
-
-Drop and recreate avatar storage policies with admin support:
-
-```sql
--- Drop existing avatar policies
-DROP POLICY IF EXISTS "Users can upload their own avatar" ON storage.objects;
-DROP POLICY IF EXISTS "Users can update their own avatar" ON storage.objects;
-DROP POLICY IF EXISTS "Users can delete their own avatar" ON storage.objects;
-
--- New INSERT policy: User owns file OR admin
-CREATE POLICY "Avatar upload policy" ON storage.objects
-FOR INSERT WITH CHECK (
-  bucket_id = 'avatars' AND (
-    auth.uid()::text = split_part(name, '-', 1)
-    OR has_role(auth.uid(), 'super_admin')
-    OR (
-      has_role(auth.uid(), 'tenant_admin') 
-      AND EXISTS (
-        SELECT 1 FROM profiles 
-        WHERE user_id::text = split_part(name, '-', 1)
-        AND tenant_id = get_user_tenant_id(auth.uid())
-      )
-    )
-  )
-);
-
--- Similar UPDATE and DELETE policies for admins
++------------------------------------------+
+| Send Login Invitation              [X]   |
++------------------------------------------+
+| Employee: John Doe                       |
+| Email: john@company.com                  |
+|                                          |
+| Invitation expires in:                   |
+| [7 days ▼]                               |
+|                                          |
+| [Cancel]              [Send Invitation]  |
++------------------------------------------+
 ```
-
-### Step 2: Create AvatarCropperDialog Component
-
-New file: `src/components/ui/avatar-cropper-dialog.tsx`
 
 Features:
-- Circular crop stencil (1:1 aspect ratio)
-- Zoom slider control
-- Pan with mouse/touch
-- Preview of final result
-- Outputs cropped image as Blob
+- Pre-fills email and name from employee record
+- Only needs expiry selection
+- Passes `employee_id` to invitation for linking
 
-```text
-+------------------------------------------+
-| Crop Profile Photo                   [X] |
-+------------------------------------------+
-|                                          |
-|     +--------------------------+         |
-|     |                          |         |
-|     |    [Image with Crop      |         |
-|     |     Circle Overlay]      |         |
-|     |         ⊕ ⊖              |         |
-|     +--------------------------+         |
-|                                          |
-|     Zoom: [====●==========]              |
-|                                          |
-|     Preview:                             |
-|       +------+                           |
-|       |Avatar|                           |
-|       +------+                           |
-|                                          |
-+------------------------------------------+
-|                    [Cancel] [Apply Crop] |
-+------------------------------------------+
+### Part 4: Create Accept Invitation Page
+
+New route: `/auth/accept-invite`
+
+This page handles the signup flow for invited users:
+
+1. **Code Verification Step**
+   - User enters 8-character code (or arrives via link with code in URL)
+   - Validates code against database
+   - Shows error if expired, used, or invalid
+
+2. **Signup Form**
+   - Email (pre-filled from invitation, read-only)
+   - Full name (pre-filled if available)
+   - Password + Confirm password
+
+3. **On Successful Signup**
+   - Create user account
+   - Create profile linked to tenant
+   - If `employee_id` exists: Update `employees.user_id` to new user
+   - Mark invitation as used
+   - Assign pre-selected roles (if any)
+
+### Part 5: Update Invitation Hook
+
+Modify `useTenantInvitations` to:
+- Accept optional `employee_id` parameter
+- Store employee_id in invitation record
+
+### Part 6: Employee Table Visual Indicator
+
+Show account status in the Employee table:
+
+| Visual | Meaning |
+|--------|---------|
+| Green checkmark icon | Has login account (`user_id` exists) |
+| Gray user icon | No login account yet |
+
+Add tooltip: "Has system access" / "No system access"
+
+---
+
+## User Flow Diagram
+
 ```
+Admin Flow:
++-----------------------+    +----------------------+    +-------------------+
+| Employee Management   | -> | Click "Send Invite"  | -> | Dialog Opens      |
+| View employee row     |    | from dropdown menu   |    | Confirm & Send    |
++-----------------------+    +----------------------+    +-------------------+
+                                                                   |
+                                                                   v
+                                                         Email sent to employee
 
-### Step 3: Update UserEditDialog
-
-Integrate the cropper:
-1. When user selects file → Open cropper dialog
-2. User adjusts crop → Click "Apply"
-3. Cropped image blob → Upload to storage
-4. Display cropped preview
-
-Flow:
-```
-Select File → Cropper Dialog → Crop → Upload → Update Avatar URL
-```
-
-### Step 4: Add Helper Function for Cropped Image
-
-Create utility function to convert crop coordinates to actual image blob:
-
-```typescript
-// src/lib/cropImage.ts
-export async function getCroppedImg(
-  imageSrc: string,
-  pixelCrop: { x: number; y: number; width: number; height: number }
-): Promise<Blob> {
-  const image = await createImage(imageSrc);
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
-  
-  ctx.drawImage(
-    image,
-    pixelCrop.x, pixelCrop.y,
-    pixelCrop.width, pixelCrop.height,
-    0, 0,
-    pixelCrop.width, pixelCrop.height
-  );
-  
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => resolve(blob!), 'image/jpeg', 0.95);
-  });
-}
-```
-
-### Step 5: Update Localization
-
-Add new translation keys for cropper:
-
-**English**:
-```json
-"cropPhoto": "Crop Photo",
-"cropPhotoDescription": "Adjust your photo to fit the avatar area",
-"zoom": "Zoom",
-"applyCrop": "Apply Crop",
-"rotation": "Rotation"
-```
-
-**Arabic**:
-```json
-"cropPhoto": "قص الصورة",
-"cropPhotoDescription": "اضبط صورتك لتناسب منطقة الصورة الشخصية",
-"zoom": "تكبير",
-"applyCrop": "تطبيق القص",
-"rotation": "التدوير"
+Employee Flow:
++-------------------+    +---------------------+    +-------------------+
+| Receives Email    | -> | Clicks link or      | -> | Enters code &     |
+| with invite code  |    | enters code manually|    | creates password  |
++-------------------+    +---------------------+    +-------------------+
+                                                             |
+                                                             v
+                                                   Account created + linked
+                                                   to employee record
 ```
 
 ---
@@ -210,37 +138,87 @@ Add new translation keys for cropper:
 
 | File | Action | Description |
 |------|--------|-------------|
-| Database Migration | Create | Fix storage RLS for admin uploads |
-| `package.json` | Modify | Add `react-easy-crop` dependency |
-| `src/lib/cropImage.ts` | Create | Utility to generate cropped image blob |
-| `src/components/ui/avatar-cropper-dialog.tsx` | Create | Image cropper modal component |
-| `src/components/users/UserEditDialog.tsx` | Modify | Integrate cropper dialog |
-| `src/locales/en.json` | Modify | Add cropper translations |
-| `src/locales/ar.json` | Modify | Add Arabic cropper translations |
+| Database Migration | Create | Add `employee_id` column to `invitations` table |
+| `src/pages/auth/AcceptInvite.tsx` | Create | New page for accepting invitations |
+| `src/App.tsx` | Modify | Add `/auth/accept-invite` route |
+| `src/components/employees/EmployeeInviteDialog.tsx` | Create | Dialog for sending employee invitations |
+| `src/components/employees/EmployeeTable.tsx` | Modify | Add invite action and account status indicator |
+| `src/pages/admin/EmployeeManagement.tsx` | Modify | Add dialog state and handlers |
+| `src/hooks/useTenantInvitations.ts` | Modify | Support `employee_id` in invitation creation |
+| `src/hooks/useEmployees.ts` | Modify | Add mutation to link user_id |
+| `src/locales/en.json` | Modify | Add new translation keys |
+| `src/locales/ar.json` | Modify | Add Arabic translations |
 
 ---
 
-## Technical Flow After Implementation
+## Technical Details
 
-```text
-1. Admin clicks "Upload Photo" in UserEditDialog
-2. File input opens, admin selects image file
-3. AvatarCropperDialog opens with image preview
-4. Admin adjusts zoom/position for circular crop
-5. Admin clicks "Apply Crop"
-6. Cropped blob is generated (JPEG, ~200x200px)
-7. Blob uploaded to storage: `{target_user_id}-{timestamp}.jpeg`
-8. RLS allows upload (admin check passes)
-9. Avatar URL updated in form state
-10. On save, profile updated with new avatar_url
+### Accept Invite Page Flow
+
+```typescript
+// On form submit:
+1. signUp(email, password)
+2. Create profile with tenant_id from invitation
+3. If invitation.employee_id:
+   - UPDATE employees SET user_id = new_user_id WHERE id = employee_id
+4. Mark invitation as used
+5. Assign roles from invitation metadata
+6. Redirect to login or dashboard
 ```
 
+### Security Considerations
+
+1. **Code Validation**: Only valid, unused, non-expired codes work
+2. **Tenant Linking**: Profile automatically linked to correct tenant
+3. **Employee Linking**: Employee record securely linked via server-side check
+4. **One-Time Use**: Invitation marked as used immediately after signup
+
 ---
 
-## Security Considerations
+## Translation Keys to Add
 
-1. **RLS Policies**: Admins can only upload for users in their tenant
-2. **File Validation**: Image type and size checked before upload
-3. **File Naming**: Target user ID in filename prevents overwrites
-4. **Bucket Settings**: Already has MIME type restrictions (jpeg, png, webp, gif)
+**English:**
+```json
+{
+  "employees": {
+    "sendInvite": "Send Login Invite",
+    "hasAccount": "Has system account",
+    "noAccount": "No system account",
+    "inviteSuccess": "Invitation sent successfully",
+    "alreadyHasAccount": "This employee already has a login account"
+  },
+  "acceptInvite": {
+    "title": "Accept Invitation",
+    "enterCode": "Enter your invitation code",
+    "codePlaceholder": "XXXXXXXX",
+    "verifyCode": "Verify Code",
+    "createAccount": "Create Your Account",
+    "invalidCode": "Invalid or expired invitation code",
+    "codeUsed": "This invitation code has already been used",
+    "accountCreated": "Account created successfully! Please log in."
+  }
+}
+```
 
+**Arabic:**
+```json
+{
+  "employees": {
+    "sendInvite": "إرسال دعوة تسجيل",
+    "hasAccount": "لديه حساب في النظام",
+    "noAccount": "لا يوجد حساب",
+    "inviteSuccess": "تم إرسال الدعوة بنجاح",
+    "alreadyHasAccount": "هذا الموظف لديه حساب تسجيل دخول بالفعل"
+  },
+  "acceptInvite": {
+    "title": "قبول الدعوة",
+    "enterCode": "أدخل رمز الدعوة الخاص بك",
+    "codePlaceholder": "XXXXXXXX",
+    "verifyCode": "تحقق من الرمز",
+    "createAccount": "إنشاء حسابك",
+    "invalidCode": "رمز الدعوة غير صالح أو منتهي الصلاحية",
+    "codeUsed": "تم استخدام رمز الدعوة هذا بالفعل",
+    "accountCreated": "تم إنشاء الحساب بنجاح! يرجى تسجيل الدخول."
+  }
+}
+```
