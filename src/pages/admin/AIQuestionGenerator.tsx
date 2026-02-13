@@ -11,6 +11,7 @@ import { ValidationReport } from '@/components/ai-generator/ValidationReport';
 import { useEnhancedAIGeneration, AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
 import { useAIModels } from '@/hooks/useAIModels';
 import { useAIKnowledge } from '@/hooks/useAIKnowledge';
+import { useFocusAreas } from '@/hooks/useFocusAreas';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -20,6 +21,10 @@ export default function AIQuestionGenerator() {
   const {
     documents, uploadDocument, toggleDocument, deleteDocument, isUploading,
   } = useAIKnowledge();
+  const {
+    focusAreas: focusAreaList, isLoading: focusAreasLoading,
+    addFocusArea, updateFocusArea, deleteFocusArea,
+  } = useFocusAreas();
   const {
     questions, validationReport, generationMeta,
     generate, validate, saveSet, removeQuestion, updateQuestion, clearAll,
@@ -215,6 +220,11 @@ export default function AIQuestionGenerator() {
             isRewriting={isRewriting}
             selectedFrameworks={selectedFrameworks}
             onSelectedFrameworksChange={setSelectedFrameworks}
+            focusAreaList={focusAreaList}
+            focusAreasLoading={focusAreasLoading}
+            onAddFocusArea={addFocusArea}
+            onUpdateFocusArea={updateFocusArea}
+            onDeleteFocusArea={deleteFocusArea}
           />
         </div>
 

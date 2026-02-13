@@ -950,7 +950,16 @@
       "leadership": "Leadership",
       "communication": "Communication",
       "wellbeing": "Mental Wellbeing"
-    }
+    },
+    "manageFocusAreas": "Manage",
+    "addFocusArea": "Add Focus Area",
+    "defaultArea": "Default",
+    "focusAreaLabelEn": "Label (English)",
+    "focusAreaLabelAr": "Label (Arabic)",
+    "focusAreaAdded": "Focus area added",
+    "focusAreaUpdated": "Focus area updated",
+    "focusAreaDeleted": "Focus area removed",
+    "focusAreaError": "Failed to update focus areas"
   },
   "survey": {
     "title": "My Survey",
