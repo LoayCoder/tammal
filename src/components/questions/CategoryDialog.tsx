@@ -83,7 +83,7 @@ export function CategoryDialog({
       icon,
       weight,
       is_active: isActive,
-      is_global: isGlobal,
+      is_global: false,
     });
   };
 
@@ -191,14 +191,6 @@ export function CategoryDialog({
                 <Label htmlFor="isActive">{t('categories.isActive')}</Label>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Switch
-                  id="isGlobal"
-                  checked={isGlobal}
-                  onCheckedChange={setIsGlobal}
-                />
-                <Label htmlFor="isGlobal">{t('categories.isGlobal')}</Label>
-              </div>
             </div>
           </div>
 
