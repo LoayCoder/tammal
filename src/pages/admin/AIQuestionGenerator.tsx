@@ -10,11 +10,15 @@ import { QuestionCard } from '@/components/ai-generator/QuestionCard';
 import { ValidationReport } from '@/components/ai-generator/ValidationReport';
 import { useEnhancedAIGeneration, AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
 import { useAIModels } from '@/hooks/useAIModels';
+import { useAIKnowledge } from '@/hooks/useAIKnowledge';
 import { toast } from 'sonner';
 
 export default function AIQuestionGenerator() {
   const { t } = useTranslation();
   const { models } = useAIModels();
+  const {
+    documents, uploadDocument, toggleDocument, deleteDocument, isUploading,
+  } = useAIKnowledge();
   const {
     questions, validationReport, generationMeta,
     generate, validate, saveSet, removeQuestion, updateQuestion, clearAll,
@@ -36,6 +40,7 @@ export default function AIQuestionGenerator() {
     enableCriticPass: false,
     minWordLength: 5,
   });
+  const [useExpertKnowledge, setUseExpertKnowledge] = useState(false);
 
   const isStrict = accuracyMode === 'strict';
   const hasFailures = validationReport?.overall_result === 'failed';
@@ -51,9 +56,12 @@ export default function AIQuestionGenerator() {
       toast.error(t('aiGenerator.selectModel'));
       return;
     }
+    const activeDocIds = documents.filter(d => d.is_active).map(d => d.id);
     generate({
       focusAreas, questionCount, complexity, tone, questionType,
       model: selectedModel, accuracyMode, advancedSettings, language: 'both',
+      useExpertKnowledge,
+      knowledgeDocumentIds: activeDocIds,
     });
   };
 
@@ -160,6 +168,13 @@ export default function AIQuestionGenerator() {
             onAdvancedSettingsChange={setAdvancedSettings}
             onGenerate={handleGenerate}
             isGenerating={isGenerating}
+            useExpertKnowledge={useExpertKnowledge}
+            onUseExpertKnowledgeChange={setUseExpertKnowledge}
+            documents={documents}
+            onUploadDocument={uploadDocument}
+            onToggleDocument={toggleDocument}
+            onDeleteDocument={deleteDocument}
+            isUploading={isUploading}
           />
         </div>
 

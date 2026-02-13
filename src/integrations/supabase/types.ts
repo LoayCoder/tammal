@@ -85,6 +85,53 @@ export type Database = {
           },
         ]
       }
+      ai_knowledge_documents: {
+        Row: {
+          content_text: string | null
+          created_at: string
+          deleted_at: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          id: string
+          is_active: boolean
+          tenant_id: string
+          user_id: string
+        }
+        Insert: {
+          content_text?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number
+          id?: string
+          is_active?: boolean
+          tenant_id: string
+          user_id: string
+        }
+        Update: {
+          content_text?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          is_active?: boolean
+          tenant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_knowledge_documents_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_models: {
         Row: {
           accuracy_tier: string

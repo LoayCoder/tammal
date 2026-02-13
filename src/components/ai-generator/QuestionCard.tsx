@@ -121,6 +121,26 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
           </>
         )}
 
+        {/* Expert Knowledge Badges */}
+        {(question.framework_reference || question.psychological_construct || question.scoring_mechanism) && (
+          <div className="flex flex-wrap gap-1.5">
+            {question.framework_reference && (
+              <Badge variant="default" className="text-xs">
+                {t('aiGenerator.frameworkReference')}: {question.framework_reference}
+              </Badge>
+            )}
+            {question.psychological_construct && (
+              <Badge variant="secondary" className="text-xs">
+                {t('aiGenerator.psychologicalConstruct')}: {question.psychological_construct}
+              </Badge>
+            )}
+            {question.scoring_mechanism && (
+              <Badge variant="outline" className="text-xs">
+                {t('aiGenerator.scoringMechanism')}: {question.scoring_mechanism}
+              </Badge>
+            )}
+          </div>
+        )}
         {/* Flags */}
         {(question.bias_flag || question.ambiguity_flag) && (
           <div className="flex gap-2">
