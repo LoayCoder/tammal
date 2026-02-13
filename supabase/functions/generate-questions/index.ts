@@ -26,6 +26,7 @@ interface GenerateRequest {
   useExpertKnowledge?: boolean;
   knowledgeDocumentIds?: string[];
   customPrompt?: string;
+  selectedFrameworks?: string[];
 }
 
 serve(async (req) => {
@@ -61,6 +62,7 @@ serve(async (req) => {
       useExpertKnowledge = false,
       knowledgeDocumentIds = [],
       customPrompt = "",
+      selectedFrameworks = [],
     }: GenerateRequest = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -86,6 +88,24 @@ serve(async (req) => {
     // Build expert knowledge prompt if enabled
     let expertPromptSection = "";
     if (useExpertKnowledge) {
+      // Determine which frameworks to include
+      const allFrameworkIds = ['ISO45003', 'ISO10018', 'COPSOQ', 'UWES', 'WHO', 'Gallup'];
+      const activeFrameworks = selectedFrameworks.length > 0 ? selectedFrameworks : allFrameworkIds;
+
+      const frameworkDescriptions: Record<string, string> = {
+        ISO45003: '**ISO 45003 (Psychological Health & Safety):** Focus on managing psychosocial risks to prevent work-related injury/ill health. Create questions that identify hazards (e.g., bullying, excessive workload) rather than just symptoms.',
+        ISO10018: '**ISO 10018 & ISO 30414 (Engagement & HR Reporting):** Ensure questions align with global reporting standards for turnover intention and productivity.',
+        COPSOQ: '**COPSOQ III (Copenhagen Psychosocial Questionnaire):** Use for deep-dive questions on stress, burnout, sleeping troubles, and work environment.',
+        UWES: '**UWES (Utrecht Work Engagement Scale):** Measure positive work wellness defined by Vigor, Dedication, and Absorption (the opposite of burnout).',
+        WHO: '**WHO (World Health Organization) Guidelines:** Mental health at work, emphasizing protection and promotion. Respect medical privacy while addressing well-being.',
+        Gallup: '**Gallup Q12:** Structure based on the hierarchy of employee needs (Basic needs -> Management -> Teamwork -> Growth).',
+      };
+
+      const selectedDescriptions = activeFrameworks
+        .filter(id => frameworkDescriptions[id])
+        .map((id, i) => `${i + 1}. ${frameworkDescriptions[id]}`)
+        .join('\n');
+
       expertPromptSection = `
 
 # Expert Role
@@ -95,12 +115,7 @@ Act as a world-class expert consultant combining the skills of an Industrial-Org
 Develop scientifically valid, legally defensible, and high-impact survey questions to measure "Mental Health," "Organizational Engagement," and "Psychosocial Risk."
 
 # Reference Frameworks (Knowledge Base):
-1. **ISO 45003 (Psychological Health & Safety):** Focus on managing psychosocial risks to prevent work-related injury/ill health. Create questions that identify hazards (e.g., bullying, excessive workload) rather than just symptoms.
-2. **ISO 10018 & ISO 30414 (Engagement & HR Reporting):** Ensure questions align with global reporting standards for turnover intention and productivity.
-3. **COPSOQ III (Copenhagen Psychosocial Questionnaire):** Use for deep-dive questions on stress, burnout, sleeping troubles, and work environment.
-4. **UWES (Utrecht Work Engagement Scale):** Measure positive work wellness defined by Vigor, Dedication, and Absorption (the opposite of burnout).
-5. **WHO (World Health Organization) Guidelines:** Mental health at work, emphasizing protection and promotion. Respect medical privacy while addressing well-being.
-6. **Gallup Q12:** Structure based on the hierarchy of employee needs (Basic needs -> Management -> Teamwork -> Growth).
+${selectedDescriptions}
 
 For EACH question you MUST also provide:
 - framework_reference: The specific standard/framework the question derives from (e.g., "ISO 45003", "UWES", "COPSOQ III", "Gallup Q12")
@@ -202,9 +217,19 @@ ${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.
       },
     };
 
+    const frameworkNames: Record<string, string> = {
+      ISO45003: 'ISO 45003', ISO10018: 'ISO 10018/30414', COPSOQ: 'COPSOQ III',
+      UWES: 'UWES', WHO: 'WHO Guidelines', Gallup: 'Gallup Q12',
+    };
+    const selectedFrameworkNames = (selectedFrameworks.length > 0 ? selectedFrameworks : [])
+      .map(id => frameworkNames[id]).filter(Boolean);
+    const frameworkAlignment = selectedFrameworkNames.length > 0
+      ? `\nAlign questions with the following selected frameworks: ${selectedFrameworkNames.join(', ')}.`
+      : '';
+
     const userPrompt = `Generate exactly ${questionCount} high-quality survey questions for employee wellbeing assessment.
 Provide both English and Arabic versions for each question.
-Ensure variety in question types and assign a confidence score (0-100) based on quality.
+Ensure variety in question types and assign a confidence score (0-100) based on quality.${frameworkAlignment}
 ${advancedSettings.enableBiasDetection ? "Flag any questions with potential bias issues." : ""}
 ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous wording." : ""}`;
 

@@ -938,6 +938,9 @@
     "rewriteSuccess": "Prompt enhanced with expert language",
     "rewriteError": "Failed to rewrite prompt",
     "docsActive": "docs active",
+    "frameworksSelected": "{{count}} selected",
+    "selectFrameworks": "Select frameworks to guide question generation",
+    "allFrameworks": "All frameworks",
     "areas": {
       "burnout": "Burnout Prevention",
       "engagement": "Employee Engagement",
