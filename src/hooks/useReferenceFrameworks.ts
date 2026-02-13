@@ -44,13 +44,14 @@ export function useReferenceFrameworks() {
       if (!user.user) throw new Error('Not authenticated');
       const tenantId = await supabase.rpc('get_user_tenant_id', { _user_id: user.user.id }).then(r => r.data);
 
-      const { error } = await supabase.from('reference_frameworks').insert({
+      const { data, error } = await supabase.from('reference_frameworks').insert({
         ...params,
         tenant_id: tenantId,
         created_by: user.user.id,
         is_default: false,
-      });
+      }).select('id').single();
       if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reference-frameworks'] });

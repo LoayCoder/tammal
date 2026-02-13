@@ -10,6 +10,7 @@ import { BookOpen, ChevronDown, Plus, Pencil, Trash2, Check } from 'lucide-react
 import { ReferenceFramework } from '@/hooks/useReferenceFrameworks';
 import { FrameworkDialog } from './FrameworkDialog';
 import { FrameworkDocuments } from './FrameworkDocuments';
+import { useFrameworkDocuments } from '@/hooks/useFrameworkDocuments';
 
 interface FrameworkSelectorProps {
   frameworks: ReferenceFramework[];
@@ -47,11 +48,42 @@ export function FrameworkSelector({
     );
   };
 
-  const handleSave = (data: any) => {
-    if (data.id) {
-      onUpdate(data);
+  const { uploadDocument } = useFrameworkDocuments();
+
+  const handleSave = async (data: any) => {
+    const { files, ...frameworkData } = data;
+    if (frameworkData.id) {
+      onUpdate(frameworkData);
+      // Upload files to existing framework
+      if (files?.length) {
+        for (const file of files) {
+          uploadDocument({ frameworkId: frameworkData.id, file });
+        }
+      }
     } else {
-      onAdd(data);
+      // For new frameworks, we call onAdd which returns the created id
+      onAdd(frameworkData);
+      // Files will be uploaded after the framework query invalidates
+      // We need a different approach - store files and upload after mutation succeeds
+      if (files?.length) {
+        // Wait briefly for the mutation to complete and get the new framework
+        setTimeout(async () => {
+          // Refetch to find the new framework by key
+          const { data: newFw } = await (await import('@/integrations/supabase/client')).supabase
+            .from('reference_frameworks')
+            .select('id')
+            .eq('framework_key', frameworkData.framework_key)
+            .is('deleted_at', null)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+          if (newFw?.id) {
+            for (const file of files) {
+              uploadDocument({ frameworkId: newFw.id, file });
+            }
+          }
+        }, 1500);
+      }
     }
   };
 
