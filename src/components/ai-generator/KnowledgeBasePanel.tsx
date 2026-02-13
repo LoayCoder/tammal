@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -72,26 +73,35 @@ export function KnowledgeBasePanel({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) return;
-    const allowedTypes = ['.pdf', '.docx', '.txt', '.md'];
-    const ext = '.' + file.name.split('.').pop()?.toLowerCase();
-    if (!allowedTypes.includes(ext)) return;
-    if (documents.length >= 5) return;
+    if (!validateFile(file)) return;
     onUpload(file);
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const validateFile = (file: File): boolean => {
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error(t('aiGenerator.fileTooLarge'));
+      return false;
+    }
+    const allowedTypes = ['.pdf', '.docx', '.txt', '.md'];
+    const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (!allowedTypes.includes(ext)) {
+      toast.error(t('aiGenerator.fileTypeNotAllowed'));
+      return false;
+    }
+    if (documents.length >= 5) {
+      toast.error(t('aiGenerator.maxDocsReached'));
+      return false;
+    }
+    return true;
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (!file) return;
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) return;
-    const allowedTypes = ['.pdf', '.docx', '.txt', '.md'];
-    const ext = '.' + file.name.split('.').pop()?.toLowerCase();
-    if (!allowedTypes.includes(ext)) return;
-    if (documents.length >= 5) return;
+    if (!validateFile(file)) return;
     onUpload(file);
   };
 
