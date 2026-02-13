@@ -43,29 +43,33 @@ export function useFrameworkDocuments(frameworkId?: string) {
         .upload(filePath, params.file);
       if (uploadError) throw uploadError;
 
-      // Parse document to extract text
-      let extractedText: string | null = null;
-      try {
-        const { data: parseData } = await supabase.functions.invoke('parse-document', {
-          body: { filePath, bucketName: 'ai-knowledge' },
-        });
-        if (parseData?.text) {
-          extractedText = parseData.text.substring(0, 50000);
-        }
-      } catch (e) {
-        console.warn('Document parsing failed, storing without extracted text:', e);
-      }
-
-      // Insert reference_documents record
-      const { error: insertError } = await supabase
+      // Insert reference_documents record first to get the ID
+      const { data: insertedDoc, error: insertError } = await supabase
         .from('reference_documents')
         .insert({
           framework_id: params.frameworkId,
           tenant_id: tenantId,
           file_name: params.file.name,
-          extracted_text: extractedText,
-        });
+          extracted_text: null,
+        })
+        .select('id')
+        .single();
       if (insertError) throw insertError;
+
+      // Parse document to extract text
+      try {
+        const { data: parseData, error: parseError } = await supabase.functions.invoke('parse-document', {
+          body: { documentId: insertedDoc.id, filePath, fileName: params.file.name },
+        });
+        if (parseError) {
+          console.warn('Document parsing failed:', parseError);
+        }
+        if (parseData?.success && parseData?.contentLength > 0) {
+          // Text was saved directly by the edge function
+        }
+      } catch (e) {
+        console.warn('Document parsing failed, stored without extracted text:', e);
+      }
 
       return { fileName: params.file.name };
     },
