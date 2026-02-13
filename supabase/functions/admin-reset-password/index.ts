@@ -6,7 +6,6 @@ const corsHeaders = {
 };
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -16,7 +15,6 @@ Deno.serve(async (req) => {
     const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 
-    // Get the authorization header to verify the caller
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(
@@ -25,12 +23,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Create client with user's token to verify permissions
     const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
 
-    // Get the calling user
     const { data: { user: callingUser }, error: userError } = await supabaseUser.auth.getUser();
     if (userError || !callingUser) {
       return new Response(
@@ -39,7 +35,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check if caller has admin permissions (super_admin or tenant_admin)
     const { data: callerRoles, error: rolesError } = await supabaseUser
       .from('user_roles')
       .select('role')
@@ -63,8 +58,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Parse request body
-    const { user_id, email } = await req.json();
+    const { user_id, email, new_password } = await req.json();
     
     if (!user_id && !email) {
       return new Response(
@@ -73,7 +67,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Create admin client for password reset
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
       auth: {
         autoRefreshToken: false,
@@ -81,7 +74,47 @@ Deno.serve(async (req) => {
       },
     });
 
-    // If only user_id is provided, get the email
+    // If new_password is provided, set it directly
+    if (new_password) {
+      let targetUserId = user_id;
+      if (!targetUserId && email) {
+        // Find user by email
+        const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+        if (listError) {
+          return new Response(
+            JSON.stringify({ error: 'Failed to find user' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        const targetUser = users?.find(u => u.email === email);
+        if (!targetUser) {
+          return new Response(
+            JSON.stringify({ error: 'User not found' }),
+            { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        targetUserId = targetUser.id;
+      }
+
+      const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(targetUserId, {
+        password: new_password,
+      });
+
+      if (updateError) {
+        console.error('Password update error:', updateError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to update password', details: updateError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, message: 'Password updated successfully' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Otherwise send reset email
     let targetEmail = email;
     if (!targetEmail && user_id) {
       const { data: userData, error: userDataError } = await supabaseAdmin.auth.admin.getUserById(user_id);
@@ -94,7 +127,6 @@ Deno.serve(async (req) => {
       targetEmail = userData.user.email;
     }
 
-    // Send password reset email using the auth API
     const { error: resetError } = await supabaseAdmin.auth.resetPasswordForEmail(targetEmail, {
       redirectTo: `${req.headers.get('origin') || supabaseUrl}/auth?mode=reset`,
     });
