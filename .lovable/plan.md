@@ -1,242 +1,177 @@
 
 
-# Rebuild: AI Question Generator (Enterprise + Accuracy Controlled)
+# Add AI Model Knowledge Prompt and Document Upload to Question Generator
 
-## Summary
+## Overview
 
-Complete rebuild of the AI Question Generator page from a basic two-column layout into a production-grade, enterprise module with model selection, multi-pass validation, strict mode enforcement, structured logging, and export capabilities.
+Enhance the AI Question Generator with two new capabilities:
 
-## Current State
+1. **Knowledge Base Prompt**: A pre-built expert system prompt grounded in international standards (ISO 45003, COPSOQ III, UWES, WHO, Gallup Q12) that instructs the AI to generate scientifically valid, framework-referenced survey questions.
 
-The existing implementation is minimal:
-- Simple focus area pills, 1-5 question count, basic complexity/tone selectors
-- No model selection (hardcoded `gemini-2.5-flash`)
-- No validation engine
-- No confidence scores or explanations
-- No export functionality
-- No strict mode or accuracy controls
-- Logging only captures basic metadata
+2. **Document Upload**: Allow users to upload reference documents (PDF, DOCX, TXT) that get parsed and included as additional context in the AI prompt, enabling custom knowledge injection.
 
-## Architecture Overview
+---
+
+## Architecture
 
 ```text
 +-----------------------------------------------------------------------+
 | TOP CONTROL BAR                                                       |
-| [Accuracy Mode ▼]  [AI Model ▼]           [Save Draft] [Export ▼]    |
 +-----------------------------------------------------------------------+
-|  LEFT PANEL (Config)           |  RIGHT PANEL (Results + Validation)   |
-|  - Focus Areas (pills)        |  - Question Cards with scores         |
-|  - Question Type              |  - Inline edit / regenerate           |
-|  - Count (1-20)               |  - Validation Report summary          |
-|  - Complexity                 |  - Export blocked if strict + failed   |
-|  - Tone                       |                                       |
-|  - Advanced Settings          |                                       |
-|    (collapsible)              |                                       |
-|  - [Generate] CTA             |                                       |
-+--------------------------------+---------------------------------------+
+|  LEFT PANEL (Config)           |  RIGHT PANEL (Results)               |
+|  - Focus Areas                 |  - Question Cards (now include       |
+|  - Question Type               |    framework references +            |
+|  - Count / Complexity / Tone   |    psychological constructs)         |
+|  - [NEW] Knowledge Base Card   |                                      |
+|    - Toggle: Use Expert Prompt |                                      |
+|    - Document Upload zone      |                                      |
+|    - List of uploaded docs     |                                      |
+|  - Advanced Settings           |                                      |
+|  - Generate Button             |                                      |
++---------------------------------+-------------------------------------+
 ```
 
-## Implementation Plan
+---
 
-### Phase 1: Database Schema Changes
+## Implementation Details
 
-**Migration: Add new tables for the enterprise module**
+### 1. Database: New `ai_knowledge_documents` Table
 
-1. **`ai_models`** table (reference table for available models):
-   - `id` uuid PK
-   - `model_key` text (e.g. `google/gemini-2.5-flash`)
-   - `display_name` text
-   - `accuracy_tier` text (`standard`, `high`, `premium`)
-   - `cost_tier` text (`low`, `medium`, `high`)
-   - `is_active` boolean default true
-   - `created_at` timestamptz
+Store uploaded reference documents per tenant:
 
-2. **`question_sets`** table (groups of generated questions):
-   - `id` uuid PK
-   - `tenant_id` uuid FK tenants
-   - `user_id` uuid
-   - `model_used` text
-   - `accuracy_mode` text
-   - `settings` jsonb (full config snapshot)
-   - `validation_result` jsonb
-   - `critic_pass_result` jsonb
-   - `status` text (`draft`, `validated`, `exported`)
-   - `created_at`, `updated_at`, `deleted_at` timestamptz
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid PK | |
+| `tenant_id` | uuid | Tenant isolation |
+| `user_id` | uuid | Uploader |
+| `file_name` | text | Original filename |
+| `file_path` | text | Storage path in bucket |
+| `file_size` | integer | Size in bytes |
+| `content_text` | text | Extracted text content (for prompt injection) |
+| `is_active` | boolean | Whether to include in generation |
+| `created_at` | timestamptz | |
+| `deleted_at` | timestamptz | Soft delete |
 
-3. **`generated_questions`** table (individual questions in a set):
-   - `id` uuid PK
-   - `question_set_id` uuid FK question_sets
-   - `tenant_id` uuid FK tenants
-   - `question_text` text
-   - `question_text_ar` text
-   - `type` text
-   - `complexity` text
-   - `tone` text
-   - `explanation` text
-   - `confidence_score` numeric
-   - `bias_flag` boolean
-   - `ambiguity_flag` boolean
-   - `validation_status` text (`passed`, `warning`, `failed`)
-   - `validation_details` jsonb
-   - `options` jsonb
-   - `created_at` timestamptz
+RLS: Tenant isolation + super_admin full access.
 
-4. **`validation_logs`** table:
-   - `id` uuid PK
-   - `question_set_id` uuid FK question_sets
-   - `tenant_id` uuid FK tenants
-   - `validation_type` text (`structure`, `duplicate`, `bias`, `ambiguity`, `length`, `critic`)
-   - `result` text (`passed`, `warning`, `failed`)
-   - `details` jsonb
-   - `created_at` timestamptz
+### 2. Storage Bucket: `ai-knowledge`
 
-5. **Update `ai_generation_logs`**: Add columns `accuracy_mode`, `temperature`, `duration_ms`, `validation_result`, `critic_pass_result`, `settings` jsonb.
+A new private storage bucket for uploaded reference documents. RLS policies allow tenant admins and super admins to upload/manage files.
 
-6. **Seed `ai_models`** with available Lovable AI models.
+### 3. Edge Function: `parse-document`
 
-7. **RLS policies** on all new tables: tenant isolation + super_admin access.
+A new edge function that:
+- Receives a file path from storage
+- Reads the file content
+- For text files (TXT, MD): reads directly
+- For PDF/DOCX: extracts text content (basic extraction)
+- Returns extracted text
+- Saves extracted text to `ai_knowledge_documents.content_text`
 
-### Phase 2: Backend - Enhanced Edge Function
+### 4. Update `generate-questions` Edge Function
 
-**Rebuild `supabase/functions/generate-questions/index.ts`**
+Modify the system prompt to support two new inputs:
 
-Changes:
-- Accept `model`, `accuracyMode`, `questionType`, `advancedSettings` in request body
-- Use the selected model instead of hardcoded one
-- Request structured JSON with confidence scores, explanations, bias/ambiguity flags
-- Implement tool-calling for structured output extraction
-- Add timing measurement (`performance.now()`)
-- Log full generation metadata (duration, tokens, temperature, model, settings)
-- Return enriched question objects
+**a) Expert Knowledge Prompt (hardcoded, toggle-controlled)**
 
-**New edge function: `supabase/functions/validate-questions/index.ts`**
+When the user enables "Use Expert Knowledge Base", the system prompt is enhanced with the full I-O Psychology / Psychometrician / OHS expert role and the six reference frameworks (ISO 45003, ISO 10018/30414, COPSOQ III, UWES, WHO, Gallup Q12). Each generated question will also include:
+- `framework_reference`: Which standard the question derives from
+- `psychological_construct`: What is being measured
+- `scoring_mechanism`: Recommended scoring approach
 
-Dedicated validation endpoint that:
-- Accepts array of generated questions + accuracy mode
-- Runs structure completeness check
-- Runs duplicate detection (sends pairs to AI for semantic similarity)
-- Runs bias detection pass
-- Runs ambiguity detection pass
-- Checks minimum word length
-- Checks MCQ option integrity
-- If critic pass enabled: second AI call evaluating clarity, difficulty alignment, neutral wording, logical consistency
-- Returns per-question validation status + overall validation report
-- Logs to `validation_logs` table
+**b) Custom Document Context**
 
-### Phase 3: Frontend - Hook Layer
+When documents are uploaded and active, their extracted text is appended to the prompt as additional context:
+```
+# Additional Reference Documents:
+## Document: [filename]
+[extracted text content, truncated to ~4000 tokens per document]
+```
 
-**Rewrite `src/hooks/useAIQuestionGeneration.ts`**
+The tool-calling schema is also updated to include the new fields (`framework_reference`, `psychological_construct`, `scoring_mechanism`).
 
-New expanded interface:
+### 5. Frontend: Knowledge Base Section in ConfigPanel
+
+Add a new collapsible card section in the ConfigPanel (below Advanced Settings, above Generate button):
+
+**Knowledge Base Card:**
+- Toggle: "Use Expert Knowledge Base" (enables the hardcoded expert prompt with ISO/COPSOQ/UWES/WHO/Gallup frameworks)
+- Description text explaining what frameworks are included
+- Expandable list showing the 6 frameworks with short descriptions
+
+**Document Upload Section:**
+- Drag-and-drop zone or file input for uploading reference documents
+- Accepted formats: PDF, DOCX, TXT, MD
+- Max file size: 5MB per file, max 5 documents
+- List of uploaded documents with:
+  - Filename
+  - Size
+  - Active/Inactive toggle
+  - Delete button
+- Upload flow: File -> Storage bucket -> `parse-document` edge function -> Extracted text saved to DB
+
+### 6. Frontend: Updated QuestionCard Component
+
+When expert knowledge mode is active, each question card additionally shows:
+- **Framework Reference** badge (e.g., "ISO 45003", "UWES", "COPSOQ III")
+- **Psychological Construct** label (e.g., "Psychological Safety", "Vigor", "Role Clarity")
+- **Scoring Mechanism** note (e.g., "Likert 1-5 Agreement")
+
+These fields are optional and only appear when the expert prompt is used.
+
+### 7. Hook: `useAIKnowledge`
+
+New hook to manage knowledge documents:
+- `fetchDocuments()`: List active documents for tenant
+- `uploadDocument(file)`: Upload file to storage + trigger parsing
+- `toggleDocument(id, active)`: Enable/disable a document
+- `deleteDocument(id)`: Soft delete
+
+### 8. Update `GenerateInput` Interface
+
+Add new fields:
 ```typescript
-interface EnhancedGeneratedQuestion {
-  question_text: string;
-  question_text_ar: string;
-  type: string;
-  complexity: string;
-  tone: string;
-  explanation: string;
-  confidence_score: number;
-  bias_flag: boolean;
-  ambiguity_flag: boolean;
-  validation_status: 'pending' | 'passed' | 'warning' | 'failed';
-  validation_details: Record<string, any>;
-  options?: { text: string; text_ar: string }[];
+interface GenerateInput {
+  // ...existing fields
+  useExpertKnowledge?: boolean;
+  knowledgeDocumentIds?: string[];
 }
 ```
 
-New state management for:
-- `accuracyMode` (standard / high / strict)
-- `selectedModel` (from ai_models table)
-- `advancedSettings` (toggles for bias, ambiguity, duplicate, critic, min length)
-- `validationReport` (aggregate results)
-- `questionSet` (saved set metadata)
+### 9. Localization
 
-New mutations:
-- `generateQuestions` - calls enhanced edge function
-- `validateQuestions` - calls validation edge function
-- `saveQuestionSet` - persists to `question_sets` + `generated_questions`
-- `regenerateSingle` - regenerates one question
-- `exportQuestionSet` - generates export (JSON/PDF/DOCX client-side)
-
-**New hook: `src/hooks/useAIModels.ts`**
-- Fetches available models from `ai_models` table
-- Returns model list with display names, accuracy/cost tiers
-
-### Phase 4: Frontend - Complete Page Rebuild
-
-**Rewrite `src/pages/admin/AIQuestionGenerator.tsx`**
-
-Component structure:
-```text
-AIQuestionGenerator (page)
-  +-- TopControlBar
-  |     +-- AccuracyModeSelector (dropdown + tooltip)
-  |     +-- ModelSelector (dropdown with tier badges)
-  |     +-- SaveDraftButton
-  |     +-- ExportDropdown (PDF/DOCX/JSON)
-  +-- ConfigPanel (left column)
-  |     +-- FocusAreaSelector (multi-select pills)
-  |     +-- QuestionTypeSelector (dropdown)
-  |     +-- QuestionCountSelector (1-20)
-  |     +-- ComplexitySelector
-  |     +-- ToneSelector
-  |     +-- AdvancedSettings (Collapsible)
-  |     |     +-- Toggle: Require explanation
-  |     |     +-- Toggle: Bias detection
-  |     |     +-- Toggle: Ambiguity detection
-  |     |     +-- Toggle: Duplicate detection
-  |     |     +-- Toggle: Critic pass
-  |     |     +-- Input: Min word length
-  |     +-- GenerateButton (large CTA with progress)
-  +-- ResultsPanel (right column)
-        +-- EmptyState (professional, no i18n keys shown)
-        +-- QuestionCardList
-        |     +-- QuestionCard (per question)
-        |           +-- Type/Complexity/Tone badges
-        |           +-- Confidence score indicator
-        |           +-- Collapsible explanation
-        |           +-- Validation status icon
-        |           +-- Regenerate / Edit / Copy buttons
-        +-- ValidationReport (summary panel)
-              +-- Structure check result
-              +-- Duplicate check result
-              +-- Bias check result
-              +-- Ambiguity check result
-              +-- Avg confidence score
-              +-- Strict mode blocking message (if applicable)
+**English keys to add:**
+```json
+{
+  "aiGenerator": {
+    "knowledgeBase": "Knowledge Base",
+    "knowledgeBaseDesc": "Ground questions in international standards and custom references",
+    "useExpertPrompt": "Use Expert Knowledge Base",
+    "expertPromptDesc": "Generates questions grounded in ISO 45003, COPSOQ III, UWES, WHO Guidelines, and Gallup Q12 frameworks",
+    "frameworks": "Reference Frameworks",
+    "frameworkISO45003": "ISO 45003 — Psychological Health & Safety",
+    "frameworkISO10018": "ISO 10018 & ISO 30414 — Engagement & HR Reporting",
+    "frameworkCOPSOQ": "COPSOQ III — Psychosocial Questionnaire",
+    "frameworkUWES": "UWES — Work Engagement Scale",
+    "frameworkWHO": "WHO — Mental Health at Work Guidelines",
+    "frameworkGallup": "Gallup Q12 — Employee Needs Hierarchy",
+    "uploadDocuments": "Upload Reference Documents",
+    "uploadDocumentsDesc": "Upload PDF, DOCX, or TXT files as additional AI context",
+    "dragOrClick": "Drag files here or click to upload",
+    "maxFileSize": "Max 5MB per file, up to 5 documents",
+    "parsing": "Parsing document...",
+    "parseSuccess": "Document parsed and ready",
+    "parseError": "Failed to parse document",
+    "documentActive": "Active — included in generation",
+    "documentInactive": "Inactive — excluded from generation",
+    "frameworkReference": "Framework",
+    "psychologicalConstruct": "Construct",
+    "scoringMechanism": "Scoring"
+  }
+}
 ```
 
-All components will be inline in the page file or extracted to `src/components/ai-generator/` sub-components if they exceed ~80 lines.
-
-### Phase 5: Strict Mode Logic
-
-Client-side enforcement:
-- If accuracy mode is "strict" AND any validation check failed:
-  - Disable Save Draft button
-  - Disable Export dropdown
-  - Show red banner: "Strict validation mode is active. Fix all failed questions before saving or exporting."
-  - Show "Regenerate Failed Only" button that re-generates only questions with `validation_status === 'failed'`
-- Failed questions get red border highlight
-
-### Phase 6: Export Implementation
-
-Client-side export (no additional edge function needed):
-- **JSON**: Direct download of question set + metadata
-- **PDF**: Use browser print-to-PDF or a simple HTML-to-PDF approach via a hidden printable div
-- **DOCX**: Use a lightweight library or structured HTML blob with `.doc` extension
-
-Export metadata includes: model used, accuracy mode, settings snapshot, date, user ID, validation summary.
-
-### Phase 7: Localization
-
-Update `en.json` and `ar.json` with all new keys for:
-- Accuracy modes, model names, validation labels
-- Advanced settings labels
-- Validation report labels
-- Export options
-- Strict mode messages
-- Empty state text (real text, not key references)
+**Arabic keys** will mirror the English with proper Arabic translations.
 
 ---
 
@@ -244,26 +179,26 @@ Update `en.json` and `ar.json` with all new keys for:
 
 | File | Action | Description |
 |------|--------|-------------|
-| Database Migration | Create | Add `ai_models`, `question_sets`, `generated_questions`, `validation_logs` tables; update `ai_generation_logs`; seed models; RLS |
-| `supabase/functions/generate-questions/index.ts` | Rewrite | Model selection, structured output, enhanced logging |
-| `supabase/functions/validate-questions/index.ts` | Create | Validation engine with multi-check + critic pass |
-| `supabase/config.toml` | Modify | Add `validate-questions` function entry |
-| `src/hooks/useAIQuestionGeneration.ts` | Rewrite | Full state management, validation, save, export |
-| `src/hooks/useAIModels.ts` | Create | Fetch available AI models |
-| `src/pages/admin/AIQuestionGenerator.tsx` | Rewrite | Complete enterprise UI rebuild |
-| `src/components/ai-generator/QuestionCard.tsx` | Create | Rich question card with scores, edit, regenerate |
-| `src/components/ai-generator/ValidationReport.tsx` | Create | Validation summary panel |
-| `src/components/ai-generator/TopControlBar.tsx` | Create | Accuracy mode, model selector, save/export |
-| `src/components/ai-generator/ConfigPanel.tsx` | Create | Left panel configuration form |
-| `src/components/ai-generator/AdvancedSettings.tsx` | Create | Collapsible advanced toggles |
-| `src/locales/en.json` | Modify | Add ~60 new translation keys |
-| `src/locales/ar.json` | Modify | Add ~60 Arabic translations |
+| Database Migration | Create | `ai_knowledge_documents` table + storage bucket + RLS |
+| `supabase/functions/parse-document/index.ts` | Create | Extract text from uploaded files |
+| `supabase/functions/generate-questions/index.ts` | Modify | Add expert prompt + document context injection |
+| `supabase/config.toml` | Modify | Add `parse-document` and `validate-questions` entries |
+| `src/hooks/useAIKnowledge.ts` | Create | Manage knowledge documents CRUD |
+| `src/components/ai-generator/KnowledgeBasePanel.tsx` | Create | Expert prompt toggle + document upload UI |
+| `src/components/ai-generator/ConfigPanel.tsx` | Modify | Add KnowledgeBasePanel section |
+| `src/components/ai-generator/QuestionCard.tsx` | Modify | Show framework/construct/scoring badges |
+| `src/hooks/useEnhancedAIGeneration.ts` | Modify | Pass knowledge params to edge function |
+| `src/pages/admin/AIQuestionGenerator.tsx` | Modify | Add knowledge state management |
+| `src/locales/en.json` | Modify | Add knowledge base translation keys |
+| `src/locales/ar.json` | Modify | Add Arabic translations |
 
-## Security
+---
 
-- All new tables have RLS with tenant isolation
-- `question_sets` and `generated_questions` scoped to `tenant_id`
-- Validation edge function requires auth
-- No raw SQL, all parameterized queries
-- Model selection validated server-side against `ai_models` table
+## Security Considerations
+
+1. All documents stored in a private bucket with tenant-scoped RLS
+2. Document content text sanitized before prompt injection (truncated to prevent token overflow)
+3. File type validation on both client and server side
+4. Soft deletes only for documents
+5. Expert prompt is hardcoded server-side, never exposed to client manipulation
 
