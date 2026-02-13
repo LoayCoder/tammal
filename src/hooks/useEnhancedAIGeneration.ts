@@ -51,6 +51,7 @@ export interface GenerateInput {
   language?: string;
   useExpertKnowledge?: boolean;
   knowledgeDocumentIds?: string[];
+  customPrompt?: string;
 }
 
 export function useEnhancedAIGeneration() {

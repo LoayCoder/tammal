@@ -47,6 +47,10 @@ interface ConfigPanelProps {
   onToggleDocument: (params: { id: string; isActive: boolean }) => void;
   onDeleteDocument: (id: string) => void;
   isUploading: boolean;
+  customPrompt: string;
+  onCustomPromptChange: (value: string) => void;
+  onRewritePrompt: () => void;
+  isRewriting: boolean;
 }
 
 export function ConfigPanel({
@@ -71,6 +75,10 @@ export function ConfigPanel({
   onToggleDocument,
   onDeleteDocument,
   isUploading,
+  customPrompt,
+  onCustomPromptChange,
+  onRewritePrompt,
+  isRewriting,
 }: ConfigPanelProps) {
   const { t } = useTranslation();
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -237,6 +245,10 @@ export function ConfigPanel({
           onToggleDocument={onToggleDocument}
           onDeleteDocument={onDeleteDocument}
           isUploading={isUploading}
+          customPrompt={customPrompt}
+          onCustomPromptChange={onCustomPromptChange}
+          onRewritePrompt={onRewritePrompt}
+          isRewriting={isRewriting}
         />
 
         {/* Generate Button */}
