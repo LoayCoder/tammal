@@ -17,6 +17,9 @@ export interface EnhancedGeneratedQuestion {
   validation_status: 'pending' | 'passed' | 'warning' | 'failed';
   validation_details: Record<string, any>;
   options?: { text: string; text_ar: string }[];
+  framework_reference?: string | null;
+  psychological_construct?: string | null;
+  scoring_mechanism?: string | null;
 }
 
 export interface ValidationReport {
@@ -46,6 +49,8 @@ export interface GenerateInput {
   accuracyMode: string;
   advancedSettings: AdvancedSettings;
   language?: string;
+  useExpertKnowledge?: boolean;
+  knowledgeDocumentIds?: string[];
 }
 
 export function useEnhancedAIGeneration() {

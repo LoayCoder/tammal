@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Sparkles, Loader2, ChevronDown, Settings2 } from 'lucide-react';
 import { AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
+import { KnowledgeBasePanel } from './KnowledgeBasePanel';
+import { KnowledgeDocument } from '@/hooks/useAIKnowledge';
 import { useState } from 'react';
 
 const focusAreaOptions = [
@@ -37,6 +39,14 @@ interface ConfigPanelProps {
   onAdvancedSettingsChange: (settings: AdvancedSettings) => void;
   onGenerate: () => void;
   isGenerating: boolean;
+  // Knowledge base props
+  useExpertKnowledge: boolean;
+  onUseExpertKnowledgeChange: (value: boolean) => void;
+  documents: KnowledgeDocument[];
+  onUploadDocument: (file: File) => void;
+  onToggleDocument: (params: { id: string; isActive: boolean }) => void;
+  onDeleteDocument: (id: string) => void;
+  isUploading: boolean;
 }
 
 export function ConfigPanel({
@@ -54,6 +64,13 @@ export function ConfigPanel({
   onAdvancedSettingsChange,
   onGenerate,
   isGenerating,
+  useExpertKnowledge,
+  onUseExpertKnowledgeChange,
+  documents,
+  onUploadDocument,
+  onToggleDocument,
+  onDeleteDocument,
+  isUploading,
 }: ConfigPanelProps) {
   const { t } = useTranslation();
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -210,6 +227,17 @@ export function ConfigPanel({
             </div>
           </CollapsibleContent>
         </Collapsible>
+
+        {/* Knowledge Base */}
+        <KnowledgeBasePanel
+          useExpertKnowledge={useExpertKnowledge}
+          onUseExpertKnowledgeChange={onUseExpertKnowledgeChange}
+          documents={documents}
+          onUpload={onUploadDocument}
+          onToggleDocument={onToggleDocument}
+          onDeleteDocument={onDeleteDocument}
+          isUploading={isUploading}
+        />
 
         {/* Generate Button */}
         <Button onClick={onGenerate} disabled={isGenerating || focusAreas.length === 0} className="w-full" size="lg">

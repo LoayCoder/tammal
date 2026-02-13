@@ -23,6 +23,8 @@ interface GenerateRequest {
     minWordLength?: number;
   };
   language?: "en" | "ar" | "both";
+  useExpertKnowledge?: boolean;
+  knowledgeDocumentIds?: string[];
 }
 
 serve(async (req) => {
@@ -55,6 +57,8 @@ serve(async (req) => {
       accuracyMode = "standard",
       advancedSettings = {},
       language = "both",
+      useExpertKnowledge = false,
+      knowledgeDocumentIds = [],
     }: GenerateRequest = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -77,6 +81,56 @@ serve(async (req) => {
 
     const temperature = accuracyMode === "strict" ? 0.3 : accuracyMode === "high" ? 0.5 : 0.7;
 
+    // Build expert knowledge prompt if enabled
+    let expertPromptSection = "";
+    if (useExpertKnowledge) {
+      expertPromptSection = `
+
+# Expert Role
+Act as a world-class expert consultant combining the skills of an Industrial-Organizational (I-O) Psychologist, a Lead Psychometrician, and an Occupational Health & Safety (OHS) Specialist.
+
+# Objective
+Develop scientifically valid, legally defensible, and high-impact survey questions to measure "Mental Health," "Organizational Engagement," and "Psychosocial Risk."
+
+# Reference Frameworks (Knowledge Base):
+1. **ISO 45003 (Psychological Health & Safety):** Focus on managing psychosocial risks to prevent work-related injury/ill health. Create questions that identify hazards (e.g., bullying, excessive workload) rather than just symptoms.
+2. **ISO 10018 & ISO 30414 (Engagement & HR Reporting):** Ensure questions align with global reporting standards for turnover intention and productivity.
+3. **COPSOQ III (Copenhagen Psychosocial Questionnaire):** Use for deep-dive questions on stress, burnout, sleeping troubles, and work environment.
+4. **UWES (Utrecht Work Engagement Scale):** Measure positive work wellness defined by Vigor, Dedication, and Absorption (the opposite of burnout).
+5. **WHO (World Health Organization) Guidelines:** Mental health at work, emphasizing protection and promotion. Respect medical privacy while addressing well-being.
+6. **Gallup Q12:** Structure based on the hierarchy of employee needs (Basic needs -> Management -> Teamwork -> Growth).
+
+For EACH question you MUST also provide:
+- framework_reference: The specific standard/framework the question derives from (e.g., "ISO 45003", "UWES", "COPSOQ III", "Gallup Q12")
+- psychological_construct: The construct being measured (e.g., "Psychological Safety", "Vigor", "Role Clarity", "Burnout Risk")
+- scoring_mechanism: Recommended scoring approach (e.g., "Likert 1-5 Agreement", "Frequency Scale", "Yes/No")
+`;
+    }
+
+    // Fetch document context if any documents are specified
+    let documentContext = "";
+    if (knowledgeDocumentIds.length > 0) {
+      const { data: docs } = await supabase
+        .from("ai_knowledge_documents")
+        .select("file_name, content_text")
+        .in("id", knowledgeDocumentIds)
+        .eq("is_active", true)
+        .is("deleted_at", null);
+
+      if (docs && docs.length > 0) {
+        documentContext = "\n\n# Additional Reference Documents:\n";
+        for (const doc of docs) {
+          if (doc.content_text) {
+            // Truncate each document to ~4000 tokens (~16000 chars)
+            const truncated = doc.content_text.length > 16000
+              ? doc.content_text.substring(0, 16000) + "\n[...truncated...]"
+              : doc.content_text;
+            documentContext += `\n## Document: ${doc.file_name}\n${truncated}\n`;
+          }
+        }
+      }
+    }
+
     const systemPrompt = `You are an expert organizational psychologist specializing in employee wellbeing surveys.
 Generate high-quality survey questions that measure employee wellbeing, engagement, and organizational health.
 
@@ -94,7 +148,7 @@ Complexity level: ${complexity}
 Tone: ${tone}
 Focus areas: ${focusAreas.join(", ")}
 ${questionType && questionType !== "mixed" ? `Question type constraint: Only generate ${questionType} questions` : "Use a mix of question types"}
-${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.minWordLength} words` : ""}`;
+${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.minWordLength} words` : ""}${expertPromptSection}${documentContext}`;
 
     const toolDefinition = {
       type: "function" as const,
@@ -121,6 +175,9 @@ ${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.
                   confidence_score: { type: "number", description: "Confidence in question quality 0-100" },
                   bias_flag: { type: "boolean", description: "Whether potential bias was detected" },
                   ambiguity_flag: { type: "boolean", description: "Whether ambiguity was detected" },
+                  framework_reference: { type: "string", description: "The international standard this question derives from (e.g., ISO 45003, UWES, COPSOQ III)" },
+                  psychological_construct: { type: "string", description: "The psychological construct being measured (e.g., Psychological Safety, Vigor)" },
+                  scoring_mechanism: { type: "string", description: "Recommended scoring approach (e.g., Likert 1-5 Agreement)" },
                   options: {
                     type: "array",
                     items: {
@@ -245,6 +302,9 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       validation_status: "pending",
       validation_details: {},
       options: q.options || [],
+      framework_reference: q.framework_reference || null,
+      psychological_construct: q.psychological_construct || null,
+      scoring_mechanism: q.scoring_mechanism || null,
     }));
 
     // Log the generation
