@@ -1,97 +1,265 @@
 
 
-# Fix All AI Generator Gaps
+# Wellness & Question Management Enhancement Plan
 
-## GAP 1: Update Default Model
+## Current State Analysis
 
-**File:** `src/pages/admin/AIQuestionGenerator.tsx`
-- Change line 43 from `'google/gemini-2.5-flash'` to `'google/gemini-3-flash-preview'`
+The platform already has a robust survey system:
+- AI Question Generator with advanced settings (models, frameworks, knowledge base, validation, accuracy modes)
+- Schedule Management with multi-schedule support
+- Schedule Engine and Delivery edge functions
+- Employee Survey portal with response submission
 
----
-
-## GAP 2 + 3: Pass Selected Model to Rewrite and Critic
-
-**File:** `src/pages/admin/AIQuestionGenerator.tsx`
-- In `handleRewritePrompt`, add `model: selectedModel` to the request body sent to `rewrite-prompt`
-- In `handleValidate`, add `model: selectedModel` to the validate call
-
-**File:** `supabase/functions/rewrite-prompt/index.ts`
-- Accept `model` from request body, default to `google/gemini-3-flash-preview`
-- Use it in the gateway fetch call instead of hardcoded value
-
-**File:** `supabase/functions/validate-questions/index.ts`
-- Accept `model` from request body, default to `google/gemini-3-flash-preview`
-- Use it in the critic pass gateway fetch call instead of hardcoded value
-
-**File:** `src/hooks/useEnhancedAIGeneration.ts`
-- Add `model` to the validate mutation params type
+The SRS describes 4 new modules that add a **Wellness layer** on top of the existing system. This plan integrates them logically without duplicating or breaking existing functionality.
 
 ---
 
-## GAP 9: Add 429/402 Error Handling to Rewrite
+## Architecture Overview
 
-**File:** `supabase/functions/rewrite-prompt/index.ts`
-- After the gateway fetch, check `response.status` for 429 and 402
-- Return specific JSON error messages: "Rate limit exceeded" / "Payment required"
+The new wellness system runs alongside the existing survey system as a separate "daily check-in" experience with its own tables, while reusing shared infrastructure (auth, tenants, employees, AI gateway).
 
-**File:** `src/pages/admin/AIQuestionGenerator.tsx`
-- In `handleRewritePrompt` catch block, detect rate limit and credit errors and show appropriate toast messages
-
----
-
-## GAP 5: Enable Validation Logging Without questionSetId
-
-**File:** `supabase/functions/validate-questions/index.ts`
-- Remove the `questionSetId` requirement from the logging condition (line 320)
-- Change to: if `tenantId` exists, log validation results with `question_set_id` set to `questionSetId` or `null`
-
-**File:** `src/hooks/useEnhancedAIGeneration.ts`
-- Update the `validateMutation` params type to accept optional `knowledgeDocumentIds`
-
----
-
-## GAP 4: Preserve Document Context for Regeneration
-
-**File:** `src/pages/admin/AIQuestionGenerator.tsx`
-- Remove the immediate `deleteAllDocuments()` call after generate (lines 84-86)
-- Instead, store active document IDs in a `useRef` or state variable when generating
-- Only delete documents when the user explicitly clears all results or navigates away
-- In `handleRegenerateFailedOnly`, pass the stored `knowledgeDocumentIds`
-- Add cleanup in `clearAll` to delete documents at that point
+```text
+Existing System                    New Wellness System
++-----------------------+          +-----------------------+
+| questions             |          | wellness_questions    |
+| question_schedules    |          | question_schedule_    |
+| scheduled_questions   |          |   settings (1 row)    |
+| employee_responses    |          | daily_question_       |
+| AI Generator Page     |          |   schedule            |
+| Schedule Mgmt Page    |          | mood_entries          |
+| Employee Survey Page  |          | question_generation_  |
++-----------------------+          |   batches             |
+        |                          | Daily Check-in Page   |
+        |                          | Batch Mgmt Page       |
+        +-------- shared ----------+ Schedule Settings Page|
+          employees, tenants,       | AI Wellness Gen EF   |
+          auth, AI gateway          +-----------------------+
+```
 
 ---
 
-## GAP 6: Add tenant_id Null Guard in Save Flow
+## Phase 1: Database Schema (Migration)
 
-**File:** `src/hooks/useEnhancedAIGeneration.ts`
-- After the `get_user_tenant_id` RPC call, check if `tenantId` is null
-- If null, throw a clear error: "No organization found. Please contact your administrator."
+Create 5 new tables:
+
+### 1. `wellness_questions`
+Bilingual wellness question pool, organized by batch.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| tenant_id | uuid | RLS isolation |
+| batch_id | uuid FK | Links to generation batch |
+| question_text_en | text | English text |
+| question_text_ar | text | Arabic text |
+| question_type | text | scale, multiple_choice, text |
+| options | jsonb | Array of option strings |
+| status | text | draft, published, archived |
+| created_at | timestamptz | |
+| deleted_at | timestamptz | Soft delete |
+
+### 2. `question_schedule_settings`
+Single-row per tenant configuration for wellness delivery.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| tenant_id | uuid UNIQUE | One row per tenant |
+| delivery_time | time | HH:MM format |
+| active_days | jsonb | Array of day numbers [0-6] |
+| questions_per_day | integer | Default 1 |
+| workdays_only | boolean | Default true |
+| is_active | boolean | Default true |
+| updated_at | timestamptz | |
+
+### 3. `daily_question_schedule`
+Maps a wellness question to a specific date for delivery.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| tenant_id | uuid | |
+| question_id | uuid FK | -> wellness_questions |
+| scheduled_date | date | The calendar date |
+| status | text | pending, delivered, completed |
+| created_at | timestamptz | |
+
+### 4. `mood_entries`
+Stores daily mood check-in responses from employees.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| tenant_id | uuid | |
+| employee_id | uuid FK | -> employees |
+| mood_level | text | great, good, okay, struggling, need_help |
+| mood_score | integer | 5,4,3,2,1 numeric mapping |
+| question_id | uuid FK | -> wellness_questions |
+| answer_value | jsonb | The answer to the daily question |
+| answer_text | text | Optional comment |
+| ai_tip | text | AI-generated wellness tip |
+| support_actions | jsonb | Selected support actions |
+| points_earned | integer | Gamification points |
+| streak_count | integer | Consecutive days |
+| entry_date | date | Date of the entry |
+| created_at | timestamptz | |
+
+### 5. `question_generation_batches`
+Manages AI-generated wellness question batches by month.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| tenant_id | uuid | |
+| target_month | date | First day of target month |
+| question_count | integer | Number of questions in batch |
+| status | text | draft, reviewing, published, archived |
+| created_by | uuid | |
+| created_at | timestamptz | |
+| published_at | timestamptz | |
+| deleted_at | timestamptz | Soft delete |
+
+All tables get RLS policies following the existing pattern:
+- Super admins: full access
+- Tenant admins: manage their tenant's data
+- Employees: read/write their own mood entries
 
 ---
 
-## GAP 7: Fix Misleading DOCX Export
+## Phase 2: Edge Functions (3 New)
 
-**File:** `src/pages/admin/AIQuestionGenerator.tsx`
-- Remove the `'docx'` option from the export dropdown/menu
-- Keep only `'json'` and `'pdf'` (print-to-PDF) as export options
-- Update the PDF export label to clarify it opens a print dialog
+### 1. `auto-schedule-questions`
+Called when daily check-in finds no schedule for today (PGRST116 fallback).
 
-**File:** `src/locales/en.json` and `src/locales/ar.json`
-- Update export-related i18n keys if needed (e.g., rename "PDF" to "Print / PDF")
+- Input: `{ tenantId, date }`
+- Logic: Fetch published `wellness_questions`, pick one randomly (avoiding repeats in last 14 days), insert into `daily_question_schedule`
+- Returns the newly created schedule row
+
+### 2. `generate-daily-tip`
+Called after mood submission to generate a personalized AI wellness tip.
+
+- Input: `{ moodLevel, questionText, answerValue }`
+- Uses Lovable AI Gateway with `google/gemini-3-flash-preview`
+- System prompt: "You are a workplace wellness coach. Generate a brief, actionable wellness tip based on the employee's mood and response."
+- Returns `{ tip: string }`
+
+### 3. `create-batch-schedules`
+Called from Batch Management to map a batch of questions to calendar days.
+
+- Input: `{ batchId }`
+- Logic:
+  1. Fetch batch details (target month)
+  2. Fetch tenant's `question_schedule_settings` (active days, workdays_only)
+  3. Fetch all questions in the batch
+  4. Calculate valid days in the target month
+  5. **Delete existing** `daily_question_schedule` records for that month (conflict resolution)
+  6. Round-robin assign questions to valid days
+  7. Insert new schedule records
 
 ---
 
-## Technical Summary
+## Phase 3: Frontend Hooks (4 New)
 
-| Gap | Files Changed | Effort |
-|-----|--------------|--------|
-| 1 | AIQuestionGenerator.tsx | 1 line |
-| 2+3 | AIQuestionGenerator.tsx, rewrite-prompt, validate-questions, useEnhancedAIGeneration.ts | ~15 lines |
-| 9 | rewrite-prompt, AIQuestionGenerator.tsx | ~15 lines |
-| 5 | validate-questions | ~3 lines |
-| 4 | AIQuestionGenerator.tsx | ~15 lines |
-| 6 | useEnhancedAIGeneration.ts | ~3 lines |
-| 7 | AIQuestionGenerator.tsx, locales | ~10 lines |
+### 1. `useDailyWellnessQuestions`
+- **Cache-first**: Check `localStorage` key `daily-questions:{lang}:{date}`
+- If cache miss: query `daily_question_schedule` for today
+- If PGRST116: invoke `auto-schedule-questions`, retry fetch
+- Returns localized question based on `i18n.language`
 
-All edge functions (`rewrite-prompt`, `validate-questions`) will be redeployed automatically after changes.
+### 2. `useWellnessScheduleSettings`
+- Fetches single-row from `question_schedule_settings` using `.limit(1).maybeSingle()`
+- Mutation: upsert settings, invalidate `['schedule-settings']`
+- Zod validation for `active_days` (array of 0-6) and `delivery_time` (HH:MM)
+
+### 3. `useQuestionBatchManagement`
+- CRUD for `question_generation_batches` + related `wellness_questions`
+- `bulkPublish`: updates batch status + all child questions to "published"
+- `createSchedules`: invokes `create-batch-schedules` edge function
+
+### 4. `useGamification`
+- Calculates streak from consecutive `mood_entries` dates
+- Awards points: base 10 + streak bonus (5 per day, capped at 50)
+- Returns `{ points, streak, totalPoints }`
+
+---
+
+## Phase 4: Frontend Pages (3 New, 1 Updated)
+
+### 1. Daily Check-in Page (`/employee/wellness`)
+- Mood selector: 5 buttons (Great, Good, Okay, Struggling, Need Help) with emoji icons
+- Daily wellness question rendered below mood selector
+- Dynamic "Support Actions" section (appears for Struggling/Need Help): Meditation, Breathing, Talk to Someone, Take a Break
+- On submit: call `generate-daily-tip` -> store `mood_entries` -> award points -> confetti animation
+- Shows streak counter and points earned
+- Uses `useDailyWellnessQuestions` for cache-first loading
+
+### 2. Admin Schedule Settings Page (`/admin/wellness-settings`)
+- Single form (not a table) since it's a one-row config
+- Fields: delivery time (time picker), active days (multi-checkbox), questions per day, workdays only toggle
+- Zod-validated form with react-hook-form
+- Save button invalidates schedule settings query
+
+### 3. Batch Management Page (`/admin/wellness-batches`)
+- Table showing all batches: target month, count, status, actions
+- "Generate New Batch" button -> dialog to select month + count -> invokes `ai-generate-wellness-pool`
+- Row actions: Review (view questions), Publish (bulk status update), Schedule (map to calendar), Delete (soft)
+- Expandable rows to preview questions in the batch
+
+### 4. Updated Sidebar
+- New "Wellness" group in sidebar with 3 items:
+  - Daily Check-in -> `/employee/wellness`
+  - Batch Management -> `/admin/wellness-batches`
+  - Wellness Settings -> `/admin/wellness-settings`
+
+---
+
+## Phase 5: Localization
+
+Add all new i18n keys to both `en.json` and `ar.json` under a `wellness` namespace:
+- `wellness.dailyCheckin`, `wellness.howAreYou`, `wellness.moodGreat`, etc.
+- `wellness.batchManagement`, `wellness.generateBatch`, etc.
+- `wellness.settings`, `wellness.deliveryTime`, `wellness.activeDays`, etc.
+
+---
+
+## What Is Preserved (No Changes)
+
+- **AI Question Generator**: All advanced settings, config panel, knowledge base, frameworks, validation -- completely untouched
+- **Existing Schedule Management**: `question_schedules` table and page remain for the survey system
+- **Employee Survey**: Existing survey portal remains separate from wellness check-in
+- **All edge functions**: generate-questions, validate-questions, rewrite-prompt, schedule-engine, deliver-questions, submit-response -- no modifications
+
+---
+
+## Technical Details
+
+### Model Selection
+- The wellness AI generation edge function uses `google/gemini-3-flash-preview` as default (matching the updated platform standard)
+- Uses Tool Calling for strict JSON output matching `wellness_questions` schema
+- The `generate-daily-tip` function uses the same model for quick tip generation (non-streaming)
+
+### Caching Strategy
+```text
+localStorage key: daily-questions:{lang}:{YYYY-MM-DD}
+Value: { question_id, question_text, question_type, options, cached_at }
+TTL: expires at midnight (date-based key naturally invalidates)
+```
+
+### Gamification Points
+```text
+Base submission: 10 points
+Streak bonus: 5 points per consecutive day (capped at 50)
+Example: Day 5 streak = 10 + 25 = 35 points
+```
+
+### File Summary
+
+| Category | Files | Count |
+|----------|-------|-------|
+| Migration | 1 SQL migration (5 tables + RLS) | 1 |
+| Edge Functions | auto-schedule-questions, generate-daily-tip, create-batch-schedules | 3 |
+| Hooks | useDailyWellnessQuestions, useWellnessScheduleSettings, useQuestionBatchManagement, useGamification | 4 |
+| Pages | DailyCheckin, WellnessSettings, BatchManagement | 3 |
+| Updated | AppSidebar, App.tsx (routes), en.json, ar.json | 4 |
+| Total | | ~15 files |
 
