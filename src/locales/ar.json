@@ -1373,5 +1373,30 @@
     "questionTextEn": "السؤال (إنجليزي)",
     "questionTextAr": "السؤال (عربي)",
     "questionType": "النوع"
+  },
+  "batches": {
+    "title": "دفعات الأسئلة",
+    "subtitle": "دفعات الأسئلة المولدة بالذكاء الاصطناعي مرتبة حسب تاريخ الإنشاء",
+    "library": "مكتبة الأسئلة",
+    "libraryDescription": "تصفح وإدارة دفعات الأسئلة المولدة بالذكاء الاصطناعي",
+    "searchPlaceholder": "البحث في الأسئلة...",
+    "createNew": "إنشاء دفعة جديدة",
+    "addToExisting": "إضافة إلى دفعة موجودة",
+    "questionsCount": "{{count}}/64 سؤال",
+    "remaining": "{{count}} متبقي",
+    "full": "الدفعة ممتلئة",
+    "overflowWarning": "سيتم تقسيم الأسئلة إلى دفعات متعددة",
+    "createdBy": "أنشئت بواسطة",
+    "deleteSuccess": "تم حذف الدفعة",
+    "saveSuccess": "تم حفظ الأسئلة في الدفعة",
+    "saveTitle": "حفظ في دفعة",
+    "noBatches": "لا توجد دفعات بعد. قم بتوليد الأسئلة من مولد الذكاء الاصطناعي.",
+    "noQuestions": "لا توجد أسئلة في هذه الدفعة",
+    "selectBatch": "اختر دفعة",
+    "unnamed": "دفعة بدون اسم",
+    "questionText": "السؤال (إنجليزي)",
+    "questionTextAr": "السؤال (عربي)",
+    "type": "النوع",
+    "confidence": "الثقة"
   }
 }

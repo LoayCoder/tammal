@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Sparkles, RefreshCw, ShieldCheck, AlertTriangle } from 'lucide-react';
@@ -9,12 +9,15 @@ import { TopControlBar } from '@/components/ai-generator/TopControlBar';
 import { ConfigPanel } from '@/components/ai-generator/ConfigPanel';
 import { QuestionCard } from '@/components/ai-generator/QuestionCard';
 import { ValidationReport } from '@/components/ai-generator/ValidationReport';
+import { BatchSaveDialog } from '@/components/ai-generator/BatchSaveDialog';
 import { useEnhancedAIGeneration, AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
 import { useAIModels } from '@/hooks/useAIModels';
 import { useAIKnowledge } from '@/hooks/useAIKnowledge';
 import { useReferenceFrameworks } from '@/hooks/useReferenceFrameworks';
+import { useQuestionBatches } from '@/hooks/useQuestionBatches';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export default function AIQuestionGenerator() {
@@ -33,6 +36,19 @@ export default function AIQuestionGenerator() {
     generate, validate, saveSet, removeQuestion, updateQuestion, clearAll,
     isGenerating, isValidating, isSaving,
   } = useEnhancedAIGeneration();
+
+  // Get tenant ID for batch fetching
+  const { data: tenantId } = useQuery({
+    queryKey: ['user-tenant-id', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data } = await supabase.rpc('get_user_tenant_id', { _user_id: user.id });
+      return data as string | null;
+    },
+    enabled: !!user?.id,
+  });
+
+  const { availableBatches, MAX_BATCH_SIZE } = useQuestionBatches(tenantId || null);
 
   const [accuracyMode, setAccuracyMode] = useState('standard');
   const [selectedModel, setSelectedModel] = useState('google/gemini-3-flash-preview');
@@ -53,6 +69,7 @@ export default function AIQuestionGenerator() {
   const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([]);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [selectedSubcategoryIds, setSelectedSubcategoryIds] = useState<string[]>([]);
+  const [batchDialogOpen, setBatchDialogOpen] = useState(false);
 
   const isStrict = accuracyMode === 'strict';
   const hasFailures = validationReport?.overall_result === 'failed';
@@ -134,7 +151,11 @@ export default function AIQuestionGenerator() {
     });
   };
 
-  const handleSave = () => {
+  const handleSaveClick = () => {
+    setBatchDialogOpen(true);
+  };
+
+  const handleBatchConfirm = (targetBatchId?: string) => {
     saveSet({
       questions, model: selectedModel, accuracyMode,
       settings: {
@@ -145,6 +166,13 @@ export default function AIQuestionGenerator() {
         subcategoryIds: selectedSubcategoryIds,
       },
       validationReport,
+      targetBatchId,
+    }, {
+      onSuccess: () => {
+        setBatchDialogOpen(false);
+        clearAll();
+        if (documents.length > 0) deleteAllDocuments();
+      },
     });
   };
 
@@ -215,7 +243,7 @@ export default function AIQuestionGenerator() {
         selectedModel={selectedModel}
         onModelChange={setSelectedModel}
         models={models}
-        onSave={handleSave}
+        onSave={handleSaveClick}
         onExport={handleExport}
         canSave={canSave}
         canExport={canExport}
@@ -262,7 +290,6 @@ export default function AIQuestionGenerator() {
         </div>
 
         <div className="lg:col-span-3 space-y-4">
-          {/* Strict mode warning banner */}
           {isStrict && hasFailures && questions.length > 0 && (
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
@@ -327,6 +354,16 @@ export default function AIQuestionGenerator() {
           )}
         </div>
       </div>
+
+      <BatchSaveDialog
+        open={batchDialogOpen}
+        onOpenChange={setBatchDialogOpen}
+        availableBatches={availableBatches}
+        questionCount={questions.length}
+        maxBatchSize={MAX_BATCH_SIZE}
+        onConfirm={handleBatchConfirm}
+        isSaving={isSaving}
+      />
     </div>
   );
 }

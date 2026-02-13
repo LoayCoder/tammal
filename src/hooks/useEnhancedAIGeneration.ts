@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { format } from 'date-fns';
 
 export interface EnhancedGeneratedQuestion {
   question_text: string;
@@ -58,8 +59,11 @@ export interface GenerateInput {
   subcategoryIds?: string[];
 }
 
+const MAX_BATCH_SIZE = 64;
+
 export function useEnhancedAIGeneration() {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [questions, setQuestions] = useState<EnhancedGeneratedQuestion[]>([]);
   const [validationReport, setValidationReport] = useState<ValidationReport | null>(null);
   const [generationMeta, setGenerationMeta] = useState<{ model: string; duration_ms: number } | null>(null);
@@ -121,54 +125,123 @@ export function useEnhancedAIGeneration() {
   });
 
   const saveSetMutation = useMutation({
-    mutationFn: async (params: { questions: EnhancedGeneratedQuestion[]; model: string; accuracyMode: string; settings: any; validationReport: ValidationReport | null }) => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('Not authenticated');
+    mutationFn: async (params: {
+      questions: EnhancedGeneratedQuestion[];
+      model: string;
+      accuracyMode: string;
+      settings: any;
+      validationReport: ValidationReport | null;
+      targetBatchId?: string;
+    }) => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error('Not authenticated');
 
-      const tenantId = await supabase.rpc('get_user_tenant_id', { _user_id: user.user.id }).then(r => r.data);
+      const tenantId = await supabase.rpc('get_user_tenant_id', { _user_id: userData.user.id }).then(r => r.data);
       if (!tenantId) throw new Error('No organization found. Please contact your administrator.');
 
-      const { data: questionSet, error: setError } = await supabase
-        .from('question_sets')
-        .insert({
-          tenant_id: tenantId,
-          user_id: user.user.id,
-          model_used: params.model,
-          accuracy_mode: params.accuracyMode,
-          settings: params.settings,
-          validation_result: params.validationReport?.validation_results || {},
-          critic_pass_result: params.validationReport?.critic_result || null,
-          status: params.validationReport?.overall_result === 'passed' ? 'validated' : 'draft',
-        })
-        .select()
+      // Get user profile for batch name
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('user_id', userData.user.id)
         .single();
 
-      if (setError) throw setError;
+      const fullName = profile?.full_name || 'Unknown';
+      const batchName = `${format(new Date(), 'dd MMMM yyyy')} - ${fullName}`;
 
-      const questionsToInsert = params.questions.map(q => ({
-        question_set_id: questionSet.id,
-        tenant_id: tenantId,
-        question_text: q.question_text,
-        question_text_ar: q.question_text_ar,
-        type: q.type,
-        complexity: q.complexity,
-        tone: q.tone,
-        explanation: q.explanation,
-        confidence_score: q.confidence_score,
-        bias_flag: q.bias_flag,
-        ambiguity_flag: q.ambiguity_flag,
-        validation_status: q.validation_status,
-        validation_details: q.validation_details,
-        options: q.options || [],
-      }));
+      const allQuestions = params.questions;
+      let remainingQuestions = [...allQuestions];
 
-      const { error: qError } = await supabase.from('generated_questions').insert(questionsToInsert);
-      if (qError) throw qError;
+      // If adding to existing batch
+      if (params.targetBatchId) {
+        const targetBatch = await supabase
+          .from('question_sets')
+          .select('id, question_count')
+          .eq('id', params.targetBatchId)
+          .single();
 
-      return questionSet;
+        if (targetBatch.error) throw targetBatch.error;
+
+        const currentCount = targetBatch.data.question_count || 0;
+        const capacity = MAX_BATCH_SIZE - currentCount;
+        const toAdd = remainingQuestions.splice(0, capacity);
+
+        if (toAdd.length > 0) {
+          const questionsToInsert = toAdd.map(q => ({
+            question_set_id: params.targetBatchId!,
+            tenant_id: tenantId,
+            question_text: q.question_text,
+            question_text_ar: q.question_text_ar,
+            type: q.type,
+            complexity: q.complexity,
+            tone: q.tone,
+            explanation: q.explanation,
+            confidence_score: q.confidence_score,
+            bias_flag: q.bias_flag,
+            ambiguity_flag: q.ambiguity_flag,
+            validation_status: q.validation_status,
+            validation_details: q.validation_details,
+            options: q.options || [],
+          }));
+
+          const { error: qError } = await supabase.from('generated_questions').insert(questionsToInsert);
+          if (qError) throw qError;
+
+          // Update question_count
+          await supabase
+            .from('question_sets')
+            .update({ question_count: currentCount + toAdd.length })
+            .eq('id', params.targetBatchId!);
+        }
+      }
+
+      // Create new batches for remaining questions (including overflow)
+      while (remainingQuestions.length > 0) {
+        const chunk = remainingQuestions.splice(0, MAX_BATCH_SIZE);
+
+        const { data: newBatch, error: setError } = await supabase
+          .from('question_sets')
+          .insert({
+            tenant_id: tenantId,
+            user_id: userData.user.id,
+            model_used: params.model,
+            accuracy_mode: params.accuracyMode,
+            settings: params.settings,
+            validation_result: params.validationReport?.validation_results || {},
+            critic_pass_result: params.validationReport?.critic_result || null,
+            status: params.validationReport?.overall_result === 'passed' ? 'validated' : 'draft',
+            name: batchName,
+            question_count: chunk.length,
+          })
+          .select()
+          .single();
+
+        if (setError) throw setError;
+
+        const questionsToInsert = chunk.map(q => ({
+          question_set_id: newBatch.id,
+          tenant_id: tenantId,
+          question_text: q.question_text,
+          question_text_ar: q.question_text_ar,
+          type: q.type,
+          complexity: q.complexity,
+          tone: q.tone,
+          explanation: q.explanation,
+          confidence_score: q.confidence_score,
+          bias_flag: q.bias_flag,
+          ambiguity_flag: q.ambiguity_flag,
+          validation_status: q.validation_status,
+          validation_details: q.validation_details,
+          options: q.options || [],
+        }));
+
+        const { error: qError } = await supabase.from('generated_questions').insert(questionsToInsert);
+        if (qError) throw qError;
+      }
     },
     onSuccess: () => {
-      toast.success(t('aiGenerator.saveSuccess'));
+      queryClient.invalidateQueries({ queryKey: ['question-batches'] });
+      toast.success(t('batches.saveSuccess'));
     },
     onError: (error: Error) => {
       toast.error(error.message || t('aiGenerator.saveError'));
