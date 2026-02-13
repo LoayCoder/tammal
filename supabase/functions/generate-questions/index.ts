@@ -7,7 +7,6 @@ const corsHeaders = {
 };
 
 interface GenerateRequest {
-  focusAreas: string[];
   questionCount: number;
   complexity: "simple" | "moderate" | "advanced";
   tone: "formal" | "casual" | "neutral" | "analytical" | "supportive" | "direct";
@@ -27,8 +26,8 @@ interface GenerateRequest {
   knowledgeDocumentIds?: string[];
   customPrompt?: string;
   selectedFrameworks?: string[];
-  categoryId?: string;
-  subcategoryId?: string;
+  categoryIds?: string[];
+  subcategoryIds?: string[];
 }
 
 serve(async (req) => {
@@ -52,7 +51,6 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const {
-      focusAreas,
       questionCount,
       complexity,
       tone,
@@ -65,8 +63,8 @@ serve(async (req) => {
       knowledgeDocumentIds = [],
       customPrompt = "",
       selectedFrameworks = [],
-      categoryId,
-      subcategoryId,
+      categoryIds = [],
+      subcategoryIds = [],
     }: GenerateRequest = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -106,7 +104,6 @@ ${advancedSettings.enableAmbiguityDetection ? "- Check each question for ambiguo
 
 Complexity level: ${complexity}
 Tone: ${tone}
-Focus areas: ${focusAreas.join(", ")}
 ${questionType && questionType !== "mixed" ? `Question type constraint: Only generate ${questionType} questions` : "Use a mix of question types"}
 ${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.minWordLength} words` : ""}`;
 
@@ -203,25 +200,25 @@ For EACH question you MUST also provide:
       systemPrompt += `\n\n# Additional User Instructions:\n${customPrompt}`;
     }
 
-    // 5. Category & Subcategory context
-    if (categoryId) {
+    // 5. Category & Subcategory context (multi-select)
+    if (categoryIds && categoryIds.length > 0) {
       const { data: catData } = await supabase
         .from("question_categories")
         .select("name, name_ar")
-        .eq("id", categoryId)
-        .single();
-      if (catData) {
-        systemPrompt += `\n\n# Category Context:\nCategory: ${catData.name}${catData.name_ar ? ` (${catData.name_ar})` : ''}. Generate questions specifically relevant to this category.`;
+        .in("id", categoryIds);
+      if (catData && catData.length > 0) {
+        const catNames = catData.map((c: any) => c.name).join(", ");
+        systemPrompt += `\n\n# Category Context:\nCategories: ${catNames}. Generate questions specifically relevant to these categories.`;
       }
     }
-    if (subcategoryId) {
+    if (subcategoryIds && subcategoryIds.length > 0) {
       const { data: subData } = await supabase
         .from("question_subcategories")
         .select("name, name_ar")
-        .eq("id", subcategoryId)
-        .single();
-      if (subData) {
-        systemPrompt += `\nSubcategory: ${subData.name}${subData.name_ar ? ` (${subData.name_ar})` : ''}. Narrow the focus of questions to this subcategory.`;
+        .in("id", subcategoryIds);
+      if (subData && subData.length > 0) {
+        const subNames = subData.map((s: any) => s.name).join(", ");
+        systemPrompt += `\nSubcategories: ${subNames}. Narrow the focus of questions to these subcategories.`;
       }
     }
 
@@ -282,7 +279,7 @@ Ensure variety in question types and assign a confidence score (0-100) based on 
 ${advancedSettings.enableBiasDetection ? "Flag any questions with potential bias issues." : ""}
 ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous wording." : ""}`;
 
-    console.log(`Generating ${questionCount} questions with model: ${selectedModel}, accuracy: ${accuracyMode}, frameworks: ${frameworkNames.length}`);
+    console.log(`Generating ${questionCount} questions with model: ${selectedModel}, accuracy: ${accuracyMode}, frameworks: ${frameworkNames.length}, categories: ${categoryIds.length}, subcategories: ${subcategoryIds.length}`);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -375,7 +372,7 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       scoring_mechanism: q.scoring_mechanism || null,
     }));
 
-    // Log generation with full prompt snapshot
+    // Log generation
     const token = authHeader.replace("Bearer ", "");
     const { data: userData } = await supabase.auth.getUser(token);
 
@@ -383,17 +380,18 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       await supabase.from("ai_generation_logs").insert({
         user_id: userData.user.id,
         prompt_type: "question_generation",
-        focus_areas: focusAreas,
         questions_generated: questions.length,
         model_used: selectedModel,
         accuracy_mode: accuracyMode,
         temperature,
         duration_ms: durationMs,
         settings: {
-          focusAreas, questionCount, complexity, tone, questionType, advancedSettings,
+          questionCount, complexity, tone, questionType, advancedSettings,
           selected_framework_ids: selectedFrameworks,
           custom_prompt: customPrompt,
           document_ids: knowledgeDocumentIds,
+          category_ids: categoryIds,
+          subcategory_ids: subcategoryIds,
           prompt_snapshot: systemPrompt.substring(0, 10000),
         },
         success: true,

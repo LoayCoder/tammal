@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -12,7 +12,6 @@ import { ValidationReport } from '@/components/ai-generator/ValidationReport';
 import { useEnhancedAIGeneration, AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
 import { useAIModels } from '@/hooks/useAIModels';
 import { useAIKnowledge } from '@/hooks/useAIKnowledge';
-import { useFocusAreas } from '@/hooks/useFocusAreas';
 import { useReferenceFrameworks } from '@/hooks/useReferenceFrameworks';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,10 +25,6 @@ export default function AIQuestionGenerator() {
     documents, uploadDocument, toggleDocument, deleteDocument, deleteAllDocuments, isUploading,
   } = useAIKnowledge();
   const {
-    focusAreas: focusAreaList, isLoading: focusAreasLoading,
-    addFocusArea, updateFocusArea, deleteFocusArea,
-  } = useFocusAreas();
-  const {
     frameworks: referenceFrameworks, isLoading: frameworksLoading,
     addFramework, updateFramework, deleteFramework,
   } = useReferenceFrameworks();
@@ -41,7 +36,6 @@ export default function AIQuestionGenerator() {
 
   const [accuracyMode, setAccuracyMode] = useState('standard');
   const [selectedModel, setSelectedModel] = useState('google/gemini-3-flash-preview');
-  const [focusAreas, setFocusAreas] = useState<string[]>([]);
   const [questionType, setQuestionType] = useState('mixed');
   const [questionCount, setQuestionCount] = useState(5);
   const [complexity, setComplexity] = useState('moderate');
@@ -57,8 +51,8 @@ export default function AIQuestionGenerator() {
   const [customPrompt, setCustomPrompt] = useState('');
   const [isRewriting, setIsRewriting] = useState(false);
   const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState('');
-  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState('');
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [selectedSubcategoryIds, setSelectedSubcategoryIds] = useState<string[]>([]);
 
   const isStrict = accuracyMode === 'strict';
   const hasFailures = validationReport?.overall_result === 'failed';
@@ -66,8 +60,8 @@ export default function AIQuestionGenerator() {
   const canExport = canSave;
 
   const handleGenerate = async () => {
-    if (focusAreas.length === 0) {
-      toast.error(t('aiGenerator.selectFocusAreas'));
+    if (selectedCategoryIds.length === 0) {
+      toast.error(t('aiGenerator.selectAtLeastOneCategory'));
       return;
     }
     if (!selectedModel) {
@@ -76,14 +70,14 @@ export default function AIQuestionGenerator() {
     }
     const activeDocIds = documents.filter(d => d.is_active).map(d => d.id);
     generate({
-      focusAreas, questionCount, complexity, tone, questionType,
+      questionCount, complexity, tone, questionType,
       model: selectedModel, accuracyMode, advancedSettings, language: 'both',
       useExpertKnowledge: selectedFrameworkIds.length > 0,
       knowledgeDocumentIds: activeDocIds,
       customPrompt: customPrompt.trim() || undefined,
       selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
-      categoryId: selectedCategoryId || undefined,
-      subcategoryId: selectedSubcategoryId || undefined,
+      categoryIds: selectedCategoryIds,
+      subcategoryIds: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
     });
   };
 
@@ -144,9 +138,11 @@ export default function AIQuestionGenerator() {
     saveSet({
       questions, model: selectedModel, accuracyMode,
       settings: {
-        focusAreas, questionCount, complexity, tone, questionType, advancedSettings,
+        questionCount, complexity, tone, questionType, advancedSettings,
         selected_framework_ids: selectedFrameworkIds,
         custom_prompt: customPrompt,
+        categoryIds: selectedCategoryIds,
+        subcategoryIds: selectedSubcategoryIds,
       },
       validationReport,
     });
@@ -156,7 +152,7 @@ export default function AIQuestionGenerator() {
     const exportData = {
       metadata: {
         model: selectedModel, accuracyMode, generatedAt: new Date().toISOString(),
-        settings: { focusAreas, questionCount, complexity, tone, questionType, selectedFrameworkIds },
+        settings: { questionCount, complexity, tone, questionType, selectedFrameworkIds, selectedCategoryIds, selectedSubcategoryIds },
         validation: validationReport ? { overall: validationReport.overall_result, avgConfidence: validationReport.avg_confidence } : null,
       },
       questions: questions.map(q => ({
@@ -196,11 +192,13 @@ export default function AIQuestionGenerator() {
     if (failedCount === 0) return;
     const activeDocIds = documents.filter(d => d.is_active).map(d => d.id);
     generate({
-      focusAreas, questionCount: failedCount, complexity, tone, questionType,
+      questionCount: failedCount, complexity, tone, questionType,
       model: selectedModel, accuracyMode, advancedSettings, language: 'both',
       useExpertKnowledge: selectedFrameworkIds.length > 0,
       knowledgeDocumentIds: activeDocIds.length > 0 ? activeDocIds : undefined,
       selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
+      categoryIds: selectedCategoryIds,
+      subcategoryIds: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
     });
   };
 
@@ -227,8 +225,6 @@ export default function AIQuestionGenerator() {
       <div className="grid gap-6 lg:grid-cols-5">
         <div className="lg:col-span-2">
           <ConfigPanel
-            focusAreas={focusAreas}
-            onFocusAreasChange={setFocusAreas}
             questionType={questionType}
             onQuestionTypeChange={setQuestionType}
             questionCount={questionCount}
@@ -250,11 +246,6 @@ export default function AIQuestionGenerator() {
             onCustomPromptChange={setCustomPrompt}
             onRewritePrompt={handleRewritePrompt}
             isRewriting={isRewriting}
-            focusAreaList={focusAreaList}
-            focusAreasLoading={focusAreasLoading}
-            onAddFocusArea={addFocusArea}
-            onUpdateFocusArea={updateFocusArea}
-            onDeleteFocusArea={deleteFocusArea}
             referenceFrameworks={referenceFrameworks}
             selectedFrameworkIds={selectedFrameworkIds}
             onSelectedFrameworkIdsChange={setSelectedFrameworkIds}
@@ -263,10 +254,10 @@ export default function AIQuestionGenerator() {
             onDeleteFramework={deleteFramework}
             frameworksLoading={frameworksLoading}
             currentUserId={user?.id}
-            selectedCategoryId={selectedCategoryId}
-            onSelectedCategoryIdChange={setSelectedCategoryId}
-            selectedSubcategoryId={selectedSubcategoryId}
-            onSelectedSubcategoryIdChange={setSelectedSubcategoryId}
+            selectedCategoryIds={selectedCategoryIds}
+            onSelectedCategoryIdsChange={setSelectedCategoryIds}
+            selectedSubcategoryIds={selectedSubcategoryIds}
+            onSelectedSubcategoryIdsChange={setSelectedSubcategoryIds}
           />
         </div>
 
