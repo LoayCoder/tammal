@@ -1,264 +1,235 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { Loader2, Sparkles, Plus, Trash2, Check } from 'lucide-react';
-import { useAIQuestionGeneration, GeneratedQuestion } from '@/hooks/useAIQuestionGeneration';
-import { useQuestionCategories } from '@/hooks/useQuestionCategories';
-import { useQuestions } from '@/hooks/useQuestions';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Sparkles, RefreshCw, ShieldCheck } from 'lucide-react';
+import { TopControlBar } from '@/components/ai-generator/TopControlBar';
+import { ConfigPanel } from '@/components/ai-generator/ConfigPanel';
+import { QuestionCard } from '@/components/ai-generator/QuestionCard';
+import { ValidationReport } from '@/components/ai-generator/ValidationReport';
+import { useEnhancedAIGeneration, AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
+import { useAIModels } from '@/hooks/useAIModels';
 import { toast } from 'sonner';
 
-const focusAreaOptions = [
-  { value: 'burnout', label: 'Burnout Prevention' },
-  { value: 'engagement', label: 'Employee Engagement' },
-  { value: 'worklife', label: 'Work-Life Balance' },
-  { value: 'growth', label: 'Career Growth' },
-  { value: 'culture', label: 'Company Culture' },
-  { value: 'leadership', label: 'Leadership' },
-  { value: 'communication', label: 'Communication' },
-  { value: 'wellbeing', label: 'Mental Wellbeing' },
-];
-
 export default function AIQuestionGenerator() {
-  const { t, i18n } = useTranslation();
-  const isRTL = i18n.dir() === 'rtl';
-  
-  const { generateQuestions, generatedQuestions, isGenerating, clearGenerated, removeQuestion } = useAIQuestionGeneration();
-  const { categories } = useQuestionCategories();
-  const { createQuestion } = useQuestions();
-  
+  const { t } = useTranslation();
+  const { models } = useAIModels();
+  const {
+    questions, validationReport, generationMeta,
+    generate, validate, saveSet, removeQuestion, updateQuestion, clearAll,
+    isGenerating, isValidating, isSaving,
+  } = useEnhancedAIGeneration();
+
+  const [accuracyMode, setAccuracyMode] = useState('standard');
+  const [selectedModel, setSelectedModel] = useState('google/gemini-2.5-flash');
   const [focusAreas, setFocusAreas] = useState<string[]>([]);
-  const [questionCount, setQuestionCount] = useState(3);
-  const [complexity, setComplexity] = useState<'simple' | 'moderate' | 'advanced'>('moderate');
-  const [tone, setTone] = useState<'formal' | 'casual' | 'neutral'>('neutral');
-  const [savingIndex, setSavingIndex] = useState<number | null>(null);
+  const [questionType, setQuestionType] = useState('mixed');
+  const [questionCount, setQuestionCount] = useState(5);
+  const [complexity, setComplexity] = useState('moderate');
+  const [tone, setTone] = useState('neutral');
+  const [advancedSettings, setAdvancedSettings] = useState<AdvancedSettings>({
+    requireExplanation: true,
+    enableBiasDetection: true,
+    enableAmbiguityDetection: true,
+    enableDuplicateDetection: true,
+    enableCriticPass: false,
+    minWordLength: 5,
+  });
+
+  const isStrict = accuracyMode === 'strict';
+  const hasFailures = validationReport?.overall_result === 'failed';
+  const canSave = questions.length > 0 && !(isStrict && hasFailures);
+  const canExport = canSave;
 
   const handleGenerate = () => {
     if (focusAreas.length === 0) {
       toast.error(t('aiGenerator.selectFocusAreas'));
       return;
     }
-    generateQuestions.mutate({
-      focusAreas,
-      questionCount,
-      complexity,
-      tone,
-      language: 'both',
+    if (!selectedModel) {
+      toast.error(t('aiGenerator.selectModel'));
+      return;
+    }
+    generate({
+      focusAreas, questionCount, complexity, tone, questionType,
+      model: selectedModel, accuracyMode, advancedSettings, language: 'both',
     });
   };
 
-  const handleSaveQuestion = async (question: GeneratedQuestion, index: number) => {
-    setSavingIndex(index);
-    try {
-      const category = categories.find(c => 
-        c.name.toLowerCase().includes(question.category.toLowerCase()) ||
-        question.category.toLowerCase().includes(c.name.toLowerCase())
-      );
-      
-      await createQuestion.mutateAsync({
-        text: question.text,
-        text_ar: question.text_ar,
-        type: question.type,
-        category_id: category?.id,
-        options: question.options?.map(opt => opt.text) || null,
-        is_active: true,
-        ai_generated: true,
-      });
-      
-      removeQuestion(index);
-    } finally {
-      setSavingIndex(null);
+  const handleValidate = () => {
+    validate({
+      questions, accuracyMode,
+      enableCriticPass: advancedSettings.enableCriticPass,
+      minWordLength: advancedSettings.minWordLength,
+    });
+  };
+
+  const handleSave = () => {
+    saveSet({
+      questions, model: selectedModel, accuracyMode,
+      settings: { focusAreas, questionCount, complexity, tone, questionType, advancedSettings },
+      validationReport,
+    });
+  };
+
+  const handleExport = (format: 'json' | 'pdf' | 'docx') => {
+    const exportData = {
+      metadata: {
+        model: selectedModel, accuracyMode, generatedAt: new Date().toISOString(),
+        settings: { focusAreas, questionCount, complexity, tone, questionType },
+        validation: validationReport ? { overall: validationReport.overall_result, avgConfidence: validationReport.avg_confidence } : null,
+      },
+      questions: questions.map(q => ({
+        question_text: q.question_text, question_text_ar: q.question_text_ar,
+        type: q.type, complexity: q.complexity, tone: q.tone,
+        confidence_score: q.confidence_score, explanation: q.explanation,
+      })),
+    };
+
+    if (format === 'json') {
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `question-set-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(t('aiGenerator.exportSuccess'));
+    } else {
+      // For PDF/DOCX, use printable HTML
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        const html = `<html><head><title>Question Set</title><style>body{font-family:sans-serif;padding:2rem;} .q{margin:1rem 0;padding:1rem;border:1px solid #ddd;border-radius:8px;} .badge{display:inline-block;padding:2px 8px;border-radius:4px;background:#f0f0f0;font-size:12px;margin-inline-end:4px;} .ar{direction:rtl;color:#666;margin-top:4px;}</style></head><body>
+          <h1>${t('aiGenerator.title')}</h1>
+          <p>Model: ${selectedModel} | Accuracy: ${accuracyMode} | ${new Date().toLocaleDateString()}</p>
+          ${questions.map((q, i) => `<div class="q"><span class="badge">${q.type}</span><span class="badge">${q.complexity}</span><span class="badge">${q.confidence_score}%</span><p><strong>${i + 1}. ${q.question_text}</strong></p><p class="ar">${q.question_text_ar}</p>${q.explanation ? `<p style="font-size:12px;color:#888;">${q.explanation}</p>` : ''}</div>`).join('')}
+        </body></html>`;
+        printWindow.document.write(html);
+        printWindow.document.close();
+        printWindow.print();
+      }
     }
   };
 
-  const handleSaveAll = async () => {
-    for (let i = generatedQuestions.length - 1; i >= 0; i--) {
-      await handleSaveQuestion(generatedQuestions[i], i);
-    }
-  };
-
-  const toggleFocusArea = (value: string) => {
-    setFocusAreas(prev => 
-      prev.includes(value) 
-        ? prev.filter(v => v !== value)
-        : [...prev, value]
-    );
+  const handleRegenerateFailedOnly = () => {
+    const failedCount = questions.filter(q => q.validation_status === 'failed').length;
+    if (failedCount === 0) return;
+    // Generate replacement questions for failed ones
+    generate({
+      focusAreas, questionCount: failedCount, complexity, tone, questionType,
+      model: selectedModel, accuracyMode, advancedSettings, language: 'both',
+    });
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">{t('aiGenerator.title')}</h1>
         <p className="text-muted-foreground">{t('aiGenerator.subtitle')}</p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Generation Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              {t('aiGenerator.generateQuestions')}
-            </CardTitle>
-            <CardDescription>{t('aiGenerator.formDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>{t('aiGenerator.focusAreas')}</Label>
-              <div className="flex flex-wrap gap-2">
-                {focusAreaOptions.map(option => (
-                  <Badge
-                    key={option.value}
-                    variant={focusAreas.includes(option.value) ? 'default' : 'outline'}
-                    className="cursor-pointer"
-                    onClick={() => toggleFocusArea(option.value)}
-                  >
-                    {option.label}
-                  </Badge>
+      <TopControlBar
+        accuracyMode={accuracyMode}
+        onAccuracyModeChange={setAccuracyMode}
+        selectedModel={selectedModel}
+        onModelChange={setSelectedModel}
+        models={models}
+        onSave={handleSave}
+        onExport={handleExport}
+        canSave={canSave}
+        canExport={canExport}
+        isSaving={isSaving}
+      />
+
+      <div className="grid gap-6 lg:grid-cols-5">
+        {/* Left: Config (2 cols) */}
+        <div className="lg:col-span-2">
+          <ConfigPanel
+            focusAreas={focusAreas}
+            onFocusAreasChange={setFocusAreas}
+            questionType={questionType}
+            onQuestionTypeChange={setQuestionType}
+            questionCount={questionCount}
+            onQuestionCountChange={setQuestionCount}
+            complexity={complexity}
+            onComplexityChange={setComplexity}
+            tone={tone}
+            onToneChange={setTone}
+            advancedSettings={advancedSettings}
+            onAdvancedSettingsChange={setAdvancedSettings}
+            onGenerate={handleGenerate}
+            isGenerating={isGenerating}
+          />
+        </div>
+
+        {/* Right: Results (3 cols) */}
+        <div className="lg:col-span-3 space-y-4">
+          {isGenerating ? (
+            <Card>
+              <CardContent className="pt-6 space-y-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
+                    <Skeleton className="h-1.5 w-full" />
+                  </div>
                 ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>{t('aiGenerator.questionCount')}</Label>
-                <Select value={String(questionCount)} onValueChange={v => setQuestionCount(Number(v))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[1, 2, 3, 4, 5].map(n => (
-                      <SelectItem key={n} value={String(n)}>{n}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>{t('aiGenerator.complexity')}</Label>
-                <Select value={complexity} onValueChange={(v: 'simple' | 'moderate' | 'advanced') => setComplexity(v)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="simple">{t('aiGenerator.simple')}</SelectItem>
-                    <SelectItem value="moderate">{t('aiGenerator.moderate')}</SelectItem>
-                    <SelectItem value="advanced">{t('aiGenerator.advanced')}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>{t('aiGenerator.tone')}</Label>
-              <Select value={tone} onValueChange={(v: 'formal' | 'casual' | 'neutral') => setTone(v)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="formal">{t('aiGenerator.formal')}</SelectItem>
-                  <SelectItem value="casual">{t('aiGenerator.casual')}</SelectItem>
-                  <SelectItem value="neutral">{t('aiGenerator.neutral')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button onClick={handleGenerate} disabled={isGenerating} className="w-full">
-              {isGenerating ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin me-2" />
-                  {t('aiGenerator.generating')}
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4 me-2" />
-                  {t('aiGenerator.generate')}
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Generated Questions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>{t('aiGenerator.generatedQuestions')}</span>
-              {generatedQuestions.length > 0 && (
+              </CardContent>
+            </Card>
+          ) : questions.length === 0 ? (
+            <Card>
+              <CardContent className="py-16 text-center">
+                <Sparkles className="h-16 w-16 mx-auto mb-4 text-muted-foreground/30" />
+                <h3 className="text-lg font-semibold text-muted-foreground">{t('aiGenerator.emptyTitle')}</h3>
+                <p className="text-sm text-muted-foreground mt-1">{t('aiGenerator.emptyDescription')}</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              {/* Action bar */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">
+                  {t('aiGenerator.questionsGenerated', { count: questions.length })}
+                  {generationMeta && ` • ${generationMeta.duration_ms}ms`}
+                </span>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={clearGenerated}>
-                    {t('common.cancel')}
+                  <Button variant="outline" size="sm" onClick={handleValidate} disabled={isValidating}>
+                    {isValidating ? <RefreshCw className="h-4 w-4 animate-spin me-1" /> : <ShieldCheck className="h-4 w-4 me-1" />}
+                    {t('aiGenerator.runValidation')}
                   </Button>
-                  <Button size="sm" onClick={handleSaveAll}>
-                    <Check className="h-4 w-4 me-1" />
-                    {t('aiGenerator.saveAll')}
+                  {isStrict && hasFailures && (
+                    <Button variant="outline" size="sm" onClick={handleRegenerateFailedOnly}>
+                      <RefreshCw className="h-4 w-4 me-1" />
+                      {t('aiGenerator.regenerateFailed')}
+                    </Button>
+                  )}
+                  <Button variant="ghost" size="sm" onClick={clearAll}>
+                    {t('aiGenerator.clearAll')}
                   </Button>
                 </div>
-              )}
-            </CardTitle>
-            <CardDescription>
-              {generatedQuestions.length > 0 
-                ? t('aiGenerator.questionsGenerated', { count: generatedQuestions.length })
-                : t('aiGenerator.noQuestionsYet')
-              }
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {generatedQuestions.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>{t('aiGenerator.emptyState')}</p>
               </div>
-            ) : (
-              <div className="space-y-4">
-                {generatedQuestions.map((question, index) => (
-                  <Card key={index}>
-                    <CardContent className="pt-4">
-                      <div className="flex justify-between items-start gap-4">
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="secondary">{question.type}</Badge>
-                            <Badge variant="outline">{question.category}</Badge>
-                          </div>
-                          <p className="font-medium">{question.text}</p>
-                          {question.text_ar && (
-                            <p className="text-muted-foreground text-sm" dir="rtl">{question.text_ar}</p>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => removeQuestion(index)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            onClick={() => handleSaveQuestion(question, index)}
-                            disabled={savingIndex === index}
-                          >
-                            {savingIndex === index ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Plus className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+
+              {/* Questions */}
+              <div className="space-y-3">
+                {questions.map((q, i) => (
+                  <QuestionCard
+                    key={i}
+                    question={q}
+                    index={i}
+                    onRemove={removeQuestion}
+                    onUpdate={updateQuestion}
+                  />
                 ))}
               </div>
-            )}
-          </CardContent>
-        </Card>
+
+              {/* Validation Report */}
+              {validationReport && (
+                <ValidationReport report={validationReport} isStrictMode={isStrict} />
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

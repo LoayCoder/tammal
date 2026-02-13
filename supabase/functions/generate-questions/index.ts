@@ -3,16 +3,25 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 interface GenerateRequest {
   focusAreas: string[];
   questionCount: number;
   complexity: "simple" | "moderate" | "advanced";
-  tone: "formal" | "casual" | "neutral";
-  employeeContext?: string;
-  categoryNames?: string[];
+  tone: "formal" | "casual" | "neutral" | "analytical" | "supportive" | "direct";
+  questionType?: string;
+  model?: string;
+  accuracyMode?: "standard" | "high" | "strict";
+  advancedSettings?: {
+    requireExplanation?: boolean;
+    enableBiasDetection?: boolean;
+    enableAmbiguityDetection?: boolean;
+    enableDuplicateDetection?: boolean;
+    enableCriticPass?: boolean;
+    minWordLength?: number;
+  };
   language?: "en" | "ar" | "both";
 }
 
@@ -20,6 +29,8 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const startTime = performance.now();
 
   try {
     const authHeader = req.headers.get("Authorization");
@@ -34,7 +45,17 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { focusAreas, questionCount, complexity, tone, employeeContext, categoryNames, language = "both" }: GenerateRequest = await req.json();
+    const {
+      focusAreas,
+      questionCount,
+      complexity,
+      tone,
+      questionType,
+      model = "google/gemini-2.5-flash",
+      accuracyMode = "standard",
+      advancedSettings = {},
+      language = "both",
+    }: GenerateRequest = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -44,7 +65,19 @@ serve(async (req) => {
       });
     }
 
-    const systemPrompt = `You are an expert organizational psychologist specializing in employee wellbeing surveys. 
+    // Validate model against ai_models table
+    const { data: modelData } = await supabase
+      .from("ai_models")
+      .select("model_key")
+      .eq("model_key", model)
+      .eq("is_active", true)
+      .single();
+
+    const selectedModel = modelData?.model_key || "google/gemini-2.5-flash";
+
+    const temperature = accuracyMode === "strict" ? 0.3 : accuracyMode === "high" ? 0.5 : 0.7;
+
+    const systemPrompt = `You are an expert organizational psychologist specializing in employee wellbeing surveys.
 Generate high-quality survey questions that measure employee wellbeing, engagement, and organizational health.
 
 Guidelines:
@@ -53,47 +86,71 @@ Guidelines:
 - Use appropriate question types for the content
 - Consider cultural sensitivity for diverse workplaces
 - Questions should be actionable - the answers should inform decisions
+${advancedSettings.requireExplanation ? "- For each question, provide a detailed explanation of why it was chosen and what insights it reveals" : ""}
+${advancedSettings.enableBiasDetection ? "- Actively check each question for any cultural, gender, age, or other biases and flag them" : ""}
+${advancedSettings.enableAmbiguityDetection ? "- Check each question for ambiguous wording and flag any issues" : ""}
 
 Complexity level: ${complexity}
-- Simple: Direct, easy to understand questions
-- Moderate: More nuanced questions with some depth
-- Advanced: Complex questions requiring reflection
-
 Tone: ${tone}
-- Formal: Professional business language
-- Casual: Friendly, approachable language
-- Neutral: Balanced, standard language
+Focus areas: ${focusAreas.join(", ")}
+${questionType && questionType !== "mixed" ? `Question type constraint: Only generate ${questionType} questions` : "Use a mix of question types"}
+${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.minWordLength} words` : ""}`;
 
-Focus areas to cover: ${focusAreas.join(", ")}
-${categoryNames?.length ? `Categories: ${categoryNames.join(", ")}` : ""}
-${employeeContext ? `Employee context: ${employeeContext}` : ""}`;
+    const toolDefinition = {
+      type: "function" as const,
+      function: {
+        name: "return_questions",
+        description: "Return generated survey questions in structured format",
+        parameters: {
+          type: "object",
+          properties: {
+            questions: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  question_text: { type: "string", description: "English question text" },
+                  question_text_ar: { type: "string", description: "Arabic question text" },
+                  type: {
+                    type: "string",
+                    enum: ["likert_5", "numeric_scale", "yes_no", "open_ended", "multiple_choice", "scenario_based"],
+                  },
+                  complexity: { type: "string", enum: ["simple", "moderate", "advanced"] },
+                  tone: { type: "string" },
+                  explanation: { type: "string", description: "Why this question is valuable and what insights it reveals" },
+                  confidence_score: { type: "number", description: "Confidence in question quality 0-100" },
+                  bias_flag: { type: "boolean", description: "Whether potential bias was detected" },
+                  ambiguity_flag: { type: "boolean", description: "Whether ambiguity was detected" },
+                  options: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        text: { type: "string" },
+                        text_ar: { type: "string" },
+                      },
+                      required: ["text", "text_ar"],
+                    },
+                    description: "Options for multiple_choice type only",
+                  },
+                },
+                required: ["question_text", "question_text_ar", "type", "complexity", "tone", "explanation", "confidence_score", "bias_flag", "ambiguity_flag"],
+              },
+            },
+          },
+          required: ["questions"],
+        },
+      },
+    };
 
-    const userPrompt = `Generate exactly ${questionCount} survey questions for employee wellbeing assessment.
+    const userPrompt = `Generate exactly ${questionCount} high-quality survey questions for employee wellbeing assessment.
+Provide both English and Arabic versions for each question.
+Ensure variety in question types and assign a confidence score (0-100) based on quality.
+${advancedSettings.enableBiasDetection ? "Flag any questions with potential bias issues." : ""}
+${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous wording." : ""}`;
 
-${language === "both" ? "For each question, provide both English and Arabic versions." : `Generate questions in ${language === "en" ? "English" : "Arabic"} only.`}
+    console.log(`Generating ${questionCount} questions with model: ${selectedModel}, accuracy: ${accuracyMode}`);
 
-Return a JSON array with the following structure:
-[
-  {
-    "text": "English question text",
-    "text_ar": "Arabic question text",
-    "type": "likert_5" | "numeric_scale" | "yes_no" | "open_ended" | "multiple_choice",
-    "category": "category name from focus areas",
-    "options": [] // only for multiple_choice type, provide array of option objects with text and text_ar
-  }
-]
-
-Question types to use:
-- likert_5: For agreement/satisfaction scales (Strongly Disagree to Strongly Agree)
-- numeric_scale: For 1-10 rating scales
-- yes_no: For binary questions
-- open_ended: For qualitative feedback
-- multiple_choice: For specific choice questions
-
-Ensure variety in question types based on what's most appropriate for each topic.`;
-
-    console.log("Generating questions with Lovable AI...");
-    
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -101,12 +158,14 @@ Ensure variety in question types based on what's most appropriate for each topic
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: selectedModel,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        temperature: 0.7,
+        temperature,
+        tools: [toolDefinition],
+        tool_choice: { type: "function", function: { name: "return_questions" } },
       }),
     });
 
@@ -133,42 +192,81 @@ Ensure variety in question types based on what's most appropriate for each topic
     }
 
     const aiResponse = await response.json();
-    const content = aiResponse.choices?.[0]?.message?.content || "";
-    
-    // Extract JSON from response (handle markdown code blocks)
-    let jsonContent = content;
-    const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (jsonMatch) {
-      jsonContent = jsonMatch[1].trim();
-    }
+    const durationMs = Math.round(performance.now() - startTime);
 
     let questions;
-    try {
-      questions = JSON.parse(jsonContent);
-    } catch (parseError) {
-      console.error("Failed to parse AI response:", content);
-      return new Response(JSON.stringify({ error: "Failed to parse AI response", raw: content }), {
+    const toolCall = aiResponse.choices?.[0]?.message?.tool_calls?.[0];
+    if (toolCall?.function?.arguments) {
+      try {
+        const parsed = JSON.parse(toolCall.function.arguments);
+        questions = parsed.questions;
+      } catch {
+        console.error("Failed to parse tool call arguments");
+      }
+    }
+
+    // Fallback: try content parsing
+    if (!questions) {
+      const content = aiResponse.choices?.[0]?.message?.content || "";
+      let jsonContent = content;
+      const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (jsonMatch) jsonContent = jsonMatch[1].trim();
+      try {
+        const parsed = JSON.parse(jsonContent);
+        questions = parsed.questions || parsed;
+      } catch {
+        console.error("Failed to parse AI response:", content);
+        return new Response(JSON.stringify({ error: "Failed to parse AI response" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // Validate structure
+    if (!Array.isArray(questions) || questions.length === 0) {
+      return new Response(JSON.stringify({ error: "AI returned empty or invalid questions" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    // Normalize questions
+    questions = questions.map((q: any) => ({
+      question_text: q.question_text || q.text || "",
+      question_text_ar: q.question_text_ar || q.text_ar || "",
+      type: q.type || "likert_5",
+      complexity: q.complexity || complexity,
+      tone: q.tone || tone,
+      explanation: q.explanation || "",
+      confidence_score: typeof q.confidence_score === "number" ? q.confidence_score : 75,
+      bias_flag: q.bias_flag === true,
+      ambiguity_flag: q.ambiguity_flag === true,
+      validation_status: "pending",
+      validation_details: {},
+      options: q.options || [],
+    }));
+
     // Log the generation
     const token = authHeader.replace("Bearer ", "");
     const { data: userData } = await supabase.auth.getUser(token);
-    
+
     if (userData?.user) {
       await supabase.from("ai_generation_logs").insert({
         user_id: userData.user.id,
         prompt_type: "question_generation",
         focus_areas: focusAreas,
         questions_generated: questions.length,
-        model_used: "google/gemini-2.5-flash",
+        model_used: selectedModel,
+        accuracy_mode: accuracyMode,
+        temperature,
+        duration_ms: durationMs,
+        settings: { focusAreas, questionCount, complexity, tone, questionType, advancedSettings },
         success: true,
       });
     }
 
-    return new Response(JSON.stringify({ questions, success: true }), {
+    return new Response(JSON.stringify({ questions, success: true, model: selectedModel, duration_ms: durationMs }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error: unknown) {

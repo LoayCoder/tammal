@@ -16,7 +16,10 @@ export type Database = {
     Tables: {
       ai_generation_logs: {
         Row: {
+          accuracy_mode: string | null
           created_at: string | null
+          critic_pass_result: Json | null
+          duration_ms: number | null
           error_message: string | null
           focus_areas: Json | null
           id: string
@@ -24,13 +27,19 @@ export type Database = {
           prompt_type: string
           questions_approved: number | null
           questions_generated: number | null
+          settings: Json | null
           success: boolean | null
+          temperature: number | null
           tenant_id: string | null
           tokens_used: number | null
           user_id: string | null
+          validation_result: Json | null
         }
         Insert: {
+          accuracy_mode?: string | null
           created_at?: string | null
+          critic_pass_result?: Json | null
+          duration_ms?: number | null
           error_message?: string | null
           focus_areas?: Json | null
           id?: string
@@ -38,13 +47,19 @@ export type Database = {
           prompt_type: string
           questions_approved?: number | null
           questions_generated?: number | null
+          settings?: Json | null
           success?: boolean | null
+          temperature?: number | null
           tenant_id?: string | null
           tokens_used?: number | null
           user_id?: string | null
+          validation_result?: Json | null
         }
         Update: {
+          accuracy_mode?: string | null
           created_at?: string | null
+          critic_pass_result?: Json | null
+          duration_ms?: number | null
           error_message?: string | null
           focus_areas?: Json | null
           id?: string
@@ -52,10 +67,13 @@ export type Database = {
           prompt_type?: string
           questions_approved?: number | null
           questions_generated?: number | null
+          settings?: Json | null
           success?: boolean | null
+          temperature?: number | null
           tenant_id?: string | null
           tokens_used?: number | null
           user_id?: string | null
+          validation_result?: Json | null
         }
         Relationships: [
           {
@@ -66,6 +84,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ai_models: {
+        Row: {
+          accuracy_tier: string
+          cost_tier: string
+          created_at: string | null
+          display_name: string
+          id: string
+          is_active: boolean
+          model_key: string
+        }
+        Insert: {
+          accuracy_tier?: string
+          cost_tier?: string
+          created_at?: string | null
+          display_name: string
+          id?: string
+          is_active?: boolean
+          model_key: string
+        }
+        Update: {
+          accuracy_tier?: string
+          cost_tier?: string
+          created_at?: string | null
+          display_name?: string
+          id?: string
+          is_active?: boolean
+          model_key?: string
+        }
+        Relationships: []
       }
       audit_logs: {
         Row: {
@@ -247,6 +295,78 @@ export type Database = {
           },
           {
             foreignKeyName: "employees_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      generated_questions: {
+        Row: {
+          ambiguity_flag: boolean | null
+          bias_flag: boolean | null
+          complexity: string | null
+          confidence_score: number | null
+          created_at: string | null
+          explanation: string | null
+          id: string
+          options: Json | null
+          question_set_id: string
+          question_text: string
+          question_text_ar: string | null
+          tenant_id: string | null
+          tone: string | null
+          type: string
+          validation_details: Json | null
+          validation_status: string | null
+        }
+        Insert: {
+          ambiguity_flag?: boolean | null
+          bias_flag?: boolean | null
+          complexity?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          explanation?: string | null
+          id?: string
+          options?: Json | null
+          question_set_id: string
+          question_text: string
+          question_text_ar?: string | null
+          tenant_id?: string | null
+          tone?: string | null
+          type: string
+          validation_details?: Json | null
+          validation_status?: string | null
+        }
+        Update: {
+          ambiguity_flag?: boolean | null
+          bias_flag?: boolean | null
+          complexity?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          explanation?: string | null
+          id?: string
+          options?: Json | null
+          question_set_id?: string
+          question_text?: string
+          question_text_ar?: string | null
+          tenant_id?: string | null
+          tone?: string | null
+          type?: string
+          validation_details?: Json | null
+          validation_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_questions_question_set_id_fkey"
+            columns: ["question_set_id"]
+            isOneToOne: false
+            referencedRelation: "question_sets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_questions_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -660,6 +780,59 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "question_schedules_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      question_sets: {
+        Row: {
+          accuracy_mode: string
+          created_at: string | null
+          critic_pass_result: Json | null
+          deleted_at: string | null
+          id: string
+          model_used: string
+          settings: Json | null
+          status: string
+          tenant_id: string | null
+          updated_at: string | null
+          user_id: string | null
+          validation_result: Json | null
+        }
+        Insert: {
+          accuracy_mode?: string
+          created_at?: string | null
+          critic_pass_result?: Json | null
+          deleted_at?: string | null
+          id?: string
+          model_used: string
+          settings?: Json | null
+          status?: string
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          validation_result?: Json | null
+        }
+        Update: {
+          accuracy_mode?: string
+          created_at?: string | null
+          critic_pass_result?: Json | null
+          deleted_at?: string | null
+          id?: string
+          model_used?: string
+          settings?: Json | null
+          status?: string
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          validation_result?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_sets_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -1147,6 +1320,51 @@ export type Database = {
             columns: ["custom_role_id"]
             isOneToOne: false
             referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      validation_logs: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          id: string
+          question_set_id: string
+          result: string
+          tenant_id: string | null
+          validation_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          question_set_id: string
+          result?: string
+          tenant_id?: string | null
+          validation_type: string
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          question_set_id?: string
+          result?: string
+          tenant_id?: string | null
+          validation_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "validation_logs_question_set_id_fkey"
+            columns: ["question_set_id"]
+            isOneToOne: false
+            referencedRelation: "question_sets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "validation_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
