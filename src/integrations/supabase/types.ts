@@ -206,6 +206,48 @@ export type Database = {
           },
         ]
       }
+      daily_question_schedule: {
+        Row: {
+          created_at: string
+          id: string
+          question_id: string
+          scheduled_date: string
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          question_id: string
+          scheduled_date: string
+          status?: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          question_id?: string
+          scheduled_date?: string
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_question_schedule_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "wellness_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_question_schedule_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employee_responses: {
         Row: {
           answer_text: string | null
@@ -614,6 +656,79 @@ export type Database = {
           },
         ]
       }
+      mood_entries: {
+        Row: {
+          ai_tip: string | null
+          answer_text: string | null
+          answer_value: Json | null
+          created_at: string
+          employee_id: string
+          entry_date: string
+          id: string
+          mood_level: string
+          mood_score: number
+          points_earned: number
+          question_id: string | null
+          streak_count: number
+          support_actions: Json | null
+          tenant_id: string
+        }
+        Insert: {
+          ai_tip?: string | null
+          answer_text?: string | null
+          answer_value?: Json | null
+          created_at?: string
+          employee_id: string
+          entry_date?: string
+          id?: string
+          mood_level: string
+          mood_score: number
+          points_earned?: number
+          question_id?: string | null
+          streak_count?: number
+          support_actions?: Json | null
+          tenant_id: string
+        }
+        Update: {
+          ai_tip?: string | null
+          answer_text?: string | null
+          answer_value?: Json | null
+          created_at?: string
+          employee_id?: string
+          entry_date?: string
+          id?: string
+          mood_level?: string
+          mood_score?: number
+          points_earned?: number
+          question_id?: string | null
+          streak_count?: number
+          support_actions?: Json | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mood_entries_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mood_entries_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "wellness_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mood_entries_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permissions: {
         Row: {
           category: string
@@ -799,6 +914,91 @@ export type Database = {
             foreignKeyName: "question_categories_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      question_generation_batches: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          published_at: string | null
+          question_count: number
+          status: string
+          target_month: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          published_at?: string | null
+          question_count?: number
+          status?: string
+          target_month: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          published_at?: string | null
+          question_count?: number
+          status?: string
+          target_month?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_generation_batches_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      question_schedule_settings: {
+        Row: {
+          active_days: Json
+          delivery_time: string
+          id: string
+          is_active: boolean
+          questions_per_day: number
+          tenant_id: string
+          updated_at: string
+          workdays_only: boolean
+        }
+        Insert: {
+          active_days?: Json
+          delivery_time?: string
+          id?: string
+          is_active?: boolean
+          questions_per_day?: number
+          tenant_id: string
+          updated_at?: string
+          workdays_only?: boolean
+        }
+        Update: {
+          active_days?: Json
+          delivery_time?: string
+          id?: string
+          is_active?: boolean
+          questions_per_day?: number
+          tenant_id?: string
+          updated_at?: string
+          workdays_only?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_schedule_settings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
@@ -1625,6 +1825,60 @@ export type Database = {
             columns: ["validation_question_id"]
             isOneToOne: false
             referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wellness_questions: {
+        Row: {
+          batch_id: string | null
+          created_at: string
+          deleted_at: string | null
+          id: string
+          options: Json | null
+          question_text_ar: string | null
+          question_text_en: string
+          question_type: string
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          batch_id?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          options?: Json | null
+          question_text_ar?: string | null
+          question_text_en: string
+          question_type?: string
+          status?: string
+          tenant_id: string
+        }
+        Update: {
+          batch_id?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          options?: Json | null
+          question_text_ar?: string | null
+          question_text_en?: string
+          question_type?: string
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wellness_questions_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "question_generation_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wellness_questions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]

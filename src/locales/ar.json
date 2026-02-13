@@ -55,7 +55,11 @@
     "schedules": "الجداول",
     "categories": "التصنيفات",
     "employees": "الموظفين",
-    "employeeSurvey": "استبياني"
+    "employeeSurvey": "استبياني",
+    "wellness": "الرفاهية",
+    "dailyCheckin": "تسجيل يومي",
+    "batchManagement": "إدارة الدفعات",
+    "wellnessSettings": "إعدادات الرفاهية"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -1259,5 +1263,65 @@
     "accountCreated": "تم إنشاء الحساب بنجاح!",
     "verifyEmailNote": "يرجى التحقق من بريدك الإلكتروني لتأكيد حسابك، ثم سجّل الدخول.",
     "createError": "فشل في إنشاء الحساب"
+  },
+  "wellness": {
+    "howAreYou": "كيف تشعر اليوم؟",
+    "selectMood": "اختر حالتك المزاجية",
+    "mood": {
+      "great": "ممتاز",
+      "good": "جيد",
+      "okay": "عادي",
+      "struggling": "أعاني",
+      "need_help": "أحتاج مساعدة"
+    },
+    "dailyQuestion": "سؤال الرفاهية اليومي",
+    "typeAnswer": "اكتب إجابتك...",
+    "noQuestion": "لا يوجد سؤال متاح اليوم",
+    "supportActions": "إجراءات الدعم",
+    "supportDescription": "اختر الدعم الذي تريده",
+    "support": {
+      "meditation": "تأمل",
+      "breathing": "تمرين تنفس",
+      "talk": "التحدث مع شخص",
+      "break": "أخذ استراحة"
+    },
+    "addComment": "أضف تعليقاً اختيارياً...",
+    "submitCheckin": "إرسال التسجيل",
+    "thankYou": "شكراً لتسجيلك!",
+    "dayStreak": "يوم متتالي",
+    "points": "نقاط",
+    "yourTip": "نصيحتك الصحية",
+    "settingsTitle": "إعدادات جدول الرفاهية",
+    "settingsDescription": "تكوين متى وكيف يتم تسليم أسئلة الرفاهية",
+    "settingsSaved": "تم حفظ الإعدادات بنجاح",
+    "deliveryConfig": "تكوين التسليم",
+    "deliveryConfigDesc": "التحكم في جدول تسجيلات الرفاهية اليومية",
+    "enableSchedule": "تفعيل الجدول",
+    "enableScheduleDesc": "تفعيل تسليم الأسئلة التلقائي",
+    "deliveryTime": "وقت التسليم",
+    "questionsPerDay": "الأسئلة في اليوم",
+    "workdaysOnly": "أيام العمل فقط",
+    "workdaysOnlyDesc": "تخطي عطلات نهاية الأسبوع عند تسليم الأسئلة",
+    "activeDays": "الأيام النشطة",
+    "days": {
+      "sun": "أحد",
+      "mon": "إثنين",
+      "tue": "ثلاثاء",
+      "wed": "أربعاء",
+      "thu": "خميس",
+      "fri": "جمعة",
+      "sat": "سبت"
+    },
+    "batchTitle": "إدارة الدفعات",
+    "batchDescription": "إدارة دفعات أسئلة الرفاهية المولدة بالذكاء الاصطناعي",
+    "generateBatch": "إنشاء دفعة",
+    "targetMonth": "الشهر المستهدف",
+    "questionCount": "عدد الأسئلة",
+    "createdAt": "تاريخ الإنشاء",
+    "publish": "نشر",
+    "schedule": "جدولة",
+    "batchCreated": "تم إنشاء الدفعة بنجاح",
+    "batchPublished": "تم نشر الدفعة بنجاح",
+    "batchScheduled": "تم جدولة الأسئلة في التقويم"
   }
 }

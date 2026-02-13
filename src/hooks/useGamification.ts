@@ -1,0 +1,55 @@
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+
+export function useGamification(employeeId: string | null) {
+  const query = useQuery({
+    queryKey: ['gamification', employeeId],
+    queryFn: async () => {
+      if (!employeeId) return { streak: 0, totalPoints: 0 };
+
+      const { data: entries, error } = await supabase
+        .from('mood_entries' as any)
+        .select('entry_date, points_earned')
+        .eq('employee_id', employeeId)
+        .order('entry_date', { ascending: false })
+        .limit(60);
+
+      if (error) throw error;
+      if (!entries || entries.length === 0) return { streak: 0, totalPoints: 0 };
+
+      // Calculate streak
+      let streak = 0;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      for (let i = 0; i < entries.length; i++) {
+        const entryDate = new Date((entries as any)[i].entry_date);
+        entryDate.setHours(0, 0, 0, 0);
+        const expected = new Date(today);
+        expected.setDate(expected.getDate() - i);
+
+        if (entryDate.getTime() === expected.getTime()) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+
+      const totalPoints = (entries as any[]).reduce((sum: number, e: any) => sum + (e.points_earned || 0), 0);
+
+      return { streak, totalPoints };
+    },
+    enabled: !!employeeId,
+  });
+
+  const calculatePoints = (currentStreak: number): number => {
+    return 10 + Math.min(currentStreak * 5, 50);
+  };
+
+  return {
+    streak: query.data?.streak ?? 0,
+    totalPoints: query.data?.totalPoints ?? 0,
+    isLoading: query.isLoading,
+    calculatePoints,
+  };
+}
