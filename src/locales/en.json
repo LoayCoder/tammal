@@ -928,6 +928,7 @@
     "parsing": "Parsing document...",
     "parseSuccess": "Document parsed and ready",
     "parseError": "Failed to parse document",
+    "noTenantError": "You must be assigned to an organization to upload documents",
     "documentActive": "Active — included in generation",
     "documentInactive": "Inactive — excluded from generation",
     "frameworkReference": "Framework",

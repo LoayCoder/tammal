@@ -40,11 +40,11 @@ export function useAIKnowledge() {
       if (!user.user) throw new Error('Not authenticated');
 
       const tenantResult = await supabase.rpc('get_user_tenant_id', { _user_id: user.user.id });
-      const tenantId = tenantResult.data || null;
-      const storagePath = tenantId || user.user.id;
+      const tenantId = tenantResult.data;
+      if (!tenantId) throw new Error(t('aiGenerator.noTenantError'));
 
       // Upload to storage
-      const filePath = `${storagePath}/${Date.now()}-${file.name}`;
+      const filePath = `${tenantId}/${Date.now()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from('ai-knowledge')
         .upload(filePath, file);

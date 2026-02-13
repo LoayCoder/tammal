@@ -95,7 +95,7 @@ export type Database = {
           file_size: number
           id: string
           is_active: boolean
-          tenant_id: string | null
+          tenant_id: string
           user_id: string
         }
         Insert: {
@@ -107,7 +107,7 @@ export type Database = {
           file_size?: number
           id?: string
           is_active?: boolean
-          tenant_id?: string | null
+          tenant_id: string
           user_id: string
         }
         Update: {
@@ -119,7 +119,7 @@ export type Database = {
           file_size?: number
           id?: string
           is_active?: boolean
-          tenant_id?: string | null
+          tenant_id?: string
           user_id?: string
         }
         Relationships: [
