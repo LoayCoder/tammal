@@ -9,6 +9,7 @@ import { CategoryDialog } from "@/components/questions/CategoryDialog";
 import { useQuestionCategories, QuestionCategory, CreateCategoryInput } from "@/hooks/useQuestionCategories";
 import { Plus, MoreHorizontal, Edit2, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 export default function CategoryManagement() {
   const { t, i18n } = useTranslation();
@@ -18,6 +19,8 @@ export default function CategoryManagement() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const { categories, isLoading, createCategory, updateCategory, deleteCategory } = useQuestionCategories();
+  const MAX_CATEGORIES = 5;
+  const canAddCategory = categories.length < MAX_CATEGORIES;
 
   const handleSubmit = (data: CreateCategoryInput) => {
     if (editingCategory) {
@@ -46,9 +49,19 @@ export default function CategoryManagement() {
           <h1 className="text-3xl font-bold tracking-tight">{t('categories.title')}</h1>
           <p className="text-muted-foreground">{t('categories.subtitle')}</p>
         </div>
-        <Button onClick={() => { setEditingCategory(null); setDialogOpen(true); }}>
+        <Button 
+          onClick={() => {
+            if (!canAddCategory) {
+              toast.error(t('categories.maxReached', { max: MAX_CATEGORIES }));
+              return;
+            }
+            setEditingCategory(null); 
+            setDialogOpen(true); 
+          }}
+          disabled={!canAddCategory}
+        >
           <Plus className="h-4 w-4 me-2" />
-          {t('categories.addCategory')}
+          {t('categories.addCategory')} ({categories.length}/{MAX_CATEGORIES})
         </Button>
       </div>
 
