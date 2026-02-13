@@ -9,6 +9,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { BookOpen, ChevronDown, Plus, Pencil, Trash2, Check } from 'lucide-react';
 import { ReferenceFramework } from '@/hooks/useReferenceFrameworks';
 import { FrameworkDialog } from './FrameworkDialog';
+import { FrameworkDocuments } from './FrameworkDocuments';
 
 interface FrameworkSelectorProps {
   frameworks: ReferenceFramework[];
@@ -118,9 +119,10 @@ export function FrameworkSelector({
                           <ChevronDown className={`h-3 w-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                         </button>
                       </button>
-                      {isExpanded && displayDesc && (
+                      {isExpanded && (
                         <div className="ms-8 mt-1 p-2 text-[11px] text-muted-foreground bg-muted/20 rounded border border-border/50">
-                          {displayDesc}
+                          {displayDesc && <p className="mb-2">{displayDesc}</p>}
+                          <FrameworkDocuments frameworkId={fw.id} />
                           {canEdit && (
                             <div className="flex gap-1 mt-2">
                               <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2" onClick={() => { setEditingFramework(fw); setDialogOpen(true); }}>
