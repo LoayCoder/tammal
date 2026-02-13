@@ -27,6 +27,8 @@ interface GenerateRequest {
   knowledgeDocumentIds?: string[];
   customPrompt?: string;
   selectedFrameworks?: string[];
+  categoryId?: string;
+  subcategoryId?: string;
 }
 
 serve(async (req) => {
@@ -63,6 +65,8 @@ serve(async (req) => {
       knowledgeDocumentIds = [],
       customPrompt = "",
       selectedFrameworks = [],
+      categoryId,
+      subcategoryId,
     }: GenerateRequest = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -199,7 +203,29 @@ For EACH question you MUST also provide:
       systemPrompt += `\n\n# Additional User Instructions:\n${customPrompt}`;
     }
 
-    // 5. Tool definition
+    // 5. Category & Subcategory context
+    if (categoryId) {
+      const { data: catData } = await supabase
+        .from("question_categories")
+        .select("name, name_ar")
+        .eq("id", categoryId)
+        .single();
+      if (catData) {
+        systemPrompt += `\n\n# Category Context:\nCategory: ${catData.name}${catData.name_ar ? ` (${catData.name_ar})` : ''}. Generate questions specifically relevant to this category.`;
+      }
+    }
+    if (subcategoryId) {
+      const { data: subData } = await supabase
+        .from("question_subcategories")
+        .select("name, name_ar")
+        .eq("id", subcategoryId)
+        .single();
+      if (subData) {
+        systemPrompt += `\nSubcategory: ${subData.name}${subData.name_ar ? ` (${subData.name_ar})` : ''}. Narrow the focus of questions to this subcategory.`;
+      }
+    }
+
+    // 6. Tool definition
     const toolDefinition = {
       type: "function" as const,
       function: {

@@ -61,7 +61,8 @@
     "wellness": "Wellness",
     "dailyCheckin": "Daily Check-in",
     "batchManagement": "Batch Management",
-    "wellnessSettings": "Wellness Settings"
+    "wellnessSettings": "Wellness Settings",
+    "subcategories": "Subcategories"
   },
   "auth": {
     "login": "Login",
@@ -714,7 +715,25 @@
     "updateSuccess": "Category updated successfully",
     "updateError": "Failed to update category",
     "deleteSuccess": "Category deleted successfully",
-    "deleteError": "Failed to delete category"
+    "deleteError": "Failed to delete category",
+    "activate": "Activate",
+    "deactivate": "Deactivate"
+  },
+  "subcategories": {
+    "title": "Subcategories",
+    "subtitle": "Manage question subcategories",
+    "addSubcategory": "Add Subcategory",
+    "editSubcategory": "Edit Subcategory",
+    "deleteSubcategory": "Delete Subcategory",
+    "parentCategory": "Parent Category",
+    "noSubcategories": "No subcategories found",
+    "createSuccess": "Subcategory created successfully",
+    "createError": "Failed to create subcategory",
+    "updateSuccess": "Subcategory updated successfully",
+    "updateError": "Failed to update subcategory",
+    "deleteSuccess": "Subcategory deleted successfully",
+    "deleteError": "Failed to delete subcategory",
+    "confirmDelete": "Are you sure you want to delete this subcategory?"
   },
   "employees": {
     "title": "Employee Management",
@@ -857,6 +876,10 @@
     "focusAreas": "Focus Areas",
     "selectFocusAreas": "Please select at least one focus area",
     "selectModel": "Please select an AI model",
+    "category": "Category",
+    "subcategory": "Subcategory",
+    "selectCategory": "Select category",
+    "selectSubcategory": "Select subcategory",
     "questionCount": "Number of Questions",
     "questionType": "Question Type",
     "typeMixed": "Mixed (All Types)",

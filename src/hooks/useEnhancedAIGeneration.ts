@@ -20,6 +20,8 @@ export interface EnhancedGeneratedQuestion {
   framework_reference?: string | null;
   psychological_construct?: string | null;
   scoring_mechanism?: string | null;
+  category_name?: string | null;
+  subcategory_name?: string | null;
 }
 
 export interface ValidationReport {
@@ -53,6 +55,8 @@ export interface GenerateInput {
   knowledgeDocumentIds?: string[];
   customPrompt?: string;
   selectedFrameworks?: string[];
+  categoryId?: string;
+  subcategoryId?: string;
 }
 
 export function useEnhancedAIGeneration() {

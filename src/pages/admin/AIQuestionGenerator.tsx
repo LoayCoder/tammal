@@ -57,6 +57,8 @@ export default function AIQuestionGenerator() {
   const [customPrompt, setCustomPrompt] = useState('');
   const [isRewriting, setIsRewriting] = useState(false);
   const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState('');
 
   const isStrict = accuracyMode === 'strict';
   const hasFailures = validationReport?.overall_result === 'failed';
@@ -80,6 +82,8 @@ export default function AIQuestionGenerator() {
       knowledgeDocumentIds: activeDocIds,
       customPrompt: customPrompt.trim() || undefined,
       selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
+      categoryId: selectedCategoryId || undefined,
+      subcategoryId: selectedSubcategoryId || undefined,
     });
   };
 
@@ -259,6 +263,10 @@ export default function AIQuestionGenerator() {
             onDeleteFramework={deleteFramework}
             frameworksLoading={frameworksLoading}
             currentUserId={user?.id}
+            selectedCategoryId={selectedCategoryId}
+            onSelectedCategoryIdChange={setSelectedCategoryId}
+            selectedSubcategoryId={selectedSubcategoryId}
+            onSelectedSubcategoryIdChange={setSelectedSubcategoryId}
           />
         </div>
 

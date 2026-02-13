@@ -1134,6 +1134,72 @@ export type Database = {
           },
         ]
       }
+      question_subcategories: {
+        Row: {
+          category_id: string
+          color: string | null
+          created_at: string | null
+          deleted_at: string | null
+          description: string | null
+          description_ar: string | null
+          id: string
+          is_active: boolean | null
+          is_global: boolean | null
+          name: string
+          name_ar: string | null
+          tenant_id: string | null
+          updated_at: string | null
+          weight: number | null
+        }
+        Insert: {
+          category_id: string
+          color?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_global?: boolean | null
+          name: string
+          name_ar?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          weight?: number | null
+        }
+        Update: {
+          category_id?: string
+          color?: string | null
+          created_at?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_global?: boolean | null
+          name?: string
+          name_ar?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_subcategories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "question_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_subcategories_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       questions: {
         Row: {
           ai_generated: boolean | null

@@ -61,7 +61,8 @@
     "wellness": "الرفاهية",
     "dailyCheckin": "تسجيل يومي",
     "batchManagement": "إدارة الدفعات",
-    "wellnessSettings": "إعدادات الرفاهية"
+    "wellnessSettings": "إعدادات الرفاهية",
+    "subcategories": "التصنيفات الفرعية"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -714,7 +715,25 @@
     "updateSuccess": "تم تحديث التصنيف بنجاح",
     "updateError": "فشل في تحديث التصنيف",
     "deleteSuccess": "تم حذف التصنيف بنجاح",
-    "deleteError": "فشل في حذف التصنيف"
+    "deleteError": "فشل في حذف التصنيف",
+    "activate": "تفعيل",
+    "deactivate": "إلغاء التفعيل"
+  },
+  "subcategories": {
+    "title": "التصنيفات الفرعية",
+    "subtitle": "إدارة التصنيفات الفرعية للأسئلة",
+    "addSubcategory": "إضافة تصنيف فرعي",
+    "editSubcategory": "تعديل التصنيف الفرعي",
+    "deleteSubcategory": "حذف التصنيف الفرعي",
+    "parentCategory": "التصنيف الرئيسي",
+    "noSubcategories": "لا توجد تصنيفات فرعية",
+    "createSuccess": "تم إنشاء التصنيف الفرعي بنجاح",
+    "createError": "فشل في إنشاء التصنيف الفرعي",
+    "updateSuccess": "تم تحديث التصنيف الفرعي بنجاح",
+    "updateError": "فشل في تحديث التصنيف الفرعي",
+    "deleteSuccess": "تم حذف التصنيف الفرعي بنجاح",
+    "deleteError": "فشل في حذف التصنيف الفرعي",
+    "confirmDelete": "هل أنت متأكد من حذف هذا التصنيف الفرعي؟"
   },
   "employees": {
     "title": "إدارة الموظفين",
@@ -857,6 +876,10 @@
     "focusAreas": "مجالات التركيز",
     "selectFocusAreas": "يرجى اختيار مجال تركيز واحد على الأقل",
     "selectModel": "يرجى اختيار نموذج ذكاء اصطناعي",
+    "category": "التصنيف",
+    "subcategory": "التصنيف الفرعي",
+    "selectCategory": "اختر التصنيف",
+    "selectSubcategory": "اختر التصنيف الفرعي",
     "questionCount": "عدد الأسئلة",
     "questionType": "نوع السؤال",
     "typeMixed": "مختلط (جميع الأنواع)",
