@@ -79,7 +79,7 @@ export function KnowledgeBasePanel({
   };
 
   const validateFile = (file: File): boolean => {
-    const maxSize = 100 * 1024; // 100KB
+    const maxSize = 100 * 1024 * 1024; // 100MB
     if (file.size > maxSize) {
       toast.error(t('aiGenerator.fileTooLarge'));
       return false;
