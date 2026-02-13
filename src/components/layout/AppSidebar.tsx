@@ -3,7 +3,7 @@ import {
   HelpCircle, Palette, FileText, LayoutDashboard,
   Layers, BarChart3, Network, Building, Download, History,
   MessageSquare, Tags, UserCheck, Sparkles, Calendar, ClipboardList,
-  User
+  User, Heart, Settings, Package
 } from 'lucide-react';
 import {
   Sidebar,
@@ -52,6 +52,14 @@ export function AppSidebar() {
         { title: t('nav.categories'), url: "/admin/question-categories", icon: Tags },
         { title: t('nav.employees'), url: "/admin/employees", icon: UserCheck },
         { title: t('nav.employeeSurvey'), url: "/employee/survey", icon: ClipboardList },
+      ]
+    },
+    {
+      label: t('nav.wellness'),
+      items: [
+        { title: t('nav.dailyCheckin'), url: "/employee/wellness", icon: Heart },
+        { title: t('nav.batchManagement'), url: "/admin/wellness-batches", icon: Package },
+        { title: t('nav.wellnessSettings'), url: "/admin/wellness-settings", icon: Settings },
       ]
     },
     {

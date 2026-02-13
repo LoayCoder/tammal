@@ -55,7 +55,11 @@
     "schedules": "Schedules",
     "categories": "Categories",
     "employees": "Employees",
-    "employeeSurvey": "My Survey"
+    "employeeSurvey": "My Survey",
+    "wellness": "Wellness",
+    "dailyCheckin": "Daily Check-in",
+    "batchManagement": "Batch Management",
+    "wellnessSettings": "Wellness Settings"
   },
   "auth": {
     "login": "Login",
@@ -1259,5 +1263,65 @@
     "accountCreated": "Account created successfully!",
     "verifyEmailNote": "Please check your email to verify your account, then log in.",
     "createError": "Failed to create account"
+  },
+  "wellness": {
+    "howAreYou": "How are you feeling today?",
+    "selectMood": "Select your current mood",
+    "mood": {
+      "great": "Great",
+      "good": "Good",
+      "okay": "Okay",
+      "struggling": "Struggling",
+      "need_help": "Need Help"
+    },
+    "dailyQuestion": "Today's Wellness Question",
+    "typeAnswer": "Type your answer...",
+    "noQuestion": "No question available today",
+    "supportActions": "Support Actions",
+    "supportDescription": "Select any support you'd like",
+    "support": {
+      "meditation": "Meditation",
+      "breathing": "Breathing Exercise",
+      "talk": "Talk to Someone",
+      "break": "Take a Break"
+    },
+    "addComment": "Add an optional comment...",
+    "submitCheckin": "Submit Check-in",
+    "thankYou": "Thank you for checking in!",
+    "dayStreak": "day streak",
+    "points": "points",
+    "yourTip": "Your Wellness Tip",
+    "settingsTitle": "Wellness Schedule Settings",
+    "settingsDescription": "Configure when and how wellness questions are delivered",
+    "settingsSaved": "Settings saved successfully",
+    "deliveryConfig": "Delivery Configuration",
+    "deliveryConfigDesc": "Control the schedule for daily wellness check-ins",
+    "enableSchedule": "Enable Schedule",
+    "enableScheduleDesc": "Activate automatic question delivery",
+    "deliveryTime": "Delivery Time",
+    "questionsPerDay": "Questions Per Day",
+    "workdaysOnly": "Workdays Only",
+    "workdaysOnlyDesc": "Skip weekends when delivering questions",
+    "activeDays": "Active Days",
+    "days": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    },
+    "batchTitle": "Batch Management",
+    "batchDescription": "Manage AI-generated wellness question batches",
+    "generateBatch": "Generate Batch",
+    "targetMonth": "Target Month",
+    "questionCount": "Question Count",
+    "createdAt": "Created",
+    "publish": "Publish",
+    "schedule": "Schedule",
+    "batchCreated": "Batch created successfully",
+    "batchPublished": "Batch published successfully",
+    "batchScheduled": "Questions scheduled to calendar"
   }
 }

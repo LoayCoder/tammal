@@ -26,3 +26,12 @@ verify_jwt = false
 
 [functions.send-invitation-email]
 verify_jwt = false
+
+[functions.auto-schedule-questions]
+verify_jwt = false
+
+[functions.generate-daily-tip]
+verify_jwt = false
+
+[functions.create-batch-schedules]
+verify_jwt = false
