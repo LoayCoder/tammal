@@ -152,10 +152,10 @@ export function ConfigPanel({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>{t('aiGenerator.category')}</Label>
-              <Select value={selectedCategoryId} onValueChange={(v) => { onSelectedCategoryIdChange(v); onSelectedSubcategoryIdChange(''); }}>
+              <Select value={selectedCategoryId || '__all__'} onValueChange={(v) => { onSelectedCategoryIdChange(v === '__all__' ? '' : v); onSelectedSubcategoryIdChange(''); }}>
                 <SelectTrigger><SelectValue placeholder={t('aiGenerator.selectCategory')} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t('common.all')}</SelectItem>
+                  <SelectItem value="__all__">{t('common.all')}</SelectItem>
                   {activeCategories.map(c => (
                     <SelectItem key={c.id} value={c.id}>{isRTL && c.name_ar ? c.name_ar : c.name}</SelectItem>
                   ))}
@@ -164,10 +164,10 @@ export function ConfigPanel({
             </div>
             <div className="space-y-2">
               <Label>{t('aiGenerator.subcategory')}</Label>
-              <Select value={selectedSubcategoryId} onValueChange={onSelectedSubcategoryIdChange} disabled={!selectedCategoryId}>
+              <Select value={selectedSubcategoryId || '__all__'} onValueChange={(v) => onSelectedSubcategoryIdChange(v === '__all__' ? '' : v)} disabled={!selectedCategoryId}>
                 <SelectTrigger><SelectValue placeholder={t('aiGenerator.selectSubcategory')} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t('common.all')}</SelectItem>
+                  <SelectItem value="__all__">{t('common.all')}</SelectItem>
                   {activeSubcategories.map(s => (
                     <SelectItem key={s.id} value={s.id}>{isRTL && s.name_ar ? s.name_ar : s.name}</SelectItem>
                   ))}
