@@ -73,7 +73,7 @@ serve(async (req) => {
       });
     }
 
-    // Validate model against ai_models table
+    // Validate model
     const { data: modelData } = await supabase
       .from("ai_models")
       .select("model_key")
@@ -82,73 +82,12 @@ serve(async (req) => {
       .single();
 
     const selectedModel = modelData?.model_key || "google/gemini-2.5-flash";
-
     const temperature = accuracyMode === "strict" ? 0.3 : accuracyMode === "high" ? 0.5 : 0.7;
 
-    // Build expert knowledge prompt if enabled
-    let expertPromptSection = "";
-    if (useExpertKnowledge) {
-      // Determine which frameworks to include
-      const allFrameworkIds = ['ISO45003', 'ISO10018', 'COPSOQ', 'UWES', 'WHO', 'Gallup'];
-      const activeFrameworks = selectedFrameworks.length > 0 ? selectedFrameworks : allFrameworkIds;
+    // ========== STRUCTURED PROMPT CONSTRUCTION ==========
 
-      const frameworkDescriptions: Record<string, string> = {
-        ISO45003: '**ISO 45003 (Psychological Health & Safety):** Focus on managing psychosocial risks to prevent work-related injury/ill health. Create questions that identify hazards (e.g., bullying, excessive workload) rather than just symptoms.',
-        ISO10018: '**ISO 10018 & ISO 30414 (Engagement & HR Reporting):** Ensure questions align with global reporting standards for turnover intention and productivity.',
-        COPSOQ: '**COPSOQ III (Copenhagen Psychosocial Questionnaire):** Use for deep-dive questions on stress, burnout, sleeping troubles, and work environment.',
-        UWES: '**UWES (Utrecht Work Engagement Scale):** Measure positive work wellness defined by Vigor, Dedication, and Absorption (the opposite of burnout).',
-        WHO: '**WHO (World Health Organization) Guidelines:** Mental health at work, emphasizing protection and promotion. Respect medical privacy while addressing well-being.',
-        Gallup: '**Gallup Q12:** Structure based on the hierarchy of employee needs (Basic needs -> Management -> Teamwork -> Growth).',
-      };
-
-      const selectedDescriptions = activeFrameworks
-        .filter(id => frameworkDescriptions[id])
-        .map((id, i) => `${i + 1}. ${frameworkDescriptions[id]}`)
-        .join('\n');
-
-      expertPromptSection = `
-
-# Expert Role
-Act as a world-class expert consultant combining the skills of an Industrial-Organizational (I-O) Psychologist, a Lead Psychometrician, and an Occupational Health & Safety (OHS) Specialist.
-
-# Objective
-Develop scientifically valid, legally defensible, and high-impact survey questions to measure "Mental Health," "Organizational Engagement," and "Psychosocial Risk."
-
-# Reference Frameworks (Knowledge Base):
-${selectedDescriptions}
-
-For EACH question you MUST also provide:
-- framework_reference: The specific standard/framework the question derives from (e.g., "ISO 45003", "UWES", "COPSOQ III", "Gallup Q12")
-- psychological_construct: The construct being measured (e.g., "Psychological Safety", "Vigor", "Role Clarity", "Burnout Risk")
-- scoring_mechanism: Recommended scoring approach (e.g., "Likert 1-5 Agreement", "Frequency Scale", "Yes/No")
-`;
-    }
-
-    // Fetch document context if any documents are specified
-    let documentContext = "";
-    if (knowledgeDocumentIds.length > 0) {
-      const { data: docs } = await supabase
-        .from("ai_knowledge_documents")
-        .select("file_name, content_text")
-        .in("id", knowledgeDocumentIds)
-        .eq("is_active", true)
-        .is("deleted_at", null);
-
-      if (docs && docs.length > 0) {
-        documentContext = "\n\n# Additional Reference Documents:\n";
-        for (const doc of docs) {
-          if (doc.content_text) {
-            // Truncate each document to ~4000 tokens (~16000 chars)
-            const truncated = doc.content_text.length > 16000
-              ? doc.content_text.substring(0, 16000) + "\n[...truncated...]"
-              : doc.content_text;
-            documentContext += `\n## Document: ${doc.file_name}\n${truncated}\n`;
-          }
-        }
-      }
-    }
-
-    const systemPrompt = `You are an expert organizational psychologist specializing in employee wellbeing surveys.
+    // 1. Base system prompt
+    let systemPrompt = `You are an expert organizational psychologist specializing in employee wellbeing surveys.
 Generate high-quality survey questions that measure employee wellbeing, engagement, and organizational health.
 
 Guidelines:
@@ -165,8 +104,72 @@ Complexity level: ${complexity}
 Tone: ${tone}
 Focus areas: ${focusAreas.join(", ")}
 ${questionType && questionType !== "mixed" ? `Question type constraint: Only generate ${questionType} questions` : "Use a mix of question types"}
-${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.minWordLength} words` : ""}${expertPromptSection}${documentContext}${customPrompt ? `\n\n# Additional User Instructions:\n${customPrompt}` : ""}`;
+${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.minWordLength} words` : ""}`;
 
+    // 2. Framework block — fetch from DB
+    let frameworkNames: string[] = [];
+    if (useExpertKnowledge && selectedFrameworks.length > 0) {
+      const { data: frameworks } = await supabase
+        .from("reference_frameworks")
+        .select("name, description, framework_key")
+        .in("id", selectedFrameworks)
+        .eq("is_active", true)
+        .is("deleted_at", null);
+
+      if (frameworks && frameworks.length > 0) {
+        frameworkNames = frameworks.map((f: any) => f.name);
+        const frameworkDescriptions = frameworks
+          .map((f: any, i: number) => `${i + 1}. **${f.name}:** ${f.description || 'No description'}`)
+          .join('\n');
+
+        systemPrompt += `
+
+# Expert Role
+Act as a world-class expert consultant combining the skills of an Industrial-Organizational (I-O) Psychologist, a Lead Psychometrician, and an Occupational Health & Safety (OHS) Specialist.
+
+# Objective
+Develop scientifically valid, legally defensible, and high-impact survey questions to measure "Mental Health," "Organizational Engagement," and "Psychosocial Risk."
+
+# Reference Frameworks (Knowledge Base):
+${frameworkDescriptions}
+
+For EACH question you MUST also provide:
+- framework_reference: The specific standard/framework the question derives from (e.g., "${frameworkNames[0]}")
+- psychological_construct: The construct being measured (e.g., "Psychological Safety", "Vigor", "Role Clarity", "Burnout Risk")
+- scoring_mechanism: Recommended scoring approach (e.g., "Likert 1-5 Agreement", "Frequency Scale", "Yes/No")`;
+      }
+    }
+
+    // 3. Document block
+    let documentContext = "";
+    if (knowledgeDocumentIds.length > 0) {
+      const { data: docs } = await supabase
+        .from("ai_knowledge_documents")
+        .select("file_name, content_text")
+        .in("id", knowledgeDocumentIds)
+        .eq("is_active", true)
+        .is("deleted_at", null);
+
+      if (docs && docs.length > 0) {
+        documentContext = "\n\n# Additional Reference Documents:\n";
+        for (const doc of docs) {
+          if (doc.content_text) {
+            const truncated = doc.content_text.length > 16000
+              ? doc.content_text.substring(0, 16000) + "\n[...truncated...]"
+              : doc.content_text;
+            documentContext += `\n## Document: ${doc.file_name}\n${truncated}\n`;
+          }
+        }
+        systemPrompt += documentContext;
+      }
+    }
+
+    // 4. Custom prompt block
+    if (customPrompt) {
+      systemPrompt += `\n\n# Additional User Instructions:\n${customPrompt}`;
+    }
+
+    // 5. Tool definition
     const toolDefinition = {
       type: "function" as const,
       function: {
@@ -188,24 +191,20 @@ ${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.
                   },
                   complexity: { type: "string", enum: ["simple", "moderate", "advanced"] },
                   tone: { type: "string" },
-                  explanation: { type: "string", description: "Why this question is valuable and what insights it reveals" },
+                  explanation: { type: "string", description: "Why this question is valuable" },
                   confidence_score: { type: "number", description: "Confidence in question quality 0-100" },
-                  bias_flag: { type: "boolean", description: "Whether potential bias was detected" },
-                  ambiguity_flag: { type: "boolean", description: "Whether ambiguity was detected" },
-                  framework_reference: { type: "string", description: "The international standard this question derives from (e.g., ISO 45003, UWES, COPSOQ III)" },
-                  psychological_construct: { type: "string", description: "The psychological construct being measured (e.g., Psychological Safety, Vigor)" },
-                  scoring_mechanism: { type: "string", description: "Recommended scoring approach (e.g., Likert 1-5 Agreement)" },
+                  bias_flag: { type: "boolean" },
+                  ambiguity_flag: { type: "boolean" },
+                  framework_reference: { type: "string", description: "The framework this question derives from" },
+                  psychological_construct: { type: "string", description: "The construct being measured" },
+                  scoring_mechanism: { type: "string", description: "Recommended scoring approach" },
                   options: {
                     type: "array",
                     items: {
                       type: "object",
-                      properties: {
-                        text: { type: "string" },
-                        text_ar: { type: "string" },
-                      },
+                      properties: { text: { type: "string" }, text_ar: { type: "string" } },
                       required: ["text", "text_ar"],
                     },
-                    description: "Options for multiple_choice type only",
                   },
                 },
                 required: ["question_text", "question_text_ar", "type", "complexity", "tone", "explanation", "confidence_score", "bias_flag", "ambiguity_flag"],
@@ -217,14 +216,8 @@ ${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.
       },
     };
 
-    const frameworkNames: Record<string, string> = {
-      ISO45003: 'ISO 45003', ISO10018: 'ISO 10018/30414', COPSOQ: 'COPSOQ III',
-      UWES: 'UWES', WHO: 'WHO Guidelines', Gallup: 'Gallup Q12',
-    };
-    const selectedFrameworkNames = (selectedFrameworks.length > 0 ? selectedFrameworks : [])
-      .map(id => frameworkNames[id]).filter(Boolean);
-    const frameworkAlignment = selectedFrameworkNames.length > 0
-      ? `\nAlign questions with the following selected frameworks: ${selectedFrameworkNames.join(', ')}.`
+    const frameworkAlignment = frameworkNames.length > 0
+      ? `\nAlign questions with the following selected frameworks: ${frameworkNames.join(', ')}.`
       : '';
 
     const userPrompt = `Generate exactly ${questionCount} high-quality survey questions for employee wellbeing assessment.
@@ -233,7 +226,7 @@ Ensure variety in question types and assign a confidence score (0-100) based on 
 ${advancedSettings.enableBiasDetection ? "Flag any questions with potential bias issues." : ""}
 ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous wording." : ""}`;
 
-    console.log(`Generating ${questionCount} questions with model: ${selectedModel}, accuracy: ${accuracyMode}`);
+    console.log(`Generating ${questionCount} questions with model: ${selectedModel}, accuracy: ${accuracyMode}, frameworks: ${frameworkNames.length}`);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -257,21 +250,18 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       const errorStatus = response.status;
       if (errorStatus === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (errorStatus === 402) {
         return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       const errorText = await response.text();
       console.error("AI gateway error:", errorStatus, errorText);
       return new Response(JSON.stringify({ error: "AI generation failed" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -289,7 +279,6 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       }
     }
 
-    // Fallback: try content parsing
     if (!questions) {
       const content = aiResponse.choices?.[0]?.message?.content || "";
       let jsonContent = content;
@@ -301,21 +290,17 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       } catch {
         console.error("Failed to parse AI response:", content);
         return new Response(JSON.stringify({ error: "Failed to parse AI response" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
     }
 
-    // Validate structure
     if (!Array.isArray(questions) || questions.length === 0) {
       return new Response(JSON.stringify({ error: "AI returned empty or invalid questions" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Normalize questions
     questions = questions.map((q: any) => ({
       question_text: q.question_text || q.text || "",
       question_text_ar: q.question_text_ar || q.text_ar || "",
@@ -334,7 +319,7 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       scoring_mechanism: q.scoring_mechanism || null,
     }));
 
-    // Log the generation
+    // Log generation with full prompt snapshot
     const token = authHeader.replace("Bearer ", "");
     const { data: userData } = await supabase.auth.getUser(token);
 
@@ -348,7 +333,13 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
         accuracy_mode: accuracyMode,
         temperature,
         duration_ms: durationMs,
-        settings: { focusAreas, questionCount, complexity, tone, questionType, advancedSettings },
+        settings: {
+          focusAreas, questionCount, complexity, tone, questionType, advancedSettings,
+          selected_framework_ids: selectedFrameworks,
+          custom_prompt: customPrompt,
+          document_ids: knowledgeDocumentIds,
+          prompt_snapshot: systemPrompt.substring(0, 10000),
+        },
         success: true,
       });
     }

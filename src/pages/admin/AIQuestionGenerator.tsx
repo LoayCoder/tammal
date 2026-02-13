@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Sparkles, RefreshCw, ShieldCheck } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Sparkles, RefreshCw, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { TopControlBar } from '@/components/ai-generator/TopControlBar';
 import { ConfigPanel } from '@/components/ai-generator/ConfigPanel';
 import { QuestionCard } from '@/components/ai-generator/QuestionCard';
@@ -12,11 +13,14 @@ import { useEnhancedAIGeneration, AdvancedSettings } from '@/hooks/useEnhancedAI
 import { useAIModels } from '@/hooks/useAIModels';
 import { useAIKnowledge } from '@/hooks/useAIKnowledge';
 import { useFocusAreas } from '@/hooks/useFocusAreas';
+import { useReferenceFrameworks } from '@/hooks/useReferenceFrameworks';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export default function AIQuestionGenerator() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const { models } = useAIModels();
   const {
     documents, uploadDocument, toggleDocument, deleteDocument, deleteAllDocuments, isUploading,
@@ -25,6 +29,10 @@ export default function AIQuestionGenerator() {
     focusAreas: focusAreaList, isLoading: focusAreasLoading,
     addFocusArea, updateFocusArea, deleteFocusArea,
   } = useFocusAreas();
+  const {
+    frameworks: referenceFrameworks, isLoading: frameworksLoading,
+    addFramework, updateFramework, deleteFramework,
+  } = useReferenceFrameworks();
   const {
     questions, validationReport, generationMeta,
     generate, validate, saveSet, removeQuestion, updateQuestion, clearAll,
@@ -46,10 +54,10 @@ export default function AIQuestionGenerator() {
     enableCriticPass: false,
     minWordLength: 5,
   });
-  const [useExpertKnowledge, setUseExpertKnowledge] = useState(false);
   const [customPrompt, setCustomPrompt] = useState('');
   const [isRewriting, setIsRewriting] = useState(false);
-  const [selectedFrameworks, setSelectedFrameworks] = useState<string[]>([]);
+  const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([]);
+
   const isStrict = accuracyMode === 'strict';
   const hasFailures = validationReport?.overall_result === 'failed';
   const canSave = questions.length > 0 && !(isStrict && hasFailures);
@@ -68,12 +76,11 @@ export default function AIQuestionGenerator() {
     generate({
       focusAreas, questionCount, complexity, tone, questionType,
       model: selectedModel, accuracyMode, advancedSettings, language: 'both',
-      useExpertKnowledge,
+      useExpertKnowledge: selectedFrameworkIds.length > 0,
       knowledgeDocumentIds: activeDocIds,
       customPrompt: customPrompt.trim() || undefined,
-      selectedFrameworks: selectedFrameworks.length > 0 ? selectedFrameworks : undefined,
+      selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
     });
-    // Auto-cleanup: hard delete all uploaded documents after generation
     if (documents.length > 0) {
       await deleteAllDocuments();
     }
@@ -91,8 +98,8 @@ export default function AIQuestionGenerator() {
       const { data, error } = await supabase.functions.invoke('rewrite-prompt', {
         body: {
           prompt: customPrompt,
-          useExpertKnowledge,
-          selectedFrameworks: selectedFrameworks.length > 0 ? selectedFrameworks : undefined,
+          useExpertKnowledge: selectedFrameworkIds.length > 0,
+          selectedFrameworkIds: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
           documentSummaries: documentSummaries || undefined,
         },
       });
@@ -113,13 +120,19 @@ export default function AIQuestionGenerator() {
       questions, accuracyMode,
       enableCriticPass: advancedSettings.enableCriticPass,
       minWordLength: advancedSettings.minWordLength,
+      selectedFrameworkIds: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
+      hasDocuments: documents.length > 0,
     });
   };
 
   const handleSave = () => {
     saveSet({
       questions, model: selectedModel, accuracyMode,
-      settings: { focusAreas, questionCount, complexity, tone, questionType, advancedSettings },
+      settings: {
+        focusAreas, questionCount, complexity, tone, questionType, advancedSettings,
+        selected_framework_ids: selectedFrameworkIds,
+        custom_prompt: customPrompt,
+      },
       validationReport,
     });
   };
@@ -128,13 +141,14 @@ export default function AIQuestionGenerator() {
     const exportData = {
       metadata: {
         model: selectedModel, accuracyMode, generatedAt: new Date().toISOString(),
-        settings: { focusAreas, questionCount, complexity, tone, questionType },
+        settings: { focusAreas, questionCount, complexity, tone, questionType, selectedFrameworkIds },
         validation: validationReport ? { overall: validationReport.overall_result, avgConfidence: validationReport.avg_confidence } : null,
       },
       questions: questions.map(q => ({
         question_text: q.question_text, question_text_ar: q.question_text_ar,
         type: q.type, complexity: q.complexity, tone: q.tone,
         confidence_score: q.confidence_score, explanation: q.explanation,
+        framework_reference: q.framework_reference,
       })),
     };
 
@@ -148,13 +162,12 @@ export default function AIQuestionGenerator() {
       URL.revokeObjectURL(url);
       toast.success(t('aiGenerator.exportSuccess'));
     } else {
-      // For PDF/DOCX, use printable HTML
       const printWindow = window.open('', '_blank');
       if (printWindow) {
         const html = `<html><head><title>Question Set</title><style>body{font-family:sans-serif;padding:2rem;} .q{margin:1rem 0;padding:1rem;border:1px solid #ddd;border-radius:8px;} .badge{display:inline-block;padding:2px 8px;border-radius:4px;background:#f0f0f0;font-size:12px;margin-inline-end:4px;} .ar{direction:rtl;color:#666;margin-top:4px;}</style></head><body>
           <h1>${t('aiGenerator.title')}</h1>
           <p>Model: ${selectedModel} | Accuracy: ${accuracyMode} | ${new Date().toLocaleDateString()}</p>
-          ${questions.map((q, i) => `<div class="q"><span class="badge">${q.type}</span><span class="badge">${q.complexity}</span><span class="badge">${q.confidence_score}%</span><p><strong>${i + 1}. ${q.question_text}</strong></p><p class="ar">${q.question_text_ar}</p>${q.explanation ? `<p style="font-size:12px;color:#888;">${q.explanation}</p>` : ''}</div>`).join('')}
+          ${questions.map((q, i) => `<div class="q"><span class="badge">${q.type}</span><span class="badge">${q.complexity}</span><span class="badge">${q.confidence_score}%</span>${q.framework_reference ? `<span class="badge">${q.framework_reference}</span>` : ''}<p><strong>${i + 1}. ${q.question_text}</strong></p><p class="ar">${q.question_text_ar}</p>${q.explanation ? `<p style="font-size:12px;color:#888;">${q.explanation}</p>` : ''}</div>`).join('')}
         </body></html>`;
         printWindow.document.write(html);
         printWindow.document.close();
@@ -166,10 +179,11 @@ export default function AIQuestionGenerator() {
   const handleRegenerateFailedOnly = () => {
     const failedCount = questions.filter(q => q.validation_status === 'failed').length;
     if (failedCount === 0) return;
-    // Generate replacement questions for failed ones
     generate({
       focusAreas, questionCount: failedCount, complexity, tone, questionType,
       model: selectedModel, accuracyMode, advancedSettings, language: 'both',
+      useExpertKnowledge: selectedFrameworkIds.length > 0,
+      selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
     });
   };
 
@@ -194,7 +208,6 @@ export default function AIQuestionGenerator() {
       />
 
       <div className="grid gap-6 lg:grid-cols-5">
-        {/* Left: Config (2 cols) */}
         <div className="lg:col-span-2">
           <ConfigPanel
             focusAreas={focusAreas}
@@ -211,8 +224,6 @@ export default function AIQuestionGenerator() {
             onAdvancedSettingsChange={setAdvancedSettings}
             onGenerate={handleGenerate}
             isGenerating={isGenerating}
-            useExpertKnowledge={useExpertKnowledge}
-            onUseExpertKnowledgeChange={setUseExpertKnowledge}
             documents={documents}
             onUploadDocument={uploadDocument}
             onToggleDocument={toggleDocument}
@@ -222,18 +233,31 @@ export default function AIQuestionGenerator() {
             onCustomPromptChange={setCustomPrompt}
             onRewritePrompt={handleRewritePrompt}
             isRewriting={isRewriting}
-            selectedFrameworks={selectedFrameworks}
-            onSelectedFrameworksChange={setSelectedFrameworks}
             focusAreaList={focusAreaList}
             focusAreasLoading={focusAreasLoading}
             onAddFocusArea={addFocusArea}
             onUpdateFocusArea={updateFocusArea}
             onDeleteFocusArea={deleteFocusArea}
+            referenceFrameworks={referenceFrameworks}
+            selectedFrameworkIds={selectedFrameworkIds}
+            onSelectedFrameworkIdsChange={setSelectedFrameworkIds}
+            onAddFramework={addFramework}
+            onUpdateFramework={updateFramework}
+            onDeleteFramework={deleteFramework}
+            frameworksLoading={frameworksLoading}
+            currentUserId={user?.id}
           />
         </div>
 
-        {/* Right: Results (3 cols) */}
         <div className="lg:col-span-3 space-y-4">
+          {/* Strict mode warning banner */}
+          {isStrict && hasFailures && questions.length > 0 && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>{t('aiGenerator.strictModeMessage')}</AlertDescription>
+            </Alert>
+          )}
+
           {isGenerating ? (
             <Card>
               <CardContent className="pt-6 space-y-4">
@@ -256,7 +280,6 @@ export default function AIQuestionGenerator() {
             </Card>
           ) : (
             <>
-              {/* Action bar */}
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">
                   {t('aiGenerator.questionsGenerated', { count: questions.length })}
@@ -279,20 +302,12 @@ export default function AIQuestionGenerator() {
                 </div>
               </div>
 
-              {/* Questions */}
               <div className="space-y-3">
                 {questions.map((q, i) => (
-                  <QuestionCard
-                    key={i}
-                    question={q}
-                    index={i}
-                    onRemove={removeQuestion}
-                    onUpdate={updateQuestion}
-                  />
+                  <QuestionCard key={i} question={q} index={i} onRemove={removeQuestion} onUpdate={updateQuestion} />
                 ))}
               </div>
 
-              {/* Validation Report */}
               {validationReport && (
                 <ValidationReport report={validationReport} isStrictMode={isStrict} />
               )}
