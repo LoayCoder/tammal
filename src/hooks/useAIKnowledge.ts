@@ -39,8 +39,8 @@ export function useAIKnowledge() {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Not authenticated');
 
-      const tenantId = await supabase.rpc('get_user_tenant_id', { _user_id: user.user.id }).then(r => r.data);
-      if (!tenantId) throw new Error('No tenant found');
+      const tenantResult = await supabase.rpc('get_user_tenant_id', { _user_id: user.user.id });
+      const tenantId = tenantResult.data || user.user.id;
 
       // Upload to storage
       const filePath = `${tenantId}/${Date.now()}-${file.name}`;
@@ -53,7 +53,7 @@ export function useAIKnowledge() {
       const { data: doc, error: insertError } = await supabase
         .from('ai_knowledge_documents')
         .insert({
-          tenant_id: tenantId,
+          tenant_id: tenantResult.data || tenantId,
           user_id: user.user.id,
           file_name: file.name,
           file_path: filePath,
