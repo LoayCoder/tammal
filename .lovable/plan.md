@@ -1,134 +1,165 @@
 
 
-# Categories and Subcategories for AI Question Generator
+# Enhanced Category/Subcategory Multi-Select and Focus Areas Removal
 
 ## Overview
 
-Extend the existing `question_categories` system with a new `question_subcategories` table. Both modules get full CRUD with activate/deactivate. The AI Question Generator gains Category and Subcategory dropdowns that feed context into the generation prompt.
+Replace the single-select Category/Subcategory dropdowns with multi-select checkboxes, dynamically filter subcategories by selected categories, and completely remove the Focus Areas feature from frontend and backend.
 
 ---
 
-## Step 1: Database -- Create `question_subcategories` Table
+## Part 1: Remove Focus Areas
 
-Create a new migration adding the `question_subcategories` table:
+### Files to Delete
+- `src/hooks/useFocusAreas.ts`
+- `src/components/ai-generator/FocusAreaManager.tsx`
+
+### Files to Edit
+
+**`src/components/ai-generator/ConfigPanel.tsx`**
+- Remove all `FocusArea` imports, props (`focusAreas`, `onFocusAreasChange`, `focusAreaList`, `focusAreasLoading`, `onAddFocusArea`, `onUpdateFocusArea`, `onDeleteFocusArea`)
+- Remove the `FocusAreaManager` component render block
+- Remove the `toggleFocusArea` function
+
+**`src/pages/admin/AIQuestionGenerator.tsx`**
+- Remove `useFocusAreas` import and hook call
+- Remove `focusAreas` state (`useState<string[]>([])`)
+- Remove all focus-area-related props passed to `ConfigPanel`
+- Update `handleGenerate` validation: instead of checking `focusAreas.length === 0`, check that at least one category is selected
+- Remove `focusAreas` from the `generate()` call payload and from `handleSave` settings
+
+**`src/hooks/useEnhancedAIGeneration.ts`**
+- Remove `focusAreas` from `GenerateInput` interface
+- Remove `focusAreas` from the `saveSet` settings object
+
+**`supabase/functions/generate-questions/index.ts`**
+- Remove `focusAreas` from `GenerateRequest` interface
+- Remove `Focus areas: ${focusAreas.join(", ")}` from the system prompt
+- Remove `focus_areas: focusAreas` from the `ai_generation_logs` insert
+- Remove `focusAreas` from the settings object in the log
+
+**Generate Button**: Change disabled condition from `focusAreas.length === 0` to `selectedCategoryIds.length === 0` (at least one category must be selected).
+
+---
+
+## Part 2: Multi-Select Categories and Subcategories
+
+### Approach
+Replace single `<Select>` dropdowns with a checkbox-based multi-select using a `Popover` + scrollable checkbox list (no new dependencies needed -- uses existing Popover, Checkbox, and Badge components from Shadcn).
+
+### State Changes
+
+**`src/pages/admin/AIQuestionGenerator.tsx`**
+- Replace `selectedCategoryId: string` with `selectedCategoryIds: string[]`
+- Replace `selectedSubcategoryId: string` with `selectedSubcategoryIds: string[]`
+
+**`src/hooks/useEnhancedAIGeneration.ts`**
+- Change `GenerateInput.categoryId?: string` to `categoryIds?: string[]`
+- Change `GenerateInput.subcategoryId?: string` to `subcategoryIds?: string[]`
+
+### ConfigPanel Changes
+
+**`src/components/ai-generator/ConfigPanel.tsx`**
+- Replace single select props with array props: `selectedCategoryIds: string[]`, `selectedSubcategoryIds: string[]`
+- Fetch subcategories WITHOUT a filter (fetch all), then filter client-side by selected category IDs
+- Replace single-select dropdowns with multi-select Popover components:
 
 ```text
-Columns:
-- id (uuid, PK, default gen_random_uuid())
-- tenant_id (uuid, nullable)
-- category_id (uuid, NOT NULL, FK -> question_categories.id)
-- name (text, NOT NULL)
-- name_ar (text, nullable)
-- description (text, nullable)
-- description_ar (text, nullable)
-- color (text, default '#6366F1')
-- weight (numeric, default 1.0)
-- is_global (boolean, default false)
-- is_active (boolean, default true)
-- created_at (timestamptz, default now())
-- updated_at (timestamptz, default now())
-- deleted_at (timestamptz, nullable)
+Category Multi-Select:
+  [Popover trigger showing selected count / badge chips]
+  [Popover content with searchable checkbox list of active categories]
+
+Subcategory Multi-Select (enabled only when categories selected):
+  [Popover trigger showing selected count / badge chips]
+  [Popover content with checkboxes grouped by parent category]
 ```
 
-RLS Policies (mirror `question_categories`):
-- Super admins: ALL
-- Tenant admins: ALL where tenant_id matches or is_global
-- Users: SELECT where active, not deleted, tenant or global
+- When a category is deselected, automatically remove any subcategory selections that belonged to it
 
-Add `updated_at` trigger using existing `update_updated_at_column()` function.
+### Edge Function Changes
 
----
+**`supabase/functions/generate-questions/index.ts`**
+- Accept `categoryIds?: string[]` and `subcategoryIds?: string[]`
+- Fetch all matching categories and subcategories from DB
+- Build the prompt context: `"Categories: Cat1, Cat2. Subcategories: Sub1, Sub2. Generate questions relevant to these domains."`
 
-## Step 2: Add Toggle to Categories Table
+### useQuestionSubcategories Hook Update
 
-The existing `CategoryManagement.tsx` has Edit and Delete actions but no "Activate/Deactivate" toggle. Add it to the dropdown menu so admins can toggle `is_active` without opening the edit dialog.
-
----
-
-## Step 3: New Hook -- `useQuestionSubcategories`
-
-Create `src/hooks/useQuestionSubcategories.ts` mirroring the pattern in `useQuestionCategories.ts`:
-- Query: fetch all subcategories (with optional `category_id` filter), `deleted_at IS NULL`
-- Mutations: create, update, soft-delete (set `deleted_at`)
-- Toast notifications using i18n keys
+**`src/hooks/useQuestionSubcategories.ts`**
+- Change the optional `categoryId` filter parameter to accept `categoryIds?: string[]` (array)
+- Use `.in('category_id', categoryIds)` when filtering
 
 ---
 
-## Step 4: New Component -- `SubcategoryDialog`
+## Part 3: Localization Updates
 
-Create `src/components/questions/SubcategoryDialog.tsx`:
-- Fields: Name (EN), Name (AR), Description (EN), Description (AR), Parent Category (dropdown from `useQuestionCategories`), Color picker, Weight, Active toggle, Global toggle
-- Re-uses the same color preset palette from `CategoryDialog`
-
----
-
-## Step 5: New Page -- Subcategory Management
-
-Create `src/pages/admin/SubcategoryManagement.tsx`:
-- Table listing subcategories with parent category badge, color dot, status badge
-- Filter by parent category (dropdown)
-- CRUD actions: Create, Edit, Delete (soft), Activate/Deactivate toggle
-- Uses `useQuestionSubcategories` hook
-
----
-
-## Step 6: Routing and Navigation
-
-**App.tsx**: Add route `/admin/question-subcategories` pointing to `SubcategoryManagement`.
-
-**AppSidebar.tsx**: Add "Subcategories" menu item under the "Survey System" group, after "Categories", using a nested icon (e.g., `Layers` or `Tags`).
-
----
-
-## Step 7: Integrate into AI Question Generator
-
-### Frontend (`ConfigPanel.tsx` and `AIQuestionGenerator.tsx`)
-
-Add two new dropdowns to the ConfigPanel:
-1. **Category** -- Select from active categories (from `useQuestionCategories`)
-2. **Subcategory** -- Filtered by selected category (from `useQuestionSubcategories`)
-
-Pass `selectedCategoryId` and `selectedSubcategoryId` through to the `generate()` call.
-
-### Backend (`generate-questions/index.ts`)
-
-Accept new optional parameters: `categoryId`, `subcategoryId`.
-
-When provided:
-- Fetch category and subcategory names from the database
-- Inject into the system prompt: `"Category context: {name}. Subcategory context: {name}. Generate questions specifically relevant to this category/subcategory."`
-- Add `category` and `subcategory` fields to the tool calling schema so AI returns them per question
-
-### Generated Question Output
-
-Add `category_name` and `subcategory_name` to the `EnhancedGeneratedQuestion` interface so the QuestionCard can display them as badges.
-
----
-
-## Step 8: Localization (i18n)
-
-Add keys to both `en.json` and `ar.json`:
+Add/update keys in `en.json` and `ar.json`:
 
 | Key | English | Arabic |
 |-----|---------|--------|
-| subcategories.title | Subcategories | التصنيفات الفرعية |
-| subcategories.subtitle | Manage question subcategories | إدارة التصنيفات الفرعية للأسئلة |
-| subcategories.addSubcategory | Add Subcategory | إضافة تصنيف فرعي |
-| subcategories.editSubcategory | Edit Subcategory | تعديل التصنيف الفرعي |
-| subcategories.deleteSubcategory | Delete Subcategory | حذف التصنيف الفرعي |
-| subcategories.parentCategory | Parent Category | التصنيف الرئيسي |
-| subcategories.noSubcategories | No subcategories found | لا توجد تصنيفات فرعية |
-| subcategories.createSuccess | Subcategory created | تم إنشاء التصنيف الفرعي |
-| subcategories.updateSuccess | Subcategory updated | تم تحديث التصنيف الفرعي |
-| subcategories.deleteSuccess | Subcategory deleted | تم حذف التصنيف الفرعي |
-| subcategories.confirmDelete | Are you sure? | هل أنت متأكد؟ |
-| categories.activate | Activate | تفعيل |
-| categories.deactivate | Deactivate | إلغاء التفعيل |
-| nav.subcategories | Subcategories | التصنيفات الفرعية |
-| aiGenerator.category | Category | التصنيف |
-| aiGenerator.subcategory | Subcategory | التصنيف الفرعي |
-| aiGenerator.selectCategory | Select category | اختر التصنيف |
-| aiGenerator.selectSubcategory | Select subcategory | اختر التصنيف الفرعي |
+| aiGenerator.selectCategories | Select categories | اختر التصنيفات |
+| aiGenerator.selectSubcategories | Select subcategories | اختر التصنيفات الفرعية |
+| aiGenerator.categoriesSelected | {count} selected | {count} محدد |
+| aiGenerator.selectAtLeastOneCategory | Select at least one category | اختر تصنيف واحد على الأقل |
+| aiGenerator.searchCategories | Search categories... | ابحث في التصنيفات... |
+| aiGenerator.searchSubcategories | Search subcategories... | ابحث في التصنيفات الفرعية... |
+
+Remove all `aiGenerator.focusArea*` and `aiGenerator.areas.*` keys from both locale files.
+
+---
+
+## Technical Details
+
+### Multi-Select UI Component Pattern
+
+Using existing Shadcn Popover + Checkbox + Badge:
+
+```text
+<Popover>
+  <PopoverTrigger>
+    <Button variant="outline">
+      {selectedIds.length === 0 ? placeholder : `${selectedIds.length} selected`}
+    </Button>
+  </PopoverTrigger>
+  <PopoverContent>
+    <Input placeholder="Search..." />  // optional search filter
+    <ScrollArea className="h-[200px]">
+      {items.map(item => (
+        <label className="flex items-center gap-2">
+          <Checkbox checked={selectedIds.includes(item.id)} onCheckedChange={toggle} />
+          <span>{item.name}</span>
+        </label>
+      ))}
+    </ScrollArea>
+  </PopoverContent>
+</Popover>
+```
+
+### Subcategory Dynamic Filtering
+
+The `useQuestionSubcategories` hook will be called without a filter. Client-side filtering in ConfigPanel:
+
+```text
+const filteredSubcategories = allSubcategories.filter(
+  s => s.is_active && selectedCategoryIds.includes(s.category_id)
+);
+```
+
+When a category is unchecked, auto-remove orphaned subcategory selections:
+
+```text
+onSelectedCategoryIdsChange((prev) => {
+  const next = toggle(prev, categoryId);
+  // Remove subcategories whose parent was just removed
+  const removed = prev.filter(id => !next.includes(id));
+  if (removed.length > 0) {
+    onSelectedSubcategoryIdsChange(subs =>
+      subs.filter(sid => !allSubcategories.find(s => s.id === sid && removed.includes(s.category_id)))
+    );
+  }
+  return next;
+});
+```
 
 ---
 
@@ -136,17 +167,13 @@ Add keys to both `en.json` and `ar.json`:
 
 | Action | File | Purpose |
 |--------|------|---------|
-| Create | Migration SQL | `question_subcategories` table + RLS |
-| Create | `src/hooks/useQuestionSubcategories.ts` | Subcategory CRUD hook |
-| Create | `src/components/questions/SubcategoryDialog.tsx` | Create/Edit dialog |
-| Create | `src/pages/admin/SubcategoryManagement.tsx` | Management page |
-| Edit | `src/pages/admin/CategoryManagement.tsx` | Add activate/deactivate toggle |
-| Edit | `src/App.tsx` | Add subcategory route |
-| Edit | `src/components/layout/AppSidebar.tsx` | Add nav item |
-| Edit | `src/pages/admin/AIQuestionGenerator.tsx` | Pass category/subcategory to generate |
-| Edit | `src/components/ai-generator/ConfigPanel.tsx` | Add category/subcategory dropdowns |
-| Edit | `src/hooks/useEnhancedAIGeneration.ts` | Add category/subcategory to GenerateInput |
-| Edit | `supabase/functions/generate-questions/index.ts` | Accept and use category context |
-| Edit | `src/locales/en.json` | Add all new keys |
-| Edit | `src/locales/ar.json` | Add all new Arabic keys |
+| Delete | `src/hooks/useFocusAreas.ts` | Remove Focus Areas hook |
+| Delete | `src/components/ai-generator/FocusAreaManager.tsx` | Remove Focus Areas UI |
+| Edit | `src/components/ai-generator/ConfigPanel.tsx` | Remove FocusAreas, add multi-select |
+| Edit | `src/pages/admin/AIQuestionGenerator.tsx` | Remove FocusAreas state, update props |
+| Edit | `src/hooks/useEnhancedAIGeneration.ts` | Update GenerateInput interface |
+| Edit | `src/hooks/useQuestionSubcategories.ts` | Support array category filter |
+| Edit | `supabase/functions/generate-questions/index.ts` | Remove focusAreas, support multi category/subcategory |
+| Edit | `src/locales/en.json` | Add/remove i18n keys |
+| Edit | `src/locales/ar.json` | Add/remove i18n keys |
 
