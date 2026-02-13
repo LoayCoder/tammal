@@ -100,9 +100,15 @@ export function useAIKnowledge() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
+      const doc = documents.find(d => d.id === id);
+      // Hard delete from storage
+      if (doc?.file_path) {
+        await supabase.storage.from('ai-knowledge').remove([doc.file_path]);
+      }
+      // Hard delete from DB
       const { error } = await supabase
         .from('ai_knowledge_documents')
-        .update({ deleted_at: new Date().toISOString() })
+        .delete()
         .eq('id', id);
       if (error) throw error;
     },
@@ -111,6 +117,16 @@ export function useAIKnowledge() {
     },
   });
 
+  const deleteAllDocuments = async () => {
+    for (const doc of documents) {
+      if (doc.file_path) {
+        await supabase.storage.from('ai-knowledge').remove([doc.file_path]);
+      }
+      await supabase.from('ai_knowledge_documents').delete().eq('id', doc.id);
+    }
+    queryClient.invalidateQueries({ queryKey: ['ai-knowledge-documents'] });
+  };
+
   return {
     documents,
     isLoading,
@@ -118,5 +134,6 @@ export function useAIKnowledge() {
     isUploading: uploadMutation.isPending,
     toggleDocument: toggleMutation.mutate,
     deleteDocument: deleteMutation.mutate,
+    deleteAllDocuments,
   };
 }

@@ -19,7 +19,7 @@ export default function AIQuestionGenerator() {
   const { t } = useTranslation();
   const { models } = useAIModels();
   const {
-    documents, uploadDocument, toggleDocument, deleteDocument, isUploading,
+    documents, uploadDocument, toggleDocument, deleteDocument, deleteAllDocuments, isUploading,
   } = useAIKnowledge();
   const {
     focusAreas: focusAreaList, isLoading: focusAreasLoading,
@@ -55,7 +55,7 @@ export default function AIQuestionGenerator() {
   const canSave = questions.length > 0 && !(isStrict && hasFailures);
   const canExport = canSave;
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (focusAreas.length === 0) {
       toast.error(t('aiGenerator.selectFocusAreas'));
       return;
@@ -73,6 +73,10 @@ export default function AIQuestionGenerator() {
       customPrompt: customPrompt.trim() || undefined,
       selectedFrameworks: selectedFrameworks.length > 0 ? selectedFrameworks : undefined,
     });
+    // Auto-cleanup: hard delete all uploaded documents after generation
+    if (documents.length > 0) {
+      await deleteAllDocuments();
+    }
   };
 
   const handleRewritePrompt = async () => {
