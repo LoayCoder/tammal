@@ -319,9 +319,9 @@ ${questions.map((q, i) => `${i + 1}. [${q.type}/${q.complexity}] ${q.question_te
     const { data: userData } = await supabase.auth.getUser(token);
     const tenantId = userData?.user ? await supabase.rpc("get_user_tenant_id", { _user_id: userData.user.id }).then(r => r.data) : null;
 
-    if (tenantId && questionSetId) {
+    if (tenantId) {
       const logEntries = Object.entries(validationResults).map(([type, val]) => ({
-        question_set_id: questionSetId,
+        question_set_id: questionSetId || null,
         tenant_id: tenantId,
         validation_type: type,
         result: val.result,

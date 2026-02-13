@@ -1,3 +1,4 @@
+import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -182,7 +183,10 @@ export function useRolePermissions(roleId?: string) {
     },
   });
 
-  const permissionIds = rolePermissionsQuery.data?.map(rp => rp.permission_id) ?? [];
+  const permissionIds = React.useMemo(
+    () => rolePermissionsQuery.data?.map(rp => rp.permission_id) ?? [],
+    [rolePermissionsQuery.data]
+  );
 
   return {
     rolePermissions: rolePermissionsQuery.data ?? [],
