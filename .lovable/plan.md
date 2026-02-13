@@ -1,179 +1,169 @@
 
 
-# Enhanced Category/Subcategory Multi-Select and Focus Areas Removal
+# AI Question Generator Batching and Question Library Overhaul
 
 ## Overview
 
-Replace the single-select Category/Subcategory dropdowns with multi-select checkboxes, dynamically filter subcategories by selected categories, and completely remove the Focus Areas feature from frontend and backend.
+Redesign the save flow so that AI-generated questions are automatically saved into batches (using the existing `question_sets` table) with a max of 64 questions per batch. The Question Library page (`/admin/questions`) gets a completely new layout displaying collapsible batches with metadata, replacing the current flat table view.
 
 ---
 
-## Part 1: Remove Focus Areas
+## Step 1: Database Migration
 
-### Files to Delete
-- `src/hooks/useFocusAreas.ts`
-- `src/components/ai-generator/FocusAreaManager.tsx`
-
-### Files to Edit
-
-**`src/components/ai-generator/ConfigPanel.tsx`**
-- Remove all `FocusArea` imports, props (`focusAreas`, `onFocusAreasChange`, `focusAreaList`, `focusAreasLoading`, `onAddFocusArea`, `onUpdateFocusArea`, `onDeleteFocusArea`)
-- Remove the `FocusAreaManager` component render block
-- Remove the `toggleFocusArea` function
-
-**`src/pages/admin/AIQuestionGenerator.tsx`**
-- Remove `useFocusAreas` import and hook call
-- Remove `focusAreas` state (`useState<string[]>([])`)
-- Remove all focus-area-related props passed to `ConfigPanel`
-- Update `handleGenerate` validation: instead of checking `focusAreas.length === 0`, check that at least one category is selected
-- Remove `focusAreas` from the `generate()` call payload and from `handleSave` settings
-
-**`src/hooks/useEnhancedAIGeneration.ts`**
-- Remove `focusAreas` from `GenerateInput` interface
-- Remove `focusAreas` from the `saveSet` settings object
-
-**`supabase/functions/generate-questions/index.ts`**
-- Remove `focusAreas` from `GenerateRequest` interface
-- Remove `Focus areas: ${focusAreas.join(", ")}` from the system prompt
-- Remove `focus_areas: focusAreas` from the `ai_generation_logs` insert
-- Remove `focusAreas` from the settings object in the log
-
-**Generate Button**: Change disabled condition from `focusAreas.length === 0` to `selectedCategoryIds.length === 0` (at least one category must be selected).
-
----
-
-## Part 2: Multi-Select Categories and Subcategories
-
-### Approach
-Replace single `<Select>` dropdowns with a checkbox-based multi-select using a `Popover` + scrollable checkbox list (no new dependencies needed -- uses existing Popover, Checkbox, and Badge components from Shadcn).
-
-### State Changes
-
-**`src/pages/admin/AIQuestionGenerator.tsx`**
-- Replace `selectedCategoryId: string` with `selectedCategoryIds: string[]`
-- Replace `selectedSubcategoryId: string` with `selectedSubcategoryIds: string[]`
-
-**`src/hooks/useEnhancedAIGeneration.ts`**
-- Change `GenerateInput.categoryId?: string` to `categoryIds?: string[]`
-- Change `GenerateInput.subcategoryId?: string` to `subcategoryIds?: string[]`
-
-### ConfigPanel Changes
-
-**`src/components/ai-generator/ConfigPanel.tsx`**
-- Replace single select props with array props: `selectedCategoryIds: string[]`, `selectedSubcategoryIds: string[]`
-- Fetch subcategories WITHOUT a filter (fetch all), then filter client-side by selected category IDs
-- Replace single-select dropdowns with multi-select Popover components:
+Add a `name` and `question_count` column to `question_sets` to support batch naming and fast count display:
 
 ```text
-Category Multi-Select:
-  [Popover trigger showing selected count / badge chips]
-  [Popover content with searchable checkbox list of active categories]
-
-Subcategory Multi-Select (enabled only when categories selected):
-  [Popover trigger showing selected count / badge chips]
-  [Popover content with checkboxes grouped by parent category]
+ALTER TABLE question_sets ADD COLUMN name text;
+ALTER TABLE question_sets ADD COLUMN question_count integer NOT NULL DEFAULT 0;
 ```
 
-- When a category is deselected, automatically remove any subcategory selections that belonged to it
-
-### Edge Function Changes
-
-**`supabase/functions/generate-questions/index.ts`**
-- Accept `categoryIds?: string[]` and `subcategoryIds?: string[]`
-- Fetch all matching categories and subcategories from DB
-- Build the prompt context: `"Categories: Cat1, Cat2. Subcategories: Sub1, Sub2. Generate questions relevant to these domains."`
-
-### useQuestionSubcategories Hook Update
-
-**`src/hooks/useQuestionSubcategories.ts`**
-- Change the optional `categoryId` filter parameter to accept `categoryIds?: string[]` (array)
-- Use `.in('category_id', categoryIds)` when filtering
+No new tables needed. The existing `question_sets` + `generated_questions` (linked via `question_set_id`) already provide the batch-question relationship.
 
 ---
 
-## Part 3: Localization Updates
+## Step 2: Update Save Logic in `useEnhancedAIGeneration.ts`
 
-Add/update keys in `en.json` and `ar.json`:
+### Auto-Save on Generate
 
-| Key | English | Arabic |
-|-----|---------|--------|
-| aiGenerator.selectCategories | Select categories | اختر التصنيفات |
-| aiGenerator.selectSubcategories | Select subcategories | اختر التصنيفات الفرعية |
-| aiGenerator.categoriesSelected | {count} selected | {count} محدد |
-| aiGenerator.selectAtLeastOneCategory | Select at least one category | اختر تصنيف واحد على الأقل |
-| aiGenerator.searchCategories | Search categories... | ابحث في التصنيفات... |
-| aiGenerator.searchSubcategories | Search subcategories... | ابحث في التصنيفات الفرعية... |
+Currently, questions are only saved when the user clicks "Save". Change the `saveSet` mutation to:
 
-Remove all `aiGenerator.focusArea*` and `aiGenerator.areas.*` keys from both locale files.
+1. Accept an optional `targetBatchId` parameter (for "add to existing batch")
+2. Generate the batch name using format: `DD MMMM YYYY - Full Name` (e.g., `14 February 2026 - Luay Madkhali`)
+3. Enforce the 64-question limit:
+   - If adding to an existing batch, calculate remaining capacity (`64 - current_count`)
+   - If questions exceed capacity, split into multiple batches automatically
+4. Update `question_count` on the batch after inserting questions
+
+### New Interface for Save Options
+
+```text
+interface SaveOptions {
+  targetBatchId?: string;  // null = create new batch
+}
+```
+
+The `saveSet` function will:
+- Fetch the user's profile to get `full_name`
+- Format current date using `date-fns` (`format(new Date(), 'dd MMMM yyyy')`)
+- Build batch name: `${formattedDate} - ${fullName}`
+- If `targetBatchId` is provided, check existing count, calculate remaining space
+- Split overflow questions into new batches as needed
+- Update `question_count` on each batch
 
 ---
 
-## Technical Details
+## Step 3: Add Batch Selection Dialog
 
-### Multi-Select UI Component Pattern
+Create `src/components/ai-generator/BatchSaveDialog.tsx`:
 
-Using existing Shadcn Popover + Checkbox + Badge:
+- A dialog shown when the user clicks Save
+- Two options:
+  1. **Create New Batch** (default) -- auto-generates the name
+  2. **Add to Existing Batch** -- shows a list of existing batches that have fewer than 64 questions, displaying batch name, current count, and remaining capacity
+- Shows a warning if questions will overflow and create additional batches
+- Confirm button triggers the save
+
+---
+
+## Step 4: Redesign Question Library Page (`QuestionManagement.tsx`)
+
+### New Layout
+
+Replace the flat question table with a batch-based collapsible view:
 
 ```text
-<Popover>
-  <PopoverTrigger>
-    <Button variant="outline">
-      {selectedIds.length === 0 ? placeholder : `${selectedIds.length} selected`}
-    </Button>
-  </PopoverTrigger>
-  <PopoverContent>
-    <Input placeholder="Search..." />  // optional search filter
-    <ScrollArea className="h-[200px]">
-      {items.map(item => (
-        <label className="flex items-center gap-2">
-          <Checkbox checked={selectedIds.includes(item.id)} onCheckedChange={toggle} />
-          <span>{item.name}</span>
-        </label>
-      ))}
-    </ScrollArea>
-  </PopoverContent>
-</Popover>
+[Search bar] [Filter by category]
+
+Batch: "14 February 2026 - Luay Madkhali"
+  Created: 14 Feb 2026 | By: Luay Madkhali | Questions: 12/64 | Status: draft
+  [Expand/Collapse]
+  
+  When expanded:
+    [Question table with existing columns]
+
+Batch: "13 February 2026 - Luay Madkhali"
+  Created: 13 Feb 2026 | By: Luay Madkhali | Questions: 64/64 | Status: validated
+  [Expand/Collapse]
 ```
 
-### Subcategory Dynamic Filtering
+### Data Fetching
 
-The `useQuestionSubcategories` hook will be called without a filter. Client-side filtering in ConfigPanel:
+Create a new hook `useQuestionBatches.ts`:
+- Fetch `question_sets` with `deleted_at IS NULL`, ordered by `created_at DESC`
+- For each batch, lazy-load `generated_questions` when expanded (using `question_set_id`)
+- Include creator name via a join or separate profile lookup
+- Support search across question text within batches
+
+### Batch Actions
+- Expand/collapse (Accordion pattern using Collapsible)
+- Delete batch (soft delete -- sets `deleted_at`)
+- View batch metadata
+
+---
+
+## Step 5: New Hook -- `useQuestionBatches.ts`
+
+Create `src/hooks/useQuestionBatches.ts`:
 
 ```text
-const filteredSubcategories = allSubcategories.filter(
-  s => s.is_active && selectedCategoryIds.includes(s.category_id)
-);
-```
+- batchesQuery: fetch question_sets (with user profile join for creator name)
+  - Filter: deleted_at IS NULL, tenant-scoped
+  - Order: created_at DESC
+  
+- batchQuestionsQuery(batchId): fetch generated_questions for a specific batch
+  - Filter: question_set_id = batchId
+  - Order: created_at ASC
 
-When a category is unchecked, auto-remove orphaned subcategory selections:
-
-```text
-onSelectedCategoryIdsChange((prev) => {
-  const next = toggle(prev, categoryId);
-  // Remove subcategories whose parent was just removed
-  const removed = prev.filter(id => !next.includes(id));
-  if (removed.length > 0) {
-    onSelectedSubcategoryIdsChange(subs =>
-      subs.filter(sid => !allSubcategories.find(s => s.id === sid && removed.includes(s.category_id)))
-    );
-  }
-  return next;
-});
+- deleteBatch: soft delete (set deleted_at)
 ```
 
 ---
 
-## Files Summary
+## Step 6: Update `AIQuestionGenerator.tsx`
+
+### Replace Direct Save with Batch Dialog
+
+- Remove the direct `handleSave` call from TopControlBar
+- When user clicks Save, open the `BatchSaveDialog`
+- Pass available batches (from `useQuestionBatches`) and question count to the dialog
+- On confirm, call `saveSet` with optional `targetBatchId`
+
+### Auto-clear After Save
+
+After successful save, clear the generated questions from the preview panel.
+
+---
+
+## Step 7: Files Summary
 
 | Action | File | Purpose |
 |--------|------|---------|
-| Delete | `src/hooks/useFocusAreas.ts` | Remove Focus Areas hook |
-| Delete | `src/components/ai-generator/FocusAreaManager.tsx` | Remove Focus Areas UI |
-| Edit | `src/components/ai-generator/ConfigPanel.tsx` | Remove FocusAreas, add multi-select |
-| Edit | `src/pages/admin/AIQuestionGenerator.tsx` | Remove FocusAreas state, update props |
-| Edit | `src/hooks/useEnhancedAIGeneration.ts` | Update GenerateInput interface |
-| Edit | `src/hooks/useQuestionSubcategories.ts` | Support array category filter |
-| Edit | `supabase/functions/generate-questions/index.ts` | Remove focusAreas, support multi category/subcategory |
-| Edit | `src/locales/en.json` | Add/remove i18n keys |
-| Edit | `src/locales/ar.json` | Add/remove i18n keys |
+| Migration | SQL | Add `name`, `question_count` to `question_sets` |
+| Create | `src/hooks/useQuestionBatches.ts` | Batch CRUD and question fetching |
+| Create | `src/components/ai-generator/BatchSaveDialog.tsx` | Batch selection dialog for saving |
+| Edit | `src/hooks/useEnhancedAIGeneration.ts` | Batch-aware save with 64-limit splitting |
+| Edit | `src/pages/admin/QuestionManagement.tsx` | Complete redesign with collapsible batches |
+| Edit | `src/pages/admin/AIQuestionGenerator.tsx` | Integrate BatchSaveDialog |
+| Edit | `src/components/ai-generator/TopControlBar.tsx` | Pass through save handler |
+| Edit | `src/locales/en.json` | New batch-related i18n keys |
+| Edit | `src/locales/ar.json` | New batch-related Arabic i18n keys |
+
+---
+
+## Step 8: Localization
+
+| Key | English | Arabic |
+|-----|---------|--------|
+| batches.title | Question Batches | دفعات الأسئلة |
+| batches.createNew | Create New Batch | إنشاء دفعة جديدة |
+| batches.addToExisting | Add to Existing Batch | إضافة إلى دفعة موجودة |
+| batches.questionsCount | {{count}}/64 questions | {{count}}/64 سؤال |
+| batches.remaining | {{count}} remaining | {{count}} متبقي |
+| batches.full | Batch full | الدفعة ممتلئة |
+| batches.overflowWarning | Questions will be split into multiple batches | سيتم تقسيم الأسئلة إلى دفعات متعددة |
+| batches.createdBy | Created by | أنشئت بواسطة |
+| batches.deleteSuccess | Batch deleted | تم حذف الدفعة |
+| batches.saveSuccess | Questions saved to batch | تم حفظ الأسئلة في الدفعة |
+| batches.noBatches | No batches yet | لا توجد دفعات بعد |
+| batches.selectBatch | Select a batch | اختر دفعة |
 
