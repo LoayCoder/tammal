@@ -907,6 +907,7 @@
     "saveSuccess": "Question set saved successfully",
     "saveError": "Failed to save question set",
     "exportSuccess": "Export completed",
+    "printPdf": "Print / PDF",
     "knowledgeBase": "Knowledge Base",
     "knowledgeBaseDesc": "Ground questions in international standards and custom references",
     "useExpertPrompt": "Use Expert Knowledge Base",

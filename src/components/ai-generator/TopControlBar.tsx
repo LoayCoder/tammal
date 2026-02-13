@@ -14,7 +14,7 @@ interface TopControlBarProps {
   onModelChange: (model: string) => void;
   models: AIModel[];
   onSave: () => void;
-  onExport: (format: 'json' | 'pdf' | 'docx') => void;
+  onExport: (format: 'json' | 'pdf') => void;
   canSave: boolean;
   canExport: boolean;
   isSaving: boolean;
@@ -117,11 +117,7 @@ export function TopControlBar({
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onExport('pdf')}>
               <FileText className="h-4 w-4 me-2" />
-              PDF
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onExport('docx')}>
-              <FileText className="h-4 w-4 me-2" />
-              DOCX
+              {t('aiGenerator.printPdf')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

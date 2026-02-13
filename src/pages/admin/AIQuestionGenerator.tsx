@@ -40,7 +40,7 @@ export default function AIQuestionGenerator() {
   } = useEnhancedAIGeneration();
 
   const [accuracyMode, setAccuracyMode] = useState('standard');
-  const [selectedModel, setSelectedModel] = useState('google/gemini-2.5-flash');
+  const [selectedModel, setSelectedModel] = useState('google/gemini-3-flash-preview');
   const [focusAreas, setFocusAreas] = useState<string[]>([]);
   const [questionType, setQuestionType] = useState('mixed');
   const [questionCount, setQuestionCount] = useState(5);
@@ -81,9 +81,6 @@ export default function AIQuestionGenerator() {
       customPrompt: customPrompt.trim() || undefined,
       selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
     });
-    if (documents.length > 0) {
-      await deleteAllDocuments();
-    }
   };
 
   const handleRewritePrompt = async () => {
@@ -98,12 +95,23 @@ export default function AIQuestionGenerator() {
       const { data, error } = await supabase.functions.invoke('rewrite-prompt', {
         body: {
           prompt: customPrompt,
+          model: selectedModel,
           useExpertKnowledge: selectedFrameworkIds.length > 0,
           selectedFrameworkIds: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
           documentSummaries: documentSummaries || undefined,
         },
       });
       if (error) throw error;
+      if (data?.error) {
+        if (data.error.includes('Rate limit')) {
+          toast.error(t('aiGenerator.rateLimitError'));
+        } else if (data.error.includes('Payment required') || data.error.includes('credits')) {
+          toast.error(t('aiGenerator.creditsError'));
+        } else {
+          throw new Error(data.error);
+        }
+        return;
+      }
       if (data?.rewrittenPrompt) {
         setCustomPrompt(data.rewrittenPrompt);
         toast.success(t('aiGenerator.rewriteSuccess'));
@@ -116,11 +124,14 @@ export default function AIQuestionGenerator() {
   };
 
   const handleValidate = () => {
+    const activeDocIds = documents.filter(d => d.is_active).map(d => d.id);
     validate({
       questions, accuracyMode,
+      model: selectedModel,
       enableCriticPass: advancedSettings.enableCriticPass,
       minWordLength: advancedSettings.minWordLength,
       selectedFrameworkIds: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
+      knowledgeDocumentIds: activeDocIds.length > 0 ? activeDocIds : undefined,
       hasDocuments: documents.length > 0,
     });
   };
@@ -137,7 +148,7 @@ export default function AIQuestionGenerator() {
     });
   };
 
-  const handleExport = (format: 'json' | 'pdf' | 'docx') => {
+  const handleExport = (format: 'json' | 'pdf') => {
     const exportData = {
       metadata: {
         model: selectedModel, accuracyMode, generatedAt: new Date().toISOString(),
@@ -179,10 +190,12 @@ export default function AIQuestionGenerator() {
   const handleRegenerateFailedOnly = () => {
     const failedCount = questions.filter(q => q.validation_status === 'failed').length;
     if (failedCount === 0) return;
+    const activeDocIds = documents.filter(d => d.is_active).map(d => d.id);
     generate({
       focusAreas, questionCount: failedCount, complexity, tone, questionType,
       model: selectedModel, accuracyMode, advancedSettings, language: 'both',
       useExpertKnowledge: selectedFrameworkIds.length > 0,
+      knowledgeDocumentIds: activeDocIds.length > 0 ? activeDocIds : undefined,
       selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
     });
   };
@@ -296,7 +309,7 @@ export default function AIQuestionGenerator() {
                       {t('aiGenerator.regenerateFailed')}
                     </Button>
                   )}
-                  <Button variant="ghost" size="sm" onClick={clearAll}>
+                  <Button variant="ghost" size="sm" onClick={() => { clearAll(); if (documents.length > 0) deleteAllDocuments(); }}>
                     {t('aiGenerator.clearAll')}
                   </Button>
                 </div>

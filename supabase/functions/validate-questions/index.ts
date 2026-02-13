@@ -26,7 +26,9 @@ interface ValidateRequest {
   enableCriticPass?: boolean;
   minWordLength?: number;
   questionSetId?: string;
+  model?: string;
   selectedFrameworkIds?: string[];
+  knowledgeDocumentIds?: string[];
   hasDocuments?: boolean;
 }
 
@@ -48,7 +50,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { questions, accuracyMode, enableCriticPass, minWordLength = 5, questionSetId, selectedFrameworkIds = [], hasDocuments = false }: ValidateRequest = await req.json();
+    const { questions, accuracyMode, enableCriticPass, minWordLength = 5, questionSetId, model = "google/gemini-3-flash-preview", selectedFrameworkIds = [], knowledgeDocumentIds = [], hasDocuments = false }: ValidateRequest = await req.json();
 
     const validationResults: Record<string, { result: string; details: any }> = {};
     const perQuestionResults: { validation_status: string; validation_details: Record<string, any> }[] = [];
@@ -233,7 +235,7 @@ ${questions.map((q, i) => `${i + 1}. [${q.type}/${q.complexity}] ${q.question_te
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              model: "google/gemini-2.5-flash",
+              model: model,
               messages: [{ role: "user", content: criticPrompt }],
               temperature: 0.2,
               tools: [criticToolDef],
@@ -317,7 +319,7 @@ ${questions.map((q, i) => `${i + 1}. [${q.type}/${q.complexity}] ${q.question_te
     const { data: userData } = await supabase.auth.getUser(token);
     const tenantId = userData?.user ? await supabase.rpc("get_user_tenant_id", { _user_id: userData.user.id }).then(r => r.data) : null;
 
-    if (questionSetId && tenantId) {
+    if (tenantId && questionSetId) {
       const logEntries = Object.entries(validationResults).map(([type, val]) => ({
         question_set_id: questionSetId,
         tenant_id: tenantId,
