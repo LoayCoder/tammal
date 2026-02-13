@@ -1,7 +1,7 @@
 import {
   Users, Building2, CreditCard,
   HelpCircle, Palette, FileText, LayoutDashboard,
-  Layers, BarChart3, Network, Building, Download, History,
+  Layers, BarChart3, Network, Building, Download, History, GitBranch,
   MessageSquare, Tags, UserCheck, Sparkles, Calendar, ClipboardList,
   User, Heart, Settings, Package
 } from 'lucide-react';
@@ -50,6 +50,7 @@ export function AppSidebar() {
         { title: t('nav.aiGenerator'), url: "/admin/questions/generate", icon: Sparkles },
         { title: t('nav.schedules'), url: "/admin/schedules", icon: Calendar },
         { title: t('nav.categories'), url: "/admin/question-categories", icon: Tags },
+        { title: t('nav.subcategories'), url: "/admin/question-subcategories", icon: GitBranch },
         { title: t('nav.employees'), url: "/admin/employees", icon: UserCheck },
         { title: t('nav.employeeSurvey'), url: "/employee/survey", icon: ClipboardList },
       ]

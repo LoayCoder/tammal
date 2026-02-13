@@ -26,6 +26,7 @@ import CategoryManagement from "@/pages/admin/CategoryManagement";
 import EmployeeManagement from "@/pages/admin/EmployeeManagement";
 import AIQuestionGenerator from "@/pages/admin/AIQuestionGenerator";
 import ScheduleManagement from "@/pages/admin/ScheduleManagement";
+import SubcategoryManagement from "@/pages/admin/SubcategoryManagement";
 import EmployeeSurvey from "@/pages/employee/EmployeeSurvey";
 import DailyCheckin from "@/pages/employee/DailyCheckin";
 import WellnessSettings from "@/pages/admin/WellnessSettings";
@@ -67,6 +68,7 @@ const App = () => (
             <Route path="/admin/questions" element={<QuestionManagement />} />
             <Route path="/admin/questions/generate" element={<AIQuestionGenerator />} />
             <Route path="/admin/question-categories" element={<CategoryManagement />} />
+            <Route path="/admin/question-subcategories" element={<SubcategoryManagement />} />
             <Route path="/admin/employees" element={<EmployeeManagement />} />
             <Route path="/admin/schedules" element={<ScheduleManagement />} />
             <Route path="/admin/plans" element={<PlanManagement />} />

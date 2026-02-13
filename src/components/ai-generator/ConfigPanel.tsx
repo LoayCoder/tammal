@@ -14,6 +14,8 @@ import { FrameworkSelector } from './FrameworkSelector';
 import { KnowledgeDocument } from '@/hooks/useAIKnowledge';
 import { FocusArea } from '@/hooks/useFocusAreas';
 import { ReferenceFramework } from '@/hooks/useReferenceFrameworks';
+import { useQuestionCategories } from '@/hooks/useQuestionCategories';
+import { useQuestionSubcategories } from '@/hooks/useQuestionSubcategories';
 import { useState } from 'react';
 
 interface ConfigPanelProps {
@@ -56,6 +58,10 @@ interface ConfigPanelProps {
   onDeleteFramework: (id: string) => void;
   frameworksLoading: boolean;
   currentUserId?: string;
+  selectedCategoryId: string;
+  onSelectedCategoryIdChange: (id: string) => void;
+  selectedSubcategoryId: string;
+  onSelectedSubcategoryIdChange: (id: string) => void;
 }
 
 export function ConfigPanel({
@@ -95,9 +101,18 @@ export function ConfigPanel({
   onDeleteFramework,
   frameworksLoading,
   currentUserId,
+  selectedCategoryId,
+  onSelectedCategoryIdChange,
+  selectedSubcategoryId,
+  onSelectedSubcategoryIdChange,
 }: ConfigPanelProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.dir() === 'rtl';
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const { categories } = useQuestionCategories();
+  const { subcategories } = useQuestionSubcategories(selectedCategoryId || undefined);
+  const activeCategories = categories.filter(c => c.is_active);
+  const activeSubcategories = subcategories.filter(s => s.is_active);
 
   const toggleFocusArea = (value: string) => {
     onFocusAreasChange(
@@ -132,6 +147,34 @@ export function ConfigPanel({
             onDelete={onDeleteFocusArea}
             isLoading={focusAreasLoading}
           />
+
+          {/* Category & Subcategory */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>{t('aiGenerator.category')}</Label>
+              <Select value={selectedCategoryId} onValueChange={(v) => { onSelectedCategoryIdChange(v); onSelectedSubcategoryIdChange(''); }}>
+                <SelectTrigger><SelectValue placeholder={t('aiGenerator.selectCategory')} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">{t('common.all')}</SelectItem>
+                  {activeCategories.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{isRTL && c.name_ar ? c.name_ar : c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>{t('aiGenerator.subcategory')}</Label>
+              <Select value={selectedSubcategoryId} onValueChange={onSelectedSubcategoryIdChange} disabled={!selectedCategoryId}>
+                <SelectTrigger><SelectValue placeholder={t('aiGenerator.selectSubcategory')} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">{t('common.all')}</SelectItem>
+                  {activeSubcategories.map(s => (
+                    <SelectItem key={s.id} value={s.id}>{isRTL && s.name_ar ? s.name_ar : s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
           {/* Question Type */}
           <div className="space-y-2">

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { CategoryDialog } from "@/components/questions/CategoryDialog";
 import { useQuestionCategories, QuestionCategory, CreateCategoryInput } from "@/hooks/useQuestionCategories";
-import { Plus, MoreHorizontal, Edit2, Trash2 } from "lucide-react";
+import { Plus, MoreHorizontal, Edit2, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export default function CategoryManagement() {
@@ -110,6 +110,10 @@ export default function CategoryManagement() {
                             <DropdownMenuItem onClick={() => handleEdit(category)}>
                               <Edit2 className="h-4 w-4 me-2" />
                               {t('common.edit')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => updateCategory.mutate({ id: category.id, is_active: !category.is_active })}>
+                              {category.is_active ? <ToggleRight className="h-4 w-4 me-2" /> : <ToggleLeft className="h-4 w-4 me-2" />}
+                              {category.is_active ? t('categories.deactivate') : t('categories.activate')}
                             </DropdownMenuItem>
                             <DropdownMenuItem className="text-destructive" onClick={() => setDeleteId(category.id)}>
                               <Trash2 className="h-4 w-4 me-2" />
