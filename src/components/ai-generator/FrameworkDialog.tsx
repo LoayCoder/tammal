@@ -1,0 +1,94 @@
+import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { ReferenceFramework } from '@/hooks/useReferenceFrameworks';
+
+interface FrameworkDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  framework?: ReferenceFramework | null;
+  onSave: (data: { id?: string; name: string; name_ar?: string; description?: string; description_ar?: string; icon?: string; framework_key: string }) => void;
+}
+
+export function FrameworkDialog({ open, onOpenChange, framework, onSave }: FrameworkDialogProps) {
+  const { t } = useTranslation();
+  const [name, setName] = useState('');
+  const [nameAr, setNameAr] = useState('');
+  const [description, setDescription] = useState('');
+  const [descriptionAr, setDescriptionAr] = useState('');
+  const [icon, setIcon] = useState('📋');
+
+  useEffect(() => {
+    if (framework) {
+      setName(framework.name);
+      setNameAr(framework.name_ar || '');
+      setDescription(framework.description || '');
+      setDescriptionAr(framework.description_ar || '');
+      setIcon(framework.icon || '📋');
+    } else {
+      setName('');
+      setNameAr('');
+      setDescription('');
+      setDescriptionAr('');
+      setIcon('📋');
+    }
+  }, [framework, open]);
+
+  const handleSubmit = () => {
+    if (!name.trim()) return;
+    const key = framework?.framework_key || name.trim().replace(/[^a-zA-Z0-9]/g, '_').toUpperCase();
+    onSave({
+      ...(framework ? { id: framework.id } : {}),
+      name: name.trim(),
+      name_ar: nameAr.trim() || undefined,
+      description: description.trim() || undefined,
+      description_ar: descriptionAr.trim() || undefined,
+      icon: icon || '📋',
+      framework_key: key,
+    });
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{framework ? t('aiGenerator.editFramework') : t('aiGenerator.addFramework')}</DialogTitle>
+          <DialogDescription>{framework ? t('aiGenerator.editFrameworkDesc') : t('aiGenerator.addFrameworkDesc')}</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="grid grid-cols-[auto_1fr] gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">{t('aiGenerator.frameworkIcon')}</Label>
+              <Input value={icon} onChange={e => setIcon(e.target.value)} className="w-14 text-center text-lg" maxLength={2} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">{t('aiGenerator.frameworkName')}</Label>
+              <Input value={name} onChange={e => setName(e.target.value)} placeholder="e.g., ISO 45003" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">{t('aiGenerator.frameworkNameAr')}</Label>
+            <Input value={nameAr} onChange={e => setNameAr(e.target.value)} dir="rtl" placeholder="الاسم بالعربية" />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">{t('aiGenerator.frameworkDescription')}</Label>
+            <Textarea value={description} onChange={e => setDescription(e.target.value)} className="min-h-[60px] text-xs" placeholder="Describe how this framework guides question generation..." />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">{t('aiGenerator.frameworkDescriptionAr')}</Label>
+            <Textarea value={descriptionAr} onChange={e => setDescriptionAr(e.target.value)} className="min-h-[60px] text-xs" dir="rtl" placeholder="وصف الإطار المرجعي بالعربية..." />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t('common.cancel')}</Button>
+          <Button onClick={handleSubmit} disabled={!name.trim()}>{t('common.save')}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

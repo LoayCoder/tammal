@@ -1,17 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
-
-const frameworkDescriptions: Record<string, string> = {
-  ISO45003: "ISO 45003 (Psychological Health & Safety at Work)",
-  ISO10018: "ISO 10018 & ISO 30414 (People Engagement & HR Reporting)",
-  COPSOQ: "COPSOQ III (Copenhagen Psychosocial Questionnaire)",
-  UWES: "UWES (Utrecht Work Engagement Scale)",
-  WHO: "WHO Guidelines (Mental Health at Work)",
-  Gallup: "Gallup Q12 (Employee Needs Hierarchy)",
 };
 
 serve(async (req) => {
@@ -28,7 +20,7 @@ serve(async (req) => {
       });
     }
 
-    const { prompt, useExpertKnowledge, selectedFrameworks = [], documentSummaries = "" } = await req.json();
+    const { prompt, useExpertKnowledge, selectedFrameworkIds = [], selectedFrameworks = [], documentSummaries = "" } = await req.json();
 
     if (!prompt || prompt.trim().length < 10) {
       return new Response(JSON.stringify({ error: "Prompt too short" }), {
@@ -45,23 +37,47 @@ serve(async (req) => {
       });
     }
 
-    // Build framework context based on selection
+    // Fetch framework descriptions from DB if IDs provided
     let expertContext = "";
     if (useExpertKnowledge) {
-      const allIds = Object.keys(frameworkDescriptions);
-      const activeIds = selectedFrameworks.length > 0 ? selectedFrameworks : allIds;
-      const frameworkList = activeIds
-        .filter((id: string) => frameworkDescriptions[id])
-        .map((id: string) => `- ${frameworkDescriptions[id]}`)
-        .join("\n");
+      if (selectedFrameworkIds && selectedFrameworkIds.length > 0) {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const supabase = createClient(supabaseUrl, supabaseKey);
 
-      expertContext = `You have deep expertise in the following selected international standards and frameworks:
-${frameworkList}
+        const { data: frameworks } = await supabase
+          .from("reference_frameworks")
+          .select("name, description")
+          .in("id", selectedFrameworkIds)
+          .eq("is_active", true)
+          .is("deleted_at", null);
 
-When rewriting, reference ONLY these selected frameworks where relevant and ensure the prompt is grounded in evidence-based psychometric principles aligned with them.`;
+        if (frameworks && frameworks.length > 0) {
+          const frameworkList = frameworks
+            .map((f: any) => `- ${f.name}: ${f.description || ''}`)
+            .join("\n");
+
+          expertContext = `You have deep expertise in the following selected international standards and frameworks:\n${frameworkList}\n\nWhen rewriting, reference ONLY these selected frameworks where relevant and ensure the prompt is grounded in evidence-based psychometric principles aligned with them.`;
+        }
+      } else if (selectedFrameworks && selectedFrameworks.length > 0) {
+        // Legacy fallback for old framework keys
+        const frameworkDescriptions: Record<string, string> = {
+          ISO45003: "ISO 45003 (Psychological Health & Safety at Work)",
+          ISO10018: "ISO 10018 & ISO 30414 (People Engagement & HR Reporting)",
+          COPSOQ: "COPSOQ III (Copenhagen Psychosocial Questionnaire)",
+          UWES: "UWES (Utrecht Work Engagement Scale)",
+          WHO: "WHO Guidelines (Mental Health at Work)",
+          Gallup: "Gallup Q12 (Employee Needs Hierarchy)",
+        };
+        const frameworkList = selectedFrameworks
+          .filter((id: string) => frameworkDescriptions[id])
+          .map((id: string) => `- ${frameworkDescriptions[id]}`)
+          .join("\n");
+
+        expertContext = `You have deep expertise in the following selected international standards and frameworks:\n${frameworkList}\n\nWhen rewriting, reference ONLY these selected frameworks where relevant and ensure the prompt is grounded in evidence-based psychometric principles aligned with them.`;
+      }
     }
 
-    // Build document context
     let documentContext = "";
     if (documentSummaries && documentSummaries.trim().length > 0) {
       documentContext = `\n\nThe user has uploaded reference documents with the following content summaries. Incorporate relevant concepts from these documents into the rewritten prompt:\n${documentSummaries}`;

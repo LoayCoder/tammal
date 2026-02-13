@@ -16,6 +16,7 @@ interface Question {
   confidence_score: number;
   bias_flag: boolean;
   ambiguity_flag: boolean;
+  framework_reference?: string | null;
   options?: { text: string; text_ar: string }[];
 }
 
@@ -25,6 +26,8 @@ interface ValidateRequest {
   enableCriticPass?: boolean;
   minWordLength?: number;
   questionSetId?: string;
+  selectedFrameworkIds?: string[];
+  hasDocuments?: boolean;
 }
 
 serve(async (req) => {
@@ -45,7 +48,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { questions, accuracyMode, enableCriticPass, minWordLength = 5, questionSetId }: ValidateRequest = await req.json();
+    const { questions, accuracyMode, enableCriticPass, minWordLength = 5, questionSetId, selectedFrameworkIds = [], hasDocuments = false }: ValidateRequest = await req.json();
 
     const validationResults: Record<string, { result: string; details: any }> = {};
     const perQuestionResults: { validation_status: string; validation_details: Record<string, any> }[] = [];
@@ -87,14 +90,13 @@ serve(async (req) => {
       details: lengthDetails.length > 0 ? lengthDetails : "All questions meet minimum length",
     };
 
-    // 3. Duplicate detection (simple text similarity)
+    // 3. Duplicate detection
     let duplicatesPassed = true;
     const duplicateDetails: string[] = [];
     for (let i = 0; i < questions.length; i++) {
       for (let j = i + 1; j < questions.length; j++) {
         const a = questions[i].question_text.toLowerCase().trim();
         const b = questions[j].question_text.toLowerCase().trim();
-        // Simple word overlap similarity
         const wordsA = new Set(a.split(/\s+/));
         const wordsB = new Set(b.split(/\s+/));
         const intersection = [...wordsA].filter(w => wordsB.has(w)).length;
@@ -111,14 +113,14 @@ serve(async (req) => {
       details: duplicateDetails.length > 0 ? duplicateDetails : "No duplicates detected",
     };
 
-    // 4. Bias check (from AI flags)
+    // 4. Bias check
     const biasQuestions = questions.map((q, i) => q.bias_flag ? `Q${i + 1}` : null).filter(Boolean);
     validationResults.bias = {
       result: biasQuestions.length === 0 ? "passed" : "warning",
       details: biasQuestions.length > 0 ? `Potential bias detected in: ${biasQuestions.join(", ")}` : "No bias detected",
     };
 
-    // 5. Ambiguity check (from AI flags)
+    // 5. Ambiguity check
     const ambiguityQuestions = questions.map((q, i) => q.ambiguity_flag ? `Q${i + 1}` : null).filter(Boolean);
     validationResults.ambiguity = {
       result: ambiguityQuestions.length === 0 ? "passed" : "warning",
@@ -132,7 +134,56 @@ serve(async (req) => {
       details: `Average confidence: ${Math.round(avgConfidence)}%`,
     };
 
-    // 7. Critic pass (second AI evaluation) if enabled
+    // 7. Framework alignment check (NEW)
+    if (selectedFrameworkIds.length > 0) {
+      const { data: frameworks } = await supabase
+        .from("reference_frameworks")
+        .select("name, framework_key")
+        .in("id", selectedFrameworkIds)
+        .eq("is_active", true)
+        .is("deleted_at", null);
+
+      const frameworkNameSet = new Set((frameworks || []).map((f: any) => f.name.toLowerCase()));
+      const frameworkKeySet = new Set((frameworks || []).map((f: any) => f.framework_key.toLowerCase()));
+
+      let frameworkPassed = true;
+      const frameworkDetails: string[] = [];
+      for (let i = 0; i < questions.length; i++) {
+        const ref = questions[i].framework_reference?.toLowerCase() || "";
+        if (!ref) {
+          frameworkPassed = false;
+          frameworkDetails.push(`Q${i + 1}: Missing framework reference`);
+        } else {
+          const matched = [...frameworkNameSet].some(n => ref.includes(n) || n.includes(ref))
+            || [...frameworkKeySet].some(k => ref.includes(k));
+          if (!matched) {
+            frameworkPassed = false;
+            frameworkDetails.push(`Q${i + 1}: Framework "${questions[i].framework_reference}" not in selected frameworks`);
+          }
+        }
+      }
+      validationResults.framework_alignment = {
+        result: frameworkPassed ? "passed" : accuracyMode === "strict" ? "failed" : "warning",
+        details: frameworkDetails.length > 0 ? frameworkDetails : "All questions aligned with selected frameworks",
+      };
+    }
+
+    // 8. Document grounding check (NEW) — only flag if docs were provided but no references appear
+    if (hasDocuments) {
+      const questionsWithoutGrounding = questions.filter(q => {
+        const text = (q.explanation || "").toLowerCase();
+        return !text.includes("document") && !text.includes("reference") && !text.includes("source");
+      });
+      const groundingPassed = questionsWithoutGrounding.length < questions.length / 2;
+      validationResults.document_grounding = {
+        result: groundingPassed ? "passed" : accuracyMode === "strict" ? "failed" : "warning",
+        details: groundingPassed
+          ? "Questions appear grounded in uploaded documents"
+          : `${questionsWithoutGrounding.length} of ${questions.length} questions lack document references`,
+      };
+    }
+
+    // 9. Critic pass
     let criticResult = null;
     if (enableCriticPass) {
       const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -233,7 +284,13 @@ ${questions.map((q, i) => `${i + 1}. [${q.type}/${q.complexity}] ${q.question_te
         qIssues.push("moderate_confidence");
       }
 
-      // Check critic issues for this question
+      // Framework alignment per question
+      if (selectedFrameworkIds.length > 0 && !questions[i].framework_reference) {
+        status = accuracyMode === "strict" ? "failed" : (status === "failed" ? "failed" : "warning");
+        qIssues.push("missing_framework_reference");
+      }
+
+      // Critic issues
       if (criticResult?.issues) {
         const qCriticIssues = criticResult.issues.filter((issue: any) => issue.question_index === i);
         if (qCriticIssues.some((issue: any) => issue.severity === "high")) {
@@ -246,7 +303,7 @@ ${questions.map((q, i) => `${i + 1}. [${q.type}/${q.complexity}] ${q.question_te
 
       perQuestionResults.push({
         validation_status: status,
-        validation_details: { issues: qIssues, critic_issues: criticResult?.issues?.filter((i: any) => i.question_index === i) || [] },
+        validation_details: { issues: qIssues, critic_issues: criticResult?.issues?.filter((ci: any) => ci.question_index === i) || [] },
       });
     }
 
@@ -255,7 +312,7 @@ ${questions.map((q, i) => `${i + 1}. [${q.type}/${q.complexity}] ${q.question_te
     const hasWarnings = Object.values(validationResults).some(v => v.result === "warning");
     const overallResult = hasFailures ? "failed" : hasWarnings ? "warning" : "passed";
 
-    // Log validation if questionSetId provided
+    // Log validation
     const token = authHeader.replace("Bearer ", "");
     const { data: userData } = await supabase.auth.getUser(token);
     const tenantId = userData?.user ? await supabase.rpc("get_user_tenant_id", { _user_id: userData.user.id }).then(r => r.data) : null;
@@ -268,7 +325,6 @@ ${questions.map((q, i) => `${i + 1}. [${q.type}/${q.complexity}] ${q.question_te
         result: val.result,
         details: typeof val.details === "string" ? { message: val.details } : val.details,
       }));
-
       await supabase.from("validation_logs").insert(logEntries);
     }
 

@@ -7,36 +7,15 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
-  BookOpen, Upload, ChevronDown, Trash2, FileText, Loader2,
-  Wand2, ShieldCheck, Brain, Info, Check,
+  Upload, ChevronDown, Trash2, FileText, Loader2,
+  Wand2, Brain, Info,
 } from 'lucide-react';
 import { KnowledgeDocument } from '@/hooks/useAIKnowledge';
 
-const FRAMEWORK_ID_MAP: Record<string, string> = {
-  frameworkISO45003: 'ISO45003',
-  frameworkISO10018: 'ISO10018',
-  frameworkCOPSOQ: 'COPSOQ',
-  frameworkUWES: 'UWES',
-  frameworkWHO: 'WHO',
-  frameworkGallup: 'Gallup',
-};
-
-const frameworks = [
-  { key: 'frameworkISO45003', icon: '🛡️' },
-  { key: 'frameworkISO10018', icon: '📊' },
-  { key: 'frameworkCOPSOQ', icon: '🧠' },
-  { key: 'frameworkUWES', icon: '⚡' },
-  { key: 'frameworkWHO', icon: '🏥' },
-  { key: 'frameworkGallup', icon: '📈' },
-];
-
 interface KnowledgeBasePanelProps {
-  useExpertKnowledge: boolean;
-  onUseExpertKnowledgeChange: (value: boolean) => void;
   documents: KnowledgeDocument[];
   onUpload: (file: File) => void;
   onToggleDocument: (params: { id: string; isActive: boolean }) => void;
@@ -46,13 +25,9 @@ interface KnowledgeBasePanelProps {
   onCustomPromptChange: (value: string) => void;
   onRewritePrompt: () => void;
   isRewriting: boolean;
-  selectedFrameworks: string[];
-  onSelectedFrameworksChange: (frameworks: string[]) => void;
 }
 
 export function KnowledgeBasePanel({
-  useExpertKnowledge,
-  onUseExpertKnowledgeChange,
   documents,
   onUpload,
   onToggleDocument,
@@ -62,12 +37,9 @@ export function KnowledgeBasePanel({
   onCustomPromptChange,
   onRewritePrompt,
   isRewriting,
-  selectedFrameworks,
-  onSelectedFrameworksChange,
 }: KnowledgeBasePanelProps) {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [frameworksOpen, setFrameworksOpen] = useState(true);
   const [docsOpen, setDocsOpen] = useState(true);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +51,7 @@ export function KnowledgeBasePanel({
   };
 
   const validateFile = (file: File): boolean => {
-    const maxSize = 100 * 1024 * 1024; // 100MB
+    const maxSize = 100 * 1024 * 1024;
     if (file.size > maxSize) {
       toast.error(t('aiGenerator.fileTooLarge'));
       return false;
@@ -111,19 +83,6 @@ export function KnowledgeBasePanel({
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const toggleFramework = (frameworkKey: string) => {
-    const id = FRAMEWORK_ID_MAP[frameworkKey];
-    if (selectedFrameworks.includes(id)) {
-      onSelectedFrameworksChange(selectedFrameworks.filter(f => f !== id));
-    } else {
-      onSelectedFrameworksChange([...selectedFrameworks, id]);
-    }
-  };
-
-  const isFrameworkSelected = (frameworkKey: string) => {
-    return selectedFrameworks.includes(FRAMEWORK_ID_MAP[frameworkKey]);
-  };
-
   const activeDocCount = documents.filter(d => d.is_active).length;
 
   return (
@@ -143,67 +102,6 @@ export function KnowledgeBasePanel({
         <CardDescription className="text-xs">{t('aiGenerator.knowledgeBaseDesc')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Expert Knowledge Toggle */}
-        <div className="flex items-start justify-between gap-3 p-3 rounded-lg bg-muted/50 border">
-          <div className="space-y-1 flex-1">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-primary" />
-              <Label className="text-sm font-medium">{t('aiGenerator.useExpertPrompt')}</Label>
-            </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">{t('aiGenerator.expertPromptDesc')}</p>
-          </div>
-          <Switch checked={useExpertKnowledge} onCheckedChange={onUseExpertKnowledgeChange} />
-        </div>
-
-        {/* Frameworks List - Selectable */}
-        {useExpertKnowledge && (
-          <Collapsible open={frameworksOpen} onOpenChange={setFrameworksOpen}>
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="sm" className="w-full justify-between text-xs h-8">
-                <span className="flex items-center gap-1.5">
-                  <BookOpen className="h-3.5 w-3.5" />
-                  {t('aiGenerator.frameworks')}
-                  {selectedFrameworks.length > 0 && (
-                    <Badge variant="default" className="text-[10px] px-1.5 py-0 h-4 ms-1">
-                      {t('aiGenerator.frameworksSelected', { count: selectedFrameworks.length })}
-                    </Badge>
-                  )}
-                </span>
-                <ChevronDown className={`h-3 w-3 transition-transform ${frameworksOpen ? 'rotate-180' : ''}`} />
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pt-2">
-              <p className="text-[10px] text-muted-foreground mb-2">{t('aiGenerator.selectFrameworks')}</p>
-              <div className="grid gap-1.5">
-                {frameworks.map(fw => {
-                  const selected = isFrameworkSelected(fw.key);
-                  return (
-                    <button
-                      key={fw.key}
-                      type="button"
-                      onClick={() => toggleFramework(fw.key)}
-                      className={`flex items-center gap-2 p-2 rounded-md text-xs text-start transition-all cursor-pointer border ${
-                        selected
-                          ? 'bg-primary/10 border-primary/30 border-s-2 border-s-primary'
-                          : 'bg-muted/30 border-transparent hover:bg-muted/50'
-                      }`}
-                    >
-                      <Checkbox
-                        checked={selected}
-                        className="pointer-events-none h-3.5 w-3.5"
-                        tabIndex={-1}
-                      />
-                      <span>{fw.icon}</span>
-                      <span className="text-foreground flex-1">{t(`aiGenerator.${fw.key}`)}</span>
-                      {selected && <Check className="h-3 w-3 text-primary shrink-0" />}
-                    </button>
-                  );
-                })}
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-        )}
-
         {/* Custom Prompt Input */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
@@ -273,7 +171,6 @@ export function KnowledgeBasePanel({
               className="hidden"
             />
 
-            {/* Drop zone */}
             <div
               className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors"
               onClick={() => fileInputRef.current?.click()}
@@ -294,7 +191,6 @@ export function KnowledgeBasePanel({
               )}
             </div>
 
-            {/* Document List */}
             {documents.length > 0 && (
               <div className="space-y-1.5">
                 {documents.map(doc => (
