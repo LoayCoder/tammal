@@ -765,7 +765,13 @@
     "full_name": "Full Name",
     "employee_number": "Employee Number",
     "role_title": "Role/Title",
-    "hire_date": "Hire Date"
+    "hire_date": "Hire Date",
+    "sendInvite": "Send Login Invite",
+    "sendInviteDescription": "Send an invitation to this employee to create a login account",
+    "hasAccount": "Has system account",
+    "noAccount": "No system account",
+    "inviteSuccess": "Invitation sent successfully",
+    "alreadyHasAccount": "This employee already has a login account"
   },
   "schedules": {
     "title": "Schedule Management",
@@ -1108,5 +1114,17 @@
       "buttonText": "Accept Invitation",
       "expiresOn": "Expires on"
     }
+  },
+  "acceptInvite": {
+    "title": "Accept Invitation",
+    "enterCode": "Enter your invitation code to create your account",
+    "codePlaceholder": "XXXXXXXX",
+    "verifyCode": "Verify Code",
+    "createAccount": "Create Your Account",
+    "invalidCode": "Invalid or expired invitation code",
+    "codeUsed": "This invitation code has already been used",
+    "accountCreated": "Account created successfully!",
+    "verifyEmailNote": "Please check your email to verify your account, then log in.",
+    "createError": "Failed to create account"
   }
 }

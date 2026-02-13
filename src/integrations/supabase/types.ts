@@ -265,6 +265,7 @@ export type Database = {
           delivery_status: string | null
           email: string
           email_sent_at: string | null
+          employee_id: string | null
           expires_at: string
           full_name: string | null
           id: string
@@ -287,6 +288,7 @@ export type Database = {
           delivery_status?: string | null
           email: string
           email_sent_at?: string | null
+          employee_id?: string | null
           expires_at: string
           full_name?: string | null
           id?: string
@@ -309,6 +311,7 @@ export type Database = {
           delivery_status?: string | null
           email?: string
           email_sent_at?: string | null
+          employee_id?: string | null
           expires_at?: string
           full_name?: string | null
           id?: string
@@ -322,6 +325,13 @@ export type Database = {
           whatsapp_sent_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "invitations_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "invitations_tenant_id_fkey"
             columns: ["tenant_id"]

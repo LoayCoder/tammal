@@ -7,8 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { EmployeeTable } from "@/components/employees/EmployeeTable";
 import { EmployeeSheet } from "@/components/employees/EmployeeSheet";
 import { EmployeeImport } from "@/components/employees/EmployeeImport";
+import { EmployeeInviteDialog } from "@/components/employees/EmployeeInviteDialog";
 import { useEmployees, CreateEmployeeInput, Employee, EmployeeStatus } from "@/hooks/useEmployees";
 import { useTenants } from "@/hooks/useTenants";
+import { useTenantInvitations } from "@/hooks/useTenantInvitations";
 import { Plus, Search, Upload, Download } from "lucide-react";
 import { toast } from "sonner";
 
@@ -19,6 +21,8 @@ export default function EmployeeManagement() {
   const [statusFilter, setStatusFilter] = useState<EmployeeStatus>();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [invitingEmployee, setInvitingEmployee] = useState<Employee | null>(null);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
   const { tenants } = useTenants();
@@ -29,6 +33,8 @@ export default function EmployeeManagement() {
     status: statusFilter,
     search,
   });
+
+  const { createInvitation, isCreating: isCreatingInvitation } = useTenantInvitations(tenantId);
 
   const handleSubmit = (data: CreateEmployeeInput) => {
     if (editingEmployee) {
@@ -48,6 +54,31 @@ export default function EmployeeManagement() {
   const handleEdit = (employee: Employee) => {
     setEditingEmployee(employee);
     setSheetOpen(true);
+  };
+
+  const handleInvite = (employee: Employee) => {
+    if (employee.user_id) {
+      toast.error(t('employees.alreadyHasAccount'));
+      return;
+    }
+    setInvitingEmployee(employee);
+    setInviteOpen(true);
+  };
+
+  const handleSendInvite = (employeeId: string, email: string, fullName: string, expiryDays: number) => {
+    createInvitation({
+      email,
+      full_name: fullName,
+      tenant_id: tenantId,
+      employee_id: employeeId,
+      expiry_days: expiryDays,
+    }, {
+      onSuccess: () => {
+        setInviteOpen(false);
+        setInvitingEmployee(null);
+        toast.success(t('employees.inviteSuccess'));
+      }
+    });
   };
 
   const handleExportCSV = () => {
@@ -145,6 +176,7 @@ export default function EmployeeManagement() {
             employees={employees}
             onEdit={handleEdit}
             onDelete={(id) => deleteEmployee.mutate(id)}
+            onInvite={handleInvite}
           />
         </CardContent>
       </Card>
@@ -166,6 +198,14 @@ export default function EmployeeManagement() {
         tenantId={tenantId}
         onImport={(data) => bulkImport.mutate(data)}
         isLoading={bulkImport.isPending}
+      />
+
+      <EmployeeInviteDialog
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+        employee={invitingEmployee}
+        onSendInvite={handleSendInvite}
+        isLoading={isCreatingInvitation}
       />
     </div>
   );

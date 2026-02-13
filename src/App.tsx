@@ -27,6 +27,7 @@ import EmployeeManagement from "@/pages/admin/EmployeeManagement";
 import AIQuestionGenerator from "@/pages/admin/AIQuestionGenerator";
 import ScheduleManagement from "@/pages/admin/ScheduleManagement";
 import EmployeeSurvey from "@/pages/employee/EmployeeSurvey";
+import AcceptInvite from "@/pages/auth/AcceptInvite";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 
@@ -51,6 +52,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/accept-invite" element={<AcceptInvite />} />
           <Route path="/install" element={<InstallApp />} />
           <Route path="/employee/survey" element={<EmployeeSurvey />} />
           <Route element={<MainLayout />}>
