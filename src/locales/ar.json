@@ -928,6 +928,7 @@
     "parsing": "جاري تحليل المستند...",
     "parseSuccess": "تم تحليل المستند وهو جاهز",
     "parseError": "فشل في تحليل المستند",
+    "noTenantError": "يجب أن تكون مرتبطاً بمنظمة لرفع المستندات",
     "documentActive": "نشط — مضمّن في التوليد",
     "documentInactive": "غير نشط — مستبعد من التوليد",
     "frameworkReference": "الإطار المرجعي",
