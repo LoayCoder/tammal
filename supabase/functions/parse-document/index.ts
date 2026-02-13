@@ -120,20 +120,41 @@ serve(async (req) => {
       }
     }
 
+    // Strip null bytes that PostgreSQL cannot store in text columns
+    contentText = contentText.replace(/\u0000/g, "");
+
     // Truncate to ~16000 chars (~4000 tokens) to prevent prompt overflow
     const MAX_CHARS = 16000;
     if (contentText.length > MAX_CHARS) {
       contentText = contentText.substring(0, MAX_CHARS) + "\n\n[... content truncated for prompt size limits ...]";
     }
 
-    // Update the document record with extracted text
-    const { error: updateError } = await supabase
+    // Determine which table to update based on document existence
+    // Try ai_knowledge_documents first, then reference_documents
+    let updated = false;
+
+    const { error: updateError1 } = await supabase
       .from("ai_knowledge_documents")
       .update({ content_text: contentText })
       .eq("id", documentId);
 
-    if (updateError) {
-      console.error("Update error:", updateError);
+    if (!updateError1) {
+      updated = true;
+    } else {
+      // Try reference_documents table (for framework documents)
+      const { error: updateError2 } = await supabase
+        .from("reference_documents")
+        .update({ extracted_text: contentText })
+        .eq("id", documentId);
+
+      if (!updateError2) {
+        updated = true;
+      } else {
+        console.error("Update error:", updateError2);
+      }
+    }
+
+    if (!updated) {
       return new Response(JSON.stringify({ error: "Failed to save extracted text" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
