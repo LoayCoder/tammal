@@ -24,6 +24,7 @@ export interface QuestionSchedule {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+  batch_ids: string[];
 }
 
 export interface CreateScheduleInput {
@@ -42,6 +43,7 @@ export interface CreateScheduleInput {
   enable_ai_generation?: boolean;
   enable_validation?: boolean;
   status?: QuestionSchedule['status'];
+  batch_ids?: string[];
 }
 
 export function useQuestionSchedules(tenantId?: string) {
@@ -68,6 +70,7 @@ export function useQuestionSchedules(tenantId?: string) {
         ...schedule,
         target_audience: (schedule.target_audience || { all: true }) as QuestionSchedule['target_audience'],
         active_categories: (schedule.active_categories || []) as string[],
+        batch_ids: (schedule.batch_ids || []) as string[],
       })) as QuestionSchedule[];
     },
   });
@@ -90,6 +93,7 @@ export function useQuestionSchedules(tenantId?: string) {
         enable_ai_generation: input.enable_ai_generation,
         enable_validation: input.enable_validation,
         status: input.status,
+        batch_ids: (input.batch_ids || []) as unknown as null,
       };
       
       const { data, error } = await supabase
@@ -127,6 +131,7 @@ export function useQuestionSchedules(tenantId?: string) {
       if (updates.enable_ai_generation !== undefined) updateData.enable_ai_generation = updates.enable_ai_generation;
       if (updates.enable_validation !== undefined) updateData.enable_validation = updates.enable_validation;
       if (updates.status !== undefined) updateData.status = updates.status;
+      if (updates.batch_ids !== undefined) updateData.batch_ids = updates.batch_ids;
       
       const { data, error } = await supabase
         .from('question_schedules')

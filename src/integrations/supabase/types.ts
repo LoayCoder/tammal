@@ -1009,6 +1009,7 @@ export type Database = {
           active_categories: Json | null
           avoid_holidays: boolean | null
           avoid_weekends: boolean | null
+          batch_ids: Json | null
           created_at: string | null
           created_by: string | null
           custom_schedule: Json | null
@@ -1031,6 +1032,7 @@ export type Database = {
           active_categories?: Json | null
           avoid_holidays?: boolean | null
           avoid_weekends?: boolean | null
+          batch_ids?: Json | null
           created_at?: string | null
           created_by?: string | null
           custom_schedule?: Json | null
@@ -1053,6 +1055,7 @@ export type Database = {
           active_categories?: Json | null
           avoid_holidays?: boolean | null
           avoid_weekends?: boolean | null
+          batch_ids?: Json | null
           created_at?: string | null
           created_by?: string | null
           custom_schedule?: Json | null
