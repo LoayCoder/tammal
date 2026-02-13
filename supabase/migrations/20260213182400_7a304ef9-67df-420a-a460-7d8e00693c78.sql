@@ -1,0 +1,1 @@
+ALTER TABLE public.ai_knowledge_documents ALTER COLUMN tenant_id DROP NOT NULL;
