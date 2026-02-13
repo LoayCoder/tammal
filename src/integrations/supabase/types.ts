@@ -1089,6 +1089,8 @@ export type Database = {
           deleted_at: string | null
           id: string
           model_used: string
+          name: string | null
+          question_count: number
           settings: Json | null
           status: string
           tenant_id: string | null
@@ -1103,6 +1105,8 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           model_used: string
+          name?: string | null
+          question_count?: number
           settings?: Json | null
           status?: string
           tenant_id?: string | null
@@ -1117,6 +1121,8 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           model_used?: string
+          name?: string | null
+          question_count?: number
           settings?: Json | null
           status?: string
           tenant_id?: string | null

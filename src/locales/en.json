@@ -1373,5 +1373,30 @@
     "questionTextEn": "Question (English)",
     "questionTextAr": "Question (Arabic)",
     "questionType": "Type"
+  },
+  "batches": {
+    "title": "Question Batches",
+    "subtitle": "AI-generated question batches organized by creation date",
+    "library": "Question Library",
+    "libraryDescription": "Browse and manage your AI-generated question batches",
+    "searchPlaceholder": "Search questions...",
+    "createNew": "Create New Batch",
+    "addToExisting": "Add to Existing Batch",
+    "questionsCount": "{{count}}/64 questions",
+    "remaining": "{{count}} remaining",
+    "full": "Batch full",
+    "overflowWarning": "Questions will be split into multiple batches",
+    "createdBy": "Created by",
+    "deleteSuccess": "Batch deleted",
+    "saveSuccess": "Questions saved to batch",
+    "saveTitle": "Save to Batch",
+    "noBatches": "No batches yet. Generate questions from the AI Generator.",
+    "noQuestions": "No questions in this batch",
+    "selectBatch": "Select a batch",
+    "unnamed": "Unnamed Batch",
+    "questionText": "Question (EN)",
+    "questionTextAr": "Question (AR)",
+    "type": "Type",
+    "confidence": "Confidence"
   }
 }
