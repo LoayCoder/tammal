@@ -1005,6 +1005,7 @@ export type Database = {
           created_at: string
           extracted_text: string | null
           file_name: string
+          framework_id: string | null
           id: string
           question_set_id: string | null
           tenant_id: string | null
@@ -1013,6 +1014,7 @@ export type Database = {
           created_at?: string
           extracted_text?: string | null
           file_name: string
+          framework_id?: string | null
           id?: string
           question_set_id?: string | null
           tenant_id?: string | null
@@ -1021,11 +1023,19 @@ export type Database = {
           created_at?: string
           extracted_text?: string | null
           file_name?: string
+          framework_id?: string | null
           id?: string
           question_set_id?: string | null
           tenant_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "reference_documents_framework_id_fkey"
+            columns: ["framework_id"]
+            isOneToOne: false
+            referencedRelation: "reference_frameworks"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reference_documents_question_set_id_fkey"
             columns: ["question_set_id"]

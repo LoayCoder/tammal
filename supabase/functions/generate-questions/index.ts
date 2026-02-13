@@ -106,20 +106,50 @@ Focus areas: ${focusAreas.join(", ")}
 ${questionType && questionType !== "mixed" ? `Question type constraint: Only generate ${questionType} questions` : "Use a mix of question types"}
 ${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.minWordLength} words` : ""}`;
 
-    // 2. Framework block — fetch from DB
+    // 2. Framework block — fetch from DB including framework-linked documents
     let frameworkNames: string[] = [];
     if (useExpertKnowledge && selectedFrameworks.length > 0) {
       const { data: frameworks } = await supabase
         .from("reference_frameworks")
-        .select("name, description, framework_key")
+        .select("id, name, description, framework_key")
         .in("id", selectedFrameworks)
         .eq("is_active", true)
         .is("deleted_at", null);
 
       if (frameworks && frameworks.length > 0) {
         frameworkNames = frameworks.map((f: any) => f.name);
+
+        // Fetch framework-linked reference documents
+        const { data: fwDocs } = await supabase
+          .from("reference_documents")
+          .select("framework_id, file_name, extracted_text")
+          .in("framework_id", frameworks.map((f: any) => f.id));
+
+        const fwDocMap: Record<string, { file_name: string; extracted_text: string }[]> = {};
+        if (fwDocs) {
+          for (const doc of fwDocs) {
+            if (doc.extracted_text && doc.framework_id) {
+              if (!fwDocMap[doc.framework_id]) fwDocMap[doc.framework_id] = [];
+              fwDocMap[doc.framework_id].push({ file_name: doc.file_name, extracted_text: doc.extracted_text });
+            }
+          }
+        }
+
         const frameworkDescriptions = frameworks
-          .map((f: any, i: number) => `${i + 1}. **${f.name}:** ${f.description || 'No description'}`)
+          .map((f: any, i: number) => {
+            let block = `${i + 1}. **${f.name}:** ${f.description || 'No description'}`;
+            const docs = fwDocMap[f.id];
+            if (docs && docs.length > 0) {
+              block += `\n   Reference Documents for ${f.name}:`;
+              for (const doc of docs) {
+                const truncated = doc.extracted_text.length > 8000
+                  ? doc.extracted_text.substring(0, 8000) + "\n[...truncated...]"
+                  : doc.extracted_text;
+                block += `\n   - [${doc.file_name}]: ${truncated}`;
+              }
+            }
+            return block;
+          })
           .join('\n');
 
         systemPrompt += `
