@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EmployeeStatusBadge } from "./EmployeeStatusBadge";
 import { Employee } from "@/hooks/useEmployees";
-import { Edit2, Trash2, MoreHorizontal, User } from "lucide-react";
+import { Edit2, Trash2, MoreHorizontal, User, Mail, CheckCircle, UserX } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 
@@ -13,9 +14,10 @@ interface EmployeeTableProps {
   employees: Employee[];
   onEdit: (employee: Employee) => void;
   onDelete: (id: string) => void;
+  onInvite?: (employee: Employee) => void;
 }
 
-export function EmployeeTable({ employees, onEdit, onDelete }: EmployeeTableProps) {
+export function EmployeeTable({ employees, onEdit, onDelete, onInvite }: EmployeeTableProps) {
   const { t } = useTranslation();
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -25,6 +27,7 @@ export function EmployeeTable({ employees, onEdit, onDelete }: EmployeeTableProp
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10"></TableHead>
               <TableHead>{t('employees.name')}</TableHead>
               <TableHead>{t('employees.email')}</TableHead>
               <TableHead>{t('employees.department')}</TableHead>
@@ -38,13 +41,27 @@ export function EmployeeTable({ employees, onEdit, onDelete }: EmployeeTableProp
           <TableBody>
             {employees.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                   {t('employees.noEmployees')}
                 </TableCell>
               </TableRow>
             ) : (
               employees.map((employee) => (
                 <TableRow key={employee.id}>
+                  <TableCell>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        {employee.user_id ? (
+                          <CheckCircle className="h-4 w-4 text-primary" />
+                        ) : (
+                          <UserX className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {employee.user_id ? t('employees.hasAccount') : t('employees.noAccount')}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
@@ -80,6 +97,12 @@ export function EmployeeTable({ employees, onEdit, onDelete }: EmployeeTableProp
                           <Edit2 className="h-4 w-4 me-2" />
                           {t('common.edit')}
                         </DropdownMenuItem>
+                        {!employee.user_id && onInvite && (
+                          <DropdownMenuItem onClick={() => onInvite(employee)}>
+                            <Mail className="h-4 w-4 me-2" />
+                            {t('employees.sendInvite')}
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem 
                           className="text-destructive"
                           onClick={() => setDeleteId(employee.id)}

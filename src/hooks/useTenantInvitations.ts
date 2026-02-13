@@ -12,6 +12,7 @@ export interface Invitation {
   phone_number: string | null;
   tenant_id: string;
   branch_id: string | null;
+  employee_id: string | null;
   expires_at: string;
   used: boolean;
   used_at: string | null;
@@ -33,6 +34,7 @@ export interface CreateInvitationInput {
   phone_number?: string;
   tenant_id: string;
   branch_id?: string;
+  employee_id?: string;
   expiry_days?: number;
   delivery_channel?: 'email' | 'whatsapp';
 }
@@ -88,6 +90,7 @@ export function useTenantInvitations(tenantId?: string) {
           phone_number: input.phone_number || null,
           tenant_id: input.tenant_id,
           branch_id: input.branch_id || null,
+          employee_id: input.employee_id || null,
           expires_at: expiresAt.toISOString(),
           delivery_channel: input.delivery_channel || 'email',
           created_by: user.user?.id || null,
