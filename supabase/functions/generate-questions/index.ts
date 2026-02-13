@@ -25,6 +25,7 @@ interface GenerateRequest {
   language?: "en" | "ar" | "both";
   useExpertKnowledge?: boolean;
   knowledgeDocumentIds?: string[];
+  customPrompt?: string;
 }
 
 serve(async (req) => {
@@ -59,6 +60,7 @@ serve(async (req) => {
       language = "both",
       useExpertKnowledge = false,
       knowledgeDocumentIds = [],
+      customPrompt = "",
     }: GenerateRequest = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -148,7 +150,7 @@ Complexity level: ${complexity}
 Tone: ${tone}
 Focus areas: ${focusAreas.join(", ")}
 ${questionType && questionType !== "mixed" ? `Question type constraint: Only generate ${questionType} questions` : "Use a mix of question types"}
-${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.minWordLength} words` : ""}${expertPromptSection}${documentContext}`;
+${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.minWordLength} words` : ""}${expertPromptSection}${documentContext}${customPrompt ? `\n\n# Additional User Instructions:\n${customPrompt}` : ""}`;
 
     const toolDefinition = {
       type: "function" as const,

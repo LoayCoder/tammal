@@ -11,6 +11,7 @@ import { ValidationReport } from '@/components/ai-generator/ValidationReport';
 import { useEnhancedAIGeneration, AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
 import { useAIModels } from '@/hooks/useAIModels';
 import { useAIKnowledge } from '@/hooks/useAIKnowledge';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export default function AIQuestionGenerator() {
@@ -41,7 +42,8 @@ export default function AIQuestionGenerator() {
     minWordLength: 5,
   });
   const [useExpertKnowledge, setUseExpertKnowledge] = useState(false);
-
+  const [customPrompt, setCustomPrompt] = useState('');
+  const [isRewriting, setIsRewriting] = useState(false);
   const isStrict = accuracyMode === 'strict';
   const hasFailures = validationReport?.overall_result === 'failed';
   const canSave = questions.length > 0 && !(isStrict && hasFailures);
@@ -62,7 +64,27 @@ export default function AIQuestionGenerator() {
       model: selectedModel, accuracyMode, advancedSettings, language: 'both',
       useExpertKnowledge,
       knowledgeDocumentIds: activeDocIds,
+      customPrompt: customPrompt.trim() || undefined,
     });
+  };
+
+  const handleRewritePrompt = async () => {
+    if (customPrompt.trim().length < 10) return;
+    setIsRewriting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('rewrite-prompt', {
+        body: { prompt: customPrompt, useExpertKnowledge },
+      });
+      if (error) throw error;
+      if (data?.rewrittenPrompt) {
+        setCustomPrompt(data.rewrittenPrompt);
+        toast.success(t('aiGenerator.rewriteSuccess'));
+      }
+    } catch (err: any) {
+      toast.error(err.message || t('aiGenerator.rewriteError'));
+    } finally {
+      setIsRewriting(false);
+    }
   };
 
   const handleValidate = () => {
@@ -175,6 +197,10 @@ export default function AIQuestionGenerator() {
             onToggleDocument={toggleDocument}
             onDeleteDocument={deleteDocument}
             isUploading={isUploading}
+            customPrompt={customPrompt}
+            onCustomPromptChange={setCustomPrompt}
+            onRewritePrompt={handleRewritePrompt}
+            isRewriting={isRewriting}
           />
         </div>
 
