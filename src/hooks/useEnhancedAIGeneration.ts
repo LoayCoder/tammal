@@ -42,7 +42,6 @@ export interface AdvancedSettings {
 }
 
 export interface GenerateInput {
-  focusAreas: string[];
   questionCount: number;
   complexity: string;
   tone: string;
@@ -55,8 +54,8 @@ export interface GenerateInput {
   knowledgeDocumentIds?: string[];
   customPrompt?: string;
   selectedFrameworks?: string[];
-  categoryId?: string;
-  subcategoryId?: string;
+  categoryIds?: string[];
+  subcategoryIds?: string[];
 }
 
 export function useEnhancedAIGeneration() {
@@ -102,7 +101,6 @@ export function useEnhancedAIGeneration() {
     },
     onSuccess: (report) => {
       setValidationReport(report);
-      // Update per-question status
       setQuestions(prev =>
         prev.map((q, i) => ({
           ...q,

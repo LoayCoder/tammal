@@ -6,21 +6,20 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Sparkles, Loader2, ChevronDown, Settings2 } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Sparkles, Loader2, ChevronDown, Settings2, ChevronsUpDown } from 'lucide-react';
 import { AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
 import { KnowledgeBasePanel } from './KnowledgeBasePanel';
-import { FocusAreaManager } from './FocusAreaManager';
 import { FrameworkSelector } from './FrameworkSelector';
 import { KnowledgeDocument } from '@/hooks/useAIKnowledge';
-import { FocusArea } from '@/hooks/useFocusAreas';
 import { ReferenceFramework } from '@/hooks/useReferenceFrameworks';
 import { useQuestionCategories } from '@/hooks/useQuestionCategories';
 import { useQuestionSubcategories } from '@/hooks/useQuestionSubcategories';
 import { useState } from 'react';
 
 interface ConfigPanelProps {
-  focusAreas: string[];
-  onFocusAreasChange: (areas: string[]) => void;
   questionType: string;
   onQuestionTypeChange: (type: string) => void;
   questionCount: number;
@@ -43,12 +42,6 @@ interface ConfigPanelProps {
   onCustomPromptChange: (value: string) => void;
   onRewritePrompt: () => void;
   isRewriting: boolean;
-  // Dynamic focus areas
-  focusAreaList: FocusArea[];
-  focusAreasLoading: boolean;
-  onAddFocusArea: (params: { labelKey: string; labelAr?: string }) => void;
-  onUpdateFocusArea: (params: { id: string; labelKey: string; labelAr?: string }) => void;
-  onDeleteFocusArea: (id: string) => void;
   // Reference frameworks
   referenceFrameworks: ReferenceFramework[];
   selectedFrameworkIds: string[];
@@ -58,15 +51,14 @@ interface ConfigPanelProps {
   onDeleteFramework: (id: string) => void;
   frameworksLoading: boolean;
   currentUserId?: string;
-  selectedCategoryId: string;
-  onSelectedCategoryIdChange: (id: string) => void;
-  selectedSubcategoryId: string;
-  onSelectedSubcategoryIdChange: (id: string) => void;
+  // Multi-select categories & subcategories
+  selectedCategoryIds: string[];
+  onSelectedCategoryIdsChange: (ids: string[]) => void;
+  selectedSubcategoryIds: string[];
+  onSelectedSubcategoryIdsChange: (ids: string[]) => void;
 }
 
 export function ConfigPanel({
-  focusAreas,
-  onFocusAreasChange,
   questionType,
   onQuestionTypeChange,
   questionCount,
@@ -88,11 +80,6 @@ export function ConfigPanel({
   onCustomPromptChange,
   onRewritePrompt,
   isRewriting,
-  focusAreaList,
-  focusAreasLoading,
-  onAddFocusArea,
-  onUpdateFocusArea,
-  onDeleteFocusArea,
   referenceFrameworks,
   selectedFrameworkIds,
   onSelectedFrameworkIdsChange,
@@ -101,30 +88,72 @@ export function ConfigPanel({
   onDeleteFramework,
   frameworksLoading,
   currentUserId,
-  selectedCategoryId,
-  onSelectedCategoryIdChange,
-  selectedSubcategoryId,
-  onSelectedSubcategoryIdChange,
+  selectedCategoryIds,
+  onSelectedCategoryIdsChange,
+  selectedSubcategoryIds,
+  onSelectedSubcategoryIdsChange,
 }: ConfigPanelProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [categorySearch, setCategorySearch] = useState('');
+  const [subcategorySearch, setSubcategorySearch] = useState('');
   const { categories } = useQuestionCategories();
-  const { subcategories } = useQuestionSubcategories(selectedCategoryId || undefined);
+  const { subcategories: allSubcategories } = useQuestionSubcategories();
   const activeCategories = categories.filter(c => c.is_active);
-  const activeSubcategories = subcategories.filter(s => s.is_active);
 
-  const toggleFocusArea = (value: string) => {
-    onFocusAreasChange(
-      focusAreas.includes(value)
-        ? focusAreas.filter(v => v !== value)
-        : [...focusAreas, value]
-    );
+  // Filter subcategories by selected categories
+  const filteredSubcategories = allSubcategories.filter(
+    s => s.is_active && selectedCategoryIds.includes(s.category_id)
+  );
+
+  // Search filtering
+  const searchedCategories = activeCategories.filter(c => {
+    if (!categorySearch) return true;
+    const search = categorySearch.toLowerCase();
+    return c.name.toLowerCase().includes(search) || (c.name_ar && c.name_ar.toLowerCase().includes(search));
+  });
+
+  const searchedSubcategories = filteredSubcategories.filter(s => {
+    if (!subcategorySearch) return true;
+    const search = subcategorySearch.toLowerCase();
+    return s.name.toLowerCase().includes(search) || (s.name_ar && s.name_ar.toLowerCase().includes(search));
+  });
+
+  const toggleCategory = (categoryId: string) => {
+    const isSelected = selectedCategoryIds.includes(categoryId);
+    let nextIds: string[];
+    if (isSelected) {
+      nextIds = selectedCategoryIds.filter(id => id !== categoryId);
+      // Remove orphaned subcategory selections
+      const orphanedSubIds = allSubcategories
+        .filter(s => s.category_id === categoryId)
+        .map(s => s.id);
+      if (orphanedSubIds.length > 0) {
+        onSelectedSubcategoryIdsChange(
+          selectedSubcategoryIds.filter(sid => !orphanedSubIds.includes(sid))
+        );
+      }
+    } else {
+      nextIds = [...selectedCategoryIds, categoryId];
+    }
+    onSelectedCategoryIdsChange(nextIds);
+  };
+
+  const toggleSubcategory = (subcategoryId: string) => {
+    if (selectedSubcategoryIds.includes(subcategoryId)) {
+      onSelectedSubcategoryIdsChange(selectedSubcategoryIds.filter(id => id !== subcategoryId));
+    } else {
+      onSelectedSubcategoryIdsChange([...selectedSubcategoryIds, subcategoryId]);
+    }
   };
 
   const updateAdvanced = (key: keyof AdvancedSettings, value: any) => {
     onAdvancedSettingsChange({ ...advancedSettings, [key]: value });
   };
+
+  const getCategoryLabel = (c: any) => isRTL && c.name_ar ? c.name_ar : c.name;
+  const getSubcategoryLabel = (s: any) => isRTL && s.name_ar ? s.name_ar : s.name;
 
   return (
     <div className="space-y-4">
@@ -137,42 +166,118 @@ export function ConfigPanel({
           <CardDescription>{t('aiGenerator.configDescription')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          {/* Focus Areas */}
-          <FocusAreaManager
-            focusAreas={focusAreaList}
-            selectedAreas={focusAreas}
-            onToggleArea={toggleFocusArea}
-            onAdd={onAddFocusArea}
-            onUpdate={onUpdateFocusArea}
-            onDelete={onDeleteFocusArea}
-            isLoading={focusAreasLoading}
-          />
-
-          {/* Category & Subcategory */}
+          {/* Category & Subcategory Multi-Select */}
           <div className="grid grid-cols-2 gap-4">
+            {/* Categories Multi-Select */}
             <div className="space-y-2">
               <Label>{t('aiGenerator.category')}</Label>
-              <Select value={selectedCategoryId || '__all__'} onValueChange={(v) => { onSelectedCategoryIdChange(v === '__all__' ? '' : v); onSelectedSubcategoryIdChange(''); }}>
-                <SelectTrigger><SelectValue placeholder={t('aiGenerator.selectCategory')} /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__all__">{t('common.all')}</SelectItem>
-                  {activeCategories.map(c => (
-                    <SelectItem key={c.id} value={c.id}>{isRTL && c.name_ar ? c.name_ar : c.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full justify-between font-normal">
+                    <span className="truncate">
+                      {selectedCategoryIds.length === 0
+                        ? t('aiGenerator.selectCategories')
+                        : t('aiGenerator.categoriesSelected', { count: selectedCategoryIds.length })}
+                    </span>
+                    <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[260px] p-0" align="start">
+                  <div className="p-2">
+                    <Input
+                      placeholder={t('aiGenerator.searchCategories')}
+                      value={categorySearch}
+                      onChange={e => setCategorySearch(e.target.value)}
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                  <ScrollArea className="h-[200px] px-2 pb-2">
+                    {searchedCategories.map(c => (
+                      <label
+                        key={c.id}
+                        className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent"
+                      >
+                        <Checkbox
+                          checked={selectedCategoryIds.includes(c.id)}
+                          onCheckedChange={() => toggleCategory(c.id)}
+                        />
+                        <span
+                          className="h-2.5 w-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: c.color || '#3B82F6' }}
+                        />
+                        <span className="truncate">{getCategoryLabel(c)}</span>
+                      </label>
+                    ))}
+                    {searchedCategories.length === 0 && (
+                      <p className="text-xs text-muted-foreground text-center py-4">{t('common.noData')}</p>
+                    )}
+                  </ScrollArea>
+                </PopoverContent>
+              </Popover>
             </div>
+
+            {/* Subcategories Multi-Select */}
             <div className="space-y-2">
               <Label>{t('aiGenerator.subcategory')}</Label>
-              <Select value={selectedSubcategoryId || '__all__'} onValueChange={(v) => onSelectedSubcategoryIdChange(v === '__all__' ? '' : v)} disabled={!selectedCategoryId}>
-                <SelectTrigger><SelectValue placeholder={t('aiGenerator.selectSubcategory')} /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__all__">{t('common.all')}</SelectItem>
-                  {activeSubcategories.map(s => (
-                    <SelectItem key={s.id} value={s.id}>{isRTL && s.name_ar ? s.name_ar : s.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-between font-normal"
+                    disabled={selectedCategoryIds.length === 0}
+                  >
+                    <span className="truncate">
+                      {selectedCategoryIds.length === 0
+                        ? t('aiGenerator.selectSubcategories')
+                        : selectedSubcategoryIds.length === 0
+                          ? t('aiGenerator.selectSubcategories')
+                          : t('aiGenerator.categoriesSelected', { count: selectedSubcategoryIds.length })}
+                    </span>
+                    <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[260px] p-0" align="start">
+                  <div className="p-2">
+                    <Input
+                      placeholder={t('aiGenerator.searchSubcategories')}
+                      value={subcategorySearch}
+                      onChange={e => setSubcategorySearch(e.target.value)}
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                  <ScrollArea className="h-[200px] px-2 pb-2">
+                    {searchedSubcategories.map(s => {
+                      const parentCat = activeCategories.find(c => c.id === s.category_id);
+                      return (
+                        <label
+                          key={s.id}
+                          className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent"
+                        >
+                          <Checkbox
+                            checked={selectedSubcategoryIds.includes(s.id)}
+                            onCheckedChange={() => toggleSubcategory(s.id)}
+                          />
+                          <span
+                            className="h-2.5 w-2.5 rounded-full shrink-0"
+                            style={{ backgroundColor: s.color || '#6366F1' }}
+                          />
+                          <span className="truncate">
+                            {getSubcategoryLabel(s)}
+                            {parentCat && (
+                              <span className="text-muted-foreground text-xs ms-1">
+                                ({getCategoryLabel(parentCat)})
+                              </span>
+                            )}
+                          </span>
+                        </label>
+                      );
+                    })}
+                    {searchedSubcategories.length === 0 && (
+                      <p className="text-xs text-muted-foreground text-center py-4">{t('common.noData')}</p>
+                    )}
+                  </ScrollArea>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
@@ -277,7 +382,7 @@ export function ConfigPanel({
           </Collapsible>
 
           {/* Generate Button */}
-          <Button onClick={onGenerate} disabled={isGenerating || focusAreas.length === 0} className="w-full" size="lg">
+          <Button onClick={onGenerate} disabled={isGenerating || selectedCategoryIds.length === 0} className="w-full" size="lg">
             {isGenerating ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin me-2" />

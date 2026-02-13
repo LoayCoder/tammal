@@ -38,7 +38,7 @@ export function useQuestionSubcategories(categoryId?: string) {
   const queryClient = useQueryClient();
 
   const { data: subcategories = [], isLoading, error } = useQuery({
-    queryKey: ['question-subcategories', categoryId],
+    queryKey: ['question-subcategories', categoryId ?? '__all__'],
     queryFn: async () => {
       let query = supabase
         .from('question_subcategories' as any)
