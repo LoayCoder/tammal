@@ -88,7 +88,7 @@ export function useEnhancedAIGeneration() {
   });
 
   const validateMutation = useMutation({
-    mutationFn: async (params: { questions: EnhancedGeneratedQuestion[]; accuracyMode: string; enableCriticPass: boolean; minWordLength: number; selectedFrameworkIds?: string[]; knowledgeDocumentIds?: string[]; hasDocuments?: boolean }) => {
+    mutationFn: async (params: { questions: EnhancedGeneratedQuestion[]; accuracyMode: string; model?: string; enableCriticPass: boolean; minWordLength: number; selectedFrameworkIds?: string[]; knowledgeDocumentIds?: string[]; hasDocuments?: boolean }) => {
       const { data, error } = await supabase.functions.invoke('validate-questions', {
         body: params,
       });
@@ -124,6 +124,7 @@ export function useEnhancedAIGeneration() {
       if (!user.user) throw new Error('Not authenticated');
 
       const tenantId = await supabase.rpc('get_user_tenant_id', { _user_id: user.user.id }).then(r => r.data);
+      if (!tenantId) throw new Error('No organization found. Please contact your administrator.');
 
       const { data: questionSet, error: setError } = await supabase
         .from('question_sets')

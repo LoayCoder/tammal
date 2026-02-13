@@ -20,7 +20,7 @@ serve(async (req) => {
       });
     }
 
-    const { prompt, useExpertKnowledge, selectedFrameworkIds = [], selectedFrameworks = [], documentSummaries = "" } = await req.json();
+    const { prompt, model = "google/gemini-3-flash-preview", useExpertKnowledge, selectedFrameworkIds = [], selectedFrameworks = [], documentSummaries = "" } = await req.json();
 
     if (!prompt || prompt.trim().length < 10) {
       return new Response(JSON.stringify({ error: "Prompt too short" }), {
@@ -106,7 +106,7 @@ Rules:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: `Rewrite this prompt as an expert-level survey generation instruction:\n\n${prompt}` },
@@ -118,6 +118,18 @@ Rules:
     if (!response.ok) {
       const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please wait a moment and try again." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "Payment required. AI credits may be exhausted." }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       return new Response(JSON.stringify({ error: "Failed to rewrite prompt" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
