@@ -1531,7 +1531,7 @@ export type Database = {
           created_at: string | null
           details: Json | null
           id: string
-          question_set_id: string
+          question_set_id: string | null
           result: string
           tenant_id: string | null
           validation_type: string
@@ -1540,7 +1540,7 @@ export type Database = {
           created_at?: string | null
           details?: Json | null
           id?: string
-          question_set_id: string
+          question_set_id?: string | null
           result?: string
           tenant_id?: string | null
           validation_type: string
@@ -1549,7 +1549,7 @@ export type Database = {
           created_at?: string | null
           details?: Json | null
           id?: string
-          question_set_id?: string
+          question_set_id?: string | null
           result?: string
           tenant_id?: string | null
           validation_type?: string

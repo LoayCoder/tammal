@@ -55,7 +55,7 @@ serve(async (req) => {
       complexity,
       tone,
       questionType,
-      model = "google/gemini-2.5-flash",
+      model = "google/gemini-3-flash-preview",
       accuracyMode = "standard",
       advancedSettings = {},
       language = "both",
@@ -81,7 +81,7 @@ serve(async (req) => {
       .eq("is_active", true)
       .single();
 
-    const selectedModel = modelData?.model_key || "google/gemini-2.5-flash";
+    const selectedModel = modelData?.model_key || "google/gemini-3-flash-preview";
     const temperature = accuracyMode === "strict" ? 0.3 : accuracyMode === "high" ? 0.5 : 0.7;
 
     // ========== STRUCTURED PROMPT CONSTRUCTION ==========
