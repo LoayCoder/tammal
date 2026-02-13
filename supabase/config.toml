@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.create-batch-schedules]
 verify_jwt = false
+
+[functions.ai-generate-wellness-pool]
+verify_jwt = false
