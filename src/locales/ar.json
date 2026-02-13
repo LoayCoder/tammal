@@ -837,7 +837,17 @@
     "deleteSuccess": "تم حذف الجدول بنجاح",
     "deleteError": "فشل في حذف الجدول",
     "toggleSuccess": "تم تحديث حالة الجدول",
-    "toggleError": "فشل في تحديث حالة الجدول"
+    "toggleError": "فشل في تحديث حالة الجدول",
+    "runNow": "تشغيل الآن",
+    "runSuccess": "تم تنفيذ الجدول بنجاح",
+    "runError": "فشل في تشغيل الجدول",
+    "viewScheduled": "عرض الأسئلة المجدولة",
+    "scheduledQuestionsDescription": "الأسئلة المجدولة للتوصيل إلى الموظفين",
+    "noScheduledQuestions": "لا توجد أسئلة مجدولة بعد",
+    "runToGenerate": "استخدم زر التشغيل لتوليد الأسئلة المجدولة",
+    "employee": "الموظف",
+    "question": "السؤال",
+    "delivery": "تاريخ التوصيل"
   },
   "aiGenerator": {
     "title": "مولد الأسئلة بالذكاء الاصطناعي",

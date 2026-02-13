@@ -837,7 +837,17 @@
     "deleteSuccess": "Schedule deleted successfully",
     "deleteError": "Failed to delete schedule",
     "toggleSuccess": "Schedule status updated",
-    "toggleError": "Failed to update schedule status"
+    "toggleError": "Failed to update schedule status",
+    "runNow": "Run Now",
+    "runSuccess": "Schedule executed successfully",
+    "runError": "Failed to run schedule",
+    "viewScheduled": "View Scheduled Questions",
+    "scheduledQuestionsDescription": "Questions scheduled for delivery to employees",
+    "noScheduledQuestions": "No scheduled questions yet",
+    "runToGenerate": "Use the Run Now button to generate scheduled questions",
+    "employee": "Employee",
+    "question": "Question",
+    "delivery": "Delivery Date"
   },
   "aiGenerator": {
     "title": "AI Question Generator",
