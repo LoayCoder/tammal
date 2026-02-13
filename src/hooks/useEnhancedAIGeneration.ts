@@ -88,7 +88,7 @@ export function useEnhancedAIGeneration() {
   });
 
   const validateMutation = useMutation({
-    mutationFn: async (params: { questions: EnhancedGeneratedQuestion[]; accuracyMode: string; enableCriticPass: boolean; minWordLength: number }) => {
+    mutationFn: async (params: { questions: EnhancedGeneratedQuestion[]; accuracyMode: string; enableCriticPass: boolean; minWordLength: number; selectedFrameworkIds?: string[]; knowledgeDocumentIds?: string[]; hasDocuments?: boolean }) => {
       const { data, error } = await supabase.functions.invoke('validate-questions', {
         body: params,
       });
