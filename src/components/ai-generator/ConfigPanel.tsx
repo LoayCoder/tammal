@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -10,19 +9,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Sparkles, Loader2, ChevronDown, Settings2 } from 'lucide-react';
 import { AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
 import { KnowledgeBasePanel } from './KnowledgeBasePanel';
+import { FocusAreaManager } from './FocusAreaManager';
 import { KnowledgeDocument } from '@/hooks/useAIKnowledge';
+import { FocusArea } from '@/hooks/useFocusAreas';
 import { useState } from 'react';
-
-const focusAreaOptions = [
-  { value: 'burnout', labelKey: 'aiGenerator.areas.burnout' },
-  { value: 'engagement', labelKey: 'aiGenerator.areas.engagement' },
-  { value: 'worklife', labelKey: 'aiGenerator.areas.worklife' },
-  { value: 'growth', labelKey: 'aiGenerator.areas.growth' },
-  { value: 'culture', labelKey: 'aiGenerator.areas.culture' },
-  { value: 'leadership', labelKey: 'aiGenerator.areas.leadership' },
-  { value: 'communication', labelKey: 'aiGenerator.areas.communication' },
-  { value: 'wellbeing', labelKey: 'aiGenerator.areas.wellbeing' },
-];
 
 interface ConfigPanelProps {
   focusAreas: string[];
@@ -53,6 +43,12 @@ interface ConfigPanelProps {
   isRewriting: boolean;
   selectedFrameworks: string[];
   onSelectedFrameworksChange: (frameworks: string[]) => void;
+  // Dynamic focus areas
+  focusAreaList: FocusArea[];
+  focusAreasLoading: boolean;
+  onAddFocusArea: (params: { labelKey: string; labelAr?: string }) => void;
+  onUpdateFocusArea: (params: { id: string; labelKey: string; labelAr?: string }) => void;
+  onDeleteFocusArea: (id: string) => void;
 }
 
 export function ConfigPanel({
@@ -83,6 +79,11 @@ export function ConfigPanel({
   isRewriting,
   selectedFrameworks,
   onSelectedFrameworksChange,
+  focusAreaList,
+  focusAreasLoading,
+  onAddFocusArea,
+  onUpdateFocusArea,
+  onDeleteFocusArea,
 }: ConfigPanelProps) {
   const { t } = useTranslation();
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -110,21 +111,15 @@ export function ConfigPanel({
       </CardHeader>
       <CardContent className="space-y-5">
         {/* Focus Areas */}
-        <div className="space-y-2">
-          <Label>{t('aiGenerator.focusAreas')}</Label>
-          <div className="flex flex-wrap gap-2">
-            {focusAreaOptions.map(option => (
-              <Badge
-                key={option.value}
-                variant={focusAreas.includes(option.value) ? 'default' : 'outline'}
-                className="cursor-pointer transition-colors"
-                onClick={() => toggleFocusArea(option.value)}
-              >
-                {t(option.labelKey)}
-              </Badge>
-            ))}
-          </div>
-        </div>
+        <FocusAreaManager
+          focusAreas={focusAreaList}
+          selectedAreas={focusAreas}
+          onToggleArea={toggleFocusArea}
+          onAdd={onAddFocusArea}
+          onUpdate={onUpdateFocusArea}
+          onDelete={onDeleteFocusArea}
+          isLoading={focusAreasLoading}
+        />
 
         {/* Question Type */}
         <div className="space-y-2">
