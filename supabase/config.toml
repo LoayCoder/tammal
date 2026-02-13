@@ -1,28 +1,28 @@
 project_id = "eojxreaidrfmggglmspr"
 
-[functions.generate-questions]
-verify_jwt = true
-
-[functions.schedule-engine]
-verify_jwt = true
-
 [functions.deliver-questions]
 verify_jwt = false
-
-[functions.submit-response]
-verify_jwt = true
-
-[functions.send-invitation-email]
-verify_jwt = true
 
 [functions.admin-reset-password]
 verify_jwt = false
 
 [functions.parse-document]
-verify_jwt = true
+verify_jwt = false
 
 [functions.rewrite-prompt]
-verify_jwt = true
+verify_jwt = false
 
 [functions.validate-questions]
-verify_jwt = true
+verify_jwt = false
+
+[functions.generate-questions]
+verify_jwt = false
+
+[functions.schedule-engine]
+verify_jwt = false
+
+[functions.submit-response]
+verify_jwt = false
+
+[functions.send-invitation-email]
+verify_jwt = false
