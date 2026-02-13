@@ -12,6 +12,7 @@ import { useQuestionCategories } from "@/hooks/useQuestionCategories";
 import { CategoryBadge } from "@/components/questions/CategoryBadge";
 import { Plus, MoreHorizontal, Edit2, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 export default function SubcategoryManagement() {
   const { t, i18n } = useTranslation();
@@ -22,14 +23,27 @@ export default function SubcategoryManagement() {
   const [filterCategoryId, setFilterCategoryId] = useState<string>('all');
 
   const { categories } = useQuestionCategories();
-  const { subcategories, isLoading, createSubcategory, updateSubcategory, deleteSubcategory } = useQuestionSubcategories(
-    filterCategoryId !== 'all' ? filterCategoryId : undefined
-  );
+  const { subcategories: allSubcategories, isLoading, createSubcategory, updateSubcategory, deleteSubcategory } = useQuestionSubcategories();
+  const MAX_SUBCATEGORIES_PER_CATEGORY = 5;
+
+  // Filter for display
+  const subcategories = filterCategoryId !== 'all' 
+    ? allSubcategories.filter(s => s.category_id === filterCategoryId) 
+    : allSubcategories;
+
+  const getSubcategoryCountForCategory = (categoryId: string) =>
+    allSubcategories.filter(s => s.category_id === categoryId).length;
 
   const handleSubmit = (data: CreateSubcategoryInput) => {
     if (editing) {
       updateSubcategory.mutate({ id: editing.id, ...data }, { onSuccess: () => { setDialogOpen(false); setEditing(null); } });
     } else {
+      // Check limit before creating
+      const currentCount = getSubcategoryCountForCategory(data.category_id);
+      if (currentCount >= MAX_SUBCATEGORIES_PER_CATEGORY) {
+        toast.error(t('subcategories.maxReached', { max: MAX_SUBCATEGORIES_PER_CATEGORY }));
+        return;
+      }
       createSubcategory.mutate(data, { onSuccess: () => setDialogOpen(false) });
     }
   };
