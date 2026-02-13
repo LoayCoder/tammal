@@ -78,7 +78,7 @@ export function SubcategoryDialog({
       color,
       weight,
       is_active: isActive,
-      is_global: isGlobal,
+      is_global: false,
     });
   };
 
@@ -153,10 +153,6 @@ export function SubcategoryDialog({
             <div className="flex items-center gap-2">
               <Switch checked={isActive} onCheckedChange={setIsActive} />
               <Label>{t('categories.isActive')}</Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Switch checked={isGlobal} onCheckedChange={setIsGlobal} />
-              <Label>{t('categories.isGlobal')}</Label>
             </div>
           </div>
 
