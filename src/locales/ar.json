@@ -868,7 +868,12 @@
     "runToGenerate": "استخدم زر التشغيل لتوليد الأسئلة المجدولة",
     "employee": "الموظف",
     "question": "السؤال",
-    "delivery": "تاريخ التوصيل"
+    "delivery": "تاريخ التوصيل",
+    "questionBatches": "دفعات الأسئلة",
+    "selectBatches": "اختر الدفعات (حد أقصى 3)",
+    "batchesSelected": "{{count}}/3 دفعات",
+    "maxBatchesReached": "الحد الأقصى 3 دفعات",
+    "noBatchesAvailable": "لا توجد دفعات متاحة"
   },
   "aiGenerator": {
     "title": "مولد الأسئلة بالذكاء الاصطناعي",

@@ -11,8 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Package } from 'lucide-react';
 import { useQuestionSchedules, QuestionSchedule } from '@/hooks/useQuestionSchedules';
+import { useQuestionBatches } from '@/hooks/useQuestionBatches';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -22,6 +25,7 @@ export default function ScheduleManagement() {
   const { profile } = useProfile();
   const tenantId = profile?.tenant_id || undefined;
   const { schedules, isLoading, createSchedule, updateSchedule, toggleStatus, deleteSchedule } = useQuestionSchedules(tenantId);
+  const { batches } = useQuestionBatches(tenantId || null);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<QuestionSchedule | null>(null);
@@ -39,6 +43,7 @@ export default function ScheduleManagement() {
   const [questionsPerDelivery, setQuestionsPerDelivery] = useState(1);
   const [avoidWeekends, setAvoidWeekends] = useState(true);
   const [enableAI, setEnableAI] = useState(false);
+  const [selectedBatchIds, setSelectedBatchIds] = useState<string[]>([]);
 
   const resetForm = () => {
     setName('');
@@ -48,6 +53,7 @@ export default function ScheduleManagement() {
     setQuestionsPerDelivery(1);
     setAvoidWeekends(true);
     setEnableAI(false);
+    setSelectedBatchIds([]);
     setEditingSchedule(null);
   };
 
@@ -60,6 +66,7 @@ export default function ScheduleManagement() {
     setQuestionsPerDelivery(schedule.questions_per_delivery || 1);
     setAvoidWeekends(schedule.avoid_weekends);
     setEnableAI(schedule.enable_ai_generation);
+    setSelectedBatchIds(schedule.batch_ids || []);
     setDialogOpen(true);
   };
 
@@ -77,6 +84,7 @@ export default function ScheduleManagement() {
           questions_per_delivery: questionsPerDelivery,
           avoid_weekends: avoidWeekends,
           enable_ai_generation: enableAI,
+          batch_ids: selectedBatchIds,
         },
         {
           onSuccess: () => {
@@ -96,6 +104,7 @@ export default function ScheduleManagement() {
           questions_per_delivery: questionsPerDelivery,
           avoid_weekends: avoidWeekends,
           enable_ai_generation: enableAI,
+          batch_ids: selectedBatchIds,
           target_audience: { all: true },
           status: 'active',
         },
@@ -265,6 +274,7 @@ export default function ScheduleManagement() {
                 <TableRow>
                   <TableHead>{t('schedules.name')}</TableHead>
                   <TableHead>{t('schedules.frequency')}</TableHead>
+                  <TableHead>{t('schedules.questionBatches')}</TableHead>
                   <TableHead>{t('schedules.targetAudience')}</TableHead>
                   <TableHead>{t('common.status')}</TableHead>
                   <TableHead>{t('schedules.preferredTime')}</TableHead>
@@ -283,6 +293,16 @@ export default function ScheduleManagement() {
                       </div>
                     </TableCell>
                     <TableCell>{getFrequencyLabel(schedule.frequency)}</TableCell>
+                    <TableCell>
+                      {(schedule.batch_ids?.length || 0) > 0 ? (
+                        <Badge variant="secondary">
+                          <Package className="h-3 w-3 me-1" />
+                          {schedule.batch_ids.length} {schedule.batch_ids.length === 1 ? 'batch' : 'batches'}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">—</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <Users className="h-4 w-4" />
@@ -409,6 +429,59 @@ export default function ScheduleManagement() {
                   onChange={e => setQuestionsPerDelivery(Number(e.target.value))}
                 />
               </div>
+            </div>
+            {/* Question Batches Multi-Select */}
+            <div className="space-y-2">
+              <Label>{t('schedules.questionBatches')}</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full justify-start font-normal">
+                    <Package className="h-4 w-4 me-2" />
+                    {selectedBatchIds.length > 0
+                      ? t('schedules.batchesSelected', { count: selectedBatchIds.length })
+                      : t('schedules.selectBatches')}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 max-h-60 overflow-y-auto" align="start">
+                  {batches.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-2">{t('schedules.noBatchesAvailable')}</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {batches.map(batch => {
+                        const isSelected = selectedBatchIds.includes(batch.id);
+                        const isDisabled = !isSelected && selectedBatchIds.length >= 3;
+                        return (
+                          <label
+                            key={batch.id}
+                            className={`flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          >
+                            <Checkbox
+                              checked={isSelected}
+                              disabled={isDisabled}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedBatchIds(prev => [...prev, batch.id]);
+                                } else {
+                                  setSelectedBatchIds(prev => prev.filter(id => id !== batch.id));
+                                }
+                              }}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <span className="text-sm truncate block">{batch.name || 'Unnamed Batch'}</span>
+                            </div>
+                            <Badge variant="outline" className="text-xs shrink-0">
+                              {batch.question_count}
+                            </Badge>
+                          </label>
+                        );
+                      })}
+                      {selectedBatchIds.length >= 3 && (
+                        <p className="text-xs text-muted-foreground pt-1">{t('schedules.maxBatchesReached')}</p>
+                      )}
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="flex items-center justify-between">
               <Label>{t('schedules.avoidWeekends')}</Label>

@@ -89,28 +89,47 @@ serve(async (req) => {
         continue;
       }
 
-      // Get available questions
-      const activeCategories = schedule.active_categories || [];
-      let questionsQuery = supabase
-        .from("questions")
-        .select("id")
-        .eq("is_active", true)
-        .is("deleted_at", null);
+      // Get available questions - from linked batches or general pool
+      const batchIds = (schedule.batch_ids || []) as string[];
+      let questions: { id: string }[] = [];
 
-      if (activeCategories.length > 0) {
-        questionsQuery = questionsQuery.in("category_id", activeCategories);
+      if (batchIds.length > 0) {
+        // Fetch from linked question batches (generated_questions table)
+        const { data: batchQuestions, error: bqError } = await supabase
+          .from("generated_questions")
+          .select("id")
+          .in("question_set_id", batchIds);
+
+        if (bqError) {
+          console.error("Error fetching batch questions:", bqError);
+          continue;
+        }
+        questions = batchQuestions || [];
+        console.log(`Found ${questions.length} questions from ${batchIds.length} linked batches`);
+      } else {
+        // Fallback: general questions pool
+        const activeCategories = schedule.active_categories || [];
+        let questionsQuery = supabase
+          .from("questions")
+          .select("id")
+          .eq("is_active", true)
+          .is("deleted_at", null);
+
+        if (activeCategories.length > 0) {
+          questionsQuery = questionsQuery.in("category_id", activeCategories);
+        }
+
+        questionsQuery = questionsQuery.or(`tenant_id.eq.${schedule.tenant_id},is_global.eq.true`);
+
+        const { data: poolQuestions, error: qError } = await questionsQuery;
+        if (qError) {
+          console.error("Error fetching questions:", qError);
+          continue;
+        }
+        questions = poolQuestions || [];
       }
 
-      // Include global questions or tenant-specific
-      questionsQuery = questionsQuery.or(`tenant_id.eq.${schedule.tenant_id},is_global.eq.true`);
-
-      const { data: questions, error: qError } = await questionsQuery;
-      if (qError) {
-        console.error("Error fetching questions:", qError);
-        continue;
-      }
-
-      if (!questions?.length) {
+      if (!questions.length) {
         console.log(`No questions found for schedule ${schedule.id}`);
         continue;
       }

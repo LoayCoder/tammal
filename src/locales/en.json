@@ -868,7 +868,12 @@
     "runToGenerate": "Use the Run Now button to generate scheduled questions",
     "employee": "Employee",
     "question": "Question",
-    "delivery": "Delivery Date"
+    "delivery": "Delivery Date",
+    "questionBatches": "Question Batches",
+    "selectBatches": "Select batches (max 3)",
+    "batchesSelected": "{{count}}/3 batches",
+    "maxBatchesReached": "Maximum 3 batches allowed",
+    "noBatchesAvailable": "No batches available"
   },
   "aiGenerator": {
     "title": "AI Question Generator",

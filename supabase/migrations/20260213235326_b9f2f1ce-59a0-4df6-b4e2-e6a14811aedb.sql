@@ -1,0 +1,1 @@
+ALTER TABLE question_schedules ADD COLUMN batch_ids jsonb DEFAULT '[]'::jsonb;
