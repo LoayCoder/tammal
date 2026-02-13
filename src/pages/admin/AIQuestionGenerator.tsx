@@ -302,15 +302,15 @@ export default function AIQuestionGenerator() {
                 </div>
               </div>
 
+              {validationReport && (
+                <ValidationReport report={validationReport} isStrictMode={isStrict} />
+              )}
+
               <div className="space-y-3">
                 {questions.map((q, i) => (
                   <QuestionCard key={i} question={q} index={i} onRemove={removeQuestion} onUpdate={updateQuestion} />
                 ))}
               </div>
-
-              {validationReport && (
-                <ValidationReport report={validationReport} isStrictMode={isStrict} />
-              )}
             </>
           )}
         </div>
