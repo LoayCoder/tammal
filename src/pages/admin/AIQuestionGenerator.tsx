@@ -44,6 +44,7 @@ export default function AIQuestionGenerator() {
   const [useExpertKnowledge, setUseExpertKnowledge] = useState(false);
   const [customPrompt, setCustomPrompt] = useState('');
   const [isRewriting, setIsRewriting] = useState(false);
+  const [selectedFrameworks, setSelectedFrameworks] = useState<string[]>([]);
   const isStrict = accuracyMode === 'strict';
   const hasFailures = validationReport?.overall_result === 'failed';
   const canSave = questions.length > 0 && !(isStrict && hasFailures);
@@ -65,6 +66,7 @@ export default function AIQuestionGenerator() {
       useExpertKnowledge,
       knowledgeDocumentIds: activeDocIds,
       customPrompt: customPrompt.trim() || undefined,
+      selectedFrameworks: selectedFrameworks.length > 0 ? selectedFrameworks : undefined,
     });
   };
 
@@ -72,8 +74,18 @@ export default function AIQuestionGenerator() {
     if (customPrompt.trim().length < 10) return;
     setIsRewriting(true);
     try {
+      const activeDocs = documents.filter(d => d.is_active && d.content_text);
+      const documentSummaries = activeDocs
+        .map(d => `[${d.file_name}]: ${(d.content_text || '').substring(0, 400)}`)
+        .join('\n')
+        .substring(0, 2000);
       const { data, error } = await supabase.functions.invoke('rewrite-prompt', {
-        body: { prompt: customPrompt, useExpertKnowledge },
+        body: {
+          prompt: customPrompt,
+          useExpertKnowledge,
+          selectedFrameworks: selectedFrameworks.length > 0 ? selectedFrameworks : undefined,
+          documentSummaries: documentSummaries || undefined,
+        },
       });
       if (error) throw error;
       if (data?.rewrittenPrompt) {
@@ -201,6 +213,8 @@ export default function AIQuestionGenerator() {
             onCustomPromptChange={setCustomPrompt}
             onRewritePrompt={handleRewritePrompt}
             isRewriting={isRewriting}
+            selectedFrameworks={selectedFrameworks}
+            onSelectedFrameworksChange={setSelectedFrameworks}
           />
         </div>
 

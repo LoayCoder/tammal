@@ -938,6 +938,9 @@
     "rewriteSuccess": "تم تحسين التعليمات بلغة خبير",
     "rewriteError": "فشل في إعادة صياغة التعليمات",
     "docsActive": "مستندات نشطة",
+    "frameworksSelected": "{{count}} محدد",
+    "selectFrameworks": "اختر الأطر المرجعية لتوجيه توليد الأسئلة",
+    "allFrameworks": "جميع الأطر",
     "areas": {
       "burnout": "منع الإرهاق",
       "engagement": "مشاركة الموظفين",

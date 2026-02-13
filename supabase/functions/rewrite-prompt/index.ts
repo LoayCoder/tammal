@@ -5,6 +5,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const frameworkDescriptions: Record<string, string> = {
+  ISO45003: "ISO 45003 (Psychological Health & Safety at Work)",
+  ISO10018: "ISO 10018 & ISO 30414 (People Engagement & HR Reporting)",
+  COPSOQ: "COPSOQ III (Copenhagen Psychosocial Questionnaire)",
+  UWES: "UWES (Utrecht Work Engagement Scale)",
+  WHO: "WHO Guidelines (Mental Health at Work)",
+  Gallup: "Gallup Q12 (Employee Needs Hierarchy)",
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -19,7 +28,7 @@ serve(async (req) => {
       });
     }
 
-    const { prompt, useExpertKnowledge } = await req.json();
+    const { prompt, useExpertKnowledge, selectedFrameworks = [], documentSummaries = "" } = await req.json();
 
     if (!prompt || prompt.trim().length < 10) {
       return new Response(JSON.stringify({ error: "Prompt too short" }), {
@@ -36,21 +45,31 @@ serve(async (req) => {
       });
     }
 
-    const expertContext = useExpertKnowledge
-      ? `You have deep expertise in the following international standards and frameworks:
-- ISO 45003 (Psychological Health & Safety at Work)
-- ISO 10018 & ISO 30414 (People Engagement & HR Reporting)
-- COPSOQ III (Copenhagen Psychosocial Questionnaire)
-- UWES (Utrecht Work Engagement Scale)
-- WHO Guidelines (Mental Health at Work)
-- Gallup Q12 (Employee Needs Hierarchy)
+    // Build framework context based on selection
+    let expertContext = "";
+    if (useExpertKnowledge) {
+      const allIds = Object.keys(frameworkDescriptions);
+      const activeIds = selectedFrameworks.length > 0 ? selectedFrameworks : allIds;
+      const frameworkList = activeIds
+        .filter((id: string) => frameworkDescriptions[id])
+        .map((id: string) => `- ${frameworkDescriptions[id]}`)
+        .join("\n");
 
-When rewriting, reference these frameworks where relevant and ensure the prompt is grounded in evidence-based psychometric principles.`
-      : "";
+      expertContext = `You have deep expertise in the following selected international standards and frameworks:
+${frameworkList}
+
+When rewriting, reference ONLY these selected frameworks where relevant and ensure the prompt is grounded in evidence-based psychometric principles aligned with them.`;
+    }
+
+    // Build document context
+    let documentContext = "";
+    if (documentSummaries && documentSummaries.trim().length > 0) {
+      documentContext = `\n\nThe user has uploaded reference documents with the following content summaries. Incorporate relevant concepts from these documents into the rewritten prompt:\n${documentSummaries}`;
+    }
 
     const systemPrompt = `You are an expert Industrial-Organizational Psychologist and Psychometrician who specializes in creating survey instruments.
 
-${expertContext}
+${expertContext}${documentContext}
 
 Your task is to take a user's rough prompt/instructions and rewrite it into a professional, detailed, expert-level prompt that will guide an AI to generate the highest quality survey questions.
 
@@ -58,7 +77,8 @@ Rules:
 - Preserve the user's original intent and focus areas
 - Add scientific rigor, proper terminology, and psychometric best practices
 - Include guidance on question construction (avoiding double-barreled questions, leading language, etc.)
-- Add relevant framework references if expert knowledge is enabled
+- Add relevant framework references if expert knowledge is enabled (only reference the selected frameworks)
+- If document content was provided, weave in relevant concepts and terminology from those documents
 - Keep the rewritten prompt clear and actionable
 - Output ONLY the rewritten prompt text, no explanations or meta-commentary
 - Write in the same language as the input prompt`;

@@ -51,6 +51,8 @@ interface ConfigPanelProps {
   onCustomPromptChange: (value: string) => void;
   onRewritePrompt: () => void;
   isRewriting: boolean;
+  selectedFrameworks: string[];
+  onSelectedFrameworksChange: (frameworks: string[]) => void;
 }
 
 export function ConfigPanel({
@@ -79,6 +81,8 @@ export function ConfigPanel({
   onCustomPromptChange,
   onRewritePrompt,
   isRewriting,
+  selectedFrameworks,
+  onSelectedFrameworksChange,
 }: ConfigPanelProps) {
   const { t } = useTranslation();
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -249,6 +253,8 @@ export function ConfigPanel({
           onCustomPromptChange={onCustomPromptChange}
           onRewritePrompt={onRewritePrompt}
           isRewriting={isRewriting}
+          selectedFrameworks={selectedFrameworks}
+          onSelectedFrameworksChange={onSelectedFrameworksChange}
         />
 
         {/* Generate Button */}
