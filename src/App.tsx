@@ -57,9 +57,9 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth/accept-invite" element={<AcceptInvite />} />
           <Route path="/install" element={<InstallApp />} />
-          <Route path="/employee/survey" element={<EmployeeSurvey />} />
-          <Route path="/employee/wellness" element={<DailyCheckin />} />
           <Route element={<MainLayout />}>
+            <Route path="/employee/survey" element={<EmployeeSurvey />} />
+            <Route path="/employee/wellness" element={<DailyCheckin />} />
             <Route path="/" element={<Dashboard />} />
             <Route path="/admin/tenants" element={<TenantManagement />} />
             <Route path="/admin/tenants/:id" element={<TenantDashboard />} />
