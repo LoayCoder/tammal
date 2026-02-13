@@ -200,26 +200,75 @@ For EACH question you MUST also provide:
       systemPrompt += `\n\n# Additional User Instructions:\n${customPrompt}`;
     }
 
-    // 5. Category & Subcategory context (multi-select)
+    // 5. Category & Subcategory context (multi-select) — with full descriptions
     if (categoryIds && categoryIds.length > 0) {
       const { data: catData } = await supabase
         .from("question_categories")
-        .select("name, name_ar")
+        .select("id, name, name_ar, description, description_ar")
         .in("id", categoryIds);
+
       if (catData && catData.length > 0) {
-        const catNames = catData.map((c: any) => c.name).join(", ");
-        systemPrompt += `\n\n# Category Context:\nCategories: ${catNames}. Generate questions specifically relevant to these categories.`;
+        const categoryDescriptions = catData.map((c: any, i: number) => {
+          let block = `${i + 1}. **${c.name}**${c.name_ar ? ` (${c.name_ar})` : ''}`;
+          if (c.description) block += `: ${c.description}`;
+          if (c.description_ar) block += ` | ${c.description_ar}`;
+          return block;
+        }).join('\n');
+
+        systemPrompt += `\n\n# Category Classification (MANDATORY):
+Every generated question MUST belong to one of these categories. Tag each question with its category name.
+${categoryDescriptions}`;
+
+        // Fetch subcategories for selected categories
+        if (subcategoryIds && subcategoryIds.length > 0) {
+          const { data: subData } = await supabase
+            .from("question_subcategories")
+            .select("id, name, name_ar, description, description_ar, category_id")
+            .in("id", subcategoryIds);
+
+          if (subData && subData.length > 0) {
+            const subByCategory: Record<string, any[]> = {};
+            for (const s of subData) {
+              if (!subByCategory[s.category_id]) subByCategory[s.category_id] = [];
+              subByCategory[s.category_id].push(s);
+            }
+
+            let subcatBlock = '\n\n# Subcategory Focus (MANDATORY when provided):';
+            subcatBlock += '\nNarrow each question to one of these specific subcategories within its parent category:';
+            for (const cat of catData) {
+              const subs = subByCategory[cat.id];
+              if (subs && subs.length > 0) {
+                subcatBlock += `\n\n**${cat.name}** subcategories:`;
+                for (const s of subs) {
+                  subcatBlock += `\n  - ${s.name}${s.name_ar ? ` (${s.name_ar})` : ''}`;
+                  if (s.description) subcatBlock += `: ${s.description}`;
+                }
+              }
+            }
+            subcatBlock += '\n\nTag each question with both its category_name and subcategory_name.';
+            systemPrompt += subcatBlock;
+          }
+        }
       }
     }
-    if (subcategoryIds && subcategoryIds.length > 0) {
-      const { data: subData } = await supabase
-        .from("question_subcategories")
-        .select("name, name_ar")
-        .in("id", subcategoryIds);
-      if (subData && subData.length > 0) {
-        const subNames = subData.map((s: any) => s.name).join(", ");
-        systemPrompt += `\nSubcategories: ${subNames}. Narrow the focus of questions to these subcategories.`;
-      }
+
+    // 6. Integration Priority Directive
+    const activeSources = [];
+    if (frameworkNames.length > 0) activeSources.push('Reference Frameworks');
+    if (documentContext) activeSources.push('Knowledge Base Documents');
+    if (categoryIds.length > 0) activeSources.push('Categories/Subcategories');
+    if (customPrompt) activeSources.push('Custom Instructions');
+
+    if (activeSources.length > 1) {
+      systemPrompt += `\n\n# Source Integration Priority:
+You have ${activeSources.length} active context sources: ${activeSources.join(', ')}.
+Apply them in this strict priority order:
+1. **Categories/Subcategories** — Every question MUST map to a selected category (and subcategory if provided). This is non-negotiable.
+2. **Reference Frameworks** — Align question methodology, constructs, and scientific rigor with the selected frameworks.
+3. **Knowledge Base Documents** — Use document content as domain-specific context and terminology source.
+4. **Custom Instructions** — Apply as additional constraints or focus adjustments.
+
+All sources work together: a question should satisfy the category requirement while being grounded in frameworks and informed by documents.`;
     }
 
     // 6. Tool definition
@@ -251,6 +300,8 @@ For EACH question you MUST also provide:
                   framework_reference: { type: "string", description: "The framework this question derives from" },
                   psychological_construct: { type: "string", description: "The construct being measured" },
                   scoring_mechanism: { type: "string", description: "Recommended scoring approach" },
+                  category_name: { type: "string", description: "The category this question belongs to" },
+                  subcategory_name: { type: "string", description: "The subcategory this question belongs to, if applicable" },
                   options: {
                     type: "array",
                     items: {
@@ -370,6 +421,8 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       framework_reference: q.framework_reference || null,
       psychological_construct: q.psychological_construct || null,
       scoring_mechanism: q.scoring_mechanism || null,
+      category_name: q.category_name || null,
+      subcategory_name: q.subcategory_name || null,
     }));
 
     // Log generation
