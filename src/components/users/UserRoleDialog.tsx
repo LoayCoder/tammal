@@ -34,14 +34,17 @@ export function UserRoleDialog({ open, onOpenChange, user, tenantId }: UserRoleD
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
+  const userRoleIds = userRoles
+    ?.filter(ur => ur.custom_role_id)
+    .map(ur => ur.custom_role_id as string)
+    .sort()
+    .join(',') || '';
+
   useEffect(() => {
-    if (user && userRoles) {
-      const roleIds = userRoles
-        .filter(ur => ur.custom_role_id)
-        .map(ur => ur.custom_role_id as string);
-      setSelectedRoles(roleIds);
+    if (user && open) {
+      setSelectedRoles(userRoleIds ? userRoleIds.split(',') : []);
     }
-  }, [user, userRoles]);
+  }, [user?.user_id, open, userRoleIds]);
 
   const handleRoleToggle = (roleId: string, checked: boolean) => {
     if (checked) {

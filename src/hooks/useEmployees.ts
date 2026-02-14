@@ -56,13 +56,7 @@ export function useEmployees(filters?: EmployeeFilters) {
     queryFn: async () => {
       let query = supabase
         .from('employees')
-        .select(`
-          *,
-          manager:employees!employees_manager_id_fkey (
-            id,
-            full_name
-          )
-        `)
+        .select('*')
         .is('deleted_at', null)
         .order('full_name', { ascending: true });
 
@@ -80,11 +74,25 @@ export function useEmployees(filters?: EmployeeFilters) {
 
       if (error) throw error;
       
-      // Transform the data to match our interface
-      return (data || []).map(emp => ({
+      // Fetch manager names separately for employees that have manager_id
+      const employeesData = (data || []) as Employee[];
+      const managerIds = [...new Set(employeesData.filter(e => e.manager_id).map(e => e.manager_id as string))];
+      
+      let managersMap = new Map<string, { id: string; full_name: string }>();
+      if (managerIds.length > 0) {
+        const { data: managers } = await supabase
+          .from('employees')
+          .select('id, full_name')
+          .in('id', managerIds);
+        if (managers) {
+          managers.forEach(m => managersMap.set(m.id, m));
+        }
+      }
+
+      return employeesData.map(emp => ({
         ...emp,
-        manager: Array.isArray(emp.manager) && emp.manager.length > 0 ? emp.manager[0] : null
-      })) as Employee[];
+        manager: emp.manager_id ? managersMap.get(emp.manager_id) || null : null,
+      }));
     },
   });
 
