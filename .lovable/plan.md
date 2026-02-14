@@ -1,95 +1,138 @@
 
 
-# Improve Target Audience Visibility in Schedules
+# Auto-Create Employee Record on Signup / Invitation Accept
 
-## Overview
+## Problem
 
-Add real-time audience resolution to the Schedule Management page so administrators can see exactly which employees are targeted, how many are included, and verify inclusion per-person. This involves two main additions: an audience summary in the schedule table/dialog and a detailed audience viewer with per-employee inclusion status.
+Users who sign up directly (not via invitation with a pre-existing employee record) only get a `profiles` entry but no `employees` record. Since the Unified Directory is built on the `employees` table, these users are invisible in the Directory.
+
+## Solution
+
+Add auto-creation logic at two points and a one-time backfill for existing orphaned profiles like Luay.
 
 ---
 
-## What Changes
+## Step 1: Auto-Create Employee on Invitation Accept (without employee_id)
 
-### 1. Audience Summary in Schedule Table
+In `src/pages/auth/AcceptInvite.tsx`, the current code only links an existing employee record if `invitation.employee_id` exists. If the invitation was created without linking to an employee, no employee record is created.
 
-Enhance the existing "Target Audience" column in the schedules table to show resolved counts:
+**Change**: After step 2 (profile update), if `invitation.employee_id` is null, insert a new employee record:
 
-- Instead of just "All Employees", show "All Employees (3/3)"
-- Instead of "2 departments", show "2 departments (5/8 employees)"
-- Instead of "3 employees", show "3 of 8 employees"
+```
+INSERT INTO employees (tenant_id, user_id, full_name, email, status)
+```
 
-This requires computing the resolved employee count by cross-referencing the schedule's `target_audience` with the actual `availableEmployees` list.
+Then update the invitation's `employee_id` to the newly created record.
 
-### 2. Audience Summary Card in Create/Edit Dialog
+## Step 2: Auto-Create Employee on Direct Signup
 
-Add a live summary panel inside the dialog (below the Target Audience radio group) that shows:
+In `src/pages/Auth.tsx`, after a successful `signUp`, the `handle_new_user` trigger creates a profile but no employee. Since direct signups may not have a `tenant_id` yet, we handle this differently:
 
-- Audience Type label (All / By Department / Specific)
-- Resolved count: "X of Y employees included"
-- A progress-style indicator (e.g., Badge with fraction)
+**Change**: Create a database trigger function `handle_profile_tenant_update` that fires when a profile's `tenant_id` is set (UPDATE on profiles WHERE tenant_id changes from NULL to a value). This trigger auto-creates an employee record if one doesn't already exist for that user.
 
-This updates in real-time as the user changes audience settings.
+This is cleaner than frontend logic because it covers all cases (invitation accept, admin assignment, etc.).
 
-### 3. Target Audience Detail Viewer (New Dialog)
+## Step 3: Backfill Existing Orphaned Profiles
 
-Add a "View Audience" button (eye icon) next to each schedule in the table, opening a new dialog:
+Run a one-time data operation to create employee records for profiles that have a `tenant_id` but no matching employee record (like Luay).
 
-- **Header**: Schedule name, audience type, summary badge ("X of Y included")
-- **Collapsible panel** using the existing Collapsible component
-- **Searchable employee table** with columns: Name, Email, Department, Status (inclusion badge)
-- Inclusion badges:
-  - Green checkmark: "Included"
-  - Red X: "Not Included"
-- Search filters by name, email, department
-- Real-time: fetches all active employees and computes inclusion against the schedule's `target_audience`
+Query:
+```sql
+INSERT INTO employees (tenant_id, user_id, full_name, email, status)
+SELECT p.tenant_id, p.user_id, p.full_name, 
+       get_user_email(p.user_id), 'active'
+FROM profiles p
+WHERE p.tenant_id IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1 FROM employees e WHERE e.user_id = p.user_id
+  );
+```
 
-### 4. Audience Resolution Logic
+## Step 4: Localization
 
-Create a utility function `resolveAudience` that takes:
-- `target_audience` object from the schedule
-- Full list of active employees
-
-Returns:
-- `includedEmployees`: employees matching the criteria
-- `excludedEmployees`: employees not matching
-- `totalEligible`: total active employee count
-- `includedCount`: number included
-
-Logic:
-- `all: true` --> everyone included
-- `departments: [...]` --> match by `employee.department`
-- `specific_employees: [...]` --> match by `employee.id`
-
-### 5. Localization
+Add i18n keys for any toast messages related to auto-creation.
 
 | Key | EN | AR |
 |-----|----|----|
-| `schedules.audienceSummary` | Target Audience Summary | ملخص الجمهور المستهدف |
-| `schedules.includedCount` | {{included}} of {{total}} included | {{included}} من {{total}} مشمول |
-| `schedules.viewAudience` | View Audience | عرض الجمهور |
-| `schedules.included` | Included | مشمول |
-| `schedules.notIncluded` | Not Included | غير مشمول |
-| `schedules.audienceDetails` | Audience Details | تفاصيل الجمهور |
-| `schedules.searchAudience` | Search by name, email, or department | البحث بالاسم أو البريد أو القسم |
-| `schedules.allIncluded` | All employees are included | جميع الموظفين مشمولون |
+| `employees.autoCreated` | Employee record created automatically | تم إنشاء سجل الموظف تلقائياً |
 
 ---
 
 ## Technical Details
 
-### Files to Change
+### Database Migration: Auto-Sync Trigger
+
+Create a trigger on the `profiles` table:
+
+```sql
+CREATE OR REPLACE FUNCTION public.auto_create_employee_on_profile_link()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $$
+BEGIN
+  -- Only fire when tenant_id is set (from NULL to a value)
+  IF OLD.tenant_id IS NULL AND NEW.tenant_id IS NOT NULL THEN
+    -- Check if employee record already exists
+    IF NOT EXISTS (SELECT 1 FROM employees WHERE user_id = NEW.user_id) THEN
+      INSERT INTO employees (tenant_id, user_id, full_name, email, status)
+      VALUES (
+        NEW.tenant_id,
+        NEW.user_id,
+        COALESCE(NEW.full_name, 'New User'),
+        get_user_email(NEW.user_id),
+        'active'
+      );
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER on_profile_tenant_linked
+  AFTER UPDATE ON profiles
+  FOR EACH ROW
+  WHEN (OLD.tenant_id IS DISTINCT FROM NEW.tenant_id)
+  EXECUTE FUNCTION auto_create_employee_on_profile_link();
+```
+
+### Frontend Change: AcceptInvite.tsx
+
+In the `handleSignup` function, after step 2 (profile update), add a conditional block:
+
+```typescript
+// 3. Create employee record if no employee_id on invitation
+if (!invitation.employee_id) {
+  const { data: newEmp } = await supabase
+    .from("employees")
+    .insert({
+      tenant_id: invitation.tenant_id,
+      user_id: userId,
+      full_name: fullName,
+      email: invitation.email,
+      status: "active",
+    })
+    .select("id")
+    .single();
+  
+  // Update invitation with the new employee_id
+  if (newEmp) {
+    await supabase
+      .from("invitations")
+      .update({ employee_id: newEmp.id })
+      .eq("id", invitation.id);
+  }
+}
+```
+
+### Files Summary
 
 | Action | File | Purpose |
 |--------|------|---------|
-| Edit | `src/pages/admin/ScheduleManagement.tsx` | Add audience resolution logic, summary display in table and dialog, new audience detail viewer dialog |
-| Edit | `src/locales/en.json` | Add audience visibility i18n keys |
-| Edit | `src/locales/ar.json` | Add audience visibility Arabic i18n keys |
-
-### Implementation Notes
-
-- The `availableEmployees` query already exists in the component -- reuse it for resolution
-- No new database queries needed; audience resolution is purely client-side computation against the already-fetched employee list
-- The detail viewer dialog reuses existing `Table`, `Badge`, `ScrollArea`, `Collapsible`, `Input` components
-- Dialog width set to `sm:max-w-[600px]` with `ScrollArea` for large employee lists
-- Uses logical properties (`me-`, `ms-`, `ps-`, `text-start`) per RTL guidelines
+| Edit | `src/pages/auth/AcceptInvite.tsx` | Auto-create employee when invitation has no employee_id |
+| Edit | `src/locales/en.json` | Add auto-creation i18n key |
+| Edit | `src/locales/ar.json` | Add auto-creation Arabic key |
+| Migration | Database trigger | Auto-create employee when profile gets tenant_id |
+| Data operation | Backfill query | Create employee records for existing orphaned profiles (Luay) |
 
