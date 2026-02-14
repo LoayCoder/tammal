@@ -1,72 +1,62 @@
 
 
-# Link Schedules to Question Batches (Max 3) with Avoid Weekends Selection
+# Add Target Audience Configuration to Schedule Dialog
 
 ## Overview
 
-Add the ability to link up to 3 Question Batches when creating/editing a Schedule. The schedule engine will then pull questions from the linked batches instead of querying the general questions pool. The "Avoid Weekends" toggle already exists in the form and is functional.
+Add a Target Audience section to the create/edit schedule dialog, allowing users to choose between "All Employees", "By Department", or "Specific Employees". The database column (`target_audience` JSONB) and backend engine logic already exist -- this is purely a UI addition.
 
 ---
 
-## Step 1: Database Migration
+## What Changes
 
-Add a `batch_ids` JSONB column to `question_schedules`:
+### 1. Update Schedule Dialog UI (`ScheduleManagement.tsx`)
 
-```text
-ALTER TABLE question_schedules ADD COLUMN batch_ids jsonb DEFAULT '[]'::jsonb;
-```
+Add a new "Target Audience" section in the dialog with three radio-style options:
 
-This stores an array of up to 3 `question_sets` IDs (e.g., `["uuid1", "uuid2"]`).
+- **All Employees** (default) -- sets `{ all: true }`
+- **By Department** -- shows a multi-select checklist of departments fetched from the `employees` table. Sets `{ all: false, departments: ["HR", "IT", ...] }`
+- **Specific Employees** -- shows a searchable multi-select checklist of employees. Sets `{ all: false, specific_employees: ["uuid1", "uuid2", ...] }`
 
----
+#### New State Variables
+- `audienceType: 'all' | 'departments' | 'specific'`
+- `selectedDepartments: string[]`
+- `selectedEmployees: string[]`
 
-## Step 2: Update Hook -- `useQuestionSchedules.ts`
+#### Form Integration
+- Build the `target_audience` object from these states in `handleSubmit`
+- Populate them from schedule data in `openEditDialog`
+- Reset them in `resetForm`
 
-- Add `batch_ids: string[]` to the `QuestionSchedule` interface
-- Add `batch_ids?: string[]` to the `CreateScheduleInput` interface
-- Include `batch_ids` in create/update mutation data mapping
+### 2. Fetch Available Options
 
----
+Add two simple queries inside the component (or inline with `useQuery`):
+- **Departments**: `SELECT DISTINCT department FROM employees WHERE tenant_id = ? AND deleted_at IS NULL AND department IS NOT NULL`
+- **Employees**: `SELECT id, full_name, email, department FROM employees WHERE tenant_id = ? AND deleted_at IS NULL AND status = 'active'`
 
-## Step 3: Update Schedule Dialog UI -- `ScheduleManagement.tsx`
+These will be fetched when the dialog opens and the relevant audience type is selected.
 
-### New State
-- `selectedBatchIds: string[]` (max length 3)
+### 3. Update Table Display
 
-### New UI Section (in the create/edit dialog, after description)
-- A "Question Batches" label with a multi-select using Popover + Checkbox pattern (same as the category multi-select)
-- Shows available batches from `useQuestionBatches` (non-deleted, tenant-scoped)
-- Each checkbox shows: batch name, question count badge
-- Enforce max 3 selection -- disable unchecked items when 3 are already selected
-- Display selected count: "2/3 selected"
+The existing table column already shows "All Employees" or "Filtered". Enhance it to show:
+- "All Employees" when `target_audience.all === true`
+- "X departments" when departments are selected
+- "X employees" when specific employees are selected
 
-### Form Integration
-- Pass `batch_ids: selectedBatchIds` in `handleSubmit` for both create and update
-- Populate `selectedBatchIds` from schedule data in `openEditDialog`
-- Reset `selectedBatchIds` in `resetForm`
-
-### Table Column
-- Add a "Batches" column to the schedule table showing count (e.g., "2 batches") or batch names as badges
-
----
-
-## Step 4: Update Schedule Engine -- `schedule-engine/index.ts`
-
-Update the question-fetching logic:
-- If `schedule.batch_ids` contains IDs, fetch questions from `generated_questions` WHERE `question_set_id` IN those batch IDs (instead of the general `questions` table)
-- If `batch_ids` is empty, fall back to the existing general questions pool logic
-
----
-
-## Step 5: Localization
+### 4. Localization
 
 | Key | English | Arabic |
 |-----|---------|--------|
-| schedules.questionBatches | Question Batches | دفعات الأسئلة |
-| schedules.selectBatches | Select batches (max 3) | اختر الدفعات (حد أقصى 3) |
-| schedules.batchesSelected | {{count}}/3 batches | {{count}}/3 دفعات |
-| schedules.maxBatchesReached | Maximum 3 batches allowed | الحد الأقصى 3 دفعات |
-| schedules.noBatchesAvailable | No batches available | لا توجد دفعات متاحة |
+| schedules.audienceType | Target Audience | الجمهور المستهدف |
+| schedules.allEmployees | All Employees | جميع الموظفين |
+| schedules.byDepartment | By Department | حسب القسم |
+| schedules.specificEmployees | Specific Employees | موظفين محددين |
+| schedules.selectDepartments | Select departments | اختر الأقسام |
+| schedules.selectEmployees | Select employees | اختر الموظفين |
+| schedules.departmentsSelected | {{count}} departments | {{count}} أقسام |
+| schedules.employeesSelected | {{count}} employees | {{count}} موظفين |
+| schedules.noEmployeesYet | No employees added yet | لم تتم إضافة موظفين بعد |
+| schedules.noDepartmentsYet | No departments found | لم يتم العثور على أقسام |
 
 ---
 
@@ -74,10 +64,8 @@ Update the question-fetching logic:
 
 | Action | File | Purpose |
 |--------|------|---------|
-| Migration | SQL | Add `batch_ids` column to `question_schedules` |
-| Edit | `src/hooks/useQuestionSchedules.ts` | Add `batch_ids` to interfaces and mutations |
-| Edit | `src/pages/admin/ScheduleManagement.tsx` | Add batch multi-select to dialog, show in table |
-| Edit | `supabase/functions/schedule-engine/index.ts` | Pull questions from linked batches |
-| Edit | `src/locales/en.json` | Add batch-related schedule keys |
-| Edit | `src/locales/ar.json` | Add batch-related schedule keys |
+| Edit | `src/pages/admin/ScheduleManagement.tsx` | Add audience radio group, department/employee multi-selects |
+| Edit | `src/locales/en.json` | Add audience i18n keys |
+| Edit | `src/locales/ar.json` | Add audience Arabic i18n keys |
 
+No database migration needed -- `target_audience` JSONB column already exists. No backend changes needed -- the schedule engine already processes `departments` and `specific_employees` from `target_audience`.
