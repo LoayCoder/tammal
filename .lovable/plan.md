@@ -1,138 +1,151 @@
 
 
-# Auto-Create Employee Record on Signup / Invitation Accept
+# Organization Structure - Full Implementation
 
-## Problem
+## Overview
 
-Users who sign up directly (not via invitation with a pre-existing employee record) only get a `profiles` entry but no `employees` record. Since the Unified Directory is built on the `employees` table, these users are invisible in the Directory.
-
-## Solution
-
-Add auto-creation logic at two points and a one-time backfill for existing orphaned profiles like Luay.
+Build a complete Organization Structure module with three hierarchical levels: **Departments** (with parent-child nesting), **Branches** (physical locations), and **Sites** (sub-locations within branches). Each level supports full CRUD, tree visualization, and integration with the existing employee directory.
 
 ---
 
-## Step 1: Auto-Create Employee on Invitation Accept (without employee_id)
+## Database Design
 
-In `src/pages/auth/AcceptInvite.tsx`, the current code only links an existing employee record if `invitation.employee_id` exists. If the invitation was created without linking to an employee, no employee record is created.
+### 1. `departments` Table
 
-**Change**: After step 2 (profile update), if `invitation.employee_id` is null, insert a new employee record:
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| tenant_id | uuid NOT NULL | FK to tenants |
+| parent_id | uuid NULL | Self-reference for hierarchy |
+| name | text NOT NULL | English name |
+| name_ar | text NULL | Arabic name |
+| description | text NULL | |
+| description_ar | text NULL | |
+| head_employee_id | uuid NULL | FK to employees (department head) |
+| color | text | Default '#3B82F6' |
+| sort_order | integer | Default 0 |
+| is_active | boolean | Default true |
+| created_at | timestamptz | |
+| updated_at | timestamptz | |
+| deleted_at | timestamptz NULL | Soft delete |
 
-```
-INSERT INTO employees (tenant_id, user_id, full_name, email, status)
-```
+### 2. `branches` Table
 
-Then update the invitation's `employee_id` to the newly created record.
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| tenant_id | uuid NOT NULL | |
+| name | text NOT NULL | |
+| name_ar | text NULL | |
+| address | text NULL | |
+| address_ar | text NULL | |
+| phone | text NULL | |
+| email | text NULL | |
+| is_active | boolean | Default true |
+| created_at / updated_at / deleted_at | timestamptz | |
 
-## Step 2: Auto-Create Employee on Direct Signup
+### 3. `sites` Table
 
-In `src/pages/Auth.tsx`, after a successful `signUp`, the `handle_new_user` trigger creates a profile but no employee. Since direct signups may not have a `tenant_id` yet, we handle this differently:
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| tenant_id | uuid NOT NULL | |
+| branch_id | uuid NOT NULL | FK to branches |
+| name | text NOT NULL | |
+| name_ar | text NULL | |
+| address | text NULL | |
+| address_ar | text NULL | |
+| is_active | boolean | Default true |
+| created_at / updated_at / deleted_at | timestamptz | |
 
-**Change**: Create a database trigger function `handle_profile_tenant_update` that fires when a profile's `tenant_id` is set (UPDATE on profiles WHERE tenant_id changes from NULL to a value). This trigger auto-creates an employee record if one doesn't already exist for that user.
+### RLS Policies (All Three Tables)
 
-This is cleaner than frontend logic because it covers all cases (invitation accept, admin assignment, etc.).
+- Super admins: ALL access
+- Tenant admins: ALL access for their tenant
+- Users: SELECT where tenant matches and deleted_at IS NULL
 
-## Step 3: Backfill Existing Orphaned Profiles
+### Employee Integration
 
-Run a one-time data operation to create employee records for profiles that have a `tenant_id` but no matching employee record (like Luay).
+Add two nullable columns to the `employees` table:
+- `department_id` (uuid, FK to departments) -- structured reference alongside existing text `department`
+- `branch_id` (uuid, FK to branches)
 
-Query:
-```sql
-INSERT INTO employees (tenant_id, user_id, full_name, email, status)
-SELECT p.tenant_id, p.user_id, p.full_name, 
-       get_user_email(p.user_id), 'active'
-FROM profiles p
-WHERE p.tenant_id IS NOT NULL
-  AND NOT EXISTS (
-    SELECT 1 FROM employees e WHERE e.user_id = p.user_id
-  );
-```
-
-## Step 4: Localization
-
-Add i18n keys for any toast messages related to auto-creation.
-
-| Key | EN | AR |
-|-----|----|----|
-| `employees.autoCreated` | Employee record created automatically | تم إنشاء سجل الموظف تلقائياً |
+This is additive (non-destructive). The existing `department` text field remains for backward compatibility.
 
 ---
 
-## Technical Details
+## UI Components
 
-### Database Migration: Auto-Sync Trigger
+### Page Structure (Tabbed Layout)
 
-Create a trigger on the `profiles` table:
+The OrgStructure page uses three tabs:
 
-```sql
-CREATE OR REPLACE FUNCTION public.auto_create_employee_on_profile_link()
-RETURNS trigger
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $$
-BEGIN
-  -- Only fire when tenant_id is set (from NULL to a value)
-  IF OLD.tenant_id IS NULL AND NEW.tenant_id IS NOT NULL THEN
-    -- Check if employee record already exists
-    IF NOT EXISTS (SELECT 1 FROM employees WHERE user_id = NEW.user_id) THEN
-      INSERT INTO employees (tenant_id, user_id, full_name, email, status)
-      VALUES (
-        NEW.tenant_id,
-        NEW.user_id,
-        COALESCE(NEW.full_name, 'New User'),
-        get_user_email(NEW.user_id),
-        'active'
-      );
-    END IF;
-  END IF;
-  RETURN NEW;
-END;
-$$;
-
-CREATE TRIGGER on_profile_tenant_linked
-  AFTER UPDATE ON profiles
-  FOR EACH ROW
-  WHEN (OLD.tenant_id IS DISTINCT FROM NEW.tenant_id)
-  EXECUTE FUNCTION auto_create_employee_on_profile_link();
+```text
++----------------------------------------------------+
+| Organization Structure                              |
+| [Departments] [Branches] [Sites]                    |
++----------------------------------------------------+
+| Tab Content Area                                    |
+|                                                     |
+| - Tree/Table view of items                          |
+| - Add/Edit/Delete actions                           |
+| - Employee count badges                             |
+| - Search and filter                                 |
++----------------------------------------------------+
 ```
 
-### Frontend Change: AcceptInvite.tsx
+### Departments Tab
 
-In the `handleSignup` function, after step 2 (profile update), add a conditional block:
+- **Tree View**: Collapsible tree using the Collapsible component showing parent-child hierarchy
+- Each node shows: name, employee count badge, department head, color indicator
+- Actions: Add child department, Edit, Deactivate (soft delete)
+- Add/Edit via Sheet dialog with fields: name, name_ar, description, parent department (select), head employee (select from employees), color
 
-```typescript
-// 3. Create employee record if no employee_id on invitation
-if (!invitation.employee_id) {
-  const { data: newEmp } = await supabase
-    .from("employees")
-    .insert({
-      tenant_id: invitation.tenant_id,
-      user_id: userId,
-      full_name: fullName,
-      email: invitation.email,
-      status: "active",
-    })
-    .select("id")
-    .single();
-  
-  // Update invitation with the new employee_id
-  if (newEmp) {
-    await supabase
-      .from("invitations")
-      .update({ employee_id: newEmp.id })
-      .eq("id", invitation.id);
-  }
-}
-```
+### Branches Tab
 
-### Files Summary
+- **Table View**: Standard data table with columns: Name, Address, Phone, Email, Sites Count, Status
+- Add/Edit via Sheet dialog
+- Delete with confirmation (soft delete)
 
-| Action | File | Purpose |
-|--------|------|---------|
-| Edit | `src/pages/auth/AcceptInvite.tsx` | Auto-create employee when invitation has no employee_id |
-| Edit | `src/locales/en.json` | Add auto-creation i18n key |
-| Edit | `src/locales/ar.json` | Add auto-creation Arabic key |
-| Migration | Database trigger | Auto-create employee when profile gets tenant_id |
-| Data operation | Backfill query | Create employee records for existing orphaned profiles (Luay) |
+### Sites Tab
+
+- **Table View**: Columns: Name, Branch (parent), Address, Status
+- Filtered by branch (optional)
+- Add/Edit via Sheet dialog with branch selector
+
+---
+
+## New Files
+
+| File | Purpose |
+|------|---------|
+| `src/hooks/useDepartments.ts` | CRUD hook for departments table |
+| `src/hooks/useBranches.ts` | CRUD hook for branches table |
+| `src/hooks/useSites.ts` | CRUD hook for sites table |
+| `src/components/org/DepartmentTree.tsx` | Recursive tree view of departments |
+| `src/components/org/DepartmentSheet.tsx` | Add/Edit department form |
+| `src/components/org/BranchTable.tsx` | Branches data table |
+| `src/components/org/BranchSheet.tsx` | Add/Edit branch form |
+| `src/components/org/SiteTable.tsx` | Sites data table |
+| `src/components/org/SiteSheet.tsx` | Add/Edit site form |
+
+## Files to Edit
+
+| File | Change |
+|------|--------|
+| `src/pages/admin/OrgStructure.tsx` | Full rewrite with tabs and integration |
+| `src/locales/en.json` | Expand organization, branches, sites keys |
+| `src/locales/ar.json` | Corresponding Arabic translations |
+| Database migration | Create 3 tables, add columns to employees, RLS policies |
+
+---
+
+## Technical Notes
+
+- All components use logical CSS properties (`ms-`, `me-`, `ps-`, `pe-`, `text-start`) for RTL support
+- Directional icons (chevrons in tree) use `rtl:-scale-x-100` for proper RTL flipping
+- Department tree uses recursive rendering with `Collapsible` from Radix
+- Employee counts are computed client-side by counting employees matching each `department_id`
+- Soft deletes throughout (deleted_at timestamp, filtered in queries)
+- Audit logging for create/update/delete operations via the existing audit hook
 
