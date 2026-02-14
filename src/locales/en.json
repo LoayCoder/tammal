@@ -894,7 +894,15 @@
     "employeesSelected": "{{count}} employees",
     "noEmployeesYet": "No employees added yet",
     "noDepartmentsYet": "No departments found",
-    "searchEmployees": "Search employees..."
+    "searchEmployees": "Search employees...",
+    "audienceSummary": "Target Audience Summary",
+    "includedCount": "{{included}} of {{total}} included",
+    "viewAudience": "View Audience",
+    "included": "Included",
+    "notIncluded": "Not Included",
+    "audienceDetails": "Audience Details",
+    "searchAudience": "Search by name, email, or department",
+    "allIncluded": "All employees are included"
   },
   "aiGenerator": {
     "title": "AI Question Generator",

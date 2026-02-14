@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,12 +16,60 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Package, Building2, UserCheck, Search } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Progress } from '@/components/ui/progress';
+import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Package, Building2, UserCheck, Search, Check, X, ChevronDown } from 'lucide-react';
 import { useQuestionSchedules, QuestionSchedule } from '@/hooks/useQuestionSchedules';
 import { useQuestionBatches } from '@/hooks/useQuestionBatches';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
+// --- Audience Resolution Utility ---
+interface Employee {
+  id: string;
+  full_name: string;
+  email: string;
+  department: string | null;
+}
+
+interface AudienceResult {
+  includedEmployees: Employee[];
+  excludedEmployees: Employee[];
+  totalEligible: number;
+  includedCount: number;
+}
+
+function resolveAudience(
+  targetAudience: QuestionSchedule['target_audience'],
+  employees: Employee[]
+): AudienceResult {
+  const included: Employee[] = [];
+  const excluded: Employee[] = [];
+
+  for (const emp of employees) {
+    let isIncluded = false;
+    if (targetAudience?.all) {
+      isIncluded = true;
+    } else if (targetAudience?.departments?.length) {
+      isIncluded = targetAudience.departments.includes(emp.department || '');
+    } else if (targetAudience?.specific_employees?.length) {
+      isIncluded = targetAudience.specific_employees.includes(emp.id);
+    } else {
+      // Default: all
+      isIncluded = true;
+    }
+    if (isIncluded) included.push(emp);
+    else excluded.push(emp);
+  }
+
+  return {
+    includedEmployees: included,
+    excludedEmployees: excluded,
+    totalEligible: employees.length,
+    includedCount: included.length,
+  };
+}
 
 export default function ScheduleManagement() {
   const { t } = useTranslation();
@@ -37,6 +85,8 @@ export default function ScheduleManagement() {
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [previewQuestions, setPreviewQuestions] = useState<any[]>([]);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [audienceViewSchedule, setAudienceViewSchedule] = useState<QuestionSchedule | null>(null);
+  const [audienceSearch, setAudienceSearch] = useState('');
 
   // Form state
   const [name, setName] = useState('');
@@ -86,6 +136,37 @@ export default function ScheduleManagement() {
     enabled: !!tenantId,
   });
 
+  // --- Compute dialog audience summary in real-time ---
+  const dialogAudienceSummary = useMemo(() => {
+    const ta = audienceType === 'departments' && selectedDepartments.length > 0
+      ? { all: false, departments: selectedDepartments }
+      : audienceType === 'specific' && selectedEmployees.length > 0
+        ? { all: false, specific_employees: selectedEmployees }
+        : { all: true };
+    return resolveAudience(ta as QuestionSchedule['target_audience'], availableEmployees);
+  }, [audienceType, selectedDepartments, selectedEmployees, availableEmployees]);
+
+  // --- Audience Detail Viewer computed data ---
+  const audienceViewResult = useMemo(() => {
+    if (!audienceViewSchedule) return null;
+    return resolveAudience(audienceViewSchedule.target_audience, availableEmployees);
+  }, [audienceViewSchedule, availableEmployees]);
+
+  const filteredAudienceList = useMemo(() => {
+    if (!audienceViewResult) return [];
+    const all = [
+      ...audienceViewResult.includedEmployees.map(e => ({ ...e, included: true })),
+      ...audienceViewResult.excludedEmployees.map(e => ({ ...e, included: false })),
+    ];
+    if (!audienceSearch) return all;
+    const q = audienceSearch.toLowerCase();
+    return all.filter(
+      e => e.full_name.toLowerCase().includes(q) ||
+        e.email.toLowerCase().includes(q) ||
+        (e.department || '').toLowerCase().includes(q)
+    );
+  }, [audienceViewResult, audienceSearch]);
+
   const resetForm = () => {
     setName('');
     setDescription('');
@@ -112,7 +193,6 @@ export default function ScheduleManagement() {
     setWeekendDays((schedule as any).weekend_days || (schedule.avoid_weekends ? [5, 6] : []));
     setEnableAI(schedule.enable_ai_generation);
     setSelectedBatchIds(schedule.batch_ids || []);
-    // Populate audience state from target_audience
     const ta = schedule.target_audience;
     if (ta?.departments && ta.departments.length > 0) {
       setAudienceType('departments');
@@ -160,12 +240,7 @@ export default function ScheduleManagement() {
           batch_ids: selectedBatchIds,
           target_audience,
         },
-        {
-          onSuccess: () => {
-            setDialogOpen(false);
-            resetForm();
-          },
-        }
+        { onSuccess: () => { setDialogOpen(false); resetForm(); } }
       );
     } else {
       createSchedule.mutate(
@@ -183,12 +258,7 @@ export default function ScheduleManagement() {
           target_audience,
           status: 'active',
         },
-        {
-          onSuccess: () => {
-            setDialogOpen(false);
-            resetForm();
-          },
-        }
+        { onSuccess: () => { setDialogOpen(false); resetForm(); } }
       );
     }
   };
@@ -275,6 +345,41 @@ export default function ScheduleManagement() {
       skipped: 'destructive',
     };
     return <Badge variant={(map[status] || 'outline') as any}>{status}</Badge>;
+  };
+
+  // --- Helper: Render audience cell with resolved counts ---
+  const renderAudienceCell = (schedule: QuestionSchedule) => {
+    const result = resolveAudience(schedule.target_audience, availableEmployees);
+    const countLabel = `(${result.includedCount}/${result.totalEligible})`;
+
+    if (schedule.target_audience?.all || (!schedule.target_audience?.departments?.length && !schedule.target_audience?.specific_employees?.length)) {
+      return (
+        <div className="flex items-center gap-1.5">
+          <Users className="h-4 w-4" />
+          <span>{t('schedules.allEmployees')}</span>
+          <Badge variant="secondary" className="text-xs">{countLabel}</Badge>
+        </div>
+      );
+    }
+    if (schedule.target_audience?.departments?.length) {
+      return (
+        <div className="flex items-center gap-1.5">
+          <Building2 className="h-4 w-4" />
+          <span>{t('schedules.departmentsSelected', { count: schedule.target_audience.departments.length })}</span>
+          <Badge variant="secondary" className="text-xs">{countLabel}</Badge>
+        </div>
+      );
+    }
+    if (schedule.target_audience?.specific_employees?.length) {
+      return (
+        <div className="flex items-center gap-1.5">
+          <UserCheck className="h-4 w-4" />
+          <span>{t('schedules.employeesSelected', { count: schedule.target_audience.specific_employees.length })}</span>
+          <Badge variant="secondary" className="text-xs">{countLabel}</Badge>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -378,31 +483,7 @@ export default function ScheduleManagement() {
                         <span className="text-muted-foreground text-sm">—</span>
                       )}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        {schedule.target_audience?.all ? (
-                          <>
-                            <Users className="h-4 w-4" />
-                            {t('schedules.allEmployees')}
-                          </>
-                        ) : schedule.target_audience?.departments?.length ? (
-                          <>
-                            <Building2 className="h-4 w-4" />
-                            {t('schedules.departmentsSelected', { count: schedule.target_audience.departments.length })}
-                          </>
-                        ) : schedule.target_audience?.specific_employees?.length ? (
-                          <>
-                            <UserCheck className="h-4 w-4" />
-                            {t('schedules.employeesSelected', { count: schedule.target_audience.specific_employees.length })}
-                          </>
-                        ) : (
-                          <>
-                            <Users className="h-4 w-4" />
-                            {t('schedules.allEmployees')}
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
+                    <TableCell>{renderAudienceCell(schedule)}</TableCell>
                     <TableCell>{getStatusBadge(schedule.status)}</TableCell>
                     <TableCell>{schedule.preferred_time || '09:00'}</TableCell>
                     <TableCell className="text-end">
@@ -427,6 +508,14 @@ export default function ScheduleManagement() {
                           onClick={() => handlePreview(schedule.id)}
                         >
                           <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title={t('schedules.viewAudience')}
+                          onClick={() => { setAudienceViewSchedule(schedule); setAudienceSearch(''); }}
+                        >
+                          <Users className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
@@ -691,6 +780,28 @@ export default function ScheduleManagement() {
                   )}
                 </div>
               )}
+
+              {/* Live Audience Summary Card */}
+              <div className="border rounded-md p-3 bg-muted/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">{t('schedules.audienceSummary')}</span>
+                  <Badge variant="secondary" className="text-xs">
+                    {t('schedules.includedCount', {
+                      included: dialogAudienceSummary.includedCount,
+                      total: dialogAudienceSummary.totalEligible,
+                    })}
+                  </Badge>
+                </div>
+                {dialogAudienceSummary.totalEligible > 0 && (
+                  <Progress
+                    value={(dialogAudienceSummary.includedCount / dialogAudienceSummary.totalEligible) * 100}
+                    className="h-2"
+                  />
+                )}
+                {dialogAudienceSummary.includedCount === dialogAudienceSummary.totalEligible && dialogAudienceSummary.totalEligible > 0 && (
+                  <p className="text-xs text-muted-foreground">{t('schedules.allIncluded')}</p>
+                )}
+              </div>
             </div>
             <div className="space-y-2">
               <Label>{t('schedules.weekendDays')}</Label>
@@ -811,6 +922,96 @@ export default function ScheduleManagement() {
                 ))}
               </TableBody>
             </Table>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Audience Detail Viewer Dialog */}
+      <Dialog open={!!audienceViewSchedule} onOpenChange={(open) => { if (!open) setAudienceViewSchedule(null); }}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>{t('schedules.audienceDetails')}</DialogTitle>
+            <DialogDescription>
+              {audienceViewSchedule?.name}
+            </DialogDescription>
+          </DialogHeader>
+          {audienceViewResult && (
+            <div className="space-y-4">
+              {/* Summary */}
+              <div className="flex items-center justify-between p-3 border rounded-md bg-muted/30">
+                <span className="text-sm font-medium">{t('schedules.audienceSummary')}</span>
+                <Badge variant="secondary">
+                  {t('schedules.includedCount', {
+                    included: audienceViewResult.includedCount,
+                    total: audienceViewResult.totalEligible,
+                  })}
+                </Badge>
+              </div>
+              {audienceViewResult.totalEligible > 0 && (
+                <Progress
+                  value={(audienceViewResult.includedCount / audienceViewResult.totalEligible) * 100}
+                  className="h-2"
+                />
+              )}
+              {audienceViewResult.includedCount === audienceViewResult.totalEligible && audienceViewResult.totalEligible > 0 && (
+                <p className="text-sm text-muted-foreground">{t('schedules.allIncluded')}</p>
+              )}
+
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute start-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder={t('schedules.searchAudience')}
+                  value={audienceSearch}
+                  onChange={e => setAudienceSearch(e.target.value)}
+                  className="ps-8"
+                />
+              </div>
+
+              {/* Employee List */}
+              <ScrollArea className="max-h-[350px]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t('employees.name')}</TableHead>
+                      <TableHead>{t('employees.email')}</TableHead>
+                      <TableHead>{t('employees.department')}</TableHead>
+                      <TableHead className="text-end">{t('common.status')}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredAudienceList.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
+                          {t('common.noData')}
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredAudienceList.map(emp => (
+                        <TableRow key={emp.id}>
+                          <TableCell className="text-sm font-medium">{emp.full_name}</TableCell>
+                          <TableCell className="text-sm text-muted-foreground">{emp.email}</TableCell>
+                          <TableCell className="text-sm">{emp.department || '—'}</TableCell>
+                          <TableCell className="text-end">
+                            {emp.included ? (
+                              <Badge variant="default" className="gap-1">
+                                <Check className="h-3 w-3" />
+                                {t('schedules.included')}
+                              </Badge>
+                            ) : (
+                              <Badge variant="destructive" className="gap-1">
+                                <X className="h-3 w-3" />
+                                {t('schedules.notIncluded')}
+                              </Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </div>
           )}
         </DialogContent>
       </Dialog>
