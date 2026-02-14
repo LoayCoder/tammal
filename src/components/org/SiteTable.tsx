@@ -6,15 +6,17 @@ import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import type { Site } from '@/hooks/useSites';
 import type { Branch } from '@/hooks/useBranches';
+import type { Department } from '@/hooks/useDepartments';
 
 interface SiteTableProps {
   sites: Site[];
   branches: Branch[];
+  departments: Department[];
   onEdit: (site: Site) => void;
   onDelete: (id: string) => void;
 }
 
-export function SiteTable({ sites, branches, onEdit, onDelete }: SiteTableProps) {
+export function SiteTable({ sites, branches, departments, onEdit, onDelete }: SiteTableProps) {
   const { t, i18n } = useTranslation();
 
   if (sites.length === 0) {
@@ -22,12 +24,14 @@ export function SiteTable({ sites, branches, onEdit, onDelete }: SiteTableProps)
   }
 
   const branchMap = new Map(branches.map(b => [b.id, b]));
+  const deptMap = new Map(departments.map(d => [d.id, d]));
 
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>{t('sites.name')}</TableHead>
+          <TableHead>{t('sites.department')}</TableHead>
           <TableHead>{t('sites.branch')}</TableHead>
           <TableHead className="hidden md:table-cell">{t('sites.address')}</TableHead>
           <TableHead>{t('common.status')}</TableHead>
@@ -37,12 +41,15 @@ export function SiteTable({ sites, branches, onEdit, onDelete }: SiteTableProps)
       <TableBody>
         {sites.map(site => {
           const branch = branchMap.get(site.branch_id);
+          const dept = site.department_id ? deptMap.get(site.department_id) : null;
           const displayName = i18n.language === 'ar' && site.name_ar ? site.name_ar : site.name;
           const displayAddress = i18n.language === 'ar' && site.address_ar ? site.address_ar : site.address;
           const branchName = branch ? (i18n.language === 'ar' && branch.name_ar ? branch.name_ar : branch.name) : '—';
+          const deptName = dept ? (i18n.language === 'ar' && dept.name_ar ? dept.name_ar : dept.name) : '—';
           return (
             <TableRow key={site.id}>
               <TableCell className="font-medium">{displayName}</TableCell>
+              <TableCell>{deptName}</TableCell>
               <TableCell>{branchName}</TableCell>
               <TableCell className="hidden md:table-cell">{displayAddress || '—'}</TableCell>
               <TableCell>

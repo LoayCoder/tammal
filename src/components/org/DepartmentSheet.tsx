@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Department, DepartmentInput } from '@/hooks/useDepartments';
+import type { Branch } from '@/hooks/useBranches';
 import type { Employee } from '@/hooks/useEmployees';
 
 interface DepartmentSheetProps {
@@ -15,6 +16,7 @@ interface DepartmentSheetProps {
   onOpenChange: (open: boolean) => void;
   department?: Department | null;
   departments: Department[];
+  branches: Branch[];
   employees: Employee[];
   tenantId: string;
   onSubmit: (data: DepartmentInput) => void;
@@ -22,13 +24,14 @@ interface DepartmentSheetProps {
 }
 
 export function DepartmentSheet({
-  open, onOpenChange, department, departments, employees, tenantId, onSubmit, parentId,
+  open, onOpenChange, department, departments, branches, employees, tenantId, onSubmit, parentId,
 }: DepartmentSheetProps) {
   const { t } = useTranslation();
   const { register, handleSubmit, reset, setValue, watch } = useForm<DepartmentInput>();
 
   const selectedParent = watch('parent_id');
   const selectedHead = watch('head_employee_id');
+  const selectedBranch = watch('branch_id');
 
   useEffect(() => {
     if (open) {
@@ -40,6 +43,7 @@ export function DepartmentSheet({
           description: department.description,
           description_ar: department.description_ar,
           parent_id: department.parent_id,
+          branch_id: department.branch_id,
           head_employee_id: department.head_employee_id,
           color: department.color,
           sort_order: department.sort_order,
@@ -52,6 +56,7 @@ export function DepartmentSheet({
           description: '',
           description_ar: '',
           parent_id: parentId || null,
+          branch_id: null,
           head_employee_id: null,
           color: '#3B82F6',
           sort_order: 0,
@@ -65,7 +70,6 @@ export function DepartmentSheet({
     onOpenChange(false);
   };
 
-  // Filter out current department and its children to prevent circular references
   const availableParents = departments.filter(d => d.id !== department?.id);
 
   return (
@@ -78,6 +82,21 @@ export function DepartmentSheet({
           </SheetDescription>
         </SheetHeader>
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 mt-4">
+          <div className="space-y-2">
+            <Label>{t('organization.branch')}</Label>
+            <Select
+              value={selectedBranch || '_none'}
+              onValueChange={(v) => setValue('branch_id', v === '_none' ? null : v)}
+            >
+              <SelectTrigger><SelectValue placeholder={t('organization.selectBranch')} /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="_none">{t('common.noData')}</SelectItem>
+                {branches.map(b => (
+                  <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-2">
             <Label>{t('organization.name')}</Label>
             <Input {...register('name', { required: true })} />

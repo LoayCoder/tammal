@@ -7,6 +7,7 @@ export interface Department {
   id: string;
   tenant_id: string;
   parent_id: string | null;
+  branch_id: string | null;
   name: string;
   name_ar: string | null;
   description: string | null;
@@ -23,6 +24,7 @@ export interface Department {
 export interface DepartmentInput {
   tenant_id: string;
   parent_id?: string | null;
+  branch_id?: string | null;
   name: string;
   name_ar?: string | null;
   description?: string | null;

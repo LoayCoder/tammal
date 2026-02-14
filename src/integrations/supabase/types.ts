@@ -303,6 +303,7 @@ export type Database = {
       }
       departments: {
         Row: {
+          branch_id: string | null
           color: string | null
           created_at: string
           deleted_at: string | null
@@ -319,6 +320,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          branch_id?: string | null
           color?: string | null
           created_at?: string
           deleted_at?: string | null
@@ -335,6 +337,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          branch_id?: string | null
           color?: string | null
           created_at?: string
           deleted_at?: string | null
@@ -351,6 +354,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "departments_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "departments_head_employee_id_fkey"
             columns: ["head_employee_id"]
@@ -1699,6 +1709,7 @@ export type Database = {
           branch_id: string
           created_at: string
           deleted_at: string | null
+          department_id: string | null
           id: string
           is_active: boolean | null
           name: string
@@ -1712,6 +1723,7 @@ export type Database = {
           branch_id: string
           created_at?: string
           deleted_at?: string | null
+          department_id?: string | null
           id?: string
           is_active?: boolean | null
           name: string
@@ -1725,6 +1737,7 @@ export type Database = {
           branch_id?: string
           created_at?: string
           deleted_at?: string | null
+          department_id?: string | null
           id?: string
           is_active?: boolean | null
           name?: string
@@ -1738,6 +1751,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sites_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
             referencedColumns: ["id"]
           },
           {
@@ -2224,6 +2244,7 @@ export type Database = {
       }
     }
     Functions: {
+      get_user_department_id: { Args: { _user_id: string }; Returns: string }
       get_user_email: { Args: { _user_id: string }; Returns: string }
       get_user_tenant_id: { Args: { _user_id: string }; Returns: string }
       has_permission: {
@@ -2237,6 +2258,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_manager: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "super_admin" | "tenant_admin" | "manager" | "user"

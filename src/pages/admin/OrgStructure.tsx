@@ -73,47 +73,20 @@ export default function OrgStructure() {
         <p className="text-muted-foreground">{t('organization.subtitle')}</p>
       </div>
 
-      <Tabs defaultValue="departments">
+      <Tabs defaultValue="branches">
         <TabsList>
-          <TabsTrigger value="departments" className="gap-2">
-            <Building2 className="h-4 w-4" /> {t('organization.departments')}
-          </TabsTrigger>
           <TabsTrigger value="branches" className="gap-2">
             <GitBranch className="h-4 w-4" /> {t('branches.title')}
+          </TabsTrigger>
+          <TabsTrigger value="departments" className="gap-2">
+            <Building2 className="h-4 w-4" /> {t('organization.departments')}
           </TabsTrigger>
           <TabsTrigger value="sites" className="gap-2">
             <MapPin className="h-4 w-4" /> {t('sites.title')}
           </TabsTrigger>
         </TabsList>
 
-        {/* Departments Tab */}
-        <TabsContent value="departments">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>{t('organization.departments')}</CardTitle>
-              <Button onClick={() => { setEditingDept(null); setAddChildParentId(null); setDeptSheetOpen(true); }}>
-                <Plus className="me-2 h-4 w-4" /> {t('organization.addDepartment')}
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="space-y-3">
-                  {[1,2,3].map(i => <Skeleton key={i} className="h-10 w-full" />)}
-                </div>
-              ) : (
-                <DepartmentTree
-                  departments={departments}
-                  employees={employees as any}
-                  onEdit={(dept) => { setEditingDept(dept); setAddChildParentId(null); setDeptSheetOpen(true); }}
-                  onDelete={(id) => deleteDepartment.mutate(id)}
-                  onAddChild={(parentId) => { setEditingDept(null); setAddChildParentId(parentId); setDeptSheetOpen(true); }}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Branches Tab */}
+        {/* Branches Tab (Top of hierarchy) */}
         <TabsContent value="branches">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -130,7 +103,7 @@ export default function OrgStructure() {
               ) : (
                 <BranchTable
                   branches={branches}
-                  sites={sites}
+                  departments={departments}
                   onEdit={(branch) => { setEditingBranch(branch); setBranchSheetOpen(true); }}
                   onDelete={(id) => deleteBranch.mutate(id)}
                 />
@@ -139,7 +112,35 @@ export default function OrgStructure() {
           </Card>
         </TabsContent>
 
-        {/* Sites Tab */}
+        {/* Departments Tab (Middle of hierarchy) */}
+        <TabsContent value="departments">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>{t('organization.departments')}</CardTitle>
+              <Button onClick={() => { setEditingDept(null); setAddChildParentId(null); setDeptSheetOpen(true); }}>
+                <Plus className="me-2 h-4 w-4" /> {t('organization.addDepartment')}
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="space-y-3">
+                  {[1,2,3].map(i => <Skeleton key={i} className="h-10 w-full" />)}
+                </div>
+              ) : (
+                <DepartmentTree
+                  departments={departments}
+                  branches={branches}
+                  employees={employees as any}
+                  onEdit={(dept) => { setEditingDept(dept); setAddChildParentId(null); setDeptSheetOpen(true); }}
+                  onDelete={(id) => deleteDepartment.mutate(id)}
+                  onAddChild={(parentId) => { setEditingDept(null); setAddChildParentId(parentId); setDeptSheetOpen(true); }}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Sites Tab (Bottom of hierarchy) */}
         <TabsContent value="sites">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -157,6 +158,7 @@ export default function OrgStructure() {
                 <SiteTable
                   sites={sites}
                   branches={branches}
+                  departments={departments}
                   onEdit={(site) => { setEditingSite(site); setSiteSheetOpen(true); }}
                   onDelete={(id) => deleteSite.mutate(id)}
                 />
@@ -172,6 +174,7 @@ export default function OrgStructure() {
         onOpenChange={setDeptSheetOpen}
         department={editingDept}
         departments={departments}
+        branches={branches}
         employees={employees as any}
         tenantId={tenantId}
         onSubmit={handleDeptSubmit}
@@ -188,6 +191,7 @@ export default function OrgStructure() {
         open={siteSheetOpen}
         onOpenChange={setSiteSheetOpen}
         site={editingSite}
+        departments={departments}
         branches={branches}
         tenantId={tenantId}
         onSubmit={handleSiteSubmit}
