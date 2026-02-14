@@ -1424,5 +1424,21 @@
     "questionTextAr": "السؤال (عربي)",
     "type": "النوع",
     "confidence": "الثقة"
+  },
+  "userManagement": {
+    "title": "إدارة المستخدمين",
+    "subtitle": "إدارة الأشخاص والوصول والأدوار في مؤسستك",
+    "directoryTab": "الدليل",
+    "accessTab": "الوصول والمصادقة",
+    "rolesTab": "الأدوار والصلاحيات",
+    "invitationsTab": "الدعوات",
+    "accountStatus": "حالة الحساب",
+    "notInvited": "غير مدعو",
+    "invitationSent": "تم إرسال الدعوة",
+    "activeUser": "مستخدم نشط",
+    "suspendedUser": "معلق",
+    "inactiveUser": "غير نشط",
+    "filterByAccountStatus": "حالة الحساب",
+    "autoSuspendConfirm": "هذا الموظف لديه حساب دخول. هل تريد تعليق وصوله؟"
   }
 }
