@@ -148,8 +148,9 @@ serve(async (req) => {
         date.setDate(date.getDate() + day);
         date.setHours(hours, minutes, 0, 0);
 
-        // Skip weekends if configured
-        if (schedule.avoid_weekends && (date.getDay() === 0 || date.getDay() === 6)) {
+        // Skip configured weekend/off days
+        const weekendDays = (schedule.weekend_days || (schedule.avoid_weekends ? [5, 6] : [])) as number[];
+        if (weekendDays.length > 0 && weekendDays.includes(date.getDay())) {
           continue;
         }
 

@@ -1,0 +1,1 @@
+ALTER TABLE question_schedules ADD COLUMN weekend_days jsonb DEFAULT '[5,6]'::jsonb;

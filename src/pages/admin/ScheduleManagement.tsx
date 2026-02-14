@@ -41,7 +41,7 @@ export default function ScheduleManagement() {
   const [frequency, setFrequency] = useState<string>('1_per_day');
   const [preferredTime, setPreferredTime] = useState('09:00');
   const [questionsPerDelivery, setQuestionsPerDelivery] = useState(1);
-  const [avoidWeekends, setAvoidWeekends] = useState(true);
+  const [weekendDays, setWeekendDays] = useState<number[]>([5, 6]);
   const [enableAI, setEnableAI] = useState(false);
   const [selectedBatchIds, setSelectedBatchIds] = useState<string[]>([]);
 
@@ -51,7 +51,7 @@ export default function ScheduleManagement() {
     setFrequency('1_per_day');
     setPreferredTime('09:00');
     setQuestionsPerDelivery(1);
-    setAvoidWeekends(true);
+    setWeekendDays([5, 6]);
     setEnableAI(false);
     setSelectedBatchIds([]);
     setEditingSchedule(null);
@@ -64,7 +64,7 @@ export default function ScheduleManagement() {
     setFrequency(schedule.frequency);
     setPreferredTime(schedule.preferred_time || '09:00');
     setQuestionsPerDelivery(schedule.questions_per_delivery || 1);
-    setAvoidWeekends(schedule.avoid_weekends);
+    setWeekendDays((schedule as any).weekend_days || (schedule.avoid_weekends ? [5, 6] : []));
     setEnableAI(schedule.enable_ai_generation);
     setSelectedBatchIds(schedule.batch_ids || []);
     setDialogOpen(true);
@@ -82,7 +82,8 @@ export default function ScheduleManagement() {
           frequency: frequency as any,
           preferred_time: preferredTime,
           questions_per_delivery: questionsPerDelivery,
-          avoid_weekends: avoidWeekends,
+          avoid_weekends: weekendDays.length > 0,
+          weekend_days: weekendDays,
           enable_ai_generation: enableAI,
           batch_ids: selectedBatchIds,
         },
@@ -102,7 +103,8 @@ export default function ScheduleManagement() {
           frequency: frequency as any,
           preferred_time: preferredTime,
           questions_per_delivery: questionsPerDelivery,
-          avoid_weekends: avoidWeekends,
+          avoid_weekends: weekendDays.length > 0,
+          weekend_days: weekendDays,
           enable_ai_generation: enableAI,
           batch_ids: selectedBatchIds,
           target_audience: { all: true },
@@ -483,9 +485,40 @@ export default function ScheduleManagement() {
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="flex items-center justify-between">
-              <Label>{t('schedules.avoidWeekends')}</Label>
-              <Switch checked={avoidWeekends} onCheckedChange={setAvoidWeekends} />
+            <div className="space-y-2">
+              <Label>{t('schedules.weekendDays')}</Label>
+              <p className="text-xs text-muted-foreground">{t('schedules.weekendDaysHint')}</p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { value: 0, label: t('schedules.days.sunday') },
+                  { value: 1, label: t('schedules.days.monday') },
+                  { value: 2, label: t('schedules.days.tuesday') },
+                  { value: 3, label: t('schedules.days.wednesday') },
+                  { value: 4, label: t('schedules.days.thursday') },
+                  { value: 5, label: t('schedules.days.friday') },
+                  { value: 6, label: t('schedules.days.saturday') },
+                ].map(day => {
+                  const isSelected = weekendDays.includes(day.value);
+                  return (
+                    <Button
+                      key={day.value}
+                      type="button"
+                      variant={isSelected ? 'default' : 'outline'}
+                      size="sm"
+                      className="min-w-[70px]"
+                      onClick={() => {
+                        setWeekendDays(prev =>
+                          isSelected
+                            ? prev.filter(d => d !== day.value)
+                            : [...prev, day.value]
+                        );
+                      }}
+                    >
+                      {day.label}
+                    </Button>
+                  );
+                })}
+              </div>
             </div>
             <div className="flex items-center justify-between">
               <Label>{t('schedules.enableAI')}</Label>

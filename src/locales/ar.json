@@ -822,6 +822,17 @@
     "timezone": "المنطقة الزمنية",
     "questionsPerDelivery": "الأسئلة لكل توصيل",
     "avoidWeekends": "تجنب عطلة نهاية الأسبوع",
+    "weekendDays": "أيام العطلة / الإجازة",
+    "weekendDaysHint": "اختر الأيام التي يتم تخطيها عند جدولة الأسئلة",
+    "days": {
+      "sunday": "أحد",
+      "monday": "إثنين",
+      "tuesday": "ثلاثاء",
+      "wednesday": "أربعاء",
+      "thursday": "خميس",
+      "friday": "جمعة",
+      "saturday": "سبت"
+    },
     "avoidHolidays": "تجنب العطل",
     "enableAI": "تفعيل توليد الذكاء الاصطناعي",
     "enableValidation": "تفعيل أسئلة التحقق",
