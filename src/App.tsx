@@ -30,7 +30,7 @@ import SubcategoryManagement from "@/pages/admin/SubcategoryManagement";
 import EmployeeSurvey from "@/pages/employee/EmployeeSurvey";
 import DailyCheckin from "@/pages/employee/DailyCheckin";
 import WellnessSettings from "@/pages/admin/WellnessSettings";
-import BatchManagement from "@/pages/admin/BatchManagement";
+
 import UnifiedUserManagement from "@/pages/admin/UnifiedUserManagement";
 import AcceptInvite from "@/pages/auth/AcceptInvite";
 import { useTranslation } from "react-i18next";
@@ -80,7 +80,7 @@ const App = () => (
             <Route path="/admin/branding" element={<AdminBranding />} />
             <Route path="/admin/docs" element={<DocumentSettings />} />
             <Route path="/admin/wellness-settings" element={<WellnessSettings />} />
-            <Route path="/admin/wellness-batches" element={<BatchManagement />} />
+            
             <Route path="/settings/usage" element={<UsageBilling />} />
             <Route path="/settings/profile" element={<UserProfile />} />
             <Route path="/support" element={<Support />} />
