@@ -894,7 +894,15 @@
     "employeesSelected": "{{count}} موظفين",
     "noEmployeesYet": "لم تتم إضافة موظفين بعد",
     "noDepartmentsYet": "لم يتم العثور على أقسام",
-    "searchEmployees": "ابحث عن موظفين..."
+    "searchEmployees": "ابحث عن موظفين...",
+    "audienceSummary": "ملخص الجمهور المستهدف",
+    "includedCount": "{{included}} من {{total}} مشمول",
+    "viewAudience": "عرض الجمهور",
+    "included": "مشمول",
+    "notIncluded": "غير مشمول",
+    "audienceDetails": "تفاصيل الجمهور",
+    "searchAudience": "البحث بالاسم أو البريد أو القسم",
+    "allIncluded": "جميع الموظفين مشمولون"
   },
   "aiGenerator": {
     "title": "مولد الأسئلة بالذكاء الاصطناعي",
