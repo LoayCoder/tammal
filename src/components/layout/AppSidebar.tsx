@@ -51,7 +51,6 @@ export function AppSidebar() {
         { title: t('nav.schedules'), url: "/admin/schedules", icon: Calendar },
         { title: t('nav.categories'), url: "/admin/question-categories", icon: Tags },
         { title: t('nav.subcategories'), url: "/admin/question-subcategories", icon: GitBranch },
-        { title: t('nav.employees'), url: "/admin/employees", icon: UserCheck },
         { title: t('nav.employeeSurvey'), url: "/employee/survey", icon: ClipboardList },
       ]
     },
@@ -66,7 +65,7 @@ export function AppSidebar() {
     {
       label: t('nav.operations'),
       items: [
-        { title: t('nav.userManagement'), url: "/admin/users", icon: Users },
+        { title: t('nav.userManagement'), url: "/admin/user-management", icon: Users },
         { title: t('nav.orgStructure'), url: "/admin/org", icon: Network },
       ]
     },

@@ -1424,5 +1424,21 @@
     "questionTextAr": "Question (AR)",
     "type": "Type",
     "confidence": "Confidence"
+  },
+  "userManagement": {
+    "title": "User Management",
+    "subtitle": "Manage your organization's people, access, and roles",
+    "directoryTab": "Directory",
+    "accessTab": "Access & Auth",
+    "rolesTab": "Roles & Permissions",
+    "invitationsTab": "Invitations",
+    "accountStatus": "Account Status",
+    "notInvited": "Not Invited",
+    "invitationSent": "Invitation Sent",
+    "activeUser": "Active User",
+    "suspendedUser": "Suspended",
+    "inactiveUser": "Inactive",
+    "filterByAccountStatus": "Account Status",
+    "autoSuspendConfirm": "This employee has a login account. Suspend their access?"
   }
 }
