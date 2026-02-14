@@ -784,6 +784,7 @@
     "deleteError": "Failed to delete employee",
     "importSuccess": "{{count}} employees imported successfully",
     "importError": "Failed to import employees",
+    "autoCreated": "Employee record created automatically",
     "status": {
       "active": "Active",
       "resigned": "Resigned",

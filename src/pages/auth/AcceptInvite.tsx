@@ -144,12 +144,33 @@ export default function AcceptInvite() {
         })
         .eq("user_id", userId);
 
-      // 3. Link employee record if employee_id exists
+      // 3. Link or create employee record
       if (invitation.employee_id) {
+        // Link existing employee record
         await supabase
           .from("employees")
           .update({ user_id: userId })
           .eq("id", invitation.employee_id);
+      } else {
+        // Auto-create employee record if none exists
+        const { data: newEmp } = await supabase
+          .from("employees")
+          .insert({
+            tenant_id: invitation.tenant_id,
+            user_id: userId,
+            full_name: fullName,
+            email: invitation.email,
+            status: "active",
+          })
+          .select("id")
+          .single();
+
+        if (newEmp) {
+          await supabase
+            .from("invitations")
+            .update({ employee_id: newEmp.id })
+            .eq("id", invitation.id);
+        }
       }
 
       // 4. Mark invitation as used
