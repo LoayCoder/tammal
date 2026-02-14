@@ -25,6 +25,7 @@ export interface QuestionSchedule {
   updated_at: string;
   deleted_at: string | null;
   batch_ids: string[];
+  weekend_days: number[];
 }
 
 export interface CreateScheduleInput {
@@ -44,6 +45,7 @@ export interface CreateScheduleInput {
   enable_validation?: boolean;
   status?: QuestionSchedule['status'];
   batch_ids?: string[];
+  weekend_days?: number[];
 }
 
 export function useQuestionSchedules(tenantId?: string) {
@@ -71,6 +73,7 @@ export function useQuestionSchedules(tenantId?: string) {
         target_audience: (schedule.target_audience || { all: true }) as QuestionSchedule['target_audience'],
         active_categories: (schedule.active_categories || []) as string[],
         batch_ids: (schedule.batch_ids || []) as string[],
+        weekend_days: (schedule.weekend_days || [5, 6]) as number[],
       })) as QuestionSchedule[];
     },
   });
@@ -94,8 +97,9 @@ export function useQuestionSchedules(tenantId?: string) {
         enable_validation: input.enable_validation,
         status: input.status,
         batch_ids: (input.batch_ids || []) as unknown as null,
+        weekend_days: (input.weekend_days || [5, 6]) as unknown as null,
       };
-      
+
       const { data, error } = await supabase
         .from('question_schedules')
         .insert(insertData)
@@ -132,6 +136,7 @@ export function useQuestionSchedules(tenantId?: string) {
       if (updates.enable_validation !== undefined) updateData.enable_validation = updates.enable_validation;
       if (updates.status !== undefined) updateData.status = updates.status;
       if (updates.batch_ids !== undefined) updateData.batch_ids = updates.batch_ids;
+      if (updates.weekend_days !== undefined) updateData.weekend_days = updates.weekend_days;
       
       const { data, error } = await supabase
         .from('question_schedules')

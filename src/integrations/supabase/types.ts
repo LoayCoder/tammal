@@ -1027,6 +1027,7 @@ export type Database = {
           tenant_id: string
           timezone: string | null
           updated_at: string | null
+          weekend_days: Json | null
         }
         Insert: {
           active_categories?: Json | null
@@ -1050,6 +1051,7 @@ export type Database = {
           tenant_id: string
           timezone?: string | null
           updated_at?: string | null
+          weekend_days?: Json | null
         }
         Update: {
           active_categories?: Json | null
@@ -1073,6 +1075,7 @@ export type Database = {
           tenant_id?: string
           timezone?: string | null
           updated_at?: string | null
+          weekend_days?: Json | null
         }
         Relationships: [
           {

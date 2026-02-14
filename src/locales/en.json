@@ -822,6 +822,17 @@
     "timezone": "Timezone",
     "questionsPerDelivery": "Questions Per Delivery",
     "avoidWeekends": "Avoid Weekends",
+    "weekendDays": "Weekend / Off Days",
+    "weekendDaysHint": "Select which days to skip when scheduling questions",
+    "days": {
+      "sunday": "Sun",
+      "monday": "Mon",
+      "tuesday": "Tue",
+      "wednesday": "Wed",
+      "thursday": "Thu",
+      "friday": "Fri",
+      "saturday": "Sat"
+    },
     "avoidHolidays": "Avoid Holidays",
     "enableAI": "Enable AI Generation",
     "enableValidation": "Enable Validation Questions",
