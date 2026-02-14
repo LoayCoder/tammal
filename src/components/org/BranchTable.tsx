@@ -5,16 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import type { Branch } from '@/hooks/useBranches';
-import type { Site } from '@/hooks/useSites';
+import type { Department } from '@/hooks/useDepartments';
 
 interface BranchTableProps {
   branches: Branch[];
-  sites: Site[];
+  departments: Department[];
   onEdit: (branch: Branch) => void;
   onDelete: (id: string) => void;
 }
 
-export function BranchTable({ branches, sites, onEdit, onDelete }: BranchTableProps) {
+export function BranchTable({ branches, departments, onEdit, onDelete }: BranchTableProps) {
   const { t, i18n } = useTranslation();
 
   if (branches.length === 0) {
@@ -29,14 +29,14 @@ export function BranchTable({ branches, sites, onEdit, onDelete }: BranchTablePr
           <TableHead className="hidden md:table-cell">{t('branches.address')}</TableHead>
           <TableHead className="hidden sm:table-cell">{t('branches.phone')}</TableHead>
           <TableHead className="hidden sm:table-cell">{t('branches.email')}</TableHead>
-          <TableHead>{t('sites.title')}</TableHead>
+          <TableHead>{t('organization.departments')}</TableHead>
           <TableHead>{t('common.status')}</TableHead>
           <TableHead>{t('common.actions')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {branches.map(branch => {
-          const siteCount = sites.filter(s => s.branch_id === branch.id).length;
+          const deptCount = departments.filter(d => d.branch_id === branch.id).length;
           const displayName = i18n.language === 'ar' && branch.name_ar ? branch.name_ar : branch.name;
           const displayAddress = i18n.language === 'ar' && branch.address_ar ? branch.address_ar : branch.address;
           return (
@@ -45,7 +45,7 @@ export function BranchTable({ branches, sites, onEdit, onDelete }: BranchTablePr
               <TableCell className="hidden md:table-cell">{displayAddress || '—'}</TableCell>
               <TableCell className="hidden sm:table-cell">{branch.phone || '—'}</TableCell>
               <TableCell className="hidden sm:table-cell">{branch.email || '—'}</TableCell>
-              <TableCell><Badge variant="secondary">{siteCount}</Badge></TableCell>
+              <TableCell><Badge variant="secondary">{deptCount}</Badge></TableCell>
               <TableCell>
                 <Badge variant={branch.is_active ? 'default' : 'secondary'}>
                   {branch.is_active ? t('common.active') : t('common.inactive')}

@@ -7,21 +7,30 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Site, SiteInput } from '@/hooks/useSites';
+import type { Department } from '@/hooks/useDepartments';
 import type { Branch } from '@/hooks/useBranches';
 
 interface SiteSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   site?: Site | null;
+  departments: Department[];
   branches: Branch[];
   tenantId: string;
   onSubmit: (data: SiteInput) => void;
 }
 
-export function SiteSheet({ open, onOpenChange, site, branches, tenantId, onSubmit }: SiteSheetProps) {
-  const { t } = useTranslation();
+export function SiteSheet({ open, onOpenChange, site, departments, branches, tenantId, onSubmit }: SiteSheetProps) {
+  const { t, i18n } = useTranslation();
   const { register, handleSubmit, reset, setValue, watch } = useForm<SiteInput>();
-  const selectedBranch = watch('branch_id');
+  const selectedDepartment = watch('department_id');
+
+  // Auto-derive branch from selected department
+  const dept = departments.find(d => d.id === selectedDepartment);
+  const derivedBranch = dept ? branches.find(b => b.id === dept.branch_id) : null;
+  const derivedBranchName = derivedBranch
+    ? (i18n.language === 'ar' && derivedBranch.name_ar ? derivedBranch.name_ar : derivedBranch.name)
+    : '—';
 
   useEffect(() => {
     if (open) {
@@ -29,19 +38,23 @@ export function SiteSheet({ open, onOpenChange, site, branches, tenantId, onSubm
         reset({
           tenant_id: site.tenant_id,
           branch_id: site.branch_id,
+          department_id: site.department_id,
           name: site.name,
           name_ar: site.name_ar || '',
           address: site.address || '',
           address_ar: site.address_ar || '',
         });
       } else {
-        reset({ tenant_id: tenantId, branch_id: '', name: '', name_ar: '', address: '', address_ar: '' });
+        reset({ tenant_id: tenantId, branch_id: '', department_id: null, name: '', name_ar: '', address: '', address_ar: '' });
       }
     }
   }, [open, site, tenantId, reset]);
 
   const onFormSubmit = (data: SiteInput) => {
-    onSubmit({ ...data, tenant_id: tenantId });
+    // Auto-set branch_id from department
+    const selectedDept = departments.find(d => d.id === data.department_id);
+    const branchId = selectedDept?.branch_id || data.branch_id;
+    onSubmit({ ...data, tenant_id: tenantId, branch_id: branchId });
     onOpenChange(false);
   };
 
@@ -56,16 +69,25 @@ export function SiteSheet({ open, onOpenChange, site, branches, tenantId, onSubm
         </SheetHeader>
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label>{t('sites.branch')}</Label>
-            <Select value={selectedBranch || ''} onValueChange={(v) => setValue('branch_id', v)}>
-              <SelectTrigger><SelectValue placeholder={t('sites.selectBranch')} /></SelectTrigger>
+            <Label>{t('sites.department')}</Label>
+            <Select
+              value={selectedDepartment || ''}
+              onValueChange={(v) => setValue('department_id', v)}
+            >
+              <SelectTrigger><SelectValue placeholder={t('sites.selectDepartment')} /></SelectTrigger>
               <SelectContent>
-                {branches.map(b => (
-                  <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                {departments.map(d => (
+                  <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+          {selectedDepartment && (
+            <div className="space-y-2">
+              <Label>{t('sites.branch')}</Label>
+              <Input value={derivedBranchName} readOnly className="bg-muted" />
+            </div>
+          )}
           <div className="space-y-2">
             <Label>{t('sites.name')}</Label>
             <Input {...register('name', { required: true })} />

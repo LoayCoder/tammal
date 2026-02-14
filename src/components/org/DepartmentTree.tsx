@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, Plus, Pencil, Trash2, Users } from 'lucide-react';
+import { ChevronRight, Plus, Pencil, Trash2, Users, GitBranch } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import type { Department } from '@/hooks/useDepartments';
+import type { Branch } from '@/hooks/useBranches';
 import type { Employee } from '@/hooks/useEmployees';
 
 interface DepartmentTreeProps {
   departments: Department[];
+  branches: Branch[];
   employees: Employee[];
   onEdit: (department: Department) => void;
   onDelete: (id: string) => void;
@@ -23,10 +25,11 @@ function buildTree(departments: Department[], parentId: string | null = null): D
 }
 
 function DepartmentNode({
-  department, departments, employees, onEdit, onDelete, onAddChild, level = 0,
+  department, departments, branches, employees, onEdit, onDelete, onAddChild, level = 0,
 }: {
   department: Department;
   departments: Department[];
+  branches: Branch[];
   employees: Employee[];
   onEdit: (d: Department) => void;
   onDelete: (id: string) => void;
@@ -42,6 +45,8 @@ function DepartmentNode({
     ? employees.find(e => e.id === department.head_employee_id)
     : null;
   const displayName = i18n.language === 'ar' && department.name_ar ? department.name_ar : department.name;
+  const branch = department.branch_id ? branches.find(b => b.id === department.branch_id) : null;
+  const branchName = branch ? (i18n.language === 'ar' && branch.name_ar ? branch.name_ar : branch.name) : null;
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
@@ -61,6 +66,11 @@ function DepartmentNode({
           style={{ backgroundColor: department.color }}
         />
         <span className="font-medium flex-1 text-start">{displayName}</span>
+        {branchName && (
+          <Badge variant="outline" className="gap-1 text-xs hidden sm:flex">
+            <GitBranch className="h-3 w-3" /> {branchName}
+          </Badge>
+        )}
         {headEmployee && (
           <span className="text-xs text-muted-foreground hidden sm:inline">
             {headEmployee.full_name}
@@ -104,6 +114,7 @@ function DepartmentNode({
               key={child.id}
               department={child}
               departments={departments}
+              branches={branches}
               employees={employees}
               onEdit={onEdit}
               onDelete={onDelete}
@@ -117,7 +128,7 @@ function DepartmentNode({
   );
 }
 
-export function DepartmentTree({ departments, employees, onEdit, onDelete, onAddChild }: DepartmentTreeProps) {
+export function DepartmentTree({ departments, branches, employees, onEdit, onDelete, onAddChild }: DepartmentTreeProps) {
   const { t } = useTranslation();
   const rootDepartments = buildTree(departments, null);
 
@@ -132,6 +143,7 @@ export function DepartmentTree({ departments, employees, onEdit, onDelete, onAdd
           key={dept.id}
           department={dept}
           departments={departments}
+          branches={branches}
           employees={employees}
           onEdit={onEdit}
           onDelete={onDelete}

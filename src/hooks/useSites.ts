@@ -7,6 +7,7 @@ export interface Site {
   id: string;
   tenant_id: string;
   branch_id: string;
+  department_id: string | null;
   name: string;
   name_ar: string | null;
   address: string | null;
@@ -20,6 +21,7 @@ export interface Site {
 export interface SiteInput {
   tenant_id: string;
   branch_id: string;
+  department_id?: string | null;
   name: string;
   name_ar?: string | null;
   address?: string | null;
