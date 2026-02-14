@@ -784,6 +784,7 @@
     "deleteError": "فشل في حذف الموظف",
     "importSuccess": "تم استيراد {{count}} موظف بنجاح",
     "importError": "فشل في استيراد الموظفين",
+    "autoCreated": "تم إنشاء سجل الموظف تلقائياً",
     "status": {
       "active": "نشط",
       "resigned": "مستقيل",
