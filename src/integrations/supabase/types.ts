@@ -206,6 +206,59 @@ export type Database = {
           },
         ]
       }
+      branches: {
+        Row: {
+          address: string | null
+          address_ar: string | null
+          created_at: string
+          deleted_at: string | null
+          email: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          name_ar: string | null
+          phone: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          address_ar?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          name_ar?: string | null
+          phone?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          address_ar?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          name_ar?: string | null
+          phone?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "branches_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_question_schedule: {
         Row: {
           created_at: string
@@ -241,6 +294,79 @@ export type Database = {
           },
           {
             foreignKeyName: "daily_question_schedule_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      departments: {
+        Row: {
+          color: string | null
+          created_at: string
+          deleted_at: string | null
+          description: string | null
+          description_ar: string | null
+          head_employee_id: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          name_ar: string | null
+          parent_id: string | null
+          sort_order: number | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          head_employee_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          name_ar?: string | null
+          parent_id?: string | null
+          sort_order?: number | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          head_employee_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          name_ar?: string | null
+          parent_id?: string | null
+          sort_order?: number | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "departments_head_employee_id_fkey"
+            columns: ["head_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "departments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "departments_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -324,9 +450,11 @@ export type Database = {
       }
       employees: {
         Row: {
+          branch_id: string | null
           created_at: string | null
           deleted_at: string | null
           department: string | null
+          department_id: string | null
           email: string
           employee_number: string | null
           full_name: string
@@ -341,9 +469,11 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          branch_id?: string | null
           created_at?: string | null
           deleted_at?: string | null
           department?: string | null
+          department_id?: string | null
           email: string
           employee_number?: string | null
           full_name: string
@@ -358,9 +488,11 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          branch_id?: string | null
           created_at?: string | null
           deleted_at?: string | null
           department?: string | null
+          department_id?: string | null
           email?: string
           employee_number?: string | null
           full_name?: string
@@ -375,6 +507,20 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "employees_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "employees_manager_id_fkey"
             columns: ["manager_id"]
@@ -1539,6 +1685,63 @@ export type Database = {
           },
           {
             foreignKeyName: "scheduled_questions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sites: {
+        Row: {
+          address: string | null
+          address_ar: string | null
+          branch_id: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          name_ar: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          address_ar?: string | null
+          branch_id: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          name_ar?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          address_ar?: string | null
+          branch_id?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          name_ar?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sites_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sites_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
