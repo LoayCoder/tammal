@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +14,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Package } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Package, Building2, UserCheck, Search } from 'lucide-react';
 import { useQuestionSchedules, QuestionSchedule } from '@/hooks/useQuestionSchedules';
 import { useQuestionBatches } from '@/hooks/useQuestionBatches';
 import { useProfile } from '@/hooks/useProfile';
@@ -44,6 +47,44 @@ export default function ScheduleManagement() {
   const [weekendDays, setWeekendDays] = useState<number[]>([5, 6]);
   const [enableAI, setEnableAI] = useState(false);
   const [selectedBatchIds, setSelectedBatchIds] = useState<string[]>([]);
+  const [audienceType, setAudienceType] = useState<'all' | 'departments' | 'specific'>('all');
+  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
+  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
+  const [employeeSearch, setEmployeeSearch] = useState('');
+
+  // Fetch departments and employees for audience selection
+  const { data: availableDepartments = [] } = useQuery({
+    queryKey: ['schedule-departments', tenantId],
+    queryFn: async () => {
+      if (!tenantId) return [];
+      const { data, error } = await supabase
+        .from('employees')
+        .select('department')
+        .eq('tenant_id', tenantId)
+        .is('deleted_at', null)
+        .not('department', 'is', null);
+      if (error) throw error;
+      return [...new Set(data.map(d => d.department).filter(Boolean))] as string[];
+    },
+    enabled: !!tenantId,
+  });
+
+  const { data: availableEmployees = [] } = useQuery({
+    queryKey: ['schedule-employees', tenantId],
+    queryFn: async () => {
+      if (!tenantId) return [];
+      const { data, error } = await supabase
+        .from('employees')
+        .select('id, full_name, email, department')
+        .eq('tenant_id', tenantId)
+        .is('deleted_at', null)
+        .eq('status', 'active')
+        .order('full_name');
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!tenantId,
+  });
 
   const resetForm = () => {
     setName('');
@@ -55,6 +96,10 @@ export default function ScheduleManagement() {
     setEnableAI(false);
     setSelectedBatchIds([]);
     setEditingSchedule(null);
+    setAudienceType('all');
+    setSelectedDepartments([]);
+    setSelectedEmployees([]);
+    setEmployeeSearch('');
   };
 
   const openEditDialog = (schedule: QuestionSchedule) => {
@@ -67,11 +112,38 @@ export default function ScheduleManagement() {
     setWeekendDays((schedule as any).weekend_days || (schedule.avoid_weekends ? [5, 6] : []));
     setEnableAI(schedule.enable_ai_generation);
     setSelectedBatchIds(schedule.batch_ids || []);
+    // Populate audience state from target_audience
+    const ta = schedule.target_audience;
+    if (ta?.departments && ta.departments.length > 0) {
+      setAudienceType('departments');
+      setSelectedDepartments(ta.departments);
+      setSelectedEmployees([]);
+    } else if (ta?.specific_employees && ta.specific_employees.length > 0) {
+      setAudienceType('specific');
+      setSelectedEmployees(ta.specific_employees);
+      setSelectedDepartments([]);
+    } else {
+      setAudienceType('all');
+      setSelectedDepartments([]);
+      setSelectedEmployees([]);
+    }
+    setEmployeeSearch('');
     setDialogOpen(true);
+  };
+
+  const buildTargetAudience = () => {
+    if (audienceType === 'departments' && selectedDepartments.length > 0) {
+      return { all: false, departments: selectedDepartments };
+    }
+    if (audienceType === 'specific' && selectedEmployees.length > 0) {
+      return { all: false, specific_employees: selectedEmployees };
+    }
+    return { all: true };
   };
 
   const handleSubmit = () => {
     if (!name || !tenantId) return;
+    const target_audience = buildTargetAudience();
 
     if (editingSchedule) {
       updateSchedule.mutate(
@@ -86,6 +158,7 @@ export default function ScheduleManagement() {
           weekend_days: weekendDays,
           enable_ai_generation: enableAI,
           batch_ids: selectedBatchIds,
+          target_audience,
         },
         {
           onSuccess: () => {
@@ -107,7 +180,7 @@ export default function ScheduleManagement() {
           weekend_days: weekendDays,
           enable_ai_generation: enableAI,
           batch_ids: selectedBatchIds,
-          target_audience: { all: true },
+          target_audience,
           status: 'active',
         },
         {
@@ -307,11 +380,27 @@ export default function ScheduleManagement() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        {schedule.target_audience?.all 
-                          ? t('schedules.allEmployees')
-                          : t('schedules.filtered')
-                        }
+                        {schedule.target_audience?.all ? (
+                          <>
+                            <Users className="h-4 w-4" />
+                            {t('schedules.allEmployees')}
+                          </>
+                        ) : schedule.target_audience?.departments?.length ? (
+                          <>
+                            <Building2 className="h-4 w-4" />
+                            {t('schedules.departmentsSelected', { count: schedule.target_audience.departments.length })}
+                          </>
+                        ) : schedule.target_audience?.specific_employees?.length ? (
+                          <>
+                            <UserCheck className="h-4 w-4" />
+                            {t('schedules.employeesSelected', { count: schedule.target_audience.specific_employees.length })}
+                          </>
+                        ) : (
+                          <>
+                            <Users className="h-4 w-4" />
+                            {t('schedules.allEmployees')}
+                          </>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(schedule.status)}</TableCell>
@@ -484,6 +573,124 @@ export default function ScheduleManagement() {
                   )}
                 </PopoverContent>
               </Popover>
+            </div>
+            {/* Target Audience Section */}
+            <div className="space-y-3">
+              <Label>{t('schedules.audienceType')}</Label>
+              <RadioGroup
+                value={audienceType}
+                onValueChange={(val) => setAudienceType(val as 'all' | 'departments' | 'specific')}
+                className="flex flex-col gap-2"
+              >
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="all" id="audience-all" />
+                  <Label htmlFor="audience-all" className="font-normal cursor-pointer flex items-center gap-1.5">
+                    <Users className="h-4 w-4" />
+                    {t('schedules.allEmployees')}
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="departments" id="audience-dept" />
+                  <Label htmlFor="audience-dept" className="font-normal cursor-pointer flex items-center gap-1.5">
+                    <Building2 className="h-4 w-4" />
+                    {t('schedules.byDepartment')}
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="specific" id="audience-specific" />
+                  <Label htmlFor="audience-specific" className="font-normal cursor-pointer flex items-center gap-1.5">
+                    <UserCheck className="h-4 w-4" />
+                    {t('schedules.specificEmployees')}
+                  </Label>
+                </div>
+              </RadioGroup>
+
+              {audienceType === 'departments' && (
+                <div className="border rounded-md p-3 space-y-2">
+                  {availableDepartments.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">{t('schedules.noDepartmentsYet')}</p>
+                  ) : (
+                    <ScrollArea className="max-h-40">
+                      <div className="space-y-2">
+                        {availableDepartments.map(dept => (
+                          <label key={dept} className="flex items-center gap-2 p-1.5 rounded hover:bg-accent cursor-pointer">
+                            <Checkbox
+                              checked={selectedDepartments.includes(dept)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedDepartments(prev => [...prev, dept]);
+                                } else {
+                                  setSelectedDepartments(prev => prev.filter(d => d !== dept));
+                                }
+                              }}
+                            />
+                            <span className="text-sm">{dept}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  )}
+                  {selectedDepartments.length > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      {t('schedules.departmentsSelected', { count: selectedDepartments.length })}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {audienceType === 'specific' && (
+                <div className="border rounded-md p-3 space-y-2">
+                  <div className="relative">
+                    <Search className="absolute start-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder={t('schedules.searchEmployees')}
+                      value={employeeSearch}
+                      onChange={e => setEmployeeSearch(e.target.value)}
+                      className="ps-8 h-9"
+                    />
+                  </div>
+                  {availableEmployees.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">{t('schedules.noEmployeesYet')}</p>
+                  ) : (
+                    <ScrollArea className="max-h-40">
+                      <div className="space-y-1">
+                        {availableEmployees
+                          .filter(emp =>
+                            !employeeSearch ||
+                            emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase()) ||
+                            emp.email.toLowerCase().includes(employeeSearch.toLowerCase())
+                          )
+                          .map(emp => (
+                            <label key={emp.id} className="flex items-center gap-2 p-1.5 rounded hover:bg-accent cursor-pointer">
+                              <Checkbox
+                                checked={selectedEmployees.includes(emp.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setSelectedEmployees(prev => [...prev, emp.id]);
+                                  } else {
+                                    setSelectedEmployees(prev => prev.filter(id => id !== emp.id));
+                                  }
+                                }}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <span className="text-sm block truncate">{emp.full_name}</span>
+                                <span className="text-xs text-muted-foreground block truncate">{emp.email}</span>
+                              </div>
+                              {emp.department && (
+                                <Badge variant="outline" className="text-xs shrink-0">{emp.department}</Badge>
+                              )}
+                            </label>
+                          ))}
+                      </div>
+                    </ScrollArea>
+                  )}
+                  {selectedEmployees.length > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      {t('schedules.employeesSelected', { count: selectedEmployees.length })}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label>{t('schedules.weekendDays')}</Label>

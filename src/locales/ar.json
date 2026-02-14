@@ -884,7 +884,17 @@
     "selectBatches": "اختر الدفعات (حد أقصى 3)",
     "batchesSelected": "{{count}}/3 دفعات",
     "maxBatchesReached": "الحد الأقصى 3 دفعات",
-    "noBatchesAvailable": "لا توجد دفعات متاحة"
+    "noBatchesAvailable": "لا توجد دفعات متاحة",
+    "audienceType": "الجمهور المستهدف",
+    "byDepartment": "حسب القسم",
+    "specificEmployees": "موظفين محددين",
+    "selectDepartments": "اختر الأقسام",
+    "selectEmployees": "اختر الموظفين",
+    "departmentsSelected": "{{count}} أقسام",
+    "employeesSelected": "{{count}} موظفين",
+    "noEmployeesYet": "لم تتم إضافة موظفين بعد",
+    "noDepartmentsYet": "لم يتم العثور على أقسام",
+    "searchEmployees": "ابحث عن موظفين..."
   },
   "aiGenerator": {
     "title": "مولد الأسئلة بالذكاء الاصطناعي",

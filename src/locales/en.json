@@ -884,7 +884,17 @@
     "selectBatches": "Select batches (max 3)",
     "batchesSelected": "{{count}}/3 batches",
     "maxBatchesReached": "Maximum 3 batches allowed",
-    "noBatchesAvailable": "No batches available"
+    "noBatchesAvailable": "No batches available",
+    "audienceType": "Target Audience",
+    "byDepartment": "By Department",
+    "specificEmployees": "Specific Employees",
+    "selectDepartments": "Select departments",
+    "selectEmployees": "Select employees",
+    "departmentsSelected": "{{count}} departments",
+    "employeesSelected": "{{count}} employees",
+    "noEmployeesYet": "No employees added yet",
+    "noDepartmentsYet": "No departments found",
+    "searchEmployees": "Search employees..."
   },
   "aiGenerator": {
     "title": "AI Question Generator",
