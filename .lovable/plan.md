@@ -1,96 +1,79 @@
 
 
-# Add Question Purpose Selector: Survey vs Daily Check-in
+# Actionable Validation Report: Show and Fix Failed Questions
 
-## Overview
+## Problem
 
-Add a "Purpose" selector at the top of the AI Question Generator configuration panel. This lets you choose whether the generated questions are for **Survey** delivery or **Daily Check-in (Wellness)** before generating. The save logic will then route questions to the correct database table.
+When the Validation Report shows "Structure Completeness: Failed", users cannot see which specific questions have issues or what went wrong. The failure details exist in the data but are hidden from the UI.
 
----
+## Solution
 
-## What Changes
-
-### 1. New "Purpose" Selector in ConfigPanel
-
-A prominent selector at the very top of the configuration card with two options:
-- **Survey Questions** -- saved to `question_sets` + `generated_questions` (current behavior)
-- **Daily Check-in** -- saved to `wellness_questions` table
-
-When "Daily Check-in" is selected:
-- Question type options are simplified (only scale, multiple_choice, text -- matching wellness question types)
-- The batch save dialog is skipped (wellness questions don't use batches)
-- Questions save directly to `wellness_questions` with `status: 'draft'`
-
-### 2. Save Logic Changes
-
-The `useEnhancedAIGeneration` hook's `saveSet` function will accept a `purpose` parameter:
-- `purpose: 'survey'` -- existing behavior (save to `question_sets` + `generated_questions`)
-- `purpose: 'wellness'` -- insert into `wellness_questions` table with mapped fields:
-  - `question_text` maps to `question_text_en`
-  - `question_text_ar` maps to `question_text_ar`
-  - `type` maps to `question_type` (mapped: likert_5/numeric_scale to "scale", open_ended to "text")
-  - `options` stays as-is
-  - `status` = 'draft' (admin publishes later from Wellness Settings)
-
-### 3. AIQuestionGenerator Page
-
-- New state: `purpose` ('survey' | 'wellness')
-- Pass purpose to ConfigPanel and save flow
-- When purpose is 'wellness', skip batch dialog and call a direct wellness save
-- When purpose is 'survey', existing batch dialog flow continues
+Make each validation check row in the Validation Report expandable. When a check has failed or has warnings, clicking it reveals the detailed list of affected questions with clear descriptions of what needs fixing. For structure failures specifically, add a "Fix" button that opens the question's inline editor directly.
 
 ---
 
-## Files to Change
+## Changes
 
-| File | Change |
-|------|--------|
-| `src/components/ai-generator/ConfigPanel.tsx` | Add `purpose` prop and selector UI at top of config card |
-| `src/pages/admin/AIQuestionGenerator.tsx` | Add `purpose` state, pass to ConfigPanel, branch save logic |
-| `src/hooks/useEnhancedAIGeneration.ts` | Add `saveWellnessQuestions` mutation for wellness table inserts |
-| `src/locales/en.json` | Add keys: `aiGenerator.purpose`, `aiGenerator.purposeSurvey`, `aiGenerator.purposeWellness`, `aiGenerator.purposeDescription` |
-| `src/locales/ar.json` | Corresponding Arabic translations |
+### 1. ValidationReport.tsx -- Expandable Check Rows with Details
+
+Each check row (Structure, Duplicates, Bias, etc.) becomes a collapsible section. When the result is "failed" or "warning", it expands to show:
+- A list of affected questions (e.g., "Q1: Missing Arabic text", "Q3: MCQ needs at least 2 options")
+- For structure failures: a "Go to Question" scroll-link or highlight action
+
+The `details` field from the validation results is already an array of strings (e.g., `["Q1: Missing Arabic text", "Q3: MCQ needs 2 options"]`) -- this just needs to be rendered.
+
+### 2. AIQuestionGenerator.tsx -- Scroll/Highlight Failed Questions
+
+Add a callback `onScrollToQuestion(index)` that auto-scrolls to the specific QuestionCard and briefly highlights it, so users can locate and edit the problematic question quickly using the existing edit button.
+
+### 3. QuestionCard.tsx -- Show Per-Question Validation Issues
+
+When a question has `validation_status: 'failed'` or `'warning'`, display the specific issues from `validation_details.issues` as small inline badges (e.g., "Missing Arabic text", "Low confidence") so users know exactly what to fix without opening the report.
+
+### 4. Localization (en.json + ar.json)
+
+Add keys for:
+- `aiGenerator.showDetails` / `aiGenerator.hideDetails`
+- `aiGenerator.goToQuestion`
+- Issue label mappings: `incomplete_structure`, `bias_detected`, `ambiguity_detected`, `low_confidence`, `moderate_confidence`, `missing_framework_reference`
 
 ---
 
 ## Technical Details
 
-### Purpose Selector UI (top of ConfigPanel)
+### ValidationReport Expansion Logic
 
-A radio-style toggle group with two clear options showing icons:
-- ClipboardList icon + "Survey Questions"
-- Heart icon + "Daily Check-in"
-
-### Wellness Save Mutation
-
-```typescript
-// Maps AI generator question types to wellness question types
-function mapToWellnessType(type: string): string {
-  if (['likert_5', 'numeric_scale'].includes(type)) return 'scale';
-  if (type === 'open_ended') return 'text';
-  if (type === 'multiple_choice') return 'multiple_choice';
-  return 'scale'; // default
-}
-
-// Insert into wellness_questions
-const wellnessInsert = questions.map(q => ({
-  tenant_id: tenantId,
-  question_text_en: q.question_text,
-  question_text_ar: q.question_text_ar,
-  question_type: mapToWellnessType(q.type),
-  options: q.options || [],
-  status: 'draft',
-}));
-await supabase.from('wellness_questions').insert(wellnessInsert);
+```text
++-------------------------------------------+
+| Structure Completeness        [X] Failed  |
++-------------------------------------------+
+|  - Q1: Missing Arabic text                |
+|  - Q3: MCQ needs at least 2 options       |
+|                          [Go to Q1] [Q3]  |
++-------------------------------------------+
+| Duplicate Detection        [check] Passed |
++-------------------------------------------+
 ```
 
-### Conditional Question Types
+Each check row uses the existing `Collapsible` component. The `details` field is rendered as a list when it is an array, or as a single line when it is a string.
 
-When purpose is 'wellness', the question type dropdown shows only:
-- Scale (maps to wellness 'scale')
-- Multiple Choice
-- Open Text (maps to wellness 'text')
-- Mixed
+### Scroll-to-Question Mechanism
 
-When purpose is 'survey', all current types remain available.
+- Each `QuestionCard` gets a `ref` via `id={`question-card-${index}`}`
+- The "Go to Question" button calls `document.getElementById('question-card-N')?.scrollIntoView({ behavior: 'smooth' })`
+- A brief CSS animation (ring pulse) highlights the target card
+
+### Per-Question Issue Badges in QuestionCard
+
+When `question.validation_details?.issues` is populated, render small destructive/warning badges below the flags section showing human-readable labels mapped from the issue codes.
+
+### Files to Modify
+
+| File | Change |
+|------|--------|
+| `src/components/ai-generator/ValidationReport.tsx` | Make check rows collapsible, render details array, add "Go to Question" links |
+| `src/components/ai-generator/QuestionCard.tsx` | Add `id` attribute for scroll targeting, render validation issue badges from `validation_details` |
+| `src/pages/admin/AIQuestionGenerator.tsx` | No structural changes needed (scroll is handled via DOM IDs) |
+| `src/locales/en.json` | Add detail/issue label translation keys |
+| `src/locales/ar.json` | Add corresponding Arabic translations |
 
