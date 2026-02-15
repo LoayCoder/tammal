@@ -116,7 +116,7 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
         {/* Header row */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="secondary">{t(typeLabels[question.type] || question.type)}</Badge>
+            <Badge variant="secondary">{t(typeLabels[question.type] || 'aiGenerator.typeLikert')}</Badge>
             <Badge variant="outline">{question.complexity}</Badge>
             <Badge variant="outline" className="text-xs">{question.tone}</Badge>
             <Tooltip>
