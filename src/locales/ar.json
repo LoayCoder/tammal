@@ -1472,7 +1472,10 @@
     "noQuestions": "لا توجد أسئلة في هذه الدفعة بعد",
     "questionTextEn": "السؤال (إنجليزي)",
     "questionTextAr": "السؤال (عربي)",
-    "questionType": "النوع"
+    "questionType": "النوع",
+    "scheduledQuestion": "سؤال",
+    "scheduledQuestionsTitle": "أسئلتك المجدولة",
+    "alreadyCheckedIn": "لقد سجّلت بالفعل اليوم!"
   },
   "batches": {
     "title": "دفعات الأسئلة",
