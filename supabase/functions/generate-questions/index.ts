@@ -324,7 +324,7 @@ All sources work together: a question should satisfy the category requirement wh
       ? `\nAlign questions with the following selected frameworks: ${frameworkNames.join(', ')}.`
       : '';
 
-    const userPrompt = `Generate exactly ${questionCount} high-quality survey questions for employee wellbeing assessment.
+    const userPrompt = `Generate EXACTLY ${questionCount} high-quality survey questions for employee wellbeing assessment. You MUST return exactly ${questionCount} questions — no more, no fewer. This count is mandatory.
 Provide both English and Arabic versions for each question.
 Ensure variety in question types and assign a confidence score (0-100) based on quality.${frameworkAlignment}
 ${advancedSettings.enableBiasDetection ? "Flag any questions with potential bias issues." : ""}
@@ -403,6 +403,49 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       return new Response(JSON.stringify({ error: "AI returned empty or invalid questions" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Retry once if AI returned fewer questions than requested
+    if (questions.length < questionCount) {
+      console.log(`AI returned ${questions.length}/${questionCount} questions. Requesting ${questionCount - questions.length} more.`);
+      const deficit = questionCount - questions.length;
+      try {
+        const retryResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: selectedModel,
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: `Generate EXACTLY ${deficit} more unique survey questions for employee wellbeing assessment. You MUST return exactly ${deficit} questions. These must be DIFFERENT from these existing questions:\n${questions.map((q: any, i: number) => `${i+1}. ${q.question_text}`).join('\n')}\n\nProvide both English and Arabic versions.${frameworkAlignment}` },
+            ],
+            temperature,
+            tools: [toolDefinition],
+            tool_choice: { type: "function", function: { name: "return_questions" } },
+          }),
+        });
+
+        if (retryResponse.ok) {
+          const retryData = await retryResponse.json();
+          const retryToolCall = retryData.choices?.[0]?.message?.tool_calls?.[0];
+          if (retryToolCall?.function?.arguments) {
+            try {
+              const retryParsed = JSON.parse(retryToolCall.function.arguments);
+              if (Array.isArray(retryParsed.questions)) {
+                questions = [...questions, ...retryParsed.questions];
+                console.log(`After retry: ${questions.length} total questions`);
+              }
+            } catch { /* ignore parse error on retry */ }
+          }
+        } else {
+          await retryResponse.text(); // consume body
+        }
+      } catch (retryErr) {
+        console.error("Retry failed:", retryErr);
+      }
     }
 
     questions = questions.map((q: any) => ({
