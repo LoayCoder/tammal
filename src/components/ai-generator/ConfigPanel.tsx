@@ -334,7 +334,6 @@ export function ConfigPanel({
                     <SelectItem value="likert_5">{t('aiGenerator.typeLikert')}</SelectItem>
                     <SelectItem value="multiple_choice">{t('aiGenerator.typeMCQ')}</SelectItem>
                     <SelectItem value="open_ended">{t('aiGenerator.typeOpen')}</SelectItem>
-                    <SelectItem value="scenario_based">{t('aiGenerator.typeScenario')}</SelectItem>
                     <SelectItem value="numeric_scale">{t('aiGenerator.typeNumeric')}</SelectItem>
                     <SelectItem value="yes_no">{t('aiGenerator.typeYesNo')}</SelectItem>
                   </>

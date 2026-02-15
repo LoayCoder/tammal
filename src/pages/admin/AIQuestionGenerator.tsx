@@ -359,7 +359,7 @@ export default function AIQuestionGenerator() {
 
               <div className="space-y-3">
                 {questions.map((q, i) => (
-                  <QuestionCard key={i} question={q} index={i} onRemove={removeQuestion} onUpdate={updateQuestion} />
+                  <QuestionCard key={i} question={q} index={i} onRemove={removeQuestion} onUpdate={updateQuestion} selectedModel={selectedModel} />
                 ))}
               </div>
             </>
