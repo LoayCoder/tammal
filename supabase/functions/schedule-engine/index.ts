@@ -244,8 +244,6 @@ serve(async (req) => {
               employee_id: employee.id,
               question_id: question.id,
               tenant_id: schedule.tenant_id,
-              branch_id: schedule.branch_id || null,
-              site_id: schedule.site_id || null,
               scheduled_delivery: deliveryDate.toISOString(),
               status: "pending",
               delivery_channel: "app",
