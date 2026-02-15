@@ -9,8 +9,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Loader2, ChevronDown, Settings2, ChevronsUpDown } from 'lucide-react';
+import { Sparkles, Loader2, ChevronDown, Settings2, ChevronsUpDown, ClipboardList, Heart } from 'lucide-react';
 import { AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { KnowledgeBasePanel } from './KnowledgeBasePanel';
 import { FrameworkSelector } from './FrameworkSelector';
 import { KnowledgeDocument } from '@/hooks/useAIKnowledge';
@@ -19,7 +20,11 @@ import { useQuestionCategories } from '@/hooks/useQuestionCategories';
 import { useQuestionSubcategories } from '@/hooks/useQuestionSubcategories';
 import { useState } from 'react';
 
+export type QuestionPurpose = 'survey' | 'wellness';
+
 interface ConfigPanelProps {
+  purpose: QuestionPurpose;
+  onPurposeChange: (purpose: QuestionPurpose) => void;
   questionType: string;
   onQuestionTypeChange: (type: string) => void;
   questionCount: number;
@@ -59,6 +64,8 @@ interface ConfigPanelProps {
 }
 
 export function ConfigPanel({
+  purpose,
+  onPurposeChange,
   questionType,
   onQuestionTypeChange,
   questionCount,
@@ -166,6 +173,34 @@ export function ConfigPanel({
           <CardDescription>{t('aiGenerator.configDescription')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
+          {/* Purpose Selector */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">{t('aiGenerator.purpose')}</Label>
+            <p className="text-xs text-muted-foreground">{t('aiGenerator.purposeDescription')}</p>
+            <ToggleGroup
+              type="single"
+              value={purpose}
+              onValueChange={(v) => { if (v) onPurposeChange(v as QuestionPurpose); }}
+              className="grid grid-cols-2 gap-2"
+              variant="outline"
+            >
+              <ToggleGroupItem
+                value="survey"
+                className="flex flex-col items-center gap-1 py-3 px-2 data-[state=on]:bg-primary/10 data-[state=on]:border-primary"
+              >
+                <ClipboardList className="h-5 w-5" />
+                <span className="text-xs font-medium">{t('aiGenerator.purposeSurvey')}</span>
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="wellness"
+                className="flex flex-col items-center gap-1 py-3 px-2 data-[state=on]:bg-primary/10 data-[state=on]:border-primary"
+              >
+                <Heart className="h-5 w-5" />
+                <span className="text-xs font-medium">{t('aiGenerator.purposeWellness')}</span>
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+
           {/* Category & Subcategory Multi-Select */}
           <div className="grid grid-cols-2 gap-4">
             {/* Categories Multi-Select */}
@@ -288,12 +323,22 @@ export function ConfigPanel({
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="mixed">{t('aiGenerator.typeMixed')}</SelectItem>
-                <SelectItem value="likert_5">{t('aiGenerator.typeLikert')}</SelectItem>
-                <SelectItem value="multiple_choice">{t('aiGenerator.typeMCQ')}</SelectItem>
-                <SelectItem value="open_ended">{t('aiGenerator.typeOpen')}</SelectItem>
-                <SelectItem value="scenario_based">{t('aiGenerator.typeScenario')}</SelectItem>
-                <SelectItem value="numeric_scale">{t('aiGenerator.typeNumeric')}</SelectItem>
-                <SelectItem value="yes_no">{t('aiGenerator.typeYesNo')}</SelectItem>
+                {purpose === 'wellness' ? (
+                  <>
+                    <SelectItem value="likert_5">{t('aiGenerator.typeScale')}</SelectItem>
+                    <SelectItem value="multiple_choice">{t('aiGenerator.typeMCQ')}</SelectItem>
+                    <SelectItem value="open_ended">{t('aiGenerator.typeOpen')}</SelectItem>
+                  </>
+                ) : (
+                  <>
+                    <SelectItem value="likert_5">{t('aiGenerator.typeLikert')}</SelectItem>
+                    <SelectItem value="multiple_choice">{t('aiGenerator.typeMCQ')}</SelectItem>
+                    <SelectItem value="open_ended">{t('aiGenerator.typeOpen')}</SelectItem>
+                    <SelectItem value="scenario_based">{t('aiGenerator.typeScenario')}</SelectItem>
+                    <SelectItem value="numeric_scale">{t('aiGenerator.typeNumeric')}</SelectItem>
+                    <SelectItem value="yes_no">{t('aiGenerator.typeYesNo')}</SelectItem>
+                  </>
+                )}
               </SelectContent>
             </Select>
           </div>

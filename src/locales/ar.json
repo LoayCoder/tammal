@@ -1098,7 +1098,16 @@
     "noFrameworkDocs": "لا توجد مستندات مرجعية مرفقة",
     "uploadDoc": "رفع",
     "extracted": "تم الاستخراج",
-    "pending": "قيد الانتظار"
+    "pending": "قيد الانتظار",
+    "purpose": "الغرض من الأسئلة",
+    "purposeSurvey": "أسئلة استبيان",
+    "purposeWellness": "تسجيل يومي",
+    "purposeDescription": "اختر أين سيتم حفظ الأسئلة المولدة",
+    "purposeSurveyDesc": "تُحفظ في دفعات الاستبيان للتوزيع المجدول",
+    "purposeWellnessDesc": "تُحفظ كمسودات أسئلة رفاهية للتسجيل اليومي",
+    "wellnessSaveSuccess": "تم حفظ {{count}} سؤال رفاهية كمسودات",
+    "wellnessSaveError": "فشل في حفظ أسئلة الرفاهية",
+    "typeScale": "مقياس"
   },
   "survey": {
     "title": "استبياني",

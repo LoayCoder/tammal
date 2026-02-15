@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Sparkles, RefreshCw, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { TopControlBar } from '@/components/ai-generator/TopControlBar';
-import { ConfigPanel } from '@/components/ai-generator/ConfigPanel';
+import { ConfigPanel, type QuestionPurpose } from '@/components/ai-generator/ConfigPanel';
 import { QuestionCard } from '@/components/ai-generator/QuestionCard';
 import { ValidationReport } from '@/components/ai-generator/ValidationReport';
 import { BatchSaveDialog } from '@/components/ai-generator/BatchSaveDialog';
@@ -33,8 +33,8 @@ export default function AIQuestionGenerator() {
   } = useReferenceFrameworks();
   const {
     questions, validationReport, generationMeta,
-    generate, validate, saveSet, removeQuestion, updateQuestion, clearAll,
-    isGenerating, isValidating, isSaving,
+    generate, validate, saveSet, saveWellness, removeQuestion, updateQuestion, clearAll,
+    isGenerating, isValidating, isSaving, isSavingWellness,
   } = useEnhancedAIGeneration();
 
   // Get tenant ID for batch fetching
@@ -70,6 +70,7 @@ export default function AIQuestionGenerator() {
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [selectedSubcategoryIds, setSelectedSubcategoryIds] = useState<string[]>([]);
   const [batchDialogOpen, setBatchDialogOpen] = useState(false);
+  const [purpose, setPurpose] = useState<QuestionPurpose>('survey');
 
   const isStrict = accuracyMode === 'strict';
   const hasFailures = validationReport?.overall_result === 'failed';
@@ -152,7 +153,16 @@ export default function AIQuestionGenerator() {
   };
 
   const handleSaveClick = () => {
-    setBatchDialogOpen(true);
+    if (purpose === 'wellness') {
+      saveWellness({ questions }, {
+        onSuccess: () => {
+          clearAll();
+          if (documents.length > 0) deleteAllDocuments();
+        },
+      });
+    } else {
+      setBatchDialogOpen(true);
+    }
   };
 
   const handleBatchConfirm = (targetBatchId?: string) => {
@@ -247,12 +257,14 @@ export default function AIQuestionGenerator() {
         onExport={handleExport}
         canSave={canSave}
         canExport={canExport}
-        isSaving={isSaving}
+        isSaving={isSaving || isSavingWellness}
       />
 
       <div className="grid gap-6 lg:grid-cols-5">
         <div className="lg:col-span-2">
           <ConfigPanel
+            purpose={purpose}
+            onPurposeChange={setPurpose}
             questionType={questionType}
             onQuestionTypeChange={setQuestionType}
             questionCount={questionCount}
