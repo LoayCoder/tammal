@@ -11,7 +11,7 @@ import { useQuestionBatches, type BatchQuestion } from "@/hooks/useQuestionBatch
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Trash2, ChevronDown, Package, Calendar, User, Hash } from "lucide-react";
+import { Search, Trash2, ChevronDown, Package, Calendar, User, Hash, ClipboardList, Heart } from "lucide-react";
 import { format } from "date-fns";
 
 export default function QuestionManagement() {
@@ -129,7 +129,14 @@ export default function QuestionManagement() {
                       <span className="font-semibold text-sm">
                         {batch.name || t('batches.unnamed')}
                       </span>
-                      <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="secondary" className="text-xs">
+                          {batch.purpose === 'wellness' ? (
+                            <><Heart className="h-3 w-3 me-1" />{t('aiGenerator.purposeWellness', 'Daily Check-in')}</>
+                          ) : (
+                            <><ClipboardList className="h-3 w-3 me-1" />{t('aiGenerator.purposeSurvey', 'Survey')}</>
+                          )}
+                        </Badge>
                         <Badge variant="outline" className={`text-xs ${statusColor(batch.status)}`}>
                           {batch.status}
                         </Badge>
