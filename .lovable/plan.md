@@ -1,79 +1,85 @@
 
+# AI Rewrite Question: Per-Question Refinement Button
 
-# Actionable Validation Report: Show and Fix Failed Questions
+## Overview
 
-## Problem
-
-When the Validation Report shows "Structure Completeness: Failed", users cannot see which specific questions have issues or what went wrong. The failure details exist in the data but are hidden from the UI.
-
-## Solution
-
-Make each validation check row in the Validation Report expandable. When a check has failed or has warnings, clicking it reveals the detailed list of affected questions with clear descriptions of what needs fixing. For structure failures specifically, add a "Fix" button that opens the question's inline editor directly.
-
----
+Add an AI rewrite button to each QuestionCard that lets users refine a single question using a prompt. The user provides instructions (manually or by copying from the explanation), and the AI rewrites only that question's English and Arabic text.
 
 ## Changes
 
-### 1. ValidationReport.tsx -- Expandable Check Rows with Details
+### 1. New Edge Function: `rewrite-question`
 
-Each check row (Structure, Duplicates, Bias, etc.) becomes a collapsible section. When the result is "failed" or "warning", it expands to show:
-- A list of affected questions (e.g., "Q1: Missing Arabic text", "Q3: MCQ needs at least 2 options")
-- For structure failures: a "Go to Question" scroll-link or highlight action
+A dedicated backend function that takes the current question text (EN + AR), the user's refinement prompt, and the question type/context, then returns improved versions of only that question.
 
-The `details` field from the validation results is already an array of strings (e.g., `["Q1: Missing Arabic text", "Q3: MCQ needs 2 options"]`) -- this just needs to be rendered.
+**System prompt will instruct the AI to:**
+- Refine/improve the existing question, not generate a new one
+- Preserve meaning, type, and structure
+- Return both English and Arabic versions
+- Use tool calling to return structured output (`{ question_text, question_text_ar }`)
 
-### 2. AIQuestionGenerator.tsx -- Scroll/Highlight Failed Questions
+**Endpoint:** `supabase/functions/rewrite-question/index.ts`
+**Config:** Add `[functions.rewrite-question]` with `verify_jwt = false` to `config.toml`
 
-Add a callback `onScrollToQuestion(index)` that auto-scrolls to the specific QuestionCard and briefly highlights it, so users can locate and edit the problematic question quickly using the existing edit button.
+### 2. QuestionCard.tsx -- AI Rewrite UI
 
-### 3. QuestionCard.tsx -- Show Per-Question Validation Issues
+Add to the actions bar (next to Edit and Delete):
+- A **Sparkles** (AI) icon button that opens a collapsible prompt input area above the actions row
+- A `Textarea` for the user's refinement prompt
+- The AI button stays **disabled** until the prompt has content
+- On submit, call the edge function with the current question text + prompt
+- While loading, show a spinner on the button
+- On success, call `onUpdate(index, { question_text, question_text_ar })` to apply the rewrite inline
+- The user can copy text from the "View Explanation" section and paste it as the prompt
 
-When a question has `validation_status: 'failed'` or `'warning'`, display the specific issues from `validation_details.issues` as small inline badges (e.g., "Missing Arabic text", "Low confidence") so users know exactly what to fix without opening the report.
+### 3. Localization Keys (en.json + ar.json)
 
-### 4. Localization (en.json + ar.json)
-
-Add keys for:
-- `aiGenerator.showDetails` / `aiGenerator.hideDetails`
-- `aiGenerator.goToQuestion`
-- Issue label mappings: `incomplete_structure`, `bias_detected`, `ambiguity_detected`, `low_confidence`, `moderate_confidence`, `missing_framework_reference`
+New keys:
+- `aiGenerator.aiRewrite` -- "AI Rewrite"
+- `aiGenerator.rewritePrompt` -- "Enter instructions for how to improve this question..."
+- `aiGenerator.rewriting` -- "Rewriting..."
+- `aiGenerator.rewriteSuccess` -- "Question rewritten successfully"
+- `aiGenerator.rewriteError` -- "Failed to rewrite question"
 
 ---
 
 ## Technical Details
 
-### ValidationReport Expansion Logic
+### Edge Function: `rewrite-question/index.ts`
+
+Uses tool calling for structured output:
 
 ```text
-+-------------------------------------------+
-| Structure Completeness        [X] Failed  |
-+-------------------------------------------+
-|  - Q1: Missing Arabic text                |
-|  - Q3: MCQ needs at least 2 options       |
-|                          [Go to Q1] [Q3]  |
-+-------------------------------------------+
-| Duplicate Detection        [check] Passed |
-+-------------------------------------------+
+Input:  { question_text, question_text_ar, type, prompt, model? }
+Output: { question_text, question_text_ar, success }
 ```
 
-Each check row uses the existing `Collapsible` component. The `details` field is rendered as a list when it is an array, or as a single line when it is a string.
+The system prompt instructs the AI:
+- "You are refining an existing survey question. Do NOT change the topic or type."
+- "Improve clarity, reduce ambiguity, fix grammar, align with psychometric best practices."
+- "Return the refined question in both English and Arabic."
 
-### Scroll-to-Question Mechanism
+Uses `tools` + `tool_choice` to force structured JSON output with `question_text` and `question_text_ar` fields.
 
-- Each `QuestionCard` gets a `ref` via `id={`question-card-${index}`}`
-- The "Go to Question" button calls `document.getElementById('question-card-N')?.scrollIntoView({ behavior: 'smooth' })`
-- A brief CSS animation (ring pulse) highlights the target card
+### QuestionCard UI Flow
 
-### Per-Question Issue Badges in QuestionCard
+```text
+[Actions Row]
+  [Copy] [Edit] [AI Sparkles] [Regenerate] [Delete]
+                    |
+                    v (click toggles prompt area)
+  +--------------------------------------------------+
+  | Enter instructions for how to improve...         |
+  | [textarea]                                       |
+  | [Rewrite button - disabled until text entered]   |
+  +--------------------------------------------------+
+```
 
-When `question.validation_details?.issues` is populated, render small destructive/warning badges below the flags section showing human-readable labels mapped from the issue codes.
-
-### Files to Modify
+### Files to Create/Modify
 
 | File | Change |
 |------|--------|
-| `src/components/ai-generator/ValidationReport.tsx` | Make check rows collapsible, render details array, add "Go to Question" links |
-| `src/components/ai-generator/QuestionCard.tsx` | Add `id` attribute for scroll targeting, render validation issue badges from `validation_details` |
-| `src/pages/admin/AIQuestionGenerator.tsx` | No structural changes needed (scroll is handled via DOM IDs) |
-| `src/locales/en.json` | Add detail/issue label translation keys |
-| `src/locales/ar.json` | Add corresponding Arabic translations |
-
+| `supabase/functions/rewrite-question/index.ts` | New edge function for single-question AI rewrite |
+| `supabase/config.toml` | Add `[functions.rewrite-question]` entry |
+| `src/components/ai-generator/QuestionCard.tsx` | Add AI button, collapsible prompt input, rewrite logic |
+| `src/locales/en.json` | Add rewrite-related translation keys |
+| `src/locales/ar.json` | Add Arabic translations |
