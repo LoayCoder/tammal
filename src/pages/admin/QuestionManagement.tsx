@@ -57,6 +57,32 @@ export default function QuestionManagement() {
     }
   };
 
+  const statusLabel = (status: string) => {
+    const map: Record<string, string> = {
+      draft: t('batches.statusDraft'),
+      published: t('batches.statusPublished'),
+      validated: t('batches.statusValidated'),
+      inactive: t('batches.statusInactive'),
+      pending: t('batches.statusPending'),
+    };
+    return map[status] || status;
+  };
+
+  const typeLabel = (type: string) => {
+    const map: Record<string, string> = {
+      scale: t('batches.typeScale'),
+      likert: t('batches.typeLikert'),
+      multiple_choice: t('batches.typeMultipleChoice'),
+      mcq: t('batches.typeMultipleChoice'),
+      open_text: t('batches.typeOpenText'),
+      open: t('batches.typeOpenText'),
+      yes_no: t('batches.typeYesNo'),
+      scenario: t('batches.typeScenario'),
+      numeric: t('batches.typeNumeric'),
+    };
+    return map[type] || type;
+  };
+
   const toggleQuestion = (batchId: string, questionId: string) => {
     setSelectedQuestions(prev => {
       const batchSet = new Set(prev[batchId] || []);
@@ -181,7 +207,7 @@ export default function QuestionManagement() {
                             )}
                           </Badge>
                           <Badge variant="outline" className={`text-xs ${statusColor(batch.status)}`}>
-                            {batch.status}
+                            {statusLabel(batch.status)}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
                             <Hash className="h-3 w-3 me-1" />
@@ -346,7 +372,7 @@ export default function QuestionManagement() {
                                     <TableCell className="max-w-xs truncate">{q.question_text}</TableCell>
                                     <TableCell className="max-w-xs truncate" dir="rtl">{q.question_text_ar || '—'}</TableCell>
                                     <TableCell>
-                                      <Badge variant="outline" className="text-xs">{q.type}</Badge>
+                                      <Badge variant="outline" className="text-xs">{typeLabel(q.type)}</Badge>
                                     </TableCell>
                                     {batch.purpose !== 'wellness' && (
                                       <TableCell>
@@ -355,7 +381,7 @@ export default function QuestionManagement() {
                                     )}
                                     <TableCell>
                                       <Badge variant="outline" className={`text-xs ${statusColor(q.validation_status || 'pending')}`}>
-                                        {q.validation_status || 'pending'}
+                                        {statusLabel(q.validation_status || 'pending')}
                                       </Badge>
                                     </TableCell>
                                   </TableRow>
