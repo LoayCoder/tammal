@@ -1120,7 +1120,12 @@
     "issue_missing_arabic": "نص عربي مفقود",
     "issue_missing_options": "خيارات مفقودة",
     "issue_too_short": "قصير جداً",
-    "issue_duplicate": "مكرر"
+    "issue_duplicate": "مكرر",
+    "aiRewrite": "إعادة صياغة بالذكاء الاصطناعي",
+    "rewritePrompt": "أدخل تعليمات لتحسين هذا السؤال...",
+    "rewriting": "جاري إعادة الصياغة...",
+    "rewriteSuccess": "تمت إعادة صياغة السؤال بنجاح",
+    "rewriteError": "فشل في إعادة صياغة السؤال"
   },
   "survey": {
     "title": "استبياني",
