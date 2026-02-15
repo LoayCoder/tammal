@@ -61,6 +61,20 @@ export interface GenerateInput {
 
 const MAX_BATCH_SIZE = 64;
 
+const VALID_TYPES = ['likert_5', 'numeric_scale', 'yes_no', 'open_ended', 'multiple_choice'];
+
+function normalizeQuestionType(t: string): string {
+  if (VALID_TYPES.includes(t)) return t;
+  const lower = (t || '').toLowerCase().replace(/[\s-]+/g, '_');
+  if (lower.includes('open') || lower.includes('free_text') || lower.includes('qualitative')) return 'open_ended';
+  if (lower.includes('scenario') || lower.includes('situational')) return 'multiple_choice';
+  if (lower.includes('likert') || lower.includes('agreement')) return 'likert_5';
+  if (lower.includes('numeric') || lower.includes('scale') || lower.includes('rating')) return 'numeric_scale';
+  if (lower.includes('yes') || lower.includes('binary')) return 'yes_no';
+  if (lower.includes('multiple') || lower.includes('mcq') || lower.includes('choice')) return 'multiple_choice';
+  return 'likert_5';
+}
+
 export function useEnhancedAIGeneration() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -78,7 +92,11 @@ export function useEnhancedAIGeneration() {
       return data;
     },
     onSuccess: (data) => {
-      setQuestions(data.questions);
+      const normalized = (data.questions || []).map((q: any) => ({
+        ...q,
+        type: normalizeQuestionType(q.type),
+      }));
+      setQuestions(normalized);
       setGenerationMeta({ model: data.model, duration_ms: data.duration_ms });
       setValidationReport(null);
       toast.success(t('aiGenerator.generateSuccess', { count: data.questions.length }));
