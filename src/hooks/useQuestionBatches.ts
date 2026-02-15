@@ -167,11 +167,42 @@ export function useQuestionBatches(tenantId: string | null) {
     }
   };
 
+  const publishBatch = useMutation({
+    mutationFn: async (batchId: string) => {
+      const batch = (batchesQuery.data || []).find(b => b.id === batchId);
+      if (batch?.purpose === 'wellness') {
+        // Publish all wellness questions in the batch
+        await supabase
+          .from('wellness_questions')
+          .update({ status: 'published' })
+          .eq('batch_id', batchId)
+          .is('deleted_at', null);
+        const { error } = await supabase
+          .from('question_generation_batches')
+          .update({ status: 'published', published_at: new Date().toISOString() })
+          .eq('id', batchId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('question_sets')
+          .update({ status: 'published' })
+          .eq('id', batchId);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['question-batches'] });
+      toast.success(t('batches.publishSuccess', 'Batch published successfully'));
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+
   const deleteBatch = useMutation({
     mutationFn: async (batchId: string) => {
       const batch = (batchesQuery.data || []).find(b => b.id === batchId);
       if (batch?.purpose === 'wellness') {
-        // Soft delete wellness questions, then soft delete batch
         await supabase
           .from('wellness_questions')
           .update({ deleted_at: new Date().toISOString() })
@@ -208,6 +239,7 @@ export function useQuestionBatches(tenantId: string | null) {
     availableBatches,
     fetchBatchQuestions,
     expandedBatchQuestions,
+    publishBatch,
     deleteBatch,
     MAX_BATCH_SIZE,
   };

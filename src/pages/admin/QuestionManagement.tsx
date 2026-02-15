@@ -11,7 +11,7 @@ import { useQuestionBatches, type BatchQuestion } from "@/hooks/useQuestionBatch
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Trash2, ChevronDown, Package, Calendar, User, Hash, ClipboardList, Heart } from "lucide-react";
+import { Search, Trash2, ChevronDown, Package, Calendar, User, Hash, ClipboardList, Heart, Send } from "lucide-react";
 import { format } from "date-fns";
 
 export default function QuestionManagement() {
@@ -32,7 +32,7 @@ export default function QuestionManagement() {
   });
 
   const {
-    batches, isLoading, fetchBatchQuestions, expandedBatchQuestions, deleteBatch, MAX_BATCH_SIZE,
+    batches, isLoading, fetchBatchQuestions, expandedBatchQuestions, deleteBatch, publishBatch, MAX_BATCH_SIZE,
   } = useQuestionBatches(tenantId || null);
 
   const handleAccordionChange = (values: string[]) => {
@@ -160,7 +160,21 @@ export default function QuestionManagement() {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-3 pb-4">
-                    <div className="flex justify-end mb-2">
+                    <div className="flex justify-end gap-2 mb-2">
+                      {batch.status !== 'published' && (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            publishBatch.mutate(batch.id);
+                          }}
+                          disabled={publishBatch.isPending}
+                        >
+                          <Send className="h-4 w-4 me-1" />
+                          {t('batches.publish', 'Publish')}
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
