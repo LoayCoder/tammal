@@ -190,8 +190,19 @@ export function useQuestionBatches(tenantId: string | null) {
         if (error) throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: (_data, batchId) => {
       queryClient.invalidateQueries({ queryKey: ['question-batches'] });
+      // Refresh expanded questions to show updated status
+      setExpandedBatchQuestions(prev => {
+        const updated = { ...prev };
+        if (updated[batchId]) {
+          updated[batchId] = updated[batchId].map(q => ({
+            ...q,
+            validation_status: 'published',
+          }));
+        }
+        return updated;
+      });
       toast.success(t('batches.publishSuccess', 'Batch published successfully'));
     },
     onError: (err: Error) => {

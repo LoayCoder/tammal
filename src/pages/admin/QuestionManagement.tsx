@@ -48,7 +48,8 @@ export default function QuestionManagement() {
 
   const statusColor = (status: string) => {
     switch (status) {
-      case 'validated': return 'bg-green-500/10 text-green-700 dark:text-green-400';
+      case 'validated':
+      case 'published': return 'bg-green-500/10 text-green-700 dark:text-green-400';
       case 'draft': return 'bg-muted text-muted-foreground';
       default: return 'bg-muted text-muted-foreground';
     }
@@ -204,7 +205,9 @@ export default function QuestionManagement() {
                               <TableHead>{t('batches.questionText')}</TableHead>
                               <TableHead>{t('batches.questionTextAr')}</TableHead>
                               <TableHead className="w-24">{t('batches.type')}</TableHead>
-                              <TableHead className="w-24">{t('batches.confidence')}</TableHead>
+                              {batch.purpose !== 'wellness' && (
+                                <TableHead className="w-24">{t('batches.confidence')}</TableHead>
+                              )}
                               <TableHead className="w-24">{t('common.status')}</TableHead>
                             </TableRow>
                           </TableHeader>
@@ -217,9 +220,11 @@ export default function QuestionManagement() {
                                 <TableCell>
                                   <Badge variant="outline" className="text-xs">{q.type}</Badge>
                                 </TableCell>
-                                <TableCell>
-                                  {q.confidence_score != null ? `${q.confidence_score}%` : '—'}
-                                </TableCell>
+                                {batch.purpose !== 'wellness' && (
+                                  <TableCell>
+                                    {q.confidence_score != null ? `${q.confidence_score}%` : '—'}
+                                  </TableCell>
+                                )}
                                 <TableCell>
                                   <Badge variant="outline" className={`text-xs ${statusColor(q.validation_status || 'pending')}`}>
                                     {q.validation_status || 'pending'}
