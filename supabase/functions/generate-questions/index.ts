@@ -289,7 +289,8 @@ All sources work together: a question should satisfy the category requirement wh
                   question_text_ar: { type: "string", description: "Arabic question text" },
                   type: {
                     type: "string",
-                    enum: ["likert_5", "numeric_scale", "yes_no", "open_ended", "multiple_choice", "scenario_based"],
+                    enum: ["likert_5", "numeric_scale", "yes_no", "open_ended", "multiple_choice"],
+                    description: "ONLY use these exact values. Do NOT invent new types like 'scenario_based'.",
                   },
                   complexity: { type: "string", enum: ["simple", "moderate", "advanced"] },
                   tone: { type: "string" },
@@ -448,10 +449,23 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       }
     }
 
+    const VALID_TYPES = ["likert_5", "numeric_scale", "yes_no", "open_ended", "multiple_choice"];
+    const normalizeType = (t: string): string => {
+      if (VALID_TYPES.includes(t)) return t;
+      const lower = (t || "").toLowerCase().replace(/[\s-]+/g, "_");
+      if (lower.includes("scenario") || lower.includes("situational")) return "multiple_choice";
+      if (lower.includes("open") || lower.includes("free_text") || lower.includes("qualitative")) return "open_ended";
+      if (lower.includes("likert") || lower.includes("agreement")) return "likert_5";
+      if (lower.includes("numeric") || lower.includes("scale") || lower.includes("rating")) return "numeric_scale";
+      if (lower.includes("yes") || lower.includes("binary")) return "yes_no";
+      if (lower.includes("multiple") || lower.includes("mcq") || lower.includes("choice")) return "multiple_choice";
+      return "likert_5";
+    };
+
     questions = questions.map((q: any) => ({
       question_text: q.question_text || q.text || "",
       question_text_ar: q.question_text_ar || q.text_ar || "",
-      type: q.type || "likert_5",
+      type: normalizeType(q.type),
       complexity: q.complexity || complexity,
       tone: q.tone || tone,
       explanation: q.explanation || "",
