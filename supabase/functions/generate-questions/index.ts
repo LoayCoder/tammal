@@ -487,8 +487,12 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
     const { data: userData } = await supabase.auth.getUser(token);
 
     if (userData?.user) {
+      // Fetch tenant_id for proper RLS-based log visibility
+      const { data: tenantIdData } = await supabase.rpc("get_user_tenant_id", { _user_id: userData.user.id });
+
       await supabase.from("ai_generation_logs").insert({
         user_id: userData.user.id,
+        tenant_id: tenantIdData || null,
         prompt_type: "question_generation",
         questions_generated: questions.length,
         model_used: selectedModel,

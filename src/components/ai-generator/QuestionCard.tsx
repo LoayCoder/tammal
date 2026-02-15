@@ -21,6 +21,7 @@ interface QuestionCardProps {
   onRemove: (index: number) => void;
   onUpdate: (index: number, updates: Partial<EnhancedGeneratedQuestion>) => void;
   onRegenerate?: (index: number) => void;
+  selectedModel?: string;
 }
 
 const typeLabels: Record<string, string> = {
@@ -51,7 +52,7 @@ const issueLabels: Record<string, string> = {
   duplicate: 'aiGenerator.issue_duplicate',
 };
 
-export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate }: QuestionCardProps) {
+export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate, selectedModel }: QuestionCardProps) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(question.question_text);
@@ -81,6 +82,7 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
           question_text_ar: question.question_text_ar,
           type: question.type,
           prompt: rewritePrompt.trim(),
+          model: selectedModel,
         },
       });
 
