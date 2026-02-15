@@ -1500,7 +1500,17 @@
     "questionText": "السؤال (إنجليزي)",
     "questionTextAr": "السؤال (عربي)",
     "type": "النوع",
-    "confidence": "الثقة"
+    "confidence": "الثقة",
+    "publish": "نشر",
+    "publishSuccess": "تم نشر الدفعة بنجاح",
+    "deactivate": "تعطيل",
+    "deactivateSuccess": "تم تعطيل الدفعة بنجاح",
+    "deactivateSelected": "تعطيل ({{count}})",
+    "questionsDeactivated": "تم تعطيل الأسئلة المحددة",
+    "activate": "تفعيل",
+    "activateSuccess": "تم تفعيل الدفعة بنجاح",
+    "activateSelected": "تفعيل ({{count}})",
+    "questionsActivated": "تم تفعيل الأسئلة المحددة"
   },
   "userManagement": {
     "title": "إدارة المستخدمين",

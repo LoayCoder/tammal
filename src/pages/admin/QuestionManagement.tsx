@@ -12,7 +12,7 @@ import { useQuestionBatches, type BatchQuestion } from "@/hooks/useQuestionBatch
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Trash2, Package, Calendar, User, Hash, ClipboardList, Heart, Send, Ban } from "lucide-react";
+import { Search, Trash2, Package, Calendar, User, Hash, ClipboardList, Heart, Send, Ban, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 
 export default function QuestionManagement() {
@@ -34,7 +34,7 @@ export default function QuestionManagement() {
   });
 
   const {
-    batches, isLoading, fetchBatchQuestions, expandedBatchQuestions, deleteBatch, publishBatch, deactivateBatch, deactivateQuestions, MAX_BATCH_SIZE,
+    batches, isLoading, fetchBatchQuestions, expandedBatchQuestions, deleteBatch, publishBatch, deactivateBatch, deactivateQuestions, activateBatch, activateQuestions, MAX_BATCH_SIZE,
   } = useQuestionBatches(tenantId || null);
 
   const handleAccordionChange = (values: string[]) => {
@@ -72,11 +72,10 @@ export default function QuestionManagement() {
   const toggleAllQuestions = (batchId: string, questions: BatchQuestion[]) => {
     setSelectedQuestions(prev => {
       const batchSet = new Set(prev[batchId] || []);
-      const activeQuestions = questions.filter(q => q.validation_status !== 'inactive');
-      if (batchSet.size === activeQuestions.length && activeQuestions.length > 0) {
+      if (batchSet.size === questions.length && questions.length > 0) {
         return { ...prev, [batchId]: new Set() };
       }
-      return { ...prev, [batchId]: new Set(activeQuestions.map(q => q.id)) };
+      return { ...prev, [batchId]: new Set(questions.map(q => q.id)) };
     });
   };
 
@@ -84,6 +83,13 @@ export default function QuestionManagement() {
     const ids = Array.from(selectedQuestions[batchId] || []);
     if (ids.length === 0) return;
     deactivateQuestions.mutate({ batchId, questionIds: ids, purpose });
+    setSelectedQuestions(prev => ({ ...prev, [batchId]: new Set() }));
+  };
+
+  const handleActivateSelected = (batchId: string, purpose: 'survey' | 'wellness') => {
+    const ids = Array.from(selectedQuestions[batchId] || []);
+    if (ids.length === 0) return;
+    activateQuestions.mutate({ batchId, questionIds: ids, purpose });
     setSelectedQuestions(prev => ({ ...prev, [batchId]: new Set() }));
   };
 
@@ -198,21 +204,45 @@ export default function QuestionManagement() {
                     </AccordionTrigger>
                     <AccordionContent className="px-3 pb-4">
                       <div className="flex justify-end gap-2 mb-2 flex-wrap">
-                        {selectedCount > 0 && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-orange-600 border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-950"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeactivateSelected(batch.id, batch.purpose);
-                            }}
-                            disabled={deactivateQuestions.isPending}
-                          >
-                            <Ban className="h-4 w-4 me-1" />
-                            {t('batches.deactivateSelected', { count: selectedCount })}
-                          </Button>
-                        )}
+                        {selectedCount > 0 && (() => {
+                          const selectedIds = Array.from(selectedQuestions[batch.id] || []);
+                          const selectedQs = filtered.filter(q => selectedIds.includes(q.id));
+                          const hasActive = selectedQs.some(q => q.validation_status !== 'inactive');
+                          const hasInactive = selectedQs.some(q => q.validation_status === 'inactive');
+                          return (
+                            <>
+                              {hasActive && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeactivateSelected(batch.id, batch.purpose);
+                                  }}
+                                  disabled={deactivateQuestions.isPending}
+                                >
+                                  <Ban className="h-4 w-4 me-1" />
+                                  {t('batches.deactivateSelected', { count: selectedCount })}
+                                </Button>
+                              )}
+                              {hasInactive && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleActivateSelected(batch.id, batch.purpose);
+                                  }}
+                                  disabled={activateQuestions.isPending}
+                                >
+                                  <CheckCircle className="h-4 w-4 me-1" />
+                                  {t('batches.activateSelected', { count: selectedCount })}
+                                </Button>
+                              )}
+                            </>
+                          );
+                        })()}
                         {batch.status !== 'published' && batch.status !== 'inactive' && (
                           <Button
                             variant="default"
@@ -224,14 +254,28 @@ export default function QuestionManagement() {
                             disabled={publishBatch.isPending}
                           >
                             <Send className="h-4 w-4 me-1" />
-                            {t('batches.publish', 'Publish')}
+                            {t('batches.publish')}
+                          </Button>
+                        )}
+                        {batch.status === 'inactive' && (
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              activateBatch.mutate(batch.id);
+                            }}
+                            disabled={activateBatch.isPending}
+                          >
+                            <CheckCircle className="h-4 w-4 me-1" />
+                            {t('batches.activate')}
                           </Button>
                         )}
                         {batch.status !== 'inactive' && (
                           <Button
                             variant="outline"
                             size="sm"
-                            className="text-orange-600 border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-950"
+                            className="text-destructive border-destructive/30 hover:bg-destructive/10"
                             onClick={(e) => {
                               e.stopPropagation();
                               deactivateBatch.mutate(batch.id);
@@ -239,7 +283,7 @@ export default function QuestionManagement() {
                             disabled={deactivateBatch.isPending}
                           >
                             <Ban className="h-4 w-4 me-1" />
-                            {t('batches.deactivate', 'Deactivate')}
+                            {t('batches.deactivate')}
                           </Button>
                         )}
                         <Button
@@ -270,8 +314,8 @@ export default function QuestionManagement() {
                                 <TableHead className="w-10">
                                   <Checkbox
                                     checked={
-                                      filtered.filter(q => q.validation_status !== 'inactive').length > 0 &&
-                                      selectedCount === filtered.filter(q => q.validation_status !== 'inactive').length
+                                      filtered.length > 0 &&
+                                      selectedCount === filtered.length
                                     }
                                     onCheckedChange={() => toggleAllQuestions(batch.id, filtered)}
                                   />
@@ -295,7 +339,6 @@ export default function QuestionManagement() {
                                     <TableCell>
                                       <Checkbox
                                         checked={isSelected}
-                                        disabled={isInactive}
                                         onCheckedChange={() => toggleQuestion(batch.id, q.id)}
                                       />
                                     </TableCell>
