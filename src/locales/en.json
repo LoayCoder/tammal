@@ -1098,7 +1098,16 @@
     "noFrameworkDocs": "No reference documents attached",
     "uploadDoc": "Upload",
     "extracted": "Extracted",
-    "pending": "Pending"
+    "pending": "Pending",
+    "purpose": "Question Purpose",
+    "purposeSurvey": "Survey Questions",
+    "purposeWellness": "Daily Check-in",
+    "purposeDescription": "Choose where generated questions will be saved",
+    "purposeSurveyDesc": "Saved to survey batches for scheduled delivery",
+    "purposeWellnessDesc": "Saved as draft wellness questions for daily check-in",
+    "wellnessSaveSuccess": "{{count}} wellness questions saved as drafts",
+    "wellnessSaveError": "Failed to save wellness questions",
+    "typeScale": "Scale"
   },
   "survey": {
     "title": "My Survey",

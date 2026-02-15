@@ -124,6 +124,43 @@ export function useEnhancedAIGeneration() {
     },
   });
 
+  const saveWellnessMutation = useMutation({
+    mutationFn: async (params: { questions: EnhancedGeneratedQuestion[] }) => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error('Not authenticated');
+
+      const tenantId = await supabase.rpc('get_user_tenant_id', { _user_id: userData.user.id }).then(r => r.data);
+      if (!tenantId) throw new Error('No organization found. Please contact your administrator.');
+
+      const mapToWellnessType = (type: string): string => {
+        if (['likert_5', 'numeric_scale'].includes(type)) return 'scale';
+        if (type === 'open_ended') return 'text';
+        if (type === 'multiple_choice') return 'multiple_choice';
+        return 'scale';
+      };
+
+      const wellnessInsert = params.questions.map(q => ({
+        tenant_id: tenantId,
+        question_text_en: q.question_text,
+        question_text_ar: q.question_text_ar,
+        question_type: mapToWellnessType(q.type),
+        options: q.options || [],
+        status: 'draft' as const,
+      }));
+
+      const { error } = await supabase.from('wellness_questions').insert(wellnessInsert);
+      if (error) throw error;
+      return params.questions.length;
+    },
+    onSuccess: (count) => {
+      queryClient.invalidateQueries({ queryKey: ['wellness-questions'] });
+      toast.success(t('aiGenerator.wellnessSaveSuccess', { count }));
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || t('aiGenerator.wellnessSaveError'));
+    },
+  });
+
   const saveSetMutation = useMutation({
     mutationFn: async (params: {
       questions: EnhancedGeneratedQuestion[];
@@ -275,11 +312,13 @@ export function useEnhancedAIGeneration() {
     generate: generateMutation.mutate,
     validate: validateMutation.mutate,
     saveSet: saveSetMutation.mutate,
+    saveWellness: saveWellnessMutation.mutate,
     removeQuestion,
     updateQuestion,
     clearAll,
     isGenerating: generateMutation.isPending,
     isValidating: validateMutation.isPending,
     isSaving: saveSetMutation.isPending,
+    isSavingWellness: saveWellnessMutation.isPending,
   };
 }
