@@ -68,7 +68,10 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
       const { data, error } = await query;
       if (error) throw error;
       
-      return data as ScheduledQuestion[];
+      return (data || []).map((row: any) => ({
+        ...row,
+        question: Array.isArray(row.question) ? row.question[0] || null : row.question,
+      })) as ScheduledQuestion[];
     },
     enabled: !!employeeId,
   });
