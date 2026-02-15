@@ -1510,7 +1510,19 @@
     "activate": "تفعيل",
     "activateSuccess": "تم تفعيل الدفعة بنجاح",
     "activateSelected": "تفعيل ({{count}})",
-    "questionsActivated": "تم تفعيل الأسئلة المحددة"
+    "questionsActivated": "تم تفعيل الأسئلة المحددة",
+    "statusDraft": "مسودة",
+    "statusPublished": "منشور",
+    "statusValidated": "تم التحقق",
+    "statusInactive": "غير نشط",
+    "statusPending": "معلق",
+    "typeScale": "مقياس",
+    "typeLikert": "مقياس ليكرت",
+    "typeMultipleChoice": "اختيار متعدد",
+    "typeOpenText": "نص مفتوح",
+    "typeYesNo": "نعم / لا",
+    "typeScenario": "سيناريو",
+    "typeNumeric": "رقمي"
   },
   "userManagement": {
     "title": "إدارة المستخدمين",

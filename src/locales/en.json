@@ -1510,7 +1510,19 @@
     "activate": "Activate",
     "activateSuccess": "Batch activated successfully",
     "activateSelected": "Activate ({{count}})",
-    "questionsActivated": "Selected questions activated"
+    "questionsActivated": "Selected questions activated",
+    "statusDraft": "Draft",
+    "statusPublished": "Published",
+    "statusValidated": "Validated",
+    "statusInactive": "Inactive",
+    "statusPending": "Pending",
+    "typeScale": "Scale",
+    "typeLikert": "Likert Scale",
+    "typeMultipleChoice": "Multiple Choice",
+    "typeOpenText": "Open Text",
+    "typeYesNo": "Yes / No",
+    "typeScenario": "Scenario",
+    "typeNumeric": "Numeric"
   },
   "userManagement": {
     "title": "User Management",
