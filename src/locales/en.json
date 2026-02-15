@@ -1472,7 +1472,10 @@
     "noQuestions": "No questions in this batch yet",
     "questionTextEn": "Question (English)",
     "questionTextAr": "Question (Arabic)",
-    "questionType": "Type"
+    "questionType": "Type",
+    "scheduledQuestion": "Question",
+    "scheduledQuestionsTitle": "Your Scheduled Questions",
+    "alreadyCheckedIn": "You've already checked in today!"
   },
   "batches": {
     "title": "Question Batches",
