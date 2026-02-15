@@ -1107,7 +1107,20 @@
     "purposeWellnessDesc": "Saved as draft wellness questions for daily check-in",
     "wellnessSaveSuccess": "{{count}} wellness questions saved as drafts",
     "wellnessSaveError": "Failed to save wellness questions",
-    "typeScale": "Scale"
+    "typeScale": "Scale",
+    "showDetails": "Show Details",
+    "hideDetails": "Hide Details",
+    "goToQuestion": "Go to Question",
+    "issue_incomplete_structure": "Incomplete Structure",
+    "issue_bias_detected": "Bias Detected",
+    "issue_ambiguity_detected": "Ambiguity Detected",
+    "issue_low_confidence": "Low Confidence",
+    "issue_moderate_confidence": "Moderate Confidence",
+    "issue_missing_framework": "Missing Framework Reference",
+    "issue_missing_arabic": "Missing Arabic Text",
+    "issue_missing_options": "Missing Options",
+    "issue_too_short": "Too Short",
+    "issue_duplicate": "Duplicate"
   },
   "survey": {
     "title": "My Survey",
