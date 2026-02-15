@@ -94,18 +94,34 @@ serve(async (req) => {
       let questions: { id: string }[] = [];
 
       if (batchIds.length > 0) {
-        // Fetch from linked question batches (generated_questions table)
-        const { data: batchQuestions, error: bqError } = await supabase
+        // Try survey questions (generated_questions linked via question_set_id)
+        const { data: surveyQuestions, error: sqError } = await supabase
           .from("generated_questions")
           .select("id")
-          .in("question_set_id", batchIds);
+          .in("question_set_id", batchIds)
+          .eq("validation_status", "published");
 
-        if (bqError) {
-          console.error("Error fetching batch questions:", bqError);
-          continue;
+        if (sqError) {
+          console.error("Error fetching survey batch questions:", sqError);
+        } else if (surveyQuestions?.length) {
+          questions = surveyQuestions;
         }
-        questions = batchQuestions || [];
-        console.log(`Found ${questions.length} questions from ${batchIds.length} linked batches`);
+
+        // Also try wellness questions (wellness_questions linked via batch_id)
+        const { data: wellnessQuestions, error: wqError } = await supabase
+          .from("wellness_questions")
+          .select("id")
+          .in("batch_id", batchIds)
+          .eq("status", "published")
+          .is("deleted_at", null);
+
+        if (wqError) {
+          console.error("Error fetching wellness batch questions:", wqError);
+        } else if (wellnessQuestions?.length) {
+          questions = [...questions, ...wellnessQuestions];
+        }
+
+        console.log(`Found ${questions.length} questions from ${batchIds.length} linked batches (survey: ${surveyQuestions?.length || 0}, wellness: ${wellnessQuestions?.length || 0})`);
       } else {
         // Fallback: general questions pool
         const activeCategories = schedule.active_categories || [];
