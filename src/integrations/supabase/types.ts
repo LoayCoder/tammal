@@ -1639,6 +1639,7 @@ export type Database = {
           employee_id: string
           id: string
           question_id: string
+          question_source: string
           reminder_count: number | null
           schedule_id: string
           scheduled_delivery: string
@@ -1652,6 +1653,7 @@ export type Database = {
           employee_id: string
           id?: string
           question_id: string
+          question_source?: string
           reminder_count?: number | null
           schedule_id: string
           scheduled_delivery: string
@@ -1665,6 +1667,7 @@ export type Database = {
           employee_id?: string
           id?: string
           question_id?: string
+          question_source?: string
           reminder_count?: number | null
           schedule_id?: string
           scheduled_delivery?: string
@@ -1677,13 +1680,6 @@ export type Database = {
             columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "scheduled_questions_question_id_fkey"
-            columns: ["question_id"]
-            isOneToOne: false
-            referencedRelation: "questions"
             referencedColumns: ["id"]
           },
           {

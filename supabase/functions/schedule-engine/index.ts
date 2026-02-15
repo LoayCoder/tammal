@@ -91,7 +91,7 @@ serve(async (req) => {
 
       // Get available questions - from linked batches or general pool
       const batchIds = (schedule.batch_ids || []) as string[];
-      let questions: { id: string }[] = [];
+      let questions: { id: string; _source: string }[] = [];
 
       if (batchIds.length > 0) {
         // Try survey questions (generated_questions linked via question_set_id)
@@ -104,7 +104,7 @@ serve(async (req) => {
         if (sqError) {
           console.error("Error fetching survey batch questions:", sqError);
         } else if (surveyQuestions?.length) {
-          questions = surveyQuestions;
+          questions = surveyQuestions.map(q => ({ ...q, _source: "generated_questions" }));
         }
 
         // Also try wellness questions (wellness_questions linked via batch_id)
@@ -118,7 +118,7 @@ serve(async (req) => {
         if (wqError) {
           console.error("Error fetching wellness batch questions:", wqError);
         } else if (wellnessQuestions?.length) {
-          questions = [...questions, ...wellnessQuestions];
+          questions = [...questions, ...wellnessQuestions.map(q => ({ ...q, _source: "wellness_questions" }))];
         }
 
         console.log(`Found ${questions.length} questions from ${batchIds.length} linked batches (survey: ${surveyQuestions?.length || 0}, wellness: ${wellnessQuestions?.length || 0})`);
@@ -142,7 +142,7 @@ serve(async (req) => {
           console.error("Error fetching questions:", qError);
           continue;
         }
-        questions = poolQuestions || [];
+        questions = (poolQuestions || []).map(q => ({ ...q, _source: "questions" }));
       }
 
       if (!questions.length) {
@@ -247,6 +247,7 @@ serve(async (req) => {
               scheduled_delivery: deliveryDate.toISOString(),
               status: "pending",
               delivery_channel: "app",
+              question_source: question._source,
             });
           }
         }

@@ -60,7 +60,10 @@ export function useCheckinScheduledQuestions(employeeId?: string) {
         .order('scheduled_delivery', { ascending: true });
 
       if (error) throw error;
-      return (data || []) as CheckinScheduledQuestion[];
+      return (data || []).map((row: any) => ({
+        ...row,
+        question: Array.isArray(row.question) ? row.question[0] || null : row.question,
+      })) as CheckinScheduledQuestion[];
     },
     enabled: !!employeeId,
   });
