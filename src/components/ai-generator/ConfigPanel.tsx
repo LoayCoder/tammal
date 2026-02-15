@@ -105,9 +105,9 @@ export function ConfigPanel({
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [categorySearch, setCategorySearch] = useState('');
   const [subcategorySearch, setSubcategorySearch] = useState('');
-  const { categories } = useQuestionCategories();
-  const { subcategories: allSubcategories } = useQuestionSubcategories();
-  const activeCategories = categories.filter(c => c.is_active);
+  const { categories = [] } = useQuestionCategories();
+  const { subcategories: allSubcategories = [] } = useQuestionSubcategories();
+  const activeCategories = (categories || []).filter(c => c.is_active);
 
   // Filter subcategories by selected categories
   const filteredSubcategories = allSubcategories.filter(
