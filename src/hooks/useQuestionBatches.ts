@@ -210,6 +210,84 @@ export function useQuestionBatches(tenantId: string | null) {
     },
   });
 
+  const deactivateBatch = useMutation({
+    mutationFn: async (batchId: string) => {
+      const batch = (batchesQuery.data || []).find(b => b.id === batchId);
+      if (batch?.purpose === 'wellness') {
+        await supabase
+          .from('wellness_questions')
+          .update({ status: 'inactive' } as any)
+          .eq('batch_id', batchId)
+          .is('deleted_at', null);
+        const { error } = await supabase
+          .from('question_generation_batches')
+          .update({ status: 'inactive' } as any)
+          .eq('id', batchId);
+        if (error) throw error;
+      } else {
+        await supabase
+          .from('generated_questions')
+          .update({ validation_status: 'inactive' })
+          .eq('question_set_id', batchId);
+        const { error } = await supabase
+          .from('question_sets')
+          .update({ status: 'inactive' })
+          .eq('id', batchId);
+        if (error) throw error;
+      }
+    },
+    onSuccess: (_data, batchId) => {
+      queryClient.invalidateQueries({ queryKey: ['question-batches'] });
+      setExpandedBatchQuestions(prev => {
+        const updated = { ...prev };
+        if (updated[batchId]) {
+          updated[batchId] = updated[batchId].map(q => ({
+            ...q,
+            validation_status: 'inactive',
+          }));
+        }
+        return updated;
+      });
+      toast.success(t('batches.deactivateSuccess', 'Batch deactivated successfully'));
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+
+  const deactivateQuestions = useMutation({
+    mutationFn: async ({ batchId, questionIds, purpose }: { batchId: string; questionIds: string[]; purpose: 'survey' | 'wellness' }) => {
+      if (purpose === 'wellness') {
+        const { error } = await supabase
+          .from('wellness_questions')
+          .update({ status: 'inactive' } as any)
+          .in('id', questionIds);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('generated_questions')
+          .update({ validation_status: 'inactive' })
+          .in('id', questionIds);
+        if (error) throw error;
+      }
+    },
+    onSuccess: (_data, { batchId, questionIds }) => {
+      setExpandedBatchQuestions(prev => {
+        const updated = { ...prev };
+        if (updated[batchId]) {
+          updated[batchId] = updated[batchId].map(q =>
+            questionIds.includes(q.id) ? { ...q, validation_status: 'inactive' } : q
+          );
+        }
+        return updated;
+      });
+      toast.success(t('batches.questionsDeactivated', 'Selected questions deactivated'));
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+
   const deleteBatch = useMutation({
     mutationFn: async (batchId: string) => {
       const batch = (batchesQuery.data || []).find(b => b.id === batchId);
@@ -251,6 +329,8 @@ export function useQuestionBatches(tenantId: string | null) {
     fetchBatchQuestions,
     expandedBatchQuestions,
     publishBatch,
+    deactivateBatch,
+    deactivateQuestions,
     deleteBatch,
     MAX_BATCH_SIZE,
   };
