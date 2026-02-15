@@ -16,6 +16,7 @@ export interface QuestionBatch {
   created_at: string | null;
   deleted_at: string | null;
   creator_name?: string | null;
+  purpose: 'survey' | 'wellness';
 }
 
 export interface BatchQuestion {
@@ -45,54 +46,148 @@ export function useQuestionBatches(tenantId: string | null) {
     queryKey: ['question-batches', tenantId],
     queryFn: async () => {
       if (!tenantId) return [];
-      const { data, error } = await supabase
+
+      // Fetch survey batches from question_sets
+      const { data: surveyData, error: surveyError } = await supabase
         .from('question_sets')
         .select('*')
         .eq('tenant_id', tenantId)
         .is('deleted_at', null)
         .order('created_at', { ascending: false });
-      if (error) throw error;
+      if (surveyError) throw surveyError;
 
-      // Fetch creator names for all batches
-      const userIds = [...new Set((data || []).map(b => b.user_id).filter(Boolean))];
+      // Fetch wellness batches from question_generation_batches
+      const { data: wellnessData, error: wellnessError } = await supabase
+        .from('question_generation_batches')
+        .select('*')
+        .eq('tenant_id', tenantId)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false });
+      if (wellnessError) throw wellnessError;
+
+      // Collect all user IDs for profile lookup
+      const surveyUserIds = (surveyData || []).map(b => b.user_id).filter(Boolean) as string[];
+      const wellnessUserIds = (wellnessData || []).map(b => b.created_by).filter(Boolean) as string[];
+      const allUserIds = [...new Set([...surveyUserIds, ...wellnessUserIds])];
+
       let profileMap: Record<string, string> = {};
-      if (userIds.length > 0) {
+      if (allUserIds.length > 0) {
         const { data: profiles } = await supabase
           .from('profiles')
           .select('user_id, full_name')
-          .in('user_id', userIds);
+          .in('user_id', allUserIds);
         if (profiles) {
           profileMap = Object.fromEntries(profiles.map(p => [p.user_id, p.full_name || '']));
         }
       }
 
-      return (data || []).map(b => ({
-        ...b,
+      const surveyBatches: QuestionBatch[] = (surveyData || []).map(b => ({
+        id: b.id,
+        name: b.name,
+        tenant_id: b.tenant_id,
+        user_id: b.user_id,
+        model_used: b.model_used,
+        accuracy_mode: b.accuracy_mode,
+        status: b.status,
+        question_count: b.question_count,
+        created_at: b.created_at,
+        deleted_at: b.deleted_at,
         creator_name: b.user_id ? profileMap[b.user_id] || null : null,
-      })) as QuestionBatch[];
+        purpose: 'survey' as const,
+      }));
+
+      const wellnessBatches: QuestionBatch[] = (wellnessData || []).map(b => ({
+        id: b.id,
+        name: null,
+        tenant_id: b.tenant_id,
+        user_id: b.created_by,
+        model_used: '',
+        accuracy_mode: '',
+        status: b.status,
+        question_count: b.question_count,
+        created_at: b.created_at,
+        deleted_at: b.deleted_at,
+        creator_name: b.created_by ? profileMap[b.created_by] || null : null,
+        purpose: 'wellness' as const,
+      }));
+
+      // Merge and sort by created_at descending
+      const all = [...surveyBatches, ...wellnessBatches].sort((a, b) => {
+        const da = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const db = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return db - da;
+      });
+
+      return all;
     },
     enabled: !!tenantId,
   });
 
   const fetchBatchQuestions = async (batchId: string) => {
-    const { data, error } = await supabase
-      .from('generated_questions')
-      .select('*')
-      .eq('question_set_id', batchId)
-      .order('created_at', { ascending: true });
-    if (error) throw error;
-    const questions = (data || []) as BatchQuestion[];
-    setExpandedBatchQuestions(prev => ({ ...prev, [batchId]: questions }));
-    return questions;
+    // Find batch to determine purpose
+    const batch = (batchesQuery.data || []).find(b => b.id === batchId);
+
+    if (batch?.purpose === 'wellness') {
+      // Fetch from wellness_questions
+      const { data, error } = await supabase
+        .from('wellness_questions')
+        .select('*')
+        .eq('batch_id', batchId)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      const questions: BatchQuestion[] = (data || []).map(q => ({
+        id: q.id,
+        question_text: q.question_text_en,
+        question_text_ar: q.question_text_ar,
+        type: q.question_type,
+        complexity: null,
+        tone: null,
+        confidence_score: null,
+        validation_status: q.status,
+        bias_flag: null,
+        ambiguity_flag: null,
+        explanation: null,
+        options: q.options,
+        created_at: q.created_at,
+      }));
+      setExpandedBatchQuestions(prev => ({ ...prev, [batchId]: questions }));
+      return questions;
+    } else {
+      // Fetch from generated_questions (survey)
+      const { data, error } = await supabase
+        .from('generated_questions')
+        .select('*')
+        .eq('question_set_id', batchId)
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      const questions = (data || []) as BatchQuestion[];
+      setExpandedBatchQuestions(prev => ({ ...prev, [batchId]: questions }));
+      return questions;
+    }
   };
 
   const deleteBatch = useMutation({
     mutationFn: async (batchId: string) => {
-      const { error } = await supabase
-        .from('question_sets')
-        .update({ deleted_at: new Date().toISOString() })
-        .eq('id', batchId);
-      if (error) throw error;
+      const batch = (batchesQuery.data || []).find(b => b.id === batchId);
+      if (batch?.purpose === 'wellness') {
+        // Soft delete wellness questions, then soft delete batch
+        await supabase
+          .from('wellness_questions')
+          .update({ deleted_at: new Date().toISOString() })
+          .eq('batch_id', batchId);
+        const { error } = await supabase
+          .from('question_generation_batches')
+          .update({ deleted_at: new Date().toISOString() })
+          .eq('id', batchId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('question_sets')
+          .update({ deleted_at: new Date().toISOString() })
+          .eq('id', batchId);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['question-batches'] });
@@ -104,7 +199,7 @@ export function useQuestionBatches(tenantId: string | null) {
   });
 
   const availableBatches = (batchesQuery.data || []).filter(
-    b => b.question_count < MAX_BATCH_SIZE
+    b => b.purpose === 'survey' && b.question_count < MAX_BATCH_SIZE
   );
 
   return {
