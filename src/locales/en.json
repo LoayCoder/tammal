@@ -1120,7 +1120,12 @@
     "issue_missing_arabic": "Missing Arabic Text",
     "issue_missing_options": "Missing Options",
     "issue_too_short": "Too Short",
-    "issue_duplicate": "Duplicate"
+    "issue_duplicate": "Duplicate",
+    "aiRewrite": "AI Rewrite",
+    "rewritePrompt": "Enter instructions for how to improve this question...",
+    "rewriting": "Rewriting...",
+    "rewriteSuccess": "Question rewritten successfully",
+    "rewriteError": "Failed to rewrite question"
   },
   "survey": {
     "title": "My Survey",

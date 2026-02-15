@@ -3,17 +3,17 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
 import {
   RefreshCw, Edit2, Copy, ChevronDown, Check, X,
-  AlertTriangle, CheckCircle, XCircle, Info
+  AlertTriangle, CheckCircle, XCircle, Info, Sparkles, Loader2
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { EnhancedGeneratedQuestion } from '@/hooks/useEnhancedAIGeneration';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface QuestionCardProps {
   question: EnhancedGeneratedQuestion;
@@ -57,6 +57,9 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
   const [editText, setEditText] = useState(question.question_text);
   const [editTextAr, setEditTextAr] = useState(question.question_text_ar);
   const [explanationOpen, setExplanationOpen] = useState(false);
+  const [rewriteOpen, setRewriteOpen] = useState(false);
+  const [rewritePrompt, setRewritePrompt] = useState('');
+  const [isRewriting, setIsRewriting] = useState(false);
 
   const handleSaveEdit = () => {
     onUpdate(index, { question_text: editText, question_text_ar: editTextAr });
@@ -66,6 +69,37 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
   const handleCopy = () => {
     navigator.clipboard.writeText(question.question_text);
     toast.success(t('aiGenerator.copied'));
+  };
+
+  const handleRewrite = async () => {
+    if (!rewritePrompt.trim()) return;
+    setIsRewriting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('rewrite-question', {
+        body: {
+          question_text: question.question_text,
+          question_text_ar: question.question_text_ar,
+          type: question.type,
+          prompt: rewritePrompt.trim(),
+        },
+      });
+
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'Unknown error');
+
+      onUpdate(index, {
+        question_text: data.question_text,
+        question_text_ar: data.question_text_ar,
+      });
+      setRewritePrompt('');
+      setRewriteOpen(false);
+      toast.success(t('aiGenerator.rewriteSuccess'));
+    } catch (err: any) {
+      console.error('Rewrite error:', err);
+      toast.error(t('aiGenerator.rewriteError'));
+    } finally {
+      setIsRewriting(false);
+    }
   };
 
   const borderClass = question.validation_status === 'failed'
@@ -103,35 +137,19 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
         </div>
 
         {/* Confidence bar */}
-        <Progress
-          value={question.confidence_score}
-          className="h-1.5"
-        />
+        <Progress value={question.confidence_score} className="h-1.5" />
 
         {/* Question text */}
         {isEditing ? (
           <div className="space-y-2">
-            <Textarea
-              value={editText}
-              onChange={e => setEditText(e.target.value)}
-              className="text-sm"
-              rows={2}
-            />
-            <Textarea
-              value={editTextAr}
-              onChange={e => setEditTextAr(e.target.value)}
-              className="text-sm"
-              dir="rtl"
-              rows={2}
-            />
+            <Textarea value={editText} onChange={e => setEditText(e.target.value)} className="text-sm" rows={2} />
+            <Textarea value={editTextAr} onChange={e => setEditTextAr(e.target.value)} className="text-sm" dir="rtl" rows={2} />
             <div className="flex gap-2">
               <Button size="sm" onClick={handleSaveEdit}>
-                <Check className="h-3 w-3 me-1" />
-                {t('common.save')}
+                <Check className="h-3 w-3 me-1" />{t('common.save')}
               </Button>
               <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>
-                <X className="h-3 w-3 me-1" />
-                {t('common.cancel')}
+                <X className="h-3 w-3 me-1" />{t('common.cancel')}
               </Button>
             </div>
           </div>
@@ -164,19 +182,18 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
             )}
           </div>
         )}
+
         {/* Flags */}
         {(question.bias_flag || question.ambiguity_flag) && (
           <div className="flex gap-2">
             {question.bias_flag && (
               <Badge variant="destructive" className="text-xs">
-                <AlertTriangle className="h-3 w-3 me-1" />
-                {t('aiGenerator.biasDetected')}
+                <AlertTriangle className="h-3 w-3 me-1" />{t('aiGenerator.biasDetected')}
               </Badge>
             )}
             {question.ambiguity_flag && (
               <Badge variant="outline" className="text-xs border-chart-4 text-chart-4">
-                <AlertTriangle className="h-3 w-3 me-1" />
-                {t('aiGenerator.ambiguityDetected')}
+                <AlertTriangle className="h-3 w-3 me-1" />{t('aiGenerator.ambiguityDetected')}
               </Badge>
             )}
           </div>
@@ -186,11 +203,7 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
         {validationIssues.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {validationIssues.map((issue, idx) => (
-              <Badge
-                key={idx}
-                variant={question.validation_status === 'failed' ? 'destructive' : 'outline'}
-                className="text-xs"
-              >
+              <Badge key={idx} variant={question.validation_status === 'failed' ? 'destructive' : 'outline'} className="text-xs">
                 {t(issueLabels[issue] || issue)}
               </Badge>
             ))}
@@ -212,6 +225,32 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
           </Collapsible>
         )}
 
+        {/* AI Rewrite Prompt Area */}
+        {rewriteOpen && (
+          <div className="space-y-2 p-3 bg-muted/50 rounded-md border">
+            <Textarea
+              value={rewritePrompt}
+              onChange={e => setRewritePrompt(e.target.value)}
+              placeholder={t('aiGenerator.rewritePrompt')}
+              className="text-sm min-h-[60px]"
+              rows={2}
+              disabled={isRewriting}
+            />
+            <div className="flex items-center justify-end gap-2">
+              <Button size="sm" variant="ghost" onClick={() => { setRewriteOpen(false); setRewritePrompt(''); }} disabled={isRewriting}>
+                {t('common.cancel')}
+              </Button>
+              <Button size="sm" onClick={handleRewrite} disabled={!rewritePrompt.trim() || isRewriting}>
+                {isRewriting ? (
+                  <><Loader2 className="h-3 w-3 me-1 animate-spin" />{t('aiGenerator.rewriting')}</>
+                ) : (
+                  <><Sparkles className="h-3 w-3 me-1" />{t('aiGenerator.aiRewrite')}</>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex items-center justify-end gap-1 pt-1 border-t">
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleCopy}>
@@ -220,6 +259,14 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditText(question.question_text); setEditTextAr(question.question_text_ar); setIsEditing(true); }}>
             <Edit2 className="h-3.5 w-3.5" />
           </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setRewriteOpen(!rewriteOpen)}>
+                {isRewriting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('aiGenerator.aiRewrite')}</TooltipContent>
+          </Tooltip>
           {onRegenerate && (
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onRegenerate(index)}>
               <RefreshCw className="h-3.5 w-3.5" />
