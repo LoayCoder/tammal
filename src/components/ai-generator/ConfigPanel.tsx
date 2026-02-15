@@ -25,8 +25,8 @@ export type QuestionPurpose = 'survey' | 'wellness';
 interface ConfigPanelProps {
   purpose: QuestionPurpose;
   onPurposeChange: (purpose: QuestionPurpose) => void;
-  questionType: string;
-  onQuestionTypeChange: (type: string) => void;
+  questionTypes: string[];
+  onQuestionTypesChange: (types: string[]) => void;
   questionCount: number;
   onQuestionCountChange: (count: number) => void;
   complexity: string;
@@ -66,8 +66,8 @@ interface ConfigPanelProps {
 export function ConfigPanel({
   purpose,
   onPurposeChange,
-  questionType,
-  onQuestionTypeChange,
+  questionTypes,
+  onQuestionTypesChange,
   questionCount,
   onQuestionCountChange,
   complexity,
@@ -316,30 +316,57 @@ export function ConfigPanel({
             </div>
           </div>
 
-          {/* Question Type */}
+          {/* Question Type Multi-Select */}
           <div className="space-y-2">
             <Label>{t('aiGenerator.questionType')}</Label>
-            <Select value={questionType} onValueChange={onQuestionTypeChange}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="mixed">{t('aiGenerator.typeMixed')}</SelectItem>
-                {purpose === 'wellness' ? (
-                  <>
-                    <SelectItem value="likert_5">{t('aiGenerator.typeScale')}</SelectItem>
-                    <SelectItem value="multiple_choice">{t('aiGenerator.typeMCQ')}</SelectItem>
-                    <SelectItem value="open_ended">{t('aiGenerator.typeOpen')}</SelectItem>
-                  </>
-                ) : (
-                  <>
-                    <SelectItem value="likert_5">{t('aiGenerator.typeLikert')}</SelectItem>
-                    <SelectItem value="multiple_choice">{t('aiGenerator.typeMCQ')}</SelectItem>
-                    <SelectItem value="open_ended">{t('aiGenerator.typeOpen')}</SelectItem>
-                    <SelectItem value="numeric_scale">{t('aiGenerator.typeNumeric')}</SelectItem>
-                    <SelectItem value="yes_no">{t('aiGenerator.typeYesNo')}</SelectItem>
-                  </>
-                )}
-              </SelectContent>
-            </Select>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full justify-between font-normal">
+                  <span className="truncate">
+                    {questionTypes.length === 0
+                      ? t('aiGenerator.typeMixed')
+                      : t('aiGenerator.typesSelected', { count: questionTypes.length })}
+                  </span>
+                  <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[260px] p-0" align="start">
+                <ScrollArea className="max-h-[240px] px-2 py-2">
+                  {(purpose === 'wellness'
+                    ? [
+                        { value: 'likert_5', label: t('aiGenerator.typeScale') },
+                        { value: 'multiple_choice', label: t('aiGenerator.typeMCQ') },
+                        { value: 'open_ended', label: t('aiGenerator.typeOpen') },
+                      ]
+                    : [
+                        { value: 'likert_5', label: t('aiGenerator.typeLikert') },
+                        { value: 'multiple_choice', label: t('aiGenerator.typeMCQ') },
+                        { value: 'open_ended', label: t('aiGenerator.typeOpen') },
+                        { value: 'numeric_scale', label: t('aiGenerator.typeNumeric') },
+                        { value: 'yes_no', label: t('aiGenerator.typeYesNo') },
+                      ]
+                  ).map(opt => (
+                    <label
+                      key={opt.value}
+                      className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent"
+                    >
+                      <Checkbox
+                        checked={questionTypes.includes(opt.value)}
+                        onCheckedChange={() => {
+                          if (questionTypes.includes(opt.value)) {
+                            onQuestionTypesChange(questionTypes.filter(v => v !== opt.value));
+                          } else {
+                            onQuestionTypesChange([...questionTypes, opt.value]);
+                          }
+                        }}
+                      />
+                      <span>{opt.label}</span>
+                    </label>
+                  ))}
+                </ScrollArea>
+              </PopoverContent>
+            </Popover>
+            <p className="text-xs text-muted-foreground">{t('aiGenerator.typeMultiSelectHint')}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

@@ -52,7 +52,7 @@ export default function AIQuestionGenerator() {
 
   const [accuracyMode, setAccuracyMode] = useState('standard');
   const [selectedModel, setSelectedModel] = useState('google/gemini-3-flash-preview');
-  const [questionType, setQuestionType] = useState('mixed');
+  const [questionTypes, setQuestionTypes] = useState<string[]>([]);
   const [questionCount, setQuestionCount] = useState(5);
   const [complexity, setComplexity] = useState('moderate');
   const [tone, setTone] = useState('neutral');
@@ -87,8 +87,9 @@ export default function AIQuestionGenerator() {
       return;
     }
     const activeDocIds = documents.filter(d => d.is_active).map(d => d.id);
+    const resolvedType = questionTypes.length === 0 ? 'mixed' : questionTypes.join(', ');
     generate({
-      questionCount, complexity, tone, questionType,
+      questionCount, complexity, tone, questionType: resolvedType,
       model: selectedModel, accuracyMode, advancedSettings, language: 'both',
       useExpertKnowledge: selectedFrameworkIds.length > 0,
       knowledgeDocumentIds: activeDocIds,
@@ -169,7 +170,7 @@ export default function AIQuestionGenerator() {
     saveSet({
       questions, model: selectedModel, accuracyMode,
       settings: {
-        questionCount, complexity, tone, questionType, advancedSettings,
+        questionCount, complexity, tone, questionTypes, advancedSettings,
         selected_framework_ids: selectedFrameworkIds,
         custom_prompt: customPrompt,
         categoryIds: selectedCategoryIds,
@@ -190,7 +191,7 @@ export default function AIQuestionGenerator() {
     const exportData = {
       metadata: {
         model: selectedModel, accuracyMode, generatedAt: new Date().toISOString(),
-        settings: { questionCount, complexity, tone, questionType, selectedFrameworkIds, selectedCategoryIds, selectedSubcategoryIds },
+        settings: { questionCount, complexity, tone, questionTypes, selectedFrameworkIds, selectedCategoryIds, selectedSubcategoryIds },
         validation: validationReport ? { overall: validationReport.overall_result, avgConfidence: validationReport.avg_confidence } : null,
       },
       questions: questions.map(q => ({
@@ -229,8 +230,9 @@ export default function AIQuestionGenerator() {
     const failedCount = questions.filter(q => q.validation_status === 'failed').length;
     if (failedCount === 0) return;
     const activeDocIds = documents.filter(d => d.is_active).map(d => d.id);
+    const resolvedType = questionTypes.length === 0 ? 'mixed' : questionTypes.join(', ');
     generate({
-      questionCount: failedCount, complexity, tone, questionType,
+      questionCount: failedCount, complexity, tone, questionType: resolvedType,
       model: selectedModel, accuracyMode, advancedSettings, language: 'both',
       useExpertKnowledge: selectedFrameworkIds.length > 0,
       knowledgeDocumentIds: activeDocIds.length > 0 ? activeDocIds : undefined,
@@ -265,8 +267,8 @@ export default function AIQuestionGenerator() {
           <ConfigPanel
             purpose={purpose}
             onPurposeChange={setPurpose}
-            questionType={questionType}
-            onQuestionTypeChange={setQuestionType}
+            questionTypes={questionTypes}
+            onQuestionTypesChange={setQuestionTypes}
             questionCount={questionCount}
             onQuestionCountChange={setQuestionCount}
             complexity={complexity}

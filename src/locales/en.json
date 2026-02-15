@@ -968,6 +968,8 @@
     "typeScenario": "Scenario-based",
     "typeNumeric": "Numeric Scale",
     "typeYesNo": "Yes / No",
+    "typesSelected": "{{count}} types selected",
+    "typeMultiSelectHint": "Leave empty for mixed types",
     "complexity": "Complexity Level",
     "simple": "Basic",
     "moderate": "Moderate",
