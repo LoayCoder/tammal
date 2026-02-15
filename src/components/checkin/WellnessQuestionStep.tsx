@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2 } from 'lucide-react';
+import { Loader2, MessageCircle } from 'lucide-react';
 
 interface WellnessQuestion {
   question_id: string;
@@ -24,50 +24,57 @@ export function WellnessQuestionStep({ question, isLoading, answerValue, onAnswe
   const { t } = useTranslation();
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">{t('wellness.dailyQuestion')}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="flex justify-center py-4"><Loader2 className="h-6 w-6 animate-spin" /></div>
-        ) : question ? (
-          <div className="space-y-4">
-            <p className="font-medium">{question.question_text}</p>
-            {question.question_type === 'scale' && (
-              <div className="space-y-2">
-                <Slider
-                  min={1} max={10} step={1}
-                  defaultValue={[5]}
-                  onValueChange={v => onAnswerChange(v[0])}
-                />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>1</span><span>10</span>
-                </div>
-              </div>
-            )}
-            {question.question_type === 'multiple_choice' && question.options.length > 0 && (
-              <RadioGroup onValueChange={v => onAnswerChange(v)}>
-                {question.options.map((opt, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <RadioGroupItem value={opt} id={`wopt-${i}`} />
-                    <Label htmlFor={`wopt-${i}`}>{opt}</Label>
+    <div className="space-y-4">
+      <div className="text-center space-y-1">
+        <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 mb-2">
+          <MessageCircle className="h-5 w-5 text-primary" />
+        </div>
+        <h3 className="text-lg font-semibold">{t('wellness.dailyQuestion')}</h3>
+      </div>
+
+      <Card className="border-dashed">
+        <CardContent className="pt-6">
+          {isLoading ? (
+            <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+          ) : question ? (
+            <div className="space-y-5">
+              <p className="font-medium text-center text-base" dir="auto">{question.question_text}</p>
+              {question.question_type === 'scale' && (
+                <div className="space-y-3 px-2">
+                  <Slider
+                    min={1} max={10} step={1}
+                    defaultValue={[5]}
+                    onValueChange={v => onAnswerChange(v[0])}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>1</span><span className="text-lg font-bold text-primary">{String(answerValue ?? 5)}</span><span>10</span>
                   </div>
-                ))}
-              </RadioGroup>
-            )}
-            {question.question_type === 'text' && (
-              <Textarea
-                value={typeof answerValue === 'string' ? answerValue : ''}
-                onChange={e => onAnswerChange(e.target.value)}
-                placeholder={t('wellness.typeAnswer')}
-              />
-            )}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">{t('wellness.noQuestion')}</p>
-        )}
-      </CardContent>
-    </Card>
+                </div>
+              )}
+              {question.question_type === 'multiple_choice' && question.options.length > 0 && (
+                <RadioGroup onValueChange={v => onAnswerChange(v)} className="space-y-2">
+                  {question.options.map((opt, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                      <RadioGroupItem value={opt} id={`wopt-${i}`} />
+                      <Label htmlFor={`wopt-${i}`} className="cursor-pointer flex-1">{opt}</Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              )}
+              {question.question_type === 'text' && (
+                <Textarea
+                  value={typeof answerValue === 'string' ? answerValue : ''}
+                  onChange={e => onAnswerChange(e.target.value)}
+                  placeholder={t('wellness.typeAnswer')}
+                  className="min-h-[100px]"
+                />
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-4">{t('wellness.noQuestion')}</p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

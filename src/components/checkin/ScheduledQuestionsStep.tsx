@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { SkipForward } from 'lucide-react';
+import { SkipForward, ClipboardList } from 'lucide-react';
 import type { CheckinScheduledQuestion } from '@/hooks/useCheckinScheduledQuestions';
 
 export interface ScheduledAnswer {
@@ -79,8 +79,8 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
           <RadioGroup value={String(answer || '')} onValueChange={v => setAnswer(Number(v))} className="flex justify-between gap-2">
             {[1, 2, 3, 4, 5].map(v => (
               <div key={v} className="flex flex-col items-center gap-2">
-                <RadioGroupItem value={String(v)} id={`sq-likert-${v}`} className="h-8 w-8" />
-                <Label htmlFor={`sq-likert-${v}`} className="text-xs text-center">
+                <RadioGroupItem value={String(v)} id={`sq-likert-${v}`} className="h-9 w-9" />
+                <Label htmlFor={`sq-likert-${v}`} className="text-xs text-center text-muted-foreground">
                   {v === 1 ? t('survey.stronglyDisagree') : v === 5 ? t('survey.stronglyAgree') : v}
                 </Label>
               </div>
@@ -89,7 +89,7 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
         );
       case 'numeric_scale':
         return (
-          <div className="space-y-4">
+          <div className="space-y-4 px-2">
             <Slider value={[Number(answer) || 5]} onValueChange={([v]) => setAnswer(v)} min={1} max={10} step={1} className="py-4" />
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>1</span>
@@ -101,20 +101,20 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
       case 'yes_no':
         return (
           <div className="flex gap-4">
-            <Button variant={answer === true ? 'default' : 'outline'} className="flex-1 h-16 text-lg" onClick={() => setAnswer(true)}>{t('common.yes')}</Button>
-            <Button variant={answer === false ? 'default' : 'outline'} className="flex-1 h-16 text-lg" onClick={() => setAnswer(false)}>{t('common.no')}</Button>
+            <Button variant={answer === true ? 'default' : 'outline'} className="flex-1 h-14 text-lg rounded-xl" onClick={() => setAnswer(true)}>{t('common.yes')}</Button>
+            <Button variant={answer === false ? 'default' : 'outline'} className="flex-1 h-14 text-lg rounded-xl" onClick={() => setAnswer(false)}>{t('common.no')}</Button>
           </div>
         );
       case 'open_ended':
-        return <Textarea value={String(answer || '')} onChange={e => setAnswer(e.target.value)} placeholder={t('survey.typeYourAnswer')} className="min-h-[120px]" dir="auto" />;
+        return <Textarea value={String(answer || '')} onChange={e => setAnswer(e.target.value)} placeholder={t('survey.typeYourAnswer')} className="min-h-[100px]" dir="auto" />;
       case 'multiple_choice':
         if (!question.options || !Array.isArray(question.options)) return null;
         return (
-          <RadioGroup onValueChange={v => setAnswer(v)}>
+          <RadioGroup onValueChange={v => setAnswer(v)} className="space-y-2">
             {(question.options as string[]).map((opt, i) => (
-              <div key={i} className="flex items-center gap-2">
+              <div key={i} className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                 <RadioGroupItem value={String(opt)} id={`sq-mc-${i}`} />
-                <Label htmlFor={`sq-mc-${i}`}>{String(opt)}</Label>
+                <Label htmlFor={`sq-mc-${i}`} className="cursor-pointer flex-1">{String(opt)}</Label>
               </div>
             ))}
           </RadioGroup>
@@ -126,32 +126,41 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>{t('wellness.scheduledQuestion')} {currentIndex + 1} {t('survey.of')} {questions.length}</span>
-          <span>{Math.round(progress)}%</span>
+      <div className="text-center space-y-1">
+        <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 mb-2">
+          <ClipboardList className="h-5 w-5 text-primary" />
         </div>
-        <Progress value={progress} className="h-2" />
+        <h3 className="text-lg font-semibold">{t('wellness.scheduledQuestion')}</h3>
       </div>
 
-      <Card>
-        <CardContent className="p-6">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>{currentIndex + 1} {t('survey.of')} {questions.length}</span>
+          <span>{Math.round(progress)}%</span>
+        </div>
+        <Progress value={progress} className="h-1.5" />
+      </div>
+
+      <Card className="border-dashed">
+        <CardContent className="p-6 space-y-5">
           {question.category && (
-            <Badge className="mb-3" style={{ backgroundColor: question.category.color }}>
-              {isRTL && question.category.name_ar ? question.category.name_ar : question.category.name}
-            </Badge>
+            <div className="flex justify-center">
+              <Badge variant="secondary" className="text-xs">
+                {isRTL && question.category.name_ar ? question.category.name_ar : question.category.name}
+              </Badge>
+            </div>
           )}
-          <h3 className="text-lg font-semibold mb-6" dir="auto">{questionText}</h3>
+          <h4 className="text-base font-medium text-center" dir="auto">{questionText}</h4>
           {renderInput()}
         </CardContent>
       </Card>
 
       <div className="flex gap-3">
-        <Button variant="outline" onClick={() => saveAndAdvance(true)}>
-          <SkipForward className="h-4 w-4 me-2" />
+        <Button variant="ghost" size="sm" onClick={() => saveAndAdvance(true)} className="text-muted-foreground">
+          <SkipForward className="h-4 w-4 me-1" />
           {t('survey.skip')}
         </Button>
-        <Button className="flex-1" onClick={() => saveAndAdvance(false)} disabled={answer === null}>
+        <Button className="flex-1 rounded-xl" onClick={() => saveAndAdvance(false)} disabled={answer === null}>
           {currentIndex < questions.length - 1 ? t('common.next') : t('common.done')}
         </Button>
       </div>

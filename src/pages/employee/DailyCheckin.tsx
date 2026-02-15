@@ -10,14 +10,14 @@ import { useEmployeeResponses } from '@/hooks/useEmployeeResponses';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import { Flame, Star, Loader2 } from 'lucide-react';
+import { Flame, Star, Loader2, ArrowRight, ArrowLeft, Send } from 'lucide-react';
 import { MoodStep, MOODS } from '@/components/checkin/MoodStep';
 import { WellnessQuestionStep } from '@/components/checkin/WellnessQuestionStep';
 import { ScheduledQuestionsStep, type ScheduledAnswer } from '@/components/checkin/ScheduledQuestionsStep';
 import { SupportStep } from '@/components/checkin/SupportStep';
 import { CheckinSuccess } from '@/components/checkin/CheckinSuccess';
 
-type Step = 'mood' | 'wellness' | 'scheduled' | 'support' | 'submitting';
+type Step = 'mood' | 'wellness' | 'scheduled' | 'support';
 
 export default function DailyCheckin() {
   const { t } = useTranslation();
@@ -44,30 +44,34 @@ export default function DailyCheckin() {
   const showSupport = selectedMood === 'struggling' || selectedMood === 'need_help';
   const hasScheduledQuestions = scheduledQuestions.length > 0;
 
-  const handleMoodSelected = (mood: string) => {
-    setSelectedMood(mood);
-  };
+  const steps = ['mood', 'wellness', ...(hasScheduledQuestions ? ['scheduled'] : []), 'support'];
+
+  const handleMoodSelected = (mood: string) => setSelectedMood(mood);
 
   const advanceFromMood = () => {
-    if (question || questionLoading) {
-      setStep('wellness');
-    } else if (hasScheduledQuestions) {
-      setStep('scheduled');
-    } else {
-      setStep('support');
-    }
+    if (question || questionLoading) setStep('wellness');
+    else if (hasScheduledQuestions) setStep('scheduled');
+    else setStep('support');
   };
 
   const advanceFromWellness = () => {
-    if (hasScheduledQuestions) {
-      setStep('scheduled');
-    } else {
-      setStep('support');
-    }
+    if (hasScheduledQuestions) setStep('scheduled');
+    else setStep('support');
   };
 
-  const advanceFromScheduled = () => {
-    setStep('support');
+  const advanceFromScheduled = () => setStep('support');
+
+  const goBack = () => {
+    if (step === 'support') {
+      if (hasScheduledQuestions) setStep('scheduled');
+      else if (question) setStep('wellness');
+      else setStep('mood');
+    } else if (step === 'scheduled') {
+      if (question) setStep('wellness');
+      else setStep('mood');
+    } else if (step === 'wellness') {
+      setStep('mood');
+    }
   };
 
   const toggleSupportAction = (key: string) => {
@@ -79,66 +83,40 @@ export default function DailyCheckin() {
     setSubmitting(true);
 
     try {
-      // 1. Generate AI tip
       let tip = '';
       try {
         const { data } = await supabase.functions.invoke('generate-daily-tip', {
-          body: {
-            moodLevel: selectedMood,
-            questionText: question?.question_text || '',
-            answerValue: wellnessAnswer,
-            language: document.documentElement.lang || 'en',
-          },
+          body: { moodLevel: selectedMood, questionText: question?.question_text || '', answerValue: wellnessAnswer, language: document.documentElement.lang || 'en' },
         });
         tip = data?.tip || '';
       } catch { /* tip is optional */ }
 
-      // 2. Calculate points
       const points = calculatePoints(streak);
 
-      // 3. Insert mood entry
       const { error: moodError } = await supabase
         .from('mood_entries' as any)
         .insert({
-          tenant_id: employee.tenant_id,
-          employee_id: employee.id,
-          mood_level: selectedMood,
-          mood_score: moodObj.score,
-          question_id: question?.question_id || null,
-          answer_value: wellnessAnswer,
-          answer_text: comment || null,
-          ai_tip: tip || null,
-          support_actions: supportActions,
-          points_earned: points,
-          streak_count: streak + 1,
+          tenant_id: employee.tenant_id, employee_id: employee.id, mood_level: selectedMood, mood_score: moodObj.score,
+          question_id: question?.question_id || null, answer_value: wellnessAnswer, answer_text: comment || null,
+          ai_tip: tip || null, support_actions: supportActions, points_earned: points, streak_count: streak + 1,
           entry_date: new Date().toISOString().split('T')[0],
         });
-
       if (moodError) throw moodError;
 
-      // 4. Submit scheduled question responses
       const answeredQuestions = scheduledAnswers.filter(a => !a.skipped && a.answerValue !== null);
       const skippedQuestions = scheduledAnswers.filter(a => a.skipped);
 
       for (const ans of answeredQuestions) {
         await submitResponse.mutateAsync({
-          scheduledQuestionId: ans.scheduledQuestionId,
-          answerValue: ans.answerValue,
-          answerText: ans.answerText,
-          responseTimeSeconds: ans.responseTimeSeconds,
-          deviceType: 'web',
+          scheduledQuestionId: ans.scheduledQuestionId, answerValue: ans.answerValue,
+          answerText: ans.answerText, responseTimeSeconds: ans.responseTimeSeconds, deviceType: 'web',
         });
       }
 
-      // Mark skipped questions
       for (const ans of skippedQuestions) {
-        await supabase
-          .from('scheduled_questions')
-          .update({ status: 'skipped' })
-          .eq('id', ans.scheduledQuestionId);
+        await supabase.from('scheduled_questions').update({ status: 'skipped' }).eq('id', ans.scheduledQuestionId);
       }
 
-      // 5. Invalidate caches
       queryClient.invalidateQueries({ queryKey: ['gamification'] });
       queryClient.invalidateQueries({ queryKey: ['checkin-scheduled-questions'] });
       queryClient.invalidateQueries({ queryKey: ['scheduled-questions'] });
@@ -154,104 +132,77 @@ export default function DailyCheckin() {
   };
 
   if (submitted) {
-    return (
-      <CheckinSuccess
-        streak={streak + 1}
-        totalPoints={totalPoints + calculatePoints(streak)}
-        aiTip={aiTip}
-      />
-    );
+    return <CheckinSuccess streak={streak + 1} totalPoints={totalPoints + calculatePoints(streak)} aiTip={aiTip} />;
   }
 
   return (
-    <div className="container mx-auto max-w-lg py-8 px-4 space-y-6">
-      {/* Streak bar */}
-      <div className="flex items-center justify-between">
-        <Badge variant="outline" className="gap-1">
-          <Flame className="h-3 w-3" /> {streak} {t('wellness.dayStreak')}
+    <div className="container mx-auto max-w-md py-8 px-4 space-y-8">
+      {/* Header stats */}
+      <div className="flex items-center justify-center gap-3">
+        <Badge variant="outline" className="gap-1.5 px-3 py-1.5 rounded-full text-xs">
+          <Flame className="h-3.5 w-3.5 text-orange-500" /> {streak} {t('wellness.dayStreak')}
         </Badge>
-        <Badge variant="outline" className="gap-1">
-          <Star className="h-3 w-3" /> {totalPoints} {t('wellness.points')}
+        <Badge variant="outline" className="gap-1.5 px-3 py-1.5 rounded-full text-xs">
+          <Star className="h-3.5 w-3.5 text-yellow-500" /> {totalPoints} {t('wellness.points')}
         </Badge>
       </div>
 
-      {/* Step indicator */}
-      <div className="flex items-center gap-2">
-        {['mood', 'wellness', ...(hasScheduledQuestions ? ['scheduled'] : []), 'support'].map((s, i) => (
+      {/* Step progress dots */}
+      <div className="flex items-center justify-center gap-2">
+        {steps.map((s) => (
           <div
             key={s}
-            className={`h-1.5 flex-1 rounded-full transition-colors ${
-              s === step ? 'bg-primary' :
-              getStepOrder(s) < getStepOrder(step) ? 'bg-primary/40' : 'bg-muted'
+            className={`h-2 rounded-full transition-all duration-300 ${
+              s === step ? 'w-8 bg-primary' :
+              getStepOrder(s) < getStepOrder(step) ? 'w-2 bg-primary/50' : 'w-2 bg-muted'
             }`}
           />
         ))}
       </div>
 
-      {/* Step 1: Mood */}
+      {/* Steps */}
       {step === 'mood' && (
-        <>
+        <div className="space-y-6">
           <MoodStep selectedMood={selectedMood} onSelect={handleMoodSelected} />
           {selectedMood && (
-            <Button className="w-full" size="lg" onClick={advanceFromMood}>
-              {t('common.next')}
+            <Button className="w-full rounded-xl h-12 text-base gap-2" onClick={advanceFromMood}>
+              {t('common.next')} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </Button>
           )}
-        </>
+        </div>
       )}
 
-      {/* Step 2: Wellness Question */}
       {step === 'wellness' && (
-        <>
-          <WellnessQuestionStep
-            question={question}
-            isLoading={questionLoading}
-            answerValue={wellnessAnswer}
-            onAnswerChange={setWellnessAnswer}
-          />
+        <div className="space-y-6">
+          <WellnessQuestionStep question={question} isLoading={questionLoading} answerValue={wellnessAnswer} onAnswerChange={setWellnessAnswer} />
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setStep('mood')}>{t('common.back')}</Button>
-            <Button className="flex-1" onClick={advanceFromWellness}>{t('common.next')}</Button>
-          </div>
-        </>
-      )}
-
-      {/* Step 3: Scheduled Questions */}
-      {step === 'scheduled' && (
-        <>
-          <ScheduledQuestionsStep
-            questions={scheduledQuestions}
-            answers={scheduledAnswers}
-            onAnswersChange={setScheduledAnswers}
-            onComplete={advanceFromScheduled}
-          />
-        </>
-      )}
-
-      {/* Step 4: Support & Comment */}
-      {step === 'support' && (
-        <>
-          <SupportStep
-            showSupport={showSupport}
-            supportActions={supportActions}
-            onToggleAction={toggleSupportAction}
-            comment={comment}
-            onCommentChange={setComment}
-          />
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => {
-              if (hasScheduledQuestions) setStep('scheduled');
-              else if (question) setStep('wellness');
-              else setStep('mood');
-            }}>
-              {t('common.back')}
+            <Button variant="ghost" size="icon" className="rounded-xl h-12 w-12 shrink-0" onClick={goBack}>
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
             </Button>
-            <Button className="flex-1" size="lg" onClick={handleSubmit} disabled={submitting}>
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : null}
+            <Button className="flex-1 rounded-xl h-12 text-base gap-2" onClick={advanceFromWellness}>
+              {t('common.next')} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {step === 'scheduled' && (
+        <ScheduledQuestionsStep questions={scheduledQuestions} answers={scheduledAnswers} onAnswersChange={setScheduledAnswers} onComplete={advanceFromScheduled} />
+      )}
+
+      {step === 'support' && (
+        <div className="space-y-6">
+          <SupportStep showSupport={showSupport} supportActions={supportActions} onToggleAction={toggleSupportAction} comment={comment} onCommentChange={setComment} />
+          <div className="flex gap-3">
+            <Button variant="ghost" size="icon" className="rounded-xl h-12 w-12 shrink-0" onClick={goBack}>
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+            </Button>
+            <Button className="flex-1 rounded-xl h-12 text-base gap-2 font-semibold" onClick={handleSubmit} disabled={submitting}>
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               {t('wellness.submitCheckin')}
             </Button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
