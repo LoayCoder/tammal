@@ -38,6 +38,19 @@ const statusIcons: Record<string, React.ReactNode> = {
   pending: <Info className="h-4 w-4 text-muted-foreground" />,
 };
 
+const issueLabels: Record<string, string> = {
+  incomplete_structure: 'aiGenerator.issue_incomplete_structure',
+  bias_detected: 'aiGenerator.issue_bias_detected',
+  ambiguity_detected: 'aiGenerator.issue_ambiguity_detected',
+  low_confidence: 'aiGenerator.issue_low_confidence',
+  moderate_confidence: 'aiGenerator.issue_moderate_confidence',
+  missing_framework_reference: 'aiGenerator.issue_missing_framework',
+  missing_arabic: 'aiGenerator.issue_missing_arabic',
+  missing_options: 'aiGenerator.issue_missing_options',
+  too_short: 'aiGenerator.issue_too_short',
+  duplicate: 'aiGenerator.issue_duplicate',
+};
+
 export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate }: QuestionCardProps) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
@@ -61,8 +74,10 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
       ? 'border-chart-4'
       : '';
 
+  const validationIssues: string[] = (question.validation_details as any)?.issues || [];
+
   return (
-    <Card className={borderClass}>
+    <Card className={borderClass} id={`question-card-${index}`}>
       <CardContent className="pt-4 space-y-3">
         {/* Header row */}
         <div className="flex items-start justify-between gap-3">
@@ -164,6 +179,21 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
                 {t('aiGenerator.ambiguityDetected')}
               </Badge>
             )}
+          </div>
+        )}
+
+        {/* Per-Question Validation Issues */}
+        {validationIssues.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {validationIssues.map((issue, idx) => (
+              <Badge
+                key={idx}
+                variant={question.validation_status === 'failed' ? 'destructive' : 'outline'}
+                className="text-xs"
+              >
+                {t(issueLabels[issue] || issue)}
+              </Badge>
+            ))}
           </div>
         )}
 

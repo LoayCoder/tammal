@@ -1107,7 +1107,20 @@
     "purposeWellnessDesc": "تُحفظ كمسودات أسئلة رفاهية للتسجيل اليومي",
     "wellnessSaveSuccess": "تم حفظ {{count}} سؤال رفاهية كمسودات",
     "wellnessSaveError": "فشل في حفظ أسئلة الرفاهية",
-    "typeScale": "مقياس"
+    "typeScale": "مقياس",
+    "showDetails": "عرض التفاصيل",
+    "hideDetails": "إخفاء التفاصيل",
+    "goToQuestion": "انتقل للسؤال",
+    "issue_incomplete_structure": "هيكل غير مكتمل",
+    "issue_bias_detected": "تم كشف تحيز",
+    "issue_ambiguity_detected": "تم كشف غموض",
+    "issue_low_confidence": "ثقة منخفضة",
+    "issue_moderate_confidence": "ثقة متوسطة",
+    "issue_missing_framework": "مرجع إطار مفقود",
+    "issue_missing_arabic": "نص عربي مفقود",
+    "issue_missing_options": "خيارات مفقودة",
+    "issue_too_short": "قصير جداً",
+    "issue_duplicate": "مكرر"
   },
   "survey": {
     "title": "استبياني",
