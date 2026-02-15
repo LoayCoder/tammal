@@ -139,8 +139,24 @@ export function useEnhancedAIGeneration() {
         return 'scale';
       };
 
+      // Create a batch record to track these wellness questions
+      const currentMonth = format(new Date(), 'yyyy-MM-01');
+      const { data: batch, error: batchError } = await supabase
+        .from('question_generation_batches')
+        .insert({
+          tenant_id: tenantId,
+          target_month: currentMonth,
+          question_count: params.questions.length,
+          status: 'draft',
+          created_by: userData.user.id,
+        })
+        .select()
+        .single();
+      if (batchError) throw batchError;
+
       const wellnessInsert = params.questions.map(q => ({
         tenant_id: tenantId,
+        batch_id: batch.id,
         question_text_en: q.question_text,
         question_text_ar: q.question_text_ar,
         question_type: mapToWellnessType(q.type),
@@ -154,6 +170,7 @@ export function useEnhancedAIGeneration() {
     },
     onSuccess: (count) => {
       queryClient.invalidateQueries({ queryKey: ['wellness-questions'] });
+      queryClient.invalidateQueries({ queryKey: ['wellness-batches'] });
       toast.success(t('aiGenerator.wellnessSaveSuccess', { count }));
     },
     onError: (error: Error) => {
