@@ -23,6 +23,14 @@ interface QuestionCardProps {
   onRegenerate?: (index: number) => void;
 }
 
+const typeLabels: Record<string, string> = {
+  likert_5: 'aiGenerator.typeLikert',
+  numeric_scale: 'aiGenerator.typeNumeric',
+  yes_no: 'aiGenerator.typeYesNo',
+  open_ended: 'aiGenerator.typeOpen',
+  multiple_choice: 'aiGenerator.typeMCQ',
+};
+
 const statusIcons: Record<string, React.ReactNode> = {
   passed: <CheckCircle className="h-4 w-4 text-primary" />,
   warning: <AlertTriangle className="h-4 w-4 text-chart-4" />,
@@ -59,7 +67,7 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
         {/* Header row */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="secondary">{question.type}</Badge>
+            <Badge variant="secondary">{t(typeLabels[question.type] || question.type)}</Badge>
             <Badge variant="outline">{question.complexity}</Badge>
             <Badge variant="outline" className="text-xs">{question.tone}</Badge>
             <Tooltip>
