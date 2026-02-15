@@ -968,6 +968,8 @@
     "typeScenario": "قائم على سيناريو",
     "typeNumeric": "مقياس رقمي",
     "typeYesNo": "نعم / لا",
+    "typesSelected": "{{count}} أنواع محددة",
+    "typeMultiSelectHint": "اتركه فارغاً لأنواع مختلطة",
     "complexity": "مستوى التعقيد",
     "simple": "أساسي",
     "moderate": "متوسط",

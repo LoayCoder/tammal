@@ -104,7 +104,7 @@ ${advancedSettings.enableAmbiguityDetection ? "- Check each question for ambiguo
 
 Complexity level: ${complexity}
 Tone: ${tone}
-${questionType && questionType !== "mixed" ? `Question type constraint: Only generate ${questionType} questions` : "Use a mix of question types"}
+${questionType && questionType !== "mixed" ? `Question type constraint: Only generate questions of these types: ${questionType}. Distribute questions evenly across the specified types.` : "Use a mix of question types"}
 ${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.minWordLength} words` : ""}`;
 
     // 2. Framework block — fetch from DB including framework-linked documents
