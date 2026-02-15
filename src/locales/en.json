@@ -1500,7 +1500,17 @@
     "questionText": "Question (EN)",
     "questionTextAr": "Question (AR)",
     "type": "Type",
-    "confidence": "Confidence"
+    "confidence": "Confidence",
+    "publish": "Publish",
+    "publishSuccess": "Batch published successfully",
+    "deactivate": "Deactivate",
+    "deactivateSuccess": "Batch deactivated successfully",
+    "deactivateSelected": "Deactivate ({{count}})",
+    "questionsDeactivated": "Selected questions deactivated",
+    "activate": "Activate",
+    "activateSuccess": "Batch activated successfully",
+    "activateSelected": "Activate ({{count}})",
+    "questionsActivated": "Selected questions activated"
   },
   "userManagement": {
     "title": "User Management",
