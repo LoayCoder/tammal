@@ -289,8 +289,8 @@ export default function ScheduleManagement() {
         .select(`
           id, status, scheduled_delivery, actual_delivery, question_id, question_source,
           employee:employees(id, full_name, email, department_id, branch_id,
-            branch:branches(id, name, name_ar),
-            department:departments(id, name, name_ar,
+            branch:branches!employees_branch_id_fkey(id, name, name_ar),
+            department:departments!employees_department_id_fkey(id, name, name_ar,
               sites:sites(id, name, name_ar)
             )
           )
