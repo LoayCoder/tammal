@@ -25,10 +25,10 @@ export function BranchTable({ branches, departments, onEdit, onDelete }: BranchT
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>{t('branches.name')}</TableHead>
-          <TableHead className="hidden md:table-cell">{t('branches.address')}</TableHead>
-          <TableHead className="hidden sm:table-cell">{t('branches.phone')}</TableHead>
-          <TableHead className="hidden sm:table-cell">{t('branches.email')}</TableHead>
+          <TableHead>{t('divisions.name')}</TableHead>
+          <TableHead className="hidden md:table-cell">{t('divisions.address')}</TableHead>
+          <TableHead className="hidden sm:table-cell">{t('divisions.phone')}</TableHead>
+          <TableHead className="hidden sm:table-cell">{t('divisions.email')}</TableHead>
           <TableHead>{t('organization.departments')}</TableHead>
           <TableHead>{t('common.status')}</TableHead>
           <TableHead>{t('common.actions')}</TableHead>
@@ -64,8 +64,8 @@ export function BranchTable({ branches, departments, onEdit, onDelete }: BranchT
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>{t('branches.deleteBranch')}</AlertDialogTitle>
-                        <AlertDialogDescription>{t('branches.confirmDelete')}</AlertDialogDescription>
+                        <AlertDialogTitle>{t('divisions.deleteDivision')}</AlertDialogTitle>
+                        <AlertDialogDescription>{t('divisions.confirmDelete')}</AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>

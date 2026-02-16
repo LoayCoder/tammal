@@ -20,16 +20,14 @@ interface DepartmentSheetProps {
   employees: Employee[];
   tenantId: string;
   onSubmit: (data: DepartmentInput) => void;
-  parentId?: string | null;
 }
 
 export function DepartmentSheet({
-  open, onOpenChange, department, departments, branches, employees, tenantId, onSubmit, parentId,
+  open, onOpenChange, department, departments, branches, employees, tenantId, onSubmit,
 }: DepartmentSheetProps) {
   const { t } = useTranslation();
   const { register, handleSubmit, reset, setValue, watch } = useForm<DepartmentInput>();
 
-  const selectedParent = watch('parent_id');
   const selectedHead = watch('head_employee_id');
   const selectedBranch = watch('branch_id');
 
@@ -42,7 +40,7 @@ export function DepartmentSheet({
           name_ar: department.name_ar,
           description: department.description,
           description_ar: department.description_ar,
-          parent_id: department.parent_id,
+          parent_id: null,
           branch_id: department.branch_id,
           head_employee_id: department.head_employee_id,
           color: department.color,
@@ -55,7 +53,7 @@ export function DepartmentSheet({
           name_ar: '',
           description: '',
           description_ar: '',
-          parent_id: parentId || null,
+          parent_id: null,
           branch_id: null,
           head_employee_id: null,
           color: '#3B82F6',
@@ -63,14 +61,12 @@ export function DepartmentSheet({
         });
       }
     }
-  }, [open, department, tenantId, parentId, reset]);
+  }, [open, department, tenantId, reset]);
 
   const onFormSubmit = (data: DepartmentInput) => {
-    onSubmit({ ...data, tenant_id: tenantId });
+    onSubmit({ ...data, tenant_id: tenantId, parent_id: null });
     onOpenChange(false);
   };
-
-  const availableParents = departments.filter(d => d.id !== department?.id);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -83,12 +79,12 @@ export function DepartmentSheet({
         </SheetHeader>
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label>{t('organization.branch')}</Label>
+            <Label>{t('organization.division')}</Label>
             <Select
               value={selectedBranch || '_none'}
               onValueChange={(v) => setValue('branch_id', v === '_none' ? null : v)}
             >
-              <SelectTrigger><SelectValue placeholder={t('organization.selectBranch')} /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={t('organization.selectDivision')} /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="_none">{t('common.noData')}</SelectItem>
                 {branches.map(b => (
@@ -112,21 +108,6 @@ export function DepartmentSheet({
           <div className="space-y-2">
             <Label>{t('organization.descriptionAr')}</Label>
             <Textarea {...register('description_ar')} dir="rtl" />
-          </div>
-          <div className="space-y-2">
-            <Label>{t('organization.parent')}</Label>
-            <Select
-              value={selectedParent || '_none'}
-              onValueChange={(v) => setValue('parent_id', v === '_none' ? null : v)}
-            >
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="_none">{t('common.noData')}</SelectItem>
-                {availableParents.map(d => (
-                  <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
           <div className="space-y-2">
             <Label>{t('organization.head')}</Label>

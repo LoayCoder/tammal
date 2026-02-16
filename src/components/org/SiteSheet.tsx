@@ -25,10 +25,10 @@ export function SiteSheet({ open, onOpenChange, site, departments, branches, ten
   const { register, handleSubmit, reset, setValue, watch } = useForm<SiteInput>();
   const selectedDepartment = watch('department_id');
 
-  // Auto-derive branch from selected department
+  // Auto-derive division from selected department
   const dept = departments.find(d => d.id === selectedDepartment);
   const derivedBranch = dept ? branches.find(b => b.id === dept.branch_id) : null;
-  const derivedBranchName = derivedBranch
+  const derivedDivisionName = derivedBranch
     ? (i18n.language === 'ar' && derivedBranch.name_ar ? derivedBranch.name_ar : derivedBranch.name)
     : '—';
 
@@ -62,19 +62,19 @@ export function SiteSheet({ open, onOpenChange, site, departments, branches, ten
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>{site ? t('sites.editSite') : t('sites.addSite')}</SheetTitle>
+          <SheetTitle>{site ? t('sections.editSection') : t('sections.addSection')}</SheetTitle>
           <SheetDescription>
-            {site ? t('sites.editSiteDesc') : t('sites.addSiteDesc')}
+            {site ? t('sections.editSectionDesc') : t('sections.addSectionDesc')}
           </SheetDescription>
         </SheetHeader>
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label>{t('sites.department')}</Label>
+            <Label>{t('sections.department')}</Label>
             <Select
               value={selectedDepartment || ''}
               onValueChange={(v) => setValue('department_id', v)}
             >
-              <SelectTrigger><SelectValue placeholder={t('sites.selectDepartment')} /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={t('sections.selectDepartment')} /></SelectTrigger>
               <SelectContent>
                 {departments.map(d => (
                   <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
@@ -84,24 +84,24 @@ export function SiteSheet({ open, onOpenChange, site, departments, branches, ten
           </div>
           {selectedDepartment && (
             <div className="space-y-2">
-              <Label>{t('sites.branch')}</Label>
-              <Input value={derivedBranchName} readOnly className="bg-muted" />
+              <Label>{t('sections.division')}</Label>
+              <Input value={derivedDivisionName} readOnly className="bg-muted" />
             </div>
           )}
           <div className="space-y-2">
-            <Label>{t('sites.name')}</Label>
+            <Label>{t('sections.name')}</Label>
             <Input {...register('name', { required: true })} />
           </div>
           <div className="space-y-2">
-            <Label>{t('sites.nameAr')}</Label>
+            <Label>{t('sections.nameAr')}</Label>
             <Input {...register('name_ar')} dir="rtl" />
           </div>
           <div className="space-y-2">
-            <Label>{t('sites.address')}</Label>
+            <Label>{t('sections.address')}</Label>
             <Input {...register('address')} />
           </div>
           <div className="space-y-2">
-            <Label>{t('sites.addressAr')}</Label>
+            <Label>{t('sections.addressAr')}</Label>
             <Input {...register('address_ar')} dir="rtl" />
           </div>
           <div className="flex gap-2 pt-4">

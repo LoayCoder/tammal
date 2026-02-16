@@ -57,9 +57,9 @@ export function useBranches() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['branches'] });
-      toast.success(t('branches.createSuccess'));
+      toast.success(t('divisions.createSuccess'));
     },
-    onError: () => toast.error(t('branches.createError')),
+    onError: () => toast.error(t('divisions.createError')),
   });
 
   const updateBranch = useMutation({
@@ -75,9 +75,9 @@ export function useBranches() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['branches'] });
-      toast.success(t('branches.updateSuccess'));
+      toast.success(t('divisions.updateSuccess'));
     },
-    onError: () => toast.error(t('branches.updateError')),
+    onError: () => toast.error(t('divisions.updateError')),
   });
 
   const deleteBranch = useMutation({
@@ -90,9 +90,9 @@ export function useBranches() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['branches'] });
-      toast.success(t('branches.deleteSuccess'));
+      toast.success(t('divisions.deleteSuccess'));
     },
-    onError: () => toast.error(t('branches.deleteError')),
+    onError: () => toast.error(t('divisions.deleteError')),
   });
 
   return { branches, isLoading, createBranch, updateBranch, deleteBranch };
