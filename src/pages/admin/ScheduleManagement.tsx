@@ -19,6 +19,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
 import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Package, Building2, UserCheck, Search, Check, X, ChevronDown } from 'lucide-react';
+import SchedulePreviewDialog from '@/components/schedules/SchedulePreviewDialog';
 import { useQuestionSchedules, QuestionSchedule } from '@/hooks/useQuestionSchedules';
 import { useQuestionBatches } from '@/hooks/useQuestionBatches';
 import { useProfile } from '@/hooks/useProfile';
@@ -291,7 +292,7 @@ export default function ScheduleManagement() {
         `)
         .eq('schedule_id', scheduleId)
         .order('scheduled_delivery', { ascending: false })
-        .limit(50);
+        .limit(500);
       if (sqError) throw sqError;
 
       const rows = sqData || [];
@@ -918,56 +919,12 @@ export default function ScheduleManagement() {
       </AlertDialog>
 
       {/* Preview Scheduled Questions Dialog */}
-      <Dialog open={!!previewId} onOpenChange={(open) => { if (!open) { setPreviewId(null); setPreviewQuestions([]); } }}>
-        <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{t('schedules.viewScheduled')}</DialogTitle>
-            <DialogDescription>
-              {t('schedules.scheduledQuestionsDescription')}
-            </DialogDescription>
-          </DialogHeader>
-          {previewLoading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : previewQuestions.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Calendar className="h-10 w-10 mx-auto mb-3 opacity-50" />
-              <p>{t('schedules.noScheduledQuestions')}</p>
-              <p className="text-sm mt-1">{t('schedules.runToGenerate')}</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t('schedules.employee')}</TableHead>
-                  <TableHead>{t('schedules.question')}</TableHead>
-                  <TableHead>{t('schedules.delivery')}</TableHead>
-                  <TableHead>{t('common.status')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {previewQuestions.map(sq => (
-                  <TableRow key={sq.id}>
-                    <TableCell className="text-sm">
-                      {(sq.employee as any)?.full_name || '-'}
-                    </TableCell>
-                    <TableCell className="text-sm max-w-[200px] truncate">
-                      {(sq.question as any)?.text || '-'}
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {sq.scheduled_delivery
-                        ? new Date(sq.scheduled_delivery).toLocaleDateString()
-                        : '-'}
-                    </TableCell>
-                    <TableCell>{getSqStatusBadge(sq.status)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </DialogContent>
-      </Dialog>
+      <SchedulePreviewDialog
+        open={!!previewId}
+        onOpenChange={(open) => { if (!open) { setPreviewId(null); setPreviewQuestions([]); } }}
+        previewQuestions={previewQuestions}
+        previewLoading={previewLoading}
+      />
 
       {/* Audience Detail Viewer Dialog */}
       <Dialog open={!!audienceViewSchedule} onOpenChange={(open) => { if (!open) setAudienceViewSchedule(null); }}>
