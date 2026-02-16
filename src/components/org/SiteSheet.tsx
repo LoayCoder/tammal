@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { Site, SiteInput } from '@/hooks/useSites';
 import type { Department } from '@/hooks/useDepartments';
 import type { Branch } from '@/hooks/useBranches';
+import type { Employee } from '@/hooks/useEmployees';
 
 interface SiteSheetProps {
   open: boolean;
@@ -16,16 +17,17 @@ interface SiteSheetProps {
   site?: Site | null;
   departments: Department[];
   branches: Branch[];
+  employees: Employee[];
   tenantId: string;
   onSubmit: (data: SiteInput) => void;
 }
 
-export function SiteSheet({ open, onOpenChange, site, departments, branches, tenantId, onSubmit }: SiteSheetProps) {
+export function SiteSheet({ open, onOpenChange, site, departments, branches, employees, tenantId, onSubmit }: SiteSheetProps) {
   const { t, i18n } = useTranslation();
   const { register, handleSubmit, reset, setValue, watch } = useForm<SiteInput>();
   const selectedDepartment = watch('department_id');
+  const selectedHead = watch('head_employee_id');
 
-  // Auto-derive division from selected department
   const dept = departments.find(d => d.id === selectedDepartment);
   const derivedBranch = dept ? branches.find(b => b.id === dept.branch_id) : null;
   const derivedDivisionName = derivedBranch
@@ -39,19 +41,19 @@ export function SiteSheet({ open, onOpenChange, site, departments, branches, ten
           tenant_id: site.tenant_id,
           branch_id: site.branch_id,
           department_id: site.department_id,
+          head_employee_id: site.head_employee_id,
           name: site.name,
           name_ar: site.name_ar || '',
           address: site.address || '',
           address_ar: site.address_ar || '',
         });
       } else {
-        reset({ tenant_id: tenantId, branch_id: '', department_id: null, name: '', name_ar: '', address: '', address_ar: '' });
+        reset({ tenant_id: tenantId, branch_id: '', department_id: null, head_employee_id: null, name: '', name_ar: '', address: '', address_ar: '' });
       }
     }
   }, [open, site, tenantId, reset]);
 
   const onFormSubmit = (data: SiteInput) => {
-    // Auto-set branch_id from department
     const selectedDept = departments.find(d => d.id === data.department_id);
     const branchId = selectedDept?.branch_id || data.branch_id;
     onSubmit({ ...data, tenant_id: tenantId, branch_id: branchId });
@@ -95,6 +97,21 @@ export function SiteSheet({ open, onOpenChange, site, departments, branches, ten
           <div className="space-y-2">
             <Label>{t('sections.nameAr')}</Label>
             <Input {...register('name_ar')} dir="rtl" />
+          </div>
+          <div className="space-y-2">
+            <Label>{t('organization.head')}</Label>
+            <Select
+              value={selectedHead || '_none'}
+              onValueChange={(v) => setValue('head_employee_id', v === '_none' ? null : v)}
+            >
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="_none">{t('common.none')}</SelectItem>
+                {employees.map(e => (
+                  <SelectItem key={e.id} value={e.id}>{e.full_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label>{t('sections.address')}</Label>

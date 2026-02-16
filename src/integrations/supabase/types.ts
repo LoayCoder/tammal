@@ -400,6 +400,7 @@ export type Database = {
           deleted_at: string | null
           description: string | null
           description_ar: string | null
+          head_employee_id: string | null
           id: string
           is_active: boolean | null
           name: string
@@ -412,6 +413,7 @@ export type Database = {
           deleted_at?: string | null
           description?: string | null
           description_ar?: string | null
+          head_employee_id?: string | null
           id?: string
           is_active?: boolean | null
           name: string
@@ -424,6 +426,7 @@ export type Database = {
           deleted_at?: string | null
           description?: string | null
           description_ar?: string | null
+          head_employee_id?: string | null
           id?: string
           is_active?: boolean | null
           name?: string
@@ -432,6 +435,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "divisions_head_employee_id_fkey"
+            columns: ["head_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "divisions_tenant_id_fkey"
             columns: ["tenant_id"]
@@ -1773,6 +1783,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           department_id: string | null
+          head_employee_id: string | null
           id: string
           is_active: boolean | null
           name: string
@@ -1787,6 +1798,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           department_id?: string | null
+          head_employee_id?: string | null
           id?: string
           is_active?: boolean | null
           name: string
@@ -1801,6 +1813,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           department_id?: string | null
+          head_employee_id?: string | null
           id?: string
           is_active?: boolean | null
           name?: string
@@ -1821,6 +1834,13 @@ export type Database = {
             columns: ["department_id"]
             isOneToOne: false
             referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sites_head_employee_id_fkey"
+            columns: ["head_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {

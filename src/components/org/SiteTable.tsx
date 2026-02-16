@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Users } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,16 +7,18 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import type { Site } from '@/hooks/useSites';
 import type { Branch } from '@/hooks/useBranches';
 import type { Department } from '@/hooks/useDepartments';
+import type { Employee } from '@/hooks/useEmployees';
 
 interface SiteTableProps {
   sites: Site[];
   branches: Branch[];
   departments: Department[];
+  employees: Employee[];
   onEdit: (site: Site) => void;
   onDelete: (id: string) => void;
 }
 
-export function SiteTable({ sites, branches, departments, onEdit, onDelete }: SiteTableProps) {
+export function SiteTable({ sites, branches, departments, employees, onEdit, onDelete }: SiteTableProps) {
   const { t, i18n } = useTranslation();
 
   if (sites.length === 0) {
@@ -32,7 +34,8 @@ export function SiteTable({ sites, branches, departments, onEdit, onDelete }: Si
         <TableRow>
           <TableHead>{t('sections.name')}</TableHead>
           <TableHead>{t('sections.department')}</TableHead>
-          <TableHead>{t('sections.division')}</TableHead>
+          <TableHead className="hidden md:table-cell">{t('organization.head')}</TableHead>
+          <TableHead>{t('organization.members')}</TableHead>
           <TableHead className="hidden md:table-cell">{t('sections.address')}</TableHead>
           <TableHead>{t('common.status')}</TableHead>
           <TableHead>{t('common.actions')}</TableHead>
@@ -40,17 +43,26 @@ export function SiteTable({ sites, branches, departments, onEdit, onDelete }: Si
       </TableHeader>
       <TableBody>
         {sites.map(site => {
-          const branch = branchMap.get(site.branch_id);
           const dept = site.department_id ? deptMap.get(site.department_id) : null;
           const displayName = i18n.language === 'ar' && site.name_ar ? site.name_ar : site.name;
           const displayAddress = i18n.language === 'ar' && site.address_ar ? site.address_ar : site.address;
-          const divisionName = branch ? (i18n.language === 'ar' && branch.name_ar ? branch.name_ar : branch.name) : '—';
           const deptName = dept ? (i18n.language === 'ar' && dept.name_ar ? dept.name_ar : dept.name) : '—';
+          const headEmployee = site.head_employee_id
+            ? employees.find(e => e.id === site.head_employee_id)
+            : null;
+          const memberCount = employees.filter(e => (e as any).section_id === site.id).length;
           return (
             <TableRow key={site.id}>
               <TableCell className="font-medium">{displayName}</TableCell>
               <TableCell>{deptName}</TableCell>
-              <TableCell>{divisionName}</TableCell>
+              <TableCell className="hidden md:table-cell">
+                {headEmployee?.full_name || '—'}
+              </TableCell>
+              <TableCell>
+                <Badge variant="secondary" className="gap-1">
+                  <Users className="h-3 w-3" /> {memberCount}
+                </Badge>
+              </TableCell>
               <TableCell className="hidden md:table-cell">{displayAddress || '—'}</TableCell>
               <TableCell>
                 <Badge variant={site.is_active ? 'default' : 'secondary'}>

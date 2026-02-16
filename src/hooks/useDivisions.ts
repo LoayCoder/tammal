@@ -10,6 +10,7 @@ export interface Division {
   name_ar: string | null;
   description: string | null;
   description_ar: string | null;
+  head_employee_id: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -22,6 +23,7 @@ export interface DivisionInput {
   name_ar?: string | null;
   description?: string | null;
   description_ar?: string | null;
+  head_employee_id?: string | null;
 }
 
 export function useDivisions() {
