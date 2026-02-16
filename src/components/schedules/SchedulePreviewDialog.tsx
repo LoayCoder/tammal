@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar, Loader2, BarChart3, ChevronDown, Filter, X } from 'lucide-react';
+import { Calendar, Loader2, BarChart3, ChevronDown, Filter, X, Building2, GitBranch, MapPin } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 interface PreviewQuestion {
@@ -22,7 +22,15 @@ interface PreviewQuestion {
   actual_delivery?: string;
   question_id: string;
   question_source?: string;
-  employee?: { id?: string; full_name?: string; email?: string } | null;
+  employee?: {
+    id?: string;
+    full_name?: string;
+    email?: string;
+    department_id?: string;
+    branch_id?: string;
+    branch?: { id?: string; name?: string; name_ar?: string } | any;
+    department?: { id?: string; name?: string; name_ar?: string; sites?: any[] } | any;
+  } | null;
   question?: { id?: string; text?: string; text_ar?: string; type?: string } | null;
 }
 
@@ -57,16 +65,46 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
   const [filterDateTo, setFilterDateTo] = useState('');
   const [filterStatuses, setFilterStatuses] = useState<string[]>([]);
   const [filterEmployee, setFilterEmployee] = useState('');
+  const [filterBranch, setFilterBranch] = useState('');
+  const [filterDepartment, setFilterDepartment] = useState('');
   const [showAnalytics, setShowAnalytics] = useState(false);
+
+  // Helper to unwrap array joins
+  const getEmpBranch = (sq: PreviewQuestion) => {
+    const b = sq.employee?.branch;
+    return Array.isArray(b) ? b[0] : b;
+  };
+  const getEmpDept = (sq: PreviewQuestion) => {
+    const d = sq.employee?.department;
+    return Array.isArray(d) ? d[0] : d;
+  };
 
   // Unique employees from data
   const uniqueEmployees = useMemo(() => {
     const map = new Map<string, string>();
     previewQuestions.forEach(sq => {
       const emp = sq.employee;
-      if (emp?.id && emp?.full_name) {
-        map.set(emp.id, emp.full_name);
-      }
+      if (emp?.id && emp?.full_name) map.set(emp.id, emp.full_name);
+    });
+    return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+  }, [previewQuestions]);
+
+  // Unique branches
+  const uniqueBranches = useMemo(() => {
+    const map = new Map<string, string>();
+    previewQuestions.forEach(sq => {
+      const b = getEmpBranch(sq);
+      if (b?.id && b?.name) map.set(b.id, b.name);
+    });
+    return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+  }, [previewQuestions]);
+
+  // Unique departments
+  const uniqueDepartments = useMemo(() => {
+    const map = new Map<string, string>();
+    previewQuestions.forEach(sq => {
+      const d = getEmpDept(sq);
+      if (d?.id && d?.name) map.set(d.id, d.name);
     });
     return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
   }, [previewQuestions]);
@@ -78,9 +116,17 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
       if (filterDateTo && sq.scheduled_delivery > filterDateTo + 'T23:59:59') return false;
       if (filterStatuses.length > 0 && !filterStatuses.includes(sq.status)) return false;
       if (filterEmployee && filterEmployee !== 'all' && sq.employee?.id !== filterEmployee) return false;
+      if (filterBranch && filterBranch !== 'all') {
+        const b = getEmpBranch(sq);
+        if (b?.id !== filterBranch) return false;
+      }
+      if (filterDepartment && filterDepartment !== 'all') {
+        const d = getEmpDept(sq);
+        if (d?.id !== filterDepartment) return false;
+      }
       return true;
     });
-  }, [previewQuestions, filterDateFrom, filterDateTo, filterStatuses, filterEmployee]);
+  }, [previewQuestions, filterDateFrom, filterDateTo, filterStatuses, filterEmployee, filterBranch, filterDepartment]);
 
   // Chart data
   const statusChartData = useMemo(() => {
@@ -100,19 +146,52 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [filteredPreview]);
 
+  // Status by Branch
+  const statusByBranchData = useMemo(() => {
+    const map: Record<string, Record<string, number>> = {};
+    filteredPreview.forEach(sq => {
+      const b = getEmpBranch(sq);
+      const bName = b?.name || t('common.unassigned');
+      if (!map[bName]) map[bName] = {};
+      map[bName][sq.status] = (map[bName][sq.status] || 0) + 1;
+    });
+    return Object.entries(map).map(([name, statuses]) => ({ name, ...statuses }));
+  }, [filteredPreview, t]);
+
+  // Status by Department
+  const statusByDeptData = useMemo(() => {
+    const map: Record<string, Record<string, number>> = {};
+    filteredPreview.forEach(sq => {
+      const d = getEmpDept(sq);
+      const dName = d?.name || t('common.unassigned');
+      if (!map[dName]) map[dName] = {};
+      map[dName][sq.status] = (map[dName][sq.status] || 0) + 1;
+    });
+    return Object.entries(map).map(([name, statuses]) => ({ name, ...statuses }));
+  }, [filteredPreview, t]);
+
+  // All unique statuses for stacked bars
+  const allStatuses = useMemo(() => {
+    const s = new Set<string>();
+    filteredPreview.forEach(sq => s.add(sq.status));
+    return Array.from(s);
+  }, [filteredPreview]);
+
   // Summary stats
   const totalCount = filteredPreview.length;
   const answeredCount = filteredPreview.filter(sq => sq.status === 'answered').length;
   const pendingCount = filteredPreview.filter(sq => sq.status === 'pending').length;
   const answeredRate = totalCount > 0 ? Math.round((answeredCount / totalCount) * 100) : 0;
 
-  const hasActiveFilters = filterDateFrom || filterDateTo || filterStatuses.length > 0 || filterEmployee;
+  const hasActiveFilters = filterDateFrom || filterDateTo || filterStatuses.length > 0 || filterEmployee || filterBranch || filterDepartment;
 
   const clearFilters = () => {
     setFilterDateFrom('');
     setFilterDateTo('');
     setFilterStatuses([]);
     setFilterEmployee('');
+    setFilterBranch('');
+    setFilterDepartment('');
   };
 
   const toggleStatusFilter = (status: string) => {
@@ -229,6 +308,38 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                   </SelectContent>
                 </Select>
               </div>
+              {uniqueBranches.length > 0 && (
+                <div className="space-y-1">
+                  <Label className="text-xs">{t('departments.branch')}</Label>
+                  <Select value={filterBranch} onValueChange={setFilterBranch}>
+                    <SelectTrigger className="h-9 w-[150px]">
+                      <SelectValue placeholder={t('common.all')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('common.all')}</SelectItem>
+                      {uniqueBranches.map(b => (
+                        <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              {uniqueDepartments.length > 0 && (
+                <div className="space-y-1">
+                  <Label className="text-xs">{t('users.department')}</Label>
+                  <Select value={filterDepartment} onValueChange={setFilterDepartment}>
+                    <SelectTrigger className="h-9 w-[150px]">
+                      <SelectValue placeholder={t('common.all')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('common.all')}</SelectItem>
+                      {uniqueDepartments.map(d => (
+                        <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="flex items-end gap-2 ms-auto">
                 {hasActiveFilters && (
                   <Button variant="ghost" size="sm" className="h-9" onClick={clearFilters}>
@@ -328,6 +439,55 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                         )}
                       </CardContent>
                     </Card>
+                  </div>
+
+                  {/* Org-Level Status Distribution */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Status by Branch */}
+                    {statusByBranchData.length > 0 && (
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Building2 className="h-4 w-4 text-muted-foreground" />
+                            <p className="text-sm font-medium">{t('departments.branch')} — {t('common.statusDistribution')}</p>
+                          </div>
+                          <ResponsiveContainer width="100%" height={200}>
+                            <BarChart data={statusByBranchData} layout="vertical">
+                              <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
+                              <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={80} />
+                              <Tooltip />
+                              <Legend />
+                              {allStatuses.map((status, i) => (
+                                <Bar key={status} dataKey={status} stackId="a" fill={STATUS_COLORS[status] || PIE_COLORS[i % PIE_COLORS.length]} />
+                              ))}
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Status by Department */}
+                    {statusByDeptData.length > 0 && (
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <GitBranch className="h-4 w-4 text-muted-foreground" />
+                            <p className="text-sm font-medium">{t('users.department')} — {t('common.statusDistribution')}</p>
+                          </div>
+                          <ResponsiveContainer width="100%" height={200}>
+                            <BarChart data={statusByDeptData} layout="vertical">
+                              <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
+                              <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={80} />
+                              <Tooltip />
+                              <Legend />
+                              {allStatuses.map((status, i) => (
+                                <Bar key={status} dataKey={status} stackId="a" fill={STATUS_COLORS[status] || PIE_COLORS[i % PIE_COLORS.length]} />
+                              ))}
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 </div>
               </CollapsibleContent>

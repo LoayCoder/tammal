@@ -42,7 +42,8 @@
     "noData": "No data available",
     "showingOf": "Showing {{shown}} of {{total}} questions",
     "noMatchingQuestions": "No matching questions",
-    "selected": "selected"
+    "selected": "selected",
+    "unassigned": "Unassigned"
   },
   "nav": {
     "dashboard": "Dashboard",
