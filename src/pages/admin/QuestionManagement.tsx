@@ -8,11 +8,29 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useQuestionBatches, type BatchQuestion } from "@/hooks/useQuestionBatches";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Trash2, Package, Calendar, User, Hash, ClipboardList, Heart, Send, Ban, CheckCircle } from "lucide-react";
+
+function ExpandableBatchText({ text, dir }: { text: string; dir?: string }) {
+  if (!text || text === '—') return <span className="text-muted-foreground">—</span>;
+  const isTruncated = text.length > 50;
+  if (!isTruncated) return <p className="text-sm" dir={dir}>{text}</p>;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <p className="text-sm line-clamp-2 cursor-help" dir={dir}>{text}</p>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" className="max-w-sm whitespace-pre-wrap">
+        <p className="text-sm" dir={dir}>{text}</p>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 import { format } from "date-fns";
 
 export default function QuestionManagement() {
@@ -32,6 +50,8 @@ export default function QuestionManagement() {
     },
     enabled: !!user?.id,
   });
+
+  const [viewQuestion, setViewQuestion] = useState<BatchQuestion | null>(null);
 
   const {
     batches, isLoading, fetchBatchQuestions, expandedBatchQuestions, deleteBatch, publishBatch, deactivateBatch, deactivateQuestions, activateBatch, activateQuestions, MAX_BATCH_SIZE,
@@ -369,8 +389,12 @@ export default function QuestionManagement() {
                                       />
                                     </TableCell>
                                     <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
-                                    <TableCell className="max-w-xs truncate">{q.question_text}</TableCell>
-                                    <TableCell className="max-w-xs truncate" dir="rtl">{q.question_text_ar || '—'}</TableCell>
+                                    <TableCell className="max-w-xs cursor-pointer hover:bg-muted/50" onClick={() => setViewQuestion(q)}>
+                                      <ExpandableBatchText text={q.question_text} />
+                                    </TableCell>
+                                    <TableCell className="max-w-xs cursor-pointer hover:bg-muted/50" onClick={() => setViewQuestion(q)}>
+                                      <ExpandableBatchText text={q.question_text_ar || '—'} dir="rtl" />
+                                    </TableCell>
                                     <TableCell>
                                       <Badge variant="outline" className="text-xs">{typeLabel(q.type)}</Badge>
                                     </TableCell>
@@ -399,6 +423,67 @@ export default function QuestionManagement() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!viewQuestion} onOpenChange={() => setViewQuestion(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t('questions.questionDetails')}</DialogTitle>
+            <DialogDescription>{t('questions.viewQuestion')}</DialogDescription>
+          </DialogHeader>
+
+          {viewQuestion && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">{t('batches.questionText')}</p>
+                <p className="text-sm bg-muted/50 rounded-md p-3">{viewQuestion.question_text}</p>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">{t('batches.questionTextAr')}</p>
+                <p className="text-sm bg-muted/50 rounded-md p-3" dir="rtl">
+                  {viewQuestion.question_text_ar || '—'}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">{t('batches.type')}:</span>
+                  <Badge variant="outline">{typeLabel(viewQuestion.type)}</Badge>
+                </div>
+                {viewQuestion.confidence_score != null && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">{t('batches.confidence')}:</span>
+                    <Badge variant="outline">{viewQuestion.confidence_score}%</Badge>
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">{t('common.status')}:</span>
+                  <Badge variant="outline" className={statusColor(viewQuestion.validation_status || 'pending')}>
+                    {statusLabel(viewQuestion.validation_status || 'pending')}
+                  </Badge>
+                </div>
+              </div>
+
+              {viewQuestion.options && Array.isArray(viewQuestion.options) && viewQuestion.options.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">{t('questions.options')}</p>
+                  <ol className="list-decimal list-inside space-y-1 bg-muted/50 rounded-md p-3">
+                    {viewQuestion.options.map((opt: any, i: number) => (
+                      <li key={i} className="text-sm">{typeof opt === 'string' ? opt : JSON.stringify(opt)}</li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewQuestion(null)}>
+              {t('common.close')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
