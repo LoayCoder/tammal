@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Network, Building2, Layers } from 'lucide-react';
+import { Plus, Network, Building2, Layers, GitBranch, MapPin } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,6 +8,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useDepartments, type Department, type DepartmentInput } from '@/hooks/useDepartments';
 import { useBranches, type Branch, type BranchInput } from '@/hooks/useBranches';
 import { useSites, type Site, type SiteInput } from '@/hooks/useSites';
+import { useDivisions, type Division, type DivisionInput } from '@/hooks/useDivisions';
+import { useWorkSites, type WorkSite, type WorkSiteInput } from '@/hooks/useWorkSites';
 import { useEmployees } from '@/hooks/useEmployees';
 import { useProfile } from '@/hooks/useProfile';
 import { DepartmentTable } from '@/components/org/DepartmentTable';
@@ -16,6 +18,10 @@ import { BranchTable } from '@/components/org/BranchTable';
 import { BranchSheet } from '@/components/org/BranchSheet';
 import { SiteTable } from '@/components/org/SiteTable';
 import { SiteSheet } from '@/components/org/SiteSheet';
+import { DivisionTable } from '@/components/org/DivisionTable';
+import { DivisionSheet } from '@/components/org/DivisionSheet';
+import { WorkSiteTable } from '@/components/org/WorkSiteTable';
+import { WorkSiteSheet } from '@/components/org/WorkSiteSheet';
 
 export default function OrgStructure() {
   const { t } = useTranslation();
@@ -25,33 +31,51 @@ export default function OrgStructure() {
   const { departments, isLoading: deptsLoading, createDepartment, updateDepartment, deleteDepartment } = useDepartments();
   const { branches, isLoading: branchesLoading, createBranch, updateBranch, deleteBranch } = useBranches();
   const { sites, isLoading: sitesLoading, createSite, updateSite, deleteSite } = useSites();
+  const { divisions, isLoading: divisionsLoading, createDivision, updateDivision, deleteDivision } = useDivisions();
+  const { workSites, isLoading: workSitesLoading, createWorkSite, updateWorkSite, deleteWorkSite } = useWorkSites();
   const { employees } = useEmployees();
+
+  // Branch state
+  const [branchSheetOpen, setBranchSheetOpen] = useState(false);
+  const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
+
+  // Division state
+  const [divisionSheetOpen, setDivisionSheetOpen] = useState(false);
+  const [editingDivision, setEditingDivision] = useState<Division | null>(null);
 
   // Department state
   const [deptSheetOpen, setDeptSheetOpen] = useState(false);
   const [editingDept, setEditingDept] = useState<Department | null>(null);
 
-  // Division (Branch) state
-  const [branchSheetOpen, setBranchSheetOpen] = useState(false);
-  const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
-
   // Section (Site) state
   const [siteSheetOpen, setSiteSheetOpen] = useState(false);
   const [editingSite, setEditingSite] = useState<Site | null>(null);
 
-  const handleDeptSubmit = (data: DepartmentInput) => {
-    if (editingDept) {
-      updateDepartment.mutate({ id: editingDept.id, ...data });
-    } else {
-      createDepartment.mutate(data);
-    }
-  };
+  // Work Site state
+  const [workSiteSheetOpen, setWorkSiteSheetOpen] = useState(false);
+  const [editingWorkSite, setEditingWorkSite] = useState<WorkSite | null>(null);
 
   const handleBranchSubmit = (data: BranchInput) => {
     if (editingBranch) {
       updateBranch.mutate({ id: editingBranch.id, ...data });
     } else {
       createBranch.mutate(data);
+    }
+  };
+
+  const handleDivisionSubmit = (data: DivisionInput) => {
+    if (editingDivision) {
+      updateDivision.mutate({ id: editingDivision.id, ...data });
+    } else {
+      createDivision.mutate(data);
+    }
+  };
+
+  const handleDeptSubmit = (data: DepartmentInput) => {
+    if (editingDept) {
+      updateDepartment.mutate({ id: editingDept.id, ...data });
+    } else {
+      createDepartment.mutate(data);
     }
   };
 
@@ -63,7 +87,21 @@ export default function OrgStructure() {
     }
   };
 
-  const isLoading = deptsLoading || branchesLoading || sitesLoading;
+  const handleWorkSiteSubmit = (data: WorkSiteInput) => {
+    if (editingWorkSite) {
+      updateWorkSite.mutate({ id: editingWorkSite.id, ...data });
+    } else {
+      createWorkSite.mutate(data);
+    }
+  };
+
+  const isLoading = deptsLoading || branchesLoading || sitesLoading || divisionsLoading || workSitesLoading;
+
+  const loadingSkeleton = (
+    <div className="space-y-3">
+      {[1, 2, 3].map(i => <Skeleton key={i} className="h-10 w-full" />)}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -72,8 +110,11 @@ export default function OrgStructure() {
         <p className="text-muted-foreground">{t('organization.subtitle')}</p>
       </div>
 
-      <Tabs defaultValue="divisions">
-        <TabsList>
+      <Tabs defaultValue="branches">
+        <TabsList className="flex-wrap">
+          <TabsTrigger value="branches" className="gap-2">
+            <GitBranch className="h-4 w-4" /> {t('branches.title')}
+          </TabsTrigger>
           <TabsTrigger value="divisions" className="gap-2">
             <Network className="h-4 w-4" /> {t('divisions.title')}
           </TabsTrigger>
@@ -83,26 +124,24 @@ export default function OrgStructure() {
           <TabsTrigger value="sections" className="gap-2">
             <Layers className="h-4 w-4" /> {t('sections.title')}
           </TabsTrigger>
+          <TabsTrigger value="sites" className="gap-2">
+            <MapPin className="h-4 w-4" /> {t('workSites.title')}
+          </TabsTrigger>
         </TabsList>
 
-        {/* Divisions Tab (Top of hierarchy) */}
-        <TabsContent value="divisions">
+        {/* Branches Tab */}
+        <TabsContent value="branches">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>{t('divisions.title')}</CardTitle>
+              <CardTitle>{t('branches.title')}</CardTitle>
               <Button onClick={() => { setEditingBranch(null); setBranchSheetOpen(true); }}>
-                <Plus className="me-2 h-4 w-4" /> {t('divisions.addDivision')}
+                <Plus className="me-2 h-4 w-4" /> {t('branches.addBranch')}
               </Button>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
-                <div className="space-y-3">
-                  {[1,2,3].map(i => <Skeleton key={i} className="h-10 w-full" />)}
-                </div>
-              ) : (
+              {isLoading ? loadingSkeleton : (
                 <BranchTable
                   branches={branches}
-                  departments={departments}
                   onEdit={(branch) => { setEditingBranch(branch); setBranchSheetOpen(true); }}
                   onDelete={(id) => deleteBranch.mutate(id)}
                 />
@@ -111,7 +150,29 @@ export default function OrgStructure() {
           </Card>
         </TabsContent>
 
-        {/* Departments Tab (Middle of hierarchy) */}
+        {/* Divisions Tab */}
+        <TabsContent value="divisions">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>{t('divisions.title')}</CardTitle>
+              <Button onClick={() => { setEditingDivision(null); setDivisionSheetOpen(true); }}>
+                <Plus className="me-2 h-4 w-4" /> {t('divisions.addDivision')}
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? loadingSkeleton : (
+                <DivisionTable
+                  divisions={divisions}
+                  departments={departments}
+                  onEdit={(div) => { setEditingDivision(div); setDivisionSheetOpen(true); }}
+                  onDelete={(id) => deleteDivision.mutate(id)}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Departments Tab */}
         <TabsContent value="departments">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -121,14 +182,10 @@ export default function OrgStructure() {
               </Button>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
-                <div className="space-y-3">
-                  {[1,2,3].map(i => <Skeleton key={i} className="h-10 w-full" />)}
-                </div>
-              ) : (
+              {isLoading ? loadingSkeleton : (
                 <DepartmentTable
                   departments={departments}
-                  branches={branches}
+                  divisions={divisions}
                   employees={employees as any}
                   onEdit={(dept) => { setEditingDept(dept); setDeptSheetOpen(true); }}
                   onDelete={(id) => deleteDepartment.mutate(id)}
@@ -138,7 +195,7 @@ export default function OrgStructure() {
           </Card>
         </TabsContent>
 
-        {/* Sections Tab (Bottom of hierarchy) */}
+        {/* Sections Tab */}
         <TabsContent value="sections">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -148,11 +205,7 @@ export default function OrgStructure() {
               </Button>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
-                <div className="space-y-3">
-                  {[1,2,3].map(i => <Skeleton key={i} className="h-10 w-full" />)}
-                </div>
-              ) : (
+              {isLoading ? loadingSkeleton : (
                 <SiteTable
                   sites={sites}
                   branches={branches}
@@ -164,25 +217,54 @@ export default function OrgStructure() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Work Sites Tab */}
+        <TabsContent value="sites">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>{t('workSites.title')}</CardTitle>
+              <Button onClick={() => { setEditingWorkSite(null); setWorkSiteSheetOpen(true); }}>
+                <Plus className="me-2 h-4 w-4" /> {t('workSites.addSite')}
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? loadingSkeleton : (
+                <WorkSiteTable
+                  workSites={workSites}
+                  departments={departments}
+                  sections={sites}
+                  onEdit={(ws) => { setEditingWorkSite(ws); setWorkSiteSheetOpen(true); }}
+                  onDelete={(id) => deleteWorkSite.mutate(id)}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Sheets */}
-      <DepartmentSheet
-        open={deptSheetOpen}
-        onOpenChange={setDeptSheetOpen}
-        department={editingDept}
-        departments={departments}
-        branches={branches}
-        employees={employees as any}
-        tenantId={tenantId}
-        onSubmit={handleDeptSubmit}
-      />
       <BranchSheet
         open={branchSheetOpen}
         onOpenChange={setBranchSheetOpen}
         branch={editingBranch}
         tenantId={tenantId}
         onSubmit={handleBranchSubmit}
+      />
+      <DivisionSheet
+        open={divisionSheetOpen}
+        onOpenChange={setDivisionSheetOpen}
+        division={editingDivision}
+        tenantId={tenantId}
+        onSubmit={handleDivisionSubmit}
+      />
+      <DepartmentSheet
+        open={deptSheetOpen}
+        onOpenChange={setDeptSheetOpen}
+        department={editingDept}
+        divisions={divisions}
+        employees={employees as any}
+        tenantId={tenantId}
+        onSubmit={handleDeptSubmit}
       />
       <SiteSheet
         open={siteSheetOpen}
@@ -192,6 +274,15 @@ export default function OrgStructure() {
         branches={branches}
         tenantId={tenantId}
         onSubmit={handleSiteSubmit}
+      />
+      <WorkSiteSheet
+        open={workSiteSheetOpen}
+        onOpenChange={setWorkSiteSheetOpen}
+        workSite={editingWorkSite}
+        departments={departments}
+        sections={sites}
+        tenantId={tenantId}
+        onSubmit={handleWorkSiteSubmit}
       />
     </div>
   );

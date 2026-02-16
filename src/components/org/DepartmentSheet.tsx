@@ -8,28 +8,27 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Department, DepartmentInput } from '@/hooks/useDepartments';
-import type { Branch } from '@/hooks/useBranches';
+import type { Division } from '@/hooks/useDivisions';
 import type { Employee } from '@/hooks/useEmployees';
 
 interface DepartmentSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   department?: Department | null;
-  departments: Department[];
-  branches: Branch[];
+  divisions: Division[];
   employees: Employee[];
   tenantId: string;
   onSubmit: (data: DepartmentInput) => void;
 }
 
 export function DepartmentSheet({
-  open, onOpenChange, department, departments, branches, employees, tenantId, onSubmit,
+  open, onOpenChange, department, divisions, employees, tenantId, onSubmit,
 }: DepartmentSheetProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { register, handleSubmit, reset, setValue, watch } = useForm<DepartmentInput>();
 
   const selectedHead = watch('head_employee_id');
-  const selectedBranch = watch('branch_id');
+  const selectedDivision = watch('division_id');
 
   useEffect(() => {
     if (open) {
@@ -42,6 +41,7 @@ export function DepartmentSheet({
           description_ar: department.description_ar,
           parent_id: null,
           branch_id: department.branch_id,
+          division_id: department.division_id,
           head_employee_id: department.head_employee_id,
           color: department.color,
           sort_order: department.sort_order,
@@ -55,6 +55,7 @@ export function DepartmentSheet({
           description_ar: '',
           parent_id: null,
           branch_id: null,
+          division_id: null,
           head_employee_id: null,
           color: '#3B82F6',
           sort_order: 0,
@@ -79,16 +80,18 @@ export function DepartmentSheet({
         </SheetHeader>
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label>{t('organization.division')}</Label>
+            <Label>{t('divisions.title')}</Label>
             <Select
-              value={selectedBranch || '_none'}
-              onValueChange={(v) => setValue('branch_id', v === '_none' ? null : v)}
+              value={selectedDivision || '_none'}
+              onValueChange={(v) => setValue('division_id', v === '_none' ? null : v)}
             >
               <SelectTrigger><SelectValue placeholder={t('organization.selectDivision')} /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="_none">{t('common.noData')}</SelectItem>
-                {branches.map(b => (
-                  <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                <SelectItem value="_none">{t('common.none')}</SelectItem>
+                {divisions.filter(d => d.is_active !== false).map(d => (
+                  <SelectItem key={d.id} value={d.id}>
+                    {i18n.language === 'ar' && d.name_ar ? d.name_ar : d.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -117,7 +120,7 @@ export function DepartmentSheet({
             >
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="_none">{t('common.noData')}</SelectItem>
+                <SelectItem value="_none">{t('common.none')}</SelectItem>
                 {employees.map(e => (
                   <SelectItem key={e.id} value={e.id}>{e.full_name}</SelectItem>
                 ))}
