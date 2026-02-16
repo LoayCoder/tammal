@@ -55,7 +55,9 @@ export function SiteTable({ sites, branches, departments, divisions, employees, 
           const headEmployee = site.head_employee_id
             ? employees.find(e => e.id === site.head_employee_id)
             : null;
-          const memberCount = employees.filter(e => (e as any).section_id === site.id).length;
+          const directMembers = employees.filter(e => (e as any).section_id === site.id).length;
+          const headIsAlreadyCounted = site.head_employee_id ? employees.some(e => (e as any).section_id === site.id && e.id === site.head_employee_id) : true;
+          const memberCount = directMembers + (site.head_employee_id && !headIsAlreadyCounted ? 1 : 0);
           return (
             <TableRow key={site.id}>
               <TableCell className="font-medium">
