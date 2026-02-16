@@ -3,52 +3,52 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 
-export interface Branch {
+export interface WorkSite {
   id: string;
   tenant_id: string;
   name: string;
   name_ar: string | null;
   address: string | null;
   address_ar: string | null;
-  phone: string | null;
-  email: string | null;
+  department_id: string | null;
+  section_id: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
 }
 
-export interface BranchInput {
+export interface WorkSiteInput {
   tenant_id: string;
   name: string;
   name_ar?: string | null;
   address?: string | null;
   address_ar?: string | null;
-  phone?: string | null;
-  email?: string | null;
+  department_id?: string | null;
+  section_id?: string | null;
 }
 
-export function useBranches() {
+export function useWorkSites() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: branches = [], isLoading } = useQuery({
-    queryKey: ['branches'],
+  const { data: workSites = [], isLoading } = useQuery({
+    queryKey: ['work_sites'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('branches')
+        .from('work_sites')
         .select('*')
         .is('deleted_at', null)
         .order('name', { ascending: true });
       if (error) throw error;
-      return data as Branch[];
+      return data as WorkSite[];
     },
   });
 
-  const createBranch = useMutation({
-    mutationFn: async (input: BranchInput) => {
+  const createWorkSite = useMutation({
+    mutationFn: async (input: WorkSiteInput) => {
       const { data, error } = await supabase
-        .from('branches')
+        .from('work_sites')
         .insert(input)
         .select()
         .single();
@@ -56,16 +56,16 @@ export function useBranches() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['branches'] });
-      toast.success(t('branches.createSuccess'));
+      queryClient.invalidateQueries({ queryKey: ['work_sites'] });
+      toast.success(t('workSites.createSuccess'));
     },
-    onError: () => toast.error(t('branches.createError')),
+    onError: () => toast.error(t('workSites.createError')),
   });
 
-  const updateBranch = useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Branch> & { id: string }) => {
+  const updateWorkSite = useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<WorkSite> & { id: string }) => {
       const { data, error } = await supabase
-        .from('branches')
+        .from('work_sites')
         .update(updates)
         .eq('id', id)
         .select()
@@ -74,26 +74,26 @@ export function useBranches() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['branches'] });
-      toast.success(t('branches.updateSuccess'));
+      queryClient.invalidateQueries({ queryKey: ['work_sites'] });
+      toast.success(t('workSites.updateSuccess'));
     },
-    onError: () => toast.error(t('branches.updateError')),
+    onError: () => toast.error(t('workSites.updateError')),
   });
 
-  const deleteBranch = useMutation({
+  const deleteWorkSite = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('branches')
+        .from('work_sites')
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['branches'] });
-      toast.success(t('branches.deleteSuccess'));
+      queryClient.invalidateQueries({ queryKey: ['work_sites'] });
+      toast.success(t('workSites.deleteSuccess'));
     },
-    onError: () => toast.error(t('branches.deleteError')),
+    onError: () => toast.error(t('workSites.deleteError')),
   });
 
-  return { branches, isLoading, createBranch, updateBranch, deleteBranch };
+  return { workSites, isLoading, createWorkSite, updateWorkSite, deleteWorkSite };
 }

@@ -9,6 +9,8 @@ import { ManagerSelect } from "./ManagerSelect";
 import { Employee, CreateEmployeeInput, EmployeeStatus } from "@/hooks/useEmployees";
 import { useDepartments } from "@/hooks/useDepartments";
 import { useBranches } from "@/hooks/useBranches";
+import { useDivisions } from "@/hooks/useDivisions";
+import { useSites } from "@/hooks/useSites";
 
 interface EmployeeSheetProps {
   open: boolean;
@@ -35,12 +37,16 @@ export function EmployeeSheet({
 
   const { departments: deptList } = useDepartments();
   const { branches } = useBranches();
+  const { divisions } = useDivisions();
+  const { sites: sections } = useSites();
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [employeeNumber, setEmployeeNumber] = useState("");
-  const [departmentId, setDepartmentId] = useState<string | undefined>();
   const [branchId, setBranchId] = useState<string | undefined>();
+  const [divisionId, setDivisionId] = useState<string | undefined>();
+  const [departmentId, setDepartmentId] = useState<string | undefined>();
+  const [sectionId, setSectionId] = useState<string | undefined>();
   const [roleTitle, setRoleTitle] = useState("");
   const [managerId, setManagerId] = useState<string | undefined>();
   const [hireDate, setHireDate] = useState("");
@@ -51,8 +57,10 @@ export function EmployeeSheet({
       setFullName(employee.full_name);
       setEmail(employee.email);
       setEmployeeNumber(employee.employee_number || "");
-      setDepartmentId((employee as any).department_id || undefined);
       setBranchId((employee as any).branch_id || undefined);
+      setDivisionId(undefined); // Division is independent, not stored on employee yet
+      setDepartmentId((employee as any).department_id || undefined);
+      setSectionId((employee as any).section_id || undefined);
       setRoleTitle(employee.role_title || "");
       setManagerId(employee.manager_id || undefined);
       setHireDate(employee.hire_date || "");
@@ -61,8 +69,10 @@ export function EmployeeSheet({
       setFullName("");
       setEmail("");
       setEmployeeNumber("");
-      setDepartmentId(undefined);
       setBranchId(undefined);
+      setDivisionId(undefined);
+      setDepartmentId(undefined);
+      setSectionId(undefined);
       setRoleTitle("");
       setManagerId(undefined);
       setHireDate("");
@@ -70,14 +80,18 @@ export function EmployeeSheet({
     }
   }, [employee, open]);
 
-  // Filter departments by selected branch
-  const filteredDepts = branchId
-    ? deptList.filter(d => d.branch_id === branchId)
+  // Filter departments by selected division
+  const filteredDepts = divisionId
+    ? deptList.filter(d => d.division_id === divisionId)
     : deptList;
+
+  // Filter sections by selected department
+  const filteredSections = departmentId
+    ? sections.filter(s => s.department_id === departmentId)
+    : sections;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Find department name for backward compat with text field
     const selectedDept = deptList.find(d => d.id === departmentId);
     onSubmit({
       tenant_id: tenantId,
@@ -107,47 +121,25 @@ export function EmployeeSheet({
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="fullName">{t('employees.name')} *</Label>
-            <Input
-              id="fullName"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-            />
+            <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="email">{t('employees.email')} *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="employeeNumber">{t('employees.employeeNumber')}</Label>
-            <Input
-              id="employeeNumber"
-              value={employeeNumber}
-              onChange={(e) => setEmployeeNumber(e.target.value)}
-            />
+            <Input id="employeeNumber" value={employeeNumber} onChange={(e) => setEmployeeNumber(e.target.value)} />
           </div>
 
-          {/* Division Dropdown */}
+          {/* Branch Dropdown (independent) */}
           <div className="space-y-2">
-            <Label>{t('organization.division')}</Label>
-            <Select
-              value={branchId || "none"}
-              onValueChange={(val) => {
-                setBranchId(val === "none" ? undefined : val);
-                // Reset department when division changes
-                setDepartmentId(undefined);
-              }}
-            >
+            <Label>{t('branches.title')}</Label>
+            <Select value={branchId || "none"} onValueChange={(val) => setBranchId(val === "none" ? undefined : val)}>
               <SelectTrigger>
-                <SelectValue placeholder={t('organization.selectDivision')} />
+                <SelectValue placeholder={t('branches.selectBranch')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">{t('common.none')}</SelectItem>
@@ -160,12 +152,40 @@ export function EmployeeSheet({
             </Select>
           </div>
 
-          {/* Department Dropdown */}
+          {/* Division Dropdown (independent) */}
+          <div className="space-y-2">
+            <Label>{t('divisions.title')}</Label>
+            <Select
+              value={divisionId || "none"}
+              onValueChange={(val) => {
+                setDivisionId(val === "none" ? undefined : val);
+                setDepartmentId(undefined);
+                setSectionId(undefined);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t('organization.selectDivision')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t('common.none')}</SelectItem>
+                {divisions.filter(d => d.is_active !== false).map((div) => (
+                  <SelectItem key={div.id} value={div.id}>
+                    {isAr && div.name_ar ? div.name_ar : div.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Department Dropdown (filtered by Division) */}
           <div className="space-y-2">
             <Label>{t('employees.department')}</Label>
             <Select
               value={departmentId || "none"}
-              onValueChange={(val) => setDepartmentId(val === "none" ? undefined : val)}
+              onValueChange={(val) => {
+                setDepartmentId(val === "none" ? undefined : val);
+                setSectionId(undefined);
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder={t('organization.selectDepartment')} />
@@ -181,41 +201,46 @@ export function EmployeeSheet({
             </Select>
           </div>
 
+          {/* Section Dropdown (filtered by Department) */}
+          <div className="space-y-2">
+            <Label>{t('sections.title')}</Label>
+            <Select
+              value={sectionId || "none"}
+              onValueChange={(val) => setSectionId(val === "none" ? undefined : val)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t('sections.selectSection')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t('common.none')}</SelectItem>
+                {filteredSections.filter(s => s.is_active !== false).map((section) => (
+                  <SelectItem key={section.id} value={section.id}>
+                    {isAr && section.name_ar ? section.name_ar : section.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="roleTitle">{t('employees.role')}</Label>
-            <Input
-              id="roleTitle"
-              value={roleTitle}
-              onChange={(e) => setRoleTitle(e.target.value)}
-            />
+            <Input id="roleTitle" value={roleTitle} onChange={(e) => setRoleTitle(e.target.value)} />
           </div>
 
           <div className="space-y-2">
             <Label>{t('employees.manager')}</Label>
-            <ManagerSelect
-              employees={employees}
-              value={managerId}
-              onChange={setManagerId}
-              excludeId={employee?.id}
-            />
+            <ManagerSelect employees={employees} value={managerId} onChange={setManagerId} excludeId={employee?.id} />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="hireDate">{t('employees.hireDate')}</Label>
-            <Input
-              id="hireDate"
-              type="date"
-              value={hireDate}
-              onChange={(e) => setHireDate(e.target.value)}
-            />
+            <Input id="hireDate" type="date" value={hireDate} onChange={(e) => setHireDate(e.target.value)} />
           </div>
 
           <div className="space-y-2">
             <Label>{t('common.status')}</Label>
             <Select value={status} onValueChange={(val) => setStatus(val as EmployeeStatus)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="active">{t('employees.status.active')}</SelectItem>
                 <SelectItem value="resigned">{t('employees.status.resigned')}</SelectItem>

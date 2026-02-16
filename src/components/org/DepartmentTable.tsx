@@ -5,32 +5,32 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import type { Department } from '@/hooks/useDepartments';
-import type { Branch } from '@/hooks/useBranches';
+import type { Division } from '@/hooks/useDivisions';
 import type { Employee } from '@/hooks/useEmployees';
 
 interface DepartmentTableProps {
   departments: Department[];
-  branches: Branch[];
+  divisions: Division[];
   employees: Employee[];
   onEdit: (department: Department) => void;
   onDelete: (id: string) => void;
 }
 
-export function DepartmentTable({ departments, branches, employees, onEdit, onDelete }: DepartmentTableProps) {
+export function DepartmentTable({ departments, divisions, employees, onEdit, onDelete }: DepartmentTableProps) {
   const { t, i18n } = useTranslation();
 
   if (departments.length === 0) {
     return <p className="text-muted-foreground text-center py-8">{t('common.noData')}</p>;
   }
 
-  const branchMap = new Map(branches.map(b => [b.id, b]));
+  const divisionMap = new Map(divisions.map(d => [d.id, d]));
 
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>{t('organization.name')}</TableHead>
-          <TableHead>{t('organization.division')}</TableHead>
+          <TableHead>{t('divisions.title')}</TableHead>
           <TableHead className="hidden md:table-cell">{t('organization.head')}</TableHead>
           <TableHead>{t('organization.members')}</TableHead>
           <TableHead>{t('common.status')}</TableHead>
@@ -40,9 +40,9 @@ export function DepartmentTable({ departments, branches, employees, onEdit, onDe
       <TableBody>
         {departments.map(dept => {
           const displayName = i18n.language === 'ar' && dept.name_ar ? dept.name_ar : dept.name;
-          const branch = dept.branch_id ? branchMap.get(dept.branch_id) : null;
-          const divisionName = branch
-            ? (i18n.language === 'ar' && branch.name_ar ? branch.name_ar : branch.name)
+          const division = dept.division_id ? divisionMap.get(dept.division_id) : null;
+          const divisionName = division
+            ? (i18n.language === 'ar' && division.name_ar ? division.name_ar : division.name)
             : '—';
           const headEmployee = dept.head_employee_id
             ? employees.find(e => e.id === dept.head_employee_id)

@@ -3,52 +3,48 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 
-export interface Branch {
+export interface Division {
   id: string;
   tenant_id: string;
   name: string;
   name_ar: string | null;
-  address: string | null;
-  address_ar: string | null;
-  phone: string | null;
-  email: string | null;
+  description: string | null;
+  description_ar: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
 }
 
-export interface BranchInput {
+export interface DivisionInput {
   tenant_id: string;
   name: string;
   name_ar?: string | null;
-  address?: string | null;
-  address_ar?: string | null;
-  phone?: string | null;
-  email?: string | null;
+  description?: string | null;
+  description_ar?: string | null;
 }
 
-export function useBranches() {
+export function useDivisions() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: branches = [], isLoading } = useQuery({
-    queryKey: ['branches'],
+  const { data: divisions = [], isLoading } = useQuery({
+    queryKey: ['divisions'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('branches')
+        .from('divisions')
         .select('*')
         .is('deleted_at', null)
         .order('name', { ascending: true });
       if (error) throw error;
-      return data as Branch[];
+      return data as Division[];
     },
   });
 
-  const createBranch = useMutation({
-    mutationFn: async (input: BranchInput) => {
+  const createDivision = useMutation({
+    mutationFn: async (input: DivisionInput) => {
       const { data, error } = await supabase
-        .from('branches')
+        .from('divisions')
         .insert(input)
         .select()
         .single();
@@ -56,16 +52,16 @@ export function useBranches() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['branches'] });
-      toast.success(t('branches.createSuccess'));
+      queryClient.invalidateQueries({ queryKey: ['divisions'] });
+      toast.success(t('divisions.createSuccess'));
     },
-    onError: () => toast.error(t('branches.createError')),
+    onError: () => toast.error(t('divisions.createError')),
   });
 
-  const updateBranch = useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Branch> & { id: string }) => {
+  const updateDivision = useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<Division> & { id: string }) => {
       const { data, error } = await supabase
-        .from('branches')
+        .from('divisions')
         .update(updates)
         .eq('id', id)
         .select()
@@ -74,26 +70,26 @@ export function useBranches() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['branches'] });
-      toast.success(t('branches.updateSuccess'));
+      queryClient.invalidateQueries({ queryKey: ['divisions'] });
+      toast.success(t('divisions.updateSuccess'));
     },
-    onError: () => toast.error(t('branches.updateError')),
+    onError: () => toast.error(t('divisions.updateError')),
   });
 
-  const deleteBranch = useMutation({
+  const deleteDivision = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('branches')
+        .from('divisions')
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['branches'] });
-      toast.success(t('branches.deleteSuccess'));
+      queryClient.invalidateQueries({ queryKey: ['divisions'] });
+      toast.success(t('divisions.deleteSuccess'));
     },
-    onError: () => toast.error(t('branches.deleteError')),
+    onError: () => toast.error(t('divisions.deleteError')),
   });
 
-  return { branches, isLoading, createBranch, updateBranch, deleteBranch };
+  return { divisions, isLoading, createDivision, updateDivision, deleteDivision };
 }

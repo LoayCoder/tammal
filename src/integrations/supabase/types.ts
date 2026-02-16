@@ -309,6 +309,7 @@ export type Database = {
           deleted_at: string | null
           description: string | null
           description_ar: string | null
+          division_id: string | null
           head_employee_id: string | null
           id: string
           is_active: boolean | null
@@ -326,6 +327,7 @@ export type Database = {
           deleted_at?: string | null
           description?: string | null
           description_ar?: string | null
+          division_id?: string | null
           head_employee_id?: string | null
           id?: string
           is_active?: boolean | null
@@ -343,6 +345,7 @@ export type Database = {
           deleted_at?: string | null
           description?: string | null
           description_ar?: string | null
+          division_id?: string | null
           head_employee_id?: string | null
           id?: string
           is_active?: boolean | null
@@ -362,6 +365,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "departments_division_id_fkey"
+            columns: ["division_id"]
+            isOneToOne: false
+            referencedRelation: "divisions"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "departments_head_employee_id_fkey"
             columns: ["head_employee_id"]
             isOneToOne: false
@@ -377,6 +387,53 @@ export type Database = {
           },
           {
             foreignKeyName: "departments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      divisions: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          description: string | null
+          description_ar: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          name_ar: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          name_ar?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          name_ar?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "divisions_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -473,6 +530,7 @@ export type Database = {
           manager_id: string | null
           metadata: Json | null
           role_title: string | null
+          section_id: string | null
           status: string | null
           tenant_id: string
           updated_at: string | null
@@ -492,6 +550,7 @@ export type Database = {
           manager_id?: string | null
           metadata?: Json | null
           role_title?: string | null
+          section_id?: string | null
           status?: string | null
           tenant_id: string
           updated_at?: string | null
@@ -511,6 +570,7 @@ export type Database = {
           manager_id?: string | null
           metadata?: Json | null
           role_title?: string | null
+          section_id?: string | null
           status?: string | null
           tenant_id?: string
           updated_at?: string | null
@@ -536,6 +596,13 @@ export type Database = {
             columns: ["manager_id"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
             referencedColumns: ["id"]
           },
           {
@@ -2173,6 +2240,73 @@ export type Database = {
           },
           {
             foreignKeyName: "wellness_questions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      work_sites: {
+        Row: {
+          address: string | null
+          address_ar: string | null
+          created_at: string
+          deleted_at: string | null
+          department_id: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          name_ar: string | null
+          section_id: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          address_ar?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          department_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          name_ar?: string | null
+          section_id?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          address_ar?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          department_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          name_ar?: string | null
+          section_id?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_sites_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_sites_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_sites_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
