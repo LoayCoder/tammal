@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ManagerSelect } from "./ManagerSelect";
 import { Employee, CreateEmployeeInput, EmployeeStatus } from "@/hooks/useEmployees";
+import { useDepartments } from "@/hooks/useDepartments";
+import { useBranches } from "@/hooks/useBranches";
 
 interface EmployeeSheetProps {
   open: boolean;
@@ -25,16 +27,20 @@ export function EmployeeSheet({
   employee,
   employees,
   tenantId,
-  departments,
   onSubmit,
   isLoading,
 }: EmployeeSheetProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+
+  const { departments: deptList } = useDepartments();
+  const { branches } = useBranches();
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [employeeNumber, setEmployeeNumber] = useState("");
-  const [department, setDepartment] = useState("");
+  const [departmentId, setDepartmentId] = useState<string | undefined>();
+  const [branchId, setBranchId] = useState<string | undefined>();
   const [roleTitle, setRoleTitle] = useState("");
   const [managerId, setManagerId] = useState<string | undefined>();
   const [hireDate, setHireDate] = useState("");
@@ -45,7 +51,8 @@ export function EmployeeSheet({
       setFullName(employee.full_name);
       setEmail(employee.email);
       setEmployeeNumber(employee.employee_number || "");
-      setDepartment(employee.department || "");
+      setDepartmentId((employee as any).department_id || undefined);
+      setBranchId((employee as any).branch_id || undefined);
       setRoleTitle(employee.role_title || "");
       setManagerId(employee.manager_id || undefined);
       setHireDate(employee.hire_date || "");
@@ -54,7 +61,8 @@ export function EmployeeSheet({
       setFullName("");
       setEmail("");
       setEmployeeNumber("");
-      setDepartment("");
+      setDepartmentId(undefined);
+      setBranchId(undefined);
       setRoleTitle("");
       setManagerId(undefined);
       setHireDate("");
@@ -62,19 +70,26 @@ export function EmployeeSheet({
     }
   }, [employee, open]);
 
+  // Filter departments by selected branch
+  const filteredDepts = branchId
+    ? deptList.filter(d => d.branch_id === branchId)
+    : deptList;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Find department name for backward compat with text field
+    const selectedDept = deptList.find(d => d.id === departmentId);
     onSubmit({
       tenant_id: tenantId,
       full_name: fullName,
       email,
       employee_number: employeeNumber || undefined,
-      department: department || undefined,
+      department: selectedDept?.name || undefined,
       role_title: roleTitle || undefined,
       manager_id: managerId,
       hire_date: hireDate || undefined,
       status,
-    });
+    } as any);
   };
 
   return (
@@ -120,19 +135,50 @@ export function EmployeeSheet({
             />
           </div>
 
+          {/* Branch Dropdown */}
           <div className="space-y-2">
-            <Label htmlFor="department">{t('employees.department')}</Label>
-            <Input
-              id="department"
-              value={department}
-              onChange={(e) => setDepartment(e.target.value)}
-              list="departments"
-            />
-            <datalist id="departments">
-              {departments.map((dept) => (
-                <option key={dept} value={dept} />
-              ))}
-            </datalist>
+            <Label>{t('organization.branch')}</Label>
+            <Select
+              value={branchId || "none"}
+              onValueChange={(val) => {
+                setBranchId(val === "none" ? undefined : val);
+                // Reset department when branch changes
+                setDepartmentId(undefined);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t('organization.selectBranch')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t('common.none')}</SelectItem>
+                {branches.filter(b => b.is_active !== false).map((branch) => (
+                  <SelectItem key={branch.id} value={branch.id}>
+                    {isAr && branch.name_ar ? branch.name_ar : branch.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Department Dropdown */}
+          <div className="space-y-2">
+            <Label>{t('employees.department')}</Label>
+            <Select
+              value={departmentId || "none"}
+              onValueChange={(val) => setDepartmentId(val === "none" ? undefined : val)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t('organization.selectDepartment')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t('common.none')}</SelectItem>
+                {filteredDepts.filter(d => d.is_active !== false).map((dept) => (
+                  <SelectItem key={dept.id} value={dept.id}>
+                    {isAr && dept.name_ar ? dept.name_ar : dept.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

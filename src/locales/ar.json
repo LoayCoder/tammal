@@ -43,7 +43,8 @@
     "showingOf": "عرض {{shown}} من {{total}} سؤال",
     "noMatchingQuestions": "لا توجد أسئلة مطابقة",
     "selected": "محدد",
-    "unassigned": "غير مُعيّن"
+    "unassigned": "غير مُعيّن",
+    "none": "لا يوجد"
   },
   "nav": {
     "dashboard": "لوحة التحكم",
