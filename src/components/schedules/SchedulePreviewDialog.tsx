@@ -345,7 +345,8 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('schedules.employee')}</TableHead>
-                  <TableHead>{t('schedules.question')}</TableHead>
+                  <TableHead>{t('questions.questionTextEn')}</TableHead>
+                  <TableHead>{t('questions.questionTextAr')}</TableHead>
                   <TableHead>{t('schedules.delivery')}</TableHead>
                   <TableHead>{t('common.status')}</TableHead>
                 </TableRow>
@@ -353,7 +354,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
               <TableBody>
                 {filteredPreview.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
                       {t('common.noMatchingQuestions')}
                     </TableCell>
                   </TableRow>
@@ -364,7 +365,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                         {sq.employee?.full_name || '-'}
                       </TableCell>
                       <TableCell
-                        className="text-sm max-w-[250px] cursor-pointer hover:bg-muted/50"
+                        className="text-sm max-w-[220px] cursor-pointer hover:bg-muted/50"
                         onClick={() => setViewSq(sq)}
                       >
                         {(() => {
@@ -377,6 +378,25 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                               </TooltipTrigger>
                               <TooltipContent side="bottom" className="max-w-sm whitespace-pre-wrap">
                                 <p className="text-sm">{text}</p>
+                              </TooltipContent>
+                            </UiTooltip>
+                          );
+                        })()}
+                      </TableCell>
+                      <TableCell
+                        className="text-sm max-w-[220px] cursor-pointer hover:bg-muted/50"
+                        onClick={() => setViewSq(sq)}
+                      >
+                        {(() => {
+                          const text = sq.question?.text_ar || '-';
+                          if (text === '-' || text.length <= 45) return <span dir="rtl">{text}</span>;
+                          return (
+                            <UiTooltip>
+                              <TooltipTrigger asChild>
+                                <p className="line-clamp-2 cursor-help" dir="rtl">{text}</p>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom" className="max-w-sm whitespace-pre-wrap">
+                                <p className="text-sm" dir="rtl">{text}</p>
                               </TooltipContent>
                             </UiTooltip>
                           );
