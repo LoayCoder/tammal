@@ -1,60 +1,94 @@
 
 
-# Fix: Schedule Engine Insert Failure
+# Add Filters and Analytics to Scheduled Questions Preview
 
-## Root Cause
+## Overview
+Enhance the "View Scheduled Questions" dialog with interactive filters and a toggleable analytics/charts section.
 
-The schedule engine finds the questions successfully (5 wellness questions), but the **insert into `scheduled_questions` fails** because the code includes `branch_id` and `site_id` columns that do not exist on the table.
+## Changes
 
-The error from the logs:
-```
-Could not find the 'branch_id' column of 'scheduled_questions' in the schema cache
-```
+### 1. Add Filter Controls (ScheduleManagement.tsx)
+Add a filter bar above the preview table with three filters:
+- **Date Range**: Two date inputs (from/to) filtering on `scheduled_delivery`
+- **Status**: A multi-select dropdown with options: pending, delivered, answered, skipped, expired, failed
+- **Employee**: A searchable select dropdown populated from the fetched preview data's unique employees
 
-The `scheduled_questions` table only has these columns:
-`id, schedule_id, employee_id, question_id, tenant_id, scheduled_delivery, actual_delivery, status, delivery_channel, reminder_count, created_at`
+New state variables:
+- `previewFilterDate: { from: string; to: string }`
+- `previewFilterStatus: string[]`
+- `previewFilterEmployee: string`
 
-## Fix (2 steps)
+The table will be filtered client-side using `useMemo` over `previewQuestions`.
 
-### Step 1: Update the Edge Function
+### 2. Add Analytics Toggle Button and Charts
+Add a "Show Analytics" button in the dialog header area. When clicked, a collapsible section appears above the table showing:
 
-Remove `branch_id` and `site_id` from the insert payload in `supabase/functions/schedule-engine/index.ts`. The current code on line ~180 builds objects with these non-existent columns:
+- **Status Distribution**: A pie/donut chart (using Recharts) showing count by status (pending, delivered, answered, skipped)
+- **Delivery Timeline**: A bar chart showing questions per day based on `scheduled_delivery`
+- **Summary Cards**: Total questions, answered rate %, pending count
 
+These charts react to the active filters -- so filtering by employee shows that employee's analytics only.
+
+### 3. Remove the 50-row limit
+Increase the query limit to 500 to provide meaningful analytics data.
+
+## Technical Details
+
+### New State
 ```typescript
-// BEFORE (broken)
-scheduledQuestions.push({
-  schedule_id: schedule.id,
-  employee_id: employee.id,
-  question_id: question.id,
-  tenant_id: schedule.tenant_id,
-  branch_id: schedule.branch_id || null,   // <-- does not exist
-  site_id: schedule.site_id || null,        // <-- does not exist
-  scheduled_delivery: deliveryDate.toISOString(),
-  status: "pending",
-  delivery_channel: "app",
-});
-
-// AFTER (fixed)
-scheduledQuestions.push({
-  schedule_id: schedule.id,
-  employee_id: employee.id,
-  question_id: question.id,
-  tenant_id: schedule.tenant_id,
-  scheduled_delivery: deliveryDate.toISOString(),
-  status: "pending",
-  delivery_channel: "app",
-});
+const [previewFilterDateFrom, setPreviewFilterDateFrom] = useState('');
+const [previewFilterDateTo, setPreviewFilterDateTo] = useState('');
+const [previewFilterStatus, setPreviewFilterStatus] = useState<string[]>([]);
+const [previewFilterEmployee, setPreviewFilterEmployee] = useState('');
+const [showAnalytics, setShowAnalytics] = useState(false);
 ```
 
-### Step 2: Redeploy the Edge Function
+### Filtered Data (useMemo)
+```typescript
+const filteredPreview = useMemo(() => {
+  return previewQuestions.filter(sq => {
+    if (previewFilterDateFrom && sq.scheduled_delivery < previewFilterDateFrom) return false;
+    if (previewFilterDateTo && sq.scheduled_delivery > previewFilterDateTo + 'T23:59:59') return false;
+    if (previewFilterStatus.length && !previewFilterStatus.includes(sq.status)) return false;
+    if (previewFilterEmployee && sq.employee?.id !== previewFilterEmployee) return false;
+    return true;
+  });
+}, [previewQuestions, previewFilterDateFrom, previewFilterDateTo, previewFilterStatus, previewFilterEmployee]);
+```
 
-Deploy the updated `schedule-engine` function so the fix takes effect.
+### Chart Data (useMemo)
+```typescript
+const statusChartData = useMemo(() => {
+  const counts: Record<string, number> = {};
+  filteredPreview.forEach(sq => { counts[sq.status] = (counts[sq.status] || 0) + 1; });
+  return Object.entries(counts).map(([name, value]) => ({ name, value }));
+}, [filteredPreview]);
 
----
+const timelineChartData = useMemo(() => {
+  const byDate: Record<string, number> = {};
+  filteredPreview.forEach(sq => {
+    const d = new Date(sq.scheduled_delivery).toLocaleDateString();
+    byDate[d] = (byDate[d] || 0) + 1;
+  });
+  return Object.entries(byDate).map(([date, count]) => ({ date, count }));
+}, [filteredPreview]);
+```
 
-## Why This is Scalable
+### UI Layout in Preview Dialog
+```
+[Date From] [Date To] [Status ▼] [Employee ▼]  [Show Analytics]
+─────────────────────────────────────────────────────────────────
+(Collapsible Analytics Section - pie chart + bar chart + summary)
+─────────────────────────────────────────────────────────────────
+| Employee | Question | Delivery Date | Status |
+| ...      | ...      | ...           | ...    |
+```
 
-- No database migration needed -- the fix is purely removing invalid columns from the insert
-- The employee scoping by `branch_id` / `site_id` still works correctly in the employee query (employees table has those columns)
-- If branch/site tracking is needed on `scheduled_questions` in the future, a migration can add those columns at that time
+### Files Modified
+- `src/pages/admin/ScheduleManagement.tsx` -- add filters, analytics section, chart imports
+
+### Dependencies Used (already installed)
+- `recharts` -- for PieChart and BarChart
+- `@/components/ui/chart` -- ChartContainer, ChartTooltip
+- All Shadcn UI components already available
 
