@@ -735,6 +735,8 @@
     "deleteError": "فشل في حذف السؤال",
     "bulkUpdateSuccess": "تم تحديث الأسئلة بنجاح",
     "bulkUpdateError": "فشل في تحديث الأسئلة",
+    "viewQuestion": "عرض السؤال",
+    "questionDetails": "تفاصيل السؤال",
     "types": {
       "likert_5": "مقياس ليكرت (1-5)",
       "numeric_scale": "مقياس رقمي (1-10)",

@@ -735,6 +735,8 @@
     "deleteError": "Failed to delete question",
     "bulkUpdateSuccess": "Questions updated successfully",
     "bulkUpdateError": "Failed to update questions",
+    "viewQuestion": "View Question",
+    "questionDetails": "Question Details",
     "types": {
       "likert_5": "Likert Scale (1-5)",
       "numeric_scale": "Numeric Scale (1-10)",

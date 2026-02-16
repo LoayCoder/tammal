@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { CategoryBadge } from "./CategoryBadge";
 import { Question } from "@/hooks/useQuestions";
 import { Edit2, Trash2, MoreHorizontal, Eye, EyeOff } from "lucide-react";
@@ -47,6 +48,7 @@ export function QuestionTable({
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [viewQuestion, setViewQuestion] = useState<Question | null>(null);
 
   const toggleAll = () => {
     if (selectedIds.length === questions.length) {
@@ -106,13 +108,13 @@ export function QuestionTable({
                     />
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">{index + 1}</TableCell>
-                  <TableCell className="max-w-xs">
+                  <TableCell className="max-w-xs cursor-pointer hover:bg-muted/50" onClick={() => setViewQuestion(question)}>
                     <ExpandableText text={question.text} />
                     {question.is_global && (
                       <Badge variant="secondary" className="mt-1">{t('questions.global')}</Badge>
                     )}
                   </TableCell>
-                  <TableCell className="max-w-xs" dir="rtl">
+                  <TableCell className="max-w-xs cursor-pointer hover:bg-muted/50" dir="rtl" onClick={() => setViewQuestion(question)}>
                     <ExpandableText text={question.text_ar || '-'} />
                   </TableCell>
                   <TableCell>
@@ -140,6 +142,10 @@ export function QuestionTable({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setViewQuestion(question)}>
+                          <Eye className="h-4 w-4 me-2" />
+                          {t('questions.viewQuestion')}
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onEdit(question)}>
                           <Edit2 className="h-4 w-4 me-2" />
                           {t('common.edit')}
@@ -197,6 +203,82 @@ export function QuestionTable({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={!!viewQuestion} onOpenChange={() => setViewQuestion(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t('questions.questionDetails')}</DialogTitle>
+            <DialogDescription>{t('questions.viewQuestion')}</DialogDescription>
+          </DialogHeader>
+
+          {viewQuestion && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">{t('questions.questionTextEn')}</p>
+                <p className="text-sm bg-muted/50 rounded-md p-3">{viewQuestion.text}</p>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">{t('questions.questionTextAr')}</p>
+                <p className="text-sm bg-muted/50 rounded-md p-3" dir="rtl">
+                  {viewQuestion.text_ar || '-'}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                {viewQuestion.category && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">{t('questions.category')}:</span>
+                    <CategoryBadge
+                      name={viewQuestion.category.name}
+                      nameAr={viewQuestion.category.name_ar}
+                      color={viewQuestion.category.color}
+                    />
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">{t('questions.type')}:</span>
+                  <Badge variant="outline">{getTypeLabel(viewQuestion.type)}</Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">{t('common.status')}:</span>
+                  <Badge variant={viewQuestion.is_active ? "default" : "secondary"}>
+                    {viewQuestion.is_active ? t('common.active') : t('common.inactive')}
+                  </Badge>
+                </div>
+                {viewQuestion.is_global && (
+                  <Badge variant="secondary">{t('questions.global')}</Badge>
+                )}
+              </div>
+
+              {viewQuestion.type === 'multiple_choice' && viewQuestion.options && viewQuestion.options.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">{t('questions.options')}</p>
+                  <ol className="list-decimal list-inside space-y-1 bg-muted/50 rounded-md p-3">
+                    {viewQuestion.options.map((opt, i) => (
+                      <li key={i} className="text-sm">{opt}</li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewQuestion(null)}>
+              {t('common.close')}
+            </Button>
+            <Button onClick={() => {
+              if (viewQuestion) {
+                onEdit(viewQuestion);
+                setViewQuestion(null);
+              }
+            }}>
+              {t('common.edit')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
