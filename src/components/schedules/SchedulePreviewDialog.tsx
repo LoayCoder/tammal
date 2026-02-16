@@ -26,10 +26,11 @@ interface PreviewQuestion {
     id?: string;
     full_name?: string;
     email?: string;
-    department_id?: string;
-    branch_id?: string;
+    department?: string | null; // text field fallback
+    department_id?: string | null;
+    branch_id?: string | null;
     branch?: { id?: string; name?: string; name_ar?: string } | any;
-    department?: { id?: string; name?: string; name_ar?: string; sites?: any[] } | any;
+    dept?: { id?: string; name?: string; name_ar?: string } | any;
   } | null;
   question?: { id?: string; text?: string; text_ar?: string; type?: string } | null;
 }
@@ -74,9 +75,16 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
     const b = sq.employee?.branch;
     return Array.isArray(b) ? b[0] : b;
   };
-  const getEmpDept = (sq: PreviewQuestion) => {
-    const d = sq.employee?.department;
-    return Array.isArray(d) ? d[0] : d;
+  const getEmpDept = (sq: PreviewQuestion): { id?: string; name?: string; name_ar?: string } | null => {
+    // Use FK join first, fallback to text department field
+    const d = sq.employee?.dept;
+    const resolved = Array.isArray(d) ? d[0] : d;
+    if (resolved?.id) return resolved;
+    // Fallback: use text department field as name
+    if (sq.employee?.department) {
+      return { name: sq.employee.department };
+    }
+    return null;
   };
 
   // Unique employees from data
@@ -99,12 +107,15 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
     return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
   }, [previewQuestions]);
 
-  // Unique departments
+  // Unique departments (from FK or text fallback)
   const uniqueDepartments = useMemo(() => {
     const map = new Map<string, string>();
     previewQuestions.forEach(sq => {
       const d = getEmpDept(sq);
-      if (d?.id && d?.name) map.set(d.id, d.name);
+      if (d?.name) {
+        const key = d.id || `text:${d.name}`;
+        map.set(key, d.name);
+      }
     });
     return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
   }, [previewQuestions]);
@@ -122,7 +133,8 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
       }
       if (filterDepartment && filterDepartment !== 'all') {
         const d = getEmpDept(sq);
-        if (d?.id !== filterDepartment) return false;
+        const dKey = d?.id || (d?.name ? `text:${d.name}` : '');
+        if (dKey !== filterDepartment) return false;
       }
       return true;
     });
@@ -505,8 +517,9 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('schedules.employee')}</TableHead>
+                  <TableHead>{t('organization.branch')}</TableHead>
+                  <TableHead>{t('users.department')}</TableHead>
                   <TableHead>{t('questions.questionTextEn')}</TableHead>
-                  <TableHead>{t('questions.questionTextAr')}</TableHead>
                   <TableHead>{t('schedules.delivery')}</TableHead>
                   <TableHead>{t('common.status')}</TableHead>
                 </TableRow>
@@ -514,7 +527,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
               <TableBody>
                 {filteredPreview.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
                       {t('common.noMatchingQuestions')}
                     </TableCell>
                   </TableRow>
@@ -523,6 +536,12 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                     <TableRow key={sq.id}>
                       <TableCell className="text-sm">
                         {sq.employee?.full_name || '-'}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {getEmpBranch(sq)?.name || '-'}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {getEmpDept(sq)?.name || '-'}
                       </TableCell>
                       <TableCell
                         className="text-sm max-w-[220px] cursor-pointer hover:bg-muted/50"
@@ -538,25 +557,6 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                               </TooltipTrigger>
                               <TooltipContent side="bottom" className="max-w-sm whitespace-pre-wrap">
                                 <p className="text-sm">{text}</p>
-                              </TooltipContent>
-                            </UiTooltip>
-                          );
-                        })()}
-                      </TableCell>
-                      <TableCell
-                        className="text-sm max-w-[220px] cursor-pointer hover:bg-muted/50"
-                        onClick={() => setViewSq(sq)}
-                      >
-                        {(() => {
-                          const text = sq.question?.text_ar || '-';
-                          if (text === '-' || text.length <= 45) return <span dir="rtl">{text}</span>;
-                          return (
-                            <UiTooltip>
-                              <TooltipTrigger asChild>
-                                <p className="line-clamp-2 cursor-help" dir="rtl">{text}</p>
-                              </TooltipTrigger>
-                              <TooltipContent side="bottom" className="max-w-sm whitespace-pre-wrap">
-                                <p className="text-sm" dir="rtl">{text}</p>
                               </TooltipContent>
                             </UiTooltip>
                           );

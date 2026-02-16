@@ -288,11 +288,9 @@ export default function ScheduleManagement() {
         .from('scheduled_questions')
         .select(`
           id, status, scheduled_delivery, actual_delivery, question_id, question_source,
-          employee:employees(id, full_name, email, department_id, branch_id,
+          employee:employees(id, full_name, email, department, department_id, branch_id,
             branch:branches!employees_branch_id_fkey(id, name, name_ar),
-            department:departments!employees_department_id_fkey(id, name, name_ar,
-              sites:sites(id, name, name_ar)
-            )
+            dept:departments!employees_department_id_fkey(id, name, name_ar)
           )
         `)
         .eq('schedule_id', scheduleId)
