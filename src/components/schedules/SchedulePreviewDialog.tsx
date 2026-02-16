@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Tooltip as UiTooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -47,6 +48,9 @@ const PIE_COLORS = ['hsl(var(--primary))', 'hsl(142, 71%, 45%)', 'hsl(var(--mute
 
 export default function SchedulePreviewDialog({ open, onOpenChange, previewQuestions, previewLoading }: SchedulePreviewDialogProps) {
   const { t } = useTranslation();
+
+  // View question detail state
+  const [viewSq, setViewSq] = useState<PreviewQuestion | null>(null);
 
   // Filter state
   const [filterDateFrom, setFilterDateFrom] = useState('');
@@ -359,8 +363,24 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                       <TableCell className="text-sm">
                         {sq.employee?.full_name || '-'}
                       </TableCell>
-                      <TableCell className="text-sm max-w-[200px] truncate">
-                        {sq.question?.text || '-'}
+                      <TableCell
+                        className="text-sm max-w-[250px] cursor-pointer hover:bg-muted/50"
+                        onClick={() => setViewSq(sq)}
+                      >
+                        {(() => {
+                          const text = sq.question?.text || '-';
+                          if (text === '-' || text.length <= 45) return <span>{text}</span>;
+                          return (
+                            <UiTooltip>
+                              <TooltipTrigger asChild>
+                                <p className="line-clamp-2 cursor-help">{text}</p>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom" className="max-w-sm whitespace-pre-wrap">
+                                <p className="text-sm">{text}</p>
+                              </TooltipContent>
+                            </UiTooltip>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell className="text-sm">
                         {sq.scheduled_delivery
@@ -376,6 +396,55 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
           </div>
         )}
       </DialogContent>
+
+      {/* Question Detail Dialog */}
+      <Dialog open={!!viewSq} onOpenChange={() => setViewSq(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t('questions.questionDetails')}</DialogTitle>
+            <DialogDescription>{t('questions.viewQuestion')}</DialogDescription>
+          </DialogHeader>
+          {viewSq && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">{t('questions.questionTextEn')}</p>
+                <p className="text-sm bg-muted/50 rounded-md p-3">{viewSq.question?.text || '-'}</p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">{t('questions.questionTextAr')}</p>
+                <p className="text-sm bg-muted/50 rounded-md p-3" dir="rtl">{viewSq.question?.text_ar || '-'}</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                {viewSq.question?.type && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">{t('questions.type')}:</span>
+                    <Badge variant="outline">{viewSq.question.type}</Badge>
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">{t('common.status')}:</span>
+                  {getSqStatusBadge(viewSq.status)}
+                </div>
+                {viewSq.employee?.full_name && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">{t('schedules.employee')}:</span>
+                    <Badge variant="secondary">{viewSq.employee.full_name}</Badge>
+                  </div>
+                )}
+              </div>
+              {viewSq.scheduled_delivery && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">{t('schedules.delivery')}:</span>
+                  <span className="text-sm">{new Date(viewSq.scheduled_delivery).toLocaleDateString()}</span>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewSq(null)}>{t('common.close')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
