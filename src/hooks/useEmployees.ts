@@ -14,6 +14,9 @@ export interface Employee {
   full_name: string;
   email: string;
   department: string | null;
+  department_id: string | null;
+  branch_id: string | null;
+  section_id: string | null;
   role_title: string | null;
   manager_id: string | null;
   hire_date: string | null;
@@ -34,6 +37,9 @@ export interface CreateEmployeeInput {
   email: string;
   employee_number?: string;
   department?: string;
+  department_id?: string | null;
+  branch_id?: string | null;
+  section_id?: string | null;
   role_title?: string;
   manager_id?: string;
   hire_date?: string;
@@ -74,7 +80,6 @@ export function useEmployees(filters?: EmployeeFilters) {
 
       if (error) throw error;
       
-      // Fetch manager names separately for employees that have manager_id
       const employeesData = (data || []) as Employee[];
       const managerIds = [...new Set(employeesData.filter(e => e.manager_id).map(e => e.manager_id as string))];
       
@@ -121,6 +126,9 @@ export function useEmployees(filters?: EmployeeFilters) {
           email: input.email,
           employee_number: input.employee_number,
           department: input.department,
+          department_id: input.department_id || null,
+          branch_id: input.branch_id || null,
+          section_id: input.section_id || null,
           role_title: input.role_title,
           manager_id: input.manager_id,
           hire_date: input.hire_date,
@@ -195,6 +203,9 @@ export function useEmployees(filters?: EmployeeFilters) {
         email: emp.email,
         employee_number: emp.employee_number,
         department: emp.department,
+        department_id: emp.department_id || null,
+        branch_id: emp.branch_id || null,
+        section_id: emp.section_id || null,
         role_title: emp.role_title,
         manager_id: emp.manager_id,
         hire_date: emp.hire_date,

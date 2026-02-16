@@ -57,10 +57,12 @@ export function EmployeeSheet({
       setFullName(employee.full_name);
       setEmail(employee.email);
       setEmployeeNumber(employee.employee_number || "");
-      setBranchId((employee as any).branch_id || undefined);
-      setDivisionId(undefined); // Division is independent, not stored on employee yet
-      setDepartmentId((employee as any).department_id || undefined);
-      setSectionId((employee as any).section_id || undefined);
+      setBranchId(employee.branch_id || undefined);
+      // Derive division from department
+      const dept = deptList.find(d => d.id === employee.department_id);
+      setDivisionId(dept?.division_id || undefined);
+      setDepartmentId(employee.department_id || undefined);
+      setSectionId(employee.section_id || undefined);
       setRoleTitle(employee.role_title || "");
       setManagerId(employee.manager_id || undefined);
       setHireDate(employee.hire_date || "");
@@ -78,7 +80,7 @@ export function EmployeeSheet({
       setHireDate("");
       setStatus("active");
     }
-  }, [employee, open]);
+  }, [employee, open, deptList]);
 
   // Filter departments by selected division
   const filteredDepts = divisionId
@@ -90,6 +92,42 @@ export function EmployeeSheet({
     ? sections.filter(s => s.department_id === departmentId)
     : sections;
 
+  // When section changes, auto-derive department (and division)
+  const handleSectionChange = (val: string) => {
+    const secId = val === "none" ? undefined : val;
+    setSectionId(secId);
+    if (secId) {
+      const section = sections.find(s => s.id === secId);
+      if (section?.department_id) {
+        setDepartmentId(section.department_id);
+        const dept = deptList.find(d => d.id === section.department_id);
+        if (dept?.division_id) {
+          setDivisionId(dept.division_id);
+        }
+      }
+    }
+  };
+
+  // When department changes, auto-derive division and clear section
+  const handleDepartmentChange = (val: string) => {
+    const deptId = val === "none" ? undefined : val;
+    setDepartmentId(deptId);
+    setSectionId(undefined);
+    if (deptId) {
+      const dept = deptList.find(d => d.id === deptId);
+      if (dept?.division_id) {
+        setDivisionId(dept.division_id);
+      }
+    }
+  };
+
+  // When division changes, clear department and section
+  const handleDivisionChange = (val: string) => {
+    setDivisionId(val === "none" ? undefined : val);
+    setDepartmentId(undefined);
+    setSectionId(undefined);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const selectedDept = deptList.find(d => d.id === departmentId);
@@ -99,11 +137,14 @@ export function EmployeeSheet({
       email,
       employee_number: employeeNumber || undefined,
       department: selectedDept?.name || undefined,
+      department_id: departmentId || null,
+      branch_id: branchId || null,
+      section_id: sectionId || null,
       role_title: roleTitle || undefined,
       manager_id: managerId,
       hire_date: hireDate || undefined,
       status,
-    } as any);
+    });
   };
 
   return (
@@ -152,16 +193,12 @@ export function EmployeeSheet({
             </Select>
           </div>
 
-          {/* Division Dropdown (independent) */}
+          {/* Division Dropdown (independent, but cascading down) */}
           <div className="space-y-2">
             <Label>{t('divisions.title')}</Label>
             <Select
               value={divisionId || "none"}
-              onValueChange={(val) => {
-                setDivisionId(val === "none" ? undefined : val);
-                setDepartmentId(undefined);
-                setSectionId(undefined);
-              }}
+              onValueChange={handleDivisionChange}
             >
               <SelectTrigger>
                 <SelectValue placeholder={t('organization.selectDivision')} />
@@ -182,10 +219,7 @@ export function EmployeeSheet({
             <Label>{t('employees.department')}</Label>
             <Select
               value={departmentId || "none"}
-              onValueChange={(val) => {
-                setDepartmentId(val === "none" ? undefined : val);
-                setSectionId(undefined);
-              }}
+              onValueChange={handleDepartmentChange}
             >
               <SelectTrigger>
                 <SelectValue placeholder={t('organization.selectDepartment')} />
@@ -206,7 +240,7 @@ export function EmployeeSheet({
             <Label>{t('sections.title')}</Label>
             <Select
               value={sectionId || "none"}
-              onValueChange={(val) => setSectionId(val === "none" ? undefined : val)}
+              onValueChange={handleSectionChange}
             >
               <SelectTrigger>
                 <SelectValue placeholder={t('sections.selectSection')} />

@@ -10,6 +10,10 @@ import { Edit2, Trash2, MoreHorizontal, User, Mail } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { useDepartments } from "@/hooks/useDepartments";
+import { useDivisions } from "@/hooks/useDivisions";
+import { useSites } from "@/hooks/useSites";
+import { useBranches } from "@/hooks/useBranches";
 
 interface UnifiedEmployee extends Employee {
   accountStatus?: 'not_invited' | 'invited' | 'active' | 'suspended' | 'inactive';
@@ -26,8 +30,24 @@ interface EmployeeTableProps {
 }
 
 export function EmployeeTable({ employees, onEdit, onDelete, onInvite, showAccountStatus }: EmployeeTableProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const { departments } = useDepartments();
+  const { divisions } = useDivisions();
+  const { sites: sections } = useSites();
+  const { branches } = useBranches();
+
+  const deptMap = new Map(departments.map(d => [d.id, d]));
+  const divisionMap = new Map(divisions.map(d => [d.id, d]));
+  const sectionMap = new Map(sections.map(s => [s.id, s]));
+  const branchMap = new Map(branches.map(b => [b.id, b]));
+
+  const getDisplayName = (entity: { name: string; name_ar?: string | null } | undefined) => {
+    if (!entity) return '—';
+    return isAr && entity.name_ar ? entity.name_ar : entity.name;
+  };
 
   return (
     <>
@@ -37,7 +57,10 @@ export function EmployeeTable({ employees, onEdit, onDelete, onInvite, showAccou
             <TableRow>
               <TableHead>{t('employees.name')}</TableHead>
               <TableHead>{t('employees.email')}</TableHead>
+              <TableHead>{t('divisions.title')}</TableHead>
               <TableHead>{t('employees.department')}</TableHead>
+              <TableHead className="hidden lg:table-cell">{t('sections.title')}</TableHead>
+              <TableHead className="hidden lg:table-cell">{t('branches.title')}</TableHead>
               <TableHead>{t('employees.role')}</TableHead>
               {showAccountStatus && (
                 <TableHead>{t('userManagement.accountStatus')}</TableHead>
@@ -45,7 +68,7 @@ export function EmployeeTable({ employees, onEdit, onDelete, onInvite, showAccou
               {showAccountStatus && (
                 <TableHead>{t('users.role')}</TableHead>
               )}
-              <TableHead>{t('employees.hireDate')}</TableHead>
+              <TableHead className="hidden md:table-cell">{t('employees.hireDate')}</TableHead>
               <TableHead>{t('common.status')}</TableHead>
               <TableHead className="w-12">{t('common.actions')}</TableHead>
             </TableRow>
@@ -53,20 +76,31 @@ export function EmployeeTable({ employees, onEdit, onDelete, onInvite, showAccou
           <TableBody>
             {employees.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={showAccountStatus ? 9 : 7} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={showAccountStatus ? 12 : 10} className="text-center py-8 text-muted-foreground">
                   {t('employees.noEmployees')}
                 </TableCell>
               </TableRow>
             ) : (
               employees.map((employee) => {
                 const unified = employee as UnifiedEmployee;
+                const dept = employee.department_id ? deptMap.get(employee.department_id) : null;
+                const division = dept?.division_id ? divisionMap.get(dept.division_id) : null;
+                const section = employee.section_id ? sectionMap.get(employee.section_id) : null;
+                const branch = employee.branch_id ? branchMap.get(employee.branch_id) : null;
+                const effectiveColor = section?.color && section.color !== '#3B82F6' ? section.color
+                  : dept?.color && dept.color !== '#3B82F6' ? dept.color
+                  : division?.color || undefined;
+
                 return (
                   <TableRow key={employee.id}>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                        </div>
+                        {effectiveColor && (
+                          <div
+                            className="h-3 w-3 rounded-full shrink-0"
+                            style={{ backgroundColor: effectiveColor }}
+                          />
+                        )}
                         <div>
                           <p className="font-medium">{employee.full_name}</p>
                           {employee.employee_number && (
@@ -76,8 +110,11 @@ export function EmployeeTable({ employees, onEdit, onDelete, onInvite, showAccou
                       </div>
                     </TableCell>
                     <TableCell>{employee.email}</TableCell>
-                    <TableCell>{employee.department || '-'}</TableCell>
-                    <TableCell>{employee.role_title || '-'}</TableCell>
+                    <TableCell>{getDisplayName(division ?? undefined)}</TableCell>
+                    <TableCell>{getDisplayName(dept ?? undefined)}</TableCell>
+                    <TableCell className="hidden lg:table-cell">{getDisplayName(section ?? undefined)}</TableCell>
+                    <TableCell className="hidden lg:table-cell">{getDisplayName(branch ?? undefined)}</TableCell>
+                    <TableCell>{employee.role_title || '—'}</TableCell>
                     {showAccountStatus && (
                       <TableCell>
                         {unified.accountStatus && (
@@ -94,11 +131,11 @@ export function EmployeeTable({ employees, onEdit, onDelete, onInvite, showAccou
                           >
                             {unified.roleName}
                           </Badge>
-                        ) : '-'}
+                        ) : '—'}
                       </TableCell>
                     )}
-                    <TableCell>
-                      {employee.hire_date ? format(new Date(employee.hire_date), 'PP') : '-'}
+                    <TableCell className="hidden md:table-cell">
+                      {employee.hire_date ? format(new Date(employee.hire_date), 'PP') : '—'}
                     </TableCell>
                     <TableCell>
                       <EmployeeStatusBadge status={employee.status} />
