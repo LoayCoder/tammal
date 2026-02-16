@@ -42,7 +42,8 @@
     "noData": "لا توجد بيانات",
     "showingOf": "عرض {{shown}} من {{total}} سؤال",
     "noMatchingQuestions": "لا توجد أسئلة مطابقة",
-    "selected": "محدد"
+    "selected": "محدد",
+    "unassigned": "غير مُعيّن"
   },
   "nav": {
     "dashboard": "لوحة التحكم",
