@@ -43,7 +43,8 @@
     "showingOf": "Showing {{shown}} of {{total}} questions",
     "noMatchingQuestions": "No matching questions",
     "selected": "selected",
-    "unassigned": "Unassigned"
+    "unassigned": "Unassigned",
+    "none": "None"
   },
   "nav": {
     "dashboard": "Dashboard",
