@@ -1,107 +1,111 @@
 
+# Organization Structure Expansion: 5-Level Hierarchy
 
-# Organization Structure Redesign: Division - Department - Section
-
-## Overview
-
-The current hierarchy **Branch - Department (with sub-departments) - Site** will be restructured to **Division - Department - Section**. This is a systematic rename plus the removal of the parent-department (tree) concept, making all three levels flat under each other.
-
-## Current vs New Structure
+## New Hierarchy
 
 ```text
-CURRENT                          NEW
--------                          ---
-Branch (top)                     Division (top)
-  Department (with parent_id)      Department (flat, no parent)
-    Site (bottom)                    Section (bottom)
+Branch (physical office/location) -- independent
+Division (organizational grouping) -- independent
+Department (linked to Division)
+Section (linked to Department) -- current "sites" table
+Site (physical work location, assignable to Section OR Department)
 ```
 
-## What Changes
+## Database Changes
 
-### 1. Database Migration (Non-Destructive)
-- **No table renames or drops** -- existing `branches`, `departments`, and `sites` tables stay intact
-- Remove the `parent_id` column usage from departments (set to NULL for existing records, the column stays for safety)
-- Update the `get_user_department_id` RLS helper function description comment (no functional change needed)
+### 1. New `divisions` table
+A new table since `branches` is being restored to its original "Branch" meaning. Columns:
+- `id` (uuid, PK)
+- `tenant_id` (uuid, NOT NULL)
+- `name` (text, NOT NULL)
+- `name_ar` (text)
+- `description` (text)
+- `description_ar` (text)
+- `is_active` (boolean, default true)
+- `created_at`, `updated_at`, `deleted_at` (timestamps)
 
-### 2. Translation Files (en.json and ar.json)
-- Rename all `branches.*` keys to use "Division" / "قسم رئيسي" terminology
-- Keep `organization.departments` as "Departments" / "الأقسام"
-- Rename all `sites.*` keys to use "Section" / "القسم الفرعي" terminology
-- Add new keys like `divisions.title`, `divisions.addDivision`, `sections.title`, `sections.addSection`, etc.
+RLS policies: same pattern as branches (super_admin ALL, tenant_admin ALL, users SELECT within tenant).
 
-### 3. OrgStructure Page (`OrgStructure.tsx`)
-- Rename tabs: Divisions | Departments | Sections
-- Update icons: use `Network` for Divisions, `Building2` for Departments, `Layers` for Sections
-- Remove the "Add Child Department" functionality (no more tree)
-- Replace `DepartmentTree` with a flat `DepartmentTable` component
-- Pass division (branch) data to Department and Section management
+### 2. Add `division_id` column to `departments`
+- New nullable `division_id` uuid column on `departments`
+- Keeps existing `branch_id` for backward compatibility but UI will use `division_id` going forward
 
-### 4. Department Components
-- **Remove** `DepartmentTree.tsx` (no more recursive tree view)
-- **Create** `DepartmentTable.tsx` -- flat table showing departments with their parent Division
-- **Update** `DepartmentSheet.tsx` -- remove `parent_id` selector, rename "Branch" to "Division", keep head employee, color, etc.
+### 3. Add `section_id` column to `employees`
+- New nullable `section_id` uuid column to support Section assignment on employees
 
-### 5. Site/Section Components
-- **Update** `SiteTable.tsx` -- rename column headers from "Site" to "Section", "Branch" to "Division"
-- **Update** `SiteSheet.tsx` -- rename labels from "Site" to "Section", "Branch" to "Division"
+### 4. Repurpose `sites` table
+The `sites` table currently represents "Sections." We need to decide: either repurpose `sites` as the new "Site" concept and create a new `sections` table, or keep `sites` as Sections and create a new table for Sites.
 
-### 6. Employee Sheet (`EmployeeSheet.tsx`)
-- Rename "Branch" dropdown label to "Division"
-- Keep the linked filtering logic: selecting a Division filters Departments
-- Add a third "Section" dropdown filtered by selected Department
+**Chosen approach**: Keep `sites` table as **Sections** (no disruption to existing data). Create a new `work_sites` table for **Site** (physical locations):
+- `id`, `tenant_id`, `name`, `name_ar`, `address`, `address_ar`
+- `department_id` (nullable) -- assign to department
+- `section_id` (nullable) -- assign to section (references `sites` table)
+- `is_active`, `created_at`, `updated_at`, `deleted_at`
+- RLS policies matching the same tenant isolation pattern
 
-### 7. Schedule Preview Analytics (`SchedulePreviewDialog.tsx`)
-- Rename "Branch -- Status Distribution" to "Division -- Status Distribution"
-- Keep Department chart as-is
-- Update filter labels from "Branch" to "Division"
+## UI Changes
 
-### 8. Sidebar Navigation (`AppSidebar.tsx`)
-- Update the Organization Structure menu item label if needed
+### OrgStructure Page (5 tabs)
+Replace the current 3-tab layout with 5 tabs:
+1. **Branches** -- restore original Branch management (physical locations with address/phone/email)
+2. **Divisions** -- new tab for organizational divisions
+3. **Departments** -- linked to Division (dropdown selector)
+4. **Sections** -- linked to Department (current `sites` management)
+5. **Sites** -- new tab for physical work locations, assignable to Department or Section
 
-### 9. Branch-related files (rename labels only)
-- `BranchTable.tsx` -- rename column headers to Division terminology
-- `BranchSheet.tsx` -- rename form labels to Division terminology
-- `useBranches.ts` -- update toast messages to use division translation keys
-
-## Technical Details
-
-### Files to Modify
-| File | Change |
-|------|--------|
-| `src/locales/en.json` | Add divisions/sections keys, update branch/site labels |
-| `src/locales/ar.json` | Same as above in Arabic |
-| `src/pages/admin/OrgStructure.tsx` | Rename tabs, remove tree, use flat table for departments |
-| `src/components/org/DepartmentSheet.tsx` | Remove parent_id field, rename Branch to Division |
-| `src/components/org/DepartmentTree.tsx` | Replace with flat DepartmentTable.tsx |
-| `src/components/org/BranchTable.tsx` | Rename headers to Division |
-| `src/components/org/BranchSheet.tsx` | Rename labels to Division |
-| `src/components/org/SiteTable.tsx` | Rename headers to Section, Branch to Division |
-| `src/components/org/SiteSheet.tsx` | Rename labels to Section/Division |
-| `src/components/employees/EmployeeSheet.tsx` | Rename Branch to Division, add Section dropdown |
-| `src/components/employees/EmployeeTable.tsx` | Update department column if needed |
-| `src/components/schedules/SchedulePreviewDialog.tsx` | Rename Branch filters/charts to Division |
-| `src/hooks/useBranches.ts` | Update toast translation keys |
-| `src/hooks/useSites.ts` | Update toast translation keys |
-
-### New File
+### New Components
 | File | Purpose |
 |------|---------|
-| `src/components/org/DepartmentTable.tsx` | Flat table view replacing recursive tree |
+| `src/hooks/useDivisions.ts` | CRUD hook for the new `divisions` table |
+| `src/hooks/useWorkSites.ts` | CRUD hook for the new `work_sites` table |
+| `src/components/org/DivisionTable.tsx` | Table listing divisions |
+| `src/components/org/DivisionSheet.tsx` | Create/edit division form |
+| `src/components/org/WorkSiteTable.tsx` | Table listing sites with dept/section assignment |
+| `src/components/org/WorkSiteSheet.tsx` | Create/edit site form with dept/section dropdowns |
 
-### Database
-- No schema migration needed -- reusing existing tables with new UI labels
-- `branches` table = Divisions
-- `departments` table = Departments (parent_id ignored in UI)
-- `sites` table = Sections
+### Modified Components
+| File | Change |
+|------|--------|
+| `src/pages/admin/OrgStructure.tsx` | 5 tabs, import new hooks and components |
+| `src/components/org/BranchTable.tsx` | Restore "Branch" labels (remove Division terminology) |
+| `src/components/org/BranchSheet.tsx` | Restore "Branch" labels |
+| `src/components/org/DepartmentTable.tsx` | Show "Division" column (from `division_id`) instead of branch |
+| `src/components/org/DepartmentSheet.tsx` | Division dropdown uses `division_id`, not `branch_id` |
+| `src/components/org/SiteTable.tsx` | Keep as Section table, labels remain "Section" |
+| `src/components/org/SiteSheet.tsx` | Keep as Section form, labels remain "Section" |
+| `src/components/employees/EmployeeSheet.tsx` | Add Branch, Division, Department, Section dropdowns (4 levels). Division and Branch are independent selects. Department filters by Division. Section filters by Department. |
+| `src/components/schedules/SchedulePreviewDialog.tsx` | Add Division filter/chart alongside Branch |
+| `src/hooks/useBranches.ts` | Restore Branch toast keys |
+| `src/hooks/useSites.ts` | Keep Section toast keys |
+| `src/locales/en.json` | Add `branches.*` keys (restored), `sites.*` keys (new for work sites), keep `divisions.*` and `sections.*` |
+| `src/locales/ar.json` | Same translations in Arabic |
 
-### RLS Policies
-- No changes needed -- existing policies on branches, departments, and sites remain valid since the underlying tables are unchanged
+### Translation Key Structure
+- `branches.*` -- Branch (physical office): "Branch" / "فرع"
+- `divisions.*` -- Division (org grouping): "Division" / "القسم الرئيسي"
+- `organization.*` -- Department: stays as-is
+- `sections.*` -- Section: stays as-is
+- `sites.*` -- NEW Site keys: "Site" / "موقع العمل"
+
+### Employee Sheet Flow
+Four independent/linked dropdowns:
+- **Branch** (independent select from `branches`)
+- **Division** (independent select from `divisions`)
+- **Department** (filtered by selected Division)
+- **Section** (filtered by selected Department, from `sites` table)
+
+### Analytics (SchedulePreviewDialog)
+- Add Division filter and "Division -- Status Distribution" chart
+- Keep Branch chart and Department chart
+- Section chart optional (can be added later)
 
 ## Sequencing
-1. Update translation files first (both languages)
-2. Create DepartmentTable component
-3. Update OrgStructure page
-4. Update all Sheet/Table components with new labels
-5. Update EmployeeSheet with Section dropdown
-6. Update SchedulePreviewDialog analytics labels
-
+1. Database migration: create `divisions` table, `work_sites` table, add `division_id` to departments, add `section_id` to employees
+2. Translation files: add/restore all keys for branches, divisions, sections, sites
+3. Create new hooks: `useDivisions.ts`, `useWorkSites.ts`
+4. Create new components: DivisionTable, DivisionSheet, WorkSiteTable, WorkSiteSheet
+5. Update OrgStructure page to 5 tabs
+6. Update DepartmentTable/Sheet to use `division_id`
+7. Restore BranchTable/Sheet to Branch labels
+8. Update EmployeeSheet with 4-level dropdowns
+9. Update SchedulePreviewDialog analytics
