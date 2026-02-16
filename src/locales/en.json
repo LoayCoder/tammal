@@ -30,7 +30,19 @@
     "error": "Error",
     "success": "Success",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "from": "From",
+    "to": "To",
+    "clear": "Clear",
+    "analytics": "Analytics",
+    "totalQuestions": "Total Questions",
+    "answeredRate": "Answered Rate",
+    "statusDistribution": "Status Distribution",
+    "deliveryTimeline": "Delivery Timeline",
+    "noData": "No data available",
+    "showingOf": "Showing {{shown}} of {{total}} questions",
+    "noMatchingQuestions": "No matching questions",
+    "selected": "selected"
   },
   "nav": {
     "dashboard": "Dashboard",

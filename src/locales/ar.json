@@ -30,7 +30,19 @@
     "error": "خطأ",
     "success": "نجاح",
     "yes": "نعم",
-    "no": "لا"
+    "no": "لا",
+    "from": "من",
+    "to": "إلى",
+    "clear": "مسح",
+    "analytics": "التحليلات",
+    "totalQuestions": "إجمالي الأسئلة",
+    "answeredRate": "نسبة الإجابة",
+    "statusDistribution": "توزيع الحالات",
+    "deliveryTimeline": "الجدول الزمني للتوصيل",
+    "noData": "لا توجد بيانات",
+    "showingOf": "عرض {{shown}} من {{total}} سؤال",
+    "noMatchingQuestions": "لا توجد أسئلة مطابقة",
+    "selected": "محدد"
   },
   "nav": {
     "dashboard": "لوحة التحكم",

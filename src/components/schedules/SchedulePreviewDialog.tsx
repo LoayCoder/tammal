@@ -167,7 +167,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
             {/* Filter Bar */}
             <div className="flex flex-wrap items-end gap-3 p-3 border rounded-lg bg-muted/30">
               <div className="space-y-1">
-                <Label className="text-xs">{t('common.from') || 'From'}</Label>
+                <Label className="text-xs">{t('common.from')}</Label>
                 <Input
                   type="date"
                   value={filterDateFrom}
@@ -176,7 +176,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{t('common.to') || 'To'}</Label>
+                <Label className="text-xs">{t('common.to')}</Label>
                 <Input
                   type="date"
                   value={filterDateTo}
@@ -191,8 +191,8 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                     <Button variant="outline" size="sm" className="h-9 min-w-[120px] justify-start">
                       <Filter className="h-3.5 w-3.5 me-1.5" />
                       {filterStatuses.length > 0
-                        ? `${filterStatuses.length} selected`
-                        : 'All'}
+                        ? `${filterStatuses.length} ${t('common.selected')}`
+                        : t('common.all')}
                       <ChevronDown className="h-3.5 w-3.5 ms-auto" />
                     </Button>
                   </PopoverTrigger>
@@ -218,7 +218,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                     <SelectValue placeholder="All" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="all">{t('common.all')}</SelectItem>
                     {uniqueEmployees.map(emp => (
                       <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
                     ))}
@@ -229,7 +229,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                 {hasActiveFilters && (
                   <Button variant="ghost" size="sm" className="h-9" onClick={clearFilters}>
                     <X className="h-3.5 w-3.5 me-1" />
-                    Clear
+                    {t('common.clear')}
                   </Button>
                 )}
                 <Button
@@ -239,7 +239,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                   onClick={() => setShowAnalytics(prev => !prev)}
                 >
                   <BarChart3 className="h-3.5 w-3.5 me-1.5" />
-                  Analytics
+                  {t('common.analytics')}
                 </Button>
               </div>
             </div>
@@ -253,19 +253,19 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                     <Card>
                       <CardContent className="p-4 text-center">
                         <p className="text-2xl font-bold">{totalCount}</p>
-                        <p className="text-xs text-muted-foreground">Total Questions</p>
+                        <p className="text-xs text-muted-foreground">{t('common.totalQuestions')}</p>
                       </CardContent>
                     </Card>
                     <Card>
                       <CardContent className="p-4 text-center">
                         <p className="text-2xl font-bold text-primary">{answeredRate}%</p>
-                        <p className="text-xs text-muted-foreground">Answered Rate</p>
+                        <p className="text-xs text-muted-foreground">{t('common.answeredRate')}</p>
                       </CardContent>
                     </Card>
                     <Card>
                       <CardContent className="p-4 text-center">
                         <p className="text-2xl font-bold">{pendingCount}</p>
-                        <p className="text-xs text-muted-foreground">Pending</p>
+                        <p className="text-xs text-muted-foreground">{t('common.pending')}</p>
                       </CardContent>
                     </Card>
                   </div>
@@ -275,7 +275,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                     {/* Status Distribution Pie */}
                     <Card>
                       <CardContent className="p-4">
-                        <p className="text-sm font-medium mb-3">Status Distribution</p>
+                        <p className="text-sm font-medium mb-3">{t('common.statusDistribution')}</p>
                         {statusChartData.length > 0 ? (
                           <ResponsiveContainer width="100%" height={200}>
                             <PieChart>
@@ -301,7 +301,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                             </PieChart>
                           </ResponsiveContainer>
                         ) : (
-                          <p className="text-sm text-muted-foreground text-center py-8">No data</p>
+                          <p className="text-sm text-muted-foreground text-center py-8">{t('common.noData')}</p>
                         )}
                       </CardContent>
                     </Card>
@@ -309,7 +309,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                     {/* Delivery Timeline Bar */}
                     <Card>
                       <CardContent className="p-4">
-                        <p className="text-sm font-medium mb-3">Delivery Timeline</p>
+                        <p className="text-sm font-medium mb-3">{t('common.deliveryTimeline')}</p>
                         {timelineChartData.length > 0 ? (
                           <ResponsiveContainer width="100%" height={200}>
                             <BarChart data={timelineChartData}>
@@ -320,7 +320,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                             </BarChart>
                           </ResponsiveContainer>
                         ) : (
-                          <p className="text-sm text-muted-foreground text-center py-8">No data</p>
+                          <p className="text-sm text-muted-foreground text-center py-8">{t('common.noData')}</p>
                         )}
                       </CardContent>
                     </Card>
@@ -332,7 +332,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
             {/* Results count */}
             {hasActiveFilters && (
               <p className="text-sm text-muted-foreground">
-                Showing {filteredPreview.length} of {previewQuestions.length} questions
+                {t('common.showingOf', { shown: filteredPreview.length, total: previewQuestions.length })}
               </p>
             )}
 
@@ -350,7 +350,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                 {filteredPreview.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
-                      No matching questions
+                      {t('common.noMatchingQuestions')}
                     </TableCell>
                   </TableRow>
                 ) : (
