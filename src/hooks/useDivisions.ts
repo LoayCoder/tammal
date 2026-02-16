@@ -11,6 +11,7 @@ export interface Division {
   description: string | null;
   description_ar: string | null;
   head_employee_id: string | null;
+  color: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -24,6 +25,7 @@ export interface DivisionInput {
   description?: string | null;
   description_ar?: string | null;
   head_employee_id?: string | null;
+  color?: string;
 }
 
 export function useDivisions() {

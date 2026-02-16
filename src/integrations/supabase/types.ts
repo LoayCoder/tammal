@@ -396,6 +396,7 @@ export type Database = {
       }
       divisions: {
         Row: {
+          color: string | null
           created_at: string
           deleted_at: string | null
           description: string | null
@@ -409,6 +410,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          color?: string | null
           created_at?: string
           deleted_at?: string | null
           description?: string | null
@@ -422,6 +424,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          color?: string | null
           created_at?: string
           deleted_at?: string | null
           description?: string | null
@@ -1780,6 +1783,7 @@ export type Database = {
           address: string | null
           address_ar: string | null
           branch_id: string
+          color: string | null
           created_at: string
           deleted_at: string | null
           department_id: string | null
@@ -1795,6 +1799,7 @@ export type Database = {
           address?: string | null
           address_ar?: string | null
           branch_id: string
+          color?: string | null
           created_at?: string
           deleted_at?: string | null
           department_id?: string | null
@@ -1810,6 +1815,7 @@ export type Database = {
           address?: string | null
           address_ar?: string | null
           branch_id?: string
+          color?: string | null
           created_at?: string
           deleted_at?: string | null
           department_id?: string | null

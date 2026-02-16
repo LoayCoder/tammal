@@ -44,6 +44,7 @@ export function DepartmentTable({ departments, divisions, employees, onEdit, onD
           const divisionName = division
             ? (i18n.language === 'ar' && division.name_ar ? division.name_ar : division.name)
             : '—';
+          const effectiveColor = dept.color && dept.color !== '#3B82F6' ? dept.color : (division?.color || '#3B82F6');
           const headEmployee = dept.head_employee_id
             ? employees.find(e => e.id === dept.head_employee_id)
             : null;
@@ -55,7 +56,7 @@ export function DepartmentTable({ departments, divisions, employees, onEdit, onD
                 <div className="flex items-center gap-2">
                   <div
                     className="h-3 w-3 rounded-full shrink-0"
-                    style={{ backgroundColor: dept.color }}
+                    style={{ backgroundColor: effectiveColor }}
                   />
                   {displayName}
                 </div>

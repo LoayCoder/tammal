@@ -13,6 +13,7 @@ export interface Site {
   name_ar: string | null;
   address: string | null;
   address_ar: string | null;
+  color: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -28,6 +29,7 @@ export interface SiteInput {
   name_ar?: string | null;
   address?: string | null;
   address_ar?: string | null;
+  color?: string;
 }
 
 export function useSites() {
