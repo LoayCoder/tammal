@@ -5,10 +5,27 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { CategoryBadge } from "./CategoryBadge";
 import { Question } from "@/hooks/useQuestions";
 import { Edit2, Trash2, MoreHorizontal, Eye, EyeOff } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+
+function ExpandableText({ text }: { text: string }) {
+  if (!text || text === '-') return <span className="text-muted-foreground">-</span>;
+  const isTruncated = text.length > 60;
+  if (!isTruncated) return <p className="text-sm">{text}</p>;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <p className="text-sm line-clamp-2 cursor-help">{text}</p>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" className="max-w-sm whitespace-pre-wrap">
+        <p className="text-sm">{text}</p>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 interface QuestionTableProps {
   questions: Question[];
@@ -63,7 +80,9 @@ export function QuestionTable({
                   onCheckedChange={toggleAll}
                 />
               </TableHead>
-              <TableHead>{t('questions.questionText')}</TableHead>
+              <TableHead className="w-10">#</TableHead>
+              <TableHead>{t('questions.questionTextEn')}</TableHead>
+              <TableHead>{t('questions.questionTextAr')}</TableHead>
               <TableHead>{t('questions.category')}</TableHead>
               <TableHead>{t('questions.type')}</TableHead>
               <TableHead>{t('common.status')}</TableHead>
@@ -73,12 +92,12 @@ export function QuestionTable({
           <TableBody>
             {questions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                   {t('questions.noQuestions')}
                 </TableCell>
               </TableRow>
             ) : (
-              questions.map((question) => (
+              questions.map((question, index) => (
                 <TableRow key={question.id}>
                   <TableCell>
                     <Checkbox
@@ -86,13 +105,15 @@ export function QuestionTable({
                       onCheckedChange={() => toggleOne(question.id)}
                     />
                   </TableCell>
-                  <TableCell className="max-w-md">
-                    <p className="line-clamp-2">
-                      {isRTL && question.text_ar ? question.text_ar : question.text}
-                    </p>
+                  <TableCell className="text-muted-foreground text-sm">{index + 1}</TableCell>
+                  <TableCell className="max-w-xs">
+                    <ExpandableText text={question.text} />
                     {question.is_global && (
                       <Badge variant="secondary" className="mt-1">{t('questions.global')}</Badge>
                     )}
+                  </TableCell>
+                  <TableCell className="max-w-xs" dir="rtl">
+                    <ExpandableText text={question.text_ar || '-'} />
                   </TableCell>
                   <TableCell>
                     {question.category && (

@@ -708,6 +708,8 @@
     "deleteQuestion": "حذف السؤال",
     "confirmDelete": "هل أنت متأكد من حذف هذا السؤال؟ لا يمكن التراجع عن هذا الإجراء.",
     "questionText": "نص السؤال",
+    "questionTextEn": "السؤال (EN)",
+    "questionTextAr": "السؤال (AR)",
     "questionTextPlaceholder": "Enter your question here...",
     "questionTextPlaceholderAr": "أدخل سؤالك هنا...",
     "type": "نوع السؤال",
