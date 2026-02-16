@@ -30,10 +30,10 @@ export function SiteTable({ sites, branches, departments, onEdit, onDelete }: Si
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>{t('sites.name')}</TableHead>
-          <TableHead>{t('sites.department')}</TableHead>
-          <TableHead>{t('sites.branch')}</TableHead>
-          <TableHead className="hidden md:table-cell">{t('sites.address')}</TableHead>
+          <TableHead>{t('sections.name')}</TableHead>
+          <TableHead>{t('sections.department')}</TableHead>
+          <TableHead>{t('sections.division')}</TableHead>
+          <TableHead className="hidden md:table-cell">{t('sections.address')}</TableHead>
           <TableHead>{t('common.status')}</TableHead>
           <TableHead>{t('common.actions')}</TableHead>
         </TableRow>
@@ -44,13 +44,13 @@ export function SiteTable({ sites, branches, departments, onEdit, onDelete }: Si
           const dept = site.department_id ? deptMap.get(site.department_id) : null;
           const displayName = i18n.language === 'ar' && site.name_ar ? site.name_ar : site.name;
           const displayAddress = i18n.language === 'ar' && site.address_ar ? site.address_ar : site.address;
-          const branchName = branch ? (i18n.language === 'ar' && branch.name_ar ? branch.name_ar : branch.name) : '—';
+          const divisionName = branch ? (i18n.language === 'ar' && branch.name_ar ? branch.name_ar : branch.name) : '—';
           const deptName = dept ? (i18n.language === 'ar' && dept.name_ar ? dept.name_ar : dept.name) : '—';
           return (
             <TableRow key={site.id}>
               <TableCell className="font-medium">{displayName}</TableCell>
               <TableCell>{deptName}</TableCell>
-              <TableCell>{branchName}</TableCell>
+              <TableCell>{divisionName}</TableCell>
               <TableCell className="hidden md:table-cell">{displayAddress || '—'}</TableCell>
               <TableCell>
                 <Badge variant={site.is_active ? 'default' : 'secondary'}>
@@ -70,8 +70,8 @@ export function SiteTable({ sites, branches, departments, onEdit, onDelete }: Si
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>{t('sites.deleteSite')}</AlertDialogTitle>
-                        <AlertDialogDescription>{t('sites.confirmDelete')}</AlertDialogDescription>
+                        <AlertDialogTitle>{t('sections.deleteSection')}</AlertDialogTitle>
+                        <AlertDialogDescription>{t('sections.confirmDelete')}</AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>

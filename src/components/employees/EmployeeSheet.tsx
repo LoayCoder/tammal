@@ -135,19 +135,19 @@ export function EmployeeSheet({
             />
           </div>
 
-          {/* Branch Dropdown */}
+          {/* Division Dropdown */}
           <div className="space-y-2">
-            <Label>{t('organization.branch')}</Label>
+            <Label>{t('organization.division')}</Label>
             <Select
               value={branchId || "none"}
               onValueChange={(val) => {
                 setBranchId(val === "none" ? undefined : val);
-                // Reset department when branch changes
+                // Reset department when division changes
                 setDepartmentId(undefined);
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder={t('organization.selectBranch')} />
+                <SelectValue placeholder={t('organization.selectDivision')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">{t('common.none')}</SelectItem>

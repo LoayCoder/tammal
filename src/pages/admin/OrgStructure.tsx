@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Building2, GitBranch, MapPin } from 'lucide-react';
+import { Plus, Network, Building2, Layers } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,7 +10,7 @@ import { useBranches, type Branch, type BranchInput } from '@/hooks/useBranches'
 import { useSites, type Site, type SiteInput } from '@/hooks/useSites';
 import { useEmployees } from '@/hooks/useEmployees';
 import { useProfile } from '@/hooks/useProfile';
-import { DepartmentTree } from '@/components/org/DepartmentTree';
+import { DepartmentTable } from '@/components/org/DepartmentTable';
 import { DepartmentSheet } from '@/components/org/DepartmentSheet';
 import { BranchTable } from '@/components/org/BranchTable';
 import { BranchSheet } from '@/components/org/BranchSheet';
@@ -30,13 +30,12 @@ export default function OrgStructure() {
   // Department state
   const [deptSheetOpen, setDeptSheetOpen] = useState(false);
   const [editingDept, setEditingDept] = useState<Department | null>(null);
-  const [addChildParentId, setAddChildParentId] = useState<string | null>(null);
 
-  // Branch state
+  // Division (Branch) state
   const [branchSheetOpen, setBranchSheetOpen] = useState(false);
   const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
 
-  // Site state
+  // Section (Site) state
   const [siteSheetOpen, setSiteSheetOpen] = useState(false);
   const [editingSite, setEditingSite] = useState<Site | null>(null);
 
@@ -73,26 +72,26 @@ export default function OrgStructure() {
         <p className="text-muted-foreground">{t('organization.subtitle')}</p>
       </div>
 
-      <Tabs defaultValue="branches">
+      <Tabs defaultValue="divisions">
         <TabsList>
-          <TabsTrigger value="branches" className="gap-2">
-            <GitBranch className="h-4 w-4" /> {t('branches.title')}
+          <TabsTrigger value="divisions" className="gap-2">
+            <Network className="h-4 w-4" /> {t('divisions.title')}
           </TabsTrigger>
           <TabsTrigger value="departments" className="gap-2">
             <Building2 className="h-4 w-4" /> {t('organization.departments')}
           </TabsTrigger>
-          <TabsTrigger value="sites" className="gap-2">
-            <MapPin className="h-4 w-4" /> {t('sites.title')}
+          <TabsTrigger value="sections" className="gap-2">
+            <Layers className="h-4 w-4" /> {t('sections.title')}
           </TabsTrigger>
         </TabsList>
 
-        {/* Branches Tab (Top of hierarchy) */}
-        <TabsContent value="branches">
+        {/* Divisions Tab (Top of hierarchy) */}
+        <TabsContent value="divisions">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>{t('branches.title')}</CardTitle>
+              <CardTitle>{t('divisions.title')}</CardTitle>
               <Button onClick={() => { setEditingBranch(null); setBranchSheetOpen(true); }}>
-                <Plus className="me-2 h-4 w-4" /> {t('branches.addBranch')}
+                <Plus className="me-2 h-4 w-4" /> {t('divisions.addDivision')}
               </Button>
             </CardHeader>
             <CardContent>
@@ -117,7 +116,7 @@ export default function OrgStructure() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>{t('organization.departments')}</CardTitle>
-              <Button onClick={() => { setEditingDept(null); setAddChildParentId(null); setDeptSheetOpen(true); }}>
+              <Button onClick={() => { setEditingDept(null); setDeptSheetOpen(true); }}>
                 <Plus className="me-2 h-4 w-4" /> {t('organization.addDepartment')}
               </Button>
             </CardHeader>
@@ -127,26 +126,25 @@ export default function OrgStructure() {
                   {[1,2,3].map(i => <Skeleton key={i} className="h-10 w-full" />)}
                 </div>
               ) : (
-                <DepartmentTree
+                <DepartmentTable
                   departments={departments}
                   branches={branches}
                   employees={employees as any}
-                  onEdit={(dept) => { setEditingDept(dept); setAddChildParentId(null); setDeptSheetOpen(true); }}
+                  onEdit={(dept) => { setEditingDept(dept); setDeptSheetOpen(true); }}
                   onDelete={(id) => deleteDepartment.mutate(id)}
-                  onAddChild={(parentId) => { setEditingDept(null); setAddChildParentId(parentId); setDeptSheetOpen(true); }}
                 />
               )}
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Sites Tab (Bottom of hierarchy) */}
-        <TabsContent value="sites">
+        {/* Sections Tab (Bottom of hierarchy) */}
+        <TabsContent value="sections">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>{t('sites.title')}</CardTitle>
+              <CardTitle>{t('sections.title')}</CardTitle>
               <Button onClick={() => { setEditingSite(null); setSiteSheetOpen(true); }}>
-                <Plus className="me-2 h-4 w-4" /> {t('sites.addSite')}
+                <Plus className="me-2 h-4 w-4" /> {t('sections.addSection')}
               </Button>
             </CardHeader>
             <CardContent>
@@ -178,7 +176,6 @@ export default function OrgStructure() {
         employees={employees as any}
         tenantId={tenantId}
         onSubmit={handleDeptSubmit}
-        parentId={addChildParentId}
       />
       <BranchSheet
         open={branchSheetOpen}

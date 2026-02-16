@@ -57,9 +57,9 @@ export function useSites() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sites'] });
-      toast.success(t('sites.createSuccess'));
+      toast.success(t('sections.createSuccess'));
     },
-    onError: () => toast.error(t('sites.createError')),
+    onError: () => toast.error(t('sections.createError')),
   });
 
   const updateSite = useMutation({
@@ -75,9 +75,9 @@ export function useSites() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sites'] });
-      toast.success(t('sites.updateSuccess'));
+      toast.success(t('sections.updateSuccess'));
     },
-    onError: () => toast.error(t('sites.updateError')),
+    onError: () => toast.error(t('sections.updateError')),
   });
 
   const deleteSite = useMutation({
@@ -90,9 +90,9 @@ export function useSites() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sites'] });
-      toast.success(t('sites.deleteSuccess'));
+      toast.success(t('sections.deleteSuccess'));
     },
-    onError: () => toast.error(t('sites.deleteError')),
+    onError: () => toast.error(t('sections.deleteError')),
   });
 
   return { sites, isLoading, createSite, updateSite, deleteSite };
