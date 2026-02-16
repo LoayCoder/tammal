@@ -282,18 +282,61 @@ export default function ScheduleManagement() {
     setPreviewId(scheduleId);
     setPreviewLoading(true);
     try {
-      const { data, error } = await supabase
+      // Fetch scheduled questions with employee info (no FK join for question since it's polymorphic)
+      const { data: sqData, error: sqError } = await supabase
         .from('scheduled_questions')
         .select(`
-          id, status, scheduled_delivery, actual_delivery,
-          question:questions(id, text, text_ar, type),
+          id, status, scheduled_delivery, actual_delivery, question_id, question_source,
           employee:employees(id, full_name, email)
         `)
         .eq('schedule_id', scheduleId)
         .order('scheduled_delivery', { ascending: false })
         .limit(50);
-      if (error) throw error;
-      setPreviewQuestions(data || []);
+      if (sqError) throw sqError;
+
+      const rows = sqData || [];
+      
+      // Group question IDs by source table
+      const idsBySource: Record<string, string[]> = {};
+      for (const row of rows) {
+        const src = row.question_source || 'questions';
+        if (!idsBySource[src]) idsBySource[src] = [];
+        idsBySource[src].push(row.question_id);
+      }
+
+      // Fetch question texts from each source
+      const questionMap: Record<string, { id: string; text: string; text_ar?: string | null; type?: string }> = {};
+
+      const fetches: Promise<void>[] = [];
+
+      if (idsBySource['questions']?.length) {
+        fetches.push(
+          Promise.resolve(supabase.from('questions').select('id, text, text_ar, type').in('id', idsBySource['questions']))
+            .then(({ data }) => { (data || []).forEach(q => { questionMap[q.id] = q; }); })
+        );
+      }
+      if (idsBySource['wellness_questions']?.length) {
+        fetches.push(
+          Promise.resolve(supabase.from('wellness_questions').select('id, question_text_en, question_text_ar, question_type').in('id', idsBySource['wellness_questions']))
+            .then(({ data }) => { (data || []).forEach(q => { questionMap[q.id] = { id: q.id, text: q.question_text_en, text_ar: q.question_text_ar, type: q.question_type }; }); })
+        );
+      }
+      if (idsBySource['generated_questions']?.length) {
+        fetches.push(
+          Promise.resolve(supabase.from('generated_questions').select('id, question_text, question_text_ar, type').in('id', idsBySource['generated_questions']))
+            .then(({ data }) => { (data || []).forEach(q => { questionMap[q.id] = { id: q.id, text: q.question_text, text_ar: q.question_text_ar, type: q.type }; }); })
+        );
+      }
+
+      await Promise.all(fetches);
+
+      // Merge question data into rows
+      const merged = rows.map(row => ({
+        ...row,
+        question: questionMap[row.question_id] || null,
+      }));
+
+      setPreviewQuestions(merged);
     } catch {
       toast.error(t('common.error'));
       setPreviewQuestions([]);
