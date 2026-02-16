@@ -46,9 +46,10 @@ export function SiteSheet({ open, onOpenChange, site, departments, branches, emp
           name_ar: site.name_ar || '',
           address: site.address || '',
           address_ar: site.address_ar || '',
+          color: site.color || '#3B82F6',
         });
       } else {
-        reset({ tenant_id: tenantId, branch_id: '', department_id: null, head_employee_id: null, name: '', name_ar: '', address: '', address_ar: '' });
+        reset({ tenant_id: tenantId, branch_id: '', department_id: null, head_employee_id: null, name: '', name_ar: '', address: '', address_ar: '', color: '#3B82F6' });
       }
     }
   }, [open, site, tenantId, reset]);
@@ -112,6 +113,10 @@ export function SiteSheet({ open, onOpenChange, site, departments, branches, emp
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>{t('organization.color')}</Label>
+            <Input type="color" {...register('color')} className="h-10 w-20 p-1" />
           </div>
           <div className="space-y-2">
             <Label>{t('sections.address')}</Label>

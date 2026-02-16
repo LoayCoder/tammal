@@ -48,7 +48,15 @@ export function DivisionTable({ divisions, departments, employees, onEdit, onDel
           const displayDesc = i18n.language === 'ar' && div.description_ar ? div.description_ar : div.description;
           return (
             <TableRow key={div.id}>
-              <TableCell className="font-medium">{displayName}</TableCell>
+              <TableCell className="font-medium">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="h-3 w-3 rounded-full shrink-0"
+                    style={{ backgroundColor: div.color || '#3B82F6' }}
+                  />
+                  {displayName}
+                </div>
+              </TableCell>
               <TableCell className="hidden md:table-cell">{displayDesc || '—'}</TableCell>
               <TableCell className="hidden md:table-cell">
                 {headEmployee?.full_name || '—'}

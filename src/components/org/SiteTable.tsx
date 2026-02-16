@@ -7,18 +7,20 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import type { Site } from '@/hooks/useSites';
 import type { Branch } from '@/hooks/useBranches';
 import type { Department } from '@/hooks/useDepartments';
+import type { Division } from '@/hooks/useDivisions';
 import type { Employee } from '@/hooks/useEmployees';
 
 interface SiteTableProps {
   sites: Site[];
   branches: Branch[];
   departments: Department[];
+  divisions: Division[];
   employees: Employee[];
   onEdit: (site: Site) => void;
   onDelete: (id: string) => void;
 }
 
-export function SiteTable({ sites, branches, departments, employees, onEdit, onDelete }: SiteTableProps) {
+export function SiteTable({ sites, branches, departments, divisions, employees, onEdit, onDelete }: SiteTableProps) {
   const { t, i18n } = useTranslation();
 
   if (sites.length === 0) {
@@ -27,6 +29,7 @@ export function SiteTable({ sites, branches, departments, employees, onEdit, onD
 
   const branchMap = new Map(branches.map(b => [b.id, b]));
   const deptMap = new Map(departments.map(d => [d.id, d]));
+  const divisionMap = new Map(divisions.map(d => [d.id, d]));
 
   return (
     <Table>
@@ -44,6 +47,8 @@ export function SiteTable({ sites, branches, departments, employees, onEdit, onD
       <TableBody>
         {sites.map(site => {
           const dept = site.department_id ? deptMap.get(site.department_id) : null;
+          const division = dept?.division_id ? divisionMap.get(dept.division_id) : null;
+          const effectiveColor = site.color && site.color !== '#3B82F6' ? site.color : (dept?.color && dept.color !== '#3B82F6' ? dept.color : (division?.color || '#3B82F6'));
           const displayName = i18n.language === 'ar' && site.name_ar ? site.name_ar : site.name;
           const displayAddress = i18n.language === 'ar' && site.address_ar ? site.address_ar : site.address;
           const deptName = dept ? (i18n.language === 'ar' && dept.name_ar ? dept.name_ar : dept.name) : '—';
@@ -53,7 +58,15 @@ export function SiteTable({ sites, branches, departments, employees, onEdit, onD
           const memberCount = employees.filter(e => (e as any).section_id === site.id).length;
           return (
             <TableRow key={site.id}>
-              <TableCell className="font-medium">{displayName}</TableCell>
+              <TableCell className="font-medium">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="h-3 w-3 rounded-full shrink-0"
+                    style={{ backgroundColor: effectiveColor }}
+                  />
+                  {displayName}
+                </div>
+              </TableCell>
               <TableCell>{deptName}</TableCell>
               <TableCell className="hidden md:table-cell">
                 {headEmployee?.full_name || '—'}

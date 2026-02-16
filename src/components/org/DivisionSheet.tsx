@@ -34,9 +34,10 @@ export function DivisionSheet({ open, onOpenChange, division, employees, tenantI
           description: division.description || '',
           description_ar: division.description_ar || '',
           head_employee_id: division.head_employee_id,
+          color: division.color || '#3B82F6',
         });
       } else {
-        reset({ tenant_id: tenantId, name: '', name_ar: '', description: '', description_ar: '', head_employee_id: null });
+        reset({ tenant_id: tenantId, name: '', name_ar: '', description: '', description_ar: '', head_employee_id: null, color: '#3B82F6' });
       }
     }
   }, [open, division, tenantId, reset]);
@@ -71,6 +72,10 @@ export function DivisionSheet({ open, onOpenChange, division, employees, tenantI
           <div className="space-y-2">
             <Label>{t('organization.descriptionAr')}</Label>
             <Textarea {...register('description_ar')} dir="rtl" />
+          </div>
+          <div className="space-y-2">
+            <Label>{t('organization.color')}</Label>
+            <Input type="color" {...register('color')} className="h-10 w-20 p-1" />
           </div>
           <div className="space-y-2">
             <Label>{t('organization.head')}</Label>

@@ -211,6 +211,7 @@ export default function OrgStructure() {
                   sites={sites}
                   branches={branches}
                   departments={departments}
+                  divisions={divisions}
                   employees={employees as any}
                   onEdit={(site) => { setEditingSite(site); setSiteSheetOpen(true); }}
                   onDelete={(id) => deleteSite.mutate(id)}
