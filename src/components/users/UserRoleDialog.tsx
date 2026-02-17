@@ -76,10 +76,11 @@ export function UserRoleDialog({ open, onOpenChange, user, tenantId }: UserRoleD
 
       // Add roles
       for (const roleId of rolesToAdd) {
+        const roleObj = roles.find(r => r.id === roleId);
         await assignRole.mutateAsync({ 
           userId: user.user_id, 
           customRoleId: roleId,
-          role: 'user'
+          role: (roleObj?.base_role as 'super_admin' | 'tenant_admin' | 'manager' | 'user') || 'user'
         });
       }
 

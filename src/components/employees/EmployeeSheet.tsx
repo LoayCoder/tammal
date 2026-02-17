@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { useDepartments } from "@/hooks/useDepartments";
 import { useBranches } from "@/hooks/useBranches";
 import { useDivisions } from "@/hooks/useDivisions";
 import { useSites } from "@/hooks/useSites";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EmployeeSheetProps {
   open: boolean;
@@ -40,6 +42,18 @@ export function EmployeeSheet({
   const { divisions } = useDivisions();
   const { sites: sections } = useSites();
 
+  // Fetch user IDs with manager+ roles
+  const { data: managerUserIds } = useQuery({
+    queryKey: ['manager-eligible-user-ids'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .in('role', ['manager', 'tenant_admin', 'super_admin']);
+      if (error) throw error;
+      return [...new Set((data || []).map(r => r.user_id))];
+    },
+  });
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [employeeNumber, setEmployeeNumber] = useState("");
@@ -263,7 +277,7 @@ export function EmployeeSheet({
 
           <div className="space-y-2">
             <Label>{t('employees.manager')}</Label>
-            <ManagerSelect employees={employees} value={managerId} onChange={setManagerId} excludeId={employee?.id} />
+            <ManagerSelect employees={employees} managerEligibleUserIds={managerUserIds} value={managerId} onChange={setManagerId} excludeId={employee?.id} />
           </div>
 
           <div className="space-y-2">
