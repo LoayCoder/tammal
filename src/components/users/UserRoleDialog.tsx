@@ -29,7 +29,7 @@ export function UserRoleDialog({ open, onOpenChange, user, tenantId }: UserRoleD
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
   const { roles, isLoading: rolesLoading } = useRoles(tenantId);
-  const { userRoles, assignRole, removeRole } = useUserRoles(user?.user_id);
+  const { userRoles, assignRole, removeRole, updateUserRole } = useUserRoles(user?.user_id);
   
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -59,7 +59,6 @@ export function UserRoleDialog({ open, onOpenChange, user, tenantId }: UserRoleD
     
     setIsSaving(true);
     try {
-      // Find roles to add and remove
       const currentRoleIds = userRoles
         .filter(ur => ur.custom_role_id)
         .map(ur => ur.custom_role_id as string);
@@ -69,19 +68,32 @@ export function UserRoleDialog({ open, onOpenChange, user, tenantId }: UserRoleD
         ur => ur.custom_role_id && !selectedRoles.includes(ur.custom_role_id)
       );
 
-      // Remove roles
+      // Remove custom role assignments
       for (const userRole of rolesToRemove) {
         await removeRole.mutateAsync(userRole.id);
       }
 
-      // Add roles
+      // Add custom role assignments
       for (const roleId of rolesToAdd) {
         const roleObj = roles.find(r => r.id === roleId);
-        await assignRole.mutateAsync({ 
-          userId: user.user_id, 
-          customRoleId: roleId,
-          role: (roleObj?.base_role as 'super_admin' | 'tenant_admin' | 'manager' | 'user') || 'user'
-        });
+        const baseRole = (roleObj?.base_role as 'super_admin' | 'tenant_admin' | 'manager' | 'user') || 'user';
+        
+        // Check if user already has a user_roles row with this same system role value
+        const existingRow = userRoles.find(ur => ur.role === baseRole && !ur.custom_role_id);
+        
+        if (existingRow) {
+          // Update the existing row to link the custom role
+          await updateUserRole.mutateAsync({
+            userRoleId: existingRow.id,
+            customRoleId: roleId,
+          });
+        } else {
+          await assignRole.mutateAsync({ 
+            userId: user.user_id, 
+            customRoleId: roleId,
+            role: baseRole,
+          });
+        }
       }
 
       onOpenChange(false);
