@@ -6,17 +6,19 @@ import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import type { Division } from '@/hooks/useDivisions';
 import type { Department } from '@/hooks/useDepartments';
+import type { Site } from '@/hooks/useSites';
 import type { Employee } from '@/hooks/useEmployees';
 
 interface DivisionTableProps {
   divisions: Division[];
   departments: Department[];
+  sites: Site[];
   employees: Employee[];
   onEdit: (division: Division) => void;
   onDelete: (id: string) => void;
 }
 
-export function DivisionTable({ divisions, departments, employees, onEdit, onDelete }: DivisionTableProps) {
+export function DivisionTable({ divisions, departments, sites, employees, onEdit, onDelete }: DivisionTableProps) {
   const { t, i18n } = useTranslation();
 
   if (divisions.length === 0) {
@@ -38,9 +40,29 @@ export function DivisionTable({ divisions, departments, employees, onEdit, onDel
       </TableHeader>
       <TableBody>
         {divisions.map(div => {
-          const deptCount = departments.filter(d => d.division_id === div.id).length;
-          const divDeptIds = departments.filter(d => d.division_id === div.id).map(d => d.id);
-          const memberCount = employees.filter(e => (e as any).department_id && divDeptIds.includes((e as any).department_id)).length;
+          const divDepts = departments.filter(d => d.division_id === div.id);
+          const deptCount = divDepts.length;
+          const divDeptIds = divDepts.map(d => d.id);
+          // Count employees assigned to departments in this division
+          const directMembers = employees.filter(e => e.department_id && divDeptIds.includes(e.department_id));
+          const memberIds = new Set(directMembers.map(e => e.id));
+          // Include section members and heads under this division's departments
+          const divSections = sites.filter(s => s.department_id && divDeptIds.includes(s.department_id));
+          divSections.forEach(section => {
+            employees.filter(e => e.section_id === section.id).forEach(e => memberIds.add(e.id));
+            if (section.head_employee_id) memberIds.add(section.head_employee_id);
+          });
+          // Include department heads not already counted
+          divDepts.forEach(d => {
+            if (d.head_employee_id && !memberIds.has(d.head_employee_id)) {
+              memberIds.add(d.head_employee_id);
+            }
+          });
+          // Include division head if not already counted
+          if (div.head_employee_id && !memberIds.has(div.head_employee_id)) {
+            memberIds.add(div.head_employee_id);
+          }
+          const memberCount = memberIds.size;
           const headEmployee = div.head_employee_id
             ? employees.find(e => e.id === div.head_employee_id)
             : null;

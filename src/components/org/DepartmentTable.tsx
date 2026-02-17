@@ -6,17 +6,19 @@ import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import type { Department } from '@/hooks/useDepartments';
 import type { Division } from '@/hooks/useDivisions';
+import type { Site } from '@/hooks/useSites';
 import type { Employee } from '@/hooks/useEmployees';
 
 interface DepartmentTableProps {
   departments: Department[];
   divisions: Division[];
+  sites: Site[];
   employees: Employee[];
   onEdit: (department: Department) => void;
   onDelete: (id: string) => void;
 }
 
-export function DepartmentTable({ departments, divisions, employees, onEdit, onDelete }: DepartmentTableProps) {
+export function DepartmentTable({ departments, divisions, sites, employees, onEdit, onDelete }: DepartmentTableProps) {
   const { t, i18n } = useTranslation();
 
   if (departments.length === 0) {
@@ -48,7 +50,25 @@ export function DepartmentTable({ departments, divisions, employees, onEdit, onD
           const headEmployee = dept.head_employee_id
             ? employees.find(e => e.id === dept.head_employee_id)
             : null;
-          const empCount = employees.filter(e => (e as any).department_id === dept.id).length;
+          // Count employees directly assigned to this department
+          const directMembers = employees.filter(e => e.department_id === dept.id);
+          const memberIds = new Set(directMembers.map(e => e.id));
+          // Include employees assigned to sections under this department
+          const deptSections = sites.filter(s => s.department_id === dept.id);
+          deptSections.forEach(section => {
+            employees.filter(e => e.section_id === section.id).forEach(e => {
+              memberIds.add(e.id);
+            });
+            // Include section head
+            if (section.head_employee_id && !memberIds.has(section.head_employee_id)) {
+              memberIds.add(section.head_employee_id);
+            }
+          });
+          // Include head employee if not already counted
+          if (dept.head_employee_id && !memberIds.has(dept.head_employee_id)) {
+            memberIds.add(dept.head_employee_id);
+          }
+          const empCount = memberIds.size;
 
           return (
             <TableRow key={dept.id}>
