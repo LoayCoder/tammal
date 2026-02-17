@@ -66,6 +66,7 @@ serve(async (req) => {
         id,
         employee_id,
         question_id,
+        question_source,
         tenant_id,
         status,
         employees!inner(user_id)
@@ -97,22 +98,45 @@ serve(async (req) => {
       });
     }
 
-    // Get question details for validation
-    const { data: question, error: qError } = await supabase
-      .from("questions")
-      .select("type, options")
-      .eq("id", scheduledQuestion.question_id)
-      .single();
+    // Get question details for validation based on source
+    const questionSource = scheduledQuestion.question_source || "questions";
+    let questionType = "open_ended";
+    let questionOptions: any[] | null = null;
 
-    if (qError || !question) {
-      return new Response(JSON.stringify({ error: "Question not found" }), {
-        status: 404,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (questionSource === "questions") {
+      const { data: question } = await supabase
+        .from("questions")
+        .select("type, options")
+        .eq("id", scheduledQuestion.question_id)
+        .single();
+      if (question) {
+        questionType = question.type;
+        questionOptions = question.options as any[];
+      }
+    } else if (questionSource === "wellness_questions") {
+      const { data: question } = await supabase
+        .from("wellness_questions")
+        .select("question_type, options")
+        .eq("id", scheduledQuestion.question_id)
+        .single();
+      if (question) {
+        questionType = question.question_type;
+        questionOptions = question.options as any[];
+      }
+    } else if (questionSource === "generated_questions") {
+      const { data: question } = await supabase
+        .from("generated_questions")
+        .select("type, options")
+        .eq("id", scheduledQuestion.question_id)
+        .single();
+      if (question) {
+        questionType = question.type;
+        questionOptions = question.options as any[];
+      }
     }
 
     // Validate answer based on question type
-    const validationResult = validateAnswer(question.type, answerValue, question.options);
+    const validationResult = validateAnswer(questionType, answerValue, questionOptions);
     if (!validationResult.valid) {
       return new Response(JSON.stringify({ error: validationResult.error }), {
         status: 400,

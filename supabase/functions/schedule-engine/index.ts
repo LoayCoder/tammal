@@ -201,7 +201,7 @@ serve(async (req) => {
       const scheduledQuestions = [];
 
       for (const employee of employees) {
-        // Get employee's recent questions
+        // Get employee's recent questions for soft dedup (prefer not repeating)
         const { data: recentQuestions } = await supabase
           .from("scheduled_questions")
           .select("question_id")
@@ -210,33 +210,35 @@ serve(async (req) => {
 
         const recentQuestionIds = new Set(recentQuestions?.map(q => q.question_id) || []);
 
-        // Filter out recently asked questions
-        const availableQuestions = questions.filter(q => !recentQuestionIds.has(q.id));
-
-        if (availableQuestions.length === 0) {
-          console.log(`No available questions for employee ${employee.id} (all recently asked)`);
-          continue;
-        }
+        // Prefer non-recent questions, but fall back to all if pool is too small
+        const freshQuestions = questions.filter(q => !recentQuestionIds.has(q.id));
+        // Use fresh questions if available, otherwise allow repeats from full pool
+        const questionPool = freshQuestions.length > 0 ? freshQuestions : questions;
 
         for (const deliveryDate of deliveryDates) {
-          // Check if already scheduled
-          const { data: existing } = await supabase
+          // Check how many already scheduled for this delivery slot
+          const questionsPerDelivery = schedule.questions_per_delivery || 1;
+          const { data: existingRows } = await supabase
             .from("scheduled_questions")
-            .select("id")
+            .select("id, question_id")
             .eq("employee_id", employee.id)
             .eq("schedule_id", schedule.id)
             .gte("scheduled_delivery", deliveryDate.toISOString())
-            .lt("scheduled_delivery", new Date(deliveryDate.getTime() + 60000).toISOString())
-            .maybeSingle();
+            .lt("scheduled_delivery", new Date(deliveryDate.getTime() + 60000).toISOString());
 
-          if (existing) {
+          const existingCount = existingRows?.length || 0;
+          const existingQuestionIds = new Set(existingRows?.map(r => r.question_id) || []);
+          const neededCount = questionsPerDelivery - existingCount;
+
+          if (neededCount <= 0) {
             continue;
           }
 
-          // Select random questions for this delivery
-          const questionsPerDelivery = schedule.questions_per_delivery || 1;
-          const shuffled = [...availableQuestions].sort(() => Math.random() - 0.5);
-          const selectedQuestions = shuffled.slice(0, questionsPerDelivery);
+          // Select random questions for this delivery, excluding already scheduled for this slot
+          const filteredAvailable = questionPool.filter(q => !existingQuestionIds.has(q.id));
+          if (filteredAvailable.length === 0) continue;
+          const shuffled = [...filteredAvailable].sort(() => Math.random() - 0.5);
+          const selectedQuestions = shuffled.slice(0, neededCount);
 
           for (const question of selectedQuestions) {
             scheduledQuestions.push({
