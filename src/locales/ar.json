@@ -95,7 +95,9 @@
     "invalidCredentials": "بريد إلكتروني أو كلمة مرور غير صحيحة",
     "emailRequired": "البريد الإلكتروني مطلوب",
     "passwordRequired": "كلمة المرور مطلوبة",
-    "passwordMismatch": "كلمات المرور غير متطابقة"
+    "passwordMismatch": "كلمات المرور غير متطابقة",
+    "haveInviteCode": "لديك رمز دعوة؟",
+    "useInviteCode": "استخدم رمز الدعوة"
   },
   "dashboard": {
     "title": "لوحة التحكم",
@@ -737,6 +739,14 @@
     "pdfTemplate": "قالب PDF",
     "notificationTemplate": "قالب الإشعارات",
     "emailSettings": "إعدادات البريد"
+  },
+  "platformSettings": {
+    "title": "إعدادات المصادقة",
+    "description": "التحكم في ظهور التسجيل ورابط الدعوة في صفحة تسجيل الدخول",
+    "allowSignup": "السماح بالتسجيل العام",
+    "allowSignupDesc": "عند التفعيل، يمكن لأي شخص إنشاء حساب من صفحة تسجيل الدخول",
+    "showInvitation": "إظهار رابط الدعوة",
+    "showInvitationDesc": "إظهار رابط 'لديك رمز دعوة؟' في صفحة تسجيل الدخول"
   },
   "questions": {
     "title": "مكتبة الأسئلة",

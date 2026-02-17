@@ -95,7 +95,9 @@
     "invalidCredentials": "Invalid email or password",
     "emailRequired": "Email is required",
     "passwordRequired": "Password is required",
-    "passwordMismatch": "Passwords do not match"
+    "passwordMismatch": "Passwords do not match",
+    "haveInviteCode": "Have an invitation code?",
+    "useInviteCode": "Use Invitation Code"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -737,6 +739,14 @@
     "pdfTemplate": "PDF Template",
     "notificationTemplate": "Notification Template",
     "emailSettings": "Email Settings"
+  },
+  "platformSettings": {
+    "title": "Platform Authentication",
+    "description": "Control signup and invitation visibility on the login page",
+    "allowSignup": "Allow Public Signup",
+    "allowSignupDesc": "When enabled, anyone can create an account from the login page",
+    "showInvitation": "Show Invitation Link",
+    "showInvitationDesc": "Show 'Have an invitation code?' link on the login page"
   },
   "questions": {
     "title": "Question Library",
