@@ -46,13 +46,15 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
     setAnswerText('');
   }, [currentIndex]);
 
-  const saveAndAdvance = (skipped: boolean) => {
+  const saveAndAdvance = (skipped: boolean, overrideAnswer?: unknown) => {
     if (!currentQ?.question) return;
+
+    const finalAnswer = overrideAnswer !== undefined ? overrideAnswer : answer;
 
     const entry: ScheduledAnswer = {
       scheduledQuestionId: currentQ.id,
       questionId: currentQ.question.id,
-      answerValue: skipped ? null : answer,
+      answerValue: skipped ? null : finalAnswer,
       answerText: answerText || undefined,
       responseTimeSeconds: Math.floor((Date.now() - startTime) / 1000),
       skipped,
@@ -68,6 +70,12 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
     }
   };
 
+  // Auto-advance helper for discrete answer types
+  const selectAndAdvance = (value: unknown) => {
+    setAnswer(value);
+    setTimeout(() => saveAndAdvance(false, value), 400);
+  };
+
   if (!currentQ?.question) return null;
 
   const question = currentQ.question;
@@ -77,7 +85,7 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
     switch (question.type) {
       case 'likert_5':
         return (
-          <RadioGroup value={String(answer || '')} onValueChange={v => setAnswer(Number(v))} className="flex justify-between gap-2">
+          <RadioGroup value={String(answer || '')} onValueChange={v => selectAndAdvance(Number(v))} className="flex justify-between gap-2">
             {[1, 2, 3, 4, 5].map(v => (
               <div key={v} className="flex flex-col items-center gap-2">
                 <RadioGroupItem value={String(v)} id={`sq-likert-${v}`} className="h-9 w-9" />
@@ -103,8 +111,8 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
       case 'yes_no':
         return (
           <div className="flex gap-4">
-            <Button variant={answer === true ? 'default' : 'outline'} className="flex-1 h-14 text-lg rounded-xl" onClick={() => setAnswer(true)}>{t('common.yes')}</Button>
-            <Button variant={answer === false ? 'default' : 'outline'} className="flex-1 h-14 text-lg rounded-xl" onClick={() => setAnswer(false)}>{t('common.no')}</Button>
+            <Button variant={answer === true ? 'default' : 'outline'} className="flex-1 h-14 text-lg rounded-xl" onClick={() => selectAndAdvance(true)}>{t('common.yes')}</Button>
+            <Button variant={answer === false ? 'default' : 'outline'} className="flex-1 h-14 text-lg rounded-xl" onClick={() => selectAndAdvance(false)}>{t('common.no')}</Button>
           </div>
         );
       case 'open_ended':
@@ -112,7 +120,7 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
       case 'multiple_choice':
         if (!question.options || !Array.isArray(question.options)) return null;
         return (
-          <RadioGroup onValueChange={v => setAnswer(v)} className="space-y-2">
+          <RadioGroup onValueChange={v => selectAndAdvance(v)} className="space-y-2">
             {(question.options as string[]).map((opt, i) => {
               const isSelected = answer === String(opt);
               return (
