@@ -164,6 +164,7 @@ export default function OrgStructure() {
                 <DivisionTable
                   divisions={divisions}
                   departments={departments}
+                  sites={sites}
                   employees={employees as any}
                   onEdit={(div) => { setEditingDivision(div); setDivisionSheetOpen(true); }}
                   onDelete={(id) => deleteDivision.mutate(id)}
@@ -187,6 +188,7 @@ export default function OrgStructure() {
                 <DepartmentTable
                   departments={departments}
                   divisions={divisions}
+                  sites={sites}
                   employees={employees as any}
                   onEdit={(dept) => { setEditingDept(dept); setDeptSheetOpen(true); }}
                   onDelete={(id) => deleteDepartment.mutate(id)}
