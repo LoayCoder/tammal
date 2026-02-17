@@ -58,8 +58,6 @@ export function AppSidebar() {
       label: t('nav.wellness'),
       items: [
         { title: t('nav.dailyCheckin'), url: "/employee/wellness", icon: Heart },
-        
-        { title: t('nav.wellnessSettings'), url: "/admin/wellness-settings", icon: Settings },
       ]
     },
     {
