@@ -1,85 +1,81 @@
 
 
-# Fix Role Assignment for Tenant Admins
+# Fix Role Assignment & Manager Select Filtering
 
-## The Problem
-The `user_roles` table only has two RLS policies:
-1. **Super admins can manage all roles** (ALL) -- works
-2. **Users can view their own roles** (SELECT only)
+## Issues Found
 
-Tenant admins are completely blocked from assigning, editing, or removing roles for users in their tenant. Only super admins can do this.
+### Issue 1: System Role Not Updated When Assigning Custom Roles
+When you assign a custom role (e.g., "Viewer") via the Manage Roles dialog, the code always sets `role: 'user'` regardless of the custom role's `base_role` property. So even if the custom role has `base_role: 'tenant_admin'`, the system role stays as "User".
 
-## The Difference: Role vs System Role
-- **Role** (shown in "Roles" column): Custom, tenant-specific roles like "Administrator", "Manager", "Viewer". These are defined in the Roles & Permissions tab and carry granular permissions (e.g., `users.view`, `reports.edit`). They map to the `custom_role_id` field.
-- **System Role** (shown in "System Role" column): The base access level (`Super Admin`, `Tenant Admin`, `Manager`, `User`). This is the `role` field on `user_roles` and controls fundamental platform-level access via RLS policies.
+**Root cause**: In `UserRoleDialog.tsx` line 83, the `assignRole` call hardcodes `role: 'user'` instead of using the selected role's `base_role`.
+
+### Issue 2: Manager Select Shows All Employees
+The `ManagerSelect` component shows all active employees as potential managers, regardless of whether they actually have the "manager" system role. LUAY appears in the manager dropdown even though he has no manager role assigned.
+
+**Root cause**: `ManagerSelect.tsx` only filters by `status === 'active'` and does not check for manager role assignment.
+
+---
 
 ## Solution
 
-### 1. Database Migration -- Add RLS policies for tenant admins on `user_roles`
+### 1. Fix UserRoleDialog -- Use the custom role's `base_role` as the system role
 
-Add policies so tenant admins can manage role assignments for users within their own tenant:
+When assigning a custom role, look up that role's `base_role` property and pass it as the system role instead of hardcoding `'user'`.
 
-```sql
--- Tenant admins can view roles for users in their tenant
-CREATE POLICY "Tenant admins can view tenant user roles"
-  ON public.user_roles FOR SELECT
-  USING (
-    has_role(auth.uid(), 'tenant_admin'::app_role)
-    AND user_id IN (
-      SELECT p.user_id FROM profiles p
-      WHERE p.tenant_id = get_user_tenant_id(auth.uid())
-    )
-  );
+**File**: `src/components/users/UserRoleDialog.tsx`
 
--- Tenant admins can assign roles to users in their tenant
-CREATE POLICY "Tenant admins can insert tenant user roles"
-  ON public.user_roles FOR INSERT
-  WITH CHECK (
-    has_role(auth.uid(), 'tenant_admin'::app_role)
-    AND user_id IN (
-      SELECT p.user_id FROM profiles p
-      WHERE p.tenant_id = get_user_tenant_id(auth.uid())
-    )
-    AND role != 'super_admin'
-  );
+- When adding a new role assignment, find the role object from the `roles` list using the roleId
+- Pass `role.base_role` (e.g., `'tenant_admin'`, `'manager'`, `'user'`) to `assignRole` instead of hardcoding `'user'`
+- When multiple custom roles are selected, use the highest-privilege `base_role` for the system role
 
--- Tenant admins can update roles for users in their tenant
-CREATE POLICY "Tenant admins can update tenant user roles"
-  ON public.user_roles FOR UPDATE
-  USING (
-    has_role(auth.uid(), 'tenant_admin'::app_role)
-    AND user_id IN (
-      SELECT p.user_id FROM profiles p
-      WHERE p.tenant_id = get_user_tenant_id(auth.uid())
-    )
-    AND role != 'super_admin'
-  );
+### 2. Fix ManagerSelect -- Filter by manager system role
 
--- Tenant admins can remove roles for users in their tenant
-CREATE POLICY "Tenant admins can delete tenant user roles"
-  ON public.user_roles FOR DELETE
-  USING (
-    has_role(auth.uid(), 'tenant_admin'::app_role)
-    AND user_id IN (
-      SELECT p.user_id FROM profiles p
-      WHERE p.tenant_id = get_user_tenant_id(auth.uid())
-    )
-    AND role != 'super_admin'
-  );
+Update `ManagerSelect` to only show employees who have a `manager` (or higher) system role assigned.
+
+**File**: `src/components/employees/ManagerSelect.tsx`
+
+- Accept an optional list of user IDs who have the manager role
+- Filter the dropdown to only show those employees
+
+**File**: `src/components/employees/EmployeeSheet.tsx`
+
+- Query `user_roles` table to get user IDs with `role = 'manager'` or `role = 'tenant_admin'` or `role = 'super_admin'`
+- Pass the valid manager employee list to `ManagerSelect`
+
+---
+
+## Technical Details
+
+### UserRoleDialog change (system role fix):
+```typescript
+// Before (line 79-83):
+await assignRole.mutateAsync({ 
+  userId: user.user_id, 
+  customRoleId: roleId,
+  role: 'user'  // Always 'user' -- wrong!
+});
+
+// After:
+const roleObj = roles.find(r => r.id === roleId);
+await assignRole.mutateAsync({ 
+  userId: user.user_id, 
+  customRoleId: roleId,
+  role: roleObj?.base_role || 'user'  // Use the role's base_role
+});
 ```
 
-Key security constraints:
-- Tenant admins can only manage users within their own tenant
-- Tenant admins cannot assign or remove the `super_admin` system role (prevents privilege escalation)
+### ManagerSelect change (filter by role):
+```typescript
+// Add a hook or prop to fetch employees with manager+ roles
+// Filter: only show employees whose user_id has a user_role 
+// with role IN ('manager', 'tenant_admin', 'super_admin')
+```
 
-### 2. No Code Changes Needed
-The UI components (`UserRoleDialog`, `UserTable`) and hooks (`useUserRoles`) already have the correct logic for assigning/removing roles. The only blocker is the missing RLS policies on the `user_roles` table.
-
-## Files Summary
-
-| File | Action |
+### Files to modify:
+| File | Change |
 |---|---|
-| Migration SQL | Add 4 RLS policies for tenant admin access to `user_roles` |
+| `src/components/users/UserRoleDialog.tsx` | Use `role.base_role` instead of hardcoded `'user'` |
+| `src/components/employees/ManagerSelect.tsx` | Add filtering by manager role |
+| `src/components/employees/EmployeeSheet.tsx` | Pass manager-eligible employees to ManagerSelect |
 
-No frontend code changes required -- the existing UI will work once the database allows tenant admins to write to `user_roles`.
-
+No database changes needed.
