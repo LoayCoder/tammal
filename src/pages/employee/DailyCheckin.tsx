@@ -75,7 +75,15 @@ export default function DailyCheckin() {
     support: t('wellness.submitCheckin', 'Submit'),
   };
 
-  const handleMoodSelected = (mood: string) => setSelectedMood(mood);
+  const handleMoodSelected = (mood: string) => {
+    setSelectedMood(mood);
+    // Auto-advance after brief delay for visual feedback
+    setTimeout(() => {
+      if (question || questionLoading) setStep('wellness');
+      else if (hasScheduledQuestions) setStep('scheduled');
+      else setStep('support');
+    }, 400);
+  };
 
   const advanceFromMood = () => {
     if (question || questionLoading) setStep('wellness');
@@ -258,7 +266,19 @@ export default function DailyCheckin() {
 
         {step === 'wellness' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-end-4 duration-300">
-            <WellnessQuestionStep question={question} isLoading={questionLoading} answerValue={wellnessAnswer} onAnswerChange={setWellnessAnswer} />
+            <WellnessQuestionStep
+              question={question}
+              isLoading={questionLoading}
+              answerValue={wellnessAnswer}
+              onAnswerChange={(val) => {
+                setWellnessAnswer(val);
+                // Auto-advance for discrete answer types (not sliders/text which need confirmation)
+                const qType = question?.question_type;
+                if (qType === 'multiple_choice' || qType === 'yes_no') {
+                  setTimeout(advanceFromWellness, 500);
+                }
+              }}
+            />
             <div className="flex gap-3">
               <Button variant="ghost" size="icon" className="rounded-xl h-12 w-12 shrink-0" onClick={goBack}>
                 <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
