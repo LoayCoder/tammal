@@ -1,32 +1,85 @@
 
 
-# Assign test@example.com to TAMMAL Tenant
+# Fix Role Assignment for Tenant Admins
 
-## What Needs to Happen
-The user `test@example.com` (user_id: `5cfed714-2dc9-4d02-bc96-7569b70bd811`) needs their `profiles.tenant_id` set to the TAMMAL tenant (`4fc9029e-2485-46a5-a540-ec2de643c3e3`).
+## The Problem
+The `user_roles` table only has two RLS policies:
+1. **Super admins can manage all roles** (ALL) -- works
+2. **Users can view their own roles** (SELECT only)
 
-This is a **data update**, not a code change. The database trigger `auto_create_employee_on_profile_link` will automatically create an employee record when `tenant_id` goes from NULL to a value.
+Tenant admins are completely blocked from assigning, editing, or removing roles for users in their tenant. Only super admins can do this.
 
-## Implementation
-Run a single SQL UPDATE via a database migration:
+## The Difference: Role vs System Role
+- **Role** (shown in "Roles" column): Custom, tenant-specific roles like "Administrator", "Manager", "Viewer". These are defined in the Roles & Permissions tab and carry granular permissions (e.g., `users.view`, `reports.edit`). They map to the `custom_role_id` field.
+- **System Role** (shown in "System Role" column): The base access level (`Super Admin`, `Tenant Admin`, `Manager`, `User`). This is the `role` field on `user_roles` and controls fundamental platform-level access via RLS policies.
+
+## Solution
+
+### 1. Database Migration -- Add RLS policies for tenant admins on `user_roles`
+
+Add policies so tenant admins can manage role assignments for users within their own tenant:
 
 ```sql
-UPDATE public.profiles 
-SET tenant_id = '4fc9029e-2485-46a5-a540-ec2de643c3e3',
-    full_name = COALESCE(full_name, 'Test User')
-WHERE user_id = '5cfed714-2dc9-4d02-bc96-7569b70bd811'
-  AND tenant_id IS NULL;
+-- Tenant admins can view roles for users in their tenant
+CREATE POLICY "Tenant admins can view tenant user roles"
+  ON public.user_roles FOR SELECT
+  USING (
+    has_role(auth.uid(), 'tenant_admin'::app_role)
+    AND user_id IN (
+      SELECT p.user_id FROM profiles p
+      WHERE p.tenant_id = get_user_tenant_id(auth.uid())
+    )
+  );
+
+-- Tenant admins can assign roles to users in their tenant
+CREATE POLICY "Tenant admins can insert tenant user roles"
+  ON public.user_roles FOR INSERT
+  WITH CHECK (
+    has_role(auth.uid(), 'tenant_admin'::app_role)
+    AND user_id IN (
+      SELECT p.user_id FROM profiles p
+      WHERE p.tenant_id = get_user_tenant_id(auth.uid())
+    )
+    AND role != 'super_admin'
+  );
+
+-- Tenant admins can update roles for users in their tenant
+CREATE POLICY "Tenant admins can update tenant user roles"
+  ON public.user_roles FOR UPDATE
+  USING (
+    has_role(auth.uid(), 'tenant_admin'::app_role)
+    AND user_id IN (
+      SELECT p.user_id FROM profiles p
+      WHERE p.tenant_id = get_user_tenant_id(auth.uid())
+    )
+    AND role != 'super_admin'
+  );
+
+-- Tenant admins can remove roles for users in their tenant
+CREATE POLICY "Tenant admins can delete tenant user roles"
+  ON public.user_roles FOR DELETE
+  USING (
+    has_role(auth.uid(), 'tenant_admin'::app_role)
+    AND user_id IN (
+      SELECT p.user_id FROM profiles p
+      WHERE p.tenant_id = get_user_tenant_id(auth.uid())
+    )
+    AND role != 'super_admin'
+  );
 ```
 
-## What Happens Automatically
-1. The `auto_create_employee_on_profile_link` trigger fires
-2. An employee record is created in the `employees` table for this user under the TAMMAL tenant
-3. The user will now appear in the **User Management** directory when viewing the TAMMAL tenant
-4. The user can log in and see the Employee Homepage
+Key security constraints:
+- Tenant admins can only manage users within their own tenant
+- Tenant admins cannot assign or remove the `super_admin` system role (prevents privilege escalation)
 
-## Files
+### 2. No Code Changes Needed
+The UI components (`UserRoleDialog`, `UserTable`) and hooks (`useUserRoles`) already have the correct logic for assigning/removing roles. The only blocker is the missing RLS policies on the `user_roles` table.
+
+## Files Summary
+
 | File | Action |
 |---|---|
-| Migration SQL | UPDATE profile to set tenant_id |
+| Migration SQL | Add 4 RLS policies for tenant admin access to `user_roles` |
 
-No code changes needed -- this is purely a data operation.
+No frontend code changes required -- the existing UI will work once the database allows tenant admins to write to `user_roles`.
+
