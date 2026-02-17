@@ -186,8 +186,8 @@ export default function DailyCheckin() {
     );
   }
 
-  // Already checked in today
-  if (todayEntry && !submitted) {
+  // Already checked in today — TEMPORARILY DISABLED FOR TESTING
+  if (false && todayEntry && !submitted) {
     return (
       <CheckinSuccess
         streak={todayEntry.streak_count || streak}
