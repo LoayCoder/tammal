@@ -356,7 +356,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
               </div>
               {uniqueBranches.length > 0 && (
                 <div className="space-y-1">
-                  <Label className="text-xs">{t('organization.branch')}</Label>
+                  <Label className="text-xs">{t('branches.title')}</Label>
                   <Select value={filterBranch} onValueChange={setFilterBranch}>
                     <SelectTrigger className="h-9 w-[150px]">
                       <SelectValue placeholder={t('common.all')} />
@@ -388,7 +388,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
               )}
               {uniqueSections.length > 0 && (
                 <div className="space-y-1">
-                  <Label className="text-xs">{t('organization.section')}</Label>
+                  <Label className="text-xs">{t('sections.title')}</Label>
                   <Select value={filterSection} onValueChange={setFilterSection}>
                     <SelectTrigger className="h-9 w-[150px]">
                       <SelectValue placeholder={t('common.all')} />
@@ -511,7 +511,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                         <CardContent className="p-4">
                           <div className="flex items-center gap-2 mb-3">
                             <Building2 className="h-4 w-4 text-muted-foreground" />
-                            <p className="text-sm font-medium">{t('organization.branch')} — {t('common.statusDistribution')}</p>
+                            <p className="text-sm font-medium">{t('branches.title')} — {t('common.statusDistribution')}</p>
                           </div>
                           <ResponsiveContainer width="100%" height={200}>
                             <BarChart data={statusByBranchData} layout="vertical">
@@ -557,7 +557,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                         <CardContent className="p-4">
                           <div className="flex items-center gap-2 mb-3">
                             <MapPin className="h-4 w-4 text-muted-foreground" />
-                            <p className="text-sm font-medium">{t('organization.section')} — {t('common.statusDistribution')}</p>
+                            <p className="text-sm font-medium">{t('sections.title')} — {t('common.statusDistribution')}</p>
                           </div>
                           <ResponsiveContainer width="100%" height={200}>
                             <BarChart data={statusBySectionData} layout="vertical">
@@ -590,9 +590,9 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('schedules.employee')}</TableHead>
-                  <TableHead>{t('organization.branch')}</TableHead>
+                  <TableHead>{t('branches.title')}</TableHead>
                   <TableHead>{t('users.department')}</TableHead>
-                  <TableHead>{t('organization.section')}</TableHead>
+                  <TableHead>{t('sections.title')}</TableHead>
                   <TableHead>{t('questions.questionTextEn')}</TableHead>
                   <TableHead>{t('schedules.delivery')}</TableHead>
                   <TableHead>{t('common.status')}</TableHead>
