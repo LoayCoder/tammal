@@ -1,67 +1,96 @@
 
 
-# Employee Homepage
+# Admin-Controlled Auth Page Options
 
 ## Overview
-Replace the current admin-only Dashboard at `/` with a role-aware homepage. Employees will see an attractive, colorful wellness homepage with actionable cards for daily check-ins, pending surveys, mood history charts, and burnout indicators. Admins will continue seeing the existing admin dashboard.
+Instead of removing signup or invitation features, both will remain on the Auth page but their visibility will be controlled by a **global platform setting** that super admins can toggle on/off. By default, signup is hidden and invitation link is shown.
 
-## What You Will See
+## Problem
+The Auth page is public (no user is logged in), so it cannot read per-tenant settings. We need a **platform-level** settings table that is publicly readable to control what options appear on the login screen.
 
-### 1. Greeting Section
-- Personalized greeting with the employee's name and a time-based message (Good morning / afternoon / evening)
-- Gamification stats: streak badge and total points
+## Solution
 
-### 2. Action Cards (Top Priority)
-- **Daily Check-in Card**: A prominent, colorful card that appears if the employee hasn't checked in today. Tapping it navigates to `/employee/wellness`. If already done, shows a green "Completed" state with the mood emoji.
-- **Pending Surveys Card**: Shows count of pending survey questions. Tapping navigates to `/employee/survey`. Hidden if no pending surveys exist.
+### 1. New Database Table: `platform_settings`
+A single-row table storing global platform configuration, publicly readable.
 
-### 3. Mood History Chart (Last 14 Days)
-- A smooth area/line chart showing mood scores over time using Recharts (already installed)
-- Color-coded by mood level (green for great, yellow for okay, red for struggling)
+| Column | Type | Default |
+|---|---|---|
+| id | uuid (PK) | auto |
+| allow_public_signup | boolean | false |
+| show_invitation_link | boolean | true |
+| updated_at | timestamp | now() |
+| updated_by | uuid | null |
 
-### 4. Burnout Indicator
-- A visual gauge/progress bar based on the average mood score from the last 7 days
-- Three zones: "Thriving" (green), "Watch" (amber), "At Risk" (red)
-- Simple and non-alarming visual language
+- **RLS**: Anyone can SELECT (public page needs to read it). Only super admins can UPDATE.
+- Seed with one row on creation.
 
-### 5. Quick Stats Row
-- Total check-ins this month
-- Average mood score
-- Current streak
+### 2. New Hook: `src/hooks/usePlatformSettings.ts`
+- Fetches the single row from `platform_settings`
+- Returns `{ allowSignup, showInvitation, isLoading }`
+- No auth required (anon-accessible SELECT)
+
+### 3. Update Auth Page (`src/pages/Auth.tsx`)
+- Call `usePlatformSettings()` on mount
+- If `allowSignup` is false: hide the "Create account" toggle and signup form entirely (login-only mode)
+- If `showInvitation` is true: show a "Have an invitation code?" link to `/auth/accept-invite`
+- Both can be true simultaneously (user sees signup toggle AND invitation link)
+
+### 4. Admin Settings Page
+Add a "Platform Auth Settings" section to an existing admin page (e.g., a new card in the Document Settings page or a dedicated section). Super admins can toggle:
+- "Allow Public Signup" switch
+- "Show Invitation Link" switch
+
+### 5. Translation Keys
+Add to `en.json` and `ar.json`:
+- `auth.haveInviteCode` / `auth.useInviteCode`
+- `platformSettings.title` / `platformSettings.allowSignup` / `platformSettings.showInvitation` and descriptions
 
 ## Technical Details
 
-### New File: `src/pages/EmployeeHome.tsx`
-- A new page component containing all homepage sections
-- Uses existing hooks: `useCurrentEmployee`, `useGamification`, `useScheduledQuestions`
-- Fetches mood history from `mood_entries` table (last 14 days)
-- Checks today's check-in status from `mood_entries` (same query as DailyCheckin page)
+### Database Migration
+```sql
+CREATE TABLE public.platform_settings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  allow_public_signup boolean NOT NULL DEFAULT false,
+  show_invitation_link boolean NOT NULL DEFAULT true,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid
+);
 
-### New File: `src/hooks/useMoodHistory.ts`
-- Fetches last 14 mood entries for the current employee
-- Returns data formatted for Recharts (date, score, level)
-- Computes 7-day average for burnout indicator
+ALTER TABLE public.platform_settings ENABLE ROW LEVEL SECURITY;
 
-### Update: `src/pages/Dashboard.tsx`
-- Add role detection: if the user has an employee profile (non-admin), render `EmployeeHome`; otherwise render the existing admin dashboard
-- Uses `useCurrentEmployee` and `usePermissions` to determine the view
+-- Anyone can read (needed for public auth page)
+CREATE POLICY "Anyone can read platform settings"
+  ON public.platform_settings FOR SELECT
+  USING (true);
 
-### Update: Translation files (`en.json` and `ar.json`)
-Add keys under a new `home` section:
-- `home.greeting`, `home.goodMorning`, `home.goodAfternoon`, `home.goodEvening`
-- `home.checkinCard`, `home.checkinNow`, `home.checkinDone`
-- `home.surveyCard`, `home.pendingSurveys`
-- `home.moodHistory`, `home.last14Days`
-- `home.burnout`, `home.thriving`, `home.watch`, `home.atRisk`
-- `home.monthlyCheckins`, `home.avgMood`, `home.currentStreak`
+-- Only super admins can update
+CREATE POLICY "Super admins can update platform settings"
+  ON public.platform_settings FOR UPDATE
+  USING (has_role(auth.uid(), 'super_admin'))
+  WITH CHECK (has_role(auth.uid(), 'super_admin'));
 
-### No Database Changes
-All data already exists in `mood_entries`, `scheduled_questions`, and `employees` tables with proper RLS policies.
+-- Seed single row
+INSERT INTO public.platform_settings (allow_public_signup, show_invitation_link)
+VALUES (false, true);
+```
 
-### Design Approach
-- Uses existing Shadcn Card, Badge, and Progress components
-- Recharts AreaChart for mood history (already a dependency)
-- Soft gradients and rounded corners for an inviting feel
-- Fully responsive (mobile-first card stack, desktop grid)
-- RTL-compatible using logical properties (`ms-`, `me-`, `text-start`, etc.)
-- Animations with `animate-in` classes for a polished feel
+### Auth Page Behavior Matrix
+
+| allow_public_signup | show_invitation_link | Auth Page Shows |
+|---|---|---|
+| false | true | Login form + "Have an invitation code?" link |
+| true | true | Login/Signup toggle + "Have an invitation code?" link |
+| true | false | Login/Signup toggle only |
+| false | false | Login form only |
+
+### Files to Create/Modify
+| File | Change |
+|---|---|
+| **Migration SQL** | Create `platform_settings` table with RLS + seed row |
+| `src/hooks/usePlatformSettings.ts` | New hook to fetch settings |
+| `src/pages/Auth.tsx` | Conditionally show signup toggle and invitation link |
+| `src/pages/admin/DocumentSettings.tsx` | Add platform auth settings card for super admins |
+| `src/locales/en.json` | Add translation keys |
+| `src/locales/ar.json` | Add Arabic translation keys |
+
