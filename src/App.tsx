@@ -29,7 +29,7 @@ import ScheduleManagement from "@/pages/admin/ScheduleManagement";
 import SubcategoryManagement from "@/pages/admin/SubcategoryManagement";
 import EmployeeSurvey from "@/pages/employee/EmployeeSurvey";
 import DailyCheckin from "@/pages/employee/DailyCheckin";
-import WellnessSettings from "@/pages/admin/WellnessSettings";
+
 
 import UnifiedUserManagement from "@/pages/admin/UnifiedUserManagement";
 import AcceptInvite from "@/pages/auth/AcceptInvite";
@@ -79,7 +79,7 @@ const App = () => (
             <Route path="/admin/org" element={<OrgStructure />} />
             <Route path="/admin/branding" element={<AdminBranding />} />
             <Route path="/admin/docs" element={<DocumentSettings />} />
-            <Route path="/admin/wellness-settings" element={<WellnessSettings />} />
+            
             
             <Route path="/settings/usage" element={<UsageBilling />} />
             <Route path="/settings/profile" element={<UserProfile />} />
