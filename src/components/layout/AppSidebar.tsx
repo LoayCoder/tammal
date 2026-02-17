@@ -21,10 +21,14 @@ import { NavLink } from "@/components/NavLink";
 import { useTranslation } from 'react-i18next';
 import { ThemeLogo } from "@/components/branding/ThemeLogo";
 import { ThemeIcon } from "@/components/branding/ThemeIcon";
-import { useBranding } from "@/hooks/useBranding";
-export function AppSidebar() {
+import type { BrandingConfig } from "@/hooks/useBranding";
+
+interface AppSidebarProps {
+  branding: BrandingConfig;
+}
+
+export function AppSidebar({ branding }: AppSidebarProps) {
   const { t, i18n } = useTranslation();
-  const { branding } = useBranding();
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
 
