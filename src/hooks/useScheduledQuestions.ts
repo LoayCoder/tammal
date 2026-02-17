@@ -39,22 +39,7 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
     queryFn: async () => {
       let query = supabase
         .from('scheduled_questions')
-        .select(`
-          *,
-          question:questions(
-            id,
-            text,
-            text_ar,
-            type,
-            options,
-            category:question_categories(
-              id,
-              name,
-              name_ar,
-              color
-            )
-          )
-        `)
+        .select('*')
         .order('scheduled_delivery', { ascending: true });
 
       if (employeeId) {
@@ -67,10 +52,52 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
 
       const { data, error } = await query;
       if (error) throw error;
-      
-      return (data || []).map((row: any) => ({
+
+      const rows = data || [];
+
+      // Fetch question details based on question_source
+      const questionsIds = rows.filter(r => r.question_source === 'questions').map(r => r.question_id);
+      const wellnessIds = rows.filter(r => r.question_source !== 'questions').map(r => r.question_id);
+
+      let questionsMap: Record<string, any> = {};
+
+      if (questionsIds.length > 0) {
+        const { data: qData } = await supabase
+          .from('questions')
+          .select('id, text, text_ar, type, options, category:question_categories(id, name, name_ar, color)')
+          .in('id', questionsIds);
+        (qData || []).forEach((q: any) => {
+          questionsMap[q.id] = {
+            id: q.id,
+            text: q.text,
+            text_ar: q.text_ar,
+            type: q.type,
+            options: q.options,
+            category: Array.isArray(q.category) ? q.category[0] : q.category,
+          };
+        });
+      }
+
+      if (wellnessIds.length > 0) {
+        const { data: wData } = await supabase
+          .from('wellness_questions')
+          .select('id, question_text_en, question_text_ar, question_type, options')
+          .in('id', wellnessIds);
+        (wData || []).forEach((q: any) => {
+          questionsMap[q.id] = {
+            id: q.id,
+            text: q.question_text_en,
+            text_ar: q.question_text_ar,
+            type: q.question_type,
+            options: q.options,
+            category: null,
+          };
+        });
+      }
+
+      return rows.map((row: any) => ({
         ...row,
-        question: Array.isArray(row.question) ? row.question[0] || null : row.question,
+        question: questionsMap[row.question_id] || null,
       })) as ScheduledQuestion[];
     },
     enabled: !!employeeId,
