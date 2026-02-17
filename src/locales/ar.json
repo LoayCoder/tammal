@@ -1553,7 +1553,8 @@
     "questionType": "النوع",
     "scheduledQuestion": "سؤال",
     "scheduledQuestionsTitle": "أسئلتك المجدولة",
-    "alreadyCheckedIn": "لقد سجّلت بالفعل اليوم!"
+    "alreadyCheckedIn": "لقد سجّلت بالفعل اليوم!",
+    "allCompleted": "تم إكمال جميع الأسئلة"
   },
   "batches": {
     "title": "دفعات الأسئلة",

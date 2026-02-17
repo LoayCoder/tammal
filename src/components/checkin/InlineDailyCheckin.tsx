@@ -190,7 +190,7 @@ export function InlineDailyCheckin({ employeeId, tenantId }: InlineDailyCheckinP
         <CardContent className="p-4 sm:p-5 space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-base">{t('wellness.dailyCheckin', 'Daily Check-in')}</h3>
+            <h3 className="font-bold text-base">{t('nav.dailyCheckin')}</h3>
             <div className="flex gap-1.5">
               <Badge variant="outline" className="gap-1 px-2 py-0.5 rounded-full text-xs">
                 <Flame className="h-3 w-3 text-chart-4" /> {streak}
@@ -232,7 +232,7 @@ export function InlineDailyCheckin({ employeeId, tenantId }: InlineDailyCheckinP
                   <div className="flex h-7 w-7 items-center justify-center rounded-full bg-chart-2/10">
                     <ClipboardList className="h-3.5 w-3.5 text-chart-2" />
                   </div>
-                  <h4 className="text-sm font-semibold">{t('wellness.scheduledQuestion', 'Survey Questions')}</h4>
+                  <h4 className="text-sm font-semibold">{t('wellness.scheduledQuestion')}</h4>
                 </div>
                 <span className="text-xs text-muted-foreground">{Math.min(sqAnswers.length, scheduledQuestions.length)}/{scheduledQuestions.length}</span>
               </div>
@@ -265,7 +265,7 @@ export function InlineDailyCheckin({ employeeId, tenantId }: InlineDailyCheckinP
               {allSqAnswered && (
                 <div className="flex items-center justify-center gap-2 py-2 text-sm text-chart-1">
                   <CheckCircle2 className="h-4 w-4" />
-                  <span className="font-medium">{t('survey.allCompleted', 'All questions completed')}</span>
+                  <span className="font-medium">{t('wellness.allCompleted')}</span>
                 </div>
               )}
             </div>
