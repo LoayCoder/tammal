@@ -270,14 +270,8 @@ export default function DailyCheckin() {
               question={question}
               isLoading={questionLoading}
               answerValue={wellnessAnswer}
-              onAnswerChange={(val) => {
-                setWellnessAnswer(val);
-                // Auto-advance for discrete answer types (not sliders/text which need confirmation)
-                const qType = question?.question_type;
-                if (qType === 'multiple_choice' || qType === 'yes_no') {
-                  setTimeout(advanceFromWellness, 500);
-                }
-              }}
+              onAnswerChange={setWellnessAnswer}
+              onAutoAdvance={() => setTimeout(advanceFromWellness, 400)}
             />
             <div className="flex gap-3">
               <Button variant="ghost" size="icon" className="rounded-xl h-12 w-12 shrink-0" onClick={goBack}>

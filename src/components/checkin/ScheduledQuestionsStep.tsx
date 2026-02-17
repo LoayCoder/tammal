@@ -100,7 +100,12 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
       case 'scale':
         return (
           <div className="space-y-4 px-2">
-            <Slider value={[Number(answer) || 5]} onValueChange={([v]) => setAnswer(v)} min={1} max={10} step={1} className="py-4" />
+            <Slider
+              value={[Number(answer) || 5]}
+              onValueChange={([v]) => setAnswer(v)}
+              onValueCommit={([v]) => { setAnswer(v); setTimeout(() => saveAndAdvance(false, v), 400); }}
+              min={1} max={10} step={1} className="py-4"
+            />
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>1</span>
               <span className="text-2xl font-bold text-primary transition-all duration-200">{String(answer ?? 5)}</span>
@@ -116,7 +121,16 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
           </div>
         );
       case 'open_ended':
-        return <Textarea value={String(answer || '')} onChange={e => setAnswer(e.target.value)} placeholder={t('survey.typeYourAnswer')} className="min-h-[100px]" dir="auto" />;
+        return (
+          <Textarea
+            value={String(answer || '')}
+            onChange={e => setAnswer(e.target.value)}
+            onBlur={() => { if (answer) setTimeout(() => saveAndAdvance(false), 300); }}
+            placeholder={t('survey.typeYourAnswer')}
+            className="min-h-[100px]"
+            dir="auto"
+          />
+        );
       case 'multiple_choice':
         if (!question.options || !Array.isArray(question.options)) return null;
         return (
@@ -136,7 +150,15 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
           </RadioGroup>
         );
       default:
-        return <Textarea value={String(answer || '')} onChange={e => setAnswer(e.target.value)} placeholder={t('survey.typeYourAnswer')} dir="auto" />;
+        return (
+          <Textarea
+            value={String(answer || '')}
+            onChange={e => setAnswer(e.target.value)}
+            onBlur={() => { if (answer) setTimeout(() => saveAndAdvance(false), 300); }}
+            placeholder={t('survey.typeYourAnswer')}
+            dir="auto"
+          />
+        );
     }
   };
 
