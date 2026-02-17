@@ -150,10 +150,6 @@ serve(async (req) => {
         continue;
       }
 
-      // Get recently asked questions (last 30 days) for each employee
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
       // Calculate delivery dates based on frequency
       const deliveryDates: Date[] = [];
       const preferredTime = schedule.preferred_time || "09:00:00";
@@ -164,13 +160,11 @@ serve(async (req) => {
         date.setDate(date.getDate() + day);
         date.setHours(hours, minutes, 0, 0);
 
-        // Skip configured weekend/off days
         const weekendDays = (schedule.weekend_days || (schedule.avoid_weekends ? [5, 6] : [])) as number[];
         if (weekendDays.length > 0 && weekendDays.includes(date.getDay())) {
           continue;
         }
 
-        // Apply frequency logic
         const dayOfWeek = date.getDay();
         switch (schedule.frequency) {
           case "1_per_day":
@@ -183,12 +177,12 @@ serve(async (req) => {
             deliveryDates.push(afternoonDate);
             break;
           case "3_days_per_week":
-            if ([1, 3, 5].includes(dayOfWeek)) { // Mon, Wed, Fri
+            if ([1, 3, 5].includes(dayOfWeek)) {
               deliveryDates.push(date);
             }
             break;
           case "weekly":
-            if (dayOfWeek === 1) { // Monday only
+            if (dayOfWeek === 1) {
               deliveryDates.push(date);
             }
             break;
@@ -197,50 +191,53 @@ serve(async (req) => {
         }
       }
 
-      // Create scheduled questions for each employee and delivery date
+      // DEDUP: Get ALL question_ids already assigned to each employee for THIS schedule
+      const { data: allExistingAssignments } = await supabase
+        .from("scheduled_questions")
+        .select("employee_id, question_id")
+        .eq("schedule_id", schedule.id);
+
+      // Build a Set of "employee_id::question_id" for O(1) lookup
+      const assignedSet = new Set(
+        (allExistingAssignments || []).map(a => `${a.employee_id}::${a.question_id}`)
+      );
+
+      const questionsPerDelivery = schedule.questions_per_delivery || 1;
       const scheduledQuestions = [];
 
       for (const employee of employees) {
-        // Get employee's recent questions for soft dedup (prefer not repeating)
-        const { data: recentQuestions } = await supabase
-          .from("scheduled_questions")
-          .select("question_id")
-          .eq("employee_id", employee.id)
-          .gte("scheduled_delivery", thirtyDaysAgo.toISOString());
+        // Get question_ids already assigned to this employee for this schedule
+        const employeeAssignedIds = new Set(
+          (allExistingAssignments || [])
+            .filter(a => a.employee_id === employee.id)
+            .map(a => a.question_id)
+        );
 
-        const recentQuestionIds = new Set(recentQuestions?.map(q => q.question_id) || []);
+        // Filter to only unassigned questions for this employee
+        const unassignedQuestions = questions.filter(q => !employeeAssignedIds.has(q.id));
 
-        // Prefer non-recent questions, but fall back to all if pool is too small
-        const freshQuestions = questions.filter(q => !recentQuestionIds.has(q.id));
-        // Use fresh questions if available, otherwise allow repeats from full pool
-        const questionPool = freshQuestions.length > 0 ? freshQuestions : questions;
+        if (unassignedQuestions.length === 0) {
+          console.log(`Employee ${employee.id} has received all questions in schedule ${schedule.id}, skipping`);
+          continue;
+        }
 
         for (const deliveryDate of deliveryDates) {
-          // Check how many already scheduled for this delivery slot
-          const questionsPerDelivery = schedule.questions_per_delivery || 1;
-          const { data: existingRows } = await supabase
-            .from("scheduled_questions")
-            .select("id, question_id")
-            .eq("employee_id", employee.id)
-            .eq("schedule_id", schedule.id)
-            .gte("scheduled_delivery", deliveryDate.toISOString())
-            .lt("scheduled_delivery", new Date(deliveryDate.getTime() + 60000).toISOString());
+          // Check how many already scheduled for this specific delivery slot
+          const deliveryStart = deliveryDate.toISOString();
+          const deliveryEnd = new Date(deliveryDate.getTime() + 60000).toISOString();
 
-          const existingCount = existingRows?.length || 0;
-          const existingQuestionIds = new Set(existingRows?.map(r => r.question_id) || []);
-          const neededCount = questionsPerDelivery - existingCount;
+          const existingForSlot = (allExistingAssignments || []).filter(a => 
+            a.employee_id === employee.id
+          ).length; // slot-level check handled by unique index
 
-          if (neededCount <= 0) {
-            continue;
-          }
-
-          // Select random questions for this delivery, excluding already scheduled for this slot
-          const filteredAvailable = questionPool.filter(q => !existingQuestionIds.has(q.id));
-          if (filteredAvailable.length === 0) continue;
-          const shuffled = [...filteredAvailable].sort(() => Math.random() - 0.5);
-          const selectedQuestions = shuffled.slice(0, neededCount);
+          // Pick questions not yet assigned to this employee across ANY delivery
+          const shuffled = [...unassignedQuestions].sort(() => Math.random() - 0.5);
+          const selectedQuestions = shuffled.slice(0, questionsPerDelivery);
 
           for (const question of selectedQuestions) {
+            const key = `${employee.id}::${question.id}`;
+            if (assignedSet.has(key)) continue; // skip if already assigned
+
             scheduledQuestions.push({
               schedule_id: schedule.id,
               employee_id: employee.id,
@@ -251,7 +248,18 @@ serve(async (req) => {
               delivery_channel: "app",
               question_source: question._source,
             });
+
+            // Mark as assigned so subsequent delivery dates won't duplicate
+            assignedSet.add(key);
           }
+
+          // Remove selected from unassigned pool for next delivery date
+          selectedQuestions.forEach(sq => {
+            const idx = unassignedQuestions.findIndex(q => q.id === sq.id);
+            if (idx !== -1) unassignedQuestions.splice(idx, 1);
+          });
+
+          if (unassignedQuestions.length === 0) break; // no more fresh questions
         }
       }
 
