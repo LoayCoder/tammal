@@ -1553,7 +1553,8 @@
     "questionType": "Type",
     "scheduledQuestion": "Question",
     "scheduledQuestionsTitle": "Your Scheduled Questions",
-    "alreadyCheckedIn": "You've already checked in today!"
+    "alreadyCheckedIn": "You've already checked in today!",
+    "allCompleted": "All questions completed"
   },
   "batches": {
     "title": "Question Batches",
