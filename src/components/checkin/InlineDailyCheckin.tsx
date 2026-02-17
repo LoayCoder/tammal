@@ -202,7 +202,7 @@ export function InlineDailyCheckin({ employeeId, tenantId }: InlineDailyCheckinP
       )}
 
       <Card className="border-2 border-primary/20 bg-primary/5 overflow-hidden">
-        <CardContent className="p-5 space-y-5">
+        <CardContent className="p-4 sm:p-5 space-y-4 sm:space-y-5">
           {/* Header */}
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-base">{t('wellness.dailyCheckin', 'Daily Check-in')}</h3>
