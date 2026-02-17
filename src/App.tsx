@@ -33,6 +33,7 @@ import DailyCheckin from "@/pages/employee/DailyCheckin";
 
 import UnifiedUserManagement from "@/pages/admin/UnifiedUserManagement";
 import AcceptInvite from "@/pages/auth/AcceptInvite";
+import { AdminRoute } from "@/components/auth/AdminRoute";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 
@@ -63,22 +64,22 @@ const App = () => (
             <Route path="/employee/survey" element={<EmployeeSurvey />} />
             <Route path="/employee/wellness" element={<DailyCheckin />} />
             <Route path="/" element={<Dashboard />} />
-            <Route path="/admin/tenants" element={<TenantManagement />} />
-            <Route path="/admin/tenants/:id" element={<TenantDashboard />} />
-            <Route path="/admin/audit-logs" element={<AuditLogs />} />
-            <Route path="/admin/questions" element={<QuestionManagement />} />
-            <Route path="/admin/questions/generate" element={<AIQuestionGenerator />} />
-            <Route path="/admin/question-categories" element={<CategoryManagement />} />
-            <Route path="/admin/question-subcategories" element={<SubcategoryManagement />} />
+            <Route path="/admin/tenants" element={<AdminRoute><TenantManagement /></AdminRoute>} />
+            <Route path="/admin/tenants/:id" element={<AdminRoute><TenantDashboard /></AdminRoute>} />
+            <Route path="/admin/audit-logs" element={<AdminRoute><AuditLogs /></AdminRoute>} />
+            <Route path="/admin/questions" element={<AdminRoute><QuestionManagement /></AdminRoute>} />
+            <Route path="/admin/questions/generate" element={<AdminRoute><AIQuestionGenerator /></AdminRoute>} />
+            <Route path="/admin/question-categories" element={<AdminRoute><CategoryManagement /></AdminRoute>} />
+            <Route path="/admin/question-subcategories" element={<AdminRoute><SubcategoryManagement /></AdminRoute>} />
             <Route path="/admin/employees" element={<Navigate to="/admin/user-management" replace />} />
-            <Route path="/admin/schedules" element={<ScheduleManagement />} />
-            <Route path="/admin/plans" element={<PlanManagement />} />
-            <Route path="/admin/subscriptions" element={<SubscriptionManagement />} />
+            <Route path="/admin/schedules" element={<AdminRoute><ScheduleManagement /></AdminRoute>} />
+            <Route path="/admin/plans" element={<AdminRoute><PlanManagement /></AdminRoute>} />
+            <Route path="/admin/subscriptions" element={<AdminRoute><SubscriptionManagement /></AdminRoute>} />
             <Route path="/admin/users" element={<Navigate to="/admin/user-management" replace />} />
-            <Route path="/admin/user-management" element={<UnifiedUserManagement />} />
-            <Route path="/admin/org" element={<OrgStructure />} />
-            <Route path="/admin/branding" element={<AdminBranding />} />
-            <Route path="/admin/docs" element={<DocumentSettings />} />
+            <Route path="/admin/user-management" element={<AdminRoute><UnifiedUserManagement /></AdminRoute>} />
+            <Route path="/admin/org" element={<AdminRoute><OrgStructure /></AdminRoute>} />
+            <Route path="/admin/branding" element={<AdminRoute><AdminBranding /></AdminRoute>} />
+            <Route path="/admin/docs" element={<AdminRoute><DocumentSettings /></AdminRoute>} />
             
             
             <Route path="/settings/usage" element={<UsageBilling />} />

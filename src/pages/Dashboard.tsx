@@ -8,21 +8,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AuditLogTable } from '@/components/audit/AuditLogTable';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { formatCurrency } from '@/lib/utils';
-import { useUserPermissions } from '@/hooks/useUserPermissions';
+import { useUserPermissions, useHasRole } from '@/hooks/useUserPermissions';
 import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
 import EmployeeHome from './EmployeeHome';
 
 export default function Dashboard() {
-  const { t, i18n } = useTranslation();
   const { isSuperAdmin, isLoading: permLoading } = useUserPermissions();
+  const isTenantAdmin = useHasRole('tenant_admin');
   const { hasEmployeeProfile, isLoading: empLoading } = useCurrentEmployee();
 
-  // Show employee home for non-admin users who have an employee profile
-  if (!permLoading && !empLoading && !isSuperAdmin && hasEmployeeProfile) {
-    return <EmployeeHome />;
-  }
-
-  // Loading state while determining role
+  // Always show skeleton first while loading — prevents admin dashboard flash
   if (permLoading || empLoading) {
     return (
       <div className="space-y-6">
@@ -32,6 +27,11 @@ export default function Dashboard() {
         </div>
       </div>
     );
+  }
+
+  // Non-admin users always see employee home
+  if (!isSuperAdmin && !isTenantAdmin) {
+    return <EmployeeHome />;
   }
 
   return <AdminDashboard />;
