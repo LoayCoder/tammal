@@ -90,15 +90,18 @@ export default function QuestionManagement() {
 
   const typeLabel = (type: string) => {
     const map: Record<string, string> = {
-      scale: t('batches.typeScale'),
-      likert: t('batches.typeLikert'),
-      multiple_choice: t('batches.typeMultipleChoice'),
-      mcq: t('batches.typeMultipleChoice'),
-      open_text: t('batches.typeOpenText'),
-      open: t('batches.typeOpenText'),
-      yes_no: t('batches.typeYesNo'),
-      scenario: t('batches.typeScenario'),
-      numeric: t('batches.typeNumeric'),
+      likert_5: t('questions.types.likert_5'),
+      numeric_scale: t('questions.types.numeric_scale'),
+      yes_no: t('questions.types.yes_no'),
+      open_ended: t('questions.types.open_ended'),
+      multiple_choice: t('questions.types.multiple_choice'),
+      // Legacy/AI-generated aliases
+      scale: t('questions.types.numeric_scale'),
+      likert: t('questions.types.likert_5'),
+      mcq: t('questions.types.multiple_choice'),
+      open_text: t('questions.types.open_ended'),
+      open: t('questions.types.open_ended'),
+      numeric: t('questions.types.numeric_scale'),
     };
     return map[type] || type;
   };
