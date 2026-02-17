@@ -33,12 +33,23 @@ export function useCheckinScheduledQuestions(employeeId?: string, excludeQuestio
 
       const todayEnd = `${today}T23:59:59.999Z`;
 
-      // Fetch scheduled questions with question_source info
+      // Fetch only daily-checkin scheduled questions (exclude survey schedules)
+      // First get active daily_checkin schedule IDs
+      const { data: checkinSchedules } = await supabase
+        .from('question_schedules')
+        .select('id')
+        .eq('schedule_type', 'daily_checkin')
+        .is('deleted_at', null);
+
+      const checkinScheduleIds = (checkinSchedules || []).map(s => s.id);
+      if (!checkinScheduleIds.length) return [];
+
       const { data: scheduledRows, error: sqError } = await supabase
         .from('scheduled_questions')
         .select('id, schedule_id, question_id, question_source, scheduled_delivery, status')
         .eq('employee_id', employeeId)
         .in('status', ['pending', 'delivered'])
+        .in('schedule_id', checkinScheduleIds)
         .lte('scheduled_delivery', todayEnd)
         .order('scheduled_delivery', { ascending: true });
 
