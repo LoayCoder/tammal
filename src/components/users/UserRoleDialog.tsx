@@ -124,7 +124,7 @@ export function UserRoleDialog({ open, onOpenChange, user, tenantId }: UserRoleD
                     id={`role-${role.id}`}
                     checked={selectedRoles.includes(role.id)}
                     onCheckedChange={(checked) => handleRoleToggle(role.id, checked as boolean)}
-                    disabled={role.is_system_role}
+                    disabled={false}
                   />
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
