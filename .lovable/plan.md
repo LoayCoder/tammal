@@ -1,66 +1,71 @@
 
 
-## Wellness Check-in Full Audit and Enhancement
+# Schedule Type Logic: Daily Check-in vs Survey
 
-### Issues Found
+## Overview
+Add a mandatory **Schedule Type** selector to the schedule creation/edit workflow. This type controls which batches are visible, which form fields appear, and ensures strict data separation between Daily Check-in and Survey schedules.
 
-1. **No duplicate check-in guard** -- The user can submit multiple mood entries for the same day. Today's data already shows one entry, yet the form still appears. There is no check against `mood_entries` for `entry_date = today`.
+## Database Changes
 
-2. **Question type mismatch** -- Wellness questions use type `scale`, but `ScheduledQuestionsStep` only handles `numeric_scale`, `likert_5`, `yes_no`, `open_ended`, `multiple_choice`. When a `scale`-type question arrives from `wellness_questions` via the scheduled pipeline, it falls through to a plain textarea instead of a slider.
+### 1. Add columns to `question_schedules` table
+- `schedule_type TEXT NOT NULL DEFAULT 'daily_checkin'` -- values: `daily_checkin` or `survey`
+- `start_date DATE` -- required for survey type only
+- `end_date DATE` -- required for survey type only
 
-3. **Stale scheduled questions** -- After submitting the check-in, the 2 scheduled questions for today remain `pending` in the database. The mood entry was saved but the scheduled question responses were never submitted (likely because the user skipped the scheduled step or it wasn't properly wired).
+No destructive changes. Additive columns only.
 
-4. **Wellness question and scheduled questions can overlap** -- The daily wellness question (from `daily_question_schedule`) and scheduled questions (from `scheduled_questions`) can reference the same `wellness_questions` row, causing the user to see it twice.
+## Frontend Changes
 
-5. **UI lacks micro-interactions and modern feel** -- No animated transitions between steps, no confetti or haptic feedback on selection, progress indicator is minimal.
+### 2. Update `useQuestionSchedules` hook (`src/hooks/useQuestionSchedules.ts`)
+- Add `schedule_type`, `start_date`, `end_date` to the `QuestionSchedule` interface
+- Include them in create/update mutation payloads
 
----
+### 3. Update Schedule Management form (`src/pages/admin/ScheduleManagement.tsx`)
 
-### Plan
+**New form state:**
+- `scheduleType` (`'daily_checkin' | 'survey'`)
+- `startDate` (string, for survey)
+- `endDate` (string, for survey)
 
-#### 1. Add "Already Checked In Today" Guard
-- In `DailyCheckin.tsx`, query `mood_entries` for `employee_id + entry_date = today`.
-- If an entry exists, show the `CheckinSuccess` screen immediately with today's data (streak, points, AI tip) and a message "You've already completed today's check-in."
-- This prevents duplicate submissions at the UI level.
+**Schedule Type selector (first field in form):**
+- Two radio options: "Daily Check-in" and "Survey"
+- Mandatory -- cannot proceed without selecting
 
-#### 2. Fix Question Type Mapping
-- In `ScheduledQuestionsStep.tsx`, add `case 'scale':` as an alias for `numeric_scale` in the `renderInput` switch.
-- In `WellnessQuestionStep.tsx`, verify the `scale` type renders a slider (it already does -- confirmed).
-- In `submit-response/index.ts`, add `case 'scale':` to the `validateAnswer` function so it validates like `numeric_scale` (1-10 range).
+**Conditional logic based on type:**
 
-#### 3. Deduplicate Wellness vs Scheduled Questions
-- In `useCheckinScheduledQuestions.ts`, after fetching today's scheduled questions, filter out any question whose `question_id` matches the daily wellness question ID (passed as a parameter or fetched alongside).
-- This prevents the same question appearing in both the Wellness step and the Scheduled step.
+| Feature | Daily Check-in | Survey |
+|---|---|---|
+| Frequency selector | Shown (existing logic) | Hidden |
+| Start/End date pickers | Hidden | Shown (required) |
+| Preferred time | Shown | Shown |
+| Batch list | Filtered to `purpose === 'wellness'` | Filtered to `purpose === 'survey'` |
+| Weekend days | Shown | Hidden |
 
-#### 4. Enhanced UI/UX
-- **Animated step transitions**: Wrap each step in a CSS `animate-in` fade+slide using Tailwind's `animate-fade-in` or a simple `transition-all` with conditional rendering.
-- **Mood selection micro-interaction**: Add a brief scale-up animation (`animate-[pop_0.3s_ease]`) when a mood is selected, plus a subtle background pulse.
-- **Progress indicator upgrade**: Replace dots with a sleek segmented bar showing step labels (Mood, Question, Survey, Submit) with color fill animation.
-- **Answer selection feedback**: Add checkmark icons and color transitions when an answer option is selected in radio groups and scales.
-- **Success screen enhancement**: Add a confetti-style emoji burst animation, and display a motivational quote alongside the AI tip.
-- **Card hover states**: Add `hover:shadow-md hover:-translate-y-0.5 transition-all duration-200` to interactive cards.
+**Validation:**
+- Survey type requires start date and end date (end >= start)
+- At least one batch must be selected
+- Submit button disabled until valid
 
-#### 5. Error Handling Improvements
-- Show inline error banners (not just toasts) if the submission fails, with a retry button.
-- If the employee profile is missing, show a clear "Profile not found" card with guidance.
-- If no questions are available, show a friendly illustration instead of plain text.
+### 4. Update batch filtering in the dialog
+Currently all batches are listed. Change to:
+- When `scheduleType === 'daily_checkin'`: show only batches with `purpose === 'wellness'`
+- When `scheduleType === 'survey'`: show only batches with `purpose === 'survey'`
 
----
+### 5. Update schedule table display
+- Add a "Type" column showing a badge (Daily Check-in / Survey)
+- Show date range for survey-type schedules in the table
 
-### Technical Details
+### 6. Update `resetForm` and `openEditDialog`
+- Include `scheduleType`, `startDate`, `endDate` in form reset/load logic
 
-**Files to modify:**
+### 7. Translation keys
+Add to both `en.json` and `ar.json`:
+- `schedules.scheduleType` / `schedules.dailyCheckin` / `schedules.survey`
+- `schedules.startDate` / `schedules.endDate`
+- `schedules.selectType` / `schedules.dateRangeRequired`
 
-| File | Changes |
-|------|---------|
-| `src/pages/employee/DailyCheckin.tsx` | Add today's mood entry query, show "already done" state, animated transitions, improved progress bar |
-| `src/components/checkin/MoodStep.tsx` | Add pop animation on select, enhanced visual feedback |
-| `src/components/checkin/WellnessQuestionStep.tsx` | Add answer feedback animations, improved empty state |
-| `src/components/checkin/ScheduledQuestionsStep.tsx` | Add `scale` case, answer selection animations, back button |
-| `src/components/checkin/CheckinSuccess.tsx` | Enhanced success animation, show "already done" variant |
-| `src/components/checkin/SupportStep.tsx` | Hover micro-interactions on action cards |
-| `src/hooks/useCheckinScheduledQuestions.ts` | Accept wellness question ID param, filter duplicates |
-| `supabase/functions/submit-response/index.ts` | Add `scale` to validation function |
-
-**No database changes required** -- all fixes are in application logic and edge functions.
+## Technical Notes
+- The existing `purpose` field on batches (`useQuestionBatches`) already differentiates between `survey` and `wellness`, so no batch-side changes are needed
+- The schedule engine edge function does not need changes at this stage -- it reads from `question_schedules` and processes whatever batches are linked
+- Existing schedules will default to `daily_checkin` type via the column default, maintaining backward compatibility
 
