@@ -1607,5 +1607,30 @@
     "inactiveUser": "غير نشط",
     "filterByAccountStatus": "حالة الحساب",
     "autoSuspendConfirm": "هذا الموظف لديه حساب دخول. هل تريد تعليق وصوله؟"
+  },
+  "home": {
+    "goodMorning": "صباح الخير",
+    "goodAfternoon": "مساء الخير",
+    "goodEvening": "مساء الخير",
+    "subtitle": "إليك كيف حالك اليوم",
+    "dayStreak": "يوم متتالي",
+    "points": "نقاط",
+    "checkinCard": "التسجيل اليومي",
+    "checkinDesc": "خذ لحظة لتشارك كيف تشعر اليوم",
+    "checkinNow": "سجّل الآن",
+    "checkinDone": "تم التسجيل",
+    "checkinDoneDesc": "عمل رائع! لقد سجلت حضورك لهذا اليوم",
+    "surveyCard": "أسئلة معلقة",
+    "pendingSurveys": "{{count}} أسئلة بانتظارك",
+    "moodHistory": "سجل المزاج",
+    "last14Days": "مزاجك خلال الـ 14 يوماً الماضية",
+    "noMoodData": "ابدأ بالتسجيل لترى اتجاهات مزاجك",
+    "burnout": "مؤشر الرفاهية",
+    "thriving": "مزدهر",
+    "watch": "مراقبة",
+    "atRisk": "معرض للخطر",
+    "monthlyCheckins": "هذا الشهر",
+    "avgMood": "متوسط المزاج",
+    "currentStreak": "التتابع"
   }
 }

@@ -8,8 +8,36 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AuditLogTable } from '@/components/audit/AuditLogTable';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { formatCurrency } from '@/lib/utils';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
+import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
+import EmployeeHome from './EmployeeHome';
 
 export default function Dashboard() {
+  const { t, i18n } = useTranslation();
+  const { isSuperAdmin, isLoading: permLoading } = useUserPermissions();
+  const { hasEmployeeProfile, isLoading: empLoading } = useCurrentEmployee();
+
+  // Show employee home for non-admin users who have an employee profile
+  if (!permLoading && !empLoading && !isSuperAdmin && hasEmployeeProfile) {
+    return <EmployeeHome />;
+  }
+
+  // Loading state while determining role
+  if (permLoading || empLoading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-10 w-48" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28" />)}
+        </div>
+      </div>
+    );
+  }
+
+  return <AdminDashboard />;
+}
+
+function AdminDashboard() {
   const { t, i18n } = useTranslation();
   const { stats, isLoading } = useDashboardStats();
   const { logs, isLoading: isLoadingLogs } = useAuditLog({ limit: 5 });
