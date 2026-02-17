@@ -8,6 +8,7 @@ import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
 import { useGamification } from '@/hooks/useGamification';
 import { useMoodHistory } from '@/hooks/useMoodHistory';
 import { useScheduledQuestions } from '@/hooks/useScheduledQuestions';
+import { InlineDailyCheckin } from '@/components/checkin/InlineDailyCheckin';
 import {
   Flame,
   Star,
@@ -116,69 +117,50 @@ export default function EmployeeHome() {
         </Badge>
       </div>
 
-      {/* Action Cards */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Daily Check-in Card */}
-        <Card
-          className={`cursor-pointer transition-all hover:shadow-lg border-2 ${
-            todayEntry
-              ? 'border-chart-1/30 bg-chart-1/5'
-              : 'border-primary/30 bg-primary/5 hover:border-primary/50'
-          }`}
-          onClick={() => !todayEntry && navigate('/employee/wellness')}
-        >
+      {/* Inline Daily Check-in */}
+      {employee && !todayEntry && (
+        <InlineDailyCheckin employeeId={employee.id} tenantId={employee.tenant_id} />
+      )}
+
+      {/* Completed check-in indicator */}
+      {todayEntry && (
+        <Card className="border-2 border-chart-1/30 bg-chart-1/5">
           <CardContent className="flex items-center gap-4 p-6">
-            <div
-              className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-2xl ${
-                todayEntry ? 'bg-chart-1/10' : 'bg-primary/10'
-              }`}
-            >
-              {todayEntry ? (
-                MOOD_EMOJIS[todayEntry.level] || '✅'
-              ) : (
-                <Heart className="h-7 w-7 text-primary" />
-              )}
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-chart-1/10 text-2xl">
+              {MOOD_EMOJIS[todayEntry.level] || '✅'}
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-base">
-                {todayEntry ? t('home.checkinDone') : t('home.checkinCard')}
-              </h3>
-              <p className="text-muted-foreground text-sm mt-0.5">
-                {todayEntry ? t('home.checkinDoneDesc') : t('home.checkinDesc')}
-              </p>
+              <h3 className="font-semibold text-base">{t('home.checkinDone')}</h3>
+              <p className="text-muted-foreground text-sm mt-0.5">{t('home.checkinDoneDesc')}</p>
             </div>
-            {!todayEntry && (
-              <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
-            )}
-            {todayEntry && (
-              <CheckCircle2 className="h-6 w-6 text-chart-1 shrink-0" />
-            )}
+            <CheckCircle2 className="h-6 w-6 text-chart-1 shrink-0" />
           </CardContent>
         </Card>
+      )}
 
-        {/* Pending Surveys Card */}
-        {(sqLoading || pendingQuestions.length > 0) && (
-          <Card
-            className="cursor-pointer transition-all hover:shadow-lg border-2 border-chart-2/30 bg-chart-2/5 hover:border-chart-2/50"
-            onClick={() => navigate('/employee/survey')}
-          >
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-chart-2/10">
-                <ClipboardList className="h-7 w-7 text-chart-2" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-base">{t('home.surveyCard')}</h3>
-                <p className="text-muted-foreground text-sm mt-0.5">
-                  {sqLoading
-                    ? '...'
-                    : t('home.pendingSurveys', { count: pendingQuestions.length })}
-                </p>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      {/* Pending Surveys Card */}
+      {(sqLoading || pendingQuestions.length > 0) && (
+        <Card
+          className="cursor-pointer transition-all hover:shadow-lg border-2 border-chart-2/30 bg-chart-2/5 hover:border-chart-2/50"
+          onClick={() => navigate('/employee/survey')}
+        >
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-chart-2/10">
+              <ClipboardList className="h-7 w-7 text-chart-2" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-base">{t('home.surveyCard')}</h3>
+              <p className="text-muted-foreground text-sm mt-0.5">
+                {sqLoading
+                  ? '...'
+                  : t('home.pendingSurveys', { count: pendingQuestions.length })}
+              </p>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
+          </CardContent>
+        </Card>
+      )}
+
 
       {/* Quick Stats */}
       <div className="grid gap-4 grid-cols-3">
