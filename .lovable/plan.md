@@ -1,81 +1,114 @@
 
 
-# Fix Role Assignment & Manager Select Filtering
+# Fix Access Control: Sidebar Filtering + Dashboard Flicker
 
-## Issues Found
+## Problem Summary
 
-### Issue 1: System Role Not Updated When Assigning Custom Roles
-When you assign a custom role (e.g., "Viewer") via the Manage Roles dialog, the code always sets `role: 'user'` regardless of the custom role's `base_role` property. So even if the custom role has `base_role: 'tenant_admin'`, the system role stays as "User".
+Two critical issues for users with the "User" role (e.g., `test@example.com`):
 
-**Root cause**: In `UserRoleDialog.tsx` line 83, the `assignRole` call hardcodes `role: 'user'` instead of using the selected role's `base_role`.
+1. **Sidebar shows all admin sections** -- SaaS Management, Survey System, Operations, Settings sections are visible to everyone because `AppSidebar` has no role/permission checks at all
+2. **Dashboard flickers** -- The page renders `AdminDashboard` first while permissions load, then switches to `EmployeeHome`, causing a visible flash
 
-### Issue 2: Manager Select Shows All Employees
-The `ManagerSelect` component shows all active employees as potential managers, regardless of whether they actually have the "manager" system role. LUAY appears in the manager dropdown even though he has no manager role assigned.
+## Root Cause
 
-**Root cause**: `ManagerSelect.tsx` only filters by `status === 'active'` and does not check for manager role assignment.
+- `AppSidebar.tsx` renders a hardcoded list of menu items with zero permission filtering
+- `Dashboard.tsx` shows `AdminDashboard` as the default fallback while `permLoading` is finishing, causing the flicker
 
 ---
 
 ## Solution
 
-### 1. Fix UserRoleDialog -- Use the custom role's `base_role` as the system role
+### 1. Role-Aware Sidebar (AppSidebar.tsx)
 
-When assigning a custom role, look up that role's `base_role` property and pass it as the system role instead of hardcoding `'user'`.
+Add `useUserPermissions` hook to the sidebar. Filter menu groups by role:
 
-**File**: `src/components/users/UserRoleDialog.tsx`
+| Sidebar Section | Visible To |
+|---|---|
+| Dashboard > Overview | Everyone |
+| SaaS Management | Super Admin only |
+| Survey System (admin items) | Super Admin + Tenant Admin |
+| Survey System (employee items) | Everyone with employee profile |
+| Wellness | Everyone with employee profile |
+| Operations | Super Admin + Tenant Admin |
+| Settings > Profile | Everyone |
+| Settings > Usage & Billing | Super Admin + Tenant Admin |
+| Settings > Brand, Docs, Audit | Super Admin + Tenant Admin |
+| Help | Everyone |
 
-- When adding a new role assignment, find the role object from the `roles` list using the roleId
-- Pass `role.base_role` (e.g., `'tenant_admin'`, `'manager'`, `'user'`) to `assignRole` instead of hardcoding `'user'`
-- When multiple custom roles are selected, use the highest-privilege `base_role` for the system role
+The sidebar will consume `useUserPermissions` to get `isSuperAdmin` and also use `useHasRole` for `tenant_admin` checks. Menu items will be filtered before rendering, and empty groups will be hidden.
 
-### 2. Fix ManagerSelect -- Filter by manager system role
+### 2. Fix Dashboard Flicker (Dashboard.tsx)
 
-Update `ManagerSelect` to only show employees who have a `manager` (or higher) system role assigned.
+Change the render logic so that while permissions are loading, it shows only the loading skeleton -- never the AdminDashboard. Currently:
 
-**File**: `src/components/employees/ManagerSelect.tsx`
+```text
+if (!loading && !superAdmin && hasEmployee) -> EmployeeHome
+if (loading) -> Skeleton
+else -> AdminDashboard  <-- shown briefly before data loads
+```
 
-- Accept an optional list of user IDs who have the manager role
-- Filter the dropdown to only show those employees
+The fix reverses the check order: show skeleton FIRST while loading, then decide which dashboard to render. This eliminates the flicker completely.
 
-**File**: `src/components/employees/EmployeeSheet.tsx`
+### 3. Route Protection (App.tsx)
 
-- Query `user_roles` table to get user IDs with `role = 'manager'` or `role = 'tenant_admin'` or `role = 'super_admin'`
-- Pass the valid manager employee list to `ManagerSelect`
+Wrap admin routes with role checks so that even if a "User" role user navigates directly to `/admin/tenants`, they get redirected. A lightweight `AdminRoute` wrapper component will check for admin-level roles and redirect non-admins to `/`.
 
 ---
 
 ## Technical Details
 
-### UserRoleDialog change (system role fix):
-```typescript
-// Before (line 79-83):
-await assignRole.mutateAsync({ 
-  userId: user.user_id, 
-  customRoleId: roleId,
-  role: 'user'  // Always 'user' -- wrong!
-});
-
-// After:
-const roleObj = roles.find(r => r.id === roleId);
-await assignRole.mutateAsync({ 
-  userId: user.user_id, 
-  customRoleId: roleId,
-  role: roleObj?.base_role || 'user'  // Use the role's base_role
-});
-```
-
-### ManagerSelect change (filter by role):
-```typescript
-// Add a hook or prop to fetch employees with manager+ roles
-// Filter: only show employees whose user_id has a user_role 
-// with role IN ('manager', 'tenant_admin', 'super_admin')
-```
-
 ### Files to modify:
+
 | File | Change |
 |---|---|
-| `src/components/users/UserRoleDialog.tsx` | Use `role.base_role` instead of hardcoded `'user'` |
-| `src/components/employees/ManagerSelect.tsx` | Add filtering by manager role |
-| `src/components/employees/EmployeeSheet.tsx` | Pass manager-eligible employees to ManagerSelect |
+| `src/components/layout/AppSidebar.tsx` | Add `useUserPermissions` + `useHasRole` hooks, filter menu items by role |
+| `src/pages/Dashboard.tsx` | Move loading check to top of render, prevent AdminDashboard flash |
+| `src/App.tsx` | Add `AdminRoute` wrapper for `/admin/*` routes |
+| `src/components/auth/AdminRoute.tsx` (new) | Route guard component that redirects non-admin users |
 
-No database changes needed.
+### AppSidebar changes:
+
+- Import `useUserPermissions` and `useHasRole('tenant_admin')`
+- Tag each menu group with a `requiredRole` property (e.g., `'admin'`, `'tenant_admin'`, `'all'`)
+- Filter groups before rendering: hide groups the user has no access to
+- Hide empty groups entirely
+
+### Dashboard changes:
+
+```typescript
+// Current (causes flicker):
+if (!permLoading && !empLoading && !isSuperAdmin && hasEmployeeProfile) {
+  return <EmployeeHome />;
+}
+if (permLoading || empLoading) {
+  return <Skeleton />;
+}
+return <AdminDashboard />;
+
+// Fixed (skeleton first):
+if (permLoading || empLoading) {
+  return <Skeleton />;
+}
+if (!isSuperAdmin && !isTenantAdmin && hasEmployeeProfile) {
+  return <EmployeeHome />;
+}
+if (!isSuperAdmin && !isTenantAdmin) {
+  return <EmployeeHome />; // Non-admin without profile still sees employee view
+}
+return <AdminDashboard />;
+```
+
+### AdminRoute component:
+
+```typescript
+function AdminRoute({ children }) {
+  const { isSuperAdmin, isLoading } = useUserPermissions();
+  const isTenantAdmin = useHasRole('tenant_admin');
+
+  if (isLoading) return <Skeleton />;
+  if (!isSuperAdmin && !isTenantAdmin) return <Navigate to="/" replace />;
+  return children;
+}
+```
+
+No database changes required.
