@@ -17,11 +17,11 @@ export function ManagerSelect({ employees, managerEligibleUserIds, value, onChan
   const filteredEmployees = employees.filter(emp => {
     if (emp.id === excludeId) return false;
     if (emp.status !== 'active') return false;
-    // If we have a list of eligible user IDs, only show employees linked to those users
-    if (managerEligibleUserIds && managerEligibleUserIds.length > 0) {
-      return emp.user_id != null && managerEligibleUserIds.includes(emp.user_id);
-    }
-    return true;
+    // Only show employees who have manager/admin system roles
+    // If managerEligibleUserIds is undefined (still loading), show none to prevent incorrect display
+    if (!managerEligibleUserIds) return false;
+    if (managerEligibleUserIds.length === 0) return false;
+    return emp.user_id != null && managerEligibleUserIds.includes(emp.user_id);
   });
 
   return (
