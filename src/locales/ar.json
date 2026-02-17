@@ -999,7 +999,15 @@
     "notIncluded": "غير مشمول",
     "audienceDetails": "تفاصيل الجمهور",
     "searchAudience": "البحث بالاسم أو البريد أو القسم",
-    "allIncluded": "جميع الموظفين مشمولون"
+    "allIncluded": "جميع الموظفين مشمولون",
+    "scheduleType": "نوع الجدول",
+    "dailyCheckin": "تسجيل الدخول اليومي",
+    "survey": "استبيان",
+    "selectType": "اختر نوع الجدول",
+    "startDate": "تاريخ البداية",
+    "endDate": "تاريخ النهاية",
+    "dateRangeRequired": "تاريخ البداية والنهاية مطلوبان للاستبيانات",
+    "type": "النوع"
   },
   "aiGenerator": {
     "title": "مولد الأسئلة بالذكاء الاصطناعي",

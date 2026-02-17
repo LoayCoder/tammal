@@ -102,6 +102,9 @@ export default function ScheduleManagement() {
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [employeeSearch, setEmployeeSearch] = useState('');
+  const [scheduleType, setScheduleType] = useState<'daily_checkin' | 'survey'>('daily_checkin');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   // Fetch departments and employees for audience selection
   const { data: availableDepartments = [] } = useQuery({
@@ -182,6 +185,9 @@ export default function ScheduleManagement() {
     setSelectedDepartments([]);
     setSelectedEmployees([]);
     setEmployeeSearch('');
+    setScheduleType('daily_checkin');
+    setStartDate('');
+    setEndDate('');
   };
 
   const openEditDialog = (schedule: QuestionSchedule) => {
@@ -209,6 +215,9 @@ export default function ScheduleManagement() {
       setSelectedEmployees([]);
     }
     setEmployeeSearch('');
+    setScheduleType(schedule.schedule_type || 'daily_checkin');
+    setStartDate(schedule.start_date || '');
+    setEndDate(schedule.end_date || '');
     setDialogOpen(true);
   };
 
@@ -224,41 +233,36 @@ export default function ScheduleManagement() {
 
   const handleSubmit = () => {
     if (!name || !tenantId) return;
+    // Validate survey dates
+    if (scheduleType === 'survey' && (!startDate || !endDate || endDate < startDate)) {
+      toast.error(t('schedules.dateRangeRequired'));
+      return;
+    }
     const target_audience = buildTargetAudience();
+    const commonFields = {
+      name,
+      description: description || undefined,
+      preferred_time: preferredTime,
+      questions_per_delivery: questionsPerDelivery,
+      enable_ai_generation: enableAI,
+      batch_ids: selectedBatchIds,
+      target_audience,
+      schedule_type: scheduleType,
+      start_date: scheduleType === 'survey' ? startDate : null,
+      end_date: scheduleType === 'survey' ? endDate : null,
+      frequency: scheduleType === 'daily_checkin' ? frequency as any : '1_per_day' as any,
+      avoid_weekends: scheduleType === 'daily_checkin' ? weekendDays.length > 0 : false,
+      weekend_days: scheduleType === 'daily_checkin' ? weekendDays : [],
+    };
 
     if (editingSchedule) {
       updateSchedule.mutate(
-        {
-          id: editingSchedule.id,
-          name,
-          description: description || undefined,
-          frequency: frequency as any,
-          preferred_time: preferredTime,
-          questions_per_delivery: questionsPerDelivery,
-          avoid_weekends: weekendDays.length > 0,
-          weekend_days: weekendDays,
-          enable_ai_generation: enableAI,
-          batch_ids: selectedBatchIds,
-          target_audience,
-        },
+        { id: editingSchedule.id, ...commonFields },
         { onSuccess: () => { setDialogOpen(false); resetForm(); } }
       );
     } else {
       createSchedule.mutate(
-        {
-          tenant_id: tenantId,
-          name,
-          description: description || undefined,
-          frequency: frequency as any,
-          preferred_time: preferredTime,
-          questions_per_delivery: questionsPerDelivery,
-          avoid_weekends: weekendDays.length > 0,
-          weekend_days: weekendDays,
-          enable_ai_generation: enableAI,
-          batch_ids: selectedBatchIds,
-          target_audience,
-          status: 'active',
-        },
+        { tenant_id: tenantId, ...commonFields, status: 'active' },
         { onSuccess: () => { setDialogOpen(false); resetForm(); } }
       );
     }
@@ -501,6 +505,7 @@ export default function ScheduleManagement() {
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('schedules.name')}</TableHead>
+                  <TableHead>{t('schedules.type')}</TableHead>
                   <TableHead>{t('schedules.frequency')}</TableHead>
                   <TableHead>{t('schedules.questionBatches')}</TableHead>
                   <TableHead>{t('schedules.targetAudience')}</TableHead>
@@ -520,7 +525,17 @@ export default function ScheduleManagement() {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>{getFrequencyLabel(schedule.frequency)}</TableCell>
+                    <TableCell>
+                      <Badge variant={schedule.schedule_type === 'survey' ? 'default' : 'secondary'}>
+                        {schedule.schedule_type === 'survey' ? t('schedules.survey') : t('schedules.dailyCheckin')}
+                      </Badge>
+                      {schedule.schedule_type === 'survey' && schedule.start_date && schedule.end_date && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {schedule.start_date} → {schedule.end_date}
+                        </p>
+                      )}
+                    </TableCell>
+                    <TableCell>{schedule.schedule_type === 'survey' ? '—' : getFrequencyLabel(schedule.frequency)}</TableCell>
                     <TableCell>
                       {(schedule.batch_ids?.length || 0) > 0 ? (
                         <Badge variant="secondary">
@@ -623,21 +638,71 @@ export default function ScheduleManagement() {
                 rows={2}
               />
             </div>
+            {/* Schedule Type Selector */}
             <div className="space-y-2">
-              <Label>{t('schedules.frequency')}</Label>
-              <Select value={frequency} onValueChange={setFrequency}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1_per_day">{t('schedules.frequencies.daily')}</SelectItem>
-                  <SelectItem value="2_per_day">{t('schedules.frequencies.twiceDaily')}</SelectItem>
-                  <SelectItem value="3_days_per_week">{t('schedules.frequencies.threePerWeek')}</SelectItem>
-                  <SelectItem value="weekly">{t('schedules.frequencies.weekly')}</SelectItem>
-                  <SelectItem value="custom">{t('schedules.frequencies.custom')}</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>{t('schedules.scheduleType')}</Label>
+              <RadioGroup
+                value={scheduleType}
+                onValueChange={(val) => {
+                  setScheduleType(val as 'daily_checkin' | 'survey');
+                  setSelectedBatchIds([]);
+                }}
+                className="flex gap-4"
+              >
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="daily_checkin" id="type-checkin" />
+                  <Label htmlFor="type-checkin" className="font-normal cursor-pointer">
+                    {t('schedules.dailyCheckin')}
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="survey" id="type-survey" />
+                  <Label htmlFor="type-survey" className="font-normal cursor-pointer">
+                    {t('schedules.survey')}
+                  </Label>
+                </div>
+              </RadioGroup>
             </div>
+            {/* Frequency - only for daily_checkin */}
+            {scheduleType === 'daily_checkin' && (
+              <div className="space-y-2">
+                <Label>{t('schedules.frequency')}</Label>
+                <Select value={frequency} onValueChange={setFrequency}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1_per_day">{t('schedules.frequencies.daily')}</SelectItem>
+                    <SelectItem value="2_per_day">{t('schedules.frequencies.twiceDaily')}</SelectItem>
+                    <SelectItem value="3_days_per_week">{t('schedules.frequencies.threePerWeek')}</SelectItem>
+                    <SelectItem value="weekly">{t('schedules.frequencies.weekly')}</SelectItem>
+                    <SelectItem value="custom">{t('schedules.frequencies.custom')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {/* Start/End Date - only for survey */}
+            {scheduleType === 'survey' && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('schedules.startDate')}</Label>
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={e => setStartDate(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('schedules.endDate')}</Label>
+                  <Input
+                    type="date"
+                    value={endDate}
+                    onChange={e => setEndDate(e.target.value)}
+                    min={startDate}
+                  />
+                </div>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('schedules.preferredTime')}</Label>
@@ -671,11 +736,15 @@ export default function ScheduleManagement() {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80 max-h-60 overflow-y-auto" align="start">
-                  {batches.length === 0 ? (
+                  {(() => {
+                    const filteredBatches = batches.filter(b =>
+                      scheduleType === 'daily_checkin' ? b.purpose === 'wellness' : b.purpose === 'survey'
+                    );
+                    return filteredBatches.length === 0 ? (
                     <p className="text-sm text-muted-foreground py-2">{t('schedules.noBatchesAvailable')}</p>
                   ) : (
                     <div className="space-y-2">
-                      {batches.map(batch => {
+                      {filteredBatches.map(batch => {
                         const isSelected = selectedBatchIds.includes(batch.id);
                         const isDisabled = !isSelected && selectedBatchIds.length >= 3;
                         return (
@@ -707,7 +776,8 @@ export default function ScheduleManagement() {
                         <p className="text-xs text-muted-foreground pt-1">{t('schedules.maxBatchesReached')}</p>
                       )}
                     </div>
-                  )}
+                  );
+                  })()}
                 </PopoverContent>
               </Popover>
             </div>
@@ -851,6 +921,7 @@ export default function ScheduleManagement() {
                 )}
               </div>
             </div>
+            {scheduleType === 'daily_checkin' && (
             <div className="space-y-2">
               <Label>{t('schedules.weekendDays')}</Label>
               <p className="text-xs text-muted-foreground">{t('schedules.weekendDaysHint')}</p>
@@ -886,6 +957,7 @@ export default function ScheduleManagement() {
                 })}
               </div>
             </div>
+            )}
             <div className="flex items-center justify-between">
               <Label>{t('schedules.enableAI')}</Label>
               <Switch checked={enableAI} onCheckedChange={setEnableAI} />
@@ -897,7 +969,7 @@ export default function ScheduleManagement() {
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={createSchedule.isPending || updateSchedule.isPending || !name}
+              disabled={createSchedule.isPending || updateSchedule.isPending || !name || (scheduleType === 'survey' && (!startDate || !endDate || endDate < startDate))}
             >
               {(createSchedule.isPending || updateSchedule.isPending) && (
                 <Loader2 className="h-4 w-4 animate-spin me-2" />
