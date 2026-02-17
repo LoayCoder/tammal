@@ -5,6 +5,7 @@ export interface CheckinScheduledQuestion {
   id: string;
   schedule_id: string;
   question_id: string;
+  question_source: string;
   scheduled_delivery: string;
   status: string;
   question: {
@@ -32,38 +33,91 @@ export function useCheckinScheduledQuestions(employeeId?: string) {
 
       const todayEnd = `${today}T23:59:59.999Z`;
 
-      const { data, error } = await supabase
+      // Fetch scheduled questions with question_source info
+      const { data: scheduledRows, error: sqError } = await supabase
         .from('scheduled_questions')
-        .select(`
-          id,
-          schedule_id,
-          question_id,
-          scheduled_delivery,
-          status,
-          question:questions(
-            id,
-            text,
-            text_ar,
-            type,
-            options,
-            category:question_categories(
-              id,
-              name,
-              name_ar,
-              color
-            )
-          )
-        `)
+        .select('id, schedule_id, question_id, question_source, scheduled_delivery, status')
         .eq('employee_id', employeeId)
         .in('status', ['pending', 'delivered'])
         .lte('scheduled_delivery', todayEnd)
         .order('scheduled_delivery', { ascending: true });
 
-      if (error) throw error;
-      return (data || []).map((row: any) => ({
-        ...row,
-        question: Array.isArray(row.question) ? row.question[0] || null : row.question,
-      })) as CheckinScheduledQuestion[];
+      if (sqError) throw sqError;
+      if (!scheduledRows?.length) return [];
+
+      // Group question IDs by source
+      const questionsBySource: Record<string, string[]> = {};
+      for (const row of scheduledRows) {
+        const source = row.question_source || 'questions';
+        if (!questionsBySource[source]) questionsBySource[source] = [];
+        questionsBySource[source].push(row.question_id);
+      }
+
+      // Fetch question details from each source table
+      const questionMap = new Map<string, CheckinScheduledQuestion['question']>();
+
+      // From 'questions' table
+      if (questionsBySource['questions']?.length) {
+        const { data } = await supabase
+          .from('questions')
+          .select('id, text, text_ar, type, options, category:question_categories(id, name, name_ar, color)')
+          .in('id', questionsBySource['questions']);
+        (data || []).forEach((q: any) => {
+          questionMap.set(q.id, {
+            id: q.id,
+            text: q.text,
+            text_ar: q.text_ar,
+            type: q.type,
+            options: q.options,
+            category: Array.isArray(q.category) ? q.category[0] || null : q.category,
+          });
+        });
+      }
+
+      // From 'wellness_questions' table
+      if (questionsBySource['wellness_questions']?.length) {
+        const { data } = await supabase
+          .from('wellness_questions')
+          .select('id, question_text_en, question_text_ar, question_type, options')
+          .in('id', questionsBySource['wellness_questions']);
+        (data || []).forEach((q: any) => {
+          questionMap.set(q.id, {
+            id: q.id,
+            text: q.question_text_en,
+            text_ar: q.question_text_ar,
+            type: q.question_type,
+            options: q.options,
+            category: null,
+          });
+        });
+      }
+
+      // From 'generated_questions' table
+      if (questionsBySource['generated_questions']?.length) {
+        const { data } = await supabase
+          .from('generated_questions')
+          .select('id, question_text, question_text_ar, type, options')
+          .in('id', questionsBySource['generated_questions']);
+        (data || []).forEach((q: any) => {
+          questionMap.set(q.id, {
+            id: q.id,
+            text: q.question_text,
+            text_ar: q.question_text_ar,
+            type: q.type,
+            options: q.options,
+            category: null,
+          });
+        });
+      }
+
+      // Merge
+      return scheduledRows
+        .map(row => ({
+          ...row,
+          question_source: row.question_source || 'questions',
+          question: questionMap.get(row.question_id) || null,
+        }))
+        .filter(row => row.question !== null) as CheckinScheduledQuestion[];
     },
     enabled: !!employeeId,
   });
