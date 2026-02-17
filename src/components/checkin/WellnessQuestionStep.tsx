@@ -18,10 +18,16 @@ interface WellnessQuestionStepProps {
   isLoading: boolean;
   answerValue: unknown;
   onAnswerChange: (value: unknown) => void;
+  onAutoAdvance?: () => void;
 }
 
-export function WellnessQuestionStep({ question, isLoading, answerValue, onAnswerChange }: WellnessQuestionStepProps) {
+export function WellnessQuestionStep({ question, isLoading, answerValue, onAnswerChange, onAutoAdvance }: WellnessQuestionStepProps) {
   const { t } = useTranslation();
+
+  const selectAndAdvance = (val: unknown) => {
+    onAnswerChange(val);
+    if (onAutoAdvance) onAutoAdvance();
+  };
 
   return (
     <div className="space-y-4">
@@ -45,6 +51,7 @@ export function WellnessQuestionStep({ question, isLoading, answerValue, onAnswe
                     min={1} max={10} step={1}
                     defaultValue={[5]}
                     onValueChange={v => onAnswerChange(v[0])}
+                    onValueCommit={v => selectAndAdvance(v[0])}
                   />
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>1</span>
@@ -54,7 +61,7 @@ export function WellnessQuestionStep({ question, isLoading, answerValue, onAnswe
                 </div>
               )}
               {question.question_type === 'multiple_choice' && question.options.length > 0 && (
-                <RadioGroup onValueChange={v => onAnswerChange(v)} className="space-y-2">
+                <RadioGroup onValueChange={v => selectAndAdvance(v)} className="space-y-2">
                   {question.options.map((opt, i) => {
                     const isSelected = answerValue === opt;
                     return (
@@ -73,6 +80,7 @@ export function WellnessQuestionStep({ question, isLoading, answerValue, onAnswe
                 <Textarea
                   value={typeof answerValue === 'string' ? answerValue : ''}
                   onChange={e => onAnswerChange(e.target.value)}
+                  onBlur={() => { if (answerValue && onAutoAdvance) onAutoAdvance(); }}
                   placeholder={t('wellness.typeAnswer')}
                   className="min-h-[100px]"
                 />
