@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { SkipForward, ClipboardList } from 'lucide-react';
+import { SkipForward, ClipboardList, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import type { CheckinScheduledQuestion } from '@/hooks/useCheckinScheduledQuestions';
 
 export interface ScheduledAnswer {
@@ -25,9 +25,10 @@ interface ScheduledQuestionsStepProps {
   answers: ScheduledAnswer[];
   onAnswersChange: (answers: ScheduledAnswer[]) => void;
   onComplete: () => void;
+  onBack?: () => void;
 }
 
-export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, onComplete }: ScheduledQuestionsStepProps) {
+export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, onComplete, onBack }: ScheduledQuestionsStepProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
 
@@ -88,12 +89,13 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
           </RadioGroup>
         );
       case 'numeric_scale':
+      case 'scale':
         return (
           <div className="space-y-4 px-2">
             <Slider value={[Number(answer) || 5]} onValueChange={([v]) => setAnswer(v)} min={1} max={10} step={1} className="py-4" />
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>1</span>
-              <span className="text-2xl font-bold text-primary">{String(answer ?? 5)}</span>
+              <span className="text-2xl font-bold text-primary transition-all duration-200">{String(answer ?? 5)}</span>
               <span>10</span>
             </div>
           </div>
@@ -111,12 +113,18 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
         if (!question.options || !Array.isArray(question.options)) return null;
         return (
           <RadioGroup onValueChange={v => setAnswer(v)} className="space-y-2">
-            {(question.options as string[]).map((opt, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                <RadioGroupItem value={String(opt)} id={`sq-mc-${i}`} />
-                <Label htmlFor={`sq-mc-${i}`} className="cursor-pointer flex-1">{String(opt)}</Label>
-              </div>
-            ))}
+            {(question.options as string[]).map((opt, i) => {
+              const isSelected = answer === String(opt);
+              return (
+                <div key={i} className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
+                  isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'hover:bg-muted/50'
+                }`}>
+                  <RadioGroupItem value={String(opt)} id={`sq-mc-${i}`} />
+                  <Label htmlFor={`sq-mc-${i}`} className="cursor-pointer flex-1">{String(opt)}</Label>
+                  {isSelected && <CheckCircle2 className="h-4 w-4 text-primary shrink-0 animate-in zoom-in-50 duration-200" />}
+                </div>
+              );
+            })}
           </RadioGroup>
         );
       default:
@@ -141,7 +149,7 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
         <Progress value={progress} className="h-1.5" />
       </div>
 
-      <Card className="border-dashed">
+      <Card className="border-dashed hover:shadow-md transition-shadow duration-200">
         <CardContent className="p-6 space-y-5">
           {question.category && (
             <div className="flex justify-center">
@@ -156,6 +164,11 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
       </Card>
 
       <div className="flex gap-3">
+        {currentIndex === 0 && onBack && (
+          <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10 shrink-0" onClick={onBack}>
+            <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+          </Button>
+        )}
         <Button variant="ghost" size="sm" onClick={() => saveAndAdvance(true)} className="text-muted-foreground">
           <SkipForward className="h-4 w-4 me-1" />
           {t('survey.skip')}

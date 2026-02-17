@@ -31,10 +31,18 @@ export function MoodStep({ selectedMood, onSelect }: MoodStepProps) {
               key={mood.level}
               onClick={() => onSelect(mood.level)}
               className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-200 hover:scale-105 active:scale-95 ${
-                isSelected ? mood.activeBg : `${mood.bg} hover:border-muted-foreground/30`
+                isSelected
+                  ? `${mood.activeBg} animate-in zoom-in-95 duration-200`
+                  : `${mood.bg} hover:border-muted-foreground/30`
               }`}
             >
-              <span className="text-4xl" role="img" aria-label={mood.level}>{mood.emoji}</span>
+              <span
+                className={`text-4xl transition-transform duration-300 ${isSelected ? 'scale-110' : ''}`}
+                role="img"
+                aria-label={mood.level}
+              >
+                {mood.emoji}
+              </span>
               <span className={`text-xs font-semibold ${isSelected ? mood.color : 'text-muted-foreground'}`}>
                 {t(`wellness.mood.${mood.level}`)}
               </span>

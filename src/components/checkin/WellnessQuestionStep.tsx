@@ -4,7 +4,7 @@ import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, MessageCircle } from 'lucide-react';
+import { Loader2, MessageCircle, CheckCircle2 } from 'lucide-react';
 
 interface WellnessQuestion {
   question_id: string;
@@ -32,14 +32,14 @@ export function WellnessQuestionStep({ question, isLoading, answerValue, onAnswe
         <h3 className="text-lg font-semibold">{t('wellness.dailyQuestion')}</h3>
       </div>
 
-      <Card className="border-dashed">
+      <Card className="border-dashed hover:shadow-md transition-shadow duration-200">
         <CardContent className="pt-6">
           {isLoading ? (
             <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
           ) : question ? (
             <div className="space-y-5">
               <p className="font-medium text-center text-base" dir="auto">{question.question_text}</p>
-              {question.question_type === 'scale' && (
+              {(question.question_type === 'scale' || question.question_type === 'numeric_scale') && (
                 <div className="space-y-3 px-2">
                   <Slider
                     min={1} max={10} step={1}
@@ -47,18 +47,26 @@ export function WellnessQuestionStep({ question, isLoading, answerValue, onAnswe
                     onValueChange={v => onAnswerChange(v[0])}
                   />
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>1</span><span className="text-lg font-bold text-primary">{String(answerValue ?? 5)}</span><span>10</span>
+                    <span>1</span>
+                    <span className="text-lg font-bold text-primary transition-all duration-200">{String(answerValue ?? 5)}</span>
+                    <span>10</span>
                   </div>
                 </div>
               )}
               {question.question_type === 'multiple_choice' && question.options.length > 0 && (
                 <RadioGroup onValueChange={v => onAnswerChange(v)} className="space-y-2">
-                  {question.options.map((opt, i) => (
-                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                      <RadioGroupItem value={opt} id={`wopt-${i}`} />
-                      <Label htmlFor={`wopt-${i}`} className="cursor-pointer flex-1">{opt}</Label>
-                    </div>
-                  ))}
+                  {question.options.map((opt, i) => {
+                    const isSelected = answerValue === opt;
+                    return (
+                      <div key={i} className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
+                        isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'hover:bg-muted/50'
+                      }`}>
+                        <RadioGroupItem value={opt} id={`wopt-${i}`} />
+                        <Label htmlFor={`wopt-${i}`} className="cursor-pointer flex-1">{opt}</Label>
+                        {isSelected && <CheckCircle2 className="h-4 w-4 text-primary shrink-0 animate-in zoom-in-50 duration-200" />}
+                      </div>
+                    );
+                  })}
                 </RadioGroup>
               )}
               {question.question_type === 'text' && (
@@ -71,7 +79,10 @@ export function WellnessQuestionStep({ question, isLoading, answerValue, onAnswe
               )}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground text-center py-4">{t('wellness.noQuestion')}</p>
+            <div className="text-center py-8 space-y-3">
+              <span className="text-4xl">📋</span>
+              <p className="text-sm text-muted-foreground">{t('wellness.noQuestion')}</p>
+            </div>
           )}
         </CardContent>
       </Card>

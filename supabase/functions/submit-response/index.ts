@@ -201,6 +201,7 @@ function validateAnswer(type: string, value: any, options?: any[]): { valid: boo
       }
       break;
     case "numeric_scale":
+    case "scale":
       if (typeof value !== "number" || value < 1 || value > 10) {
         return { valid: false, error: "Numeric scale value must be between 1 and 10" };
       }
