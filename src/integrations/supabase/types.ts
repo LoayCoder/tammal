@@ -1043,6 +1043,30 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_settings: {
+        Row: {
+          allow_public_signup: boolean
+          id: string
+          show_invitation_link: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          allow_public_signup?: boolean
+          id?: string
+          show_invitation_link?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          allow_public_signup?: boolean
+          id?: string
+          show_invitation_link?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

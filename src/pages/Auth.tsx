@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { usePlatformSettings } from '@/hooks/usePlatformSettings';
 import { z } from 'zod';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,7 @@ export default function Auth() {
   const { toast } = useToast();
   const { user, signIn, signUp, loading } = useAuth();
   
+  const { allowSignup, showInvitation, isLoading: settingsLoading } = usePlatformSettings();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,6 +36,13 @@ export default function Auth() {
       navigate('/');
     }
   }, [user, loading, navigate]);
+
+  // Force login mode when signup is disabled
+  useEffect(() => {
+    if (!allowSignup && !isLogin) {
+      setIsLogin(true);
+    }
+  }, [allowSignup, isLogin]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -172,28 +181,39 @@ export default function Auth() {
               </Button>
             </form>
 
-            <div className="mt-4 text-center text-sm">
-              {isLogin ? (
-                <p>
-                  {t('auth.noAccount')}{' '}
-                  <button
-                    type="button"
-                    onClick={() => setIsLogin(false)}
-                    className="text-primary hover:underline"
-                  >
-                    {t('auth.signup')}
-                  </button>
-                </p>
-              ) : (
-                <p>
-                  {t('auth.hasAccount')}{' '}
-                  <button
-                    type="button"
-                    onClick={() => setIsLogin(true)}
-                    className="text-primary hover:underline"
-                  >
-                    {t('auth.login')}
-                  </button>
+            <div className="mt-4 text-center text-sm space-y-2">
+              {allowSignup && (
+                isLogin ? (
+                  <p>
+                    {t('auth.noAccount')}{' '}
+                    <button
+                      type="button"
+                      onClick={() => setIsLogin(false)}
+                      className="text-primary hover:underline"
+                    >
+                      {t('auth.signup')}
+                    </button>
+                  </p>
+                ) : (
+                  <p>
+                    {t('auth.hasAccount')}{' '}
+                    <button
+                      type="button"
+                      onClick={() => setIsLogin(true)}
+                      className="text-primary hover:underline"
+                    >
+                      {t('auth.login')}
+                    </button>
+                  </p>
+                )
+              )}
+
+              {showInvitation && (
+                <p className="text-muted-foreground">
+                  {t('auth.haveInviteCode')}{' '}
+                  <Link to="/auth/accept-invite" className="text-primary hover:underline">
+                    {t('auth.useInviteCode')}
+                  </Link>
                 </p>
               )}
             </div>
