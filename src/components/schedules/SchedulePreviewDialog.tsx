@@ -26,11 +26,13 @@ interface PreviewQuestion {
     id?: string;
     full_name?: string;
     email?: string;
-    department?: string | null; // text field fallback
+    department?: string | null;
     department_id?: string | null;
     branch_id?: string | null;
+    section_id?: string | null;
     branch?: { id?: string; name?: string; name_ar?: string } | any;
     dept?: { id?: string; name?: string; name_ar?: string } | any;
+    section?: { id?: string; name?: string; name_ar?: string } | any;
   } | null;
   question?: { id?: string; text?: string; text_ar?: string; type?: string } | null;
 }
@@ -68,6 +70,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
   const [filterEmployee, setFilterEmployee] = useState('');
   const [filterBranch, setFilterBranch] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('');
+  const [filterSection, setFilterSection] = useState('');
   const [showAnalytics, setShowAnalytics] = useState(false);
 
   // Helper to unwrap array joins
@@ -85,6 +88,10 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
       return { name: sq.employee.department };
     }
     return null;
+  };
+  const getEmpSection = (sq: PreviewQuestion): { id?: string; name?: string; name_ar?: string } | null => {
+    const s = sq.employee?.section;
+    return Array.isArray(s) ? s[0] : s;
   };
 
   // Unique employees from data
@@ -120,6 +127,16 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
     return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
   }, [previewQuestions]);
 
+  // Unique sections
+  const uniqueSections = useMemo(() => {
+    const map = new Map<string, string>();
+    previewQuestions.forEach(sq => {
+      const s = getEmpSection(sq);
+      if (s?.id && s?.name) map.set(s.id, s.name);
+    });
+    return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+  }, [previewQuestions]);
+
   // Filtered data
   const filteredPreview = useMemo(() => {
     return previewQuestions.filter(sq => {
@@ -136,9 +153,13 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
         const dKey = d?.id || (d?.name ? `text:${d.name}` : '');
         if (dKey !== filterDepartment) return false;
       }
+      if (filterSection && filterSection !== 'all') {
+        const s = getEmpSection(sq);
+        if (s?.id !== filterSection) return false;
+      }
       return true;
     });
-  }, [previewQuestions, filterDateFrom, filterDateTo, filterStatuses, filterEmployee, filterBranch, filterDepartment]);
+  }, [previewQuestions, filterDateFrom, filterDateTo, filterStatuses, filterEmployee, filterBranch, filterDepartment, filterSection]);
 
   // Chart data
   const statusChartData = useMemo(() => {
@@ -182,6 +203,18 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
     return Object.entries(map).map(([name, statuses]) => ({ name, ...statuses }));
   }, [filteredPreview, t]);
 
+  // Status by Section
+  const statusBySectionData = useMemo(() => {
+    const map: Record<string, Record<string, number>> = {};
+    filteredPreview.forEach(sq => {
+      const s = getEmpSection(sq);
+      const sName = s?.name || t('common.unassigned');
+      if (!map[sName]) map[sName] = {};
+      map[sName][sq.status] = (map[sName][sq.status] || 0) + 1;
+    });
+    return Object.entries(map).map(([name, statuses]) => ({ name, ...statuses }));
+  }, [filteredPreview, t]);
+
   // All unique statuses for stacked bars
   const allStatuses = useMemo(() => {
     const s = new Set<string>();
@@ -195,7 +228,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
   const pendingCount = filteredPreview.filter(sq => sq.status === 'pending').length;
   const answeredRate = totalCount > 0 ? Math.round((answeredCount / totalCount) * 100) : 0;
 
-  const hasActiveFilters = filterDateFrom || filterDateTo || filterStatuses.length > 0 || filterEmployee || filterBranch || filterDepartment;
+  const hasActiveFilters = filterDateFrom || filterDateTo || filterStatuses.length > 0 || filterEmployee || filterBranch || filterDepartment || filterSection;
 
   const clearFilters = () => {
     setFilterDateFrom('');
@@ -204,6 +237,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
     setFilterEmployee('');
     setFilterBranch('');
     setFilterDepartment('');
+    setFilterSection('');
   };
 
   const toggleStatusFilter = (status: string) => {
@@ -322,7 +356,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
               </div>
               {uniqueBranches.length > 0 && (
                 <div className="space-y-1">
-                  <Label className="text-xs">{t('organization.division')}</Label>
+                  <Label className="text-xs">{t('organization.branch')}</Label>
                   <Select value={filterBranch} onValueChange={setFilterBranch}>
                     <SelectTrigger className="h-9 w-[150px]">
                       <SelectValue placeholder={t('common.all')} />
@@ -347,6 +381,22 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                       <SelectItem value="all">{t('common.all')}</SelectItem>
                       {uniqueDepartments.map(d => (
                         <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              {uniqueSections.length > 0 && (
+                <div className="space-y-1">
+                  <Label className="text-xs">{t('organization.section')}</Label>
+                  <Select value={filterSection} onValueChange={setFilterSection}>
+                    <SelectTrigger className="h-9 w-[150px]">
+                      <SelectValue placeholder={t('common.all')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('common.all')}</SelectItem>
+                      {uniqueSections.map(s => (
+                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -461,7 +511,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                         <CardContent className="p-4">
                           <div className="flex items-center gap-2 mb-3">
                             <Building2 className="h-4 w-4 text-muted-foreground" />
-                            <p className="text-sm font-medium">{t('organization.division')} — {t('common.statusDistribution')}</p>
+                            <p className="text-sm font-medium">{t('organization.branch')} — {t('common.statusDistribution')}</p>
                           </div>
                           <ResponsiveContainer width="100%" height={200}>
                             <BarChart data={statusByBranchData} layout="vertical">
@@ -500,6 +550,29 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                         </CardContent>
                       </Card>
                     )}
+
+                    {/* Status by Section */}
+                    {statusBySectionData.length > 0 && (
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <MapPin className="h-4 w-4 text-muted-foreground" />
+                            <p className="text-sm font-medium">{t('organization.section')} — {t('common.statusDistribution')}</p>
+                          </div>
+                          <ResponsiveContainer width="100%" height={200}>
+                            <BarChart data={statusBySectionData} layout="vertical">
+                              <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
+                              <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={80} />
+                              <Tooltip />
+                              <Legend />
+                              {allStatuses.map((status, i) => (
+                                <Bar key={status} dataKey={status} stackId="a" fill={STATUS_COLORS[status] || PIE_COLORS[i % PIE_COLORS.length]} />
+                              ))}
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 </div>
               </CollapsibleContent>
@@ -517,8 +590,9 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('schedules.employee')}</TableHead>
-                  <TableHead>{t('organization.division')}</TableHead>
+                  <TableHead>{t('organization.branch')}</TableHead>
                   <TableHead>{t('users.department')}</TableHead>
+                  <TableHead>{t('organization.section')}</TableHead>
                   <TableHead>{t('questions.questionTextEn')}</TableHead>
                   <TableHead>{t('schedules.delivery')}</TableHead>
                   <TableHead>{t('common.status')}</TableHead>
@@ -527,7 +601,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
               <TableBody>
                 {filteredPreview.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-6">
                       {t('common.noMatchingQuestions')}
                     </TableCell>
                   </TableRow>
@@ -542,6 +616,9 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                       </TableCell>
                       <TableCell className="text-sm">
                         {getEmpDept(sq)?.name || '-'}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {getEmpSection(sq)?.name || '-'}
                       </TableCell>
                       <TableCell
                         className="text-sm max-w-[220px] cursor-pointer hover:bg-muted/50"
