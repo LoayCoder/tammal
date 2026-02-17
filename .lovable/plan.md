@@ -1,53 +1,28 @@
 
 
-# Admin-Controlled Auth Page Options
+# Admin-Controlled Auth Page (Signup & Invitation Visibility)
 
 ## Overview
-Instead of removing signup or invitation features, both will remain on the Auth page but their visibility will be controlled by a **global platform setting** that super admins can toggle on/off. By default, signup is hidden and invitation link is shown.
+Make the signup form and invitation link on the Auth page controlled by a global platform setting. Super admins can toggle these on/off from the admin panel. By default, signup is hidden and the invitation link is shown.
 
-## Problem
-The Auth page is public (no user is logged in), so it cannot read per-tenant settings. We need a **platform-level** settings table that is publicly readable to control what options appear on the login screen.
+## What You Will See
 
-## Solution
+### On the Auth Page (`/auth`)
+- **Default state**: Login form only + "Have an invitation code?" link
+- When a super admin enables public signup: the "Create account" toggle reappears
+- When a super admin hides the invitation link: it disappears
+- Both toggles work independently
 
-### 1. New Database Table: `platform_settings`
-A single-row table storing global platform configuration, publicly readable.
-
-| Column | Type | Default |
-|---|---|---|
-| id | uuid (PK) | auto |
-| allow_public_signup | boolean | false |
-| show_invitation_link | boolean | true |
-| updated_at | timestamp | now() |
-| updated_by | uuid | null |
-
-- **RLS**: Anyone can SELECT (public page needs to read it). Only super admins can UPDATE.
-- Seed with one row on creation.
-
-### 2. New Hook: `src/hooks/usePlatformSettings.ts`
-- Fetches the single row from `platform_settings`
-- Returns `{ allowSignup, showInvitation, isLoading }`
-- No auth required (anon-accessible SELECT)
-
-### 3. Update Auth Page (`src/pages/Auth.tsx`)
-- Call `usePlatformSettings()` on mount
-- If `allowSignup` is false: hide the "Create account" toggle and signup form entirely (login-only mode)
-- If `showInvitation` is true: show a "Have an invitation code?" link to `/auth/accept-invite`
-- Both can be true simultaneously (user sees signup toggle AND invitation link)
-
-### 4. Admin Settings Page
-Add a "Platform Auth Settings" section to an existing admin page (e.g., a new card in the Document Settings page or a dedicated section). Super admins can toggle:
-- "Allow Public Signup" switch
-- "Show Invitation Link" switch
-
-### 5. Translation Keys
-Add to `en.json` and `ar.json`:
-- `auth.haveInviteCode` / `auth.useInviteCode`
-- `platformSettings.title` / `platformSettings.allowSignup` / `platformSettings.showInvitation` and descriptions
+### In Admin Settings (Document Settings page)
+- A new "Platform Authentication" card with two switches:
+  - **Allow Public Signup** (off by default)
+  - **Show Invitation Link** (on by default)
 
 ## Technical Details
 
-### Database Migration
+### 1. Database Migration
+Create a `platform_settings` table (single-row, publicly readable):
+
 ```sql
 CREATE TABLE public.platform_settings (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -59,38 +34,53 @@ CREATE TABLE public.platform_settings (
 
 ALTER TABLE public.platform_settings ENABLE ROW LEVEL SECURITY;
 
--- Anyone can read (needed for public auth page)
 CREATE POLICY "Anyone can read platform settings"
-  ON public.platform_settings FOR SELECT
-  USING (true);
+  ON public.platform_settings FOR SELECT USING (true);
 
--- Only super admins can update
 CREATE POLICY "Super admins can update platform settings"
   ON public.platform_settings FOR UPDATE
-  USING (has_role(auth.uid(), 'super_admin'))
-  WITH CHECK (has_role(auth.uid(), 'super_admin'));
+  USING (has_role(auth.uid(), 'super_admin'::app_role))
+  WITH CHECK (has_role(auth.uid(), 'super_admin'::app_role));
 
--- Seed single row
 INSERT INTO public.platform_settings (allow_public_signup, show_invitation_link)
 VALUES (false, true);
 ```
 
-### Auth Page Behavior Matrix
+### 2. New File: `src/hooks/usePlatformSettings.ts`
+- Fetches the single row from `platform_settings` (no auth required)
+- Returns `{ allowSignup, showInvitation, isLoading }`
 
-| allow_public_signup | show_invitation_link | Auth Page Shows |
-|---|---|---|
-| false | true | Login form + "Have an invitation code?" link |
-| true | true | Login/Signup toggle + "Have an invitation code?" link |
-| true | false | Login/Signup toggle only |
-| false | false | Login form only |
+### 3. Update: `src/pages/Auth.tsx`
+- Import `usePlatformSettings` and `Link` from react-router-dom
+- Wrap the signup toggle in `if (allowSignup)` -- when false, force `isLogin = true` and hide the toggle
+- Add invitation link at the bottom when `showInvitation` is true:
+  ```
+  Have an invitation code? Use Invitation Code
+  ```
+- The login form always remains visible
 
-### Files to Create/Modify
-| File | Change |
+### 4. Update: `src/pages/admin/DocumentSettings.tsx`
+- Add a "Platform Authentication" card with two Switch components
+- Fetches current settings and allows super admins to toggle them
+- Saves changes via Supabase update to `platform_settings`
+
+### 5. Translation Keys (en.json / ar.json)
+- `auth.haveInviteCode`: "Have an invitation code?" / "لديك رمز دعوة؟"
+- `auth.useInviteCode`: "Use Invitation Code" / "استخدم رمز الدعوة"
+- `platformSettings.title`: "Platform Authentication" / "إعدادات المصادقة"
+- `platformSettings.allowSignup`: "Allow Public Signup" / "السماح بالتسجيل العام"
+- `platformSettings.allowSignupDesc`: "When enabled, anyone can create an account from the login page" / "عند التفعيل، يمكن لأي شخص إنشاء حساب من صفحة تسجيل الدخول"
+- `platformSettings.showInvitation`: "Show Invitation Link" / "إظهار رابط الدعوة"
+- `platformSettings.showInvitationDesc`: "Show 'Have an invitation code?' link on the login page" / "إظهار رابط 'لديك رمز دعوة؟' في صفحة تسجيل الدخول"
+
+### Files Summary
+
+| File | Action |
 |---|---|
-| **Migration SQL** | Create `platform_settings` table with RLS + seed row |
-| `src/hooks/usePlatformSettings.ts` | New hook to fetch settings |
-| `src/pages/Auth.tsx` | Conditionally show signup toggle and invitation link |
-| `src/pages/admin/DocumentSettings.tsx` | Add platform auth settings card for super admins |
-| `src/locales/en.json` | Add translation keys |
-| `src/locales/ar.json` | Add Arabic translation keys |
+| Migration SQL | Create `platform_settings` table + RLS + seed |
+| `src/hooks/usePlatformSettings.ts` | New -- fetch platform settings |
+| `src/pages/Auth.tsx` | Update -- conditional signup/invitation rendering |
+| `src/pages/admin/DocumentSettings.tsx` | Update -- add admin toggle switches |
+| `src/locales/en.json` | Update -- add new keys |
+| `src/locales/ar.json` | Update -- add Arabic keys |
 
