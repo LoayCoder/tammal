@@ -1253,11 +1253,14 @@ export type Database = {
           description: string | null
           enable_ai_generation: boolean | null
           enable_validation: boolean | null
+          end_date: string | null
           frequency: string
           id: string
           name: string
           preferred_time: string | null
           questions_per_delivery: number | null
+          schedule_type: string
+          start_date: string | null
           status: string
           target_audience: Json | null
           tenant_id: string
@@ -1277,11 +1280,14 @@ export type Database = {
           description?: string | null
           enable_ai_generation?: boolean | null
           enable_validation?: boolean | null
+          end_date?: string | null
           frequency?: string
           id?: string
           name: string
           preferred_time?: string | null
           questions_per_delivery?: number | null
+          schedule_type?: string
+          start_date?: string | null
           status?: string
           target_audience?: Json | null
           tenant_id: string
@@ -1301,11 +1307,14 @@ export type Database = {
           description?: string | null
           enable_ai_generation?: boolean | null
           enable_validation?: boolean | null
+          end_date?: string | null
           frequency?: string
           id?: string
           name?: string
           preferred_time?: string | null
           questions_per_delivery?: number | null
+          schedule_type?: string
+          start_date?: string | null
           status?: string
           target_audience?: Json | null
           tenant_id?: string

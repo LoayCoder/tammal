@@ -26,6 +26,9 @@ export interface QuestionSchedule {
   deleted_at: string | null;
   batch_ids: string[];
   weekend_days: number[];
+  schedule_type: 'daily_checkin' | 'survey';
+  start_date: string | null;
+  end_date: string | null;
 }
 
 export interface CreateScheduleInput {
@@ -46,6 +49,9 @@ export interface CreateScheduleInput {
   status?: QuestionSchedule['status'];
   batch_ids?: string[];
   weekend_days?: number[];
+  schedule_type?: 'daily_checkin' | 'survey';
+  start_date?: string | null;
+  end_date?: string | null;
 }
 
 export function useQuestionSchedules(tenantId?: string) {
@@ -74,6 +80,9 @@ export function useQuestionSchedules(tenantId?: string) {
         active_categories: (schedule.active_categories || []) as string[],
         batch_ids: (schedule.batch_ids || []) as string[],
         weekend_days: (schedule.weekend_days || [5, 6]) as number[],
+        schedule_type: (schedule.schedule_type || 'daily_checkin') as QuestionSchedule['schedule_type'],
+        start_date: schedule.start_date || null,
+        end_date: schedule.end_date || null,
       })) as QuestionSchedule[];
     },
   });
@@ -98,6 +107,9 @@ export function useQuestionSchedules(tenantId?: string) {
         status: input.status,
         batch_ids: (input.batch_ids || []) as unknown as null,
         weekend_days: (input.weekend_days || [5, 6]) as unknown as null,
+        schedule_type: input.schedule_type || 'daily_checkin',
+        start_date: input.start_date || null,
+        end_date: input.end_date || null,
       };
 
       const { data, error } = await supabase
@@ -137,6 +149,9 @@ export function useQuestionSchedules(tenantId?: string) {
       if (updates.status !== undefined) updateData.status = updates.status;
       if (updates.batch_ids !== undefined) updateData.batch_ids = updates.batch_ids;
       if (updates.weekend_days !== undefined) updateData.weekend_days = updates.weekend_days;
+      if (updates.schedule_type !== undefined) updateData.schedule_type = updates.schedule_type;
+      if (updates.start_date !== undefined) updateData.start_date = updates.start_date;
+      if (updates.end_date !== undefined) updateData.end_date = updates.end_date;
       
       const { data, error } = await supabase
         .from('question_schedules')

@@ -999,7 +999,15 @@
     "notIncluded": "Not Included",
     "audienceDetails": "Audience Details",
     "searchAudience": "Search by name, email, or department",
-    "allIncluded": "All employees are included"
+    "allIncluded": "All employees are included",
+    "scheduleType": "Schedule Type",
+    "dailyCheckin": "Daily Check-in",
+    "survey": "Survey",
+    "selectType": "Select schedule type",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "dateRangeRequired": "Start and end dates are required for surveys",
+    "type": "Type"
   },
   "aiGenerator": {
     "title": "AI Question Generator",
