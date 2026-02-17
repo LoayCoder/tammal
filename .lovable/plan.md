@@ -1,111 +1,66 @@
 
-# Organization Structure Expansion: 5-Level Hierarchy
 
-## New Hierarchy
+## Wellness Check-in Full Audit and Enhancement
 
-```text
-Branch (physical office/location) -- independent
-Division (organizational grouping) -- independent
-Department (linked to Division)
-Section (linked to Department) -- current "sites" table
-Site (physical work location, assignable to Section OR Department)
-```
+### Issues Found
 
-## Database Changes
+1. **No duplicate check-in guard** -- The user can submit multiple mood entries for the same day. Today's data already shows one entry, yet the form still appears. There is no check against `mood_entries` for `entry_date = today`.
 
-### 1. New `divisions` table
-A new table since `branches` is being restored to its original "Branch" meaning. Columns:
-- `id` (uuid, PK)
-- `tenant_id` (uuid, NOT NULL)
-- `name` (text, NOT NULL)
-- `name_ar` (text)
-- `description` (text)
-- `description_ar` (text)
-- `is_active` (boolean, default true)
-- `created_at`, `updated_at`, `deleted_at` (timestamps)
+2. **Question type mismatch** -- Wellness questions use type `scale`, but `ScheduledQuestionsStep` only handles `numeric_scale`, `likert_5`, `yes_no`, `open_ended`, `multiple_choice`. When a `scale`-type question arrives from `wellness_questions` via the scheduled pipeline, it falls through to a plain textarea instead of a slider.
 
-RLS policies: same pattern as branches (super_admin ALL, tenant_admin ALL, users SELECT within tenant).
+3. **Stale scheduled questions** -- After submitting the check-in, the 2 scheduled questions for today remain `pending` in the database. The mood entry was saved but the scheduled question responses were never submitted (likely because the user skipped the scheduled step or it wasn't properly wired).
 
-### 2. Add `division_id` column to `departments`
-- New nullable `division_id` uuid column on `departments`
-- Keeps existing `branch_id` for backward compatibility but UI will use `division_id` going forward
+4. **Wellness question and scheduled questions can overlap** -- The daily wellness question (from `daily_question_schedule`) and scheduled questions (from `scheduled_questions`) can reference the same `wellness_questions` row, causing the user to see it twice.
 
-### 3. Add `section_id` column to `employees`
-- New nullable `section_id` uuid column to support Section assignment on employees
+5. **UI lacks micro-interactions and modern feel** -- No animated transitions between steps, no confetti or haptic feedback on selection, progress indicator is minimal.
 
-### 4. Repurpose `sites` table
-The `sites` table currently represents "Sections." We need to decide: either repurpose `sites` as the new "Site" concept and create a new `sections` table, or keep `sites` as Sections and create a new table for Sites.
+---
 
-**Chosen approach**: Keep `sites` table as **Sections** (no disruption to existing data). Create a new `work_sites` table for **Site** (physical locations):
-- `id`, `tenant_id`, `name`, `name_ar`, `address`, `address_ar`
-- `department_id` (nullable) -- assign to department
-- `section_id` (nullable) -- assign to section (references `sites` table)
-- `is_active`, `created_at`, `updated_at`, `deleted_at`
-- RLS policies matching the same tenant isolation pattern
+### Plan
 
-## UI Changes
+#### 1. Add "Already Checked In Today" Guard
+- In `DailyCheckin.tsx`, query `mood_entries` for `employee_id + entry_date = today`.
+- If an entry exists, show the `CheckinSuccess` screen immediately with today's data (streak, points, AI tip) and a message "You've already completed today's check-in."
+- This prevents duplicate submissions at the UI level.
 
-### OrgStructure Page (5 tabs)
-Replace the current 3-tab layout with 5 tabs:
-1. **Branches** -- restore original Branch management (physical locations with address/phone/email)
-2. **Divisions** -- new tab for organizational divisions
-3. **Departments** -- linked to Division (dropdown selector)
-4. **Sections** -- linked to Department (current `sites` management)
-5. **Sites** -- new tab for physical work locations, assignable to Department or Section
+#### 2. Fix Question Type Mapping
+- In `ScheduledQuestionsStep.tsx`, add `case 'scale':` as an alias for `numeric_scale` in the `renderInput` switch.
+- In `WellnessQuestionStep.tsx`, verify the `scale` type renders a slider (it already does -- confirmed).
+- In `submit-response/index.ts`, add `case 'scale':` to the `validateAnswer` function so it validates like `numeric_scale` (1-10 range).
 
-### New Components
-| File | Purpose |
+#### 3. Deduplicate Wellness vs Scheduled Questions
+- In `useCheckinScheduledQuestions.ts`, after fetching today's scheduled questions, filter out any question whose `question_id` matches the daily wellness question ID (passed as a parameter or fetched alongside).
+- This prevents the same question appearing in both the Wellness step and the Scheduled step.
+
+#### 4. Enhanced UI/UX
+- **Animated step transitions**: Wrap each step in a CSS `animate-in` fade+slide using Tailwind's `animate-fade-in` or a simple `transition-all` with conditional rendering.
+- **Mood selection micro-interaction**: Add a brief scale-up animation (`animate-[pop_0.3s_ease]`) when a mood is selected, plus a subtle background pulse.
+- **Progress indicator upgrade**: Replace dots with a sleek segmented bar showing step labels (Mood, Question, Survey, Submit) with color fill animation.
+- **Answer selection feedback**: Add checkmark icons and color transitions when an answer option is selected in radio groups and scales.
+- **Success screen enhancement**: Add a confetti-style emoji burst animation, and display a motivational quote alongside the AI tip.
+- **Card hover states**: Add `hover:shadow-md hover:-translate-y-0.5 transition-all duration-200` to interactive cards.
+
+#### 5. Error Handling Improvements
+- Show inline error banners (not just toasts) if the submission fails, with a retry button.
+- If the employee profile is missing, show a clear "Profile not found" card with guidance.
+- If no questions are available, show a friendly illustration instead of plain text.
+
+---
+
+### Technical Details
+
+**Files to modify:**
+
+| File | Changes |
 |------|---------|
-| `src/hooks/useDivisions.ts` | CRUD hook for the new `divisions` table |
-| `src/hooks/useWorkSites.ts` | CRUD hook for the new `work_sites` table |
-| `src/components/org/DivisionTable.tsx` | Table listing divisions |
-| `src/components/org/DivisionSheet.tsx` | Create/edit division form |
-| `src/components/org/WorkSiteTable.tsx` | Table listing sites with dept/section assignment |
-| `src/components/org/WorkSiteSheet.tsx` | Create/edit site form with dept/section dropdowns |
+| `src/pages/employee/DailyCheckin.tsx` | Add today's mood entry query, show "already done" state, animated transitions, improved progress bar |
+| `src/components/checkin/MoodStep.tsx` | Add pop animation on select, enhanced visual feedback |
+| `src/components/checkin/WellnessQuestionStep.tsx` | Add answer feedback animations, improved empty state |
+| `src/components/checkin/ScheduledQuestionsStep.tsx` | Add `scale` case, answer selection animations, back button |
+| `src/components/checkin/CheckinSuccess.tsx` | Enhanced success animation, show "already done" variant |
+| `src/components/checkin/SupportStep.tsx` | Hover micro-interactions on action cards |
+| `src/hooks/useCheckinScheduledQuestions.ts` | Accept wellness question ID param, filter duplicates |
+| `supabase/functions/submit-response/index.ts` | Add `scale` to validation function |
 
-### Modified Components
-| File | Change |
-|------|--------|
-| `src/pages/admin/OrgStructure.tsx` | 5 tabs, import new hooks and components |
-| `src/components/org/BranchTable.tsx` | Restore "Branch" labels (remove Division terminology) |
-| `src/components/org/BranchSheet.tsx` | Restore "Branch" labels |
-| `src/components/org/DepartmentTable.tsx` | Show "Division" column (from `division_id`) instead of branch |
-| `src/components/org/DepartmentSheet.tsx` | Division dropdown uses `division_id`, not `branch_id` |
-| `src/components/org/SiteTable.tsx` | Keep as Section table, labels remain "Section" |
-| `src/components/org/SiteSheet.tsx` | Keep as Section form, labels remain "Section" |
-| `src/components/employees/EmployeeSheet.tsx` | Add Branch, Division, Department, Section dropdowns (4 levels). Division and Branch are independent selects. Department filters by Division. Section filters by Department. |
-| `src/components/schedules/SchedulePreviewDialog.tsx` | Add Division filter/chart alongside Branch |
-| `src/hooks/useBranches.ts` | Restore Branch toast keys |
-| `src/hooks/useSites.ts` | Keep Section toast keys |
-| `src/locales/en.json` | Add `branches.*` keys (restored), `sites.*` keys (new for work sites), keep `divisions.*` and `sections.*` |
-| `src/locales/ar.json` | Same translations in Arabic |
+**No database changes required** -- all fixes are in application logic and edge functions.
 
-### Translation Key Structure
-- `branches.*` -- Branch (physical office): "Branch" / "فرع"
-- `divisions.*` -- Division (org grouping): "Division" / "القسم الرئيسي"
-- `organization.*` -- Department: stays as-is
-- `sections.*` -- Section: stays as-is
-- `sites.*` -- NEW Site keys: "Site" / "موقع العمل"
-
-### Employee Sheet Flow
-Four independent/linked dropdowns:
-- **Branch** (independent select from `branches`)
-- **Division** (independent select from `divisions`)
-- **Department** (filtered by selected Division)
-- **Section** (filtered by selected Department, from `sites` table)
-
-### Analytics (SchedulePreviewDialog)
-- Add Division filter and "Division -- Status Distribution" chart
-- Keep Branch chart and Department chart
-- Section chart optional (can be added later)
-
-## Sequencing
-1. Database migration: create `divisions` table, `work_sites` table, add `division_id` to departments, add `section_id` to employees
-2. Translation files: add/restore all keys for branches, divisions, sections, sites
-3. Create new hooks: `useDivisions.ts`, `useWorkSites.ts`
-4. Create new components: DivisionTable, DivisionSheet, WorkSiteTable, WorkSiteSheet
-5. Update OrgStructure page to 5 tabs
-6. Update DepartmentTable/Sheet to use `division_id`
-7. Restore BranchTable/Sheet to Branch labels
-8. Update EmployeeSheet with 4-level dropdowns
-9. Update SchedulePreviewDialog analytics
