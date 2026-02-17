@@ -163,7 +163,7 @@ export default function EmployeeHome() {
 
 
       {/* Quick Stats */}
-      <div className="grid gap-4 grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
         <Card>
           <CardContent className="p-4 text-center">
             <Calendar className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
