@@ -1,86 +1,32 @@
 
 
-# Admin-Controlled Auth Page (Signup & Invitation Visibility)
+# Assign test@example.com to TAMMAL Tenant
 
-## Overview
-Make the signup form and invitation link on the Auth page controlled by a global platform setting. Super admins can toggle these on/off from the admin panel. By default, signup is hidden and the invitation link is shown.
+## What Needs to Happen
+The user `test@example.com` (user_id: `5cfed714-2dc9-4d02-bc96-7569b70bd811`) needs their `profiles.tenant_id` set to the TAMMAL tenant (`4fc9029e-2485-46a5-a540-ec2de643c3e3`).
 
-## What You Will See
+This is a **data update**, not a code change. The database trigger `auto_create_employee_on_profile_link` will automatically create an employee record when `tenant_id` goes from NULL to a value.
 
-### On the Auth Page (`/auth`)
-- **Default state**: Login form only + "Have an invitation code?" link
-- When a super admin enables public signup: the "Create account" toggle reappears
-- When a super admin hides the invitation link: it disappears
-- Both toggles work independently
-
-### In Admin Settings (Document Settings page)
-- A new "Platform Authentication" card with two switches:
-  - **Allow Public Signup** (off by default)
-  - **Show Invitation Link** (on by default)
-
-## Technical Details
-
-### 1. Database Migration
-Create a `platform_settings` table (single-row, publicly readable):
+## Implementation
+Run a single SQL UPDATE via a database migration:
 
 ```sql
-CREATE TABLE public.platform_settings (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  allow_public_signup boolean NOT NULL DEFAULT false,
-  show_invitation_link boolean NOT NULL DEFAULT true,
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  updated_by uuid
-);
-
-ALTER TABLE public.platform_settings ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Anyone can read platform settings"
-  ON public.platform_settings FOR SELECT USING (true);
-
-CREATE POLICY "Super admins can update platform settings"
-  ON public.platform_settings FOR UPDATE
-  USING (has_role(auth.uid(), 'super_admin'::app_role))
-  WITH CHECK (has_role(auth.uid(), 'super_admin'::app_role));
-
-INSERT INTO public.platform_settings (allow_public_signup, show_invitation_link)
-VALUES (false, true);
+UPDATE public.profiles 
+SET tenant_id = '4fc9029e-2485-46a5-a540-ec2de643c3e3',
+    full_name = COALESCE(full_name, 'Test User')
+WHERE user_id = '5cfed714-2dc9-4d02-bc96-7569b70bd811'
+  AND tenant_id IS NULL;
 ```
 
-### 2. New File: `src/hooks/usePlatformSettings.ts`
-- Fetches the single row from `platform_settings` (no auth required)
-- Returns `{ allowSignup, showInvitation, isLoading }`
+## What Happens Automatically
+1. The `auto_create_employee_on_profile_link` trigger fires
+2. An employee record is created in the `employees` table for this user under the TAMMAL tenant
+3. The user will now appear in the **User Management** directory when viewing the TAMMAL tenant
+4. The user can log in and see the Employee Homepage
 
-### 3. Update: `src/pages/Auth.tsx`
-- Import `usePlatformSettings` and `Link` from react-router-dom
-- Wrap the signup toggle in `if (allowSignup)` -- when false, force `isLogin = true` and hide the toggle
-- Add invitation link at the bottom when `showInvitation` is true:
-  ```
-  Have an invitation code? Use Invitation Code
-  ```
-- The login form always remains visible
-
-### 4. Update: `src/pages/admin/DocumentSettings.tsx`
-- Add a "Platform Authentication" card with two Switch components
-- Fetches current settings and allows super admins to toggle them
-- Saves changes via Supabase update to `platform_settings`
-
-### 5. Translation Keys (en.json / ar.json)
-- `auth.haveInviteCode`: "Have an invitation code?" / "لديك رمز دعوة؟"
-- `auth.useInviteCode`: "Use Invitation Code" / "استخدم رمز الدعوة"
-- `platformSettings.title`: "Platform Authentication" / "إعدادات المصادقة"
-- `platformSettings.allowSignup`: "Allow Public Signup" / "السماح بالتسجيل العام"
-- `platformSettings.allowSignupDesc`: "When enabled, anyone can create an account from the login page" / "عند التفعيل، يمكن لأي شخص إنشاء حساب من صفحة تسجيل الدخول"
-- `platformSettings.showInvitation`: "Show Invitation Link" / "إظهار رابط الدعوة"
-- `platformSettings.showInvitationDesc`: "Show 'Have an invitation code?' link on the login page" / "إظهار رابط 'لديك رمز دعوة؟' في صفحة تسجيل الدخول"
-
-### Files Summary
-
+## Files
 | File | Action |
 |---|---|
-| Migration SQL | Create `platform_settings` table + RLS + seed |
-| `src/hooks/usePlatformSettings.ts` | New -- fetch platform settings |
-| `src/pages/Auth.tsx` | Update -- conditional signup/invitation rendering |
-| `src/pages/admin/DocumentSettings.tsx` | Update -- add admin toggle switches |
-| `src/locales/en.json` | Update -- add new keys |
-| `src/locales/ar.json` | Update -- add Arabic keys |
+| Migration SQL | UPDATE profile to set tenant_id |
 
+No code changes needed -- this is purely a data operation.
