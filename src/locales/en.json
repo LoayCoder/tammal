@@ -1607,5 +1607,30 @@
     "inactiveUser": "Inactive",
     "filterByAccountStatus": "Account Status",
     "autoSuspendConfirm": "This employee has a login account. Suspend their access?"
+  },
+  "home": {
+    "goodMorning": "Good morning",
+    "goodAfternoon": "Good afternoon",
+    "goodEvening": "Good evening",
+    "subtitle": "Here's how you're doing today",
+    "dayStreak": "day streak",
+    "points": "points",
+    "checkinCard": "Daily Check-in",
+    "checkinDesc": "Take a moment to share how you're feeling today",
+    "checkinNow": "Check in now",
+    "checkinDone": "Check-in Complete",
+    "checkinDoneDesc": "Great job! You've checked in for today",
+    "surveyCard": "Pending Questions",
+    "pendingSurveys": "{{count}} questions waiting for you",
+    "moodHistory": "Mood History",
+    "last14Days": "Your mood over the last 14 days",
+    "noMoodData": "Start checking in to see your mood trends",
+    "burnout": "Wellness Indicator",
+    "thriving": "Thriving",
+    "watch": "Watch",
+    "atRisk": "At Risk",
+    "monthlyCheckins": "This Month",
+    "avgMood": "Avg. Mood",
+    "currentStreak": "Streak"
   }
 }
