@@ -43,11 +43,11 @@ export function MainLayout() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full">
+      <div className="flex min-h-screen w-full overflow-hidden">
         <AppSidebar branding={branding} />
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col min-w-0">
           <Header />
-          <main className="flex-1 p-4 md:p-6">
+          <main className="flex-1 overflow-x-hidden p-4 md:p-6">
             <Outlet />
           </main>
         </div>
