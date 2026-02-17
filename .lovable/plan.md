@@ -1,57 +1,50 @@
 
 
-# Fix Access Control: Sidebar Filtering + Dashboard Flicker
+# PWA Compliance and Full Responsive Fix
 
-## Problem Summary
+## Issues Found
 
-Two critical issues for users with the "User" role (e.g., `test@example.com`):
+### PWA Issues
+1. **Missing `navigateFallbackDenylist`** for `/~oauth` in the Vite PWA config -- this is required so the service worker never caches OAuth redirect routes
+2. **`App.css` has harmful `#root` styles** -- `max-width: 1280px`, `padding: 2rem`, and `text-align: center` on `#root` constrain the layout, break full-width on larger screens, and interfere with the sidebar layout
+3. **Viewport meta tag** missing `viewport-fit=cover` for notched devices (iPhone safe areas)
+4. **Missing `apple-mobile-web-app-capable`** equivalent for modern Safari (`mobile-web-app-capable`)
 
-1. **Sidebar shows all admin sections** -- SaaS Management, Survey System, Operations, Settings sections are visible to everyone because `AppSidebar` has no role/permission checks at all
-2. **Dashboard flickers** -- The page renders `AdminDashboard` first while permissions load, then switches to `EmployeeHome`, causing a visible flash
-
-## Root Cause
-
-- `AppSidebar.tsx` renders a hardcoded list of menu items with zero permission filtering
-- `Dashboard.tsx` shows `AdminDashboard` as the default fallback while `permLoading` is finishing, causing the flicker
+### Responsive Issues
+1. **`App.css` `#root` styles** cap the app at 1280px and add 2rem padding everywhere -- this fights the full-bleed sidebar layout on desktop and wastes space
+2. **EmployeeHome stats grid** uses `grid-cols-3` with no mobile fallback -- on very small screens (320px), the 3-column grid gets cramped
+3. **InlineDailyCheckin** card has fixed padding that could be tighter on mobile
 
 ---
 
-## Solution
+## Plan
 
-### 1. Role-Aware Sidebar (AppSidebar.tsx)
+### 1. Fix `App.css` (critical)
+Remove or neutralize the `#root` block that caps width and adds padding. The existing `MainLayout` already handles layout structure. The `App.css` is leftover Vite boilerplate and actively harms the app.
 
-Add `useUserPermissions` hook to the sidebar. Filter menu groups by role:
+- Remove `max-width: 1280px` from `#root`
+- Remove `padding: 2rem` from `#root`
+- Remove `text-align: center` from `#root`
+- Keep the file but only with non-harmful styles (or empty it)
 
-| Sidebar Section | Visible To |
-|---|---|
-| Dashboard > Overview | Everyone |
-| SaaS Management | Super Admin only |
-| Survey System (admin items) | Super Admin + Tenant Admin |
-| Survey System (employee items) | Everyone with employee profile |
-| Wellness | Everyone with employee profile |
-| Operations | Super Admin + Tenant Admin |
-| Settings > Profile | Everyone |
-| Settings > Usage & Billing | Super Admin + Tenant Admin |
-| Settings > Brand, Docs, Audit | Super Admin + Tenant Admin |
-| Help | Everyone |
+### 2. Fix Vite PWA config (`vite.config.ts`)
+Add `navigateFallbackDenylist: [/^\/~oauth/]` inside the `workbox` config to prevent service worker from caching OAuth routes.
 
-The sidebar will consume `useUserPermissions` to get `isSuperAdmin` and also use `useHasRole` for `tenant_admin` checks. Menu items will be filtered before rendering, and empty groups will be hidden.
-
-### 2. Fix Dashboard Flicker (Dashboard.tsx)
-
-Change the render logic so that while permissions are loading, it shows only the loading skeleton -- never the AdminDashboard. Currently:
-
-```text
-if (!loading && !superAdmin && hasEmployee) -> EmployeeHome
-if (loading) -> Skeleton
-else -> AdminDashboard  <-- shown briefly before data loads
+### 3. Fix viewport meta (`index.html`)
+Update the viewport tag to:
 ```
+width=device-width, initial-scale=1.0, viewport-fit=cover
+```
+This enables proper rendering in notched/safe-area devices.
 
-The fix reverses the check order: show skeleton FIRST while loading, then decide which dashboard to render. This eliminates the flicker completely.
+### 4. Add safe-area CSS (`index.css`)
+Add `env(safe-area-inset-*)` padding to the body/root for PWA standalone mode on notched devices.
 
-### 3. Route Protection (App.tsx)
+### 5. Fix EmployeeHome responsive grid
+Change the stats grid from `grid-cols-3` to `grid-cols-1 sm:grid-cols-3` so cards stack on very small screens.
 
-Wrap admin routes with role checks so that even if a "User" role user navigates directly to `/admin/tenants`, they get redirected. A lightweight `AdminRoute` wrapper component will check for admin-level roles and redirect non-admins to `/`.
+### 6. Tighten InlineDailyCheckin mobile padding
+Adjust padding from fixed `p-5` to `p-4 sm:p-5` for slightly better mobile fit.
 
 ---
 
@@ -61,54 +54,11 @@ Wrap admin routes with role checks so that even if a "User" role user navigates 
 
 | File | Change |
 |---|---|
-| `src/components/layout/AppSidebar.tsx` | Add `useUserPermissions` + `useHasRole` hooks, filter menu items by role |
-| `src/pages/Dashboard.tsx` | Move loading check to top of render, prevent AdminDashboard flash |
-| `src/App.tsx` | Add `AdminRoute` wrapper for `/admin/*` routes |
-| `src/components/auth/AdminRoute.tsx` (new) | Route guard component that redirects non-admin users |
-
-### AppSidebar changes:
-
-- Import `useUserPermissions` and `useHasRole('tenant_admin')`
-- Tag each menu group with a `requiredRole` property (e.g., `'admin'`, `'tenant_admin'`, `'all'`)
-- Filter groups before rendering: hide groups the user has no access to
-- Hide empty groups entirely
-
-### Dashboard changes:
-
-```typescript
-// Current (causes flicker):
-if (!permLoading && !empLoading && !isSuperAdmin && hasEmployeeProfile) {
-  return <EmployeeHome />;
-}
-if (permLoading || empLoading) {
-  return <Skeleton />;
-}
-return <AdminDashboard />;
-
-// Fixed (skeleton first):
-if (permLoading || empLoading) {
-  return <Skeleton />;
-}
-if (!isSuperAdmin && !isTenantAdmin && hasEmployeeProfile) {
-  return <EmployeeHome />;
-}
-if (!isSuperAdmin && !isTenantAdmin) {
-  return <EmployeeHome />; // Non-admin without profile still sees employee view
-}
-return <AdminDashboard />;
-```
-
-### AdminRoute component:
-
-```typescript
-function AdminRoute({ children }) {
-  const { isSuperAdmin, isLoading } = useUserPermissions();
-  const isTenantAdmin = useHasRole('tenant_admin');
-
-  if (isLoading) return <Skeleton />;
-  if (!isSuperAdmin && !isTenantAdmin) return <Navigate to="/" replace />;
-  return children;
-}
-```
+| `src/App.css` | Remove/neutralize `#root` constraint styles |
+| `vite.config.ts` | Add `navigateFallbackDenylist` for `/~oauth` |
+| `index.html` | Add `viewport-fit=cover` to viewport meta |
+| `src/index.css` | Add safe-area-inset padding for standalone PWA |
+| `src/pages/EmployeeHome.tsx` | Fix stats grid responsive breakpoint |
+| `src/components/checkin/InlineDailyCheckin.tsx` | Responsive padding tweak |
 
 No database changes required.
