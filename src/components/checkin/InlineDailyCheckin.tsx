@@ -217,7 +217,19 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
           {/* 1. Mood Selection — always visible */}
           <MoodStep selectedMood={selectedMood} onSelect={setSelectedMood} />
 
-          {/* 2. Wellness Question — show after mood is selected */}
+          {/* 2. AI Mood Pathway Questions — show after mood is selected */}
+          {selectedMood && moodObj && (
+            <MoodPathwayQuestions
+              moodLevel={selectedMood}
+              moodScore={moodObj.score}
+              tenantId={tenantId}
+              userId={userId}
+              language={i18n.language}
+              onAnswersChange={setPathwayAnswers}
+            />
+          )}
+
+          {/* 3. Wellness Question — show after mood is selected */}
           {selectedMood && (question || questionLoading) && (
             <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex items-center gap-2">

@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.ai-generate-wellness-pool]
 verify_jwt = false
+
+[functions.generate-mood-questions]
+verify_jwt = false
