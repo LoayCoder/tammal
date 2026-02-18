@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { QuestionTypeSelector } from "./QuestionTypeSelector";
 import { Question, QuestionType, CreateQuestionInput } from "@/hooks/useQuestions";
@@ -37,8 +38,17 @@ export function QuestionDialog({
   const [type, setType] = useState<QuestionType>("likert_5");
   const [categoryId, setCategoryId] = useState("");
   const [options, setOptions] = useState<string[]>([]);
+  const [moodLevels, setMoodLevels] = useState<string[]>([]);
   const [isActive, setIsActive] = useState(true);
   const [isGlobal, setIsGlobal] = useState(false);
+
+  const MOOD_LEVELS = [
+    { value: 'great', label: '😄 Great', label_ar: '😄 ممتاز' },
+    { value: 'good', label: '🙂 Good', label_ar: '🙂 جيد' },
+    { value: 'okay', label: '😐 Okay', label_ar: '😐 عادي' },
+    { value: 'struggling', label: '😟 Struggling', label_ar: '😟 أعاني' },
+    { value: 'need_help', label: '😢 Need Help', label_ar: '😢 بحاجة للمساعدة' },
+  ];
 
   useEffect(() => {
     if (question) {
@@ -47,6 +57,7 @@ export function QuestionDialog({
       setType(question.type);
       setCategoryId(question.category_id || "");
       setOptions(question.options || []);
+      setMoodLevels(question.mood_levels || []);
       setIsActive(question.is_active);
       setIsGlobal(question.is_global);
     } else {
@@ -55,6 +66,7 @@ export function QuestionDialog({
       setType("likert_5");
       setCategoryId("");
       setOptions([]);
+      setMoodLevels([]);
       setIsActive(true);
       setIsGlobal(false);
     }
@@ -82,6 +94,7 @@ export function QuestionDialog({
       type,
       category_id: categoryId || undefined,
       options: type === 'multiple_choice' ? options.filter(Boolean) : undefined,
+      mood_levels: moodLevels,
       is_active: isActive,
       is_global: isGlobal,
     });
@@ -182,6 +195,29 @@ export function QuestionDialog({
                 </div>
               </div>
             )}
+
+            {/* Mood Levels */}
+            <div className="space-y-2">
+              <Label>{t('questions.moodLevels')}</Label>
+              <p className="text-xs text-muted-foreground">{t('questions.moodLevelsHint')}</p>
+              <div className="flex flex-wrap gap-3">
+                {MOOD_LEVELS.map(mood => (
+                  <label key={mood.value} className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={moodLevels.includes(mood.value)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setMoodLevels([...moodLevels, mood.value]);
+                        } else {
+                          setMoodLevels(moodLevels.filter(m => m !== mood.value));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">{isRTL ? mood.label_ar : mood.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
 
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">

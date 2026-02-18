@@ -13,6 +13,7 @@ export interface Question {
   text_ar: string | null;
   type: QuestionType;
   options: string[];
+  mood_levels: string[];
   is_active: boolean;
   is_global: boolean;
   ai_generated: boolean;
@@ -35,6 +36,7 @@ export interface CreateQuestionInput {
   type: QuestionType;
   category_id?: string;
   options?: string[] | null;
+  mood_levels?: string[];
   is_global?: boolean;
   is_active?: boolean;
   ai_generated?: boolean;

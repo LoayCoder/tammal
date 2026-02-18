@@ -223,7 +223,6 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
               moodLevel={selectedMood}
               moodScore={moodObj.score}
               tenantId={tenantId}
-              userId={userId}
               language={i18n.language}
               onAnswersChange={setPathwayAnswers}
             />
