@@ -143,46 +143,39 @@ export function useEnhancedAIGeneration() {
   });
 
   const saveWellnessMutation = useMutation({
-    mutationFn: async (params: { questions: EnhancedGeneratedQuestion[] }) => {
+    mutationFn: async (params: { questions: EnhancedGeneratedQuestion[]; moodLevels?: string[] }) => {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error('Not authenticated');
 
       const tenantId = await supabase.rpc('get_user_tenant_id', { _user_id: userData.user.id }).then(r => r.data);
       if (!tenantId) throw new Error('No organization found. Please contact your administrator.');
 
-      const mapToWellnessType = (type: string): string => {
-        if (['likert_5', 'numeric_scale'].includes(type)) return 'scale';
-        if (type === 'open_ended') return 'text';
+      const mapToQuestionType = (type: string): string => {
+        if (['likert_5', 'numeric_scale', 'yes_no', 'multiple_choice', 'open_ended'].includes(type)) return type;
+        if (type === 'scale') return 'likert_5';
+        if (type === 'text') return 'open_ended';
+        return 'likert_5';
         if (type === 'multiple_choice') return 'multiple_choice';
         return 'scale';
       };
 
-      // Create a batch record to track these wellness questions
-      const currentMonth = format(new Date(), 'yyyy-MM-01');
-      const { data: batch, error: batchError } = await supabase
-        .from('question_generation_batches')
-        .insert({
-          tenant_id: tenantId,
-          target_month: currentMonth,
-          question_count: params.questions.length,
-          status: 'draft',
-          created_by: userData.user.id,
-        })
-        .select()
-        .single();
-      if (batchError) throw batchError;
+      // Questions go directly into the unified questions bank
 
-      const wellnessInsert = params.questions.map(q => ({
+      // Insert into the unified questions bank (not wellness_questions legacy table)
+      const questionsInsert = params.questions.map(q => ({
         tenant_id: tenantId,
-        batch_id: batch.id,
-        question_text_en: q.question_text,
-        question_text_ar: q.question_text_ar,
-        question_type: mapToWellnessType(q.type),
+        text: q.question_text,
+        text_ar: q.question_text_ar || null,
+        type: mapToQuestionType(q.type),
         options: q.options || [],
-        status: 'draft' as const,
+        mood_levels: params.moodLevels || [],
+        is_active: true,
+        is_global: false,
+        ai_generated: true,
+        created_by: userData.user.id,
       }));
 
-      const { error } = await supabase.from('wellness_questions').insert(wellnessInsert);
+      const { error } = await supabase.from('questions').insert(questionsInsert as any);
       if (error) throw error;
       return params.questions.length;
     },
