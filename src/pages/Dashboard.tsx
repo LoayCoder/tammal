@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building2, CreditCard, DollarSign, Ticket } from 'lucide-react';
 import { DashboardBrandingPreview } from '@/components/branding/DashboardBrandingPreview';
@@ -13,12 +14,14 @@ import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
 import EmployeeHome from './EmployeeHome';
 
 export default function Dashboard() {
+  const { loading: authLoading } = useAuth();
   const { isSuperAdmin, isLoading: permLoading } = useUserPermissions();
   const { hasRole: isTenantAdmin, isLoading: roleLoading } = useHasRole('tenant_admin');
   const { hasEmployeeProfile, isLoading: empLoading } = useCurrentEmployee();
 
-  // Always show skeleton first while loading — prevents admin dashboard flash
-  if (permLoading || roleLoading || empLoading) {
+  // CRITICAL: Include authLoading so we never make a view decision while
+  // auth is still initializing (queries are idle, not loading, in that window).
+  if (authLoading || permLoading || roleLoading || empLoading) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-10 w-48" />

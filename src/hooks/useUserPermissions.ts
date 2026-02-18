@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
 export function useUserPermissions() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const permissionsQuery = useQuery({
     queryKey: ['user-permissions', user?.id],
@@ -52,7 +52,7 @@ export function useUserPermissions() {
 
       return Array.from(permissionCodes);
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && !authLoading,
   });
 
   const permissions = permissionsQuery.data ?? [];
@@ -77,15 +77,18 @@ export function useUserPermissions() {
     hasPermission,
     hasAnyPermission,
     hasAllPermissions,
-    isLoading: permissionsQuery.isLoading,
+    // CRITICAL: isLoading must be true while auth is initializing OR while the
+    // query is pending. TanStack Query v5 isPending captures the "idle" state
+    // (when enabled=false) unlike isLoading which returns false when idle.
+    isLoading: authLoading || permissionsQuery.isPending,
     isSuperAdmin: permissions.includes('*'),
   };
 }
 
 export function useHasRole(role: 'super_admin' | 'tenant_admin' | 'manager' | 'user') {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
-  const { data: hasRole = false, isLoading } = useQuery({
+  const { data: hasRole = false, isPending } = useQuery({
     queryKey: ['has-role', user?.id, role],
     queryFn: async () => {
       if (!user?.id) return false;
@@ -104,8 +107,12 @@ export function useHasRole(role: 'super_admin' | 'tenant_admin' | 'manager' | 'u
 
       return !!data;
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && !authLoading,
   });
 
-  return { hasRole, isLoading };
+  return {
+    hasRole,
+    // CRITICAL: must stay true while auth is loading OR query is pending (idle)
+    isLoading: authLoading || isPending,
+  };
 }
