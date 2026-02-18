@@ -41,7 +41,7 @@ export default function UnifiedUserManagement() {
 
   // Profile & tenant
   const { profile, isLoading: profileLoading } = useProfile();
-  const isSuperAdmin = useHasRole('super_admin');
+  const { hasRole: isSuperAdmin } = useHasRole('super_admin');
   const { tenants, isLoading: tenantsLoading } = useTenants();
   const [selectedTenantId, setSelectedTenantId] = useState<string | undefined>(undefined);
 

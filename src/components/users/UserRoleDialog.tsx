@@ -44,7 +44,7 @@ export function UserRoleDialog({ open, onOpenChange, user, tenantId }: UserRoleD
   const isRTL = i18n.language === 'ar';
   const { roles, isLoading: rolesLoading } = useRoles(tenantId);
   const { userRoles, assignRole, removeRole, updateUserRole } = useUserRoles(user?.user_id);
-  const isSuperAdmin = useHasRole('super_admin');
+  const { hasRole: isSuperAdmin } = useHasRole('super_admin');
   const { user: currentUser } = useAuth();
   
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);

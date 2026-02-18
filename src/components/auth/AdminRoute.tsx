@@ -8,9 +8,9 @@ interface AdminRouteProps {
 
 export function AdminRoute({ children }: AdminRouteProps) {
   const { isSuperAdmin, isLoading: permLoading } = useUserPermissions();
-  const isTenantAdmin = useHasRole('tenant_admin');
+  const { hasRole: isTenantAdmin, isLoading: roleLoading } = useHasRole('tenant_admin');
 
-  if (permLoading) {
+  if (permLoading || roleLoading) {
     return (
       <div className="space-y-6 p-6">
         <Skeleton className="h-10 w-48" />

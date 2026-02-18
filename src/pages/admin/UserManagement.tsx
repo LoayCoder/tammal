@@ -33,7 +33,7 @@ export default function UserManagement() {
   
   // Get profile for tenant_id and check if user is super_admin
   const { profile, isLoading: profileLoading } = useProfile();
-  const isSuperAdmin = useHasRole('super_admin');
+  const { hasRole: isSuperAdmin } = useHasRole('super_admin');
   const { tenants, isLoading: tenantsLoading } = useTenants();
   
   // State for tenant selection (super_admin only)

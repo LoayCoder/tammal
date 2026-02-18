@@ -14,11 +14,11 @@ import EmployeeHome from './EmployeeHome';
 
 export default function Dashboard() {
   const { isSuperAdmin, isLoading: permLoading } = useUserPermissions();
-  const isTenantAdmin = useHasRole('tenant_admin');
+  const { hasRole: isTenantAdmin, isLoading: roleLoading } = useHasRole('tenant_admin');
   const { hasEmployeeProfile, isLoading: empLoading } = useCurrentEmployee();
 
   // Always show skeleton first while loading — prevents admin dashboard flash
-  if (permLoading || empLoading) {
+  if (permLoading || roleLoading || empLoading) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-10 w-48" />
