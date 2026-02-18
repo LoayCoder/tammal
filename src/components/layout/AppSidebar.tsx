@@ -46,8 +46,9 @@ interface AppSidebarProps {
 
 export function AppSidebar({ branding }: AppSidebarProps) {
   const { t } = useTranslation();
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const isCollapsed = state === 'collapsed';
+  const isRTL = document.documentElement.dir === 'rtl';
   const { isSuperAdmin, isLoading: permLoading } = useUserPermissions();
   const isTenantAdmin = useHasRole('tenant_admin');
   const { hasEmployeeProfile } = useCurrentEmployee();
@@ -141,7 +142,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     .filter(group => group.items.length > 0);
 
   return (
-    <Sidebar variant="sidebar" collapsible="icon" side="left">
+    <Sidebar variant="sidebar" collapsible="icon" side={isRTL ? "right" : "left"}>
       <SidebarHeader className="border-b border-sidebar-border p-4">
         {isCollapsed ? (
           <ThemeIcon
@@ -181,6 +182,9 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                         end={item.url === '/'}
                         className="flex items-center gap-2"
                         activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                        onClick={() => {
+                          if (isMobile) setOpenMobile(false);
+                        }}
                       >
                         <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>
