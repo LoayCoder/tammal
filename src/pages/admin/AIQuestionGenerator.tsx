@@ -69,6 +69,7 @@ export default function AIQuestionGenerator() {
   const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([]);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [selectedSubcategoryIds, setSelectedSubcategoryIds] = useState<string[]>([]);
+  const [selectedMoodLevels, setSelectedMoodLevels] = useState<string[]>([]);
   const [batchDialogOpen, setBatchDialogOpen] = useState(false);
   const [purpose, setPurpose] = useState<QuestionPurpose>('survey');
 
@@ -300,6 +301,8 @@ export default function AIQuestionGenerator() {
             onSelectedCategoryIdsChange={setSelectedCategoryIds}
             selectedSubcategoryIds={selectedSubcategoryIds}
             onSelectedSubcategoryIdsChange={setSelectedSubcategoryIds}
+            selectedMoodLevels={selectedMoodLevels}
+            onSelectedMoodLevelsChange={setSelectedMoodLevels}
           />
         </div>
 

@@ -22,6 +22,14 @@ import { useState } from 'react';
 
 export type QuestionPurpose = 'survey' | 'wellness';
 
+const MOOD_LEVELS_META = [
+  { value: 'great', label: '😄 Great', label_ar: '😄 ممتاز' },
+  { value: 'good', label: '🙂 Good', label_ar: '🙂 جيد' },
+  { value: 'okay', label: '😐 Okay', label_ar: '😐 عادي' },
+  { value: 'struggling', label: '😟 Struggling', label_ar: '😟 أعاني' },
+  { value: 'need_help', label: '😢 Need Help', label_ar: '😢 بحاجة للمساعدة' },
+];
+
 interface ConfigPanelProps {
   purpose: QuestionPurpose;
   onPurposeChange: (purpose: QuestionPurpose) => void;
@@ -61,6 +69,9 @@ interface ConfigPanelProps {
   onSelectedCategoryIdsChange: (ids: string[]) => void;
   selectedSubcategoryIds: string[];
   onSelectedSubcategoryIdsChange: (ids: string[]) => void;
+  // Mood level tags (wellness purpose only)
+  selectedMoodLevels: string[];
+  onSelectedMoodLevelsChange: (levels: string[]) => void;
 }
 
 export function ConfigPanel({
@@ -99,6 +110,8 @@ export function ConfigPanel({
   onSelectedCategoryIdsChange,
   selectedSubcategoryIds,
   onSelectedSubcategoryIdsChange,
+  selectedMoodLevels,
+  onSelectedMoodLevelsChange,
 }: ConfigPanelProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
@@ -200,6 +213,31 @@ export function ConfigPanel({
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
+
+          {/* Mood Level Tags — only shown when purpose is wellness */}
+          {purpose === 'wellness' && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">{t('aiGenerator.moodLevelTags')}</Label>
+              <p className="text-xs text-muted-foreground">{t('aiGenerator.moodLevelTagsDesc')}</p>
+              <div className="flex flex-wrap gap-3">
+                {MOOD_LEVELS_META.map(mood => (
+                  <label key={mood.value} className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={selectedMoodLevels.includes(mood.value)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          onSelectedMoodLevelsChange([...selectedMoodLevels, mood.value]);
+                        } else {
+                          onSelectedMoodLevelsChange(selectedMoodLevels.filter(l => l !== mood.value));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">{isRTL ? mood.label_ar : mood.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Category & Subcategory Multi-Select */}
           <div className="grid grid-cols-2 gap-4">
