@@ -1,149 +1,341 @@
 
-# Comprehensive System Audit Report
+# Mood-Specific AI Question Pathways + Intelligent Anti-Duplication Engine
 
-## Audit Scope
-This report covers a complete end-to-end review of the Multi-Tenant SaaS Wellness Platform, examining the Employee Wellness Module, Admin Panel, Survey System, Scheduling Engine, Auth & Permissions, Localization (i18n), and PWA compliance.
+## Current State Assessment
 
----
+The previous plan proposed a mood-specific AI question system but **none of those files were implemented yet**. What exists today:
+- `InlineDailyCheckin.tsx` — the active check-in component (no mood-pathway questions)
+- `generate-daily-tip` edge function — generates a post-submission tip only
+- `MoodStep.tsx` — renders the mood selector (5 moods: great, good, okay, struggling, need_help)
+- No `generate-mood-questions` edge function, no `MoodPathwayQuestions` component, no `mood_question_configs` table, no `MoodPathwaySettings` admin page
 
-## SECTION 1 — CRITICAL BUGS (Must Fix First)
-
-### BUG-01: Duplicate Check-in Guard is Permanently Disabled
-- **File:** `src/pages/employee/DailyCheckin.tsx` — Line 198
-- **Issue:** The "already checked in today" guard is hardcoded to `false`, meaning users can submit unlimited mood entries per day on the step-by-step `/employee/wellness` route. This corrupts streak counts and point totals.
-- **Code:** `if (false && todayEntry && !submitted) {` — the `false` was left from a testing session and never re-enabled.
-
-### BUG-02: Two Competing Daily Check-in Components Are Both Active
-- **Files:** `src/pages/employee/DailyCheckin.tsx` and `src/components/checkin/InlineDailyCheckin.tsx`
-- **Issue:** There are now TWO complete, independent check-in implementations. `DailyCheckin.tsx` is the old multi-step page at `/employee/wellness`, while `InlineDailyCheckin.tsx` is the new inline version on the Employee Home. Both call `mood_entries` insert. The sidebar still links to `/employee/wellness` which uses the broken old component. A user could submit twice — once from Home, once from the sidebar link.
-- **Impact:** Data integrity failure, double submissions, double points awarded.
-
-### BUG-03: `useScheduledQuestions` Does NOT Filter by Schedule Type for the Survey Page
-- **File:** `src/hooks/useScheduledQuestions.ts`
-- **Issue:** The Employee Survey page (`/employee/survey`) uses `useScheduledQuestions` which fetches ALL scheduled questions regardless of schedule type. This means daily-checkin questions (wellness type) can appear on the survey page, causing users to answer the same question in two different flows.
-- **Fix Needed:** Mirror the `schedule_type = 'survey'` filter added in `useCheckinScheduledQuestions`.
-
-### BUG-04: `useDailyWellnessQuestions` Cache Key Has No User Dimension
-- **File:** `src/hooks/useDailyWellnessQuestions.ts` — Line 20
-- **Issue:** The localStorage cache key is `daily-questions:${lang}:${today}`. If two different tenants are logged in on the same browser (e.g., testing), they share the same cached question. This is a tenant data isolation issue.
-- **Fix:** Include `tenantId` in the cache key: `daily-questions:${tenantId}:${lang}:${today}`.
-
-### BUG-05: `InlineDailyCheckin` Does Not Re-enable Duplicate Guard
-- **File:** `src/components/checkin/InlineDailyCheckin.tsx` — Line 172
-- **Issue:** Line `if (todayEntry) return null;` correctly hides the component after submission, but it relies on `useMoodHistory` data which is fetched separately from `mood-entry-today`. After the check-in, the cache is invalidated but there is a brief window where the component reappears. The `mood-entry-today` query in `EmployeeHome.tsx` is separate from `useMoodHistory` in `InlineDailyCheckin`. There is no `todayEntry` loaded inside `InlineDailyCheckin` itself; instead it queries independently, creating a potential flash of the form.
-
-### BUG-06: `EmployeeSurvey` Only Fetches Questions with Status `'delivered'`
-- **File:** `src/pages/employee/EmployeeSurvey.tsx` — Line 21
-- **Issue:** `useScheduledQuestions(employee?.id, 'delivered')` fetches ONLY `delivered` status. The schedule engine inserts questions with `status: 'pending'`. If the `deliver-questions` edge function hasn't run to transition them to `delivered`, the employee survey page will always show empty. The `pendingQuestions` filter in the hook additionally filters for `status === 'delivered' || status === 'pending'`, so passing `'delivered'` as the status parameter overrides this and excludes `pending` ones. Should pass `undefined` to use both.
-
-### BUG-07: Slider in Wellness Question Shows Wrong Default
-- **File:** `src/components/checkin/InlineDailyCheckin.tsx` and `WellnessQuestionStep.tsx`
-- **Issue:** The scale/slider renders with `defaultValue={[5]}` (uncontrolled) but also tries to display `answerValue ?? 5` as a number. Since it's uncontrolled, the slider position resets to 5 on re-render while the displayed number can differ. Should be fully controlled using `value` prop.
+This plan implements the full system in one pass, including the anti-duplication engine.
 
 ---
 
-## SECTION 2 — UX AND FLOW GAPS
+## What Gets Built
 
-### GAP-01: Sidebar Still Shows `/employee/wellness` Link to Old Step-by-Step Flow
-- **File:** `src/components/layout/AppSidebar.tsx` — Line 90
-- **Issue:** The Wellness section in the sidebar links to `/employee/wellness` which is the old multi-step `DailyCheckin.tsx` page. With the new inline check-in on the home page, this redundant route can confuse users or cause double submissions. Should either be removed from the sidebar or point to the home page `/`.
-
-### GAP-02: `Header.tsx` Loads Branding Independently — Double Network Call
-- **File:** `src/components/layout/Header.tsx` — Line 21
-- **Issue:** `Header.tsx` calls `useBranding()` without a `tenantId`, resulting in fetching branding with no filtering. `MainLayout.tsx` already fetches branding and passes it to `AppSidebar`, but `Header.tsx` makes its own separate call. This is a redundant API call on every page load. The branding result in the header is unused in the current layout.
-
-### GAP-03: `UsageBilling` Page Has Hardcoded Fake Data
-- **File:** `src/pages/settings/UsageBilling.tsx`
-- **Issue:** User count (`18 / 50 users`) and storage (`2.4 GB / 10 GB`) are hardcoded mock values. The `tenant_usage` table exists in the database and has real data hooks (`useTenantUsage`), but they are not wired to this page.
-
-### GAP-04: `Support` Page and `DocumentSettings` Page Are Placeholder Stubs
-- **Files:** `src/pages/Support.tsx`, `src/pages/admin/DocumentSettings.tsx`
-- **Issue:** Support page is a stub with a "New Ticket" button that does nothing. DocumentSettings has been repurposed to show platform sign-up settings — not document templates. The nav label says "Document Settings" but the content is "Platform Settings." This is confusing and the page title/description don't match its actual function.
-
-### GAP-05: Employee Survey Doesn't Filter Out Daily-Checkin Questions
-- **File:** `src/hooks/useScheduledQuestions.ts`
-- **Issue:** As described in BUG-03, the survey page shows questions from all schedule types including daily-checkin schedules. This means wellness questions appear in the survey and vice versa.
-
-### GAP-06: `AchievementOverlay` Missing Arabic Translation for "Tap to Dismiss"
-- **File:** `src/components/checkin/AchievementOverlay.tsx` — Line 93
-- **Issue:** `t('wellness.tapToDismiss', 'Tap anywhere to dismiss')` uses a hardcoded English fallback. The key `wellness.tapToDismiss` is missing from both `en.json` and `ar.json`.
-
-### GAP-07: `home.goodEvening` is Identical to `home.goodAfternoon` in Arabic
-- **File:** `src/locales/ar.json` — Lines 1624-1625
-- **Issue:** Both `goodAfternoon` and `goodEvening` translate to `"مساء الخير"`. The correct Arabic for "Good evening" is `"مساء الخير"` (which is actually correct), but `"Good afternoon"` should be `"ظهر مبارك"` or `"ظهراً سعيداً"` to differentiate. Both currently show the same string.
-
-### GAP-08: Checkin Scheduled Questions Also Pulls Past Dates
-- **File:** `src/hooks/useCheckinScheduledQuestions.ts` — Line 53
-- **Issue:** The query fetches all questions where `scheduled_delivery <= todayEnd`, meaning it accumulates every past unanswered question from all previous days. If the schedule engine ran for 7 days and an employee missed 3 days, they'll see 3+ questions stacked in today's check-in. Should add `gte('scheduled_delivery', today + 'T00:00:00')` to only show today's questions.
+The daily check-in will gain a new step: after an employee selects a mood, AI generates 1-2 tailored, multiple-choice follow-up questions. The engine guarantees that the same user never sees the same question twice within 14 days, and that themes rotate intelligently. A free-text field appears for extreme moods. Admins can configure the system per mood level.
 
 ---
 
-## SECTION 3 — ARCHITECTURE & LOCALIZATION ISSUES
+## Database Changes (2 new tables, RLS-compliant)
 
-### ARCH-01: Two Different Submit Response Paths
-- **Issue:** The daily check-in uses the `submit-response` edge function via `useEmployeeResponses`, but also directly updates `scheduled_questions` status using raw Supabase calls for skipped questions. This split path means there's no consistent audit trail.
+### Table 1: `mood_question_configs`
+Stores per-tenant, per-mood configuration for the AI pathway system.
 
-### ARCH-02: `mood_entries` Table Has `as any` Type Cast Throughout
-- **Files:** `DailyCheckin.tsx` line 135, `InlineDailyCheckin.tsx` line 122
-- **Issue:** `supabase.from('mood_entries' as any)` suggests the `mood_entries` table is missing from the Supabase TypeScript types (`src/integrations/supabase/types.ts`). This means no compile-time type checking on mood entry inserts — high risk of silent data corruption.
-
-### ARCH-03: RTL Logical Properties Not Universally Applied in Check-in Components
-- **Files:** `MoodStep.tsx`, `InlineDailyCheckin.tsx`
-- **Issue:** System constitution mandates `ms-/me-` instead of `ml-/mr-`. The check-in components use hardcoded `ArrowLeft`/`ArrowRight` icons which are visually flipped using `rtl:rotate-180`, which is correct. However, some gap classes and margin classes in these components do not use logical equivalents.
-
-### I18N-01: Translation Key `common.noData` is Duplicated in JSON
-- **Files:** `src/locales/en.json` and `src/locales/ar.json`
-- **Issue:** `common.noData` appears twice in both files (lines 11 and 42). This is invalid JSON if a linter checks for duplicate keys, and the second value silently overrides the first.
-
-### I18N-02: Missing Keys in Both Locales
-The following translation keys are referenced in code but missing from locale files:
-- `wellness.tapToDismiss` (used in AchievementOverlay)
-- `wellness.profileNotFound` (hardcoded fallback in DailyCheckin.tsx line 190)
-- `wellness.profileNotFoundDesc` (hardcoded fallback in DailyCheckin.tsx line 191)
-- `common.retry` (hardcoded fallback used in DailyCheckin.tsx)
-- `toast.changesSaved` (used in DocumentSettings.tsx)
-- `toast.saveFailed` (used in DocumentSettings.tsx)
-
----
-
-## SECTION 4 — SECURITY OBSERVATIONS
-
-### SEC-01: External IP Lookup Services in Auth Hook
-- **File:** `src/hooks/useAuth.ts` — Lines 31-35
-- **Issue:** The app fetches `https://api.ipify.org` and `https://ip-api.com` on every login. These are third-party services with no SLA guarantee. If either is down, the entire login recording silently fails. More importantly, this makes a cross-origin request that could be blocked by strict CSP policies in PWA mode.
-
-### SEC-02: `profiles_with_email` View Has No RLS Policies
-- **Database:** `profiles_with_email` view
-- **Issue:** The DB schema shows this view has zero RLS policies. It joins `profiles` with auth emails. Any authenticated user could potentially query this view and see all user emails across all tenants if no view-level security is enforced.
-
----
-
-## Prioritized Fix Plan
-
-```text
-Priority 1 — Critical Bugs (Data Integrity)
-============================================
-1. BUG-01: Re-enable the duplicate check-in guard in DailyCheckin.tsx
-2. BUG-02: Remove sidebar link to /employee/wellness OR deprecate DailyCheckin.tsx
-3. BUG-03: Add schedule_type filter to useScheduledQuestions for survey page
-4. BUG-06: Fix EmployeeSurvey to accept both pending and delivered statuses
-5. ARCH-02: Fix mood_entries type cast (regenerate or manually type the table)
-
-Priority 2 — UX Gaps
-=====================
-6. BUG-04: Add tenantId to wellness question cache key
-7. BUG-07: Convert wellness scale slider to controlled component
-8. BUG-08: Add today-only filter to useCheckinScheduledQuestions
-9. GAP-03: Wire UsageBilling to real useTenantUsage hook
-10. GAP-06/I18N-02: Add all missing translation keys to en.json and ar.json
-
-Priority 3 — Code Quality & Architecture
-==========================================
-11. GAP-02: Remove redundant useBranding() call from Header.tsx
-12. GAP-04: Rename DocumentSettings page or create a real document templates section
-13. I18N-01: Remove duplicate common.noData keys from both locale files
-14. SEC-01: Move IP lookup to a backend edge function to avoid CSP issues
-15. SEC-02: Add explicit RLS policies to profiles_with_email view
+```sql
+CREATE TABLE mood_question_configs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  tenant_id UUID NOT NULL,
+  mood_level TEXT NOT NULL,
+  is_enabled BOOLEAN DEFAULT TRUE,
+  enable_free_text BOOLEAN DEFAULT FALSE,
+  custom_prompt_context TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(tenant_id, mood_level)
+);
+ALTER TABLE mood_question_configs ENABLE ROW LEVEL SECURITY;
+-- Tenant admins manage their own configs; super admins manage all
 ```
 
-The total count is **17 distinct issues** across 4 severity categories. Implementation should proceed in priority order, starting with BUG-01 through BUG-06 to restore data integrity before addressing UX and architecture concerns.
+### Table 2: `mood_question_history`
+Tracks every question shown per user to enforce the 14-day anti-duplication window.
+
+```sql
+CREATE TABLE mood_question_history (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  tenant_id UUID NOT NULL,
+  user_id UUID NOT NULL,
+  mood_level TEXT NOT NULL,
+  question_hash TEXT NOT NULL,
+  theme TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+ALTER TABLE mood_question_history ENABLE ROW LEVEL SECURITY;
+-- Users see own records; tenant admins see tenant records; super admins see all
+```
+
+RLS policies follow the existing `has_role` and `get_user_tenant_id` security definer pattern — no inline `auth.users` joins.
+
+---
+
+## New Edge Function: `generate-mood-questions`
+
+**Location:** `supabase/functions/generate-mood-questions/index.ts`
+
+### Input Payload
+```json
+{
+  "moodLevel": "good",
+  "moodScore": 4,
+  "language": "ar",
+  "tenantId": "uuid",
+  "userId": "uuid"
+}
+```
+
+### Processing Pipeline (in order)
+
+**Step 1 — Fetch history (14-day window)**
+Query `mood_question_history` for all `(question_hash, theme)` rows where `user_id = $userId AND mood_level = $moodLevel AND created_at > now() - interval '14 days'`. Build `usedHashes: Set<string>` and `usedThemes: Set<string>`.
+
+**Step 2 — Select unused theme**
+Each mood level has a defined theme pool. Pick a theme not in `usedThemes`. If all themes exhausted (rare), pick the least-recently used theme.
+
+**Theme pools per mood:**
+- `great`: positive_drivers, recognition, team_connection, energy_source, purpose_alignment, momentum_building
+- `good`: engagement, collaboration, satisfaction, progress, growth, energy_level
+- `okay`: minor_friction, workload_balance, focus_clarity, emotional_energy, support_access
+- `struggling`: stressors, burnout_signals, work_life_spillover, communication_gaps, support_needs, work_pressure
+- `need_help`: immediate_stress_source, support_preference, human_connection, safety_support
+
+**Step 3 — Fetch tenant config** (from `mood_question_configs`) to check if pathway is enabled, free-text is enabled, and any custom prompt context.
+
+**Step 4 — Build AI prompt** with strict clinical psychologist persona:
+```
+You are a licensed workplace clinical psychologist specializing in organizational wellbeing.
+Generate exactly 1-2 follow-up questions for an employee who reported feeling: {moodLevel}.
+Focus theme: {selectedTheme}
+Random seed: {crypto.randomUUID()} — use this to vary phrasing.
+Previously used themes (avoid semantic similarity): {usedThemes list}
+
+STRICT RULES:
+- Question type: multiple_choice with 3-4 options (never more)
+- No diagnostic labels (not: depressed, anxious, clinical)
+- All options must be normalizing and non-stigmatizing
+- Questions must be answerable within 30 seconds
+- No assumptions about gender, family, or religion
+- For need_help (score 1): ALWAYS include one option: "I'd like to talk to HR or my manager" and one: "I'd prefer professional support"
+- Return bilingual output: question_text_en, question_text_ar, options_en[], options_ar[]
+- Return field: theme (the theme used)
+- Return valid JSON array only, no markdown
+```
+
+**Step 5 — Post-generation duplicate check**
+For each returned question: compute `SHA-256` of `question_text_en` → compare against `usedHashes`. If any duplicate found → retry (max 2 attempts with a different random seed). If still duplicate after 2 retries → pick next available theme and try once more.
+
+**Step 6 — Safety override for `need_help`**
+After all generation: verify the first question always contains the support options. This check runs regardless of theme rotation results and cannot be overridden by retry logic.
+
+**Step 7 — Store to history**
+Insert one row per generated question into `mood_question_history`:
+```sql
+INSERT INTO mood_question_history (tenant_id, user_id, mood_level, question_hash, theme)
+VALUES ($tenantId, $userId, $moodLevel, $hash, $theme)
+```
+Uses service role key for this insert (bypasses RLS since the edge function acts on behalf of the user).
+
+**Step 8 — Return response**
+```json
+{
+  "questions": [
+    {
+      "question_text_en": "...",
+      "question_text_ar": "...",
+      "options_en": ["..."],
+      "options_ar": ["..."],
+      "question_type": "multiple_choice",
+      "theme": "engagement",
+      "enable_free_text": false
+    }
+  ]
+}
+```
+
+---
+
+## New Frontend Component: `MoodPathwayQuestions`
+
+**Location:** `src/components/checkin/MoodPathwayQuestions.tsx`
+
+### Props
+```typescript
+interface MoodPathwayQuestionsProps {
+  moodLevel: string;
+  moodScore: number;
+  tenantId: string;
+  userId: string; // auth user id — NOT employee id
+  language: string;
+  onAnswersChange: (answers: PathwayAnswer[]) => void;
+}
+```
+
+### Behavior
+1. On mount (when `moodLevel` is set), calls `supabase.functions.invoke('generate-mood-questions', {...})`.
+2. Shows a loading skeleton with a subtle animation and `t('moodPathway.generating')` text while waiting.
+3. Renders each question as a `RadioGroup` (multiple_choice). Options are shown from `options_ar` or `options_en` based on the current language.
+4. For extreme moods (`score === 1 || score === 5`) AND `enable_free_text === true`: appends a `Textarea` below the MCQ with placeholder `t('moodPathway.freeTextPlaceholder')`.
+5. A "Skip these questions" ghost link allows dismissal without blocking submission.
+6. Questions are cached in component state — no re-fetch on re-render.
+7. Results emit `PathwayAnswer[]` upward via `onAnswersChange`.
+
+```typescript
+interface PathwayAnswer {
+  questionTextEn: string;
+  selectedOption: string;
+  freeText?: string;
+  theme: string;
+}
+```
+
+---
+
+## Integration into `InlineDailyCheckin`
+
+Three changes to the existing component:
+
+**1. Add `userId` prop**
+`InlineDailyCheckin` already receives `employeeId` and `tenantId`. The `userId` (auth user ID) needs to be passed from `EmployeeHome.tsx` via `useCurrentEmployee` (which already returns the full employee record including `user_id`).
+
+**2. Insert `MoodPathwayQuestions` after mood selection**
+```tsx
+{/* 2. Mood Pathway — AI follow-up after mood selection */}
+{selectedMood && moodObj && (
+  <MoodPathwayQuestions
+    moodLevel={selectedMood}
+    moodScore={moodObj.score}
+    tenantId={tenantId}
+    userId={userId}
+    language={i18n.language}
+    onAnswersChange={setPathwayAnswers}
+  />
+)}
+
+{/* 3. Wellness Question — existing */}
+```
+
+**3. Enrich submission payload**
+In `handleSubmit`, pass `pathwayAnswers` to `generate-daily-tip` for a more personalized tip:
+```typescript
+const { data } = await supabase.functions.invoke('generate-daily-tip', {
+  body: {
+    moodLevel: selectedMood,
+    questionText: question?.question_text || '',
+    answerValue: wellnessAnswer,
+    pathwayAnswers, // NEW — enriches tip context
+    language: document.documentElement.lang || 'en'
+  },
+});
+```
+Also store pathway answers in `mood_entries.answer_value` as a structured JSON:
+```json
+{
+  "wellness": { ...existing },
+  "pathway": [ { "theme": "engagement", "answer": "...", "freeText": "..." } ]
+}
+```
+
+---
+
+## Update `generate-daily-tip` Edge Function
+
+Add `pathwayAnswers` to the prompt context:
+```
+Employee mood: {moodLevel}
+Wellness question: {questionText} → Answer: {answerValue}
+Mood pathway reflections:
+- Theme: {theme} → Response: {answer}
+{freeText if present}
+```
+
+---
+
+## New Admin Page: `MoodPathwaySettings`
+
+**Location:** `src/pages/admin/MoodPathwaySettings.tsx`
+
+A settings page accessible at `/admin/mood-pathways` (admin only):
+- One card per mood level (great, good, okay, struggling, need_help) with its emoji, label, and color
+- Toggle: "Enable AI Follow-up Questions" (maps to `is_enabled`)
+- Toggle: "Enable Free-Text Reflection" for extreme moods only (`enable_free_text`, only shown for `great` and `need_help`)
+- Optional `Textarea`: "AI Context Hint" (`custom_prompt_context`) — e.g., "Focus on workload and teamwork"
+- Save button per card
+- If no config exists for the tenant, auto-creates defaults on first visit
+
+### New Hook: `useMoodQuestionConfig`
+
+**Location:** `src/hooks/useMoodQuestionConfig.ts`
+
+Wraps CRUD operations against `mood_question_configs` using React Query. Provides `configs`, `isLoading`, `upsertConfig`.
+
+---
+
+## Routing & Navigation Updates
+
+### `App.tsx`
+Add route:
+```tsx
+import MoodPathwaySettings from "@/pages/admin/MoodPathwaySettings";
+// ...
+<Route path="/admin/mood-pathways" element={<AdminRoute><MoodPathwaySettings /></AdminRoute>} />
+```
+
+### `AppSidebar.tsx`
+Add to the wellness group (admin access):
+```typescript
+{ title: t('nav.moodPathways'), url: "/admin/mood-pathways", icon: Brain }
+```
+The wellness group currently only has the employee daily check-in link. Add an admin-only sub-section.
+
+---
+
+## i18n Updates (both `en.json` and `ar.json`)
+
+New keys to add under `"moodPathway"`:
+```json
+"moodPathway": {
+  "title": "Mood Follow-up",
+  "generating": "Personalizing your check-in...",
+  "generatingSubtext": "Taking just a moment...",
+  "shareMore": "Anything else you'd like to share?",
+  "freeTextPlaceholder": "Share what's on your mind (optional)...",
+  "skipQuestions": "Skip follow-up questions",
+  "settingsTitle": "Mood Pathway Settings",
+  "settingsDesc": "Configure AI-generated follow-up questions for each mood level. Questions rotate automatically to prevent repetition.",
+  "enablePathway": "Enable AI Follow-up Questions",
+  "enableFreeText": "Enable Free-Text Reflection",
+  "customContext": "AI Context Hint (Optional)",
+  "customContextPlaceholder": "e.g., Focus on workload, team collaboration, and energy levels...",
+  "saveSettings": "Save Settings",
+  "settingsSaved": "Settings saved successfully",
+  "settingsFailed": "Failed to save settings",
+  "extremeMoodOnly": "Available for extreme moods only (Great / Need Help)",
+  "themeRotation": "Questions rotate across {{count}} themes to prevent repetition"
+}
+```
+
+New nav key: `"moodPathways": "Mood Pathways"`
+
+Arabic equivalents for all keys.
+
+---
+
+## File Change Summary
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `supabase/migrations/[ts]_mood_pathway_tables.sql` | Create | `mood_question_configs` + `mood_question_history` tables + RLS |
+| `supabase/functions/generate-mood-questions/index.ts` | Create | Anti-duplication AI question generator edge function |
+| `src/components/checkin/MoodPathwayQuestions.tsx` | Create | UI component for mood-specific follow-up questions |
+| `src/hooks/useMoodQuestionConfig.ts` | Create | CRUD hook for mood pathway admin settings |
+| `src/pages/admin/MoodPathwaySettings.tsx` | Create | Admin configuration page for mood pathways |
+| `src/components/checkin/InlineDailyCheckin.tsx` | Modify | Integrate MoodPathwayQuestions + pass userId + enrich submit |
+| `supabase/functions/generate-daily-tip/index.ts` | Modify | Accept + use pathwayAnswers for richer tip generation |
+| `src/pages/EmployeeHome.tsx` | Modify | Pass `userId` from `useCurrentEmployee` to `InlineDailyCheckin` |
+| `src/App.tsx` | Modify | Register `/admin/mood-pathways` route |
+| `src/components/layout/AppSidebar.tsx` | Modify | Add "Mood Pathways" nav link for admins |
+| `src/locales/en.json` | Modify | Add all `moodPathway.*` and `nav.moodPathways` keys |
+| `src/locales/ar.json` | Modify | Add Arabic equivalents |
+
+---
+
+## Safety Architecture (Non-Negotiable)
+
+The following behaviors are hardcoded and cannot be overridden by admin config or theme rotation:
+
+1. **`need_help` (score 1):** The first question always includes support options — "I'd like to talk to HR or my manager" and "I'd prefer professional support". Only the second question (if generated) rotates themes freely.
+2. **Hash comparison before insert:** Questions are only stored to history after passing the duplication check — not before.
+3. **Retry cap:** Max 2 retries per generation attempt, then theme escalation. Never an infinite loop.
+4. **Graceful degradation:** If the edge function fails (network, AI quota), `MoodPathwayQuestions` silently hides and does not block the check-in submission.
