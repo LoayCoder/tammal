@@ -37,9 +37,20 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
   const { data: scheduledQuestions = [], isLoading, error, refetch } = useQuery({
     queryKey: ['scheduled-questions', employeeId, status],
     queryFn: async () => {
+      // 1. Get only survey-type schedule IDs to keep this hook scoped to the survey page
+      const { data: surveySchedules } = await supabase
+        .from('question_schedules')
+        .select('id')
+        .eq('schedule_type', 'survey')
+        .is('deleted_at', null);
+
+      const surveyScheduleIds = (surveySchedules || []).map(s => s.id);
+      if (!surveyScheduleIds.length) return [];
+
       let query = supabase
         .from('scheduled_questions')
         .select('*')
+        .in('schedule_id', surveyScheduleIds)
         .order('scheduled_delivery', { ascending: true });
 
       if (employeeId) {
@@ -48,6 +59,9 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
 
       if (status) {
         query = query.eq('status', status);
+      } else {
+        // Default: fetch both pending and delivered
+        query = query.in('status', ['pending', 'delivered']);
       }
 
       const { data, error } = await query;

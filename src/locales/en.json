@@ -39,7 +39,7 @@
     "answeredRate": "Answered Rate",
     "statusDistribution": "Status Distribution",
     "deliveryTimeline": "Delivery Timeline",
-    "noData": "No data available",
+    "retry": "Retry",
     "showingOf": "Showing {{shown}} of {{total}} questions",
     "noMatchingQuestions": "No matching questions",
     "selected": "selected",
@@ -1554,7 +1554,10 @@
     "scheduledQuestion": "Question",
     "scheduledQuestionsTitle": "Your Scheduled Questions",
     "alreadyCheckedIn": "You've already checked in today!",
-    "allCompleted": "All questions completed"
+    "allCompleted": "All questions completed",
+    "tapToDismiss": "Tap anywhere to dismiss",
+    "profileNotFound": "Profile Not Found",
+    "profileNotFoundDesc": "Your employee profile could not be found. Please contact your administrator."
   },
   "batches": {
     "title": "Question Batches",

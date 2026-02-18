@@ -49,7 +49,7 @@ export function WellnessQuestionStep({ question, isLoading, answerValue, onAnswe
                 <div className="space-y-3 px-2">
                   <Slider
                     min={1} max={10} step={1}
-                    defaultValue={[5]}
+                    value={[Number(answerValue) || 5]}
                     onValueChange={v => onAnswerChange(v[0])}
                     onValueCommit={v => selectAndAdvance(v[0])}
                   />

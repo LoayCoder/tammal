@@ -17,7 +17,8 @@ export function useDailyWellnessQuestions(tenantId: string | null) {
 
   const lang = i18n.language === 'ar' ? 'ar' : 'en';
   const today = new Date().toISOString().split('T')[0];
-  const cacheKey = `daily-questions:${lang}:${today}`;
+  // Include tenantId to prevent cross-tenant cache pollution in multi-tenant environments
+  const cacheKey = `daily-questions:${tenantId ?? 'unknown'}:${lang}:${today}`;
 
   const fetchQuestion = useCallback(async (retry = false) => {
     if (!tenantId) { setIsLoading(false); return; }

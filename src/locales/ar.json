@@ -39,7 +39,7 @@
     "answeredRate": "نسبة الإجابة",
     "statusDistribution": "توزيع الحالات",
     "deliveryTimeline": "الجدول الزمني للتوصيل",
-    "noData": "لا توجد بيانات",
+    "retry": "إعادة المحاولة",
     "showingOf": "عرض {{shown}} من {{total}} سؤال",
     "noMatchingQuestions": "لا توجد أسئلة مطابقة",
     "selected": "محدد",
@@ -1554,7 +1554,10 @@
     "scheduledQuestion": "سؤال",
     "scheduledQuestionsTitle": "أسئلتك المجدولة",
     "alreadyCheckedIn": "لقد سجّلت بالفعل اليوم!",
-    "allCompleted": "تم إكمال جميع الأسئلة"
+    "allCompleted": "تم إكمال جميع الأسئلة",
+    "tapToDismiss": "انقر في أي مكان للإغلاق",
+    "profileNotFound": "الملف الشخصي غير موجود",
+    "profileNotFoundDesc": "لم يتم العثور على ملفك الشخصي كموظف. يرجى التواصل مع المسؤول."
   },
   "batches": {
     "title": "دفعات الأسئلة",
@@ -1621,7 +1624,7 @@
   },
   "home": {
     "goodMorning": "صباح الخير",
-    "goodAfternoon": "مساء الخير",
+    "goodAfternoon": "ظهراً سعيداً",
     "goodEvening": "مساء الخير",
     "subtitle": "إليك كيف حالك اليوم",
     "dayStreak": "يوم متتالي",

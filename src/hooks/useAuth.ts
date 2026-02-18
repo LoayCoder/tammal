@@ -25,22 +25,24 @@ function parseUserAgent(ua: string) {
   return { device_type, browser, os };
 }
 
-// Fetch IP and location info
+// Fetch IP and location info — uses a single resilient endpoint with timeout
 async function getLocationInfo() {
   try {
-    const ipResponse = await fetch('https://api.ipify.org?format=json');
-    const ipData = await ipResponse.json();
-    const ip = ipData.ip;
-
-    const geoResponse = await fetch(`https://ip-api.com/json/${ip}?fields=country,city`);
-    const geoData = await geoResponse.json();
-
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000); // 3s timeout
+    const resp = await fetch('https://ip-api.com/json/?fields=query,country,city', {
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    if (!resp.ok) return null;
+    const data = await resp.json();
     return {
-      ip,
-      country: geoData.country || 'Unknown',
-      city: geoData.city || 'Unknown',
+      ip: data.query || null,
+      country: data.country || null,
+      city: data.city || null,
     };
   } catch {
+    // Non-fatal: IP lookup failure must never block login
     return null;
   }
 }

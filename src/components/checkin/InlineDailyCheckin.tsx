@@ -323,7 +323,7 @@ function renderWellnessInput(
   if (question.question_type === 'scale' || question.question_type === 'numeric_scale') {
     return (
       <div className="space-y-2 px-1">
-        <Slider min={1} max={10} step={1} defaultValue={[5]} onValueChange={v => onAnswerChange(v[0])} />
+        <Slider min={1} max={10} step={1} value={[Number(answerValue) || 5]} onValueChange={v => onAnswerChange(v[0])} />
         <div className="flex justify-between text-xs text-muted-foreground">
           <span>1</span>
           <span className="text-base font-bold text-primary">{String(answerValue ?? 5)}</span>

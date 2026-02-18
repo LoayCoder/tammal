@@ -44,12 +44,15 @@ export function useCheckinScheduledQuestions(employeeId?: string, excludeQuestio
       const checkinScheduleIds = (checkinSchedules || []).map(s => s.id);
       if (!checkinScheduleIds.length) return [];
 
+      const todayStart = `${today}T00:00:00.000Z`;
+
       const { data: scheduledRows, error: sqError } = await supabase
         .from('scheduled_questions')
         .select('id, schedule_id, question_id, question_source, scheduled_delivery, status')
         .eq('employee_id', employeeId)
         .in('status', ['pending', 'delivered'])
         .in('schedule_id', checkinScheduleIds)
+        .gte('scheduled_delivery', todayStart)
         .lte('scheduled_delivery', todayEnd)
         .order('scheduled_delivery', { ascending: true });
 

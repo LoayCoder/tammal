@@ -2,8 +2,6 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { UserMenu } from "@/components/UserMenu";
-import { ThemeLogo } from "@/components/branding/ThemeLogo";
-import { useBranding } from "@/hooks/useBranding";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,7 +16,6 @@ import { useTranslation } from "react-i18next";
 export function Header() {
   const location = useLocation();
   const { t } = useTranslation();
-  const { branding } = useBranding();
 
   const getBreadcrumbs = () => {
     const paths = location.pathname.split('/').filter(Boolean);
