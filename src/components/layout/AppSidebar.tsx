@@ -3,7 +3,7 @@ import {
   HelpCircle, Palette, FileText, LayoutDashboard,
   Layers, BarChart3, Network, Building, Download, History, GitBranch,
   MessageSquare, Tags, UserCheck, Sparkles, Calendar, ClipboardList,
-  User, Heart, Settings, Package
+  User, Heart, Settings, Package, Brain
 } from 'lucide-react';
 import {
   Sidebar,
@@ -80,6 +80,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         { title: t('nav.schedules'), url: "/admin/schedules", icon: Calendar },
         { title: t('nav.categories'), url: "/admin/question-categories", icon: Tags },
         { title: t('nav.subcategories'), url: "/admin/question-subcategories", icon: GitBranch },
+        { title: t('nav.moodPathways'), url: "/admin/mood-pathways", icon: Brain },
         { title: t('nav.employeeSurvey'), url: "/employee/survey", icon: ClipboardList, access: 'all' },
       ]
     },

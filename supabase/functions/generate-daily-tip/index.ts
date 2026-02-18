@@ -12,9 +12,15 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { moodLevel, questionText, answerValue, language } = await req.json();
+    const { moodLevel, questionText, answerValue, pathwayAnswers, language } = await req.json();
 
     const lang = language === "ar" ? "Arabic" : "English";
+
+    const pathwayContext = pathwayAnswers?.length
+      ? `\nMood pathway reflections:\n${pathwayAnswers.map((a: any) =>
+          `- Theme: ${a.theme} → Response: ${a.selectedOption || a.answer}${a.freeText ? ` (Additional: ${a.freeText})` : ''}`
+        ).join('\n')}`
+      : '';
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -31,7 +37,7 @@ serve(async (req) => {
           },
           {
             role: "user",
-            content: `Mood: ${moodLevel}\nQuestion: ${questionText}\nAnswer: ${JSON.stringify(answerValue)}`,
+            content: `Mood: ${moodLevel}\nQuestion: ${questionText}\nAnswer: ${JSON.stringify(answerValue)}${pathwayContext}`,
           },
         ],
       }),

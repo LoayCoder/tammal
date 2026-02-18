@@ -119,7 +119,7 @@ export default function EmployeeHome() {
 
       {/* Inline Daily Check-in */}
       {employee && !todayEntry && (
-        <InlineDailyCheckin employeeId={employee.id} tenantId={employee.tenant_id} />
+        <InlineDailyCheckin employeeId={employee.id} tenantId={employee.tenant_id} userId={employee.user_id ?? ''} />
       )}
 
       {/* Completed check-in indicator */}

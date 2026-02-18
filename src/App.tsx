@@ -33,6 +33,7 @@ import DailyCheckin from "@/pages/employee/DailyCheckin";
 
 import UnifiedUserManagement from "@/pages/admin/UnifiedUserManagement";
 import AcceptInvite from "@/pages/auth/AcceptInvite";
+import MoodPathwaySettings from "@/pages/admin/MoodPathwaySettings";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
@@ -80,6 +81,7 @@ const App = () => (
             <Route path="/admin/org" element={<AdminRoute><OrgStructure /></AdminRoute>} />
             <Route path="/admin/branding" element={<AdminRoute><AdminBranding /></AdminRoute>} />
             <Route path="/admin/docs" element={<AdminRoute><DocumentSettings /></AdminRoute>} />
+            <Route path="/admin/mood-pathways" element={<AdminRoute><MoodPathwaySettings /></AdminRoute>} />
             
             
             <Route path="/settings/usage" element={<UsageBilling />} />

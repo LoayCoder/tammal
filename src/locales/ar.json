@@ -76,7 +76,8 @@
     "dailyCheckin": "تسجيل يومي",
     "batchManagement": "إدارة الدفعات",
     "wellnessSettings": "إعدادات الرفاهية",
-    "subcategories": "التصنيفات الفرعية"
+    "subcategories": "التصنيفات الفرعية",
+    "moodPathways": "مسارات المزاج"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -1646,5 +1647,24 @@
     "monthlyCheckins": "هذا الشهر",
     "avgMood": "متوسط المزاج",
     "currentStreak": "التتابع"
+  },
+  "moodPathway": {
+    "title": "متابعة المزاج",
+    "generating": "تخصيص تسجيلك اليومي...",
+    "generatingSubtext": "لحظة واحدة فقط...",
+    "shareMore": "هل هناك شيء آخر تود مشاركته؟",
+    "freeTextPlaceholder": "شارك ما يدور في ذهنك (اختياري)...",
+    "skipQuestions": "تخطي المتابعة",
+    "settingsTitle": "إعدادات مسارات المزاج",
+    "settingsDesc": "تهيئة أسئلة المتابعة المُولَّدة بالذكاء الاصطناعي لكل مستوى مزاج. تتناوب الأسئلة تلقائياً لمنع التكرار.",
+    "enablePathway": "تفعيل أسئلة المتابعة بالذكاء الاصطناعي",
+    "enableFreeText": "تفعيل التأمل النصي الحر",
+    "customContext": "تلميح سياق الذكاء الاصطناعي (اختياري)",
+    "customContextPlaceholder": "مثال: ركّز على عبء العمل والتعاون الجماعي ومستويات الطاقة...",
+    "saveSettings": "حفظ الإعدادات",
+    "settingsSaved": "تم حفظ الإعدادات بنجاح",
+    "settingsFailed": "فشل حفظ الإعدادات",
+    "extremeMoodOnly": "متاح للمزاجات المتطرفة فقط (ممتاز / بحاجة للمساعدة)",
+    "themeRotation": "تتناوب الأسئلة عبر {{count}} موضوعاً لمنع التكرار"
   }
 }
