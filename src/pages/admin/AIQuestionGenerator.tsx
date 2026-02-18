@@ -156,7 +156,7 @@ export default function AIQuestionGenerator() {
 
   const handleSaveClick = () => {
     if (purpose === 'wellness') {
-      saveWellness({ questions }, {
+      saveWellness({ questions, moodLevels: selectedMoodLevels }, {
         onSuccess: () => {
           clearAll();
           if (documents.length > 0) deleteAllDocuments();
