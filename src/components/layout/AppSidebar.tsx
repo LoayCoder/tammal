@@ -3,7 +3,9 @@ import {
   HelpCircle, Palette, FileText, LayoutDashboard,
   Layers, BarChart3, Network, Building, Download, History, GitBranch,
   MessageSquare, Tags, UserCheck, Sparkles, Calendar, ClipboardList,
-  User, Heart, Settings, Package, Brain
+  User, Heart, Settings, Package, Brain, SmilePlus, RefreshCw, Wind,
+  BookOpen, Music, CheckSquare, BookMarked, Phone, ClipboardCheck,
+  ChevronRight
 } from 'lucide-react';
 import {
   Sidebar,
@@ -14,9 +16,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarHeader,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { NavLink } from "@/components/NavLink";
 import { useTranslation } from 'react-i18next';
 import { ThemeLogo } from "@/components/branding/ThemeLogo";
@@ -24,6 +30,8 @@ import { ThemeIcon } from "@/components/branding/ThemeIcon";
 import type { BrandingConfig } from "@/hooks/useBranding";
 import { useUserPermissions, useHasRole } from '@/hooks/useUserPermissions';
 import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
+import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 type MenuAccess = 'all' | 'admin' | 'employee';
 
@@ -40,6 +48,17 @@ interface MenuGroup {
   items: MenuItem[];
 }
 
+interface ToolSubItem {
+  title: string;
+  url: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+interface ToolSection {
+  label: string;
+  items: ToolSubItem[];
+}
+
 interface AppSidebarProps {
   branding: BrandingConfig;
 }
@@ -52,8 +71,54 @@ export function AppSidebar({ branding }: AppSidebarProps) {
   const { isSuperAdmin, isLoading: permLoading } = useUserPermissions();
   const { hasRole: isTenantAdmin } = useHasRole('tenant_admin');
   const { hasEmployeeProfile } = useCurrentEmployee();
+  const location = useLocation();
 
   const isAdmin = isSuperAdmin || isTenantAdmin;
+
+  // Track which mental toolkit sections are open
+  const isMentalToolkitActive = location.pathname.startsWith('/mental-toolkit');
+  const [toolsOpen, setToolsOpen] = useState(
+    isMentalToolkitActive && ['/mental-toolkit/mood-tracker', '/mental-toolkit/thought-reframer', '/mental-toolkit/breathing'].some(p => location.pathname.startsWith(p))
+  );
+  const [practicesOpen, setPracticesOpen] = useState(
+    isMentalToolkitActive && ['/mental-toolkit/journaling', '/mental-toolkit/meditation', '/mental-toolkit/habits'].some(p => location.pathname.startsWith(p))
+  );
+  const [resourcesOpen, setResourcesOpen] = useState(
+    isMentalToolkitActive && ['/mental-toolkit/articles', '/mental-toolkit/crisis', '/mental-toolkit/assessment'].some(p => location.pathname.startsWith(p))
+  );
+
+  const mentalToolkitSections: ToolSection[] = [
+    {
+      label: t('mentalToolkit.tabs.tools'),
+      items: [
+        { title: t('mentalToolkit.moodTracker.title'), url: '/mental-toolkit/mood-tracker', icon: SmilePlus },
+        { title: t('mentalToolkit.thoughtReframer.title'), url: '/mental-toolkit/thought-reframer', icon: RefreshCw },
+        { title: t('mentalToolkit.breathing.title'), url: '/mental-toolkit/breathing', icon: Wind },
+      ],
+    },
+    {
+      label: t('mentalToolkit.tabs.practices'),
+      items: [
+        { title: t('mentalToolkit.journaling.title'), url: '/mental-toolkit/journaling', icon: BookOpen },
+        { title: t('mentalToolkit.meditation.title'), url: '/mental-toolkit/meditation', icon: Music },
+        { title: t('mentalToolkit.habits.title'), url: '/mental-toolkit/habits', icon: CheckSquare },
+      ],
+    },
+    {
+      label: t('mentalToolkit.tabs.resources'),
+      items: [
+        { title: t('mentalToolkit.articles.title'), url: '/mental-toolkit/articles', icon: BookMarked },
+        { title: t('mentalToolkit.crisis.title'), url: '/mental-toolkit/crisis', icon: Phone },
+        { title: t('mentalToolkit.quiz.title'), url: '/mental-toolkit/assessment', icon: ClipboardCheck },
+      ],
+    },
+  ];
+
+  const sectionStates = [
+    { open: toolsOpen, setOpen: setToolsOpen },
+    { open: practicesOpen, setOpen: setPracticesOpen },
+    { open: resourcesOpen, setOpen: setResourcesOpen },
+  ];
 
   const menuItems: MenuGroup[] = [
     {
@@ -112,13 +177,6 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       ]
     },
     {
-      label: t('nav.mentalToolkit'),
-      access: 'all',
-      items: [
-        { title: t('nav.mentalToolkit'), url: "/mental-toolkit", icon: Brain },
-      ]
-    },
-    {
       label: t('nav.help'),
       access: 'all',
       items: [
@@ -148,6 +206,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     }))
     .filter(group => group.items.length > 0);
 
+  const handleNavClick = () => {
+    if (isMobile) setOpenMobile(false);
+  };
+
   return (
     <Sidebar variant="sidebar" collapsible="icon" side={isRTL ? "right" : "left"}>
       <SidebarHeader className="border-b border-sidebar-border p-4">
@@ -176,6 +238,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         )}
       </SidebarHeader>
       <SidebarContent className="pt-4">
+        {/* Regular menu groups */}
         {filteredGroups.map((group) => (
           <SidebarGroup key={group.label}>
             <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
@@ -189,9 +252,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                         end={item.url === '/'}
                         className="flex items-center gap-2"
                         activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
-                        onClick={() => {
-                          if (isMobile) setOpenMobile(false);
-                        }}
+                        onClick={handleNavClick}
                       >
                         <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>
@@ -203,6 +264,83 @@ export function AppSidebar({ branding }: AppSidebarProps) {
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
+
+        {/* Mental Toolkit — collapsible hierarchy */}
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            <span className="flex items-center gap-2">
+              <Brain className="h-3.5 w-3.5" />
+              {!isCollapsed && t('nav.mentalToolkit')}
+            </span>
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {mentalToolkitSections.map((section, sectionIdx) => {
+                const { open, setOpen } = sectionStates[sectionIdx];
+                const isSectionActive = section.items.some(i => location.pathname.startsWith(i.url));
+
+                if (isCollapsed) {
+                  // In collapsed mode, show just the tool icons directly
+                  return section.items.map((item) => (
+                    <SidebarMenuItem key={item.url}>
+                      <SidebarMenuButton asChild tooltip={item.title}>
+                        <NavLink
+                          to={item.url}
+                          className="flex items-center gap-2"
+                          activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                          onClick={handleNavClick}
+                        >
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ));
+                }
+
+                return (
+                  <Collapsible
+                    key={section.label}
+                    open={open}
+                    onOpenChange={setOpen}
+                    className="group/collapsible"
+                  >
+                    <SidebarMenuItem>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton
+                          className={isSectionActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""}
+                          tooltip={section.label}
+                        >
+                          <span className="flex-1 text-start text-xs font-medium">{section.label}</span>
+                          <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 rtl:-scale-x-100" />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {section.items.map((item) => (
+                            <SidebarMenuSubItem key={item.url}>
+                              <SidebarMenuSubButton asChild>
+                                <NavLink
+                                  to={item.url}
+                                  className="flex items-center gap-2"
+                                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                                  onClick={handleNavClick}
+                                >
+                                  <item.icon className="h-3.5 w-3.5 shrink-0" />
+                                  <span>{item.title}</span>
+                                </NavLink>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );

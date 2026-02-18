@@ -30,6 +30,15 @@ import SubcategoryManagement from "@/pages/admin/SubcategoryManagement";
 import EmployeeSurvey from "@/pages/employee/EmployeeSurvey";
 import DailyCheckin from "@/pages/employee/DailyCheckin";
 import MentalToolkit from "@/pages/MentalToolkit";
+import MoodTrackerPage from "@/pages/mental-toolkit/MoodTrackerPage";
+import ThoughtReframerPage from "@/pages/mental-toolkit/ThoughtReframerPage";
+import BreathingPage from "@/pages/mental-toolkit/BreathingPage";
+import JournalingPage from "@/pages/mental-toolkit/JournalingPage";
+import MeditationPage from "@/pages/mental-toolkit/MeditationPage";
+import HabitsPage from "@/pages/mental-toolkit/HabitsPage";
+import ArticlesPage from "@/pages/mental-toolkit/ArticlesPage";
+import CrisisPage from "@/pages/mental-toolkit/CrisisPage";
+import AssessmentPage from "@/pages/mental-toolkit/AssessmentPage";
 
 
 import UnifiedUserManagement from "@/pages/admin/UnifiedUserManagement";
@@ -89,6 +98,15 @@ const App = () => (
             <Route path="/settings/profile" element={<UserProfile />} />
             <Route path="/support" element={<Support />} />
             <Route path="/mental-toolkit" element={<MentalToolkit />} />
+            <Route path="/mental-toolkit/mood-tracker" element={<MoodTrackerPage />} />
+            <Route path="/mental-toolkit/thought-reframer" element={<ThoughtReframerPage />} />
+            <Route path="/mental-toolkit/breathing" element={<BreathingPage />} />
+            <Route path="/mental-toolkit/journaling" element={<JournalingPage />} />
+            <Route path="/mental-toolkit/meditation" element={<MeditationPage />} />
+            <Route path="/mental-toolkit/habits" element={<HabitsPage />} />
+            <Route path="/mental-toolkit/articles" element={<ArticlesPage />} />
+            <Route path="/mental-toolkit/crisis" element={<CrisisPage />} />
+            <Route path="/mental-toolkit/assessment" element={<AssessmentPage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
