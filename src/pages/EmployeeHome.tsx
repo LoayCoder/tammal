@@ -117,9 +117,9 @@ export default function EmployeeHome() {
         </Badge>
       </div>
 
-      {/* Inline Daily Check-in */}
-      {employee && !todayEntry && (
-        <InlineDailyCheckin employeeId={employee.id} tenantId={employee.tenant_id} userId={employee.user_id ?? ''} />
+      {/* Inline Daily Check-in — requires a linked auth user_id */}
+      {employee && !todayEntry && employee.user_id && (
+        <InlineDailyCheckin employeeId={employee.id} tenantId={employee.tenant_id} userId={employee.user_id} />
       )}
 
       {/* Completed check-in indicator */}
