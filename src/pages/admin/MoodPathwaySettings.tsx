@@ -7,77 +7,35 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Brain, Save, Info, RotateCcw } from 'lucide-react';
+import { Brain, Save, RotateCcw, Link2, Plus, X, Info } from 'lucide-react';
 import { useMoodQuestionConfig, type MoodQuestionConfig } from '@/hooks/useMoodQuestionConfig';
+import { useQuestions } from '@/hooks/useQuestions';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { supabase } from '@/integrations/supabase/client';
+import { MoodQuestionPickerDialog } from '@/components/checkin/MoodQuestionPickerDialog';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
-const MOOD_META: Record<
-  string,
-  { emoji: string; label: string; label_ar: string; color: string; themes: string[] }
-> = {
-  great: {
-    emoji: '😄',
-    label: 'Great',
-    label_ar: 'ممتاز',
-    color: 'text-chart-1',
-    themes: ['positive_drivers', 'recognition', 'team_connection', 'energy_source', 'purpose_alignment', 'momentum_building'],
-  },
-  good: {
-    emoji: '🙂',
-    label: 'Good',
-    label_ar: 'جيد',
-    color: 'text-chart-2',
-    themes: ['engagement', 'collaboration', 'satisfaction', 'progress', 'growth', 'energy_level'],
-  },
-  okay: {
-    emoji: '😐',
-    label: 'Okay',
-    label_ar: 'عادي',
-    color: 'text-chart-4',
-    themes: ['minor_friction', 'workload_balance', 'focus_clarity', 'emotional_energy', 'support_access'],
-  },
-  struggling: {
-    emoji: '😟',
-    label: 'Struggling',
-    label_ar: 'أعاني',
-    color: 'text-destructive',
-    themes: ['stressors', 'burnout_signals', 'work_life_spillover', 'communication_gaps', 'support_needs', 'work_pressure'],
-  },
-  need_help: {
-    emoji: '😢',
-    label: 'Need Help',
-    label_ar: 'بحاجة للمساعدة',
-    color: 'text-destructive',
-    themes: ['immediate_stress_source', 'support_preference', 'human_connection', 'safety_support'],
-  },
+const MOOD_META: Record<string, { emoji: string; label: string; label_ar: string; color: string }> = {
+  great: { emoji: '😄', label: 'Great', label_ar: 'ممتاز', color: 'text-chart-1' },
+  good: { emoji: '🙂', label: 'Good', label_ar: 'جيد', color: 'text-chart-2' },
+  okay: { emoji: '😐', label: 'Okay', label_ar: 'عادي', color: 'text-chart-4' },
+  struggling: { emoji: '😟', label: 'Struggling', label_ar: 'أعاني', color: 'text-destructive' },
+  need_help: { emoji: '😢', label: 'Need Help', label_ar: 'بحاجة للمساعدة', color: 'text-destructive' },
 };
 
-const THEME_DISPLAY: Record<string, string> = {
-  positive_drivers: 'Positive Drivers', recognition: 'Recognition',
-  team_connection: 'Team Connection', energy_source: 'Energy Source',
-  purpose_alignment: 'Purpose Alignment', momentum_building: 'Momentum Building',
-  engagement: 'Engagement', collaboration: 'Collaboration',
-  satisfaction: 'Satisfaction', progress: 'Progress',
-  growth: 'Growth', energy_level: 'Energy Level',
-  minor_friction: 'Minor Friction', workload_balance: 'Workload Balance',
-  focus_clarity: 'Focus Clarity', emotional_energy: 'Emotional Energy',
-  support_access: 'Support Access', stressors: 'Stressors',
-  burnout_signals: 'Burnout Signals', work_life_spillover: 'Work-Life Spillover',
-  communication_gaps: 'Communication Gaps', support_needs: 'Support Needs',
-  work_pressure: 'Work Pressure', immediate_stress_source: 'Immediate Stress Source',
-  support_preference: 'Support Preference', human_connection: 'Human Connection',
-  safety_support: 'Safety Support',
-};
+const MOOD_ORDER = ['great', 'good', 'okay', 'struggling', 'need_help'];
 
 export default function MoodPathwaySettings() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
-  const { isSuperAdmin } = useUserPermissions();
+  const queryClient = useQueryClient();
 
   const [tenantId, setTenantId] = useState<string | null>(null);
   const [localConfigs, setLocalConfigs] = useState<Record<string, MoodQuestionConfig>>({});
   const [savingMood, setSavingMood] = useState<string | null>(null);
+  const [pickerOpen, setPickerOpen] = useState<string | null>(null);
+  const [savingTags, setSavingTags] = useState(false);
 
   // Fetch tenant id
   useEffect(() => {
@@ -95,6 +53,7 @@ export default function MoodPathwaySettings() {
   }, []);
 
   const { configs, isLoading, upsertConfig } = useMoodQuestionConfig(tenantId);
+  const { questions } = useQuestions();
 
   // Sync fetched configs into local state
   useEffect(() => {
@@ -107,12 +66,7 @@ export default function MoodPathwaySettings() {
   const updateLocal = (moodLevel: string, field: keyof MoodQuestionConfig, value: any) => {
     setLocalConfigs(prev => ({
       ...prev,
-      [moodLevel]: {
-        ...prev[moodLevel],
-        tenant_id: tenantId!,
-        mood_level: moodLevel,
-        [field]: value,
-      },
+      [moodLevel]: { ...prev[moodLevel], tenant_id: tenantId!, mood_level: moodLevel, [field]: value },
     }));
   };
 
@@ -127,7 +81,63 @@ export default function MoodPathwaySettings() {
     }
   };
 
-  const MOOD_ORDER = ['great', 'good', 'okay', 'struggling', 'need_help'];
+  // Helper: get questions tagged for a mood level
+  const getTaggedQuestions = (moodLevel: string) => {
+    return questions.filter(q => {
+      const levels = (q as any).mood_levels;
+      return Array.isArray(levels) && levels.includes(moodLevel);
+    });
+  };
+
+  // Bulk-update mood_levels tags on questions
+  const handleSaveTags = async (selectedIds: string[], moodLevel: string) => {
+    setSavingTags(true);
+    try {
+      // Questions that were tagged but now untagged
+      const wasTagged = getTaggedQuestions(moodLevel).map(q => q.id);
+      const toUntag = wasTagged.filter(id => !selectedIds.includes(id));
+      const toTag = selectedIds.filter(id => !wasTagged.includes(id));
+
+      // Untag: remove moodLevel from their mood_levels array
+      for (const id of toUntag) {
+        const q = questions.find(q => q.id === id);
+        if (!q) continue;
+        const current = ((q as any).mood_levels || []) as string[];
+        const updated = current.filter((l: string) => l !== moodLevel);
+        await supabase.from('questions').update({ mood_levels: updated } as any).eq('id', id);
+      }
+
+      // Tag: add moodLevel to their mood_levels array
+      for (const id of toTag) {
+        const q = questions.find(q => q.id === id);
+        if (!q) continue;
+        const current = ((q as any).mood_levels || []) as string[];
+        if (!current.includes(moodLevel)) {
+          await supabase.from('questions').update({ mood_levels: [...current, moodLevel] } as any).eq('id', id);
+        }
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['questions'] });
+      queryClient.invalidateQueries({ queryKey: ['mood-pathway-questions'] });
+      toast.success(t('moodPathway.tagsSaved'));
+    } catch {
+      toast.error(t('moodPathway.tagsFailed'));
+    } finally {
+      setSavingTags(false);
+    }
+  };
+
+  // Unlink a single question from a mood
+  const handleUnlinkQuestion = async (questionId: string, moodLevel: string) => {
+    const q = questions.find(q => q.id === questionId);
+    if (!q) return;
+    const current = ((q as any).mood_levels || []) as string[];
+    const updated = current.filter((l: string) => l !== moodLevel);
+    await supabase.from('questions').update({ mood_levels: updated } as any).eq('id', questionId);
+    queryClient.invalidateQueries({ queryKey: ['questions'] });
+    queryClient.invalidateQueries({ queryKey: ['mood-pathway-questions'] });
+    toast.success(t('moodPathway.questionUnlinked'));
+  };
 
   return (
     <div className="space-y-6 p-6">
@@ -149,18 +159,13 @@ export default function MoodPathwaySettings() {
       {/* Info banner */}
       <div className="flex items-start gap-3 rounded-xl border bg-card p-4">
         <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-        <div className="text-sm text-muted-foreground space-y-1">
-          <p>{t('moodPathway.themeRotation', { count: 6 })}</p>
-          <p className="text-xs">{t('moodPathway.extremeMoodOnly')}</p>
-        </div>
+        <p className="text-sm text-muted-foreground">{t('moodPathway.settingsInfo')}</p>
       </div>
 
       {/* Mood Cards */}
       {isLoading ? (
         <div className="space-y-4">
-          {[1, 2, 3, 4, 5].map(i => (
-            <Skeleton key={i} className="h-48 w-full rounded-2xl" />
-          ))}
+          {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-48 w-full rounded-2xl" />)}
         </div>
       ) : (
         <div className="space-y-4">
@@ -172,63 +177,41 @@ export default function MoodPathwaySettings() {
             const moodLabel = isRTL ? meta.label_ar : meta.label;
             const isExtreme = moodLevel === 'great' || moodLevel === 'need_help';
             const isSaving = savingMood === moodLevel;
+            const taggedQuestions = getTaggedQuestions(moodLevel);
 
             return (
               <Card key={moodLevel} className="overflow-hidden">
-                {/* Card header row */}
+                {/* Card header */}
                 <CardHeader className="pb-3 border-b">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{meta.emoji}</span>
                       <div>
-                        <CardTitle className={`text-base ${meta.color}`}>
-                          {moodLabel}
-                        </CardTitle>
+                        <CardTitle className={`text-base ${meta.color}`}>{moodLabel}</CardTitle>
                         <CardDescription className="text-xs mt-0.5">
-                          {t('moodPathway.themeRotation', { count: meta.themes.length })}
+                          {t('moodPathway.linkedQuestionsCount', { count: taggedQuestions.length })}
                         </CardDescription>
                       </div>
-                    </div>
-                    {/* Theme badges */}
-                    <div className="hidden sm:flex flex-wrap gap-1 max-w-xs justify-end">
-                      {meta.themes.slice(0, 3).map(theme => (
-                        <Badge key={theme} variant="outline" className="text-[10px] px-1.5 py-0">
-                          {THEME_DISPLAY[theme] || theme}
-                        </Badge>
-                      ))}
-                      {meta.themes.length > 3 && (
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                          +{meta.themes.length - 3}
-                        </Badge>
-                      )}
                     </div>
                   </div>
                 </CardHeader>
 
                 <CardContent className="pt-4 space-y-4">
-                  {/* Enable AI questions toggle */}
+                  {/* Enable toggle */}
                   <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-sm font-medium">
-                        {t('moodPathway.enablePathway')}
-                      </Label>
-                    </div>
+                    <Label className="text-sm font-medium">{t('moodPathway.enablePathway')}</Label>
                     <Switch
                       checked={config.is_enabled}
                       onCheckedChange={v => updateLocal(moodLevel, 'is_enabled', v)}
                     />
                   </div>
 
-                  {/* Enable free-text (only for extreme moods) */}
+                  {/* Enable free-text (extreme moods only) */}
                   {isExtreme && (
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label className="text-sm font-medium">
-                          {t('moodPathway.enableFreeText')}
-                        </Label>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {t('moodPathway.extremeMoodOnly')}
-                        </p>
+                        <Label className="text-sm font-medium">{t('moodPathway.enableFreeText')}</Label>
+                        <p className="text-xs text-muted-foreground mt-0.5">{t('moodPathway.extremeMoodOnly')}</p>
                       </div>
                       <Switch
                         checked={config.enable_free_text}
@@ -238,20 +221,62 @@ export default function MoodPathwaySettings() {
                     </div>
                   )}
 
-                  {/* Custom AI context hint */}
+                  {/* Linked questions */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-medium">{t('moodPathway.linkedQuestions')}</Label>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs gap-1.5"
+                        onClick={() => setPickerOpen(moodLevel)}
+                        disabled={!config.is_enabled}
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        {t('moodPathway.browseQuestions')}
+                      </Button>
+                    </div>
+
+                    {taggedQuestions.length === 0 ? (
+                      <div className="rounded-lg border border-dashed p-4 text-center">
+                        <Link2 className="h-4 w-4 text-muted-foreground mx-auto mb-1" />
+                        <p className="text-xs text-muted-foreground">{t('moodPathway.noLinkedQuestions')}</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {taggedQuestions.map(q => {
+                          const text = isRTL && q.text_ar ? q.text_ar : q.text;
+                          return (
+                            <div key={q.id} className="flex items-start gap-2 rounded-lg border bg-muted/30 p-2.5">
+                              <p className="text-sm flex-1 line-clamp-2" dir="auto">{text}</p>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive"
+                                onClick={() => handleUnlinkQuestion(q.id, moodLevel)}
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* AI Recommendation Hint */}
                   {config.is_enabled && (
                     <div className="space-y-1.5">
-                      <Label className="text-sm font-medium">
-                        {t('moodPathway.customContext')}
-                      </Label>
+                      <Label className="text-sm font-medium">{t('moodPathway.aiRecommendationHint')}</Label>
                       <Textarea
                         value={config.custom_prompt_context || ''}
                         onChange={e => updateLocal(moodLevel, 'custom_prompt_context', e.target.value || null)}
-                        placeholder={t('moodPathway.customContextPlaceholder')}
+                        placeholder={t('moodPathway.aiRecommendationHintPlaceholder')}
                         rows={2}
                         className="resize-none text-sm rounded-xl"
                         dir="auto"
                       />
+                      <p className="text-xs text-muted-foreground">{t('moodPathway.aiRecommendationHintDesc')}</p>
                     </div>
                   )}
 
@@ -263,11 +288,7 @@ export default function MoodPathwaySettings() {
                       disabled={isSaving}
                       className="gap-1.5 h-8 px-4 rounded-lg text-xs"
                     >
-                      {isSaving ? (
-                        <RotateCcw className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <Save className="h-3 w-3" />
-                      )}
+                      {isSaving ? <RotateCcw className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
                       {t('moodPathway.saveSettings')}
                     </Button>
                   </div>
@@ -276,6 +297,17 @@ export default function MoodPathwaySettings() {
             );
           })}
         </div>
+      )}
+
+      {/* Question picker dialog */}
+      {pickerOpen && (
+        <MoodQuestionPickerDialog
+          open={!!pickerOpen}
+          onOpenChange={open => { if (!open) setPickerOpen(null); }}
+          moodLevel={pickerOpen}
+          onSave={handleSaveTags}
+          isSaving={savingTags}
+        />
       )}
     </div>
   );

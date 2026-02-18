@@ -1570,6 +1570,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           is_global: boolean | null
+          mood_levels: Json | null
           options: Json | null
           tenant_id: string | null
           text: string
@@ -1586,6 +1587,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_global?: boolean | null
+          mood_levels?: Json | null
           options?: Json | null
           tenant_id?: string | null
           text: string
@@ -1602,6 +1604,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_global?: boolean | null
+          mood_levels?: Json | null
           options?: Json | null
           tenant_id?: string | null
           text?: string
