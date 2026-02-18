@@ -1188,6 +1188,8 @@
     "purposeWellnessDesc": "Saved as draft wellness questions for daily check-in",
     "wellnessSaveSuccess": "{{count}} wellness questions saved as drafts",
     "wellnessSaveError": "Failed to save wellness questions",
+    "moodLevelTags": "Mood Level Tags",
+    "moodLevelTagsDesc": "Tag these generated questions to appear as follow-ups for specific moods in the daily check-in.",
     "typeScale": "Scale",
     "showDetails": "Show Details",
     "hideDetails": "Hide Details",

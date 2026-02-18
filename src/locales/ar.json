@@ -1188,6 +1188,8 @@
     "purposeWellnessDesc": "تُحفظ كمسودات أسئلة رفاهية للتسجيل اليومي",
     "wellnessSaveSuccess": "تم حفظ {{count}} سؤال رفاهية كمسودات",
     "wellnessSaveError": "فشل في حفظ أسئلة الرفاهية",
+    "moodLevelTags": "علامات مستوى المزاج",
+    "moodLevelTagsDesc": "ضع علامة على هذه الأسئلة المولدة لتظهر كمتابعة لمستويات مزاج محددة في التسجيل اليومي.",
     "typeScale": "مقياس",
     "showDetails": "عرض التفاصيل",
     "hideDetails": "إخفاء التفاصيل",
