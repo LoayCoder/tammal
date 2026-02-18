@@ -22,15 +22,17 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { MoodStep, MOODS } from '@/components/checkin/MoodStep';
 import { AchievementOverlay } from '@/components/checkin/AchievementOverlay';
+import { MoodPathwayQuestions, type PathwayAnswer } from '@/components/checkin/MoodPathwayQuestions';
 import type { ScheduledAnswer } from '@/components/checkin/ScheduledQuestionsStep';
 import type { CheckinScheduledQuestion } from '@/hooks/useCheckinScheduledQuestions';
 
 interface InlineDailyCheckinProps {
   employeeId: string;
   tenantId: string;
+  userId: string;
 }
 
-export function InlineDailyCheckin({ employeeId, tenantId }: InlineDailyCheckinProps) {
+export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDailyCheckinProps) {
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -58,6 +60,7 @@ export function InlineDailyCheckin({ employeeId, tenantId }: InlineDailyCheckinP
   });
 
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [pathwayAnswers, setPathwayAnswers] = useState<PathwayAnswer[]>([]);
   const [wellnessAnswer, setWellnessAnswer] = useState<unknown>(null);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -112,18 +115,28 @@ export function InlineDailyCheckin({ employeeId, tenantId }: InlineDailyCheckinP
       let tip = '';
       try {
         const { data } = await supabase.functions.invoke('generate-daily-tip', {
-          body: { moodLevel: selectedMood, questionText: question?.question_text || '', answerValue: wellnessAnswer, language: document.documentElement.lang || 'en' },
+          body: {
+            moodLevel: selectedMood,
+            questionText: question?.question_text || '',
+            answerValue: wellnessAnswer,
+            pathwayAnswers,
+            language: document.documentElement.lang || 'en',
+          },
         });
         tip = data?.tip || '';
       } catch { /* tip is optional */ }
 
       const points = calculatePoints(streak);
+      const answerValue = {
+        wellness: wellnessAnswer,
+        pathway: pathwayAnswers.map(a => ({ theme: a.theme, answer: a.selectedOption, freeText: a.freeText })),
+      };
 
       const { error: moodError } = await supabase
         .from('mood_entries' as any)
         .insert({
           tenant_id: tenantId, employee_id: employeeId, mood_level: selectedMood, mood_score: moodObj.score,
-          question_id: question?.question_id || null, answer_value: wellnessAnswer, answer_text: comment || null,
+          question_id: question?.question_id || null, answer_value: answerValue, answer_text: comment || null,
           ai_tip: tip || null, support_actions: [], points_earned: points, streak_count: streak + 1,
           entry_date: today,
         });

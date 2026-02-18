@@ -965,6 +965,85 @@ export type Database = {
           },
         ]
       }
+      mood_question_configs: {
+        Row: {
+          created_at: string
+          custom_prompt_context: string | null
+          enable_free_text: boolean
+          id: string
+          is_enabled: boolean
+          mood_level: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custom_prompt_context?: string | null
+          enable_free_text?: boolean
+          id?: string
+          is_enabled?: boolean
+          mood_level: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custom_prompt_context?: string | null
+          enable_free_text?: boolean
+          id?: string
+          is_enabled?: boolean
+          mood_level?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mood_question_configs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mood_question_history: {
+        Row: {
+          created_at: string
+          id: string
+          mood_level: string
+          question_hash: string
+          tenant_id: string
+          theme: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mood_level: string
+          question_hash: string
+          tenant_id: string
+          theme: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mood_level?: string
+          question_hash?: string
+          tenant_id?: string
+          theme?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mood_question_history_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permissions: {
         Row: {
           category: string

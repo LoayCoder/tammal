@@ -76,7 +76,8 @@
     "dailyCheckin": "Daily Check-in",
     "batchManagement": "Batch Management",
     "wellnessSettings": "Wellness Settings",
-    "subcategories": "Subcategories"
+    "subcategories": "Subcategories",
+    "moodPathways": "Mood Pathways"
   },
   "auth": {
     "login": "Login",
@@ -1646,5 +1647,24 @@
     "monthlyCheckins": "This Month",
     "avgMood": "Avg. Mood",
     "currentStreak": "Streak"
+  },
+  "moodPathway": {
+    "title": "Mood Follow-up",
+    "generating": "Personalizing your check-in...",
+    "generatingSubtext": "Taking just a moment...",
+    "shareMore": "Anything else you'd like to share?",
+    "freeTextPlaceholder": "Share what's on your mind (optional)...",
+    "skipQuestions": "Skip follow-up",
+    "settingsTitle": "Mood Pathway Settings",
+    "settingsDesc": "Configure AI-generated follow-up questions for each mood level. Questions rotate automatically to prevent repetition.",
+    "enablePathway": "Enable AI Follow-up Questions",
+    "enableFreeText": "Enable Free-Text Reflection",
+    "customContext": "AI Context Hint (Optional)",
+    "customContextPlaceholder": "e.g., Focus on workload, team collaboration, and energy levels...",
+    "saveSettings": "Save Settings",
+    "settingsSaved": "Settings saved successfully",
+    "settingsFailed": "Failed to save settings",
+    "extremeMoodOnly": "Available for extreme moods only (Great / Need Help)",
+    "themeRotation": "Questions rotate across {{count}} themes to prevent repetition"
   }
 }
