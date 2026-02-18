@@ -77,7 +77,183 @@
     "batchManagement": "Batch Management",
     "wellnessSettings": "Wellness Settings",
     "subcategories": "Subcategories",
-    "moodPathways": "Mood Pathways"
+    "moodPathways": "Mood Pathways",
+    "mentalToolkit": "Mental Toolkit"
+  },
+  "mentalToolkit": {
+    "pageTitle": "Mental Toolkit",
+    "pageSubtitle": "Your personal space for mental wellness",
+    "tabs": {
+      "tools": "Mental Tools",
+      "practices": "Mental Practices",
+      "resources": "Mental Resources"
+    },
+    "moodTracker": {
+      "title": "Mood Tracker",
+      "subtitle": "How are you feeling today?",
+      "logMood": "Log Mood",
+      "notes": "Notes & Triggers",
+      "notesPlaceholder": "What's affecting your mood today? (optional)",
+      "weeklyChart": "Your Week at a Glance",
+      "todayLogged": "Today's mood has been logged!",
+      "noData": "No mood data yet. Log your first entry above.",
+      "score": "Mood Score"
+    },
+    "thoughtReframer": {
+      "title": "Thought Reframer",
+      "subtitle": "Challenge and reframe negative thoughts with CBT",
+      "step1Title": "The Negative Thought",
+      "step1Prompt": "What's the negative thought weighing on you?",
+      "step1Placeholder": "Write the thought exactly as it appears in your mind...",
+      "step2Title": "Examine the Evidence",
+      "q1": "Is this thought 100% true?",
+      "q2": "What evidence supports this thought?",
+      "q3": "What evidence challenges this thought?",
+      "step3Title": "The Reframe",
+      "step3Prompt": "Now write a balanced, reframed version of that thought",
+      "step3Placeholder": "Write a more balanced perspective...",
+      "summaryTitle": "Your Reframe Summary",
+      "originalLabel": "Original Thought",
+      "reframedLabel": "Reframed Thought",
+      "saveStart": "Save & Start Over",
+      "pastReframes": "Past Reframes",
+      "noPastReframes": "No saved reframes yet.",
+      "saveSuccess": "Reframe saved!"
+    },
+    "breathing": {
+      "title": "Breathing & Grounding",
+      "subtitle": "Calm your nervous system with guided techniques",
+      "boxBreathing": "Box Breathing",
+      "physiologicalSigh": "Physiological Sigh",
+      "grounding": "5-4-3-2-1 Grounding",
+      "start": "Start",
+      "pause": "Pause",
+      "resume": "Resume",
+      "inhale": "Inhale",
+      "hold": "Hold",
+      "exhale": "Exhale",
+      "round": "Round {{current}} of {{total}}",
+      "complete": "Session Complete 🌿",
+      "groundingPrompts": {
+        "see": "Name {{n}} things you can SEE right now",
+        "hear": "Name {{n}} things you can HEAR right now",
+        "touch": "Name {{n}} things you can TOUCH right now",
+        "smell": "Name {{n}} things you can SMELL right now",
+        "taste": "Name {{n}} things you can TASTE right now"
+      }
+    },
+    "journaling": {
+      "title": "Daily Journaling Prompts",
+      "subtitle": "Reflect and grow with daily guided prompts",
+      "todaysPrompt": "Today's Prompt",
+      "yourResponse": "Your Response",
+      "responsePlaceholder": "Take your time to reflect...",
+      "saveEntry": "Save Entry",
+      "pastEntries": "Past Entries",
+      "noPastEntries": "No journal entries yet. Start with today's prompt!",
+      "saved": "Entry saved!",
+      "categories": {
+        "gratitude": "Gratitude",
+        "selfCompassion": "Self-Compassion",
+        "values": "Values",
+        "emotionalCheckin": "Emotional Check-in"
+      }
+    },
+    "meditation": {
+      "title": "Meditation Library",
+      "subtitle": "Guided sessions for peace and focus",
+      "minutes": "{{n}} min",
+      "playNow": "Play",
+      "playing": "Playing...",
+      "paused": "Paused",
+      "targets": {
+        "anxiety": "Anxiety",
+        "sleep": "Sleep",
+        "focus": "Focus",
+        "stress": "Stress",
+        "mood": "Mood",
+        "energy": "Energy"
+      }
+    },
+    "habits": {
+      "title": "Positive Habits Planner",
+      "subtitle": "Build daily mental wellness habits",
+      "addHabit": "Add Habit",
+      "habitPlaceholder": "e.g. 5-min morning meditation",
+      "maxHabits": "Maximum 5 habits reached",
+      "streak": "{{n}} day streak",
+      "reminder": "Reminder",
+      "noHabits": "No habits yet. Add your first wellness habit!",
+      "completedToday": "Done today!",
+      "deleteHabit": "Delete habit"
+    },
+    "articles": {
+      "title": "Psychoeducation Articles",
+      "subtitle": "Learn about mental health to better understand yourself",
+      "readTime": "{{n}} min read",
+      "backToList": "Back to Articles",
+      "categories": {
+        "anxiety": "Anxiety",
+        "mood": "Mood",
+        "stress": "Stress",
+        "cbt": "CBT",
+        "skills": "Skills",
+        "growth": "Growth"
+      }
+    },
+    "crisis": {
+      "title": "Crisis Support",
+      "subtitle": "Immediate help is always available",
+      "banner": "If you are in immediate danger, please call emergency services immediately.",
+      "callNow": "Call Now",
+      "available24": "24/7",
+      "searchPlaceholder": "Search by name or region...",
+      "regions": {
+        "all": "All Regions",
+        "global": "Global",
+        "us": "US",
+        "uk": "UK",
+        "middleEast": "Middle East"
+      }
+    },
+    "quiz": {
+      "title": "Self-Assessment Quizzes",
+      "subtitle": "Check in on your mental wellbeing",
+      "startQuiz": "Start Quiz",
+      "retake": "Retake",
+      "saveResult": "Save Result",
+      "next": "Next",
+      "yourScore": "Your Score",
+      "disclaimer": "This is not a clinical diagnosis. Please consider speaking with a qualified mental health professional if you have concerns.",
+      "resultSaved": "Result saved!",
+      "progress": "Question {{current}} of {{total}}",
+      "labels": {
+        "minimal": "Minimal",
+        "mild": "Mild",
+        "moderate": "Moderate",
+        "moderatelySevere": "Moderately Severe",
+        "severe": "Severe",
+        "low": "Low",
+        "high": "High"
+      },
+      "quizzes": {
+        "gad7": {
+          "name": "Anxiety Check",
+          "desc": "GAD-7 Generalized Anxiety Disorder Scale",
+          "emoji": "😰"
+        },
+        "phq9": {
+          "name": "Mood Check",
+          "desc": "PHQ-9 Patient Health Questionnaire",
+          "emoji": "💙"
+        },
+        "pss": {
+          "name": "Stress Level",
+          "desc": "PSS Perceived Stress Scale",
+          "emoji": "🌊"
+        }
+      }
+    }
   },
   "auth": {
     "login": "Login",
