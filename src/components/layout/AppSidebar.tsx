@@ -50,7 +50,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
   const isCollapsed = state === 'collapsed';
   const isRTL = document.documentElement.dir === 'rtl';
   const { isSuperAdmin, isLoading: permLoading } = useUserPermissions();
-  const isTenantAdmin = useHasRole('tenant_admin');
+  const { hasRole: isTenantAdmin } = useHasRole('tenant_admin');
   const { hasEmployeeProfile } = useCurrentEmployee();
 
   const isAdmin = isSuperAdmin || isTenantAdmin;

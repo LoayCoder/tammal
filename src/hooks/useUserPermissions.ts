@@ -85,7 +85,7 @@ export function useUserPermissions() {
 export function useHasRole(role: 'super_admin' | 'tenant_admin' | 'manager' | 'user') {
   const { user } = useAuth();
 
-  const { data: hasRole = false } = useQuery({
+  const { data: hasRole = false, isLoading } = useQuery({
     queryKey: ['has-role', user?.id, role],
     queryFn: async () => {
       if (!user?.id) return false;
@@ -107,5 +107,5 @@ export function useHasRole(role: 'super_admin' | 'tenant_admin' | 'manager' | 'u
     enabled: !!user?.id,
   });
 
-  return hasRole;
+  return { hasRole, isLoading };
 }
