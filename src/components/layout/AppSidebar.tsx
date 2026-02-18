@@ -112,6 +112,13 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       ]
     },
     {
+      label: t('nav.mentalToolkit'),
+      access: 'all',
+      items: [
+        { title: t('nav.mentalToolkit'), url: "/mental-toolkit", icon: Brain },
+      ]
+    },
+    {
       label: t('nav.help'),
       access: 'all',
       items: [

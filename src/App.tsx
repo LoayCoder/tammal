@@ -29,6 +29,7 @@ import ScheduleManagement from "@/pages/admin/ScheduleManagement";
 import SubcategoryManagement from "@/pages/admin/SubcategoryManagement";
 import EmployeeSurvey from "@/pages/employee/EmployeeSurvey";
 import DailyCheckin from "@/pages/employee/DailyCheckin";
+import MentalToolkit from "@/pages/MentalToolkit";
 
 
 import UnifiedUserManagement from "@/pages/admin/UnifiedUserManagement";
@@ -87,6 +88,7 @@ const App = () => (
             <Route path="/settings/usage" element={<UsageBilling />} />
             <Route path="/settings/profile" element={<UserProfile />} />
             <Route path="/support" element={<Support />} />
+            <Route path="/mental-toolkit" element={<MentalToolkit />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
