@@ -1,115 +1,162 @@
 
-# Mobile Sidebar Navigation — Root Cause & Fix Plan
+# Critical Navigation Bug — Definitive Root Cause & Permanent Fix
 
-## Problem Diagnosis
+## The Real Problem: A Three-Layer Race Condition
 
-The screenshot shows the mobile sidebar is open (rendered as a Radix UI `Sheet` on screens narrower than 768px). The user taps a menu item, but the page does not navigate — the sidebar either stays open or the app "hangs".
+Every sidebar tap navigates correctly via React Router, but the page immediately redirects back to `/` (dashboard). This is a **deterministic race condition** — it happens every single time because of how `useAuth` initializes.
 
-### Root Cause: Missing `setOpenMobile(false)` on Navigation
+### Exact Failure Timeline
 
-On mobile, the `Sidebar` component renders as a `Sheet` (a slide-over drawer) controlled by `openMobile` state in `SidebarContext`. When a user taps a `NavLink` inside the sidebar:
+```text
+1. User taps sidebar → React Router navigates to "/admin/tenants"
+2. AdminRoute renders
+3. useUserPermissions fires → useAuth().user is the dependency
+4. useAuth starts with `loading = true`, user = null (initial useState)
+5. BEFORE the async session resolves, useQuery sees user?.id = undefined
+6. enabled: !!user?.id → FALSE → query does NOT fire
+7. permissionsQuery.isLoading = FALSE (query never ran, it's idle)
+8. isSuperAdmin = false (permissions = [])
+9. isTenantAdmin = false (hasRole = false, default)
+10. permLoading = FALSE, roleLoading = FALSE → skeleton is skipped
+11. AdminRoute hits: if (!isSuperAdmin && !isTenantAdmin) → true
+12. <Navigate to="/" replace /> fires → user is bounced to dashboard
+13. 300ms later: auth resolves, user.id is set, queries finally run
+```
 
-1. React Router navigates to the new route — **this works correctly**.
-2. The `Sheet` does **not close** because nothing calls `setOpenMobile(false)` after navigation.
-3. The Sheet **re-renders over the new page content** while still visible, blocking all interaction with the page behind it.
-4. The user sees the sidebar frozen in place, making it appear the navigation "hangs."
+### Why This Was Not Fixed Before
 
-This is a known behavior with Shadcn's sidebar Sheet on mobile: clicking a link inside a Sheet that wraps `NavLink` items does not automatically close the drawer because the Sheet's open state is controlled externally.
+The previous fix added `isLoading` checks to `AdminRoute` and `Dashboard`, but there is a **critical gap in the loading chain**: 
 
-### Secondary Issues Found
+- `useUserPermissions` returns `isLoading: permissionsQuery.isLoading`
+- When `enabled: !!user?.id` is `false` (because auth hasn't resolved yet), TanStack Query sets the query state to **`idle`**, not `loading`
+- `isLoading` is `false` when the query is `idle`
+- So `permLoading = false` and `roleLoading = false` even before auth is resolved
+- The skeleton guard `if (permLoading || roleLoading)` passes, and the redirect fires instantly
 
-1. **`SheetContent` renders a close `X` button**, but the sidebar CSS hides it via `[&>button]:hidden`. This means users have no visible way to dismiss the sidebar after tapping a link that doesn't close it.
-
-2. **The `side` prop on the `Sidebar` is `"left"`**, but on RTL (Arabic), the Sheet slides in from the right correctly (the `sheetVariants` handles RTL). However, the Sheet itself is missing a `dir` attribute forwarded from the document, which can cause subtle alignment issues with the close button position on RTL.
+This is the standard TanStack Query `isLoading` vs `isPending` vs `isFetching` distinction that trips up many implementations.
 
 ---
 
-## Fix Plan
+## Root Cause Summary
 
-### Fix 1 — Close sidebar on mobile after link tap (CRITICAL)
+| Layer | Problem |
+|-------|---------|
+| `useAuth.ts` | Initializes with `loading: true` but this loading flag is never passed through to permission hooks |
+| `useUserPermissions.ts` | Uses `isLoading` which is `false` when `enabled=false` (idle state), not truly "waiting for auth" |
+| `useHasRole()` | Same issue — returns `{ hasRole: false, isLoading: false }` before user is known |
+| `AdminRoute.tsx` | Trusts `isLoading` which is already `false` in the idle state → redirects too early |
 
-**File:** `src/components/layout/AppSidebar.tsx`
+---
 
-Add `useSidebar()` context to access `isMobile` and `setOpenMobile`. Wrap the `NavLink` `onClick` to call `setOpenMobile(false)` when on mobile. This ensures the Sheet closes immediately after a link is tapped.
+## The Permanent Fix
 
-```tsx
-// Inside AppSidebar, destructure from useSidebar:
-const { state, isMobile, setOpenMobile } = useSidebar();
+### Fix 1 — Thread `authLoading` through the permission hooks (CRITICAL)
 
-// On each NavLink, add onClick handler:
-<NavLink
-  to={item.url}
-  end={item.url === '/'}
-  className="flex items-center gap-2"
-  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
-  onClick={() => {
-    if (isMobile) setOpenMobile(false);
-  }}
->
+**File: `src/hooks/useUserPermissions.ts`**
+
+Both `useUserPermissions` and `useHasRole` must expose a combined loading state that is `true` whenever `useAuth().loading` is `true`, regardless of query state. This is the only way to guarantee the guard waits for authentication before making access decisions.
+
+```ts
+// In useUserPermissions():
+const { user, loading: authLoading } = useAuth();
+
+return {
+  ...
+  isLoading: authLoading || permissionsQuery.isLoading || permissionsQuery.isFetching,
+};
+
+// In useHasRole():
+const { user, loading: authLoading } = useAuth();
+
+return { 
+  hasRole, 
+  isLoading: authLoading || isLoading 
+};
 ```
 
-This is the minimal, surgical fix. No layout changes, no component rewrites.
+This ensures `isLoading` is `true` the entire time auth is initializing — before any query even starts.
 
-### Fix 2 — Fix RTL `side` prop for mobile Sheet (MODERATE)
+### Fix 2 — Add `authLoading` guard to `AdminRoute` (CRITICAL)
 
-**File:** `src/components/layout/AppSidebar.tsx`
+**File: `src/components/auth/AdminRoute.tsx`**
 
-On RTL (Arabic), the sidebar should slide in from the right side. The current `<Sidebar side="left">` works on desktop (the fixed sidebar is on the left), but on mobile the Sheet uses the same `side` prop. For Arabic users, the sidebar should appear from the right.
-
-Add RTL awareness using `document.documentElement.dir`:
+Add an explicit `authLoading` guard using `useAuth` directly in the route guard. This creates a hard wall: no redirect decision is made while auth is resolving.
 
 ```tsx
-// In AppSidebar component body:
-const isRTL = document.documentElement.dir === 'rtl';
+import { useAuth } from '@/hooks/useAuth';
 
-// In JSX:
-<Sidebar variant="sidebar" collapsible="icon" side={isRTL ? "right" : "left"}>
-```
+export function AdminRoute({ children }) {
+  const { loading: authLoading } = useAuth();
+  const { isSuperAdmin, isLoading: permLoading } = useUserPermissions();
+  const { hasRole: isTenantAdmin, isLoading: roleLoading } = useHasRole('tenant_admin');
 
-This ensures the mobile Sheet slides in from the linguistically correct side (right for Arabic, left for English).
+  // Block ALL decisions until auth AND permissions are fully resolved
+  if (authLoading || permLoading || roleLoading) {
+    return <SkeletonLoader />;
+  }
 
-### Fix 3 — Add `dir` attribute to mobile Sheet (MINOR)
+  if (!isSuperAdmin && !isTenantAdmin) {
+    return <Navigate to="/" replace />;
+  }
 
-**File:** `src/components/ui/sidebar.tsx` — mobile branch (lines 163–181)
-
-The `SheetContent` inside the mobile sidebar branch should inherit the document direction. Currently it renders without a `dir` attribute, so Radix portals it into `document.body` without direction context.
-
-Add `dir={document.documentElement.dir}` to the `SheetContent`:
-
-```tsx
-if (isMobile) {
-  return (
-    <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-      <SheetContent
-        data-sidebar="sidebar"
-        data-mobile="true"
-        dir={document.documentElement.dir} // ADD THIS
-        className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
-        style={{ "--sidebar-width": SIDEBAR_WIDTH_MOBILE } as React.CSSProperties}
-        side={side}
-      >
-        <div className="flex h-full w-full flex-col">{children}</div>
-      </SheetContent>
-    </Sheet>
-  );
+  return <>{children}</>;
 }
+```
+
+### Fix 3 — Add `authLoading` guard to `Dashboard` (CRITICAL)
+
+**File: `src/pages/Dashboard.tsx`**
+
+Same pattern — the dashboard role-switch between `AdminDashboard` and `EmployeeHome` must wait for auth before deciding which view to render.
+
+```tsx
+const { loading: authLoading } = useAuth();
+
+if (authLoading || permLoading || roleLoading || empLoading) {
+  return <SkeletonLoader />;
+}
+```
+
+### Fix 4 — Use `isPending` instead of `isLoading` in useQuery (BEST PRACTICE)
+
+**File: `src/hooks/useUserPermissions.ts`**
+
+TanStack Query v5 (installed in this project as `^5.83.0`) changed semantics:
+- `isLoading` = query is fetching AND has no cached data
+- `isPending` = query has not yet successfully returned data (includes idle/disabled state)
+
+Using `isPending` instead of `isLoading` in the query state directly captures the "query not yet resolved" state, which is exactly what is needed here.
+
+```ts
+// useUserPermissions:
+isLoading: authLoading || permissionsQuery.isPending,
+
+// useHasRole:
+isLoading: authLoading || isPending,
 ```
 
 ---
 
 ## Files to Change
 
-| File | Change | Severity |
+| File | Change | Priority |
 |------|--------|---------|
-| `src/components/layout/AppSidebar.tsx` | Add `isMobile` + `setOpenMobile` from `useSidebar`; add `onClick` to close Sheet on mobile tap | Critical |
-| `src/components/layout/AppSidebar.tsx` | Use `isRTL` to set `side` prop dynamically for mobile Sheet direction | Moderate |
-| `src/components/ui/sidebar.tsx` | Add `dir={document.documentElement.dir}` to mobile `SheetContent` | Minor |
+| `src/hooks/useUserPermissions.ts` | Thread `authLoading` into both `useUserPermissions` and `useHasRole` return values; use `isPending` | Critical |
+| `src/components/auth/AdminRoute.tsx` | Add `useAuth` loading guard before any redirect logic | Critical |
+| `src/pages/Dashboard.tsx` | Add `authLoading` to the loading guard condition | Critical |
 
 ---
 
 ## What Does NOT Change
 
-- All routing logic — React Router navigation is working correctly
-- Desktop sidebar behavior — unaffected
-- All access control / filtering logic in `AppSidebar`
-- Any other component
+- All routing config in `App.tsx` — correct as-is
+- All sidebar filtering logic in `AppSidebar.tsx` — correct
+- Database, RLS, edge functions — unrelated
+- The mobile sidebar close-on-tap fix — stays in place
+- All page components — no changes needed
+
+---
+
+## Why This Is Permanent
+
+The fix anchors all permission decisions to the auth lifecycle. Until `useAuth().loading` is `false`, no permission query result is trusted as final, and no routing decision is made. This eliminates the race condition structurally — it cannot recur because the guard is now tied to the authentication source of truth, not to a derived query state that can be `false` while auth is still initializing.
