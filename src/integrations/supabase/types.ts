@@ -2433,6 +2433,7 @@ export type Database = {
       }
     }
     Functions: {
+      get_profile_email: { Args: { _user_id: string }; Returns: string }
       get_user_department_id: { Args: { _user_id: string }; Returns: string }
       get_user_email: { Args: { _user_id: string }; Returns: string }
       get_user_tenant_id: { Args: { _user_id: string }; Returns: string }

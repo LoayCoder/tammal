@@ -18,7 +18,7 @@ export default function EmployeeSurvey() {
   const isRTL = i18n.dir() === 'rtl';
   
   const { employee, isLoading: loadingEmployee } = useCurrentEmployee();
-  const { pendingQuestions, isLoading: loadingQuestions, skipQuestion } = useScheduledQuestions(employee?.id, 'delivered');
+  const { pendingQuestions, isLoading: loadingQuestions, skipQuestion } = useScheduledQuestions(employee?.id);
   const { submitResponse } = useEmployeeResponses(employee?.id);
   
   const [currentIndex, setCurrentIndex] = useState(0);

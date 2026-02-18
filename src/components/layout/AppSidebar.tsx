@@ -87,7 +87,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       label: t('nav.wellness'),
       access: 'employee',
       items: [
-        { title: t('nav.dailyCheckin'), url: "/employee/wellness", icon: Heart },
+        { title: t('nav.dailyCheckin'), url: "/", icon: Heart },
       ]
     },
     {
