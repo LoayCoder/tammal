@@ -150,6 +150,7 @@ export default function CategoryManagement() {
         category={editingCategory}
         onSubmit={handleSubmit}
         isLoading={createCategory.isPending || updateCategory.isPending}
+        existingCategories={categories}
       />
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
