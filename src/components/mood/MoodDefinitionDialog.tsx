@@ -18,6 +18,12 @@ const COLOR_OPTIONS = [
   { value: 'text-destructive', label: 'Red', dot: 'bg-destructive' },
   { value: 'text-primary', label: 'Primary', dot: 'bg-primary' },
   { value: 'text-muted-foreground', label: 'Gray', dot: 'bg-muted-foreground' },
+  { value: 'text-orange-500', label: 'Orange', dot: 'bg-orange-500' },
+  { value: 'text-teal-500', label: 'Teal', dot: 'bg-teal-500' },
+  { value: 'text-indigo-500', label: 'Indigo', dot: 'bg-indigo-500' },
+  { value: 'text-rose-500', label: 'Rose', dot: 'bg-rose-500' },
+  { value: 'text-emerald-500', label: 'Emerald', dot: 'bg-emerald-500' },
+  { value: 'text-amber-500', label: 'Amber', dot: 'bg-amber-500' },
 ];
 
 const EMOJI_SUGGESTIONS = ['😄', '🙂', '😐', '😟', '😢', '😊', '🤩', '😔', '😰', '💪', '🧘', '😴', '🤔', '😤', '🥺'];
@@ -73,7 +79,10 @@ export function MoodDefinitionDialog({
 
   const generatedKey = key || labelEn.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
   const keyConflict = !isEdit && existingKeys.includes(generatedKey);
-  const canSave = labelEn.trim() && labelAr.trim() && emoji && !keyConflict;
+  const isEmojiConflict = takenEmojis.has(emoji) && emoji !== mood?.emoji;
+  const isScoreConflict = takenScores.has(score) && score !== mood?.score;
+  const isColorConflict = takenColors.has(color) && color !== mood?.color;
+  const canSave = labelEn.trim() && labelAr.trim() && emoji && !keyConflict && !isEmojiConflict && !isScoreConflict && !isColorConflict;
 
   const handleSave = () => {
     onSave({
@@ -137,7 +146,7 @@ export function MoodDefinitionDialog({
                 maxLength={4}
               />
             </div>
-            {takenEmojis.has(emoji) && emoji !== mood?.emoji && (
+            {isEmojiConflict && (
               <p className="text-xs text-destructive">{t('moodPathway.emojiTaken')}</p>
             )}
           </div>
@@ -223,8 +232,16 @@ export function MoodDefinitionDialog({
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">{t('moodPathway.scoreDesc')}</p>
+              {isScoreConflict && (
+                <p className="text-xs text-destructive">{t('moodPathway.scoreTaken')}</p>
+              )}
             </div>
           </div>
+
+          {/* Color conflict warning */}
+          {isColorConflict && (
+            <p className="text-xs text-destructive">{t('moodPathway.colorTaken')}</p>
+          )}
         </div>
 
         <DialogFooter>

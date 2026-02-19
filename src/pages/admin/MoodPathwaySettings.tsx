@@ -16,6 +16,10 @@ import { MoodQuestionPickerDialog } from '@/components/checkin/MoodQuestionPicke
 import { MoodDefinitionDialog } from '@/components/mood/MoodDefinitionDialog';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function MoodPathwaySettings() {
   const { t, i18n } = useTranslation();
@@ -29,6 +33,7 @@ export default function MoodPathwaySettings() {
   const [savingTags, setSavingTags] = useState(false);
   const [moodDialogOpen, setMoodDialogOpen] = useState(false);
   const [editingMood, setEditingMood] = useState<MoodDefinition | null>(null);
+  const [deletingMood, setDeletingMood] = useState<MoodDefinition | null>(null);
 
   // Fetch tenant id
   useEffect(() => {
@@ -161,10 +166,14 @@ export default function MoodPathwaySettings() {
     reorderMoods.mutate(ordered.map(m => m.id));
   };
 
-  const handleDeleteMood = (mood: MoodDefinition) => {
-    if (!confirm(t('moodPathway.deleteMoodConfirm'))) return;
-    deleteMood.mutate(mood.id);
+  const handleDeleteMood = () => {
+    if (!deletingMood) return;
+    deleteMood.mutate(deletingMood.id, {
+      onSettled: () => setDeletingMood(null),
+    });
   };
+
+  const canDeleteMood = moods.length > 2;
 
   return (
     <div className="space-y-6 p-6">
@@ -284,17 +293,17 @@ export default function MoodPathwaySettings() {
                       <Edit2 className="h-3.5 w-3.5" />
                     </Button>
 
-                    {/* Delete (only non-default) */}
-                    {!mood.is_default && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive"
-                        onClick={() => handleDeleteMood(mood)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
+                    {/* Delete */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive"
+                      onClick={() => setDeletingMood(mood)}
+                      disabled={!canDeleteMood}
+                      title={!canDeleteMood ? t('moodPathway.minMoodsRequired') : undefined}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
                 );
               })}
@@ -373,7 +382,7 @@ export default function MoodPathwaySettings() {
 
                     {taggedQuestions.length === 0 ? (
                       <div className="rounded-lg border border-dashed p-4 text-center">
-                        <Link2 className="h-4 w-4 text-muted-foreground mx-auto mb-1" />
+                        <Link2 className="h-4 w-4 text-muted-foreground inline-block mb-1" />
                         <p className="text-xs text-muted-foreground">{t('moodPathway.noLinkedQuestions')}</p>
                       </div>
                     ) : (
@@ -454,6 +463,32 @@ export default function MoodPathwaySettings() {
         existingKeys={moods.map(m => m.key)}
         existingMoods={moods}
       />
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={!!deletingMood} onOpenChange={open => { if (!open) setDeletingMood(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('common.confirm')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('moodPathway.deleteMoodConfirm')}
+              {deletingMood?.is_default && (
+                <span className="block mt-2 font-medium text-destructive">
+                  {t('moodPathway.deletingDefaultWarning')}
+                </span>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteMood}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t('common.delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
