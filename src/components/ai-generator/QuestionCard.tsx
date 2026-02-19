@@ -115,16 +115,19 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
     }
   };
 
+  const validationIssues: string[] = (question.validation_details as any)?.issues || [];
+  const hasAlerts = question.bias_flag || question.ambiguity_flag || validationIssues.length > 0;
+
   const borderClass = question.validation_status === 'failed'
     ? 'border-destructive'
     : question.validation_status === 'warning'
       ? 'border-chart-4'
       : '';
 
-  const validationIssues: string[] = (question.validation_details as any)?.issues || [];
+  const bgClass = hasAlerts ? 'bg-amber-50 dark:bg-amber-950/30' : '';
 
   return (
-    <Card className={borderClass} id={`question-card-${index}`}>
+    <Card className={`${borderClass} ${bgClass}`} id={`question-card-${index}`}>
       <CardContent className="pt-4 space-y-3">
         {/* Header row */}
         <div className="flex items-start justify-between gap-3">
