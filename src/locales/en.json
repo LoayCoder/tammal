@@ -287,7 +287,26 @@
     "brandingPreview": "Your Branding",
     "customizeBranding": "Customize",
     "subscriptionBreakdown": "Subscriptions by Status",
-    "tenantBreakdown": "Tenants by Status"
+    "tenantBreakdown": "Tenants by Status",
+    "orgView": "Organization",
+    "personalView": "My Dashboard"
+  },
+  "orgDashboard": {
+    "title": "Organization Wellness",
+    "subtitle": "Aggregated wellness analytics for your organization",
+    "activeEmployees": "Active Employees",
+    "teamWellness": "Team Wellness Score",
+    "participation": "Participation Rate",
+    "checkins7d": "Check-ins (7 days)",
+    "engagementTrend": "Engagement Trend (7 days)",
+    "moodDistribution": "Mood Distribution",
+    "moods": {
+      "great": "Great",
+      "good": "Good",
+      "okay": "Okay",
+      "struggling": "Struggling",
+      "need_help": "Need Help"
+    }
   },
   "install": {
     "title": "Install App",
