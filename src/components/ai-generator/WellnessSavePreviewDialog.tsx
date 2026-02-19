@@ -59,7 +59,7 @@ export function WellnessSavePreviewDialog({
               <TableRow>
                 <TableHead className="w-10">#</TableHead>
                 <TableHead>{t('aiGenerator.questionText')}</TableHead>
-                <TableHead className="w-12">{t('aiGenerator.type')}</TableHead>
+                <TableHead className="w-12">{t('aiGenerator.questionType')}</TableHead>
                 <TableHead className="min-w-[140px]">{t('aiGenerator.moodTags')}</TableHead>
               </TableRow>
             </TableHeader>
