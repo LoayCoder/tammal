@@ -10,17 +10,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { MoodDefinition } from '@/hooks/useMoodDefinitions';
 
 const COLOR_OPTIONS = [
-  { value: 'text-chart-1', label: 'Green' },
-  { value: 'text-chart-2', label: 'Blue' },
-  { value: 'text-chart-3', label: 'Purple' },
-  { value: 'text-chart-4', label: 'Yellow' },
-  { value: 'text-chart-5', label: 'Pink' },
-  { value: 'text-destructive', label: 'Red' },
-  { value: 'text-primary', label: 'Primary' },
-  { value: 'text-muted-foreground', label: 'Gray' },
+  { value: 'text-chart-1', label: 'Green', dot: 'bg-chart-1' },
+  { value: 'text-chart-2', label: 'Blue', dot: 'bg-chart-2' },
+  { value: 'text-chart-3', label: 'Purple', dot: 'bg-chart-3' },
+  { value: 'text-chart-4', label: 'Yellow', dot: 'bg-chart-4' },
+  { value: 'text-chart-5', label: 'Pink', dot: 'bg-chart-5' },
+  { value: 'text-destructive', label: 'Red', dot: 'bg-destructive' },
+  { value: 'text-primary', label: 'Primary', dot: 'bg-primary' },
+  { value: 'text-muted-foreground', label: 'Gray', dot: 'bg-muted-foreground' },
 ];
 
 const EMOJI_SUGGESTIONS = ['😄', '🙂', '😐', '😟', '😢', '😊', '🤩', '😔', '😰', '💪', '🧘', '😴', '🤔', '😤', '🥺'];
+
+const SCORE_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 interface MoodDefinitionDialogProps {
   open: boolean;
@@ -29,10 +31,11 @@ interface MoodDefinitionDialogProps {
   onSave: (data: Partial<MoodDefinition>) => void;
   isSaving: boolean;
   existingKeys: string[];
+  existingMoods?: MoodDefinition[];
 }
 
 export function MoodDefinitionDialog({
-  open, onOpenChange, mood, onSave, isSaving, existingKeys,
+  open, onOpenChange, mood, onSave, isSaving, existingKeys, existingMoods = [],
 }: MoodDefinitionDialogProps) {
   const { t } = useTranslation();
   const isEdit = !!mood;
@@ -62,6 +65,12 @@ export function MoodDefinitionDialog({
     }
   }, [mood, open]);
 
+  // Compute taken values (exclude current mood when editing)
+  const otherMoods = existingMoods.filter(m => !mood || m.id !== mood.id);
+  const takenEmojis = new Set(otherMoods.map(m => m.emoji));
+  const takenScores = new Set(otherMoods.map(m => m.score));
+  const takenColors = new Set(otherMoods.map(m => m.color));
+
   const generatedKey = key || labelEn.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
   const keyConflict = !isEdit && existingKeys.includes(generatedKey);
   const canSave = labelEn.trim() && labelAr.trim() && emoji && !keyConflict;
@@ -77,6 +86,13 @@ export function MoodDefinitionDialog({
       score,
     });
   };
+
+  // Available emojis: not taken by other moods
+  const availableEmojis = EMOJI_SUGGESTIONS.filter(e => !takenEmojis.has(e));
+  // Available scores: not taken by other moods
+  const availableScores = SCORE_OPTIONS.filter(s => !takenScores.has(s));
+  // Available colors: not taken by other moods
+  const availableColors = COLOR_OPTIONS.filter(c => !takenColors.has(c.value));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -95,18 +111,22 @@ export function MoodDefinitionDialog({
           <div className="space-y-1.5">
             <Label>{t('moodPathway.emoji')}</Label>
             <div className="flex flex-wrap gap-1.5">
-              {EMOJI_SUGGESTIONS.map(e => (
-                <button
-                  key={e}
-                  type="button"
-                  onClick={() => setEmoji(e)}
-                  className={`text-xl p-1.5 rounded-lg border-2 transition-all ${
-                    emoji === e ? 'border-primary bg-primary/10 scale-110' : 'border-transparent hover:bg-muted'
-                  }`}
-                >
-                  {e}
-                </button>
-              ))}
+              {EMOJI_SUGGESTIONS.map(e => {
+                const taken = takenEmojis.has(e);
+                if (taken) return null;
+                return (
+                  <button
+                    key={e}
+                    type="button"
+                    onClick={() => setEmoji(e)}
+                    className={`text-xl p-1.5 rounded-lg border-2 transition-all ${
+                      emoji === e ? 'border-primary bg-primary/10 scale-110' : 'border-transparent hover:bg-muted'
+                    }`}
+                  >
+                    {e}
+                  </button>
+                );
+              })}
             </div>
             <div className="flex items-center gap-2 mt-1">
               <Label className="text-xs text-muted-foreground">{t('moodPathway.customEmoji')}:</Label>
@@ -117,6 +137,9 @@ export function MoodDefinitionDialog({
                 maxLength={4}
               />
             </div>
+            {takenEmojis.has(emoji) && emoji !== mood?.emoji && (
+              <p className="text-xs text-destructive">{t('moodPathway.emojiTaken')}</p>
+            )}
           </div>
 
           {/* Labels */}
@@ -153,26 +176,52 @@ export function MoodDefinitionDialog({
               <Label>{t('moodPathway.color')}</Label>
               <Select value={color} onValueChange={setColor}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue>
+                    {(() => {
+                      const selected = COLOR_OPTIONS.find(c => c.value === color);
+                      return selected ? (
+                        <span className="flex items-center gap-2">
+                          <span className={`h-3 w-3 rounded-full ${selected.dot}`} />
+                          {selected.label}
+                        </span>
+                      ) : null;
+                    })()}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {COLOR_OPTIONS.map(c => (
-                    <SelectItem key={c.value} value={c.value}>
-                      <span className={`${c.value} font-medium`}>● {c.label}</span>
-                    </SelectItem>
-                  ))}
+                  {COLOR_OPTIONS.map(c => {
+                    const taken = takenColors.has(c.value);
+                    if (taken) return null;
+                    return (
+                      <SelectItem key={c.value} value={c.value}>
+                        <span className="flex items-center gap-2">
+                          <span className={`h-3 w-3 rounded-full ${c.dot}`} />
+                          <span className="font-medium">{c.label}</span>
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
               <Label>{t('moodPathway.score')}</Label>
-              <Input
-                type="number"
-                min={1}
-                max={10}
-                value={score}
-                onChange={e => setScore(parseInt(e.target.value) || 3)}
-              />
+              <Select value={String(score)} onValueChange={v => setScore(parseInt(v))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SCORE_OPTIONS.map(s => {
+                    const taken = takenScores.has(s);
+                    if (taken) return null;
+                    return (
+                      <SelectItem key={s} value={String(s)}>
+                        {s}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
               <p className="text-xs text-muted-foreground">{t('moodPathway.scoreDesc')}</p>
             </div>
           </div>
