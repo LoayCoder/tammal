@@ -1885,6 +1885,7 @@
     "deleteMoodConfirm": "Remove this mood level? It will no longer appear in the check-in.",
     "defaultMoodBadge": "Default",
     "moveUp": "Move Up",
-    "moveDown": "Move Down"
+    "moveDown": "Move Down",
+    "emojiTaken": "This emoji is already used by another mood."
   }
 }

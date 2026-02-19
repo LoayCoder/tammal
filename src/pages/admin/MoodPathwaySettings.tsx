@@ -452,6 +452,7 @@ export default function MoodPathwaySettings() {
         onSave={handleMoodDialogSave}
         isSaving={upsertMood.isPending}
         existingKeys={moods.map(m => m.key)}
+        existingMoods={moods}
       />
     </div>
   );
