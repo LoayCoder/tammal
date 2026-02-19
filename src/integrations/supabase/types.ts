@@ -892,6 +892,65 @@ export type Database = {
           },
         ]
       }
+      mood_definitions: {
+        Row: {
+          color: string
+          created_at: string
+          deleted_at: string | null
+          emoji: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          key: string
+          label_ar: string
+          label_en: string
+          score: number
+          sort_order: number
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          deleted_at?: string | null
+          emoji?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          key: string
+          label_ar: string
+          label_en: string
+          score?: number
+          sort_order?: number
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          deleted_at?: string | null
+          emoji?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          key?: string
+          label_ar?: string
+          label_en?: string
+          score?: number
+          sort_order?: number
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mood_definitions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mood_entries: {
         Row: {
           ai_tip: string | null

@@ -7,24 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Brain, Save, RotateCcw, Link2, Plus, X, Info } from 'lucide-react';
+import { Brain, Save, RotateCcw, Link2, Plus, X, Info, Edit2, ChevronUp, ChevronDown, Trash2, Settings2 } from 'lucide-react';
 import { useMoodQuestionConfig, type MoodQuestionConfig } from '@/hooks/useMoodQuestionConfig';
+import { useMoodDefinitions, type MoodDefinition } from '@/hooks/useMoodDefinitions';
 import { useQuestions } from '@/hooks/useQuestions';
-import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { supabase } from '@/integrations/supabase/client';
 import { MoodQuestionPickerDialog } from '@/components/checkin/MoodQuestionPickerDialog';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { MoodDefinitionDialog } from '@/components/mood/MoodDefinitionDialog';
+import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-
-const MOOD_META: Record<string, { emoji: string; label: string; label_ar: string; color: string }> = {
-  great: { emoji: '😄', label: 'Great', label_ar: 'ممتاز', color: 'text-chart-1' },
-  good: { emoji: '🙂', label: 'Good', label_ar: 'جيد', color: 'text-chart-2' },
-  okay: { emoji: '😐', label: 'Okay', label_ar: 'عادي', color: 'text-chart-4' },
-  struggling: { emoji: '😟', label: 'Struggling', label_ar: 'أعاني', color: 'text-destructive' },
-  need_help: { emoji: '😢', label: 'Need Help', label_ar: 'بحاجة للمساعدة', color: 'text-destructive' },
-};
-
-const MOOD_ORDER = ['great', 'good', 'okay', 'struggling', 'need_help'];
 
 export default function MoodPathwaySettings() {
   const { t, i18n } = useTranslation();
@@ -36,6 +27,8 @@ export default function MoodPathwaySettings() {
   const [savingMood, setSavingMood] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState<string | null>(null);
   const [savingTags, setSavingTags] = useState(false);
+  const [moodDialogOpen, setMoodDialogOpen] = useState(false);
+  const [editingMood, setEditingMood] = useState<MoodDefinition | null>(null);
 
   // Fetch tenant id
   useEffect(() => {
@@ -52,8 +45,11 @@ export default function MoodPathwaySettings() {
     });
   }, []);
 
-  const { configs, isLoading, upsertConfig } = useMoodQuestionConfig(tenantId);
+  const { configs, isLoading: configsLoading, upsertConfig } = useMoodQuestionConfig(tenantId);
+  const { moods, isLoading: moodsLoading, upsertMood, deleteMood, toggleMood, reorderMoods } = useMoodDefinitions(tenantId);
   const { questions } = useQuestions();
+
+  const isLoading = configsLoading || moodsLoading;
 
   // Sync fetched configs into local state
   useEffect(() => {
@@ -81,7 +77,6 @@ export default function MoodPathwaySettings() {
     }
   };
 
-  // Helper: get questions tagged for a mood level
   const getTaggedQuestions = (moodLevel: string) => {
     return questions.filter(q => {
       const levels = (q as any).mood_levels;
@@ -89,16 +84,13 @@ export default function MoodPathwaySettings() {
     });
   };
 
-  // Bulk-update mood_levels tags on questions
   const handleSaveTags = async (selectedIds: string[], moodLevel: string) => {
     setSavingTags(true);
     try {
-      // Questions that were tagged but now untagged
       const wasTagged = getTaggedQuestions(moodLevel).map(q => q.id);
       const toUntag = wasTagged.filter(id => !selectedIds.includes(id));
       const toTag = selectedIds.filter(id => !wasTagged.includes(id));
 
-      // Untag: remove moodLevel from their mood_levels array
       for (const id of toUntag) {
         const q = questions.find(q => q.id === id);
         if (!q) continue;
@@ -107,7 +99,6 @@ export default function MoodPathwaySettings() {
         await supabase.from('questions').update({ mood_levels: updated } as any).eq('id', id);
       }
 
-      // Tag: add moodLevel to their mood_levels array
       for (const id of toTag) {
         const q = questions.find(q => q.id === id);
         if (!q) continue;
@@ -127,7 +118,6 @@ export default function MoodPathwaySettings() {
     }
   };
 
-  // Unlink a single question from a mood
   const handleUnlinkQuestion = async (questionId: string, moodLevel: string) => {
     const q = questions.find(q => q.id === questionId);
     if (!q) return;
@@ -137,6 +127,43 @@ export default function MoodPathwaySettings() {
     queryClient.invalidateQueries({ queryKey: ['questions'] });
     queryClient.invalidateQueries({ queryKey: ['mood-pathway-questions'] });
     toast.success(t('moodPathway.questionUnlinked'));
+  };
+
+  const handleMoodDialogSave = (data: Partial<MoodDefinition>) => {
+    if (!tenantId) return;
+    const nextOrder = editingMood ? editingMood.sort_order : moods.length;
+    upsertMood.mutate({
+      ...data,
+      tenant_id: tenantId,
+      key: data.key!,
+      sort_order: data.sort_order ?? nextOrder,
+      is_active: data.is_active ?? true,
+      is_default: data.is_default ?? false,
+    } as any, {
+      onSuccess: () => {
+        setMoodDialogOpen(false);
+        setEditingMood(null);
+      },
+    });
+  };
+
+  const handleMoveUp = (index: number) => {
+    if (index === 0) return;
+    const ordered = [...moods];
+    [ordered[index - 1], ordered[index]] = [ordered[index], ordered[index - 1]];
+    reorderMoods.mutate(ordered.map(m => m.id));
+  };
+
+  const handleMoveDown = (index: number) => {
+    if (index >= moods.length - 1) return;
+    const ordered = [...moods];
+    [ordered[index], ordered[index + 1]] = [ordered[index + 1], ordered[index]];
+    reorderMoods.mutate(ordered.map(m => m.id));
+  };
+
+  const handleDeleteMood = (mood: MoodDefinition) => {
+    if (!confirm(t('moodPathway.deleteMoodConfirm'))) return;
+    deleteMood.mutate(mood.id);
   };
 
   return (
@@ -162,32 +189,142 @@ export default function MoodPathwaySettings() {
         <p className="text-sm text-muted-foreground">{t('moodPathway.settingsInfo')}</p>
       </div>
 
-      {/* Mood Cards */}
+      {/* ==================== Mood Definitions Management ==================== */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Settings2 className="h-5 w-5 text-primary" />
+              <div>
+                <CardTitle className="text-base">{t('moodPathway.manageMoods')}</CardTitle>
+                <CardDescription className="text-xs mt-0.5">
+                  {t('moodPathway.manageMoodsDesc')}
+                </CardDescription>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              className="gap-1.5"
+              onClick={() => { setEditingMood(null); setMoodDialogOpen(true); }}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {t('moodPathway.addMood')}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {moodsLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map(i => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}
+            </div>
+          ) : moods.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              {t('common.noData')}
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {moods.map((mood, index) => {
+                const label = isRTL ? mood.label_ar : mood.label_en;
+                return (
+                  <div
+                    key={mood.id}
+                    className={`flex items-center gap-3 rounded-xl border p-3 transition-colors ${
+                      mood.is_active ? 'bg-card' : 'bg-muted/50 opacity-60'
+                    }`}
+                  >
+                    {/* Reorder buttons */}
+                    <div className="flex flex-col gap-0.5">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-5 w-5"
+                        onClick={() => handleMoveUp(index)}
+                        disabled={index === 0}
+                      >
+                        <ChevronUp className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-5 w-5"
+                        onClick={() => handleMoveDown(index)}
+                        disabled={index === moods.length - 1}
+                      >
+                        <ChevronDown className="h-3 w-3" />
+                      </Button>
+                    </div>
+
+                    {/* Emoji & label */}
+                    <span className="text-2xl">{mood.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className={`font-medium text-sm ${mood.color}`}>{label}</span>
+                        {mood.is_default && (
+                          <Badge variant="outline" className="text-[10px] h-4 px-1.5">
+                            {t('moodPathway.defaultMoodBadge')}
+                          </Badge>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground font-mono">{mood.key} • {t('moodPathway.score')}: {mood.score}</span>
+                    </div>
+
+                    {/* Toggle active */}
+                    <Switch
+                      checked={mood.is_active}
+                      onCheckedChange={v => toggleMood.mutate({ id: mood.id, is_active: v })}
+                    />
+
+                    {/* Edit */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => { setEditingMood(mood); setMoodDialogOpen(true); }}
+                    >
+                      <Edit2 className="h-3.5 w-3.5" />
+                    </Button>
+
+                    {/* Delete (only non-default) */}
+                    {!mood.is_default && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive"
+                        onClick={() => handleDeleteMood(mood)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ==================== Per-Mood Pathway Cards ==================== */}
       {isLoading ? (
         <div className="space-y-4">
-          {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-48 w-full rounded-2xl" />)}
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-48 w-full rounded-2xl" />)}
         </div>
       ) : (
         <div className="space-y-4">
-          {MOOD_ORDER.map(moodLevel => {
-            const meta = MOOD_META[moodLevel];
+          {moods.filter(m => m.is_active).map(moodDef => {
+            const moodLevel = moodDef.key;
             const config = localConfigs[moodLevel];
-            if (!meta || !config) return null;
-
-            const moodLabel = isRTL ? meta.label_ar : meta.label;
-            const isExtreme = moodLevel === 'great' || moodLevel === 'need_help';
+            const moodLabel = isRTL ? moodDef.label_ar : moodDef.label_en;
             const isSaving = savingMood === moodLevel;
             const taggedQuestions = getTaggedQuestions(moodLevel);
 
             return (
-              <Card key={moodLevel} className="overflow-hidden">
-                {/* Card header */}
+              <Card key={moodDef.id} className="overflow-hidden">
                 <CardHeader className="pb-3 border-b">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{meta.emoji}</span>
+                      <span className="text-2xl">{moodDef.emoji}</span>
                       <div>
-                        <CardTitle className={`text-base ${meta.color}`}>{moodLabel}</CardTitle>
+                        <CardTitle className={`text-base ${moodDef.color}`}>{moodLabel}</CardTitle>
                         <CardDescription className="text-xs mt-0.5">
                           {t('moodPathway.linkedQuestionsCount', { count: taggedQuestions.length })}
                         </CardDescription>
@@ -201,25 +338,22 @@ export default function MoodPathwaySettings() {
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">{t('moodPathway.enablePathway')}</Label>
                     <Switch
-                      checked={config.is_enabled}
+                      checked={config?.is_enabled ?? true}
                       onCheckedChange={v => updateLocal(moodLevel, 'is_enabled', v)}
                     />
                   </div>
 
-                  {/* Enable free-text (extreme moods only) */}
-                  {isExtreme && (
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-sm font-medium">{t('moodPathway.enableFreeText')}</Label>
-                        <p className="text-xs text-muted-foreground mt-0.5">{t('moodPathway.extremeMoodOnly')}</p>
-                      </div>
-                      <Switch
-                        checked={config.enable_free_text}
-                        onCheckedChange={v => updateLocal(moodLevel, 'enable_free_text', v)}
-                        disabled={!config.is_enabled}
-                      />
+                  {/* Enable free-text */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-sm font-medium">{t('moodPathway.enableFreeText')}</Label>
                     </div>
-                  )}
+                    <Switch
+                      checked={config?.enable_free_text ?? false}
+                      onCheckedChange={v => updateLocal(moodLevel, 'enable_free_text', v)}
+                      disabled={!(config?.is_enabled ?? true)}
+                    />
+                  </div>
 
                   {/* Linked questions */}
                   <div className="space-y-2">
@@ -230,7 +364,7 @@ export default function MoodPathwaySettings() {
                         size="sm"
                         className="h-7 text-xs gap-1.5"
                         onClick={() => setPickerOpen(moodLevel)}
-                        disabled={!config.is_enabled}
+                        disabled={!(config?.is_enabled ?? true)}
                       >
                         <Plus className="h-3.5 w-3.5" />
                         {t('moodPathway.browseQuestions')}
@@ -265,11 +399,11 @@ export default function MoodPathwaySettings() {
                   </div>
 
                   {/* AI Recommendation Hint */}
-                  {config.is_enabled && (
+                  {(config?.is_enabled ?? true) && (
                     <div className="space-y-1.5">
                       <Label className="text-sm font-medium">{t('moodPathway.aiRecommendationHint')}</Label>
                       <Textarea
-                        value={config.custom_prompt_context || ''}
+                        value={config?.custom_prompt_context || ''}
                         onChange={e => updateLocal(moodLevel, 'custom_prompt_context', e.target.value || null)}
                         placeholder={t('moodPathway.aiRecommendationHintPlaceholder')}
                         rows={2}
@@ -309,6 +443,16 @@ export default function MoodPathwaySettings() {
           isSaving={savingTags}
         />
       )}
+
+      {/* Mood definition dialog */}
+      <MoodDefinitionDialog
+        open={moodDialogOpen}
+        onOpenChange={open => { if (!open) { setMoodDialogOpen(false); setEditingMood(null); } else setMoodDialogOpen(true); }}
+        mood={editingMood}
+        onSave={handleMoodDialogSave}
+        isSaving={upsertMood.isPending}
+        existingKeys={moods.map(m => m.key)}
+      />
     </div>
   );
 }

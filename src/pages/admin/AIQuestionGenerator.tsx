@@ -12,6 +12,7 @@ import { ValidationReport } from '@/components/ai-generator/ValidationReport';
 import { BatchSaveDialog } from '@/components/ai-generator/BatchSaveDialog';
 import { WellnessSavePreviewDialog } from '@/components/ai-generator/WellnessSavePreviewDialog';
 import { useEnhancedAIGeneration, AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
+import { useMoodDefinitions } from '@/hooks/useMoodDefinitions';
 import { useAIModels } from '@/hooks/useAIModels';
 import { useAIKnowledge } from '@/hooks/useAIKnowledge';
 import { useReferenceFrameworks } from '@/hooks/useReferenceFrameworks';
@@ -50,6 +51,7 @@ export default function AIQuestionGenerator() {
   });
 
   const { availableBatches, MAX_BATCH_SIZE } = useQuestionBatches(tenantId || null);
+  const { moods: moodDefinitions } = useMoodDefinitions(tenantId || null);
 
   const [accuracyMode, setAccuracyMode] = useState('standard');
   const [selectedModel, setSelectedModel] = useState('google/gemini-3-flash-preview');
@@ -390,7 +392,7 @@ export default function AIQuestionGenerator() {
 
               <div className="space-y-3">
                 {questions.map((q, i) => (
-                  <QuestionCard key={i} question={q} index={i} onRemove={removeQuestion} onUpdate={updateQuestion} onRegenerate={handleRegenerateSingle} selectedModel={selectedModel} purpose={purpose} />
+                  <QuestionCard key={i} question={q} index={i} onRemove={removeQuestion} onUpdate={updateQuestion} onRegenerate={handleRegenerateSingle} selectedModel={selectedModel} purpose={purpose} moodDefinitions={moodDefinitions} />
                 ))}
               </div>
             </>
