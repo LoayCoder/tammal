@@ -1,145 +1,117 @@
 
-# Fix: Mood Level Tag Clarity & Per-Question Control in AI Generator
 
-## Problem Summary
+# Fix: AI-Driven Mood Tag Selection in Question Generator
 
-When generating wellness questions, admins select Mood Level Tags globally in the Config Panel, but:
+## Problem Found
 
-1. **No visual on generated cards** — after generation, the QuestionCard shows zero indication of which moods it will be tagged to. The admin cannot tell which mood a question is tied to.
-2. **No per-question mood editing** — mood tags are a single global selection applied identically to every generated question. There is no way to assign different moods to different questions.
-3. **`EnhancedGeneratedQuestion` interface lacks `mood_levels`** — the in-memory data model doesn't carry mood info at the question level.
-4. **No save preview/confirmation** — before saving wellness questions, there is no summary showing "these questions → these moods".
+After a full audit, there is **one critical gap**: The `generate-questions` edge function has **zero awareness of mood levels**. It does not:
 
-## Solution Architecture
+1. Accept `moodLevels` in its request interface
+2. Include mood context in the AI prompt
+3. Return per-question `mood_levels` in its output schema
 
-The fix introduces per-question mood level ownership. The global Config Panel selection becomes the **default** applied to all generated questions, but each card then allows the admin to override it individually.
+This means the AI **cannot** intelligently assign mood tags to individual questions. The frontend currently just copies the global selection to every question identically, which defeats the purpose of per-question mood ownership.
 
-```text
-Config Panel (Wellness mode)
-  ├── Mood Level Tags: [Great] [Good] [Okay]   ← Global default
-  └── "Generate" → applies these as defaults to each question
+## What Works (Confirmed OK)
 
-QuestionCard (Wellness mode)
-  ├── Inline mood tag chips: 😄 Great  🙂 Good  😐 Okay  [+ Add]
-  └── Click chip → toggle mood on/off per question
+- `EnhancedGeneratedQuestion` interface has `mood_levels: string[]` -- OK
+- `GenerateInput` has `moodLevels?: string[]` -- OK
+- `QuestionCard` renders mood chips with add/remove when `purpose === 'wellness'` -- OK
+- `saveWellnessMutation` reads `q.mood_levels` per question -- OK
+- Translation keys (`moodTags`, `addMood`, `noMoodTags`, `moodTagsHint`) exist in both `en.json` and `ar.json` -- OK
+- `handleRegenerateSingle` passes mood levels -- OK
+- Props are correctly drilled to `QuestionCard` (`purpose`, `onRegenerate`, `selectedModel`) -- OK
 
-Save flow
-  └── saveWellness reads moodLevels from each question individually
-```
+## Solution: 3 Changes
 
-## Exact Changes Required
+### 1. Edge Function: `supabase/functions/generate-questions/index.ts`
 
-### 1. `src/hooks/useEnhancedAIGeneration.ts`
-**Add `mood_levels` to `EnhancedGeneratedQuestion` interface:**
+**a) Add `moodLevels` to `GenerateRequest` interface:**
 ```ts
-export interface EnhancedGeneratedQuestion {
+interface GenerateRequest {
   // ... existing fields ...
-  mood_levels: string[];   // NEW — per-question mood tags
+  moodLevels?: string[];  // NEW
 }
 ```
 
-**Update `generateMutation.onSuccess`:**
-When normalizing returned questions, inject the `moodLevels` from the generation input as the default for each question:
+**b) Destructure it from the request body (line ~67):**
 ```ts
-// Store the input moodLevels so onSuccess can access them
-// Pass moodLevels through generate input to GenerateInput interface
+const { ..., moodLevels = [] }: GenerateRequest = await req.json();
 ```
 
-**Update `GenerateInput`:** Add optional `moodLevels?: string[]` field.
+**c) Add mood context to the system prompt (after the category/subcategory block, before the source priority block):**
+When `moodLevels` has entries, inject a prompt section instructing the AI to assign mood levels per question:
+```
+# Mood Level Tagging (MANDATORY for Wellness):
+These questions are for a daily wellness check-in. Each question must be tagged 
+with the most appropriate mood levels from the available set.
 
-**Update `saveWellnessMutation`:** Change parameter from `moodLevels?: string[]` (global) to reading `q.mood_levels` from each question individually:
-```ts
-const questionsInsert = params.questions.map(q => ({
-  // ...
-  mood_levels: q.mood_levels || [],   // ← per-question now
-}));
+Available mood levels: great (feeling excellent), good (feeling positive), 
+okay (feeling neutral), struggling (having difficulties), need_help (in distress)
+
+The admin has pre-selected these mood levels: [great, okay]
+
+For EACH question, choose which mood level(s) it is most relevant for as a 
+follow-up question. A question about coping strategies fits "struggling" and 
+"need_help". A question about gratitude fits "great" and "good". Assign 1-3 
+mood levels per question based on psychological relevance.
+
+Return the mood_levels array in each question object.
 ```
 
-### 2. `src/pages/admin/AIQuestionGenerator.tsx`
-**Pass `selectedMoodLevels` into `generate()` call:**
+**d) Add `mood_levels` to the tool definition schema (line ~286):**
 ```ts
-generate({
-  ...existing params...,
-  moodLevels: selectedMoodLevels,   // NEW
-});
-```
-**Update `handleSaveClick`:**
-```ts
-saveWellness({ questions }, ...);  // moodLevels removed — now on each question
-```
-
-### 3. `src/components/ai-generator/QuestionCard.tsx`
-**Add `mood_levels` and `purpose` props:**
-```ts
-interface QuestionCardProps {
-  // ... existing ...
-  purpose?: 'survey' | 'wellness';
+mood_levels: {
+  type: "array",
+  items: { type: "string", enum: ["great", "good", "okay", "struggling", "need_help"] },
+  description: "Which mood levels this question is relevant for as a follow-up"
 }
 ```
 
-**Add inline mood tag UI (visible only when `purpose === 'wellness'`):**
-- Display current mood tags as colored pill chips below the question text
-- Each chip has an X to remove that mood
-- A `+ Mood` popover/dropdown to add more moods from the 5 options
-- Uses the same `MOOD_LEVELS_META` constant (Great/Good/Okay/Struggling/Need Help)
-- On change, calls `onUpdate(index, { mood_levels: newLevels })`
+### 2. Hook: `src/hooks/useEnhancedAIGeneration.ts`
 
-**Visual design:**
+**Update `onSuccess` normalization (line ~104):**
+Change from always falling back to `defaultMoods` to preferring AI-selected moods when available:
+```ts
+mood_levels: (Array.isArray(q.mood_levels) && q.mood_levels.length > 0)
+  ? q.mood_levels
+  : defaultMoods,
 ```
-😄 Great ×   🙂 Good ×   [+ Mood]
-```
-Chips styled as small rounded badges with emoji + label + X button. Lavender tinted for wellness mode.
+This is actually already the current logic (`q.mood_levels || defaultMoods`), but the explicit array check makes it more robust since the AI might return `null` or an empty array.
 
-### 4. `src/pages/admin/AIQuestionGenerator.tsx`
-**Pass `purpose` prop to each `QuestionCard`:**
-```tsx
-<QuestionCard 
-  key={i} 
-  question={q} 
-  index={i} 
-  purpose={purpose}        // NEW
-  onRemove={removeQuestion} 
-  onUpdate={updateQuestion} 
-  selectedModel={selectedModel} 
-/>
-```
+### 3. `handleRegenerateSingle` Fix in `AIQuestionGenerator.tsx`
 
-### 5. `src/locales/en.json` + `src/locales/ar.json`
-Add missing keys:
-- `aiGenerator.moodTags` = "Mood Tags"
-- `aiGenerator.addMood` = "+ Mood"  
-- `aiGenerator.noMoodTags` = "No mood tags — question will not appear in any pathway"
-- `aiGenerator.moodTagsHint` = "This question will appear as a follow-up for these moods"
+Current `handleRegenerateSingle` calls `generate()` which **replaces all questions** with just 1 regenerated question. This is a bug -- regenerating a single question should replace only that question, not wipe the rest.
 
-## Complete Data Flow (After Fix)
+This needs to be fixed by either:
+- Using a separate mutation that appends/replaces at index, OR
+- Storing the current questions + index, and in `onSuccess` splicing the new question in
+
+The fix: track pending single-regeneration state and merge on success.
+
+## Data Flow After Fix
 
 ```text
 1. Admin selects: Purpose = Wellness, Mood Tags = [Great, Okay]
 2. Clicks Generate
-   → generate() called with moodLevels: ['great', 'okay']
-   → Edge function returns 5 questions
-   → onSuccess: each question gets mood_levels: ['great', 'okay'] injected
-3. QuestionCard renders:
-   → Shows "😄 Great ×  😐 Okay ×  [+ Mood]" under each question
-   → Admin can remove Okay from question #3
-   → Admin can add Struggling to question #4
-4. Admin clicks Save (Wellness)
-   → saveWellness({ questions }) called
-   → Each question inserted with its own mood_levels array
-   → Question #3 → mood_levels: ['great']
-   → Question #4 → mood_levels: ['great', 'struggling']
-5. In Mood Pathway Settings, admin sees correct counts per mood
-6. In Daily Check-in, employees see correct follow-up questions per mood
+   -> Edge function receives moodLevels: ['great', 'okay']
+   -> AI prompt includes mood context + available levels
+   -> AI returns each question with its own mood_levels:
+      Q1: mood_levels: ['great', 'good']      (gratitude question)
+      Q2: mood_levels: ['okay']                (neutral check-in)
+      Q3: mood_levels: ['struggling', 'need_help'] (coping question)
+3. Frontend onSuccess: uses AI-selected mood_levels per question
+   -> Falls back to global selection only if AI didn't assign any
+4. QuestionCard renders AI-selected tags (user can still edit)
+5. Save uses each question's individual mood_levels
 ```
 
-## Files to Modify (4 files only)
+## Files to Modify
 
 | File | Change |
 |------|--------|
-| `src/hooks/useEnhancedAIGeneration.ts` | Add `mood_levels` to interface + GenerateInput; inject defaults on success; read per-question on save |
-| `src/pages/admin/AIQuestionGenerator.tsx` | Pass `moodLevels` to generate(); pass `purpose` to QuestionCard; fix saveWellness call |
-| `src/components/ai-generator/QuestionCard.tsx` | Add `purpose` prop; render inline mood tag chips with add/remove per question |
-| `src/locales/en.json` + `src/locales/ar.json` | Add 4 new i18n keys |
+| `supabase/functions/generate-questions/index.ts` | Add `moodLevels` to interface, destructure, inject prompt context, add to tool schema |
+| `src/hooks/useEnhancedAIGeneration.ts` | Make mood_levels normalization more robust (array check) |
+| `src/pages/admin/AIQuestionGenerator.tsx` | Fix `handleRegenerateSingle` to not wipe all questions |
 
 ## No Database Changes Required
-The `questions.mood_levels` column already exists as `jsonb` in the database. This is purely a frontend/hook layer fix.
