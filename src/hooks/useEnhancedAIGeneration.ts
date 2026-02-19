@@ -85,12 +85,15 @@ export function useEnhancedAIGeneration() {
   const [generationMeta, setGenerationMeta] = useState<{ model: string; duration_ms: number } | null>(null);
 
   const lastMoodLevelsRef = { current: [] as string[] };
+  const replaceAtIndexRef = { current: null as number | null };
 
   const generateMutation = useMutation({
-    mutationFn: async (input: GenerateInput) => {
+    mutationFn: async (input: GenerateInput & { _replaceAtIndex?: number }) => {
       lastMoodLevelsRef.current = input.moodLevels || [];
+      replaceAtIndexRef.current = input._replaceAtIndex ?? null;
+      const { _replaceAtIndex, ...body } = input;
       const { data, error } = await supabase.functions.invoke('generate-questions', {
-        body: input,
+        body,
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
@@ -101,14 +104,24 @@ export function useEnhancedAIGeneration() {
       const normalized = (data.questions || []).map((q: any) => ({
         ...q,
         type: normalizeQuestionType(q.type),
-        mood_levels: q.mood_levels || defaultMoods,
+        mood_levels: (Array.isArray(q.mood_levels) && q.mood_levels.length > 0) ? q.mood_levels : defaultMoods,
       }));
-      setQuestions(normalized);
+
+      const idx = replaceAtIndexRef.current;
+      if (idx !== null && normalized.length > 0) {
+        // Single regeneration: replace only the question at the given index
+        setQuestions(prev => prev.map((q, i) => i === idx ? normalized[0] : q));
+      } else {
+        setQuestions(normalized);
+      }
+      replaceAtIndexRef.current = null;
+
       setGenerationMeta({ model: data.model, duration_ms: data.duration_ms });
       setValidationReport(null);
       toast.success(t('aiGenerator.generateSuccess', { count: data.questions.length }));
     },
     onError: (error: Error) => {
+      replaceAtIndexRef.current = null;
       if (error.message.includes('Rate limit')) {
         toast.error(t('aiGenerator.rateLimitError'));
       } else if (error.message.includes('credits')) {
