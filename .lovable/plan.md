@@ -1,75 +1,77 @@
 
 
-# Deep Audit & Fix Plan: Mood Pathway Settings (`/admin/mood-pathways`)
+# Avoid Duplication for Question Categories and Subcategories
 
-## Issues Found
+## What Will Change
 
-### 1. Delete Button Never Visible (Critical)
-All 5 moods in the database have `is_default: true`. The delete button is conditionally rendered with `{!mood.is_default && (...)}`, so it never appears for any mood. The user cannot delete any mood -- even custom ones added later would work, but the 5 seeded defaults cannot.
+When creating or editing a Category or Subcategory, the dialog will validate that the **name (English)**, **name (Arabic)**, and **color** are not already used by another item. Duplicate values will show inline error messages and the Save/Create button will be disabled.
 
-**Fix**: Allow deleting default moods too (with a confirmation warning), OR at minimum ensure the delete button works. The reasonable approach: allow deletion of ALL moods except protect a minimum count (e.g., at least 2 must remain). Remove the `is_default` guard from the delete button and add a minimum-count check instead.
-
-### 2. Emoji Uniqueness Not Enforced in `canSave` (Bug)
-The dialog checks `takenEmojis` for display purposes and shows a warning message, but `canSave` on line 76 does NOT prevent saving when the emoji is already taken. A user can type a duplicate emoji in the custom input and still save.
-
-**Fix**: Add `!(takenEmojis.has(emoji) && emoji !== mood?.emoji)` to the `canSave` condition.
-
-### 3. Score/Color Uniqueness Not Enforced in `canSave` (Bug)
-Similarly, taken scores and colors are hidden from selection dropdowns, but not validated. If the current value happens to match a taken value (e.g., during editing edge cases or when all options are taken), the form still allows saving.
-
-**Fix**: Add score and color uniqueness checks to `canSave`.
-
-### 4. RTL Violation: `mx-auto` (Design System Rule)
-Line 376 uses `mx-auto` which violates the "logical properties" rule. Should not use `ml-`/`mr-`/`mx-` classes.
-
-**Fix**: Replace `mx-auto` with `inline-block` + `text-center` on parent (already has `text-center`), or keep it since `mx-auto` is symmetric and technically safe. However, per strict rules, it should be noted.
-
-### 5. Console Warning: DialogFooter Ref
-A React warning shows `Function components cannot be given refs` from `MoodDefinitionDialog`. This is a Radix/Shadcn issue with `DialogFooter` not using `forwardRef`.
-
-**Fix**: Minor -- no functional impact, but wrapping or ignoring is fine.
-
-### 6. Edit Mode: Current Values Hidden from Dropdowns
-When editing a mood, if that mood's current color/score/emoji are already "taken" by itself, they get filtered out. The code does `otherMoods = existingMoods.filter(m => !mood || m.id !== mood.id)` which correctly excludes the current mood. This should work -- but only if `mood.id` is present and matches. If the upsert uses `onConflict: 'tenant_id,key'` without passing `id`, the ID comparison may fail.
-
-**Fix**: Verify the edit flow passes `mood.id` correctly (it does on line 80).
-
-### 7. Two Default Moods Share Same Color (`text-destructive`)
-"Struggling" and "Need Help" both use `text-destructive`, but the deduplication logic hides taken colors. When one is being edited, the other's color blocks `text-destructive` from the dropdown. This means you cannot keep both on `text-destructive` after editing either one.
-
-**Fix**: The color dedup should be relaxed or more color options added. Add more color variants to `COLOR_OPTIONS`.
+For Subcategories, the uniqueness check is **scoped to the same parent category** (two different categories can have subcategories with the same name).
 
 ---
 
-## Implementation Plan
+## Changes
 
-### Step 1: Fix Delete Feature
-- Remove the `!mood.is_default` guard from the delete button in `MoodPathwaySettings.tsx`
-- Add a minimum-count check: disable delete if `moods.length <= 2` (must keep at least 2 moods)
-- Add an `AlertDialog` confirmation instead of `window.confirm()` for better UX and RTL support
+### 1. CategoryDialog -- Add Deduplication
 
-### Step 2: Fix Validation in MoodDefinitionDialog
-- Update `canSave` to block saving when emoji is duplicated
-- Add score and color uniqueness to `canSave`
-- Show inline validation messages for score and color conflicts (not just emoji)
+**File:** `src/components/questions/CategoryDialog.tsx`
 
-### Step 3: Fix Color Duplication Issue
-- Add more `COLOR_OPTIONS` to ensure enough choices (e.g., `text-orange-500`, `text-teal-500`, `text-indigo-500`)
-- Allow duplicate colors with a soft warning instead of hiding them
+- Add a new `existingCategories` prop (array of `QuestionCategory[]`)
+- Compute `otherCategories` (exclude current when editing)
+- Check for duplicate **name** (case-insensitive), **name_ar**, and **color**
+- Show inline `text-destructive` warning messages below each conflicting field
+- Add all conflict flags to the submit button `disabled` condition
+- Mark taken colors with a visual indicator (e.g., a small "used" dot or reduced opacity) instead of hiding them
 
-### Step 4: Fix RTL Violation
-- Replace `mx-auto` with a logical-property-safe alternative
+### 2. CategoryManagement -- Pass Existing Data
 
-### Step 5: Add Missing i18n Keys
-- Add keys for new validation messages and delete confirmation dialog
+**File:** `src/pages/admin/CategoryManagement.tsx`
+
+- Pass `existingCategories={categories}` prop to `CategoryDialog`
+
+### 3. SubcategoryDialog -- Add Deduplication
+
+**File:** `src/components/questions/SubcategoryDialog.tsx`
+
+- Add a new `existingSubcategories` prop (array of `QuestionSubcategory[]`)
+- Compute `siblingsInSameCategory` -- filter to same `category_id`, exclude current when editing
+- Check for duplicate **name**, **name_ar**, and **color** within siblings
+- Show inline warnings and block save on conflict
+
+### 4. SubcategoryManagement -- Pass Existing Data
+
+**File:** `src/pages/admin/SubcategoryManagement.tsx`
+
+- Pass `existingSubcategories={allSubcategories}` prop to `SubcategoryDialog`
+
+### 5. Add i18n Keys
+
+**Files:** `src/locales/en.json`, `src/locales/ar.json`
+
+New keys:
+- `categories.nameTaken` -- "This name is already used by another category"
+- `categories.nameArTaken` -- "This Arabic name is already used"
+- `categories.colorTaken` -- "This color is already used by another category"
+- `subcategories.nameTaken` -- "This name is already used in this category"
+- `subcategories.nameArTaken` -- "This Arabic name is already used in this category"
+- `subcategories.colorTaken` -- "This color is already used in this category"
 
 ---
 
 ## Technical Details
 
-**Files to modify:**
-- `src/pages/admin/MoodPathwaySettings.tsx` -- delete button guard, AlertDialog, RTL fix
-- `src/components/mood/MoodDefinitionDialog.tsx` -- validation fixes, more colors
-- `src/locales/en.json` -- new keys
-- `src/locales/ar.json` -- new keys
+Validation logic for CategoryDialog:
 
+```text
+otherCategories = existingCategories.filter(c => c.id !== category?.id)
+
+isNameTaken    = otherCategories.some(c => c.name.toLowerCase() === name.trim().toLowerCase())
+isNameArTaken  = nameAr.trim() && otherCategories.some(c => c.name_ar?.toLowerCase() === nameAr.trim().toLowerCase())
+isColorTaken   = otherCategories.some(c => c.color === color)
+
+canSave = name.trim() && !isNameTaken && !isNameArTaken && !isColorTaken
+```
+
+SubcategoryDialog uses the same pattern but filters `existingSubcategories` to only siblings with matching `category_id`.
+
+Taken colors will remain visible but show with reduced opacity + a strikethrough/badge indicator so the admin can see which are used, and the save button will be disabled if a taken color is selected.
