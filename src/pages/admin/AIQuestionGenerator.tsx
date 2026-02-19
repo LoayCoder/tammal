@@ -241,6 +241,23 @@ export default function AIQuestionGenerator() {
       selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
       categoryIds: selectedCategoryIds,
       subcategoryIds: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
+      moodLevels: purpose === 'wellness' ? selectedMoodLevels : undefined,
+    });
+  };
+
+  const handleRegenerateSingle = (index: number) => {
+    const activeDocIds = documents.filter(d => d.is_active).map(d => d.id);
+    const q = questions[index];
+    const singleType = q.type || (questionTypes.length === 0 ? 'mixed' : questionTypes.join(', '));
+    generate({
+      questionCount: 1, complexity: q.complexity || complexity, tone: q.tone || tone, questionType: singleType,
+      model: selectedModel, accuracyMode, advancedSettings, language: 'both',
+      useExpertKnowledge: selectedFrameworkIds.length > 0,
+      knowledgeDocumentIds: activeDocIds.length > 0 ? activeDocIds : undefined,
+      selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
+      categoryIds: selectedCategoryIds,
+      subcategoryIds: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
+      moodLevels: purpose === 'wellness' ? (q.mood_levels?.length ? q.mood_levels : selectedMoodLevels) : undefined,
     });
   };
 
@@ -365,7 +382,7 @@ export default function AIQuestionGenerator() {
 
               <div className="space-y-3">
                 {questions.map((q, i) => (
-                  <QuestionCard key={i} question={q} index={i} onRemove={removeQuestion} onUpdate={updateQuestion} selectedModel={selectedModel} purpose={purpose} />
+                  <QuestionCard key={i} question={q} index={i} onRemove={removeQuestion} onUpdate={updateQuestion} onRegenerate={handleRegenerateSingle} selectedModel={selectedModel} purpose={purpose} />
                 ))}
               </div>
             </>
