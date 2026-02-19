@@ -10,6 +10,7 @@ import { ConfigPanel, type QuestionPurpose } from '@/components/ai-generator/Con
 import { QuestionCard } from '@/components/ai-generator/QuestionCard';
 import { ValidationReport } from '@/components/ai-generator/ValidationReport';
 import { BatchSaveDialog } from '@/components/ai-generator/BatchSaveDialog';
+import { WellnessSavePreviewDialog } from '@/components/ai-generator/WellnessSavePreviewDialog';
 import { useEnhancedAIGeneration, AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
 import { useAIModels } from '@/hooks/useAIModels';
 import { useAIKnowledge } from '@/hooks/useAIKnowledge';
@@ -71,6 +72,7 @@ export default function AIQuestionGenerator() {
   const [selectedSubcategoryIds, setSelectedSubcategoryIds] = useState<string[]>([]);
   const [selectedMoodLevels, setSelectedMoodLevels] = useState<string[]>([]);
   const [batchDialogOpen, setBatchDialogOpen] = useState(false);
+  const [wellnessPreviewOpen, setWellnessPreviewOpen] = useState(false);
   const [purpose, setPurpose] = useState<QuestionPurpose>('survey');
 
   const isStrict = accuracyMode === 'strict';
@@ -157,15 +159,20 @@ export default function AIQuestionGenerator() {
 
   const handleSaveClick = () => {
     if (purpose === 'wellness') {
-      saveWellness({ questions }, {
-        onSuccess: () => {
-          clearAll();
-          if (documents.length > 0) deleteAllDocuments();
-        },
-      });
+      setWellnessPreviewOpen(true);
     } else {
       setBatchDialogOpen(true);
     }
+  };
+
+  const handleWellnessConfirm = () => {
+    saveWellness({ questions }, {
+      onSuccess: () => {
+        setWellnessPreviewOpen(false);
+        clearAll();
+        if (documents.length > 0) deleteAllDocuments();
+      },
+    });
   };
 
   const handleBatchConfirm = (targetBatchId?: string) => {
@@ -399,6 +406,14 @@ export default function AIQuestionGenerator() {
         maxBatchSize={MAX_BATCH_SIZE}
         onConfirm={handleBatchConfirm}
         isSaving={isSaving}
+      />
+
+      <WellnessSavePreviewDialog
+        open={wellnessPreviewOpen}
+        onOpenChange={setWellnessPreviewOpen}
+        questions={questions}
+        onConfirm={handleWellnessConfirm}
+        isSaving={isSavingWellness}
       />
     </div>
   );
