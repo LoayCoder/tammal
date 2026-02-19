@@ -28,6 +28,7 @@ interface GenerateRequest {
   selectedFrameworks?: string[];
   categoryIds?: string[];
   subcategoryIds?: string[];
+  moodLevels?: string[];
 }
 
 serve(async (req) => {
@@ -65,6 +66,7 @@ serve(async (req) => {
       selectedFrameworks = [],
       categoryIds = [],
       subcategoryIds = [],
+      moodLevels = [],
     }: GenerateRequest = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -252,6 +254,22 @@ ${categoryDescriptions}`;
       }
     }
 
+    // 5b. Mood Level Tagging (for wellness questions)
+    if (moodLevels && moodLevels.length > 0) {
+      systemPrompt += `
+
+# Mood Level Tagging (MANDATORY for Wellness):
+These questions are for a daily wellness check-in. Each question must be tagged with the most appropriate mood levels from the available set.
+
+Available mood levels: great (feeling excellent), good (feeling positive), okay (feeling neutral), struggling (having difficulties), need_help (in distress)
+
+The admin has pre-selected these mood levels: [${moodLevels.join(', ')}]
+
+For EACH question, choose which mood level(s) it is most relevant for as a follow-up question. A question about coping strategies fits "struggling" and "need_help". A question about gratitude fits "great" and "good". Assign 1-3 mood levels per question based on psychological relevance.
+
+Return the mood_levels array in each question object.`;
+    }
+
     // 6. Integration Priority Directive
     const activeSources = [];
     if (frameworkNames.length > 0) activeSources.push('Reference Frameworks');
@@ -303,6 +321,11 @@ All sources work together: a question should satisfy the category requirement wh
                   scoring_mechanism: { type: "string", description: "Recommended scoring approach" },
                   category_name: { type: "string", description: "The category this question belongs to" },
                   subcategory_name: { type: "string", description: "The subcategory this question belongs to, if applicable" },
+                  mood_levels: {
+                    type: "array",
+                    items: { type: "string", enum: ["great", "good", "okay", "struggling", "need_help"] },
+                    description: "Which mood levels this question is relevant for as a follow-up"
+                  },
                   options: {
                     type: "array",
                     items: {
@@ -480,6 +503,7 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       scoring_mechanism: q.scoring_mechanism || null,
       category_name: q.category_name || null,
       subcategory_name: q.subcategory_name || null,
+      mood_levels: Array.isArray(q.mood_levels) ? q.mood_levels : [],
     }));
 
     // Log generation

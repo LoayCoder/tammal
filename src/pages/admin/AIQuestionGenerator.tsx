@@ -258,7 +258,8 @@ export default function AIQuestionGenerator() {
       categoryIds: selectedCategoryIds,
       subcategoryIds: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
       moodLevels: purpose === 'wellness' ? (q.mood_levels?.length ? q.mood_levels : selectedMoodLevels) : undefined,
-    });
+      _replaceAtIndex: index,
+    } as any);
   };
 
   return (
