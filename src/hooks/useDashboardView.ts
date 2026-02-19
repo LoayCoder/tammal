@@ -1,0 +1,35 @@
+import { useState, useCallback } from 'react';
+import { useUserPermissions, useHasRole } from './useUserPermissions';
+import { useCurrentEmployee } from './useCurrentEmployee';
+
+export type DashboardView = 'org' | 'personal';
+
+export function useDashboardView() {
+  const { isSuperAdmin, isLoading: permLoading } = useUserPermissions();
+  const { hasRole: isTenantAdmin, isLoading: roleLoading } = useHasRole('tenant_admin');
+  const { hasEmployeeProfile, isLoading: empLoading } = useCurrentEmployee();
+
+  const isAdmin = isSuperAdmin || isTenantAdmin;
+
+  const [view, setViewState] = useState<DashboardView>(() => {
+    if (typeof window === 'undefined') return 'org';
+    return (localStorage.getItem('dashboard-view') as DashboardView) || 'org';
+  });
+
+  const setView = useCallback((v: DashboardView) => {
+    setViewState(v);
+    localStorage.setItem('dashboard-view', v);
+  }, []);
+
+  // Determine effective view & whether switcher is visible
+  const canSwitch = isAdmin && hasEmployeeProfile;
+  const effectiveView: DashboardView = !isAdmin ? 'personal' : view;
+
+  return {
+    view: effectiveView,
+    setView,
+    canSwitch,
+    isAdmin,
+    isLoading: permLoading || roleLoading || empLoading,
+  };
+}

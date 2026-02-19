@@ -152,9 +152,9 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     },
     {
       label: t('nav.wellness'),
-      access: 'employee',
+      access: 'all',
       items: [
-        { title: t('nav.dailyCheckin'), url: "/", icon: Heart },
+        { title: t('nav.dailyCheckin'), url: "/", icon: Heart, access: 'employee' },
       ]
     },
     {
@@ -191,7 +191,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     .filter(group => {
       if (group.access === 'all') return true;
       if (group.access === 'admin') return isAdmin;
-      if (group.access === 'employee') return hasEmployeeProfile || isAdmin;
+      if (group.access === 'employee') return hasEmployeeProfile;
       return false;
     })
     .map(group => ({
@@ -200,7 +200,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         const itemAccess = item.access ?? group.access;
         if (itemAccess === 'all') return true;
         if (itemAccess === 'admin') return isAdmin;
-        if (itemAccess === 'employee') return hasEmployeeProfile || isAdmin;
+        if (itemAccess === 'employee') return hasEmployeeProfile;
         return false;
       })
     }))

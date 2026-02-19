@@ -166,21 +166,21 @@ export default function EmployeeHome() {
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
         <Card>
           <CardContent className="p-4 text-center">
-            <Calendar className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
+            <Calendar className="h-5 w-5 inline-block text-muted-foreground mb-1" />
             <div className="text-2xl font-bold">{moodLoading ? '—' : monthlyCheckins}</div>
             <p className="text-muted-foreground text-xs mt-0.5">{t('home.monthlyCheckins')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <TrendingUp className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
+            <TrendingUp className="h-5 w-5 inline-block text-muted-foreground mb-1" />
             <div className="text-2xl font-bold">{moodLoading ? '—' : avgMood7d}</div>
             <p className="text-muted-foreground text-xs mt-0.5">{t('home.avgMood')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <Flame className="h-5 w-5 mx-auto text-chart-4 mb-1" />
+            <Flame className="h-5 w-5 inline-block text-chart-4 mb-1" />
             <div className="text-2xl font-bold">{gamLoading ? '—' : streak}</div>
             <p className="text-muted-foreground text-xs mt-0.5">{t('home.currentStreak')}</p>
           </CardContent>

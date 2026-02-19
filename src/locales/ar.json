@@ -287,7 +287,26 @@
     "brandingPreview": "علامتك التجارية",
     "customizeBranding": "تخصيص",
     "subscriptionBreakdown": "الاشتراكات حسب الحالة",
-    "tenantBreakdown": "المستأجرون حسب الحالة"
+    "tenantBreakdown": "المستأجرون حسب الحالة",
+    "orgView": "المنظمة",
+    "personalView": "لوحتي"
+  },
+  "orgDashboard": {
+    "title": "رفاهية المنظمة",
+    "subtitle": "تحليلات الرفاهية المجمّعة لمنظمتك",
+    "activeEmployees": "الموظفون النشطون",
+    "teamWellness": "مؤشر رفاهية الفريق",
+    "participation": "معدل المشاركة",
+    "checkins7d": "التسجيلات (7 أيام)",
+    "engagementTrend": "اتجاه التفاعل (7 أيام)",
+    "moodDistribution": "توزيع المزاج",
+    "moods": {
+      "great": "ممتاز",
+      "good": "جيد",
+      "okay": "عادي",
+      "struggling": "أعاني",
+      "need_help": "بحاجة للمساعدة"
+    }
   },
   "install": {
     "title": "تثبيت التطبيق",
