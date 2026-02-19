@@ -155,6 +155,7 @@ export default function SubcategoryManagement() {
         subcategory={editing} onSubmit={handleSubmit}
         isLoading={createSubcategory.isPending || updateSubcategory.isPending}
         defaultCategoryId={filterCategoryId !== 'all' ? filterCategoryId : undefined}
+        existingSubcategories={allSubcategories}
       />
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>

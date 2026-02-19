@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { AlertCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,10 +25,11 @@ interface SubcategoryDialogProps {
   onSubmit: (data: CreateSubcategoryInput) => void;
   isLoading?: boolean;
   defaultCategoryId?: string;
+  existingSubcategories?: QuestionSubcategory[];
 }
 
 export function SubcategoryDialog({
-  open, onOpenChange, subcategory, onSubmit, isLoading, defaultCategoryId,
+  open, onOpenChange, subcategory, onSubmit, isLoading, defaultCategoryId, existingSubcategories = [],
 }: SubcategoryDialogProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
@@ -67,8 +69,21 @@ export function SubcategoryDialog({
     }
   }, [subcategory, open, defaultCategoryId]);
 
+  // Deduplication: scope to siblings in same category
+  const siblings = useMemo(() =>
+    existingSubcategories.filter(s => s.category_id === categoryId && s.id !== subcategory?.id),
+    [existingSubcategories, categoryId, subcategory?.id]
+  );
+  const isNameTaken = siblings.some(s => s.name.toLowerCase() === name.trim().toLowerCase());
+  const isNameArTaken = !!(nameAr.trim() && siblings.some(s => s.name_ar?.toLowerCase() === nameAr.trim().toLowerCase()));
+  const isColorTaken = siblings.some(s => s.color === color);
+  const takenColors = new Set(siblings.map(s => s.color));
+
+  const canSave = name.trim() && categoryId && !isNameTaken && !isNameArTaken && !isColorTaken;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canSave) return;
     onSubmit({
       category_id: categoryId,
       name,
@@ -115,10 +130,16 @@ export function SubcategoryDialog({
             <div className="space-y-2">
               <Label>{t('categories.name')} (English)</Label>
               <Input value={name} onChange={e => setName(e.target.value)} required />
+              {isNameTaken && (
+                <p className="text-sm text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{t('subcategories.nameTaken')}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>{t('categories.name')} (العربية)</Label>
               <Input value={nameAr} onChange={e => setNameAr(e.target.value)} dir="rtl" />
+              {isNameArTaken && (
+                <p className="text-sm text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{t('subcategories.nameArTaken')}</p>
+              )}
             </div>
           </div>
 
@@ -134,12 +155,20 @@ export function SubcategoryDialog({
           <div className="space-y-2">
             <Label>{t('categories.color')}</Label>
             <div className="flex flex-wrap gap-2">
-              {PRESET_COLORS.map(c => (
-                <button key={c} type="button"
-                  className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${color === c ? 'border-foreground ring-2 ring-offset-2 ring-primary' : 'border-transparent'}`}
-                  style={{ backgroundColor: c }} onClick={() => setColor(c)} />
-              ))}
+              {PRESET_COLORS.map(c => {
+                const isTaken = takenColors.has(c) && c !== subcategory?.color;
+                return (
+                  <button key={c} type="button"
+                    className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 relative ${color === c ? 'border-foreground ring-2 ring-offset-2 ring-primary' : 'border-transparent'} ${isTaken ? 'opacity-40' : ''}`}
+                    style={{ backgroundColor: c }} onClick={() => setColor(c)}>
+                    {isTaken && <span className="absolute inset-0 flex items-center justify-center text-white text-xs font-bold">✓</span>}
+                  </button>
+                );
+              })}
             </div>
+            {isColorTaken && (
+              <p className="text-sm text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{t('subcategories.colorTaken')}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -158,7 +187,7 @@ export function SubcategoryDialog({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.cancel')}</Button>
-            <Button type="submit" disabled={isLoading || !name.trim() || !categoryId}>{subcategory ? t('common.save') : t('common.create')}</Button>
+            <Button type="submit" disabled={isLoading || !canSave}>{subcategory ? t('common.save') : t('common.create')}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

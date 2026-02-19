@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { QuestionCategory, CreateCategoryInput } from "@/hooks/useQuestionCategories";
+import { AlertCircle } from "lucide-react";
 
 const PRESET_COLORS = [
   '#EF4444', '#F97316', '#F59E0B', '#EAB308', '#84CC16',
@@ -27,6 +28,7 @@ interface CategoryDialogProps {
   category?: QuestionCategory | null;
   onSubmit: (data: CreateCategoryInput) => void;
   isLoading?: boolean;
+  existingCategories?: QuestionCategory[];
 }
 
 export function CategoryDialog({
@@ -35,6 +37,7 @@ export function CategoryDialog({
   category,
   onSubmit,
   isLoading,
+  existingCategories = [],
 }: CategoryDialogProps) {
   const { t } = useTranslation();
 
@@ -72,8 +75,18 @@ export function CategoryDialog({
     }
   }, [category, open]);
 
+  // Deduplication logic
+  const otherCategories = existingCategories.filter(c => c.id !== category?.id);
+  const isNameTaken = otherCategories.some(c => c.name.toLowerCase() === name.trim().toLowerCase());
+  const isNameArTaken = !!(nameAr.trim() && otherCategories.some(c => c.name_ar?.toLowerCase() === nameAr.trim().toLowerCase()));
+  const isColorTaken = otherCategories.some(c => c.color === color);
+  const takenColors = new Set(otherCategories.map(c => c.color));
+
+  const canSave = name.trim() && !isNameTaken && !isNameArTaken && !isColorTaken;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canSave) return;
     onSubmit({
       name,
       name_ar: nameAr || undefined,
@@ -110,6 +123,9 @@ export function CategoryDialog({
                   onChange={(e) => setName(e.target.value)}
                   required
                 />
+                {isNameTaken && (
+                  <p className="text-sm text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{t('categories.nameTaken')}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="nameAr">{t('categories.name')} (العربية)</Label>
@@ -119,6 +135,9 @@ export function CategoryDialog({
                   onChange={(e) => setNameAr(e.target.value)}
                   dir="rtl"
                 />
+                {isNameArTaken && (
+                  <p className="text-sm text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{t('categories.nameArTaken')}</p>
+                )}
               </div>
             </div>
 
@@ -146,18 +165,26 @@ export function CategoryDialog({
             <div className="space-y-2">
               <Label>{t('categories.color')}</Label>
               <div className="flex flex-wrap gap-2">
-                {PRESET_COLORS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${
-                      color === c ? 'border-foreground ring-2 ring-offset-2 ring-primary' : 'border-transparent'
-                    }`}
-                    style={{ backgroundColor: c }}
-                    onClick={() => setColor(c)}
-                  />
-                ))}
+                {PRESET_COLORS.map((c) => {
+                  const isTaken = takenColors.has(c) && c !== category?.color;
+                  return (
+                    <button
+                      key={c}
+                      type="button"
+                      className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 relative ${
+                        color === c ? 'border-foreground ring-2 ring-offset-2 ring-primary' : 'border-transparent'
+                      } ${isTaken ? 'opacity-40' : ''}`}
+                      style={{ backgroundColor: c }}
+                      onClick={() => setColor(c)}
+                    >
+                      {isTaken && <span className="absolute inset-0 flex items-center justify-center text-white text-xs font-bold">✓</span>}
+                    </button>
+                  );
+                })}
               </div>
+              {isColorTaken && (
+                <p className="text-sm text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{t('categories.colorTaken')}</p>
+              )}
               <Input
                 type="color"
                 value={color}
@@ -198,7 +225,7 @@ export function CategoryDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t('common.cancel')}
             </Button>
-            <Button type="submit" disabled={isLoading || !name.trim()}>
+            <Button type="submit" disabled={isLoading || !canSave}>
               {category ? t('common.save') : t('common.create')}
             </Button>
           </DialogFooter>

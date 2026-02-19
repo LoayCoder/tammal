@@ -1003,7 +1003,10 @@
     "deleteError": "Failed to delete category",
     "activate": "Activate",
     "deactivate": "Deactivate",
-    "maxReached": "Maximum {{max}} categories allowed per tenant"
+    "maxReached": "Maximum {{max}} categories allowed per tenant",
+    "nameTaken": "This name is already used by another category",
+    "nameArTaken": "This Arabic name is already used by another category",
+    "colorTaken": "This color is already used by another category"
   },
   "subcategories": {
     "title": "Subcategories",
@@ -1020,7 +1023,10 @@
     "deleteSuccess": "Subcategory deleted successfully",
     "deleteError": "Failed to delete subcategory",
     "confirmDelete": "Are you sure you want to delete this subcategory?",
-    "maxReached": "Maximum {{max}} subcategories allowed per category"
+    "maxReached": "Maximum {{max}} subcategories allowed per category",
+    "nameTaken": "This name is already used in this category",
+    "nameArTaken": "This Arabic name is already used in this category",
+    "colorTaken": "This color is already used in this category"
   },
   "employees": {
     "title": "Employee Management",
