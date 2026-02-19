@@ -8,12 +8,22 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Progress } from '@/components/ui/progress';
 import {
   RefreshCw, Edit2, Copy, ChevronDown, Check, X,
-  AlertTriangle, CheckCircle, XCircle, Info, Sparkles, Loader2
+  AlertTriangle, CheckCircle, XCircle, Info, Sparkles, Loader2, Plus
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { EnhancedGeneratedQuestion } from '@/hooks/useEnhancedAIGeneration';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import type { QuestionPurpose } from '@/components/ai-generator/ConfigPanel';
+
+const MOOD_LEVELS_META: { key: string; emoji: string; labelKey: string }[] = [
+  { key: 'great', emoji: '😄', labelKey: 'checkin.moodGreat' },
+  { key: 'good', emoji: '🙂', labelKey: 'checkin.moodGood' },
+  { key: 'okay', emoji: '😐', labelKey: 'checkin.moodOkay' },
+  { key: 'struggling', emoji: '😟', labelKey: 'checkin.moodStruggling' },
+  { key: 'need_help', emoji: '😞', labelKey: 'checkin.moodNeedHelp' },
+];
 
 interface QuestionCardProps {
   question: EnhancedGeneratedQuestion;
@@ -22,6 +32,7 @@ interface QuestionCardProps {
   onUpdate: (index: number, updates: Partial<EnhancedGeneratedQuestion>) => void;
   onRegenerate?: (index: number) => void;
   selectedModel?: string;
+  purpose?: QuestionPurpose;
 }
 
 const typeLabels: Record<string, string> = {
@@ -52,7 +63,7 @@ const issueLabels: Record<string, string> = {
   duplicate: 'aiGenerator.issue_duplicate',
 };
 
-export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate, selectedModel }: QuestionCardProps) {
+export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate, selectedModel, purpose }: QuestionCardProps) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(question.question_text);
@@ -162,6 +173,68 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
               <p className="text-muted-foreground text-sm" dir="rtl">{question.question_text_ar}</p>
             )}
           </>
+         )}
+
+        {/* Per-question Mood Level Tags (wellness only) */}
+        {purpose === 'wellness' && (
+          <div className="space-y-1.5">
+            <p className="text-xs text-muted-foreground">{t('aiGenerator.moodTags')}</p>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {(question.mood_levels || []).map(mood => {
+                const meta = MOOD_LEVELS_META.find(m => m.key === mood);
+                if (!meta) return null;
+                return (
+                  <Badge key={mood} variant="secondary" className="text-xs gap-1 pe-1">
+                    <span>{meta.emoji}</span>
+                    <span>{t(meta.labelKey, meta.key)}</span>
+                    <button
+                      type="button"
+                      className="ms-0.5 rounded-full hover:bg-muted-foreground/20 p-0.5"
+                      onClick={() => {
+                        const newLevels = (question.mood_levels || []).filter(m => m !== mood);
+                        onUpdate(index, { mood_levels: newLevels });
+                      }}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                );
+              })}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-6 text-xs px-2 gap-1">
+                    <Plus className="h-3 w-3" />
+                    {t('aiGenerator.addMood')}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-48 p-2" align="start">
+                  <div className="space-y-1">
+                    {MOOD_LEVELS_META.filter(m => !(question.mood_levels || []).includes(m.key)).map(m => (
+                      <Button
+                        key={m.key}
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start text-xs gap-2"
+                        onClick={() => {
+                          const newLevels = [...(question.mood_levels || []), m.key];
+                          onUpdate(index, { mood_levels: newLevels });
+                        }}
+                      >
+                        <span>{m.emoji}</span>
+                        <span>{t(m.labelKey, m.key)}</span>
+                      </Button>
+                    ))}
+                    {MOOD_LEVELS_META.filter(m => !(question.mood_levels || []).includes(m.key)).length === 0 && (
+                      <p className="text-xs text-muted-foreground text-center py-2">{t('common.all')}</p>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+            {(question.mood_levels || []).length === 0 && (
+              <p className="text-xs text-muted-foreground/70 italic">{t('aiGenerator.noMoodTags')}</p>
+            )}
+          </div>
         )}
 
         {/* Expert Knowledge Badges */}

@@ -1384,7 +1384,11 @@
     "rewritePrompt": "Enter instructions for how to improve this question...",
     "rewriting": "Rewriting...",
     "rewriteSuccess": "Question rewritten successfully",
-    "rewriteError": "Failed to rewrite question"
+    "rewriteError": "Failed to rewrite question",
+    "moodTags": "Mood Tags",
+    "addMood": "Mood",
+    "noMoodTags": "No mood tags — question will not appear in any pathway",
+    "moodTagsHint": "This question will appear as a follow-up for these moods"
   },
   "survey": {
     "title": "My Survey",

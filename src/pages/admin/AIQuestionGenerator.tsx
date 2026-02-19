@@ -98,6 +98,7 @@ export default function AIQuestionGenerator() {
       selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
       categoryIds: selectedCategoryIds,
       subcategoryIds: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
+      moodLevels: purpose === 'wellness' ? selectedMoodLevels : undefined,
     });
   };
 
@@ -156,7 +157,7 @@ export default function AIQuestionGenerator() {
 
   const handleSaveClick = () => {
     if (purpose === 'wellness') {
-      saveWellness({ questions, moodLevels: selectedMoodLevels }, {
+      saveWellness({ questions }, {
         onSuccess: () => {
           clearAll();
           if (documents.length > 0) deleteAllDocuments();
@@ -364,7 +365,7 @@ export default function AIQuestionGenerator() {
 
               <div className="space-y-3">
                 {questions.map((q, i) => (
-                  <QuestionCard key={i} question={q} index={i} onRemove={removeQuestion} onUpdate={updateQuestion} selectedModel={selectedModel} />
+                  <QuestionCard key={i} question={q} index={i} onRemove={removeQuestion} onUpdate={updateQuestion} selectedModel={selectedModel} purpose={purpose} />
                 ))}
               </div>
             </>

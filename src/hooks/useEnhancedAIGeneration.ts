@@ -23,6 +23,7 @@ export interface EnhancedGeneratedQuestion {
   scoring_mechanism?: string | null;
   category_name?: string | null;
   subcategory_name?: string | null;
+  mood_levels: string[];
 }
 
 export interface ValidationReport {
@@ -57,6 +58,7 @@ export interface GenerateInput {
   selectedFrameworks?: string[];
   categoryIds?: string[];
   subcategoryIds?: string[];
+  moodLevels?: string[];
 }
 
 const MAX_BATCH_SIZE = 64;
@@ -82,8 +84,11 @@ export function useEnhancedAIGeneration() {
   const [validationReport, setValidationReport] = useState<ValidationReport | null>(null);
   const [generationMeta, setGenerationMeta] = useState<{ model: string; duration_ms: number } | null>(null);
 
+  const lastMoodLevelsRef = { current: [] as string[] };
+
   const generateMutation = useMutation({
     mutationFn: async (input: GenerateInput) => {
+      lastMoodLevelsRef.current = input.moodLevels || [];
       const { data, error } = await supabase.functions.invoke('generate-questions', {
         body: input,
       });
@@ -92,9 +97,11 @@ export function useEnhancedAIGeneration() {
       return data;
     },
     onSuccess: (data) => {
+      const defaultMoods = lastMoodLevelsRef.current;
       const normalized = (data.questions || []).map((q: any) => ({
         ...q,
         type: normalizeQuestionType(q.type),
+        mood_levels: q.mood_levels || defaultMoods,
       }));
       setQuestions(normalized);
       setGenerationMeta({ model: data.model, duration_ms: data.duration_ms });
@@ -143,7 +150,7 @@ export function useEnhancedAIGeneration() {
   });
 
   const saveWellnessMutation = useMutation({
-    mutationFn: async (params: { questions: EnhancedGeneratedQuestion[]; moodLevels?: string[] }) => {
+    mutationFn: async (params: { questions: EnhancedGeneratedQuestion[] }) => {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error('Not authenticated');
 
@@ -155,20 +162,15 @@ export function useEnhancedAIGeneration() {
         if (type === 'scale') return 'likert_5';
         if (type === 'text') return 'open_ended';
         return 'likert_5';
-        if (type === 'multiple_choice') return 'multiple_choice';
-        return 'scale';
       };
 
-      // Questions go directly into the unified questions bank
-
-      // Insert into the unified questions bank (not wellness_questions legacy table)
       const questionsInsert = params.questions.map(q => ({
         tenant_id: tenantId,
         text: q.question_text,
         text_ar: q.question_text_ar || null,
         type: mapToQuestionType(q.type),
         options: q.options || [],
-        mood_levels: params.moodLevels || [],
+        mood_levels: q.mood_levels || [],
         is_active: true,
         is_global: false,
         ai_generated: true,
