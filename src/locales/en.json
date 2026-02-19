@@ -1886,6 +1886,10 @@
     "defaultMoodBadge": "Default",
     "moveUp": "Move Up",
     "moveDown": "Move Down",
-    "emojiTaken": "This emoji is already used by another mood."
+    "emojiTaken": "This emoji is already used by another mood.",
+    "scoreTaken": "This score is already used by another mood.",
+    "colorTaken": "This color is already used by another mood.",
+    "minMoodsRequired": "At least 2 mood levels are required.",
+    "deletingDefaultWarning": "This is a default mood. Deleting it cannot be undone."
   }
 }
