@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
@@ -6,7 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Heart } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Heart, Package, Plus } from 'lucide-react';
+import type { QuestionBatch } from '@/hooks/useQuestionBatches';
 
 const MOOD_META: Record<string, { emoji: string; labelKey: string }> = {
   great: { emoji: '😄', labelKey: 'checkin.moodGreat' },
@@ -27,21 +31,38 @@ interface WellnessSavePreviewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   questions: WellnessQuestion[];
-  onConfirm: () => void;
+  onConfirm: (targetBatchId?: string) => void;
   isSaving: boolean;
+  availableBatches: QuestionBatch[];
+  maxBatchSize: number;
 }
 
 export function WellnessSavePreviewDialog({
-  open, onOpenChange, questions, onConfirm, isSaving,
+  open, onOpenChange, questions, onConfirm, isSaving, availableBatches, maxBatchSize,
 }: WellnessSavePreviewDialogProps) {
   const { t } = useTranslation();
+  const [saveMode, setSaveMode] = useState<'new' | 'existing'>('new');
+  const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null);
 
   const questionsWithoutMoods = questions.filter(
     q => !q.mood_levels || q.mood_levels.length === 0
   );
 
+  const handleConfirm = () => {
+    onConfirm(saveMode === 'existing' && selectedBatchId ? selectedBatchId : undefined);
+  };
+
+  // Reset state when dialog opens
+  const handleOpenChange = (open: boolean) => {
+    if (open) {
+      setSaveMode(availableBatches.length > 0 ? 'existing' : 'new');
+      setSelectedBatchId(availableBatches.length > 0 ? availableBatches[0].id : null);
+    }
+    onOpenChange(open);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -53,7 +74,7 @@ export function WellnessSavePreviewDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[400px]">
+        <ScrollArea className="max-h-[300px]">
           <Table>
             <TableHeader>
               <TableRow>
@@ -108,11 +129,82 @@ export function WellnessSavePreviewDialog({
           </p>
         )}
 
+        {/* Batch selection */}
+        <div className="border rounded-lg p-4 space-y-3">
+          <p className="text-sm font-medium">{t('aiGenerator.wellnessBatchTarget')}</p>
+          <RadioGroup
+            value={saveMode}
+            onValueChange={(v) => {
+              setSaveMode(v as 'new' | 'existing');
+              if (v === 'new') setSelectedBatchId(null);
+              else if (availableBatches.length > 0) setSelectedBatchId(availableBatches[0].id);
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="new" id="batch-new" />
+              <Label htmlFor="batch-new" className="flex items-center gap-1.5 cursor-pointer">
+                <Plus className="h-3.5 w-3.5" />
+                {t('aiGenerator.wellnessBatchNew')}
+              </Label>
+            </div>
+
+            {availableBatches.length > 0 && (
+              <div className="flex items-start gap-2">
+                <RadioGroupItem value="existing" id="batch-existing" className="mt-1" />
+                <div className="flex-1">
+                  <Label htmlFor="batch-existing" className="flex items-center gap-1.5 cursor-pointer">
+                    <Package className="h-3.5 w-3.5" />
+                    {t('aiGenerator.wellnessBatchExisting')}
+                  </Label>
+
+                  {saveMode === 'existing' && (
+                    <div className="mt-2 space-y-1.5 ps-1">
+                      {availableBatches.map(batch => {
+                        const remaining = maxBatchSize - batch.question_count;
+                        const isSelected = selectedBatchId === batch.id;
+                        return (
+                          <button
+                            key={batch.id}
+                            type="button"
+                            onClick={() => setSelectedBatchId(batch.id)}
+                            className={`w-full text-start p-2 rounded-md border text-sm transition-colors ${
+                              isSelected
+                                ? 'border-primary bg-primary/5'
+                                : 'border-border hover:border-primary/50'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium truncate">
+                                {batch.creator_name || t('aiGenerator.wellnessBatchUnnamed')}
+                              </span>
+                              <Badge variant="outline" className="text-xs shrink-0 ms-2">
+                                {batch.question_count}/{maxBatchSize}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {t('aiGenerator.wellnessBatchRemaining', { count: remaining })}
+                              {questions.length > remaining && (
+                                <span className="text-amber-600 dark:text-amber-400 ms-1">
+                                  — {t('aiGenerator.wellnessBatchOverflow', { count: questions.length - remaining })}
+                                </span>
+                              )}
+                            </p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </RadioGroup>
+        </div>
+
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
             {t('common.cancel')}
           </Button>
-          <Button onClick={onConfirm} disabled={isSaving}>
+          <Button onClick={handleConfirm} disabled={isSaving || (saveMode === 'existing' && !selectedBatchId)}>
             {isSaving ? t('common.loading') : t('aiGenerator.confirmWellnessSave', { count: questions.length })}
           </Button>
         </DialogFooter>

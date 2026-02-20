@@ -163,36 +163,12 @@ export function useEnhancedAIGeneration() {
   });
 
   const saveWellnessMutation = useMutation({
-    mutationFn: async (params: { questions: EnhancedGeneratedQuestion[] }) => {
+    mutationFn: async (params: { questions: EnhancedGeneratedQuestion[]; targetBatchId?: string }) => {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error('Not authenticated');
 
       const tenantId = await supabase.rpc('get_user_tenant_id', { _user_id: userData.user.id }).then(r => r.data);
       if (!tenantId) throw new Error('No organization found. Please contact your administrator.');
-
-      // Get user profile for batch name
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('user_id', userData.user.id)
-        .single();
-
-      const fullName = profile?.full_name || 'Unknown';
-
-      // Create a question_generation_batches record
-      const { data: batch, error: batchError } = await supabase
-        .from('question_generation_batches')
-        .insert({
-          tenant_id: tenantId,
-          target_month: format(new Date(), 'yyyy-MM-01'),
-          question_count: params.questions.length,
-          status: 'draft',
-          created_by: userData.user.id,
-        } as any)
-        .select()
-        .single();
-
-      if (batchError) throw batchError;
 
       const mapToWellnessType = (type: string): string => {
         if (['scale', 'multiple_choice', 'text'].includes(type)) return type;
@@ -201,21 +177,6 @@ export function useEnhancedAIGeneration() {
         return 'scale';
       };
 
-      // Insert into wellness_questions linked to batch
-      const questionsInsert = params.questions.map(q => ({
-        tenant_id: tenantId,
-        batch_id: (batch as any).id,
-        question_text_en: q.question_text,
-        question_text_ar: q.question_text_ar || null,
-        question_type: mapToWellnessType(q.type),
-        options: q.type === 'multiple_choice' && q.options ? q.options : [],
-        status: 'draft',
-      }));
-
-      const { error } = await supabase.from('wellness_questions').insert(questionsInsert as any);
-      if (error) throw error;
-
-      // Also save to unified questions table for mood pathway integration
       const mapToQuestionType = (type: string): string => {
         if (['likert_5', 'numeric_scale', 'yes_no', 'multiple_choice', 'open_ended'].includes(type)) return type;
         if (type === 'scale') return 'likert_5';
@@ -223,6 +184,70 @@ export function useEnhancedAIGeneration() {
         return 'likert_5';
       };
 
+      let remainingQuestions = [...params.questions];
+
+      // Append to existing batch if targetBatchId provided
+      if (params.targetBatchId) {
+        const { data: existingBatch, error: fetchErr } = await supabase
+          .from('question_generation_batches')
+          .select('id, question_count')
+          .eq('id', params.targetBatchId)
+          .single();
+        if (fetchErr) throw fetchErr;
+
+        const currentCount = existingBatch.question_count || 0;
+        const capacity = MAX_BATCH_SIZE - currentCount;
+        const toAppend = remainingQuestions.splice(0, capacity);
+
+        if (toAppend.length > 0) {
+          const wellnessInsert = toAppend.map(q => ({
+            tenant_id: tenantId,
+            batch_id: params.targetBatchId!,
+            question_text_en: q.question_text,
+            question_text_ar: q.question_text_ar || null,
+            question_type: mapToWellnessType(q.type),
+            options: q.type === 'multiple_choice' && q.options ? q.options : [],
+            status: 'draft',
+          }));
+          const { error } = await supabase.from('wellness_questions').insert(wellnessInsert as any);
+          if (error) throw error;
+
+          await supabase
+            .from('question_generation_batches')
+            .update({ question_count: currentCount + toAppend.length } as any)
+            .eq('id', params.targetBatchId!);
+        }
+      }
+
+      // Create new batch for remaining questions (or all if no targetBatchId)
+      if (remainingQuestions.length > 0) {
+        const { data: batch, error: batchError } = await supabase
+          .from('question_generation_batches')
+          .insert({
+            tenant_id: tenantId,
+            target_month: format(new Date(), 'yyyy-MM-01'),
+            question_count: remainingQuestions.length,
+            status: 'draft',
+            created_by: userData.user.id,
+          } as any)
+          .select()
+          .single();
+        if (batchError) throw batchError;
+
+        const wellnessInsert = remainingQuestions.map(q => ({
+          tenant_id: tenantId,
+          batch_id: (batch as any).id,
+          question_text_en: q.question_text,
+          question_text_ar: q.question_text_ar || null,
+          question_type: mapToWellnessType(q.type),
+          options: q.type === 'multiple_choice' && q.options ? q.options : [],
+          status: 'draft',
+        }));
+        const { error } = await supabase.from('wellness_questions').insert(wellnessInsert as any);
+        if (error) throw error;
+      }
+
+      // Also save to unified questions table for mood pathway integration
       const unifiedInsert = params.questions.map(q => ({
         tenant_id: tenantId,
         text: q.question_text,
@@ -235,7 +260,6 @@ export function useEnhancedAIGeneration() {
         ai_generated: true,
         created_by: userData.user.id,
       }));
-
       await supabase.from('questions').insert(unifiedInsert as any);
 
       return params.questions.length;
