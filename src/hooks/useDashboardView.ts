@@ -12,10 +12,10 @@ export function useDashboardView() {
   const isAdmin = isSuperAdmin || isTenantAdmin;
 
   const [view, setViewState] = useState<DashboardView>(() => {
-    if (typeof window === 'undefined') return 'overview';
+    if (typeof window === 'undefined') return 'personal';
     const stored = localStorage.getItem('dashboard-view') as DashboardView;
     if (stored === 'overview' || stored === 'wellness' || stored === 'personal') return stored;
-    return 'overview';
+    return 'personal';
   });
 
   const setView = useCallback((v: DashboardView) => {
