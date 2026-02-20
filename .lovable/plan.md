@@ -1,147 +1,108 @@
 
-
-# Dual Dashboard: Organization View + Personal View for Admin Users
-
-## Current State Analysis
-
-The system **already has** the correct architecture for most of this:
-- RBAC uses a separate `user_roles` table (not on profiles) -- secure and scalable
-- RLS enforces `tenant_id` isolation on all tables -- no cross-tenant leakage
-- Single user account can hold both `tenant_admin` role AND have an employee record
-
-**What's missing:**
-- Admins are locked to the SaaS admin dashboard and **cannot** see their personal wellness view
-- There is no **Organizational Wellness Dashboard** (aggregated mood scores, participation rates, team health)
-- No **view switcher** in the UI to toggle between views
+# Move Organization Wellness to a Separate Tab Under Dashboard
 
 ## What Will Change
 
-### 1. Dashboard View Switcher (Header Component)
+Instead of the current button-based view switcher, the Dashboard page will use **Tabs** (from the existing Shadcn Tabs component) to separate content into distinct tab panels. For admins, two tabs will appear:
 
-A toggle component in the header (visible only to admins who also have an employee profile) that switches between:
-- **Organization View** -- aggregated, anonymized tenant wellness analytics
-- **My Dashboard** -- personal check-ins, mood history, points, streaks
+- **Overview** -- SaaS stats (super admin only) + recent activity
+- **Organization Wellness** -- The existing aggregated wellness analytics (stat cards, trend chart, mood distribution)
 
-The selected view is persisted in `localStorage` so it survives page reloads without extra API calls.
+Non-admin users continue to see only the personal `EmployeeHome` with no tabs.
 
-### 2. New Organizational Wellness Dashboard
+Admins who also have an employee profile will see a third tab: **My Dashboard** (personal view).
 
-A new `OrgDashboard.tsx` component replacing the current SaaS-stats-only admin view on `/`. It will show:
+---
 
-- **Team Wellness Score** (average mood across tenant, anonymized)
-- **Survey Participation Rate** (% of employees who completed check-ins this week/month)
-- **Employee Count** (active employees in tenant)
-- **Engagement Trend** (7-day/30-day mood trend chart, aggregated)
-- **Risk Distribution** (how many employees in thriving/watch/at-risk zones -- counts only, no names)
-- **Recent Activity** (audit logs, kept from current dashboard)
+## Changes
 
-For **Super Admins**: The existing SaaS platform stats (tenants, subscriptions, revenue) remain visible as an additional section above the wellness metrics.
+### 1. Refactor `Dashboard.tsx` to Use Tabs
 
-**Privacy guarantee**: All queries use `COUNT()`, `AVG()`, and `GROUP BY` aggregations. No individual employee IDs, names, or raw answers are ever fetched.
+Replace the `DashboardViewSwitcher` button toggle with Shadcn `Tabs` / `TabsList` / `TabsTrigger` / `TabsContent`.
 
-### 3. Refactored Dashboard Router
-
-`Dashboard.tsx` becomes a thin router:
+Tab structure for admins:
 
 ```text
-if (isAdmin && viewMode === 'org')  --> OrgDashboard
-if (isAdmin && viewMode === 'personal') --> EmployeeHome (personal)
-if (!isAdmin) --> EmployeeHome (personal, no switcher)
+[Overview]  [Organization Wellness]  [My Dashboard*]
+
+* "My Dashboard" tab only if admin has employee profile (canSwitch = true)
 ```
 
-### 4. Sidebar Updates
+- Default tab: `overview` (persisted in localStorage)
+- Non-admins: no tabs, just `EmployeeHome`
 
-- The "Wellness" section (Daily Check-in link) becomes visible to admins too (they are also employees)
-- The Dashboard label adapts to show the current view context
+### 2. Create `DashboardOverviewTab.tsx`
 
-### 5. New Data Hook: `useOrgWellnessStats`
+Extract the SaaS stats + recent activity into an Overview tab component:
+- For super admins: `SaasStatsSection` + `AuditLogTable` (recent 5 logs)
+- For tenant admins: title/welcome text + `AuditLogTable` only
 
-Fetches aggregated, anonymized wellness data scoped to the admin's `tenant_id`:
+### 3. Keep `OrgDashboard.tsx` As-Is
 
-- Average mood score (last 7 days)
-- Check-in participation rate
-- Active employee count
-- Mood distribution (count per mood level)
-- Burnout zone distribution (count per zone)
+No changes needed -- it already renders the wellness stat cards, trend chart, and distribution chart. It will simply be placed inside the "Organization Wellness" `TabsContent`.
 
-All queries are filtered by `tenant_id` via RLS -- no extra client-side filtering needed.
+### 4. Remove `DashboardViewSwitcher.tsx`
 
----
+No longer needed since Tabs replace the toggle buttons. The `useDashboardView` hook will be simplified to track the active tab key instead of `'org' | 'personal'`.
 
-## Security Guarantees
+### 5. Update `useDashboardView.ts`
 
-- **No individual data exposure**: Org dashboard uses only aggregate SQL (`AVG`, `COUNT`, `GROUP BY`). No employee names or raw answers.
-- **Tenant isolation**: All queries go through existing RLS policies with `tenant_id = get_user_tenant_id(auth.uid())`.
-- **Personal data stays personal**: The personal dashboard queries use `employee_id` matched to `auth.uid()` -- same as today.
-- **No new RLS policies needed**: Existing policies already support these access patterns.
+Change the view type from `'org' | 'personal'` to support three tab values: `'overview' | 'wellness' | 'personal'`. Continue persisting in localStorage.
 
----
+### 6. Update `Header.tsx`
 
-## Files to Create
+Remove the `DashboardViewSwitcher` rendering from the header -- tabs are now inline on the page.
 
-| File | Purpose |
-|------|---------|
-| `src/components/dashboard/DashboardViewSwitcher.tsx` | Toggle component for org/personal view |
-| `src/components/dashboard/OrgDashboard.tsx` | Organizational wellness analytics dashboard |
-| `src/hooks/useOrgWellnessStats.ts` | Aggregated wellness data hook |
-| `src/hooks/useDashboardView.ts` | View state management (localStorage + role check) |
+### 7. Update i18n Keys
 
-## Files to Modify
-
-| File | Change |
-|------|--------|
-| `src/pages/Dashboard.tsx` | Refactor to use view switcher, render OrgDashboard or EmployeeHome |
-| `src/components/layout/Header.tsx` | Add DashboardViewSwitcher on dashboard route |
-| `src/components/layout/AppSidebar.tsx` | Show wellness/check-in links to admins with employee profiles |
-| `src/pages/EmployeeHome.tsx` | Fix RTL violation (`mx-auto` on lines 169, 176, 183) |
-| `src/locales/en.json` | New i18n keys for org dashboard and view switcher |
-| `src/locales/ar.json` | Arabic translations |
+Add new keys:
+- `dashboard.overviewTab` -- "Overview" / "نظرة عامة"
+- `dashboard.wellnessTab` -- "Organization Wellness" / "صحة المنظمة"
+- `dashboard.personalTab` -- "My Dashboard" / "لوحتي"
 
 ---
 
 ## Technical Details
 
-### View Switcher Logic
-
-```text
-useDashboardView():
-  - Reads role from useUserPermissions / useHasRole
-  - Reads employee profile from useCurrentEmployee
-  - If admin + has employee profile: can toggle, defaults to 'org'
-  - If admin + no employee profile: locked to 'org'
-  - If not admin: locked to 'personal' (switcher hidden)
-  - Persists choice in localStorage key 'dashboard-view'
-```
-
-### Org Wellness Stats Query Pattern
-
-```text
-useOrgWellnessStats(tenantId):
-  1. Count active employees WHERE tenant_id = X AND deleted_at IS NULL
-  2. Count mood_entries in last 7 days WHERE tenant_id = X
-  3. AVG(score) from mood_entries in last 7 days
-  4. Count by mood level (GROUP BY level) for distribution
-  5. Participation = (distinct employees with entries / total employees) * 100
-```
-
-All queries leverage existing RLS policies -- tenant admins can already SELECT from `employees` and `mood_entries` within their tenant.
-
-### Dashboard Component Structure
+### Dashboard.tsx Structure
 
 ```text
 Dashboard.tsx
   +-- if loading: Skeleton
-  +-- if admin:
-  |     +-- DashboardViewSwitcher (org | personal)
-  |     +-- if 'org': OrgDashboard
-  |     +-- if 'personal': EmployeeHome
-  +-- if not admin:
-        +-- EmployeeHome
+  +-- if !isAdmin: EmployeeHome (no tabs)
+  +-- if isAdmin:
+        Tabs (defaultValue from localStorage)
+          TabsList
+            TabsTrigger "overview"
+            TabsTrigger "wellness"
+            TabsTrigger "personal" (only if canSwitch)
+          TabsContent "overview"
+            +-- SaasStatsSection (super admin only)
+            +-- Recent Activity card
+          TabsContent "wellness"
+            +-- OrgDashboard
+          TabsContent "personal" (only if canSwitch)
+            +-- EmployeeHome
 ```
 
-### RTL Compliance
+### Files to Create
 
-- View switcher uses `gap-` and logical properties only
-- No `ml-`/`mr-` in new components
-- Fix existing `mx-auto` violations in `EmployeeHome.tsx` (lines 169, 176, 183)
+| File | Purpose |
+|------|---------|
+| `src/components/dashboard/DashboardOverviewTab.tsx` | Overview tab with SaaS stats + activity |
 
+### Files to Modify
+
+| File | Change |
+|------|--------|
+| `src/pages/Dashboard.tsx` | Replace switcher with Tabs layout |
+| `src/hooks/useDashboardView.ts` | Update type to 3 tab values |
+| `src/components/layout/Header.tsx` | Remove DashboardViewSwitcher from header |
+| `src/locales/en.json` | Add tab label keys |
+| `src/locales/ar.json` | Add Arabic tab label keys |
+
+### Files to Delete
+
+| File | Reason |
+|------|--------|
+| `src/components/dashboard/DashboardViewSwitcher.tsx` | Replaced by inline Tabs |
