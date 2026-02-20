@@ -170,6 +170,52 @@ export function useEnhancedAIGeneration() {
       const tenantId = await supabase.rpc('get_user_tenant_id', { _user_id: userData.user.id }).then(r => r.data);
       if (!tenantId) throw new Error('No organization found. Please contact your administrator.');
 
+      // Get user profile for batch name
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('user_id', userData.user.id)
+        .single();
+
+      const fullName = profile?.full_name || 'Unknown';
+
+      // Create a question_generation_batches record
+      const { data: batch, error: batchError } = await supabase
+        .from('question_generation_batches')
+        .insert({
+          tenant_id: tenantId,
+          target_month: format(new Date(), 'yyyy-MM-01'),
+          question_count: params.questions.length,
+          status: 'draft',
+          created_by: userData.user.id,
+        } as any)
+        .select()
+        .single();
+
+      if (batchError) throw batchError;
+
+      const mapToWellnessType = (type: string): string => {
+        if (['scale', 'multiple_choice', 'text'].includes(type)) return type;
+        if (type === 'likert_5' || type === 'numeric_scale') return 'scale';
+        if (type === 'open_ended') return 'text';
+        return 'scale';
+      };
+
+      // Insert into wellness_questions linked to batch
+      const questionsInsert = params.questions.map(q => ({
+        tenant_id: tenantId,
+        batch_id: (batch as any).id,
+        question_text_en: q.question_text,
+        question_text_ar: q.question_text_ar || null,
+        question_type: mapToWellnessType(q.type),
+        options: q.type === 'multiple_choice' && q.options ? q.options : [],
+        status: 'draft',
+      }));
+
+      const { error } = await supabase.from('wellness_questions').insert(questionsInsert as any);
+      if (error) throw error;
+
+      // Also save to unified questions table for mood pathway integration
       const mapToQuestionType = (type: string): string => {
         if (['likert_5', 'numeric_scale', 'yes_no', 'multiple_choice', 'open_ended'].includes(type)) return type;
         if (type === 'scale') return 'likert_5';
@@ -177,7 +223,7 @@ export function useEnhancedAIGeneration() {
         return 'likert_5';
       };
 
-      const questionsInsert = params.questions.map(q => ({
+      const unifiedInsert = params.questions.map(q => ({
         tenant_id: tenantId,
         text: q.question_text,
         text_ar: q.question_text_ar || null,
@@ -190,13 +236,14 @@ export function useEnhancedAIGeneration() {
         created_by: userData.user.id,
       }));
 
-      const { error } = await supabase.from('questions').insert(questionsInsert as any);
-      if (error) throw error;
+      await supabase.from('questions').insert(unifiedInsert as any);
+
       return params.questions.length;
     },
     onSuccess: (count) => {
-      queryClient.invalidateQueries({ queryKey: ['wellness-questions'] });
+      queryClient.invalidateQueries({ queryKey: ['question-batches'] });
       queryClient.invalidateQueries({ queryKey: ['wellness-batches'] });
+      queryClient.invalidateQueries({ queryKey: ['wellness-questions'] });
       toast.success(t('aiGenerator.wellnessSaveSuccess', { count }));
     },
     onError: (error: Error) => {
