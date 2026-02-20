@@ -50,7 +50,7 @@ export default function AIQuestionGenerator() {
     enabled: !!user?.id,
   });
 
-  const { availableBatches, MAX_BATCH_SIZE } = useQuestionBatches(tenantId || null);
+  const { availableBatches, availableWellnessBatches, MAX_BATCH_SIZE } = useQuestionBatches(tenantId || null);
   const { moods: moodDefinitions } = useMoodDefinitions(tenantId || null);
 
   const [accuracyMode, setAccuracyMode] = useState('standard');
@@ -167,8 +167,8 @@ export default function AIQuestionGenerator() {
     }
   };
 
-  const handleWellnessConfirm = () => {
-    saveWellness({ questions }, {
+  const handleWellnessConfirm = (targetBatchId?: string) => {
+    saveWellness({ questions, targetBatchId }, {
       onSuccess: () => {
         setWellnessPreviewOpen(false);
         clearAll();
@@ -416,6 +416,8 @@ export default function AIQuestionGenerator() {
         questions={questions}
         onConfirm={handleWellnessConfirm}
         isSaving={isSavingWellness}
+        availableBatches={availableWellnessBatches}
+        maxBatchSize={MAX_BATCH_SIZE}
       />
     </div>
   );

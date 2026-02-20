@@ -1421,7 +1421,13 @@
     "moodTags": "Mood Tags",
     "addMood": "Mood",
     "noMoodTags": "No mood tags — question will not appear in any pathway",
-    "moodTagsHint": "This question will appear as a follow-up for these moods"
+    "moodTagsHint": "This question will appear as a follow-up for these moods",
+    "wellnessBatchTarget": "Save destination",
+    "wellnessBatchNew": "Create new batch",
+    "wellnessBatchExisting": "Add to existing batch",
+    "wellnessBatchUnnamed": "Wellness Batch",
+    "wellnessBatchRemaining": "{{count}} slot(s) remaining",
+    "wellnessBatchOverflow": "{{count}} will overflow to a new batch"
   },
   "survey": {
     "title": "My Survey",

@@ -1421,7 +1421,13 @@
     "moodTags": "علامات المزاج",
     "addMood": "مزاج",
     "noMoodTags": "لا توجد علامات مزاج — لن يظهر السؤال في أي مسار",
-    "moodTagsHint": "سيظهر هذا السؤال كمتابعة لهذه المستويات المزاجية"
+    "moodTagsHint": "سيظهر هذا السؤال كمتابعة لهذه المستويات المزاجية",
+    "wellnessBatchTarget": "وجهة الحفظ",
+    "wellnessBatchNew": "إنشاء دفعة جديدة",
+    "wellnessBatchExisting": "إضافة إلى دفعة موجودة",
+    "wellnessBatchUnnamed": "دفعة رفاهية",
+    "wellnessBatchRemaining": "{{count}} مكان(ات) متبقية",
+    "wellnessBatchOverflow": "{{count}} ستنتقل إلى دفعة جديدة"
   },
   "survey": {
     "title": "استبياني",

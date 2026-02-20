@@ -400,10 +400,15 @@ export function useQuestionBatches(tenantId: string | null) {
     b => b.purpose === 'survey' && b.question_count < MAX_BATCH_SIZE
   );
 
+  const availableWellnessBatches = (batchesQuery.data || []).filter(
+    b => b.purpose === 'wellness' && b.question_count < MAX_BATCH_SIZE && b.status === 'draft'
+  );
+
   return {
     batches: batchesQuery.data || [],
     isLoading: batchesQuery.isLoading,
     availableBatches,
+    availableWellnessBatches,
     fetchBatchQuestions,
     expandedBatchQuestions,
     publishBatch,
