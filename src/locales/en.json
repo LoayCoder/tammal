@@ -289,7 +289,10 @@
     "subscriptionBreakdown": "Subscriptions by Status",
     "tenantBreakdown": "Tenants by Status",
     "orgView": "Organization",
-    "personalView": "My Dashboard"
+    "personalView": "My Dashboard",
+    "overviewTab": "Overview",
+    "wellnessTab": "Organization Wellness",
+    "personalTab": "My Dashboard"
   },
   "orgDashboard": {
     "title": "Organization Wellness",

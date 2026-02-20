@@ -12,14 +12,10 @@ import {
 } from "@/components/ui/breadcrumb";
 import { useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { DashboardViewSwitcher } from "@/components/dashboard/DashboardViewSwitcher";
-import { useDashboardView } from "@/hooks/useDashboardView";
 
 export function Header() {
   const location = useLocation();
   const { t } = useTranslation();
-  const { view, setView, canSwitch } = useDashboardView();
-  const isDashboard = location.pathname === '/';
 
   const getBreadcrumbs = () => {
     const paths = location.pathname.split('/').filter(Boolean);

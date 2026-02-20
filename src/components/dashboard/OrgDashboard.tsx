@@ -2,9 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useOrgWellnessStats } from '@/hooks/useOrgWellnessStats';
-import { useAuditLog } from '@/hooks/useAuditLog';
-import { AuditLogTable } from '@/components/audit/AuditLogTable';
-import { Users, Heart, TrendingUp, BarChart3, Activity } from 'lucide-react';
+import { Users, Heart, TrendingUp, Activity } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   BarChart, Bar, Cell,
@@ -22,7 +20,6 @@ const MOOD_COLORS: Record<string, string> = {
 export function OrgDashboard() {
   const { t } = useTranslation();
   const { stats, isLoading } = useOrgWellnessStats();
-  const { logs, isLoading: logsLoading } = useAuditLog({ limit: 5 });
 
   const statCards = [
     {
@@ -151,16 +148,6 @@ export function OrgDashboard() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('dashboard.recentActivity')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <AuditLogTable logs={logs} isLoading={logsLoading} compact />
-        </CardContent>
-      </Card>
     </div>
   );
 }
