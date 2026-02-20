@@ -289,7 +289,10 @@
     "subscriptionBreakdown": "الاشتراكات حسب الحالة",
     "tenantBreakdown": "المستأجرون حسب الحالة",
     "orgView": "المنظمة",
-    "personalView": "لوحتي"
+    "personalView": "لوحتي",
+    "overviewTab": "نظرة عامة",
+    "wellnessTab": "صحة المنظمة",
+    "personalTab": "لوحتي"
   },
   "orgDashboard": {
     "title": "رفاهية المنظمة",
