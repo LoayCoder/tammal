@@ -1,108 +1,88 @@
 
-# Move Organization Wellness to a Separate Tab Under Dashboard
+# Save Wellness Questions to Existing Batches
 
-## What Will Change
+## Problem
 
-Instead of the current button-based view switcher, the Dashboard page will use **Tabs** (from the existing Shadcn Tabs component) to separate content into distinct tab panels. For admins, two tabs will appear:
+Currently, the wellness "Save Draft" flow always creates a **new** `question_generation_batches` record. The user wants it to behave like the Survey save flow: show a dialog where they can choose to append to an existing non-full batch (capacity < 64) or create a new one.
 
-- **Overview** -- SaaS stats (super admin only) + recent activity
-- **Organization Wellness** -- The existing aggregated wellness analytics (stat cards, trend chart, mood distribution)
+## Solution
 
-Non-admin users continue to see only the personal `EmployeeHome` with no tabs.
-
-Admins who also have an employee profile will see a third tab: **My Dashboard** (personal view).
+Merge the wellness save preview into the existing `BatchSaveDialog` pattern -- add batch selection (new vs. existing) to the `WellnessSavePreviewDialog`, and update the `saveWellnessMutation` to accept an optional `targetBatchId`.
 
 ---
 
 ## Changes
 
-### 1. Refactor `Dashboard.tsx` to Use Tabs
+### 1. Update `useQuestionBatches.ts` -- expose wellness available batches
 
-Replace the `DashboardViewSwitcher` button toggle with Shadcn `Tabs` / `TabsList` / `TabsTrigger` / `TabsContent`.
+Add a new computed list `availableWellnessBatches` that filters batches where `purpose === 'wellness'` and `question_count < MAX_BATCH_SIZE` and `status === 'draft'`.
 
-Tab structure for admins:
+### 2. Update `WellnessSavePreviewDialog.tsx` -- add batch selection UI
 
-```text
-[Overview]  [Organization Wellness]  [My Dashboard*]
+Add a section below the question preview table with:
+- Radio group: "Create new batch" vs. "Add to existing batch"
+- When "existing" is selected, show list of non-full wellness batches with name, count, and remaining capacity
+- Pass the selected `targetBatchId` to `onConfirm`
 
-* "My Dashboard" tab only if admin has employee profile (canSwitch = true)
-```
+### 3. Update `useEnhancedAIGeneration.ts` -- `saveWellnessMutation` supports `targetBatchId`
 
-- Default tab: `overview` (persisted in localStorage)
-- Non-admins: no tabs, just `EmployeeHome`
+Modify the mutation to accept an optional `targetBatchId`:
+- If provided: append questions to existing batch's `wellness_questions`, update `question_count`
+- If not provided: create new batch (current behavior)
+- Handle overflow: if questions exceed remaining capacity, fill existing batch then create new one
 
-### 2. Create `DashboardOverviewTab.tsx`
+### 4. Update `AIQuestionGenerator.tsx` -- wire up available batches and targetBatchId
 
-Extract the SaaS stats + recent activity into an Overview tab component:
-- For super admins: `SaasStatsSection` + `AuditLogTable` (recent 5 logs)
-- For tenant admins: title/welcome text + `AuditLogTable` only
-
-### 3. Keep `OrgDashboard.tsx` As-Is
-
-No changes needed -- it already renders the wellness stat cards, trend chart, and distribution chart. It will simply be placed inside the "Organization Wellness" `TabsContent`.
-
-### 4. Remove `DashboardViewSwitcher.tsx`
-
-No longer needed since Tabs replace the toggle buttons. The `useDashboardView` hook will be simplified to track the active tab key instead of `'org' | 'personal'`.
-
-### 5. Update `useDashboardView.ts`
-
-Change the view type from `'org' | 'personal'` to support three tab values: `'overview' | 'wellness' | 'personal'`. Continue persisting in localStorage.
-
-### 6. Update `Header.tsx`
-
-Remove the `DashboardViewSwitcher` rendering from the header -- tabs are now inline on the page.
-
-### 7. Update i18n Keys
-
-Add new keys:
-- `dashboard.overviewTab` -- "Overview" / "نظرة عامة"
-- `dashboard.wellnessTab` -- "Organization Wellness" / "صحة المنظمة"
-- `dashboard.personalTab` -- "My Dashboard" / "لوحتي"
+Pass `availableWellnessBatches` and `MAX_BATCH_SIZE` to the `WellnessSavePreviewDialog`, and forward the `targetBatchId` from the dialog confirm handler to `saveWellness`.
 
 ---
 
 ## Technical Details
 
-### Dashboard.tsx Structure
+### `useQuestionBatches.ts` (line ~399)
 
+Add alongside `availableBatches`:
 ```text
-Dashboard.tsx
-  +-- if loading: Skeleton
-  +-- if !isAdmin: EmployeeHome (no tabs)
-  +-- if isAdmin:
-        Tabs (defaultValue from localStorage)
-          TabsList
-            TabsTrigger "overview"
-            TabsTrigger "wellness"
-            TabsTrigger "personal" (only if canSwitch)
-          TabsContent "overview"
-            +-- SaasStatsSection (super admin only)
-            +-- Recent Activity card
-          TabsContent "wellness"
-            +-- OrgDashboard
-          TabsContent "personal" (only if canSwitch)
-            +-- EmployeeHome
+availableWellnessBatches = batches.filter(
+  b => b.purpose === 'wellness' && b.question_count < MAX_BATCH_SIZE && b.status === 'draft'
+)
 ```
 
-### Files to Create
+### `WellnessSavePreviewDialog.tsx`
 
-| File | Purpose |
-|------|---------|
-| `src/components/dashboard/DashboardOverviewTab.tsx` | Overview tab with SaaS stats + activity |
+New props:
+- `availableBatches: QuestionBatch[]`
+- `maxBatchSize: number`
+- `onConfirm: (targetBatchId?: string) => void` (changed from `() => void`)
+
+UI addition between the question table and footer:
+- RadioGroup with "New batch" / "Add to existing"
+- Batch list (when "existing" selected) showing name, question count, remaining capacity
+
+### `saveWellnessMutation` in `useEnhancedAIGeneration.ts`
+
+Updated params type: `{ questions, targetBatchId? }`
+
+Logic:
+```text
+if targetBatchId:
+  1. Fetch current batch question_count
+  2. Calculate capacity = 64 - current_count
+  3. Take min(capacity, questions.length) for this batch
+  4. Insert into wellness_questions with existing batch_id
+  5. Update batch question_count
+  6. If overflow: create new batch with remaining questions
+else:
+  Current behavior (create new batch)
+```
 
 ### Files to Modify
 
 | File | Change |
 |------|--------|
-| `src/pages/Dashboard.tsx` | Replace switcher with Tabs layout |
-| `src/hooks/useDashboardView.ts` | Update type to 3 tab values |
-| `src/components/layout/Header.tsx` | Remove DashboardViewSwitcher from header |
-| `src/locales/en.json` | Add tab label keys |
-| `src/locales/ar.json` | Add Arabic tab label keys |
-
-### Files to Delete
-
-| File | Reason |
-|------|--------|
-| `src/components/dashboard/DashboardViewSwitcher.tsx` | Replaced by inline Tabs |
+| `src/hooks/useQuestionBatches.ts` | Add `availableWellnessBatches` |
+| `src/components/ai-generator/WellnessSavePreviewDialog.tsx` | Add batch selection UI |
+| `src/hooks/useEnhancedAIGeneration.ts` | Support `targetBatchId` in wellness save |
+| `src/pages/admin/AIQuestionGenerator.tsx` | Pass batches to dialog, forward targetBatchId |
+| `src/locales/en.json` | Add i18n keys for wellness batch selection |
+| `src/locales/ar.json` | Arabic translations |
