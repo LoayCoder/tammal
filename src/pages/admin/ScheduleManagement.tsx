@@ -611,7 +611,7 @@ export default function ScheduleManagement() {
 
       {/* Create / Edit Schedule Dialog */}
       <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>
               {editingSchedule ? t('schedules.editSchedule') : t('schedules.createSchedule')}
@@ -620,7 +620,8 @@ export default function ScheduleManagement() {
               {editingSchedule ? t('schedules.editScheduleDescription') : t('schedules.addScheduleDescription')}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <ScrollArea className="flex-1 overflow-y-auto max-h-[calc(90vh-10rem)]">
+          <div className="space-y-4 py-4 pe-4">
             <div className="space-y-2">
               <Label>{t('schedules.name')}</Label>
               <Input
@@ -964,6 +965,7 @@ export default function ScheduleManagement() {
               <Switch checked={enableAI} onCheckedChange={setEnableAI} />
             </div>
           </div>
+          </ScrollArea>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>
               {t('common.cancel')}
