@@ -1803,6 +1803,7 @@
     "noQuestions": "No questions in this batch",
     "selectBatch": "Select a batch",
     "unnamed": "Unnamed Batch",
+    "renameSuccess": "Batch renamed successfully",
     "questionText": "Question (EN)",
     "questionTextAr": "Question (AR)",
     "type": "Type",

@@ -1323,6 +1323,7 @@ export type Database = {
           created_by: string | null
           deleted_at: string | null
           id: string
+          name: string | null
           published_at: string | null
           question_count: number
           status: string
@@ -1334,6 +1335,7 @@ export type Database = {
           created_by?: string | null
           deleted_at?: string | null
           id?: string
+          name?: string | null
           published_at?: string | null
           question_count?: number
           status?: string
@@ -1345,6 +1347,7 @@ export type Database = {
           created_by?: string | null
           deleted_at?: string | null
           id?: string
+          name?: string | null
           published_at?: string | null
           question_count?: number
           status?: string

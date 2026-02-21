@@ -14,7 +14,7 @@ import { useQuestionBatches, type BatchQuestion } from "@/hooks/useQuestionBatch
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Trash2, Package, Calendar, User, Hash, ClipboardList, Heart, Send, Ban, CheckCircle } from "lucide-react";
+import { Search, Trash2, Package, Calendar, User, Hash, ClipboardList, Heart, Send, Ban, CheckCircle, Pencil, Check, X } from "lucide-react";
 
 function ExpandableBatchText({ text, dir }: { text: string; dir?: string }) {
   if (!text || text === '—') return <span className="text-muted-foreground">—</span>;
@@ -52,9 +52,11 @@ export default function QuestionManagement() {
   });
 
   const [viewQuestion, setViewQuestion] = useState<BatchQuestion | null>(null);
+  const [editingBatchId, setEditingBatchId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
 
   const {
-    batches, isLoading, fetchBatchQuestions, expandedBatchQuestions, deleteBatch, publishBatch, deactivateBatch, deactivateQuestions, activateBatch, activateQuestions, MAX_BATCH_SIZE,
+    batches, isLoading, fetchBatchQuestions, expandedBatchQuestions, deleteBatch, publishBatch, deactivateBatch, deactivateQuestions, activateBatch, activateQuestions, renameBatch, MAX_BATCH_SIZE,
   } = useQuestionBatches(tenantId || null);
 
   const handleAccordionChange = (values: string[]) => {
@@ -215,12 +217,60 @@ export default function QuestionManagement() {
                 const selectedCount = selectedQuestions[batch.id]?.size || 0;
 
                 return (
-                  <AccordionItem key={batch.id} value={batch.id} className="border rounded-lg mb-3 px-1">
+                  <AccordionItem key={batch.id} value={batch.id} className="border rounded-lg mb-3 px-1 group">
                     <AccordionTrigger className="hover:no-underline px-3">
                       <div className="flex items-center gap-3 flex-1 text-start flex-wrap">
-                        <span className="font-semibold text-sm">
-                          {batch.name || t('batches.unnamed')}
-                        </span>
+                        {editingBatchId === batch.id ? (
+                          <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                            <Input
+                              value={editingName}
+                              onChange={e => setEditingName(e.target.value)}
+                              className="h-7 text-sm w-48"
+                              autoFocus
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') {
+                                  renameBatch.mutate({ batchId: batch.id, newName: editingName });
+                                  setEditingBatchId(null);
+                                }
+                                if (e.key === 'Escape') setEditingBatchId(null);
+                              }}
+                            />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={e => {
+                                e.stopPropagation();
+                                renameBatch.mutate({ batchId: batch.id, newName: editingName });
+                                setEditingBatchId(null);
+                              }}
+                            >
+                              <Check className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={e => { e.stopPropagation(); setEditingBatchId(null); }}
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <span className="font-semibold text-sm flex items-center gap-1.5">
+                            {batch.name || t('batches.unnamed')}
+                            <button
+                              className="opacity-0 group-hover:opacity-100 hover:text-primary transition-opacity"
+                              onClick={e => {
+                                e.stopPropagation();
+                                setEditingBatchId(batch.id);
+                                setEditingName(batch.name || '');
+                              }}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                          </span>
+                        )}
                         <div className="flex items-center gap-2 flex-wrap">
                           <Badge variant="secondary" className="text-xs">
                             {batch.purpose === 'wellness' ? (

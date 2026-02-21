@@ -170,6 +170,14 @@ export function useEnhancedAIGeneration() {
       const tenantId = await supabase.rpc('get_user_tenant_id', { _user_id: userData.user.id }).then(r => r.data);
       if (!tenantId) throw new Error('No organization found. Please contact your administrator.');
 
+      // Get user profile for batch name
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('user_id', userData.user.id)
+        .single();
+      const fullName = profile?.full_name || 'Unknown';
+
       const mapToWellnessType = (type: string): string => {
         if (['scale', 'multiple_choice', 'text'].includes(type)) return type;
         if (type === 'likert_5' || type === 'numeric_scale') return 'scale';
@@ -221,6 +229,7 @@ export function useEnhancedAIGeneration() {
 
       // Create new batch for remaining questions (or all if no targetBatchId)
       if (remainingQuestions.length > 0) {
+        const batchName = `${format(new Date(), 'dd MMMM yyyy')} - ${fullName}`;
         const { data: batch, error: batchError } = await supabase
           .from('question_generation_batches')
           .insert({
@@ -229,6 +238,7 @@ export function useEnhancedAIGeneration() {
             question_count: remainingQuestions.length,
             status: 'draft',
             created_by: userData.user.id,
+            name: batchName,
           } as any)
           .select()
           .single();

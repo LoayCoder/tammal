@@ -1803,6 +1803,7 @@
     "noQuestions": "لا توجد أسئلة في هذه الدفعة",
     "selectBatch": "اختر دفعة",
     "unnamed": "دفعة بدون اسم",
+    "renameSuccess": "تم تغيير اسم الدفعة بنجاح",
     "questionText": "السؤال (إنجليزي)",
     "questionTextAr": "السؤال (عربي)",
     "type": "النوع",
