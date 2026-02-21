@@ -141,7 +141,7 @@ export function useEnhancedAIGeneration() {
   });
 
   const validateMutation = useMutation({
-    mutationFn: async (params: { questions: EnhancedGeneratedQuestion[]; accuracyMode: string; model?: string; enableCriticPass: boolean; minWordLength: number; selectedFrameworkIds?: string[]; knowledgeDocumentIds?: string[]; hasDocuments?: boolean }) => {
+    mutationFn: async (params: { questions: EnhancedGeneratedQuestion[]; accuracyMode: string; model?: string; enableCriticPass: boolean; minWordLength: number; selectedFrameworkIds?: string[]; knowledgeDocumentIds?: string[]; hasDocuments?: boolean; periodId?: string }) => {
       const { data, error } = await supabase.functions.invoke('validate-questions', {
         body: params,
       });
