@@ -8,12 +8,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useDailyWellnessQuestions } from '@/hooks/useDailyWellnessQuestions';
 import { useGamification } from '@/hooks/useGamification';
 import { useCheckinScheduledQuestions } from '@/hooks/useCheckinScheduledQuestions';
 import { useEmployeeResponses } from '@/hooks/useEmployeeResponses';
 import {
-  Flame, Star, Loader2, Send, RefreshCw, MessageCircle,
+  Flame, Star, Loader2, Send, RefreshCw,
   ClipboardList, CheckCircle2, SkipForward,
 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
@@ -38,11 +37,9 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isRTL = i18n.dir() === 'rtl';
-  const { question, isLoading: questionLoading } = useDailyWellnessQuestions(tenantId);
   const { streak, totalPoints, calculatePoints } = useGamification(employeeId);
 
-  const dailyWellnessQuestionId = question?.question_id || undefined;
-  const { questions: scheduledQuestions, isLoading: scheduledLoading } = useCheckinScheduledQuestions(employeeId, dailyWellnessQuestionId);
+  const { questions: scheduledQuestions, isLoading: scheduledLoading } = useCheckinScheduledQuestions(employeeId, undefined);
   const { submitResponse } = useEmployeeResponses(employeeId);
 
   const today = new Date().toISOString().split('T')[0];
@@ -62,7 +59,6 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
 
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [pathwayAnswers, setPathwayAnswers] = useState<PathwayAnswer[]>([]);
-  const [wellnessAnswer, setWellnessAnswer] = useState<unknown>(null);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -120,8 +116,6 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
         const { data } = await supabase.functions.invoke('generate-daily-tip', {
           body: {
             moodLevel: selectedMood,
-            questionText: question?.question_text || '',
-            answerValue: wellnessAnswer,
             pathwayAnswers,
             language: document.documentElement.lang || 'en',
           },
@@ -131,7 +125,6 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
 
       const points = calculatePoints(streak);
       const answerValue = {
-        wellness: wellnessAnswer,
         pathway: pathwayAnswers.map(a => ({ theme: a.theme, answer: a.selectedOption, freeText: a.freeText })),
       };
 
@@ -139,7 +132,7 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
         .from('mood_entries' as any)
         .insert({
           tenant_id: tenantId, employee_id: employeeId, mood_level: selectedMood, mood_score: moodObj.score,
-          question_id: question?.question_id || null, answer_value: answerValue, answer_text: comment || null,
+          answer_value: answerValue, answer_text: comment || null,
           ai_tip: tip || null, support_actions: [], points_earned: points, streak_count: streak + 1,
           entry_date: today,
         });
@@ -171,7 +164,6 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
 
       // Reset
       setSelectedMood(null);
-      setWellnessAnswer(null);
       setSqAnswers([]);
       setSqIndex(0);
       setSqAnswer(null);
@@ -229,26 +221,6 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
               language={i18n.language}
               onAnswersChange={setPathwayAnswers}
             />
-          )}
-
-          {/* 3. Wellness Question — show after mood is selected */}
-          {selectedMood && (question || questionLoading) && (
-            <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10">
-                  <MessageCircle className="h-3.5 w-3.5 text-primary" />
-                </div>
-                <h4 className="text-sm font-semibold">{t('wellness.dailyQuestion')}</h4>
-              </div>
-              {questionLoading ? (
-                <Skeleton className="h-20 w-full rounded-xl" />
-              ) : question ? (
-                <div className="rounded-xl border bg-card p-3 sm:p-4 space-y-3">
-                  <p className="font-medium text-sm text-center" dir="auto">{question.question_text}</p>
-                  {renderWellnessInput(question, wellnessAnswer, setWellnessAnswer, t, isRTL)}
-                </div>
-              ) : null}
-            </div>
           )}
 
           {/* 3. Scheduled Questions — inline one at a time */}
@@ -350,58 +322,6 @@ function resolveOpt(opt: unknown, isRTL: boolean): string {
   return String(opt);
 }
 
-function renderWellnessInput(
-  question: { question_type: string; options: unknown[]; question_text: string },
-  answerValue: unknown,
-  onAnswerChange: (v: unknown) => void,
-  t: (key: string) => string,
-  isRTL = false,
-) {
-  if (question.question_type === 'scale' || question.question_type === 'numeric_scale') {
-    return (
-      <div className="space-y-2 px-1">
-        <Slider min={1} max={10} step={1} value={[Number(answerValue) || 5]} onValueChange={v => onAnswerChange(v[0])} />
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>1</span>
-          <span className="text-base font-bold text-primary">{String(answerValue ?? 5)}</span>
-          <span>10</span>
-        </div>
-      </div>
-    );
-  }
-  if (question.question_type === 'multiple_choice' && question.options?.length > 0) {
-    return (
-      <RadioGroup onValueChange={v => onAnswerChange(v)} className="space-y-1.5">
-        {question.options.map((opt, i) => {
-          const label = resolveOpt(opt, isRTL);
-          const isSelected = answerValue === label;
-          return (
-            <div key={i} className={`flex items-center gap-2.5 p-2.5 rounded-lg border transition-all duration-200 text-sm ${
-              isSelected ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
-            }`}>
-              <RadioGroupItem value={label} id={`wopt-${i}`} />
-              <Label htmlFor={`wopt-${i}`} className="cursor-pointer flex-1 text-sm">{label}</Label>
-              {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
-            </div>
-          );
-        })}
-      </RadioGroup>
-    );
-  }
-  if (question.question_type === 'text') {
-    return (
-      <Textarea
-        value={typeof answerValue === 'string' ? answerValue : ''}
-        onChange={e => onAnswerChange(e.target.value)}
-        placeholder={t('wellness.typeAnswer')}
-        className="min-h-[80px] text-sm"
-        dir="auto"
-      />
-    );
-  }
-  return null;
-}
-
 function renderScheduledInput(
   question: { type: string; options: unknown },
   answer: unknown,
@@ -413,43 +333,53 @@ function renderScheduledInput(
   switch (question.type) {
     case 'likert_5':
       return (
-        <RadioGroup value={String(answer || '')} onValueChange={v => selectAndAdvance(Number(v))} className="flex justify-between gap-1.5">
-          {[1, 2, 3, 4, 5].map(v => (
-            <div key={v} className="flex flex-col items-center gap-1.5">
-              <RadioGroupItem value={String(v)} id={`sq-l-${v}`} className="h-8 w-8" />
-              <Label htmlFor={`sq-l-${v}`} className="text-[10px] text-center text-muted-foreground">
-                {v === 1 ? t('survey.stronglyDisagree') : v === 5 ? t('survey.stronglyAgree') : v}
-              </Label>
-            </div>
-          ))}
+        <RadioGroup onValueChange={v => selectAndAdvance(v)} className="space-y-1.5">
+          {[1, 2, 3, 4, 5].map(n => {
+            const label = t(`survey.likert.${n}`);
+            const isSelected = answer === String(n);
+            return (
+              <div key={n} className={`flex items-center gap-2.5 p-2.5 rounded-lg border transition-all duration-200 text-sm ${isSelected ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}>
+                <RadioGroupItem value={String(n)} id={`sq-likert-${n}`} />
+                <Label htmlFor={`sq-likert-${n}`} className="cursor-pointer flex-1 text-sm">{label}</Label>
+                {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
+              </div>
+            );
+          })}
         </RadioGroup>
       );
     case 'numeric_scale':
     case 'scale':
       return (
         <div className="space-y-2 px-1">
-          <Slider value={[Number(answer) || 5]} onValueChange={([v]) => setAnswer(v)} onValueCommit={([v]) => { setAnswer(v); setTimeout(() => selectAndAdvance(v), 400); }} min={1} max={10} step={1} />
+          <Slider min={1} max={10} step={1} value={[Number(answer) || 5]} onValueChange={v => setAnswer(v[0])} onValueCommit={v => selectAndAdvance(v[0])} />
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>1</span><span className="text-base font-bold text-primary">{String(answer ?? 5)}</span><span>10</span>
+            <span>1</span>
+            <span className="text-base font-bold text-primary">{String(answer ?? 5)}</span>
+            <span>10</span>
           </div>
         </div>
       );
     case 'yes_no':
       return (
-        <div className="flex gap-3">
-          <Button variant={answer === true ? 'default' : 'outline'} className="flex-1 h-10 rounded-xl" onClick={() => selectAndAdvance(true)}>{t('common.yes')}</Button>
-          <Button variant={answer === false ? 'default' : 'outline'} className="flex-1 h-10 rounded-xl" onClick={() => selectAndAdvance(false)}>{t('common.no')}</Button>
+        <div className="flex gap-2">
+          <Button variant={answer === true ? 'default' : 'outline'} className="flex-1 h-10 text-sm rounded-xl" onClick={() => selectAndAdvance(true)}>
+            {t('common.yes')}
+          </Button>
+          <Button variant={answer === false ? 'default' : 'outline'} className="flex-1 h-10 text-sm rounded-xl" onClick={() => selectAndAdvance(false)}>
+            {t('common.no')}
+          </Button>
         </div>
       );
-    case 'multiple_choice':
-      if (!question.options || !Array.isArray(question.options)) return null;
+    case 'multiple_choice': {
+      const opts = Array.isArray(question.options) ? question.options : [];
+      if (opts.length === 0) return null;
       return (
         <RadioGroup onValueChange={v => selectAndAdvance(v)} className="space-y-1.5">
-          {(question.options as unknown[]).map((opt, i) => {
+          {opts.map((opt, i) => {
             const label = resolveOpt(opt, isRTL);
             const isSelected = answer === label;
             return (
-              <div key={i} className={`flex items-center gap-2.5 p-2.5 rounded-lg border transition-all text-sm ${isSelected ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}>
+              <div key={i} className={`flex items-center gap-2.5 p-2.5 rounded-lg border transition-all duration-200 text-sm ${isSelected ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}>
                 <RadioGroupItem value={label} id={`sq-mc-${i}`} />
                 <Label htmlFor={`sq-mc-${i}`} className="cursor-pointer flex-1 text-sm">{label}</Label>
                 {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
@@ -458,16 +388,19 @@ function renderScheduledInput(
           })}
         </RadioGroup>
       );
+    }
     case 'open_ended':
-    default:
+    case 'text':
       return (
         <Textarea
-          value={String(answer || '')}
+          value={typeof answer === 'string' ? answer : ''}
           onChange={e => setAnswer(e.target.value)}
-          placeholder={t('survey.typeYourAnswer')}
+          placeholder={t('survey.typeAnswer')}
           className="min-h-[80px] text-sm"
           dir="auto"
         />
       );
+    default:
+      return null;
   }
 }
