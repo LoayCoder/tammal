@@ -125,7 +125,10 @@ export function MoodPathwayQuestions({
       {/* Questions */}
       {questions.map((q: Question) => {
         const questionText = isRTL && q.text_ar ? q.text_ar : q.text;
-        const options = (q.options || []) as string[];
+        const rawOptions = (q.options || []) as Array<string | { text: string; text_ar?: string }>;
+        const options = rawOptions.map(opt =>
+          typeof opt === 'string' ? opt : (isRTL && opt.text_ar ? opt.text_ar : opt.text)
+        );
         const isAnswered = !!answers[q.id];
         const categoryName = q.category
           ? (isRTL && q.category.name_ar ? q.category.name_ar : q.category.name)
