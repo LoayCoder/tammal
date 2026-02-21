@@ -52,6 +52,7 @@ export interface RiskTrendPoint {
 export interface OrgUnitComparison {
   id: string;
   name: string;
+  nameAr?: string | null;
   avgScore: number;
   participation: number;
   riskPct: number;
@@ -69,6 +70,7 @@ export interface TopEngager {
   employeeId: string;
   firstName: string;
   department: string;
+  departmentAr?: string | null;
   streak: number;
   responseCount: number;
   totalPoints: number;
@@ -125,13 +127,32 @@ async function resolveFilteredEmployeeIds(orgFilter: OrgFilter): Promise<string[
   return (data ?? []).map(e => e.id);
 }
 
-// Helper to batch .in() queries for large arrays (Supabase limit)
-function batchIn<T>(ids: string[], batchSize = 500): string[][] {
+// Helper to batch .in() queries for large arrays (Supabase limit ~1000)
+function batchIn(ids: string[], batchSize = 500): string[][] {
   const batches: string[][] = [];
   for (let i = 0; i < ids.length; i += batchSize) {
     batches.push(ids.slice(i, i + batchSize));
   }
   return batches;
+}
+
+// Apply batched .in() filter or plain .in() depending on array size
+async function batchedQuery<T>(
+  baseBuilder: () => any,
+  column: string,
+  ids: string[],
+): Promise<T[]> {
+  if (ids.length <= 500) {
+    const { data } = await baseBuilder().in(column, ids);
+    return (data ?? []) as T[];
+  }
+  const batches = batchIn(ids);
+  const results: T[] = [];
+  for (const batch of batches) {
+    const { data } = await baseBuilder().in(column, batch);
+    results.push(...((data ?? []) as T[]));
+  }
+  return results;
 }
 
 export function useOrgAnalytics(
@@ -184,14 +205,24 @@ export function useOrgAnalytics(
       const { count: activeEmployees } = await empQuery;
       const totalActive = activeEmployees ?? 0;
 
-      // 2. Mood entries
-      let moodQuery = supabase
-        .from('mood_entries')
-        .select('mood_score, mood_level, entry_date, employee_id')
-        .gte('entry_date', startDate)
-        .lte('entry_date', endDate);
-      if (filteredIds) moodQuery = moodQuery.in('employee_id', filteredIds);
-      const { data: moodEntries } = await moodQuery;
+      // 2. Mood entries (with explicit limit to avoid 1000 default)
+      let moodEntries: { mood_score: number; mood_level: string; entry_date: string; employee_id: string }[] = [];
+      if (filteredIds && filteredIds.length > 500) {
+        moodEntries = await batchedQuery<{ mood_score: number; mood_level: string; entry_date: string; employee_id: string }>(
+          () => supabase.from('mood_entries').select('mood_score, mood_level, entry_date, employee_id').gte('entry_date', startDate).lte('entry_date', endDate).limit(10000),
+          'employee_id', filteredIds,
+        );
+      } else {
+        let moodQuery = supabase
+          .from('mood_entries')
+          .select('mood_score, mood_level, entry_date, employee_id')
+          .gte('entry_date', startDate)
+          .lte('entry_date', endDate)
+          .limit(10000);
+        if (filteredIds) moodQuery = moodQuery.in('employee_id', filteredIds);
+        const { data } = await moodQuery;
+        moodEntries = data ?? [];
+      }
       const entries = moodEntries ?? [];
 
       // 3. Average mood
@@ -248,7 +279,8 @@ export function useOrgAnalytics(
         .from('employee_responses')
         .select('responded_at')
         .gte('responded_at', `${startDate}T00:00:00`)
-        .lte('responded_at', `${endDate}T23:59:59`);
+        .lte('responded_at', `${endDate}T23:59:59`)
+        .limit(10000);
       if (filteredIds) respQuery = respQuery.in('employee_id', filteredIds);
       const { data: responses } = await respQuery;
 
@@ -276,14 +308,16 @@ export function useOrgAnalytics(
       let schedQuery = supabase
         .from('scheduled_questions')
         .select('id', { count: 'exact', head: true })
-        .gte('scheduled_delivery', `${startDate}T00:00:00`);
+        .gte('scheduled_delivery', `${startDate}T00:00:00`)
+        .lte('scheduled_delivery', `${endDate}T23:59:59`);
       if (filteredIds) schedQuery = schedQuery.in('employee_id', filteredIds);
       const { count: totalScheduled } = await schedQuery;
 
       let answeredQuery = supabase
         .from('employee_responses')
         .select('id', { count: 'exact', head: true })
-        .gte('responded_at', `${startDate}T00:00:00`);
+        .gte('responded_at', `${startDate}T00:00:00`)
+        .lte('responded_at', `${endDate}T23:59:59`);
       if (filteredIds) answeredQuery = answeredQuery.in('employee_id', filteredIds);
       const { count: answeredCount } = await answeredQuery;
 
@@ -296,7 +330,8 @@ export function useOrgAnalytics(
         .from('employee_responses')
         .select('answer_value, question_id')
         .gte('responded_at', `${startDate}T00:00:00`)
-        .lte('responded_at', `${endDate}T23:59:59`);
+        .lte('responded_at', `${endDate}T23:59:59`)
+        .limit(10000);
       if (filteredIds) catRespQuery = catRespQuery.in('employee_id', filteredIds);
       const { data: catResponses } = await catRespQuery;
 
@@ -332,8 +367,17 @@ export function useOrgAnalytics(
         (catResponses ?? []).forEach(r => {
           const q = questionMap.get(r.question_id);
           if (!q) return;
-          const numVal = typeof r.answer_value === 'number' ? r.answer_value
-            : typeof r.answer_value === 'string' ? parseFloat(r.answer_value) : null;
+          // Handle JSONB: can be number, string, or object like {value: 4}
+          let numVal: number | null = null;
+          const av = r.answer_value;
+          if (typeof av === 'number') {
+            numVal = av;
+          } else if (typeof av === 'string') {
+            numVal = parseFloat(av);
+          } else if (typeof av === 'object' && av !== null && !Array.isArray(av)) {
+            const objVal = (av as any).value ?? (av as any).score ?? null;
+            numVal = typeof objVal === 'number' ? objVal : typeof objVal === 'string' ? parseFloat(objVal) : null;
+          }
 
           if (q.category_id && numVal !== null && !isNaN(numVal)) {
             if (!catAgg[q.category_id]) catAgg[q.category_id] = { total: 0, count: 0 };
@@ -431,18 +475,18 @@ async function computeOrgComparison(
   const sectionIds = [...new Set(emps.map(e => e.section_id).filter(Boolean))] as string[];
 
   const [{ data: branches }, { data: departments }, { data: sections }] = await Promise.all([
-    branchIds.length > 0 ? supabase.from('branches').select('id, name').in('id', branchIds) : Promise.resolve({ data: [] }),
-    deptIds.length > 0 ? supabase.from('departments').select('id, name, division_id').in('id', deptIds) : Promise.resolve({ data: [] }),
-    sectionIds.length > 0 ? supabase.from('sites').select('id, name').in('id', sectionIds) : Promise.resolve({ data: [] }),
+    branchIds.length > 0 ? supabase.from('branches').select('id, name, name_ar').in('id', branchIds) : Promise.resolve({ data: [] }),
+    deptIds.length > 0 ? supabase.from('departments').select('id, name, name_ar, division_id').in('id', deptIds) : Promise.resolve({ data: [] }),
+    sectionIds.length > 0 ? supabase.from('sites').select('id, name, name_ar').in('id', sectionIds) : Promise.resolve({ data: [] }),
   ]);
 
   const divisionIds = [...new Set((departments ?? []).map(d => (d as any).division_id).filter(Boolean))] as string[];
   const { data: divisions } = divisionIds.length > 0
-    ? await supabase.from('divisions').select('id, name').in('id', divisionIds)
+    ? await supabase.from('divisions').select('id, name, name_ar').in('id', divisionIds)
     : { data: [] };
 
   function buildUnitStats(
-    unitList: { id: string; name: string }[],
+    unitList: { id: string; name: string; name_ar?: string | null }[],
     getEmployeeIds: (unitId: string) => string[],
   ): OrgUnitComparison[] {
     return unitList.map(unit => {
@@ -455,7 +499,7 @@ async function computeOrgComparison(
       const participation = unitEmpIds.length > 0 ? Math.round((uniqueParticipants / unitEmpIds.length) * 100) : 0;
       const atRisk = unitEntries.filter(e => e.mood_score <= 2).length;
       const riskPct = unitEntries.length > 0 ? Math.round((atRisk / unitEntries.length) * 100) : 0;
-      return { id: unit.id, name: unit.name, avgScore, participation, riskPct, employeeCount: unitEmpIds.length };
+      return { id: unit.id, name: unit.name, nameAr: unit.name_ar ?? null, avgScore, participation, riskPct, employeeCount: unitEmpIds.length };
     }).filter(u => u.employeeCount > 0);
   }
 
@@ -516,7 +560,8 @@ async function computeTopEngagers(
     .from('employee_responses')
     .select('employee_id')
     .gte('responded_at', `${startDate}T00:00:00`)
-    .lte('responded_at', `${endDate}T23:59:59`);
+    .lte('responded_at', `${endDate}T23:59:59`)
+    .limit(10000);
   if (filteredIds) respQuery = respQuery.in('employee_id', filteredIds);
   const { data: responses } = await respQuery;
 
@@ -543,16 +588,18 @@ async function computeTopEngagers(
 
   const deptIds = [...new Set((empData ?? []).map(e => e.department_id).filter(Boolean))] as string[];
   const { data: depts } = deptIds.length > 0
-    ? await supabase.from('departments').select('id, name').in('id', deptIds)
+    ? await supabase.from('departments').select('id, name, name_ar').in('id', deptIds)
     : { data: [] };
-  const deptMap = new Map((depts ?? []).map(d => [d.id, d.name]));
+  const deptMap = new Map((depts ?? []).map(d => [d.id, { name: d.name, nameAr: (d as any).name_ar }]));
   const empLookup = new Map((empData ?? []).map(e => [e.id, e]));
 
   return top10.map(t => {
     const emp = empLookup.get(t.employeeId);
     const firstName = emp?.full_name?.split(' ')[0] ?? '—';
-    const department = emp?.department_id ? (deptMap.get(emp.department_id) ?? '—') : '—';
-    return { employeeId: t.employeeId, firstName, department, streak: t.streak, responseCount: t.responseCount, totalPoints: t.totalPoints };
+    const deptInfo = emp?.department_id ? deptMap.get(emp.department_id) : null;
+    const department = deptInfo?.name ?? '—';
+    const departmentAr = deptInfo?.nameAr ?? null;
+    return { employeeId: t.employeeId, firstName, department, departmentAr, streak: t.streak, responseCount: t.responseCount, totalPoints: t.totalPoints };
   });
 }
 

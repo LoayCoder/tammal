@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { OrgComparison, OrgUnitComparison } from '@/hooks/useOrgAnalytics';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, ReferenceLine, Cell, Legend,
+  CartesianGrid, Tooltip, Legend,
 } from 'recharts';
 
 interface Props {
@@ -17,7 +17,8 @@ interface Props {
 type TabKey = 'branches' | 'divisions' | 'departments' | 'sections';
 
 export function OrgComparisonChart({ data, isLoading }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const [tab, setTab] = useState<TabKey>('branches');
 
   const tabConfig: { key: TabKey; label: string }[] = [
@@ -29,13 +30,14 @@ export function OrgComparisonChart({ data, isLoading }: Props) {
 
   const units = data[tab] ?? [];
 
-  const orgAvgScore = units.length > 0 ? Math.round(units.reduce((s, u) => s + u.avgScore, 0) / units.length * 10) / 10 : 0;
-  const orgAvgParticipation = units.length > 0 ? Math.round(units.reduce((s, u) => s + u.participation, 0) / units.length) : 0;
-  const orgAvgRisk = units.length > 0 ? Math.round(units.reduce((s, u) => s + u.riskPct, 0) / units.length) : 0;
+  const getDisplayName = (u: OrgUnitComparison) => {
+    const name = isAr ? (u.nameAr || u.name) : u.name;
+    return name.length > 12 ? name.slice(0, 12) + '…' : name;
+  };
 
   const chartData = units.map(u => ({
-    name: u.name.length > 12 ? u.name.slice(0, 12) + '…' : u.name,
-    fullName: u.name,
+    name: getDisplayName(u),
+    fullName: isAr ? (u.nameAr || u.name) : u.name,
     [t('orgDashboard.wellnessScore')]: u.avgScore,
     [t('orgDashboard.participation')]: u.participation,
     [t('orgDashboard.riskPct')]: u.riskPct,
@@ -61,15 +63,15 @@ export function OrgComparisonChart({ data, isLoading }: Props) {
               <BarChart data={chartData} barGap={2} barCategoryGap="20%">
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={30} />
+                <YAxis yAxisId="score" domain={[0, 5]} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={24} />
+                <YAxis yAxisId="pct" orientation="right" domain={[0, 100]} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={30} unit="%" />
                 <Tooltip
                   contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: 12 }}
                 />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <ReferenceLine y={orgAvgScore} stroke="hsl(var(--primary))" strokeDasharray="4 4" strokeWidth={1.5} />
-                <Bar dataKey={t('orgDashboard.wellnessScore')} fill="hsl(var(--chart-2))" radius={[3, 3, 0, 0]} />
-                <Bar dataKey={t('orgDashboard.participation')} fill="hsl(var(--chart-4))" radius={[3, 3, 0, 0]} />
-                <Bar dataKey={t('orgDashboard.riskPct')} fill="hsl(var(--destructive))" radius={[3, 3, 0, 0]} />
+                <Bar yAxisId="score" dataKey={t('orgDashboard.wellnessScore')} fill="hsl(var(--chart-2))" radius={[3, 3, 0, 0]} />
+                <Bar yAxisId="pct" dataKey={t('orgDashboard.participation')} fill="hsl(var(--chart-4))" radius={[3, 3, 0, 0]} />
+                <Bar yAxisId="pct" dataKey={t('orgDashboard.riskPct')} fill="hsl(var(--destructive))" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
