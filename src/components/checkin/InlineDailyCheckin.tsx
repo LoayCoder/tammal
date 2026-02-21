@@ -20,7 +20,8 @@ import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { MoodStep, MOODS } from '@/components/checkin/MoodStep';
+import { MoodStep } from '@/components/checkin/MoodStep';
+import { useMoodDefinitions } from '@/hooks/useMoodDefinitions';
 import { AchievementOverlay } from '@/components/checkin/AchievementOverlay';
 import { MoodPathwayQuestions, type PathwayAnswer } from '@/components/checkin/MoodPathwayQuestions';
 import type { ScheduledAnswer } from '@/components/checkin/ScheduledQuestionsStep';
@@ -74,7 +75,9 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
   const [sqAnswers, setSqAnswers] = useState<ScheduledAnswer[]>([]);
   const [sqStartTime, setSqStartTime] = useState(Date.now());
 
-  const moodObj = MOODS.find(m => m.level === selectedMood);
+  const { moods: moodDefinitions } = useMoodDefinitions(tenantId);
+  const moodDef = moodDefinitions?.find(m => m.key === selectedMood);
+  const moodObj = moodDef ? { level: moodDef.key, score: moodDef.score } : null;
 
   const handleDismissAchievement = useCallback(() => {
     setShowAchievement(false);
@@ -274,7 +277,7 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
                   <p className="font-medium text-sm text-center" dir="auto">
                     {isRTL && currentSQ.question.text_ar ? currentSQ.question.text_ar : currentSQ.question.text}
                   </p>
-                  {renderScheduledInput(currentSQ.question, sqAnswer, setSqAnswer, sqSelectAndAdvance, t)}
+                  {renderScheduledInput(currentSQ.question, sqAnswer, setSqAnswer, sqSelectAndAdvance, t, isRTL)}
                   <div className="flex items-center justify-between pt-1">
                     <Button variant="ghost" size="sm" onClick={() => saveSqAndAdvance(true)} className="text-xs text-muted-foreground gap-1 h-7 px-2">
                       <SkipForward className="h-3 w-3" /> {t('survey.skip')}
@@ -405,6 +408,7 @@ function renderScheduledInput(
   setAnswer: (v: unknown) => void,
   selectAndAdvance: (v: unknown) => void,
   t: (key: string) => string,
+  isRTL = false,
 ) {
   switch (question.type) {
     case 'likert_5':
@@ -442,7 +446,7 @@ function renderScheduledInput(
       return (
         <RadioGroup onValueChange={v => selectAndAdvance(v)} className="space-y-1.5">
           {(question.options as unknown[]).map((opt, i) => {
-            const label = resolveOpt(opt, false);
+            const label = resolveOpt(opt, isRTL);
             const isSelected = answer === label;
             return (
               <div key={i} className={`flex items-center gap-2.5 p-2.5 rounded-lg border transition-all text-sm ${isSelected ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}>
