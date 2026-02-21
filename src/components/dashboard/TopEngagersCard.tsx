@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
 import { Trophy, Medal, Award, Flame, MessageSquare } from 'lucide-react';
 import type { TopEngager } from '@/hooks/useOrgAnalytics';
 
@@ -18,7 +17,8 @@ function RankIcon({ rank }: { rank: number }) {
 }
 
 export function TopEngagersCard({ data, isLoading }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
 
   return (
     <Card>
@@ -35,7 +35,9 @@ export function TopEngagersCard({ data, isLoading }: Props) {
                 <RankIcon rank={i + 1} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{eng.firstName}</p>
-                  <p className="text-xs text-muted-foreground truncate">{eng.department}</p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {isAr ? (eng.departmentAr || eng.department) : eng.department}
+                  </p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <div className="flex items-center gap-1 text-xs" title={t('orgDashboard.streak')}>

@@ -69,7 +69,7 @@ export function TimeRangeSelector({ value, onChange, customStart, customEnd, onC
               />
             </PopoverContent>
           </Popover>
-          <span className="text-muted-foreground text-xs">→</span>
+          <span className="text-muted-foreground text-xs">—</span>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="gap-1.5 text-xs">

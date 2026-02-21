@@ -75,7 +75,8 @@ export function OrgFilterBar({ value, onChange }: OrgFilterBarProps) {
           value={value.divisionId || '__all__'}
           onValueChange={(v) => {
             const divisionId = v === '__all__' ? undefined : v;
-            onChange({ ...value, divisionId, departmentId: undefined, sectionId: undefined });
+            // Clear branchId too to prevent contradictory filters
+            onChange({ divisionId, branchId: undefined, departmentId: undefined, sectionId: undefined });
           }}
         >
           <SelectTrigger className="w-[160px] h-8 text-xs">
