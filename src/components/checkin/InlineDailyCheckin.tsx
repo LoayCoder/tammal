@@ -242,7 +242,7 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
               ) : question ? (
                 <div className="rounded-xl border bg-card p-3 sm:p-4 space-y-3">
                   <p className="font-medium text-sm text-center" dir="auto">{question.question_text}</p>
-                  {renderWellnessInput(question, wellnessAnswer, setWellnessAnswer, t)}
+                  {renderWellnessInput(question, wellnessAnswer, setWellnessAnswer, t, isRTL)}
                 </div>
               ) : null}
             </div>
@@ -338,11 +338,21 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
 
 /* ── Render helpers ── */
 
+function resolveOpt(opt: unknown, isRTL: boolean): string {
+  if (typeof opt === 'string') return opt;
+  if (opt && typeof opt === 'object' && 'text' in opt) {
+    const o = opt as { text: string; text_ar?: string };
+    return isRTL && o.text_ar ? o.text_ar : o.text;
+  }
+  return String(opt);
+}
+
 function renderWellnessInput(
-  question: { question_type: string; options: string[]; question_text: string },
+  question: { question_type: string; options: unknown[]; question_text: string },
   answerValue: unknown,
   onAnswerChange: (v: unknown) => void,
   t: (key: string) => string,
+  isRTL = false,
 ) {
   if (question.question_type === 'scale' || question.question_type === 'numeric_scale') {
     return (
@@ -360,13 +370,14 @@ function renderWellnessInput(
     return (
       <RadioGroup onValueChange={v => onAnswerChange(v)} className="space-y-1.5">
         {question.options.map((opt, i) => {
-          const isSelected = answerValue === opt;
+          const label = resolveOpt(opt, isRTL);
+          const isSelected = answerValue === label;
           return (
             <div key={i} className={`flex items-center gap-2.5 p-2.5 rounded-lg border transition-all duration-200 text-sm ${
               isSelected ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
             }`}>
-              <RadioGroupItem value={opt} id={`wopt-${i}`} />
-              <Label htmlFor={`wopt-${i}`} className="cursor-pointer flex-1 text-sm">{opt}</Label>
+              <RadioGroupItem value={label} id={`wopt-${i}`} />
+              <Label htmlFor={`wopt-${i}`} className="cursor-pointer flex-1 text-sm">{label}</Label>
               {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
             </div>
           );
@@ -430,12 +441,13 @@ function renderScheduledInput(
       if (!question.options || !Array.isArray(question.options)) return null;
       return (
         <RadioGroup onValueChange={v => selectAndAdvance(v)} className="space-y-1.5">
-          {(question.options as string[]).map((opt, i) => {
-            const isSelected = answer === String(opt);
+          {(question.options as unknown[]).map((opt, i) => {
+            const label = resolveOpt(opt, false);
+            const isSelected = answer === label;
             return (
               <div key={i} className={`flex items-center gap-2.5 p-2.5 rounded-lg border transition-all text-sm ${isSelected ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}>
-                <RadioGroupItem value={String(opt)} id={`sq-mc-${i}`} />
-                <Label htmlFor={`sq-mc-${i}`} className="cursor-pointer flex-1 text-sm">{String(opt)}</Label>
+                <RadioGroupItem value={label} id={`sq-mc-${i}`} />
+                <Label htmlFor={`sq-mc-${i}`} className="cursor-pointer flex-1 text-sm">{label}</Label>
                 {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
               </div>
             );

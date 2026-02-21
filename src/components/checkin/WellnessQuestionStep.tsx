@@ -22,7 +22,17 @@ interface WellnessQuestionStepProps {
 }
 
 export function WellnessQuestionStep({ question, isLoading, answerValue, onAnswerChange, onAutoAdvance }: WellnessQuestionStepProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.dir() === 'rtl';
+
+  const resolveOption = (opt: unknown): string => {
+    if (typeof opt === 'string') return opt;
+    if (opt && typeof opt === 'object' && 'text' in opt) {
+      const o = opt as { text: string; text_ar?: string };
+      return isRTL && o.text_ar ? o.text_ar : o.text;
+    }
+    return String(opt);
+  };
 
   const selectAndAdvance = (val: unknown) => {
     onAnswerChange(val);
@@ -63,13 +73,14 @@ export function WellnessQuestionStep({ question, isLoading, answerValue, onAnswe
               {question.question_type === 'multiple_choice' && question.options.length > 0 && (
                 <RadioGroup onValueChange={v => selectAndAdvance(v)} className="space-y-2">
                   {question.options.map((opt, i) => {
-                    const isSelected = answerValue === opt;
+                    const label = resolveOption(opt);
+                    const isSelected = answerValue === label;
                     return (
                       <div key={i} className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
                         isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'hover:bg-muted/50'
                       }`}>
-                        <RadioGroupItem value={opt} id={`wopt-${i}`} />
-                        <Label htmlFor={`wopt-${i}`} className="cursor-pointer flex-1">{opt}</Label>
+                        <RadioGroupItem value={label} id={`wopt-${i}`} />
+                        <Label htmlFor={`wopt-${i}`} className="cursor-pointer flex-1">{label}</Label>
                         {isSelected && <CheckCircle2 className="h-4 w-4 text-primary shrink-0 animate-in zoom-in-50 duration-200" />}
                       </div>
                     );

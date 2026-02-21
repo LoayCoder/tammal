@@ -32,6 +32,15 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
 
+  const resolveOption = (opt: unknown, rtl: boolean): string => {
+    if (typeof opt === 'string') return opt;
+    if (opt && typeof opt === 'object' && 'text' in opt) {
+      const o = opt as { text: string; text_ar?: string };
+      return rtl && o.text_ar ? o.text_ar : o.text;
+    }
+    return String(opt);
+  };
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answer, setAnswer] = useState<unknown>(null);
   const [answerText, setAnswerText] = useState('');
@@ -135,14 +144,15 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
         if (!question.options || !Array.isArray(question.options)) return null;
         return (
           <RadioGroup onValueChange={v => selectAndAdvance(v)} className="space-y-2">
-            {(question.options as string[]).map((opt, i) => {
-              const isSelected = answer === String(opt);
+            {(question.options as unknown[]).map((opt, i) => {
+              const label = resolveOption(opt, isRTL);
+              const isSelected = answer === label;
               return (
                 <div key={i} className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
                   isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'hover:bg-muted/50'
                 }`}>
-                  <RadioGroupItem value={String(opt)} id={`sq-mc-${i}`} />
-                  <Label htmlFor={`sq-mc-${i}`} className="cursor-pointer flex-1">{String(opt)}</Label>
+                  <RadioGroupItem value={label} id={`sq-mc-${i}`} />
+                  <Label htmlFor={`sq-mc-${i}`} className="cursor-pointer flex-1">{label}</Label>
                   {isSelected && <CheckCircle2 className="h-4 w-4 text-primary shrink-0 animate-in zoom-in-50 duration-200" />}
                 </div>
               );
