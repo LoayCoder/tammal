@@ -1,136 +1,153 @@
 
 
-# Enhanced Dashboard: Risk Tracking, Comparative Analysis, and Top Engagers
+# Comprehensive Audit Report: Organization Wellness Dashboard
 
-## Overview
+## Audit Findings Summary
 
-Three major additions to the Organization Wellness Dashboard:
-
-1. **Risk Trend Chart** -- A time-series line chart tracking the percentage of "at-risk" mood entries (score <= 2) over time, with a configurable threshold/limit line so management can see when risk crosses acceptable levels
-2. **Comparative Analysis** -- Side-by-side bar charts comparing wellness scores, participation, and risk across Branches, Divisions, Departments, and Sections
-3. **Top Engaged Employees** -- A leaderboard showing the most consistent employees by daily check-in streaks and survey response counts (anonymized by showing only first name + department, not full identity)
-
-All three sections respect the existing time range selector (7/30/90/custom) and org filters.
+After a deep code review of all dashboard files, database schemas, RLS policies, console logs, and data state, I identified **12 issues** categorized by severity.
 
 ---
 
-## Section 1: Risk Trend Over Time
+## CRITICAL Issues (Will cause failures or incorrect data)
 
-A dedicated line chart showing how risk evolves day-by-day:
+### 1. `answer_value` is JSONB, not a number -- category/subcategory score parsing will fail
 
-- **Y-axis**: Risk percentage (% of mood entries with score <= 2)
-- **X-axis**: Date labels (same as engagement trend)
-- **Threshold line**: A horizontal reference line at a configurable value (default 20%) labeled "Limit" -- when the risk line crosses above this, it signals an organizational concern
-- **Color**: Red area fill when above the threshold, green when below
-- **Data source**: Already available in `mood_entries` -- group by `entry_date`, calculate `count(score<=2) / total_count * 100` per day
+**File**: `src/hooks/useOrgAnalytics.ts`, lines 335-336
 
----
+The `answer_value` column in `employee_responses` is `jsonb`. The current code tries to parse it as a number directly:
 
-## Section 2: Comparative Org Unit Analysis
-
-A new component that shows a grouped bar chart comparing org units side-by-side:
-
-- **Tabs**: Branch | Division | Department | Section (user picks which dimension to compare)
-- **Metrics per unit**: Average Wellness Score, Participation Rate, Risk %
-- **Reference lines**: A dashed horizontal line showing the org-wide average for each metric, so management can instantly see which units are above/below average
-- **Color coding**: Units below the org average are colored red/amber, above average are green/blue
-- **Data source**: Query `mood_entries` joined with `employees` (which has `branch_id`, `department_id`, `section_id`), group by the selected org dimension
-
----
-
-## Section 3: Top Engaged Employees Leaderboard
-
-A compact table/card list showing the top 10 most engaged employees:
-
-- **Columns**: Rank, Name (first name only for privacy), Department, Check-in Streak (consecutive days), Survey Responses (count), Total Points
-- **Data source**: `mood_entries` grouped by `employee_id` for streak calculation, `employee_responses` count, joined with `employees` for name/department
-- **Privacy note**: Shows only first name and department -- no email, no full name, no raw mood data. This is engagement recognition, not surveillance
-- **Sorted by**: Longest current streak, then by total response count as tiebreaker
-
----
-
-## Technical Implementation
-
-### File: `src/hooks/useOrgAnalytics.ts`
-
-Add three new data fields to `OrgAnalyticsData`:
-
-```text
-riskTrend: { date: string; riskPct: number; totalEntries: number }[]
-orgComparison: {
-  branches: { id: string; name: string; avgScore: number; participation: number; riskPct: number; employeeCount: number }[]
-  divisions: { id: string; name: string; avgScore: number; participation: number; riskPct: number; employeeCount: number }[]
-  departments: { id: string; name: string; avgScore: number; participation: number; riskPct: number; employeeCount: number }[]
-  sections: { id: string; name: string; avgScore: number; participation: number; riskPct: number; employeeCount: number }[]
-}
-topEngagers: { employeeId: string; firstName: string; department: string; streak: number; responseCount: number; totalPoints: number }[]
+```
+const numVal = typeof r.answer_value === 'number' ? r.answer_value
+  : typeof r.answer_value === 'string' ? parseFloat(r.answer_value) : null;
 ```
 
-**Risk Trend**: Computed from the existing `entries` array -- group by date, calculate daily risk percentage.
+When Supabase returns JSONB, it can arrive as `{"value": 4}` or `4` or `"4"` depending on how it was stored. The `submit-response` edge function stores values in varying formats (numeric for scales, string for labels). The code has **no fallback** for object-type values like `{"value": 4}` or `{"selected": "Agree"}`, so these will all produce `null` and be excluded from category scoring.
 
-**Org Comparison**: Four parallel queries grouping `mood_entries` by each org dimension through the `employees` table. For each unit: avg mood score, unique participants / total employees, and % of entries with score <= 2.
+**Fix**: Add object-type handling: `if (typeof r.answer_value === 'object' && r.answer_value !== null) { numVal = r.answer_value.value ?? r.answer_value.score ?? null; }`
 
-**Top Engagers**: Query `mood_entries` grouped by `employee_id` with streak calculation (reuse existing streak logic), plus count from `employee_responses`. Join with `employees` for first name and department. Limit to top 10.
+### 2. `batchIn` helper function is defined but NEVER used
 
-### File: `src/components/dashboard/RiskTrendChart.tsx` (NEW)
+**File**: `src/hooks/useOrgAnalytics.ts`, lines 129-135
 
-- Line chart with Recharts `ComposedChart`
-- Area fill below the line colored with a gradient (green below threshold, red above)
-- `ReferenceLine` component at the threshold value (default 20%)
-- Tooltip showing date, risk %, and entry count
+The `batchIn` function was created to handle the Supabase `.in()` limit of ~1000 items, but it is never called anywhere. All `.in('employee_id', filteredIds)` calls pass the raw array directly. If a tenant has more than ~1000 employees, these queries will silently fail or truncate results.
 
-### File: `src/components/dashboard/OrgComparisonChart.tsx` (NEW)
+**Fix**: Apply `batchIn` to all `.in()` calls with `filteredIds`, or at minimum add a guard that chunks the IDs.
 
-- Tabbed interface (Branch/Division/Department/Section)
-- Grouped vertical `BarChart` with three bars per unit (Wellness, Participation, Risk)
-- `ReferenceLine` for org-wide average on each metric
-- Color-coded bars: below-average units highlighted in amber/red
-- Responsive: stacks to horizontal bars on mobile
+### 3. Survey Response Rate query is missing end-date filter
 
-### File: `src/components/dashboard/TopEngagersCard.tsx` (NEW)
+**File**: `src/hooks/useOrgAnalytics.ts`, lines 276-288
 
-- Simple table inside a Card
-- Columns: Rank (with medal icons for top 3), First Name, Department, Streak, Responses
-- Shows "No data" when empty
-- Respects time range and org filters
+Both `schedQuery` and `answeredQuery` use `.gte('...', startDate)` but **do not** apply `.lte('...', endDate)`. This means the survey response rate includes ALL data from startDate to the present, regardless of the selected time range or custom end date. When the user selects "7 days" or a custom range, the KPI will show inflated or incorrect numbers.
 
-### File: `src/components/dashboard/OrgDashboard.tsx`
+**Fix**: Add `.lte('scheduled_delivery', endDate + 'T23:59:59')` and `.lte('responded_at', endDate + 'T23:59:59')` to both queries.
 
-Add the three new sections:
-- Risk Trend Chart after the Engagement Trend
-- Org Comparison Chart after Category Health
-- Top Engagers Card in the bottom row alongside the Mood Distribution
+### 4. Mood entries query may hit the default 1000-row Supabase limit
 
-### File: `src/locales/en.json` and `src/locales/ar.json`
+**File**: `src/hooks/useOrgAnalytics.ts`, line 188-194
 
-New translation keys:
-- `orgDashboard.riskTrend`, `orgDashboard.riskThreshold`, `orgDashboard.riskPct`
-- `orgDashboard.orgComparison`, `orgDashboard.compareBy`
-- `orgDashboard.compareTabs.branch`, `compareTabs.division`, `compareTabs.department`, `compareTabs.section`
-- `orgDashboard.orgAverage`, `orgDashboard.wellnessScore`, `orgDashboard.belowAverage`
-- `orgDashboard.topEngagers`, `orgDashboard.rank`, `orgDashboard.streak`, `orgDashboard.responses`
-- `orgDashboard.limit`, `orgDashboard.aboveThreshold`
+The mood entries query has no `.limit()` override. Supabase defaults to 1000 rows. A tenant with 200 employees doing daily check-ins for 30 days would generate 6,000 entries. The query would silently return only the first 1000, making ALL downstream calculations (mood trend, risk trend, streak, distribution, org comparison, top engagers) **wrong**.
+
+**Fix**: Add `.limit(10000)` or paginate results. This is the most impactful bug -- it corrupts every KPI and chart.
+
+### 5. Same 1000-row limit applies to `employee_responses` queries
+
+**File**: `src/hooks/useOrgAnalytics.ts`, lines 247-253 and 296-301
+
+The `employee_responses` queries for daily trend and category scores also have no explicit limit. Large tenants will get truncated data.
+
+**Fix**: Add `.limit(10000)` to both queries.
 
 ---
 
-## Files Summary
+## HIGH Issues (Functional problems)
 
-| Action | File |
+### 6. `useOrgWellnessStats` hook is now orphaned/dead code
+
+**File**: `src/hooks/useOrgWellnessStats.ts`
+
+This hook is no longer imported by any component (confirmed by search). It was the original data source before `useOrgAnalytics` replaced it. It wastes bundle size and creates maintenance confusion.
+
+**Fix**: Delete the file.
+
+### 7. OrgComparison names are not localized (Arabic not shown)
+
+**File**: `src/hooks/useOrgAnalytics.ts`, lines 433-436
+
+The comparison data fetches only `id, name` from branches, departments, divisions, and sections. It does NOT fetch `name_ar`. The `OrgComparisonChart` displays `u.name` directly with no RTL fallback, so Arabic users will always see English names.
+
+**Fix**: Fetch `name_ar` alongside `name` in all four queries, and use `isRTL ? name_ar || name : name` in `OrgComparisonChart.tsx`.
+
+### 8. TopEngagersCard does not localize department names for Arabic
+
+**File**: `src/hooks/useOrgAnalytics.ts`, line 546
+
+The department lookup only fetches `id, name` but not `name_ar`. Arabic users see English department names in the leaderboard.
+
+**Fix**: Fetch `name_ar` from departments and pass the locale-appropriate name.
+
+### 9. Console warning: "Function components cannot be given refs" in CartesianGrid
+
+**Source**: Console logs
+
+Recharts `CartesianGrid` is receiving a ref from a parent. This is a known Recharts v2 issue with React 18 StrictMode. It's a warning, not a crash, but it clutters the console.
+
+**Fix**: This is a library-level issue. No action needed unless it causes visual bugs.
+
+---
+
+## MEDIUM Issues (Edge cases and UX)
+
+### 10. OrgComparison ReferenceLine only shows one avg line for wellness score
+
+**File**: `src/components/dashboard/OrgComparisonChart.tsx`, line 69
+
+Only `orgAvgScore` is used as a `ReferenceLine`, but the chart shows three metrics (Wellness, Participation, Risk) with very different scales (0-5 vs 0-100%). A single reference line at ~3.5 makes no visual sense when plotted alongside percentages.
+
+**Fix**: Either use separate Y-axes for score vs percentage, or remove the misleading single reference line and show per-metric averages in tooltips instead.
+
+### 11. Custom date range arrow symbol "right arrow" not RTL-aware
+
+**File**: `src/components/dashboard/TimeRangeSelector.tsx`, line 72
+
+The separator between start and end date is a hardcoded `-->` character. In RTL mode, the arrow should point left (`<--`).
+
+**Fix**: Use `isRTL ? 'leftarrow' : 'rightarrow'` or replace with a neutral separator like "—".
+
+### 12. OrgFilterBar branch selection clears division/department/section but NOT vice versa
+
+**File**: `src/components/dashboard/OrgFilterBar.tsx`, line 59
+
+When changing branch, it correctly clears downstream filters. However, when changing division (line 78), it preserves `branchId` which may be unrelated to the selected division. This can create contradictory filters (Branch A + Division from Branch B) resulting in zero matched employees.
+
+**Fix**: When division changes, also clear branchId if the selected division doesn't belong to the selected branch.
+
+---
+
+## Implementation Plan
+
+### Phase 1: Fix Critical Data Issues (highest priority)
+1. Add `.limit(10000)` to mood_entries and employee_responses queries
+2. Add missing `.lte(endDate)` to survey response rate queries
+3. Fix `answer_value` JSONB parsing to handle object types
+4. Wire `batchIn` to all `.in()` calls or add a size guard
+
+### Phase 2: Fix Localization Gaps
+5. Add `name_ar` to all OrgComparison and TopEngager data fetches
+6. Update OrgComparisonChart and TopEngagersCard to use locale-aware names
+7. Fix the custom date range RTL arrow
+
+### Phase 3: Clean Up
+8. Delete orphaned `useOrgWellnessStats.ts`
+9. Fix OrgComparison chart reference line to not be misleading
+10. Fix OrgFilterBar cascading to prevent contradictory filter states
+
+### Files to Modify
+| File | Changes |
 |---|---|
-| Modify | `src/hooks/useOrgAnalytics.ts` -- add riskTrend, orgComparison, topEngagers data |
-| New | `src/components/dashboard/RiskTrendChart.tsx` -- risk over time with threshold line |
-| New | `src/components/dashboard/OrgComparisonChart.tsx` -- side-by-side org unit comparison |
-| New | `src/components/dashboard/TopEngagersCard.tsx` -- top 10 engaged employees |
-| Modify | `src/components/dashboard/OrgDashboard.tsx` -- wire new sections |
-| Modify | `src/locales/en.json` -- new translation keys |
-| Modify | `src/locales/ar.json` -- new translation keys |
-
----
-
-## Privacy Safeguards
-
-- **Top Engagers** shows only first name and department name -- no email, user ID, or mood data is exposed
-- All comparative data remains aggregated (AVG, COUNT, GROUP BY) at the org-unit level
-- Risk trend shows organization-wide percentages, not individual entries
-- The leaderboard is strictly about engagement (participation frequency), not emotional state
+| `src/hooks/useOrgAnalytics.ts` | Fix limits, date filters, JSONB parsing, batchIn usage, add name_ar fields |
+| `src/components/dashboard/OrgComparisonChart.tsx` | RTL names, fix reference line |
+| `src/components/dashboard/TopEngagersCard.tsx` | RTL department names |
+| `src/components/dashboard/TimeRangeSelector.tsx` | RTL arrow fix |
+| `src/components/dashboard/OrgFilterBar.tsx` | Fix cascading logic |
+| `src/hooks/useOrgWellnessStats.ts` | Delete (dead code) |
 
