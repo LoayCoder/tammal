@@ -737,9 +737,10 @@ export default function ScheduleManagement() {
                 </PopoverTrigger>
                 <PopoverContent className="w-80 max-h-60 overflow-y-auto" align="start">
                   {(() => {
-                    const filteredBatches = batches.filter(b =>
-                      scheduleType === 'daily_checkin' ? b.purpose === 'wellness' : b.purpose === 'survey'
-                    );
+                    const filteredBatches = batches.filter(b => {
+                      const matchesPurpose = scheduleType === 'daily_checkin' ? b.purpose === 'wellness' : b.purpose === 'survey';
+                      return matchesPurpose && b.status === 'published';
+                    });
                     return filteredBatches.length === 0 ? (
                     <p className="text-sm text-muted-foreground py-2">{t('schedules.noBatchesAvailable')}</p>
                   ) : (
