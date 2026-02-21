@@ -1,132 +1,145 @@
 
 
-# Comprehensive Audit: Dashboard-Ready Data Integrity Implementation
+# Enhanced Organization Wellness Dashboard
 
-## Audit Summary
+## Current State
 
-The implementation is **largely correct** with proper database schema, RLS policies, edge function logic, and UI wiring. However, I identified **7 issues** ranging from bugs to gaps.
+The Wellness Dashboard currently shows only **basic mood check-in data** from the `mood_entries` table:
+- 4 stat cards (active employees, wellness score, participation, check-in count)
+- 2 charts (7-day engagement trend, mood distribution bar chart)
+
+It completely **ignores** the rich survey response data from `employee_responses` which, combined with the `questions` table, carries category, subcategory, affective state, and mood score metadata -- the exact analytical fields we just built in the previous enhancement.
 
 ---
 
-## Issue 1: `periodId` NOT Passed to Validation (BUG)
+## What We Will Build
 
-**Severity:** High -- Cross-period semantic dedup in `validate-questions` will NEVER run.
+The dashboard will be restructured into a **scrollable analytics page** with the following sections:
 
-The `handleValidate` function in `AIQuestionGenerator.tsx` (line 153-164) does NOT pass `periodId` to the validation call:
+### Section 1: Enhanced KPI Cards (Row of 6)
+
+Keep the existing 4 cards and add 2 new ones:
+
+| Card | Data Source | Logic |
+|---|---|---|
+| Active Employees | `employees` | Count where status = active (existing) |
+| Team Wellness Score | `mood_entries` | Average mood_score last 30 days (extended from 7) |
+| Participation Rate | `mood_entries` + `employees` | Unique participants / total active (existing) |
+| Survey Response Rate | `scheduled_questions` + `employee_responses` | Answered / total delivered |
+| Risk Indicator | `mood_entries` | % of entries with mood_score <= 2 (struggling + need_help) |
+| Engagement Streak | `mood_entries` | Average consecutive days with check-ins per employee |
+
+### Section 2: Time Range Selector
+
+A simple toggle bar: **7 days / 30 days / 90 days** that controls all charts below. Default: 30 days.
+
+### Section 3: Engagement Trend (Enhanced)
+
+Keep the existing area chart but:
+- Extend to support 7/30/90 day ranges
+- Add a second line showing **daily response count** (right Y-axis) alongside the mood average (left Y-axis)
+- This shows both "how employees feel" and "how many are participating" in one view
+
+### Section 4: Category Health Radar
+
+A **horizontal bar chart** showing the average wellness score per **main category** (e.g., Work-Life Balance, Burnout Indicators, Job Satisfaction, etc.).
+
+- Data: JOIN `employee_responses` with `questions` and `question_categories`
+- Aggregation: AVG of `answer_value` (numeric) grouped by category
+- Color: Each bar uses the category's `color` field
+- Sorted by score ascending (worst categories at top for quick identification)
+
+### Section 5: Subcategory Deep Dive
+
+A **grouped bar chart** showing average scores per **subcategory**, grouped under their parent category.
+
+- Data: Same join as above but grouped by `subcategory_id`
+- Only shown when there is subcategory data
+- Provides the "drill-down" view the user requested
+
+### Section 6: Affective State Distribution
+
+A **stacked bar chart** (or pie chart) showing the distribution of responses across the three affective states: Positive, Neutral, Negative.
+
+- Data: COUNT of `employee_responses` grouped by `questions.affective_state`
+- Color: Green (positive), Gray (neutral), Red (negative)
+- Gives management a quick read on the "emotional pulse" of the organization
+
+### Section 7: Mood Distribution (Enhanced)
+
+Keep the existing mood distribution bar chart but enhance it to:
+- Show the selected time range (not just 7 days)
+- Add percentage labels on each bar
+
+### Section 8: Response Activity Heatmap (Simple Grid)
+
+A compact 7-column grid (one per weekday) showing response volume by day-of-week, helping identify engagement patterns (e.g., low Sundays, peak Tuesdays).
+
+---
+
+## Technical Implementation
+
+### New Hook: `useOrgAnalytics.ts`
+
+A new hook that fetches all analytical data in parallel queries. It accepts a `timeRange` parameter (7, 30, 90 days).
 
 ```text
-validate({
-  questions, accuracyMode,
-  model: selectedModel,
-  enableCriticPass: ...,
-  minWordLength: ...,
-  selectedFrameworkIds: ...,
-  knowledgeDocumentIds: ...,
-  hasDocuments: ...,
-  // MISSING: periodId: selectedPeriodId || undefined
-});
+Queries:
+1. mood_entries (filtered by date range) -- mood trend + distribution
+2. employee_responses JOIN questions JOIN question_categories -- category scores
+3. employee_responses JOIN questions JOIN question_subcategories -- subcategory scores
+4. employee_responses JOIN questions (affective_state) -- affective distribution
+5. scheduled_questions (status counts) -- survey response rate
+6. employees (active count) -- baseline
 ```
 
-The `validate-questions` edge function checks for `periodId` (line 266) and performs cross-period semantic similarity only when present. Without it, this entire validation check is dead code.
+All queries use aggregated data only (COUNT, AVG, GROUP BY) -- no individual employee data is exposed, maintaining the privacy architecture.
 
-**Fix:** Add `periodId: selectedPeriodId || undefined` to the `handleValidate` call body.
+### Modified Component: `OrgDashboard.tsx`
 
----
+Complete rewrite with the new sections. The component will:
+- Import the new `useOrgAnalytics` hook
+- Render the time range selector
+- Render all chart sections with proper loading states
+- Use existing Recharts components (AreaChart, BarChart, RadarChart)
 
-## Issue 2: Export Missing New Analytical Fields (GAP)
+### New Sub-Components
 
-**Severity:** Medium -- Plan explicitly stated "Update export to include category_id, subcategory_id, mood_score, affective_state."
+| Component | Purpose |
+|---|---|
+| `TimeRangeSelector.tsx` | 7/30/90 day toggle |
+| `CategoryHealthChart.tsx` | Horizontal bar chart for category scores |
+| `SubcategoryChart.tsx` | Grouped bar chart for subcategory drill-down |
+| `AffectiveStateChart.tsx` | Stacked/pie chart for emotional pulse |
+| `ResponseHeatmap.tsx` | Day-of-week activity grid |
 
-The `handleExport` function (line 205-242) only exports basic fields:
+### Localization
 
-```text
-questions: questions.map(q => ({
-  question_text, question_text_ar, type, complexity, tone,
-  confidence_score, explanation, framework_reference,
-  // MISSING: category_id, subcategory_id, mood_score, affective_state,
-  //          category_name, subcategory_name, generation_period_id
-})),
-```
-
-**Fix:** Add the analytical fields to the export mapping.
-
----
-
-## Issue 3: `handleRegenerateFailedOnly` Missing `periodId` (BUG)
-
-**Severity:** Medium -- Regenerated questions won't get period-aware dedup or period tagging.
-
-In `AIQuestionGenerator.tsx` line 244-259, the `handleRegenerateFailedOnly` call does not include `periodId`.
-
-**Fix:** Add `periodId: selectedPeriodId || undefined` to that generate call.
+New keys in `en.json` and `ar.json` under `orgDashboard`:
+- `surveyResponseRate`, `riskIndicator`, `engagementStreak`
+- `timeRange.7d`, `timeRange.30d`, `timeRange.90d`
+- `categoryHealth`, `subcategoryDrilldown`, `affectiveDistribution`
+- `responseHeatmap`, `affective.positive`, `affective.neutral`, `affective.negative`
+- `riskLevel`, `noSurveyData`
 
 ---
 
-## Issue 4: `handleRegenerateSingle` Missing `periodId` (BUG)
+## Files to Create / Modify
 
-**Severity:** Medium -- Same issue as above for single-question regeneration.
-
-In `AIQuestionGenerator.tsx` line 261-276, `periodId` is not passed.
-
-**Fix:** Add `periodId: selectedPeriodId || undefined` to that generate call.
-
----
-
-## Issue 5: `CreatePeriodDialog` Does Not Close on Success (MINOR UX BUG)
-
-**Severity:** Low -- The dialog closes immediately on confirm (line 613-615) without waiting for the mutation to succeed. If the mutation fails, the dialog has already closed and the user may not notice the error.
-
-However, the current pattern is acceptable since the toast will show the error. No fix strictly needed, but ideally the dialog should wait for success.
+| Action | File |
+|---|---|
+| New | `src/hooks/useOrgAnalytics.ts` |
+| New | `src/components/dashboard/TimeRangeSelector.tsx` |
+| New | `src/components/dashboard/CategoryHealthChart.tsx` |
+| New | `src/components/dashboard/SubcategoryChart.tsx` |
+| New | `src/components/dashboard/AffectiveStateChart.tsx` |
+| New | `src/components/dashboard/ResponseHeatmap.tsx` |
+| Rewrite | `src/components/dashboard/OrgDashboard.tsx` |
+| Modify | `src/locales/en.json` |
+| Modify | `src/locales/ar.json` |
 
 ---
 
-## Issue 6: Duplicate `supabase.auth.getUser` Calls in `generate-questions` (PERFORMANCE)
+## Privacy Compliance
 
-**Severity:** Low -- The edge function calls `supabase.auth.getUser(token)` twice: once at line 598-601 for semantic dedup, and again at line 658-659 for logging. This wastes a roundtrip.
-
-**Fix:** Extract the first call result and reuse it for logging.
-
----
-
-## Issue 7: Validate Mutation Type Missing `periodId` (TYPE GAP)
-
-**Severity:** Low -- The `validateMutation` in `useEnhancedAIGeneration.ts` (line 144) accepts a params object but does not include `periodId` in its type signature, which means TypeScript won't enforce passing it.
-
-**Fix:** Add `periodId?: string` to the validate mutation params type.
-
----
-
-## Implementation Plan
-
-### File: `src/pages/admin/AIQuestionGenerator.tsx`
-
-1. **Line ~153-164** (`handleValidate`): Add `periodId: selectedPeriodId || undefined` to the validate call
-2. **Line ~205-242** (`handleExport`): Add `category_id`, `subcategory_id`, `mood_score`, `affective_state`, `category_name`, `subcategory_name` to the export mapping
-3. **Line ~244-259** (`handleRegenerateFailedOnly`): Add `periodId: selectedPeriodId || undefined`
-4. **Line ~261-276** (`handleRegenerateSingle`): Add `periodId: selectedPeriodId || undefined`
-
-### File: `src/hooks/useEnhancedAIGeneration.ts`
-
-5. **Line ~144** (`validateMutation`): Add `periodId?: string` to the params type definition
-
-### File: `supabase/functions/generate-questions/index.ts`
-
-6. **Lines ~596-615 and ~657-684**: Refactor to reuse the `getUser` result instead of calling it twice
-
----
-
-## Verified as Correct
-
-- Database schema: `generation_periods` table exists with proper columns, RLS enabled, policies for super_admin + tenant isolation
-- `generated_questions` has all 6 new columns (category_id, subcategory_id, mood_score, affective_state, generation_period_id, question_hash)
-- `questions` table has the 3 new columns (subcategory_id, mood_score, affective_state)
-- Edge function `generate-questions`: period lock, affective state matrixing, mood score derivation, category/subcategory ID resolution, semantic dedup, question hash -- all implemented correctly
-- Edge function `validate-questions`: distribution balance check and cross-period semantic similarity -- logic is correct (just not triggered due to missing periodId pass-through)
-- `useGenerationPeriods` hook: CRUD operations correct with proper tenant isolation
-- `useEnhancedAIGeneration`: save mutations include all new analytical fields for both `generated_questions` and `questions` tables
-- `ConfigPanel`: Period selector, locking behavior, and distribution preview all wired correctly
-- `QuestionCard`: Affective state and mood score badges render correctly
-- `CreatePeriodDialog`: Category/subcategory selection with orphan cleanup works properly
-- `DistributionPreview`: Matrix calculation and rendering correct
-- Localization: Translation keys present in both en.json and ar.json
-
+All data remains **aggregated**. The hook only uses SQL-level `COUNT`, `AVG`, and `GROUP BY`. No individual employee names, raw answers, or specific mood entries are ever fetched -- consistent with the established privacy architecture documented in the project memory.
