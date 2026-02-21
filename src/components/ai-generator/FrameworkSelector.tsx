@@ -69,7 +69,8 @@ export function FrameworkSelector({
         // Wait briefly for the mutation to complete and get the new framework
         setTimeout(async () => {
           // Refetch to find the new framework by key
-          const { data: newFw } = await (await import('@/integrations/supabase/client')).supabase
+          const { supabase } = await import('@/integrations/supabase/client');
+          const { data: newFw } = await supabase
             .from('reference_frameworks')
             .select('id')
             .eq('framework_key', frameworkData.framework_key)
