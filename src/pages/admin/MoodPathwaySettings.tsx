@@ -364,6 +364,34 @@ export default function MoodPathwaySettings() {
                     />
                   </div>
 
+                  {/* Questions per mood (stepper) */}
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">{t('moodPathway.questionsPerMood')}</Label>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => updateLocal(moodLevel, 'max_questions', Math.max(1, (config?.max_questions ?? 2) - 1))}
+                        disabled={!(config?.is_enabled ?? true) || (config?.max_questions ?? 2) <= 1}
+                      >
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                      <span className="w-8 text-center text-sm font-semibold tabular-nums">
+                        {config?.max_questions ?? 2}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => updateLocal(moodLevel, 'max_questions', Math.min(10, (config?.max_questions ?? 2) + 1))}
+                        disabled={!(config?.is_enabled ?? true) || (config?.max_questions ?? 2) >= 10}
+                      >
+                        <ChevronUp className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
                   {/* Linked questions */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">

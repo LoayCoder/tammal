@@ -1883,6 +1883,7 @@
     "settingsInfo": "Questions shown here come from your Questions bank. Tag questions with mood levels in Question Management or use the 'Browse Questions' button below.",
     "enablePathway": "Enable Follow-up Questions",
     "enableFreeText": "Enable Free-Text Reflection",
+    "questionsPerMood": "Questions Per Mood",
     "aiRecommendationHint": "AI Recommendation Hint (Optional)",
     "aiRecommendationHintPlaceholder": "e.g., Focus on workload, team collaboration, and energy levels...",
     "aiRecommendationHintDesc": "This hint guides the AI wellness recommendation shown after submission.",
