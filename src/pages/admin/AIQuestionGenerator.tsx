@@ -17,6 +17,7 @@ import { useAIModels } from '@/hooks/useAIModels';
 import { useAIKnowledge } from '@/hooks/useAIKnowledge';
 import { useReferenceFrameworks } from '@/hooks/useReferenceFrameworks';
 import { useQuestionBatches } from '@/hooks/useQuestionBatches';
+import { useGenerationPeriods } from '@/hooks/useGenerationPeriods';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
@@ -52,6 +53,7 @@ export default function AIQuestionGenerator() {
 
   const { availableBatches, availableWellnessBatches, MAX_BATCH_SIZE } = useQuestionBatches(tenantId || null);
   const { moods: moodDefinitions } = useMoodDefinitions(tenantId || null);
+  const { periods, createPeriod, isCreating: isCreatingPeriod } = useGenerationPeriods(tenantId || null);
 
   const [accuracyMode, setAccuracyMode] = useState('standard');
   const [selectedModel, setSelectedModel] = useState('google/gemini-3-flash-preview');
@@ -75,6 +77,7 @@ export default function AIQuestionGenerator() {
   const [selectedMoodLevels, setSelectedMoodLevels] = useState<string[]>([]);
   const [batchDialogOpen, setBatchDialogOpen] = useState(false);
   const [wellnessPreviewOpen, setWellnessPreviewOpen] = useState(false);
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string | null>(null);
   const [purpose, setPurpose] = useState<QuestionPurpose>('survey');
 
   const isStrict = accuracyMode === 'strict';
@@ -103,6 +106,7 @@ export default function AIQuestionGenerator() {
       categoryIds: selectedCategoryIds,
       subcategoryIds: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
       moodLevels: purpose === 'wellness' ? selectedMoodLevels : undefined,
+      periodId: selectedPeriodId || undefined,
     });
   };
 
@@ -331,6 +335,23 @@ export default function AIQuestionGenerator() {
             onSelectedSubcategoryIdsChange={setSelectedSubcategoryIds}
             selectedMoodLevels={selectedMoodLevels}
             onSelectedMoodLevelsChange={setSelectedMoodLevels}
+            periods={periods}
+            selectedPeriodId={selectedPeriodId}
+            onSelectedPeriodIdChange={setSelectedPeriodId}
+            onCreatePeriod={(params: any) => {
+              if (tenantId) {
+                createPeriod({
+                  tenantId,
+                  periodType: params.periodType,
+                  startDate: params.startDate,
+                  endDate: params.endDate,
+                  lockedCategoryIds: params.lockedCategoryIds,
+                  lockedSubcategoryIds: params.lockedSubcategoryIds,
+                  createdBy: user?.id,
+                });
+              }
+            }}
+            isCreatingPeriod={isCreatingPeriod}
           />
         </div>
 

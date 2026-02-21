@@ -1438,6 +1438,7 @@
     "freeformMode": "Freeform (No Lock)",
     "periodLocked": "Period locked — categories are fixed",
     "createPeriod": "Create Period",
+    "createPeriodDesc": "Lock categories & subcategories for a generation period",
     "periodType": "Period Type",
     "periodMonthly": "Monthly",
     "periodQuarterly": "Quarterly",

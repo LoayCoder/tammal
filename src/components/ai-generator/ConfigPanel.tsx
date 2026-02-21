@@ -9,13 +9,16 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Loader2, ChevronDown, Settings2, ChevronsUpDown, ClipboardList, Heart } from 'lucide-react';
+import { Sparkles, Loader2, ChevronDown, Settings2, ChevronsUpDown, ClipboardList, Heart, CalendarClock, Plus, Lock } from 'lucide-react';
 import { AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { KnowledgeBasePanel } from './KnowledgeBasePanel';
 import { FrameworkSelector } from './FrameworkSelector';
+import { CreatePeriodDialog } from './CreatePeriodDialog';
+import { DistributionPreview } from './DistributionPreview';
 import { KnowledgeDocument } from '@/hooks/useAIKnowledge';
 import { ReferenceFramework } from '@/hooks/useReferenceFrameworks';
+import { GenerationPeriod } from '@/hooks/useGenerationPeriods';
 import { useQuestionCategories } from '@/hooks/useQuestionCategories';
 import { useQuestionSubcategories } from '@/hooks/useQuestionSubcategories';
 import { useState } from 'react';
@@ -72,6 +75,12 @@ interface ConfigPanelProps {
   // Mood level tags (wellness purpose only)
   selectedMoodLevels: string[];
   onSelectedMoodLevelsChange: (levels: string[]) => void;
+  // Generation periods
+  periods: GenerationPeriod[];
+  selectedPeriodId: string | null;
+  onSelectedPeriodIdChange: (id: string | null) => void;
+  onCreatePeriod: (params: any) => void;
+  isCreatingPeriod: boolean;
 }
 
 export function ConfigPanel({
@@ -112,20 +121,33 @@ export function ConfigPanel({
   onSelectedSubcategoryIdsChange,
   selectedMoodLevels,
   onSelectedMoodLevelsChange,
+  periods,
+  selectedPeriodId,
+  onSelectedPeriodIdChange,
+  onCreatePeriod,
+  isCreatingPeriod,
 }: ConfigPanelProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [createPeriodOpen, setCreatePeriodOpen] = useState(false);
   const [categorySearch, setCategorySearch] = useState('');
   const [subcategorySearch, setSubcategorySearch] = useState('');
   const { categories = [] } = useQuestionCategories();
   const { subcategories: allSubcategories = [] } = useQuestionSubcategories();
   const activeCategories = (categories || []).filter(c => c.is_active);
 
+  // When a period is selected, lock to its categories/subcategories
+  const selectedPeriod = periods.find(p => p.id === selectedPeriodId) || null;
+  const isPeriodLocked = !!selectedPeriod;
+
   // Filter subcategories by selected categories
+  const effectiveCategoryIds = isPeriodLocked ? (selectedPeriod.locked_category_ids || []) as string[] : selectedCategoryIds;
+  const effectiveSubcategoryIds = isPeriodLocked ? (selectedPeriod.locked_subcategory_ids || []) as string[] : selectedSubcategoryIds;
   const filteredSubcategories = allSubcategories.filter(
-    s => s.is_active && selectedCategoryIds.includes(s.category_id)
+    s => s.is_active && effectiveCategoryIds.includes(s.category_id)
   );
+  const selectedSubsForPreview = filteredSubcategories.filter(s => effectiveSubcategoryIds.includes(s.id));
 
   // Search filtering
   const searchedCategories = activeCategories.filter(c => {
@@ -239,6 +261,51 @@ export function ConfigPanel({
             </div>
           )}
 
+          {/* Generation Period Selector */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2 text-sm font-medium">
+              <CalendarClock className="h-4 w-4" />
+              {t('aiGenerator.generationPeriod')}
+            </Label>
+            <div className="flex gap-2">
+              <Select
+                value={selectedPeriodId || '__freeform__'}
+                onValueChange={(v) => {
+                  if (v === '__freeform__') {
+                    onSelectedPeriodIdChange(null);
+                  } else {
+                    onSelectedPeriodIdChange(v);
+                    // Apply locked categories/subcategories from the period
+                    const period = periods.find(p => p.id === v);
+                    if (period) {
+                      onSelectedCategoryIdsChange((period.locked_category_ids || []) as string[]);
+                      onSelectedSubcategoryIdsChange((period.locked_subcategory_ids || []) as string[]);
+                    }
+                  }
+                }}
+              >
+                <SelectTrigger className="flex-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__freeform__">{t('aiGenerator.freeformMode')}</SelectItem>
+                  {periods.filter(p => p.status === 'active').map(p => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {t(`aiGenerator.period${p.period_type.charAt(0).toUpperCase() + p.period_type.slice(1)}`)} — {p.start_date} → {p.end_date}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button variant="outline" size="icon" onClick={() => setCreatePeriodOpen(true)} title={t('aiGenerator.createPeriod')}>
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+            {isPeriodLocked && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <Lock className="h-3 w-3" />
+                {t('aiGenerator.periodLocked')}
+              </p>
+            )}
+          </div>
+
           {/* Category & Subcategory Multi-Select */}
           <div className="grid grid-cols-2 gap-4">
             {/* Categories Multi-Select */}
@@ -246,11 +313,11 @@ export function ConfigPanel({
               <Label>{t('aiGenerator.category')}</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between font-normal">
+                  <Button variant="outline" className="w-full justify-between font-normal" disabled={isPeriodLocked}>
                     <span className="truncate">
-                      {selectedCategoryIds.length === 0
+                      {effectiveCategoryIds.length === 0
                         ? t('aiGenerator.selectCategories')
-                        : t('aiGenerator.categoriesSelected', { count: selectedCategoryIds.length })}
+                        : t('aiGenerator.categoriesSelected', { count: effectiveCategoryIds.length })}
                     </span>
                     <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
                   </Button>
@@ -297,14 +364,14 @@ export function ConfigPanel({
                   <Button
                     variant="outline"
                     className="w-full justify-between font-normal"
-                    disabled={selectedCategoryIds.length === 0}
+                    disabled={isPeriodLocked || effectiveCategoryIds.length === 0}
                   >
                     <span className="truncate">
-                      {selectedCategoryIds.length === 0
+                      {effectiveCategoryIds.length === 0
                         ? t('aiGenerator.selectSubcategories')
-                        : selectedSubcategoryIds.length === 0
+                        : effectiveSubcategoryIds.length === 0
                           ? t('aiGenerator.selectSubcategories')
-                          : t('aiGenerator.categoriesSelected', { count: selectedSubcategoryIds.length })}
+                          : t('aiGenerator.categoriesSelected', { count: effectiveSubcategoryIds.length })}
                     </span>
                     <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
                   </Button>
@@ -353,6 +420,11 @@ export function ConfigPanel({
               </Popover>
             </div>
           </div>
+
+          {/* Distribution Preview */}
+          {selectedSubsForPreview.length > 0 && (
+            <DistributionPreview subcategories={selectedSubsForPreview} questionCount={questionCount} />
+          )}
 
           {/* Question Type Multi-Select */}
           <div className="space-y-2">
@@ -491,7 +563,7 @@ export function ConfigPanel({
           </Collapsible>
 
           {/* Generate Button */}
-          <Button onClick={onGenerate} disabled={isGenerating || selectedCategoryIds.length === 0} className="w-full" size="lg">
+          <Button onClick={onGenerate} disabled={isGenerating || effectiveCategoryIds.length === 0} className="w-full" size="lg">
             {isGenerating ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin me-2" />
@@ -530,6 +602,19 @@ export function ConfigPanel({
         onCustomPromptChange={onCustomPromptChange}
         onRewritePrompt={onRewritePrompt}
         isRewriting={isRewriting}
+      />
+
+      {/* Create Period Dialog */}
+      <CreatePeriodDialog
+        open={createPeriodOpen}
+        onOpenChange={setCreatePeriodOpen}
+        categories={activeCategories}
+        subcategories={allSubcategories.filter(s => s.is_active)}
+        onConfirm={(params) => {
+          onCreatePeriod(params);
+          setCreatePeriodOpen(false);
+        }}
+        isCreating={isCreatingPeriod}
       />
     </div>
   );

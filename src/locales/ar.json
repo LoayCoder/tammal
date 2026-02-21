@@ -1438,6 +1438,7 @@
     "freeformMode": "حر (بدون قفل)",
     "periodLocked": "الفترة مقفلة — التصنيفات ثابتة",
     "createPeriod": "إنشاء فترة",
+    "createPeriodDesc": "قفل التصنيفات والتصنيفات الفرعية لفترة توليد",
     "periodType": "نوع الفترة",
     "periodMonthly": "شهري",
     "periodQuarterly": "ربع سنوي",
