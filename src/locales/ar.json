@@ -300,9 +300,40 @@
     "activeEmployees": "الموظفون النشطون",
     "teamWellness": "مؤشر رفاهية الفريق",
     "participation": "معدل المشاركة",
-    "checkins7d": "التسجيلات (7 أيام)",
-    "engagementTrend": "اتجاه التفاعل (7 أيام)",
+    "surveyResponseRate": "معدل الاستجابة للاستبيان",
+    "riskIndicator": "مؤشر المخاطر",
+    "engagementStreak": "متوسط التتابع",
+    "engagementTrend": "اتجاه التفاعل",
     "moodDistribution": "توزيع المزاج",
+    "categoryHealth": "صحة التصنيفات",
+    "subcategoryDrilldown": "تفصيل التصنيفات الفرعية",
+    "affectiveDistribution": "النبض العاطفي",
+    "responseHeatmap": "النشاط حسب اليوم",
+    "noSurveyData": "لا توجد بيانات استبيان بعد",
+    "moodAvg": "متوسط المزاج",
+    "dailyResponses": "الاستجابات اليومية",
+    "avgScore": "متوسط الدرجة",
+    "responses": "استجابة",
+    "count": "العدد",
+    "timeRange": {
+      "7d": "٧ أيام",
+      "30d": "٣٠ يوم",
+      "90d": "٩٠ يوم"
+    },
+    "affective": {
+      "positive": "إيجابي",
+      "neutral": "محايد",
+      "negative": "سلبي"
+    },
+    "days": {
+      "sun": "أحد",
+      "mon": "إثنين",
+      "tue": "ثلاثاء",
+      "wed": "أربعاء",
+      "thu": "خميس",
+      "fri": "جمعة",
+      "sat": "سبت"
+    },
     "moods": {
       "great": "ممتاز",
       "good": "جيد",

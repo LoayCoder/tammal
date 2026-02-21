@@ -300,9 +300,40 @@
     "activeEmployees": "Active Employees",
     "teamWellness": "Team Wellness Score",
     "participation": "Participation Rate",
-    "checkins7d": "Check-ins (7 days)",
-    "engagementTrend": "Engagement Trend (7 days)",
+    "surveyResponseRate": "Survey Response Rate",
+    "riskIndicator": "Risk Indicator",
+    "engagementStreak": "Avg Streak",
+    "engagementTrend": "Engagement Trend",
     "moodDistribution": "Mood Distribution",
+    "categoryHealth": "Category Health",
+    "subcategoryDrilldown": "Subcategory Deep Dive",
+    "affectiveDistribution": "Emotional Pulse",
+    "responseHeatmap": "Activity by Day of Week",
+    "noSurveyData": "No survey response data yet",
+    "moodAvg": "Mood Average",
+    "dailyResponses": "Daily Responses",
+    "avgScore": "Avg Score",
+    "responses": "responses",
+    "count": "Count",
+    "timeRange": {
+      "7d": "7 Days",
+      "30d": "30 Days",
+      "90d": "90 Days"
+    },
+    "affective": {
+      "positive": "Positive",
+      "neutral": "Neutral",
+      "negative": "Negative"
+    },
+    "days": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    },
     "moods": {
       "great": "Great",
       "good": "Good",
