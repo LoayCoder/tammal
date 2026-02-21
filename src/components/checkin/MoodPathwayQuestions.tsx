@@ -6,6 +6,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Slider } from '@/components/ui/slider';
 import { Brain, CheckCircle2, ChevronDown } from 'lucide-react';
 import { useMoodPathwayQuestions } from '@/hooks/useMoodPathwayQuestions';
 import { useMoodQuestionConfig } from '@/hooks/useMoodQuestionConfig';
@@ -27,6 +28,16 @@ interface MoodPathwayQuestionsProps {
   onAnswersChange: (answers: PathwayAnswer[]) => void;
 }
 
+// Likert-5 labels
+const LIKERT_LABELS_EN = ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree'];
+const LIKERT_LABELS_AR = ['أرفض بشدة', 'أرفض', 'محايد', 'أوافق', 'أوافق بشدة'];
+
+/** Resolve bilingual option to display string */
+function resolveOption(opt: string | { text: string; text_ar?: string }, isRTL: boolean): string {
+  if (typeof opt === 'string') return opt;
+  return isRTL && opt.text_ar ? opt.text_ar : opt.text;
+}
+
 export function MoodPathwayQuestions({
   moodLevel,
   tenantId,
@@ -43,7 +54,6 @@ export function MoodPathwayQuestions({
   const { data: questions = [], isLoading } = useMoodPathwayQuestions(moodLevel, tenantId);
   const { configs } = useMoodQuestionConfig(tenantId);
 
-  // Check if this mood level is enabled
   const config = configs.find(c => c.mood_level === moodLevel);
   const isEnabled = !config || config.is_enabled;
   const enableFreeText = config?.enable_free_text ?? false;
@@ -73,14 +83,164 @@ export function MoodPathwayQuestions({
     setAnswers(prev => ({ ...prev, [questionId]: value }));
   };
 
+  const selectAndAdvance = (questionId: string, value: string) => {
+    handleOptionSelect(questionId, value);
+  };
+
   const handleFreeText = (questionId: string, value: string) => {
     setFreeTexts(prev => ({ ...prev, [questionId]: value }));
   };
 
-  // Hide if disabled or skipped
+  // Render the correct input based on question type
+  const renderPathwayInput = (q: Question) => {
+    const currentAnswer = answers[q.id] || '';
+    const rawOptions = (q.options || []) as Array<string | { text: string; text_ar?: string }>;
+    const resolvedOptions = rawOptions.map(opt => resolveOption(opt, isRTL));
+
+    switch (q.type) {
+      case 'numeric_scale':
+        return (
+          <div className="space-y-3 px-2">
+            <Slider
+              min={1}
+              max={10}
+              step={1}
+              value={[Number(currentAnswer) || 5]}
+              onValueChange={v => handleOptionSelect(q.id, String(v[0]))}
+              onValueCommit={v => selectAndAdvance(q.id, String(v[0]))}
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>1</span>
+              <span className="text-lg font-bold text-primary transition-all duration-200">
+                {currentAnswer || '5'}
+              </span>
+              <span>10</span>
+            </div>
+          </div>
+        );
+
+      case 'yes_no': {
+        const yesLabel = resolvedOptions[0] || (isRTL ? 'نعم' : 'Yes');
+        const noLabel = resolvedOptions[1] || (isRTL ? 'لا' : 'No');
+        return (
+          <div className="flex gap-3">
+            {[yesLabel, noLabel].map((label, i) => {
+              const isSelected = currentAnswer === label;
+              return (
+                <Button
+                  key={i}
+                  type="button"
+                  variant={isSelected ? 'default' : 'outline'}
+                  className="flex-1 gap-1.5"
+                  onClick={() => selectAndAdvance(q.id, label)}
+                >
+                  {label}
+                  {isSelected && <CheckCircle2 className="h-3.5 w-3.5" />}
+                </Button>
+              );
+            })}
+          </div>
+        );
+      }
+
+      case 'likert_5': {
+        const labels = isRTL ? LIKERT_LABELS_AR : LIKERT_LABELS_EN;
+        return (
+          <RadioGroup
+            value={currentAnswer}
+            onValueChange={v => selectAndAdvance(q.id, v)}
+            className="space-y-1.5"
+          >
+            {labels.map((label, i) => {
+              const val = String(i + 1);
+              const isSelected = currentAnswer === val;
+              return (
+                <div
+                  key={i}
+                  className={`flex items-center gap-2.5 p-2.5 rounded-lg border transition-all duration-200 text-sm cursor-pointer ${
+                    isSelected ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
+                  }`}
+                  onClick={() => selectAndAdvance(q.id, val)}
+                >
+                  <RadioGroupItem value={val} id={`pathway-likert-${q.id}-${i}`} />
+                  <Label
+                    htmlFor={`pathway-likert-${q.id}-${i}`}
+                    className="cursor-pointer flex-1 text-sm leading-snug"
+                    dir="auto"
+                  >
+                    {label}
+                  </Label>
+                  {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
+                </div>
+              );
+            })}
+          </RadioGroup>
+        );
+      }
+
+      case 'multiple_choice': {
+        if (resolvedOptions.length === 0) {
+          // Fallback to textarea if no options defined
+          return (
+            <Textarea
+              value={currentAnswer}
+              onChange={e => handleOptionSelect(q.id, e.target.value)}
+              placeholder={t('moodPathway.freeTextPlaceholder')}
+              rows={2}
+              className="resize-none text-sm rounded-xl"
+              dir="auto"
+            />
+          );
+        }
+        return (
+          <RadioGroup
+            value={currentAnswer}
+            onValueChange={v => selectAndAdvance(q.id, v)}
+            className="space-y-1.5"
+          >
+            {resolvedOptions.map((opt, i) => {
+              const isSelected = currentAnswer === opt;
+              return (
+                <div
+                  key={i}
+                  className={`flex items-center gap-2.5 p-2.5 rounded-lg border transition-all duration-200 text-sm cursor-pointer ${
+                    isSelected ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
+                  }`}
+                  onClick={() => selectAndAdvance(q.id, opt)}
+                >
+                  <RadioGroupItem value={opt} id={`pathway-${q.id}-${i}`} />
+                  <Label
+                    htmlFor={`pathway-${q.id}-${i}`}
+                    className="cursor-pointer flex-1 text-sm leading-snug"
+                    dir="auto"
+                  >
+                    {opt}
+                  </Label>
+                  {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
+                </div>
+              );
+            })}
+          </RadioGroup>
+        );
+      }
+
+      // open_ended or any other type
+      default:
+        return (
+          <Textarea
+            value={currentAnswer}
+            onChange={e => handleOptionSelect(q.id, e.target.value)}
+            placeholder={t('moodPathway.freeTextPlaceholder')}
+            rows={2}
+            className="resize-none text-sm rounded-xl"
+            dir="auto"
+          />
+        );
+    }
+  };
+
   if (!isEnabled || isSkipped) return null;
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="space-y-3 animate-in fade-in duration-300">
@@ -95,7 +255,6 @@ export function MoodPathwayQuestions({
     );
   }
 
-  // No questions tagged for this mood — hide gracefully
   if (questions.length === 0) return null;
 
   return (
@@ -125,10 +284,6 @@ export function MoodPathwayQuestions({
       {/* Questions */}
       {questions.map((q: Question) => {
         const questionText = isRTL && q.text_ar ? q.text_ar : q.text;
-        const rawOptions = (q.options || []) as Array<string | { text: string; text_ar?: string }>;
-        const options = rawOptions.map(opt =>
-          typeof opt === 'string' ? opt : (isRTL && opt.text_ar ? opt.text_ar : opt.text)
-        );
         const isAnswered = !!answers[q.id];
         const categoryName = q.category
           ? (isRTL && q.category.name_ar ? q.category.name_ar : q.category.name)
@@ -136,7 +291,6 @@ export function MoodPathwayQuestions({
 
         return (
           <div key={q.id} className="rounded-xl border bg-card p-3 sm:p-4 space-y-3">
-            {/* Category badge */}
             {categoryName && (
               <div className="flex justify-center">
                 <Badge variant="secondary" className="text-[10px] px-2 py-0.5">
@@ -145,59 +299,15 @@ export function MoodPathwayQuestions({
               </div>
             )}
 
-            {/* Question text */}
             <p className="font-medium text-sm text-center" dir="auto">
               {questionText}
             </p>
 
-            {/* Options — only for multiple_choice */}
-            {options.length > 0 ? (
-              <RadioGroup
-                value={answers[q.id] || ''}
-                onValueChange={v => handleOptionSelect(q.id, v)}
-                className="space-y-1.5"
-              >
-                {options.map((opt, i) => {
-                  const isSelected = answers[q.id] === opt;
-                  return (
-                    <div
-                      key={i}
-                      className={`flex items-center gap-2.5 p-2.5 rounded-lg border transition-all duration-200 text-sm cursor-pointer ${
-                        isSelected
-                          ? 'border-primary bg-primary/5'
-                          : 'hover:bg-muted/50'
-                      }`}
-                      onClick={() => handleOptionSelect(q.id, opt)}
-                    >
-                      <RadioGroupItem value={opt} id={`pathway-${q.id}-${i}`} />
-                      <Label
-                        htmlFor={`pathway-${q.id}-${i}`}
-                        className="cursor-pointer flex-1 text-sm leading-snug"
-                        dir="auto"
-                      >
-                        {opt}
-                      </Label>
-                      {isSelected && (
-                        <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
-                      )}
-                    </div>
-                  );
-                })}
-              </RadioGroup>
-            ) : (
-              /* Open-ended or other types — text input */
-              <Textarea
-                value={answers[q.id] || ''}
-                onChange={e => handleOptionSelect(q.id, e.target.value)}
-                placeholder={t('moodPathway.freeTextPlaceholder')}
-                rows={2}
-                className="resize-none text-sm rounded-xl"
-                dir="auto"
-              />
-            )}
+            {/* Type-aware input */}
+            {renderPathwayInput(q)}
 
             {/* Free-text for extreme moods when enabled */}
-            {enableFreeText && isExtremeMood && isAnswered && options.length > 0 && (
+            {enableFreeText && isExtremeMood && isAnswered && q.type !== 'open_ended' && (
               <div className="pt-1 space-y-1.5 animate-in fade-in duration-200">
                 <p className="text-xs text-muted-foreground text-center">
                   {t('moodPathway.shareMore')}
