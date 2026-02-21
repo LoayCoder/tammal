@@ -1,170 +1,172 @@
 
 
-# Deep Audit: Generation-to-Submission Pipeline
+# Comprehensive End-to-End Pipeline Audit
 
-## Findings Summary
+## Scope
 
-After tracing every file from AI generation through schedule delivery to employee submission, I identified **7 issues** across the pipeline. Some are bugs, some are data integrity gaps.
-
----
-
-## Issue 1: Bilingual Options Not Resolved in Multiple Components
-
-**Severity: HIGH (causes crash or shows `[object Object]`)**
-
-The `questions` table stores options as `{text, text_ar}` objects. Several rendering paths cast them directly to `string[]` without resolving the bilingual format:
-
-| Component | Location | Status |
-|---|---|---|
-| `MoodPathwayQuestions.tsx` | `renderPathwayInput` | FIXED (resolved recently) |
-| `ScheduledQuestionsStep.tsx` | `renderInput` line 138 | BUG - casts `question.options as string[]` |
-| `InlineDailyCheckin.tsx` | `renderScheduledInput` line 433 | BUG - casts `question.options as string[]` |
-| `WellnessQuestionStep.tsx` | `renderWellnessInput` lines 65-71 | BUG - renders `opt` directly as JSX child |
-
-**Fix:** Add the `resolveOption` helper to each component to handle both `string` and `{text, text_ar}` formats before rendering.
+Traced every step: AI Generation -> Question Bank -> Schedule Engine -> Delivery Hook -> Rendering Components -> Submission (Edge Function) -> Database Storage.
 
 ---
 
-## Issue 2: Wellness Type Mismatch Between Tables
+## Remaining Issues Found
 
-**Severity: MEDIUM (causes wrong UI controls)**
+### Issue A: `InlineDailyCheckin.tsx` Uses Static `MOODS` Array for Score (BUG)
 
-The AI generator uses `mapToWellnessType()` which maps `likert_5` and `numeric_scale` to `scale`, and `open_ended` to `text` when saving to `wellness_questions`. But the rendering components only check for `scale` and `text`, not the original types.
+**Severity: HIGH -- causes silent submission failure for custom moods**
 
-| Table | Type Values | Notes |
-|---|---|---|
-| `questions` | `likert_5`, `numeric_scale`, `yes_no`, `multiple_choice`, `open_ended` | Standard 5 types |
-| `wellness_questions` | `scale`, `text`, `multiple_choice` | Simplified 3 types |
+At line 77, `InlineDailyCheckin.tsx` still uses:
+```
+const moodObj = MOODS.find(m => m.level === selectedMood);
+```
 
-When the `useCheckinScheduledQuestions` hook fetches from `wellness_questions`, it maps `question_type` to `type`. So a `scale` type from wellness correctly renders as a slider. This part works.
+The static `MOODS` array only contains the 5 default mood keys. If a tenant admin adds a custom mood (e.g., `"exhausted"`) via the Mood Definitions settings, `moodObj` will be `null`, which blocks submission entirely (`if (!selectedMood || !moodObj) return;` at line 110).
 
-However, the `submit-response` edge function validates types using the original table's type:
-- For `wellness_questions` source: validates against `question_type` (e.g., `scale`)
-- But the `validateAnswer` function doesn't know about `scale` -- it only handles `numeric_scale`
+**This was fixed in `DailyCheckin.tsx` (multi-step) but NOT in `InlineDailyCheckin.tsx` (the primary inline flow used on the Employee Home page).**
 
-**Fix:** Add `scale` as an alias for `numeric_scale` in the `validateAnswer` function in `submit-response/index.ts`. Also add `text` as an alias for `open_ended`.
+**Fix:** Import `useMoodDefinitions` and look up the score dynamically, matching the pattern already used in `DailyCheckin.tsx`.
 
 ---
 
-## Issue 3: `likert_5` Questions with Empty Options in Questions Table
+### Issue B: `InlineDailyCheckin.tsx` `renderScheduledInput` Hardcodes `isRTL = false` (BUG)
 
-**Severity: LOW**
+**Severity: MEDIUM -- Arabic users see English option labels in scheduled questions**
 
-5 out of 8 `likert_5` questions in the `questions` table have bilingual option objects (correct), but 3 have empty `options: []`. For those 3, the `MoodPathwayQuestions` likert renderer uses hardcoded labels (Strongly Disagree - Strongly Agree), which is correct behavior. No action needed.
+At line 445, the `resolveOpt` call passes `false` instead of `isRTL`:
+```
+const label = resolveOpt(opt, false);  // <-- hardcoded false!
+```
 
----
+The component already computes `isRTL` at line 39, but it is not passed into the standalone `renderScheduledInput` function.
 
-## Issue 4: `yes_no` Questions with Object Options
-
-**Severity: MEDIUM**
-
-2 out of 4 `yes_no` questions have `{text, text_ar}` options, and 2 have empty options. In `ScheduledQuestionsStep.tsx` and `InlineDailyCheckin.tsx`, the `yes_no` renderer uses hardcoded Yes/No labels and ignores the `options` array entirely. The `MoodPathwayQuestions` component correctly resolves them. The fix for Issue 1 covers this.
-
----
-
-## Issue 5: Schedule Engine Doesn't Filter by `questions_per_delivery` Per Day
-
-**Severity: MEDIUM (explains "3 questions when 1 expected")**
-
-The schedule engine at line 234 selects `questionsPerDelivery` questions per delivery slot, but for a 7-day generation window it creates one slot per day. The issue is that `selectedQuestions` is sliced from the **full** unassigned pool each day, meaning over 7 days the employee accumulates 7 questions total. When the employee checks in, the hook fetches ALL pending questions for today, which may include questions scheduled for today's slot.
-
-However, the user reported seeing 3 questions. This likely comes from the **mood pathway** system, not the scheduled questions. The `useMoodPathwayQuestions` hook defaults to `maxQuestions = 2`, plus the daily wellness question makes 3 total. The scheduled questions are separate.
-
-**Root cause of "3 questions":** The user is likely seeing:
-1. Daily wellness question (from `daily_question_schedule`)
-2. Two mood pathway follow-up questions (from `useMoodPathwayQuestions`)
-
-These are NOT from the schedule engine at all. The mood pathway questions are unlimited by the schedule's `questions_per_delivery` setting since they come from a different system.
-
-**No fix needed for schedule engine.** The mood pathway `maxQuestions = 2` is intentional.
+**Fix:** Pass `isRTL` to the `renderScheduledInput` function and use it in the `resolveOpt` call.
 
 ---
 
-## Issue 6: `DailyCheckin.tsx` (Multi-Step) Still Uses Legacy `MOODS` Array
+### Issue C: `EmployeeSurvey.tsx` Missing `multiple_choice` Rendering and Bilingual Support (BUG)
 
-**Severity: LOW**
+**Severity: HIGH -- survey questions with `multiple_choice` type render nothing**
 
-The `DailyCheckin.tsx` page references the static `MOODS` array to find `moodObj` for score lookup, but `MoodStep` now uses dynamic `mood_definitions` from the database. If an admin adds a custom mood level not in the static `MOODS` array, `moodObj` will be `null` and submission will silently fail.
+The `EmployeeSurvey` page (standalone survey route) renders `null` for `multiple_choice` because it has no `case 'multiple_choice':` in its `renderAnswerInput` switch statement. The switch only handles `likert_5`, `numeric_scale`, `yes_no`, and `open_ended`. Additionally, it has no `resolveOption` helper for bilingual options.
 
-**Fix:** Look up the mood score from `mood_definitions` instead of the static `MOODS` array.
+It also does not handle `scale` or `text` type aliases from `wellness_questions`.
+
+**Fix:** Add `multiple_choice`, `scale`, and `text` cases to `EmployeeSurvey.tsx`'s `renderAnswerInput`, with bilingual option resolution.
 
 ---
 
-## Issue 7: `submit-response` Edge Function Type Validation Gaps
+### Issue D: `EmployeeSurvey.tsx` `yes_no` Validation Mismatch (BUG)
 
-**Severity: MEDIUM**
+**Severity: MEDIUM -- `yes_no` answers may fail validation**
 
-The `validateAnswer` function in the edge function is strict but doesn't account for:
-- `scale` type (used by `wellness_questions`)
-- `text` type (used by `wellness_questions`)
-- `likert_5` with string option labels instead of numeric values (pathway questions submit option text, not numbers)
+`EmployeeSurvey.tsx` submits `yes_no` as `boolean` (`true`/`false`), which matches the edge function validator. However, `MoodPathwayQuestions.tsx` submits `yes_no` as string labels (`"Yes"` / `"No"` or Arabic equivalents). The edge function validator at line 211 strictly checks `typeof value !== "boolean"` for `yes_no`. This means pathway `yes_no` answers will be rejected.
 
-When a pathway `likert_5` answer is submitted as `"Agree"` (a string), the validator expects a number 1-5 and will reject it.
+**Fix:** Update the `validateAnswer` function in `submit-response/index.ts` to also accept string values for `yes_no` (since pathway questions submit labels, not booleans).
 
-**Fix:** Update the validator to accept both numeric and string values for `likert_5`.
+---
+
+### Issue E: `useScheduledQuestions.ts` (Survey Hook) Missing `generated_questions` Source Handling (GAP)
+
+**Severity: MEDIUM -- survey questions from generated_questions show without details**
+
+The `useScheduledQuestions` hook (used by EmployeeSurvey page) only fetches from `questions` table and `wellness_questions` table (line 74-109). It treats any `question_source !== 'questions'` as wellness. But the schedule engine can assign `generated_questions` source too (line 107 of schedule-engine). These will be fetched from `wellness_questions` instead of `generated_questions`, resulting in null question details.
+
+**Fix:** Add a separate fetch path for `generated_questions` source, matching the pattern already implemented in `useCheckinScheduledQuestions.ts`.
+
+---
+
+### Issue F: Mood Pathway Answers NOT Submitted to `submit-response` Edge Function (DATA GAP)
+
+**Severity: LOW -- by design, but worth documenting**
+
+Mood pathway answers are stored in `mood_entries.answer_value` as a JSON object (line 130-133 of InlineDailyCheckin), NOT through the `submit-response` edge function. This means they bypass the type validation and are not recorded in `employee_responses`. This is intentional -- pathway answers are part of the mood check-in flow, not the scheduled question system. No fix needed, but the data lives in a different table than scheduled question responses.
+
+---
+
+### Issue G: `WellnessQuestionStep.tsx` Missing `yes_no` Type Handling (BUG)
+
+**Severity: MEDIUM -- `yes_no` wellness questions render nothing**
+
+The component only handles `scale`/`numeric_scale`, `multiple_choice`, and `text`. If a wellness question has `question_type = 'yes_no'`, no UI renders. Although `wellness_questions` typically use simplified types (`scale`, `text`, `multiple_choice`), it is possible for a question to have `yes_no` type.
+
+**Fix:** Add a `yes_no` case to `WellnessQuestionStep.tsx`.
 
 ---
 
 ## Implementation Plan
 
-### Step 1: Fix bilingual option rendering (Issue 1)
+### Step 1: Fix `InlineDailyCheckin.tsx` (Issues A and B)
 
-Add a shared `resolveOption` utility and use it in:
-- `src/components/checkin/ScheduledQuestionsStep.tsx` (multiple_choice case)
-- `src/components/checkin/InlineDailyCheckin.tsx` (both `renderScheduledInput` and `renderWellnessInput`)
-- `src/components/checkin/WellnessQuestionStep.tsx` (multiple_choice rendering)
+- Import `useMoodDefinitions` hook
+- Fetch tenant's mood definitions and use dynamic score lookup instead of static `MOODS.find()`
+- Pass `isRTL` to `renderScheduledInput` function
+- Update `resolveOpt` call at line 445 to use `isRTL` parameter
 
-### Step 2: Fix submit-response validation (Issues 2 and 7)
+### Step 2: Fix `EmployeeSurvey.tsx` (Issue C)
 
-Update `supabase/functions/submit-response/index.ts`:
-- Add `scale` as alias for `numeric_scale`
-- Add `text` as alias for `open_ended`
-- Allow `likert_5` to accept string values (option labels) in addition to numbers
+- Add `resolveOption` helper for bilingual support
+- Add `multiple_choice` case with RadioGroup and bilingual options
+- Add `scale` alias for `numeric_scale`
+- Add `text` alias for `open_ended`
 
-### Step 3: Fix DailyCheckin.tsx mood lookup (Issue 6)
+### Step 3: Fix `submit-response` edge function (Issue D)
 
-In `src/pages/employee/DailyCheckin.tsx`, fetch `mood_definitions` and use the dynamic score instead of relying on the static `MOODS` array.
+- Update `yes_no` validation to accept both `boolean` and `string` values
+- This ensures pathway-submitted labels and survey-submitted booleans both pass
+
+### Step 4: Fix `useScheduledQuestions.ts` (Issue E)
+
+- Add separate fetch path for `generated_questions` source
+- Map `question_text` / `question_text_ar` to `text` / `text_ar` for consistency
+
+### Step 5: Fix `WellnessQuestionStep.tsx` (Issue G)
+
+- Add `yes_no` case with Yes/No buttons matching the pattern in other components
 
 ---
 
 ## Technical Details
 
-### Shared resolveOption helper
+### InlineDailyCheckin.tsx changes
 
 ```text
-function resolveOption(
-  opt: string | { text: string; text_ar?: string },
-  isRTL: boolean
-): string {
-  if (typeof opt === 'string') return opt;
-  return isRTL && opt.text_ar ? opt.text_ar : opt.text;
-}
+// Replace:
+import { MoodStep, MOODS } from '@/components/checkin/MoodStep';
+const moodObj = MOODS.find(m => m.level === selectedMood);
+
+// With:
+import { MoodStep } from '@/components/checkin/MoodStep';
+import { useMoodDefinitions } from '@/hooks/useMoodDefinitions';
+const { moods: moodDefinitions } = useMoodDefinitions(tenantId);
+const moodDef = moodDefinitions?.find(m => m.key === selectedMood);
+const moodObj = moodDef ? { level: moodDef.key, score: moodDef.score } : null;
 ```
 
-### Updated validateAnswer in submit-response
+### renderScheduledInput signature change
 
 ```text
-case "likert_5":
-  // Accept number 1-5 or string option labels
-  if (typeof value === 'number' && (value < 1 || value > 5)) {
-    return { valid: false, error: "..." };
+// Add isRTL parameter:
+function renderScheduledInput(question, answer, setAnswer, selectAndAdvance, t, isRTL)
+
+// Fix resolveOpt call:
+const label = resolveOpt(opt, isRTL);  // was: resolveOpt(opt, false)
+```
+
+### submit-response validateAnswer update
+
+```text
+case "yes_no":
+  // Accept boolean OR string labels
+  if (typeof value !== "boolean" && typeof value !== "string") {
+    return { valid: false, error: "Yes/No value must be a boolean or string" };
   }
-  break;
-case "numeric_scale":
-case "scale":
-  // unified handling
-  break;
-case "open_ended":
-case "text":
-  // unified handling
   break;
 ```
 
 ### Files to modify
 
-1. `src/components/checkin/ScheduledQuestionsStep.tsx`
-2. `src/components/checkin/InlineDailyCheckin.tsx`
-3. `src/components/checkin/WellnessQuestionStep.tsx`
-4. `supabase/functions/submit-response/index.ts`
-5. `src/pages/employee/DailyCheckin.tsx`
+1. `src/components/checkin/InlineDailyCheckin.tsx` (Issues A, B)
+2. `src/pages/employee/EmployeeSurvey.tsx` (Issue C)
+3. `supabase/functions/submit-response/index.ts` (Issue D)
+4. `src/hooks/useScheduledQuestions.ts` (Issue E)
+5. `src/components/checkin/WellnessQuestionStep.tsx` (Issue G)
 
