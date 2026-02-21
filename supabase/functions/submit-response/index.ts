@@ -196,7 +196,8 @@ serve(async (req) => {
 function validateAnswer(type: string, value: any, options?: any[]): { valid: boolean; error?: string } {
   switch (type) {
     case "likert_5":
-      if (typeof value !== "number" || value < 1 || value > 5) {
+      // Accept number 1-5 or string option labels (e.g. "Agree")
+      if (typeof value === "number" && (value < 1 || value > 5)) {
         return { valid: false, error: "Likert scale value must be between 1 and 5" };
       }
       break;
@@ -212,6 +213,7 @@ function validateAnswer(type: string, value: any, options?: any[]): { valid: boo
       }
       break;
     case "open_ended":
+    case "text":
       if (typeof value !== "string" || value.trim().length === 0) {
         return { valid: false, error: "Open-ended response cannot be empty" };
       }
@@ -221,9 +223,8 @@ function validateAnswer(type: string, value: any, options?: any[]): { valid: boo
       break;
     case "multiple_choice":
       if (!options || !Array.isArray(options)) {
-        return { valid: true }; // Can't validate without options
+        return { valid: true };
       }
-      // Value should be an index or the option text
       break;
   }
   return { valid: true };

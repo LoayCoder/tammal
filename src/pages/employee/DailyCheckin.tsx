@@ -13,7 +13,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { Flame, Star, Loader2, ArrowRight, ArrowLeft, Send, AlertCircle, RefreshCw, UserX } from 'lucide-react';
-import { MoodStep, MOODS } from '@/components/checkin/MoodStep';
+import { MoodStep } from '@/components/checkin/MoodStep';
+import { useMoodDefinitions } from '@/hooks/useMoodDefinitions';
 import { WellnessQuestionStep } from '@/components/checkin/WellnessQuestionStep';
 import { ScheduledQuestionsStep, type ScheduledAnswer } from '@/components/checkin/ScheduledQuestionsStep';
 import { SupportStep } from '@/components/checkin/SupportStep';
@@ -34,6 +35,7 @@ export default function DailyCheckin() {
   const dailyWellnessQuestionId = question?.question_id || undefined;
   const { questions: scheduledQuestions, isLoading: scheduledLoading } = useCheckinScheduledQuestions(employee?.id, dailyWellnessQuestionId);
   const { submitResponse } = useEmployeeResponses(employee?.id);
+  const { moods: moodDefinitions } = useMoodDefinitions(tenantId);
 
   // --- Guard: check if already checked in today ---
   const today = new Date().toISOString().split('T')[0];
@@ -63,7 +65,8 @@ export default function DailyCheckin() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const moodObj = MOODS.find(m => m.level === selectedMood);
+  const moodDef = moodDefinitions?.find(m => m.key === selectedMood);
+  const moodObj = moodDef ? { level: moodDef.key, score: moodDef.score } : null;
   const showSupport = selectedMood === 'struggling' || selectedMood === 'need_help';
   const hasScheduledQuestions = scheduledQuestions.length > 0;
 
