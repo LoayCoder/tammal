@@ -593,24 +593,23 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
     };
 
     // ========== SEMANTIC DEDUP (Cross-Period Memory) ==========
+    // Get user info once for both semantic dedup and logging
+    const token = authHeader.replace("Bearer ", "");
+    const { data: authUserData } = await supabase.auth.getUser(token);
+    const resolvedTenantId = authUserData?.user
+      ? await supabase.rpc("get_user_tenant_id", { _user_id: authUserData.user.id }).then(r => r.data)
+      : null;
+
     let existingHashes = new Set<string>();
-    if (generationPeriodId) {
-      const token = authHeader.replace("Bearer ", "");
-      const { data: userData } = await supabase.auth.getUser(token);
-      const tenantId = userData?.user
-        ? await supabase.rpc("get_user_tenant_id", { _user_id: userData.user.id }).then(r => r.data)
-        : null;
+    if (generationPeriodId && resolvedTenantId) {
+      const { data: existingQuestions } = await supabase
+        .from("generated_questions")
+        .select("question_hash")
+        .eq("generation_period_id", generationPeriodId)
+        .eq("tenant_id", resolvedTenantId);
 
-      if (tenantId) {
-        const { data: existingQuestions } = await supabase
-          .from("generated_questions")
-          .select("question_hash")
-          .eq("generation_period_id", generationPeriodId)
-          .eq("tenant_id", tenantId);
-
-        if (existingQuestions) {
-          existingHashes = new Set(existingQuestions.map((q: any) => q.question_hash).filter(Boolean));
-        }
+      if (existingQuestions) {
+        existingHashes = new Set(existingQuestions.map((q: any) => q.question_hash).filter(Boolean));
       }
     }
 
@@ -654,16 +653,11 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       };
     });
 
-    // Log generation
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData } = await supabase.auth.getUser(token);
-
-    if (userData?.user) {
-      const { data: tenantIdData } = await supabase.rpc("get_user_tenant_id", { _user_id: userData.user.id });
-
+    // Log generation (reuse authUserData from above)
+    if (authUserData?.user) {
       await supabase.from("ai_generation_logs").insert({
-        user_id: userData.user.id,
-        tenant_id: tenantIdData || null,
+        user_id: authUserData.user.id,
+        tenant_id: resolvedTenantId || null,
         prompt_type: "question_generation",
         questions_generated: questions.length,
         model_used: selectedModel,

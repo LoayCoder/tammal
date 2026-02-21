@@ -160,6 +160,7 @@ export default function AIQuestionGenerator() {
       selectedFrameworkIds: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
       knowledgeDocumentIds: activeDocIds.length > 0 ? activeDocIds : undefined,
       hasDocuments: documents.length > 0,
+      periodId: selectedPeriodId || undefined,
     });
   };
 
@@ -214,6 +215,13 @@ export default function AIQuestionGenerator() {
         type: q.type, complexity: q.complexity, tone: q.tone,
         confidence_score: q.confidence_score, explanation: q.explanation,
         framework_reference: q.framework_reference,
+        category_id: q.category_id || null,
+        subcategory_id: q.subcategory_id || null,
+        category_name: q.category_name || null,
+        subcategory_name: q.subcategory_name || null,
+        mood_score: q.mood_score || null,
+        affective_state: q.affective_state || null,
+        generation_period_id: q.generation_period_id || null,
       })),
     };
 
@@ -255,6 +263,7 @@ export default function AIQuestionGenerator() {
       categoryIds: selectedCategoryIds,
       subcategoryIds: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
       moodLevels: purpose === 'wellness' ? selectedMoodLevels : undefined,
+      periodId: selectedPeriodId || undefined,
     });
   };
 
@@ -271,6 +280,7 @@ export default function AIQuestionGenerator() {
       categoryIds: selectedCategoryIds,
       subcategoryIds: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
       moodLevels: purpose === 'wellness' ? (q.mood_levels?.length ? q.mood_levels : selectedMoodLevels) : undefined,
+      periodId: selectedPeriodId || undefined,
       _replaceAtIndex: index,
     } as any);
   };
