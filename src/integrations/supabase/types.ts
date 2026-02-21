@@ -1031,6 +1031,7 @@ export type Database = {
           enable_free_text: boolean
           id: string
           is_enabled: boolean
+          max_questions: number
           mood_level: string
           tenant_id: string
           updated_at: string
@@ -1041,6 +1042,7 @@ export type Database = {
           enable_free_text?: boolean
           id?: string
           is_enabled?: boolean
+          max_questions?: number
           mood_level: string
           tenant_id: string
           updated_at?: string
@@ -1051,6 +1053,7 @@ export type Database = {
           enable_free_text?: boolean
           id?: string
           is_enabled?: boolean
+          max_questions?: number
           mood_level?: string
           tenant_id?: string
           updated_at?: string

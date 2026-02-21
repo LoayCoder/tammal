@@ -10,6 +10,7 @@ export interface MoodQuestionConfig {
   is_enabled: boolean;
   enable_free_text: boolean;
   custom_prompt_context: string | null;
+  max_questions: number;
 }
 
 const MOOD_LEVELS = ['great', 'good', 'okay', 'struggling', 'need_help'];
@@ -19,6 +20,7 @@ const DEFAULT_CONFIGS: Omit<MoodQuestionConfig, 'tenant_id'>[] = MOOD_LEVELS.map
   is_enabled: true,
   enable_free_text: level === 'great' || level === 'need_help',
   custom_prompt_context: null,
+  max_questions: 2,
 }));
 
 export function useMoodQuestionConfig(tenantId: string | null) {
@@ -43,12 +45,13 @@ export function useMoodQuestionConfig(tenantId: string | null) {
       const fetched = ((data || []) as unknown) as MoodQuestionConfig[];
       return MOOD_LEVELS.map(level => {
         const found = fetched.find(c => c.mood_level === level);
-        return found || {
+      return found || {
           tenant_id: tenantId,
           mood_level: level,
           is_enabled: true,
           enable_free_text: level === 'great' || level === 'need_help',
           custom_prompt_context: null,
+          max_questions: 2,
         } as MoodQuestionConfig;
       });
     },
@@ -66,6 +69,7 @@ export function useMoodQuestionConfig(tenantId: string | null) {
             is_enabled: config.is_enabled,
             enable_free_text: config.enable_free_text,
             custom_prompt_context: config.custom_prompt_context,
+            max_questions: config.max_questions,
           },
           { onConflict: 'tenant_id,mood_level' }
         );

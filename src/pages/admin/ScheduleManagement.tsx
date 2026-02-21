@@ -18,7 +18,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
-import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Package, Building2, UserCheck, Search, Check, X, ChevronDown } from 'lucide-react';
+import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Package, Building2, UserCheck, Search, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
 import SchedulePreviewDialog from '@/components/schedules/SchedulePreviewDialog';
 import { useQuestionSchedules, QuestionSchedule } from '@/hooks/useQuestionSchedules';
 import { useQuestionBatches } from '@/hooks/useQuestionBatches';
@@ -715,13 +715,31 @@ export default function ScheduleManagement() {
               </div>
               <div className="space-y-2">
                 <Label>{t('schedules.questionsPerDelivery')}</Label>
-                <Input
-                  type="number"
-                  min={1}
-                  max={10}
-                  value={questionsPerDelivery}
-                  onChange={e => setQuestionsPerDelivery(Number(e.target.value))}
-                />
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-10 w-10"
+                    onClick={() => setQuestionsPerDelivery(prev => Math.max(1, prev - 1))}
+                    disabled={questionsPerDelivery <= 1}
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                  <span className="w-10 text-center text-sm font-semibold tabular-nums">
+                    {questionsPerDelivery}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-10 w-10"
+                    onClick={() => setQuestionsPerDelivery(prev => Math.min(10, prev + 1))}
+                    disabled={questionsPerDelivery >= 10}
+                  >
+                    <ChevronUp className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
             {/* Question Batches Multi-Select */}
