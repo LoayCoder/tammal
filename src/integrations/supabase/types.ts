@@ -676,17 +676,23 @@ export type Database = {
       }
       generated_questions: {
         Row: {
+          affective_state: string | null
           ambiguity_flag: boolean | null
           bias_flag: boolean | null
+          category_id: string | null
           complexity: string | null
           confidence_score: number | null
           created_at: string | null
           explanation: string | null
+          generation_period_id: string | null
           id: string
+          mood_score: number | null
           options: Json | null
+          question_hash: string | null
           question_set_id: string
           question_text: string
           question_text_ar: string | null
+          subcategory_id: string | null
           tenant_id: string | null
           tone: string | null
           type: string
@@ -694,17 +700,23 @@ export type Database = {
           validation_status: string | null
         }
         Insert: {
+          affective_state?: string | null
           ambiguity_flag?: boolean | null
           bias_flag?: boolean | null
+          category_id?: string | null
           complexity?: string | null
           confidence_score?: number | null
           created_at?: string | null
           explanation?: string | null
+          generation_period_id?: string | null
           id?: string
+          mood_score?: number | null
           options?: Json | null
+          question_hash?: string | null
           question_set_id: string
           question_text: string
           question_text_ar?: string | null
+          subcategory_id?: string | null
           tenant_id?: string | null
           tone?: string | null
           type: string
@@ -712,17 +724,23 @@ export type Database = {
           validation_status?: string | null
         }
         Update: {
+          affective_state?: string | null
           ambiguity_flag?: boolean | null
           bias_flag?: boolean | null
+          category_id?: string | null
           complexity?: string | null
           confidence_score?: number | null
           created_at?: string | null
           explanation?: string | null
+          generation_period_id?: string | null
           id?: string
+          mood_score?: number | null
           options?: Json | null
+          question_hash?: string | null
           question_set_id?: string
           question_text?: string
           question_text_ar?: string | null
+          subcategory_id?: string | null
           tenant_id?: string | null
           tone?: string | null
           type?: string
@@ -730,6 +748,13 @@ export type Database = {
           validation_status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "generated_questions_generation_period_id_fkey"
+            columns: ["generation_period_id"]
+            isOneToOne: false
+            referencedRelation: "generation_periods"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "generated_questions_question_set_id_fkey"
             columns: ["question_set_id"]
@@ -739,6 +764,59 @@ export type Database = {
           },
           {
             foreignKeyName: "generated_questions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      generation_periods: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          deleted_at: string | null
+          end_date: string
+          id: string
+          locked_category_ids: Json
+          locked_subcategory_ids: Json
+          period_type: string
+          start_date: string
+          status: string
+          tenant_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          deleted_at?: string | null
+          end_date: string
+          id?: string
+          locked_category_ids?: Json
+          locked_subcategory_ids?: Json
+          period_type?: string
+          start_date: string
+          status?: string
+          tenant_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          deleted_at?: string | null
+          end_date?: string
+          id?: string
+          locked_category_ids?: Json
+          locked_subcategory_ids?: Json
+          period_type?: string
+          start_date?: string
+          status?: string
+          tenant_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generation_periods_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -1627,6 +1705,7 @@ export type Database = {
       }
       questions: {
         Row: {
+          affective_state: string | null
           ai_generated: boolean | null
           category_id: string | null
           created_at: string | null
@@ -1636,7 +1715,9 @@ export type Database = {
           is_active: boolean | null
           is_global: boolean | null
           mood_levels: Json | null
+          mood_score: number | null
           options: Json | null
+          subcategory_id: string | null
           tenant_id: string | null
           text: string
           text_ar: string | null
@@ -1644,6 +1725,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          affective_state?: string | null
           ai_generated?: boolean | null
           category_id?: string | null
           created_at?: string | null
@@ -1653,7 +1735,9 @@ export type Database = {
           is_active?: boolean | null
           is_global?: boolean | null
           mood_levels?: Json | null
+          mood_score?: number | null
           options?: Json | null
+          subcategory_id?: string | null
           tenant_id?: string | null
           text: string
           text_ar?: string | null
@@ -1661,6 +1745,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          affective_state?: string | null
           ai_generated?: boolean | null
           category_id?: string | null
           created_at?: string | null
@@ -1670,7 +1755,9 @@ export type Database = {
           is_active?: boolean | null
           is_global?: boolean | null
           mood_levels?: Json | null
+          mood_score?: number | null
           options?: Json | null
+          subcategory_id?: string | null
           tenant_id?: string | null
           text?: string
           text_ar?: string | null

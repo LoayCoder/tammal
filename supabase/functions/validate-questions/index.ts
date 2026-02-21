@@ -18,6 +18,13 @@ interface Question {
   ambiguity_flag: boolean;
   framework_reference?: string | null;
   options?: { text: string; text_ar: string }[];
+  affective_state?: string;
+  mood_score?: number;
+  category_name?: string | null;
+  subcategory_name?: string | null;
+  category_id?: string | null;
+  subcategory_id?: string | null;
+  question_hash?: string;
 }
 
 interface ValidateRequest {
@@ -30,6 +37,15 @@ interface ValidateRequest {
   selectedFrameworkIds?: string[];
   knowledgeDocumentIds?: string[];
   hasDocuments?: boolean;
+  periodId?: string;
+}
+
+function computeJaccard(a: string, b: string): number {
+  const wordsA = new Set(a.toLowerCase().split(/\s+/));
+  const wordsB = new Set(b.toLowerCase().split(/\s+/));
+  const intersection = [...wordsA].filter(w => wordsB.has(w)).length;
+  const union = new Set([...wordsA, ...wordsB]).size;
+  return union > 0 ? intersection / union : 0;
 }
 
 serve(async (req) => {
@@ -50,7 +66,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { questions, accuracyMode, enableCriticPass, minWordLength = 5, questionSetId, model = "google/gemini-3-flash-preview", selectedFrameworkIds = [], knowledgeDocumentIds = [], hasDocuments = false }: ValidateRequest = await req.json();
+    const { questions, accuracyMode, enableCriticPass, minWordLength = 5, questionSetId, model = "google/gemini-3-flash-preview", selectedFrameworkIds = [], knowledgeDocumentIds = [], hasDocuments = false, periodId }: ValidateRequest = await req.json();
 
     const validationResults: Record<string, { result: string; details: any }> = {};
     const perQuestionResults: { validation_status: string; validation_details: Record<string, any> }[] = [];
@@ -97,13 +113,7 @@ serve(async (req) => {
     const duplicateDetails: string[] = [];
     for (let i = 0; i < questions.length; i++) {
       for (let j = i + 1; j < questions.length; j++) {
-        const a = questions[i].question_text.toLowerCase().trim();
-        const b = questions[j].question_text.toLowerCase().trim();
-        const wordsA = new Set(a.split(/\s+/));
-        const wordsB = new Set(b.split(/\s+/));
-        const intersection = [...wordsA].filter(w => wordsB.has(w)).length;
-        const union = new Set([...wordsA, ...wordsB]).size;
-        const similarity = union > 0 ? intersection / union : 0;
+        const similarity = computeJaccard(questions[i].question_text.trim(), questions[j].question_text.trim());
         if (similarity > 0.7) {
           duplicatesPassed = false;
           duplicateDetails.push(`Q${i + 1} and Q${j + 1} are similar (${Math.round(similarity * 100)}%)`);
@@ -136,7 +146,7 @@ serve(async (req) => {
       details: `Average confidence: ${Math.round(avgConfidence)}%`,
     };
 
-    // 7. Framework alignment check (NEW)
+    // 7. Framework alignment check
     if (selectedFrameworkIds.length > 0) {
       const { data: frameworks } = await supabase
         .from("reference_frameworks")
@@ -170,7 +180,7 @@ serve(async (req) => {
       };
     }
 
-    // 8. Document grounding check (NEW) — only flag if docs were provided but no references appear
+    // 8. Document grounding check
     if (hasDocuments) {
       const questionsWithoutGrounding = questions.filter(q => {
         const text = (q.explanation || "").toLowerCase();
@@ -185,7 +195,112 @@ serve(async (req) => {
       };
     }
 
-    // 9. Critic pass
+    // 9. Distribution Balance Check (NEW)
+    {
+      const distDetails: string[] = [];
+      let distPassed = true;
+
+      // Category distribution
+      const catCounts: Record<string, number> = {};
+      const subCounts: Record<string, number> = {};
+      const affectiveCounts: Record<string, Record<string, number>> = {};
+
+      for (const q of questions) {
+        const catKey = q.category_id || q.category_name || "unknown";
+        catCounts[catKey] = (catCounts[catKey] || 0) + 1;
+
+        const subKey = q.subcategory_id || q.subcategory_name || "unknown";
+        subCounts[subKey] = (subCounts[subKey] || 0) + 1;
+
+        const state = q.affective_state || "neutral";
+        if (!affectiveCounts[subKey]) affectiveCounts[subKey] = { positive: 0, neutral: 0, negative: 0 };
+        affectiveCounts[subKey][state] = (affectiveCounts[subKey][state] || 0) + 1;
+      }
+
+      // Check category balance
+      const catKeys = Object.keys(catCounts).filter(k => k !== "unknown");
+      if (catKeys.length > 1) {
+        const fairShare = questions.length / catKeys.length;
+        for (const key of catKeys) {
+          if (catCounts[key] < fairShare * 0.2) {
+            distPassed = false;
+            distDetails.push(`Category "${key}" has only ${catCounts[key]} questions (expected ~${Math.round(fairShare)})`);
+          }
+        }
+      }
+
+      // Check subcategory balance
+      const subKeys = Object.keys(subCounts).filter(k => k !== "unknown");
+      if (subKeys.length > 1) {
+        const fairShare = questions.length / subKeys.length;
+        for (const key of subKeys) {
+          if (subCounts[key] < fairShare * 0.2) {
+            distPassed = false;
+            distDetails.push(`Subcategory "${key}" has only ${subCounts[key]} questions (expected ~${Math.round(fairShare)})`);
+          }
+        }
+      }
+
+      // Check affective state balance per subcategory
+      for (const [subKey, states] of Object.entries(affectiveCounts)) {
+        if (subKey === "unknown") continue;
+        const total = (states.positive || 0) + (states.neutral || 0) + (states.negative || 0);
+        if (total >= 3) {
+          const fairShare = total / 3;
+          for (const [state, count] of Object.entries(states)) {
+            if (count < fairShare * 0.2) {
+              distPassed = false;
+              distDetails.push(`Subcategory "${subKey}": "${state}" has only ${count} of ${total} questions`);
+            }
+          }
+        }
+      }
+
+      validationResults.distribution = {
+        result: distPassed ? "passed" : "warning",
+        details: distDetails.length > 0 ? distDetails : "Questions are well distributed across categories, subcategories, and affective states",
+      };
+    }
+
+    // 10. Cross-Period Semantic Similarity (NEW)
+    if (periodId) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data: userData } = await supabase.auth.getUser(token);
+      const tenantId = userData?.user
+        ? await supabase.rpc("get_user_tenant_id", { _user_id: userData.user.id }).then(r => r.data)
+        : null;
+
+      if (tenantId) {
+        const { data: existingQuestions } = await supabase
+          .from("generated_questions")
+          .select("question_text")
+          .eq("generation_period_id", periodId)
+          .eq("tenant_id", tenantId);
+
+        if (existingQuestions && existingQuestions.length > 0) {
+          const semanticDetails: string[] = [];
+          let semanticPassed = true;
+
+          for (let i = 0; i < questions.length; i++) {
+            for (const existing of existingQuestions) {
+              const similarity = computeJaccard(questions[i].question_text, existing.question_text);
+              if (similarity > 0.6) {
+                semanticPassed = false;
+                semanticDetails.push(`Q${i + 1} is similar to existing period question (${Math.round(similarity * 100)}%)`);
+                break;
+              }
+            }
+          }
+
+          validationResults.semantic_dedup = {
+            result: semanticPassed ? "passed" : "warning",
+            details: semanticDetails.length > 0 ? semanticDetails : "No semantic duplicates found in this period",
+          };
+        }
+      }
+    }
+
+    // 11. Critic pass
     let criticResult = null;
     if (enableCriticPass) {
       const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -290,6 +405,11 @@ ${questions.map((q, i) => `${i + 1}. [${q.type}/${q.complexity}] ${q.question_te
       if (selectedFrameworkIds.length > 0 && !questions[i].framework_reference) {
         status = accuracyMode === "strict" ? "failed" : (status === "failed" ? "failed" : "warning");
         qIssues.push("missing_framework_reference");
+      }
+
+      // Semantic duplicate flag
+      if ((questions[i] as any).question_hash) {
+        // Already handled by generate function
       }
 
       // Critic issues
