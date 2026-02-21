@@ -353,7 +353,27 @@
       "okay": "عادي",
       "struggling": "أعاني",
       "need_help": "بحاجة للمساعدة"
-    }
+    },
+    "riskTrend": "اتجاه المخاطر عبر الزمن",
+    "riskThreshold": "حد المخاطر",
+    "riskPct": "نسبة المخاطر",
+    "limit": "الحد",
+    "aboveThreshold": "فوق الحد",
+    "orgComparison": "التحليل المقارن",
+    "compareBy": "مقارنة حسب",
+    "compareTabs": {
+      "branch": "الفرع",
+      "division": "القسم",
+      "department": "الإدارة",
+      "section": "الوحدة"
+    },
+    "orgAverage": "متوسط المنظمة",
+    "wellnessScore": "الرفاهية",
+    "belowAverage": "أقل من المتوسط",
+    "topEngagers": "أكثر الموظفين تفاعلاً",
+    "rank": "الترتيب",
+    "streak": "التتابع",
+    "totalPoints": "النقاط"
   },
   "install": {
     "title": "تثبيت التطبيق",

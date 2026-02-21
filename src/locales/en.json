@@ -353,7 +353,27 @@
       "okay": "Okay",
       "struggling": "Struggling",
       "need_help": "Need Help"
-    }
+    },
+    "riskTrend": "Risk Trend Over Time",
+    "riskThreshold": "Risk Threshold",
+    "riskPct": "Risk %",
+    "limit": "Limit",
+    "aboveThreshold": "Above Threshold",
+    "orgComparison": "Comparative Analysis",
+    "compareBy": "Compare By",
+    "compareTabs": {
+      "branch": "Branch",
+      "division": "Division",
+      "department": "Department",
+      "section": "Section"
+    },
+    "orgAverage": "Org Average",
+    "wellnessScore": "Wellness",
+    "belowAverage": "Below Average",
+    "topEngagers": "Top Engaged Employees",
+    "rank": "Rank",
+    "streak": "Streak",
+    "totalPoints": "Points"
   },
   "install": {
     "title": "Install App",

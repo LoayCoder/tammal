@@ -9,6 +9,9 @@ import { CategoryHealthChart } from './CategoryHealthChart';
 import { SubcategoryChart } from './SubcategoryChart';
 import { AffectiveStateChart } from './AffectiveStateChart';
 import { ResponseHeatmap } from './ResponseHeatmap';
+import { RiskTrendChart } from './RiskTrendChart';
+import { OrgComparisonChart } from './OrgComparisonChart';
+import { TopEngagersCard } from './TopEngagersCard';
 import { Users, Heart, TrendingUp, AlertTriangle, Flame, ClipboardCheck } from 'lucide-react';
 import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -120,6 +123,9 @@ export function OrgDashboard() {
         </CardContent>
       </Card>
 
+      {/* Risk Trend */}
+      <RiskTrendChart data={stats?.riskTrend ?? []} isLoading={isLoading} />
+
       {/* Category Health + Affective State */}
       <div className="grid gap-4 md:grid-cols-2">
         <CategoryHealthChart data={stats?.categoryScores ?? []} isLoading={isLoading} />
@@ -129,7 +135,13 @@ export function OrgDashboard() {
       {/* Subcategory Drill-Down */}
       <SubcategoryChart data={stats?.subcategoryScores ?? []} isLoading={isLoading} />
 
-      {/* Mood Distribution + Heatmap */}
+      {/* Org Comparison */}
+      <OrgComparisonChart
+        data={stats?.orgComparison ?? { branches: [], divisions: [], departments: [], sections: [] }}
+        isLoading={isLoading}
+      />
+
+      {/* Mood Distribution + Top Engagers + Heatmap */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="pb-2">
@@ -157,8 +169,11 @@ export function OrgDashboard() {
             )}
           </CardContent>
         </Card>
-        <ResponseHeatmap data={stats?.dayOfWeekActivity ?? []} isLoading={isLoading} />
+        <TopEngagersCard data={stats?.topEngagers ?? []} isLoading={isLoading} />
       </div>
+
+      {/* Heatmap */}
+      <ResponseHeatmap data={stats?.dayOfWeekActivity ?? []} isLoading={isLoading} />
     </div>
   );
 }

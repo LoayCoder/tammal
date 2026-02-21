@@ -43,6 +43,37 @@ export interface DayOfWeekActivity {
   count: number;
 }
 
+export interface RiskTrendPoint {
+  date: string;
+  riskPct: number;
+  totalEntries: number;
+}
+
+export interface OrgUnitComparison {
+  id: string;
+  name: string;
+  avgScore: number;
+  participation: number;
+  riskPct: number;
+  employeeCount: number;
+}
+
+export interface OrgComparison {
+  branches: OrgUnitComparison[];
+  divisions: OrgUnitComparison[];
+  departments: OrgUnitComparison[];
+  sections: OrgUnitComparison[];
+}
+
+export interface TopEngager {
+  employeeId: string;
+  firstName: string;
+  department: string;
+  streak: number;
+  responseCount: number;
+  totalPoints: number;
+}
+
 export interface OrgAnalyticsData {
   activeEmployees: number;
   avgMoodScore: number;
@@ -56,6 +87,9 @@ export interface OrgAnalyticsData {
   subcategoryScores: SubcategoryScore[];
   affectiveDistribution: AffectiveDistribution[];
   dayOfWeekActivity: DayOfWeekActivity[];
+  riskTrend: RiskTrendPoint[];
+  orgComparison: OrgComparison;
+  topEngagers: TopEngager[];
 }
 
 function hasOrgFilter(f?: OrgFilter): boolean {
@@ -346,10 +380,26 @@ export function useOrgAnalytics(
       entries.forEach(e => { dowCounts[getDay(new Date(e.entry_date))]++; });
       const dayOfWeekActivity: DayOfWeekActivity[] = dowCounts.map((count, day) => ({ day, count }));
 
+      // 12. Risk Trend (daily risk %)
+      const riskTrend: RiskTrendPoint[] = allDays.map(day => {
+        const dateStr = format(day, 'yyyy-MM-dd');
+        const dayEntries = entries.filter(e => e.entry_date === dateStr);
+        const total = dayEntries.length;
+        const atRisk = dayEntries.filter(e => e.mood_score <= 2).length;
+        return { date: dateStr, riskPct: total > 0 ? Math.round((atRisk / total) * 100) : 0, totalEntries: total };
+      });
+
+      // 13. Org Comparison
+      const orgComparison = await computeOrgComparison(entries, filteredIds, startDate, endDate);
+
+      // 14. Top Engagers
+      const topEngagers = await computeTopEngagers(entries, filteredIds, startDate, endDate);
+
       return {
         activeEmployees: totalActive, avgMoodScore, participationRate, surveyResponseRate,
         riskPercentage, avgStreak, moodTrend, moodDistribution, categoryScores,
         subcategoryScores, affectiveDistribution, dayOfWeekActivity,
+        riskTrend, orgComparison, topEngagers,
       };
     },
     enabled: !!user?.id,
@@ -359,10 +409,158 @@ export function useOrgAnalytics(
   return { data, isLoading };
 }
 
+async function computeOrgComparison(
+  entries: { mood_score: number; employee_id: string; entry_date: string }[],
+  filteredIds: string[] | null,
+  startDate: string,
+  endDate: string,
+): Promise<OrgComparison> {
+  // Get all employees (scoped)
+  let empQuery = supabase
+    .from('employees')
+    .select('id, full_name, branch_id, department_id, section_id')
+    .eq('status', 'active')
+    .is('deleted_at', null);
+  if (filteredIds) empQuery = empQuery.in('id', filteredIds);
+  const { data: employees } = await empQuery;
+  const emps = employees ?? [];
+
+  // Get branches, divisions, departments, sections names
+  const branchIds = [...new Set(emps.map(e => e.branch_id).filter(Boolean))] as string[];
+  const deptIds = [...new Set(emps.map(e => e.department_id).filter(Boolean))] as string[];
+  const sectionIds = [...new Set(emps.map(e => e.section_id).filter(Boolean))] as string[];
+
+  const [{ data: branches }, { data: departments }, { data: sections }] = await Promise.all([
+    branchIds.length > 0 ? supabase.from('branches').select('id, name').in('id', branchIds) : Promise.resolve({ data: [] }),
+    deptIds.length > 0 ? supabase.from('departments').select('id, name, division_id').in('id', deptIds) : Promise.resolve({ data: [] }),
+    sectionIds.length > 0 ? supabase.from('sites').select('id, name').in('id', sectionIds) : Promise.resolve({ data: [] }),
+  ]);
+
+  const divisionIds = [...new Set((departments ?? []).map(d => (d as any).division_id).filter(Boolean))] as string[];
+  const { data: divisions } = divisionIds.length > 0
+    ? await supabase.from('divisions').select('id, name').in('id', divisionIds)
+    : { data: [] };
+
+  function buildUnitStats(
+    unitList: { id: string; name: string }[],
+    getEmployeeIds: (unitId: string) => string[],
+  ): OrgUnitComparison[] {
+    return unitList.map(unit => {
+      const unitEmpIds = getEmployeeIds(unit.id);
+      const unitEntries = entries.filter(e => unitEmpIds.includes(e.employee_id));
+      const avgScore = unitEntries.length > 0
+        ? Math.round((unitEntries.reduce((s, e) => s + e.mood_score, 0) / unitEntries.length) * 10) / 10
+        : 0;
+      const uniqueParticipants = new Set(unitEntries.map(e => e.employee_id)).size;
+      const participation = unitEmpIds.length > 0 ? Math.round((uniqueParticipants / unitEmpIds.length) * 100) : 0;
+      const atRisk = unitEntries.filter(e => e.mood_score <= 2).length;
+      const riskPct = unitEntries.length > 0 ? Math.round((atRisk / unitEntries.length) * 100) : 0;
+      return { id: unit.id, name: unit.name, avgScore, participation, riskPct, employeeCount: unitEmpIds.length };
+    }).filter(u => u.employeeCount > 0);
+  }
+
+  const deptMap = new Map((departments ?? []).map(d => [d.id, d]));
+
+  return {
+    branches: buildUnitStats(branches ?? [], uid => emps.filter(e => e.branch_id === uid).map(e => e.id)),
+    divisions: buildUnitStats(divisions ?? [], uid => {
+      const divDepts = (departments ?? []).filter(d => (d as any).division_id === uid).map(d => d.id);
+      return emps.filter(e => e.department_id && divDepts.includes(e.department_id)).map(e => e.id);
+    }),
+    departments: buildUnitStats(departments ?? [], uid => emps.filter(e => e.department_id === uid).map(e => e.id)),
+    sections: buildUnitStats(sections ?? [], uid => emps.filter(e => e.section_id === uid).map(e => e.id)),
+  };
+}
+
+async function computeTopEngagers(
+  entries: { mood_score: number; employee_id: string; entry_date: string }[],
+  filteredIds: string[] | null,
+  startDate: string,
+  endDate: string,
+): Promise<TopEngager[]> {
+  // Group entries by employee
+  const empMap: Record<string, string[]> = {};
+  entries.forEach(e => {
+    if (!empMap[e.employee_id]) empMap[e.employee_id] = [];
+    empMap[e.employee_id].push(e.entry_date);
+  });
+
+  // Calculate streaks
+  const streaks: { employeeId: string; streak: number }[] = [];
+  Object.entries(empMap).forEach(([empId, dates]) => {
+    const sorted = [...new Set(dates)].sort().reverse();
+    let streak = 1;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    // Check if latest entry is today or yesterday
+    const latest = new Date(sorted[0]);
+    latest.setHours(0, 0, 0, 0);
+    const diffFromToday = (today.getTime() - latest.getTime()) / 86400000;
+    if (diffFromToday > 1) {
+      streaks.push({ employeeId: empId, streak: 0 });
+      return;
+    }
+    for (let i = 1; i < sorted.length; i++) {
+      const diff = (new Date(sorted[i - 1]).getTime() - new Date(sorted[i]).getTime()) / 86400000;
+      if (diff === 1) streak++;
+      else break;
+    }
+    streaks.push({ employeeId: empId, streak });
+  });
+
+  // Get response counts
+  const empIds = Object.keys(empMap);
+  if (empIds.length === 0) return [];
+
+  let respQuery = supabase
+    .from('employee_responses')
+    .select('employee_id')
+    .gte('responded_at', `${startDate}T00:00:00`)
+    .lte('responded_at', `${endDate}T23:59:59`);
+  if (filteredIds) respQuery = respQuery.in('employee_id', filteredIds);
+  const { data: responses } = await respQuery;
+
+  const respCounts: Record<string, number> = {};
+  (responses ?? []).forEach(r => {
+    respCounts[r.employee_id] = (respCounts[r.employee_id] ?? 0) + 1;
+  });
+
+  // Merge and sort
+  const merged = streaks.map(s => ({
+    ...s,
+    responseCount: respCounts[s.employeeId] ?? 0,
+    totalPoints: (entries.filter(e => e.employee_id === s.employeeId).length * 10) + (s.streak * 5),
+  }));
+  merged.sort((a, b) => b.streak - a.streak || b.responseCount - a.responseCount);
+  const top10 = merged.slice(0, 10);
+
+  // Get employee names
+  const top10Ids = top10.map(t => t.employeeId);
+  const { data: empData } = await supabase
+    .from('employees')
+    .select('id, full_name, department_id')
+    .in('id', top10Ids);
+
+  const deptIds = [...new Set((empData ?? []).map(e => e.department_id).filter(Boolean))] as string[];
+  const { data: depts } = deptIds.length > 0
+    ? await supabase.from('departments').select('id, name').in('id', deptIds)
+    : { data: [] };
+  const deptMap = new Map((depts ?? []).map(d => [d.id, d.name]));
+  const empLookup = new Map((empData ?? []).map(e => [e.id, e]));
+
+  return top10.map(t => {
+    const emp = empLookup.get(t.employeeId);
+    const firstName = emp?.full_name?.split(' ')[0] ?? '—';
+    const department = emp?.department_id ? (deptMap.get(emp.department_id) ?? '—') : '—';
+    return { employeeId: t.employeeId, firstName, department, streak: t.streak, responseCount: t.responseCount, totalPoints: t.totalPoints };
+  });
+}
+
 function emptyResult(): OrgAnalyticsData {
   return {
     activeEmployees: 0, avgMoodScore: 0, participationRate: 0, surveyResponseRate: 0,
     riskPercentage: 0, avgStreak: 0, moodTrend: [], moodDistribution: [],
     categoryScores: [], subcategoryScores: [], affectiveDistribution: [], dayOfWeekActivity: [],
+    riskTrend: [], orgComparison: { branches: [], divisions: [], departments: [], sections: [] }, topEngagers: [],
   };
 }
