@@ -98,7 +98,7 @@ export function useQuestionBatches(tenantId: string | null) {
 
       const wellnessBatches: QuestionBatch[] = (wellnessData || []).map(b => ({
         id: b.id,
-        name: null,
+        name: (b as any).name || null,
         tenant_id: b.tenant_id,
         user_id: b.created_by,
         model_used: '',
@@ -396,6 +396,32 @@ export function useQuestionBatches(tenantId: string | null) {
     },
   });
 
+  const renameBatch = useMutation({
+    mutationFn: async ({ batchId, newName }: { batchId: string; newName: string }) => {
+      const batch = (batchesQuery.data || []).find(b => b.id === batchId);
+      if (batch?.purpose === 'wellness') {
+        const { error } = await supabase
+          .from('question_generation_batches')
+          .update({ name: newName } as any)
+          .eq('id', batchId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('question_sets')
+          .update({ name: newName })
+          .eq('id', batchId);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['question-batches'] });
+      toast.success(t('batches.renameSuccess', 'Batch renamed successfully'));
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+
   const availableBatches = (batchesQuery.data || []).filter(
     b => b.purpose === 'survey' && b.question_count < MAX_BATCH_SIZE
   );
@@ -417,6 +443,7 @@ export function useQuestionBatches(tenantId: string | null) {
     activateBatch,
     activateQuestions,
     deleteBatch,
+    renameBatch,
     MAX_BATCH_SIZE,
   };
 }
