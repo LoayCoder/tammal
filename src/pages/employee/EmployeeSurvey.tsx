@@ -93,6 +93,15 @@ export default function EmployeeSurvey() {
   const question = currentQuestion.question;
   const questionText = isRTL && question?.text_ar ? question.text_ar : question?.text;
 
+  const resolveOption = (opt: unknown): string => {
+    if (typeof opt === 'string') return opt;
+    if (opt && typeof opt === 'object' && 'text' in opt) {
+      const o = opt as { text: string; text_ar?: string };
+      return isRTL && o.text_ar ? o.text_ar : o.text;
+    }
+    return String(opt);
+  };
+
   const renderAnswerInput = () => {
     if (!question) return null;
 
@@ -117,6 +126,7 @@ export default function EmployeeSurvey() {
         );
 
       case 'numeric_scale':
+      case 'scale':
         return (
           <div className="space-y-4">
             <Slider
@@ -155,7 +165,28 @@ export default function EmployeeSurvey() {
           </div>
         );
 
+      case 'multiple_choice':
+        if (!question.options || !Array.isArray(question.options)) return null;
+        return (
+          <RadioGroup
+            value={String(answer || '')}
+            onValueChange={(v) => setAnswer(v)}
+            className="space-y-2"
+          >
+            {(question.options as unknown[]).map((opt, i) => {
+              const label = resolveOption(opt);
+              return (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-all">
+                  <RadioGroupItem value={label} id={`mc-${i}`} />
+                  <Label htmlFor={`mc-${i}`} className="cursor-pointer flex-1">{label}</Label>
+                </div>
+              );
+            })}
+          </RadioGroup>
+        );
+
       case 'open_ended':
+      case 'text':
         return (
           <Textarea
             value={String(answer || '')}

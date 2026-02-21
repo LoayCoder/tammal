@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -95,6 +96,24 @@ export function WellnessQuestionStep({ question, isLoading, answerValue, onAnswe
                   placeholder={t('wellness.typeAnswer')}
                   className="min-h-[100px]"
                 />
+              )}
+              {question.question_type === 'yes_no' && (
+                <div className="flex gap-3">
+                  <Button
+                    variant={answerValue === true ? 'default' : 'outline'}
+                    className="flex-1 h-12 text-base rounded-xl"
+                    onClick={() => selectAndAdvance(true)}
+                  >
+                    {t('common.yes')}
+                  </Button>
+                  <Button
+                    variant={answerValue === false ? 'default' : 'outline'}
+                    className="flex-1 h-12 text-base rounded-xl"
+                    onClick={() => selectAndAdvance(false)}
+                  >
+                    {t('common.no')}
+                  </Button>
+                </div>
               )}
             </div>
           ) : (

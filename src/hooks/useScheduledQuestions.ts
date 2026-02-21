@@ -71,7 +71,8 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
 
       // Fetch question details based on question_source
       const questionsIds = rows.filter(r => r.question_source === 'questions').map(r => r.question_id);
-      const wellnessIds = rows.filter(r => r.question_source !== 'questions').map(r => r.question_id);
+      const wellnessIds = rows.filter(r => r.question_source === 'wellness_questions').map(r => r.question_id);
+      const generatedIds = rows.filter(r => r.question_source === 'generated_questions').map(r => r.question_id);
 
       let questionsMap: Record<string, any> = {};
 
@@ -103,6 +104,23 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
             text: q.question_text_en,
             text_ar: q.question_text_ar,
             type: q.question_type,
+            options: q.options,
+            category: null,
+          };
+        });
+      }
+
+      if (generatedIds.length > 0) {
+        const { data: gData } = await supabase
+          .from('generated_questions')
+          .select('id, question_text, question_text_ar, type, options')
+          .in('id', generatedIds);
+        (gData || []).forEach((q: any) => {
+          questionsMap[q.id] = {
+            id: q.id,
+            text: q.question_text,
+            text_ar: q.question_text_ar,
+            type: q.type,
             options: q.options,
             category: null,
           };

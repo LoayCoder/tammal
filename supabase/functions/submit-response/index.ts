@@ -208,8 +208,8 @@ function validateAnswer(type: string, value: any, options?: any[]): { valid: boo
       }
       break;
     case "yes_no":
-      if (typeof value !== "boolean") {
-        return { valid: false, error: "Yes/No value must be a boolean" };
+      if (typeof value !== "boolean" && typeof value !== "string") {
+        return { valid: false, error: "Yes/No value must be a boolean or string" };
       }
       break;
     case "open_ended":
