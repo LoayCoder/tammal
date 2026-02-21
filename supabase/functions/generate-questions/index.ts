@@ -29,6 +29,23 @@ interface GenerateRequest {
   categoryIds?: string[];
   subcategoryIds?: string[];
   moodLevels?: string[];
+  periodId?: string;
+}
+
+// Mood score mapping
+const MOOD_SCORE_MAP: Record<string, number> = {
+  great: 5, good: 4, okay: 3, struggling: 2, need_help: 1,
+};
+
+// Generate a normalized hash for semantic dedup
+function generateQuestionHash(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s]/g, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .sort()
+    .join(" ");
 }
 
 serve(async (req) => {
@@ -64,9 +81,10 @@ serve(async (req) => {
       knowledgeDocumentIds = [],
       customPrompt = "",
       selectedFrameworks = [],
-      categoryIds = [],
-      subcategoryIds = [],
+      categoryIds: inputCategoryIds = [],
+      subcategoryIds: inputSubcategoryIds = [],
       moodLevels = [],
+      periodId,
     }: GenerateRequest = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -75,6 +93,29 @@ serve(async (req) => {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // ========== PERIOD-AWARE CATEGORY LOCK ==========
+    let categoryIds = inputCategoryIds;
+    let subcategoryIds = inputSubcategoryIds;
+    let generationPeriodId: string | null = periodId || null;
+
+    if (periodId) {
+      const { data: period } = await supabase
+        .from("generation_periods")
+        .select("*")
+        .eq("id", periodId)
+        .eq("status", "active")
+        .is("deleted_at", null)
+        .single();
+
+      if (period) {
+        // Override UI selections with locked period selections
+        categoryIds = (period.locked_category_ids as string[]) || [];
+        subcategoryIds = (period.locked_subcategory_ids as string[]) || [];
+        generationPeriodId = period.id;
+        console.log(`Period lock active: ${categoryIds.length} categories, ${subcategoryIds.length} subcategories`);
+      }
     }
 
     // Validate model
@@ -109,7 +150,7 @@ Tone: ${tone}
 ${questionType && questionType !== "mixed" ? `Question type constraint: Only generate questions of these types: ${questionType}. Distribute questions evenly across the specified types.` : "Use a mix of question types"}
 ${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.minWordLength} words` : ""}`;
 
-    // 2. Framework block — fetch from DB including framework-linked documents
+    // 2. Framework block
     let frameworkNames: string[] = [];
     if (useExpertKnowledge && selectedFrameworks.length > 0) {
       const { data: frameworks } = await supabase
@@ -122,7 +163,6 @@ ${advancedSettings.minWordLength ? `Minimum question length: ${advancedSettings.
       if (frameworks && frameworks.length > 0) {
         frameworkNames = frameworks.map((f: any) => f.name);
 
-        // Fetch framework-linked reference documents
         const { data: fwDocs } = await supabase
           .from("reference_documents")
           .select("framework_id, file_name, extracted_text")
@@ -202,15 +242,20 @@ For EACH question you MUST also provide:
       systemPrompt += `\n\n# Additional User Instructions:\n${customPrompt}`;
     }
 
-    // 5. Category & Subcategory context (multi-select) — with full descriptions
+    // 5. Category & Subcategory context — fetch full data for ID resolution later
+    let categoryData: any[] = [];
+    let subcategoryData: any[] = [];
+
     if (categoryIds && categoryIds.length > 0) {
       const { data: catData } = await supabase
         .from("question_categories")
         .select("id, name, name_ar, description, description_ar")
         .in("id", categoryIds);
 
-      if (catData && catData.length > 0) {
-        const categoryDescriptions = catData.map((c: any, i: number) => {
+      categoryData = catData || [];
+
+      if (categoryData.length > 0) {
+        const categoryDescriptions = categoryData.map((c: any, i: number) => {
           let block = `${i + 1}. **${c.name}**${c.name_ar ? ` (${c.name_ar})` : ''}`;
           if (c.description) block += `: ${c.description}`;
           if (c.description_ar) block += ` | ${c.description_ar}`;
@@ -221,23 +266,24 @@ For EACH question you MUST also provide:
 Every generated question MUST belong to one of these categories. Tag each question with its category name.
 ${categoryDescriptions}`;
 
-        // Fetch subcategories for selected categories
         if (subcategoryIds && subcategoryIds.length > 0) {
           const { data: subData } = await supabase
             .from("question_subcategories")
             .select("id, name, name_ar, description, description_ar, category_id")
             .in("id", subcategoryIds);
 
-          if (subData && subData.length > 0) {
+          subcategoryData = subData || [];
+
+          if (subcategoryData.length > 0) {
             const subByCategory: Record<string, any[]> = {};
-            for (const s of subData) {
+            for (const s of subcategoryData) {
               if (!subByCategory[s.category_id]) subByCategory[s.category_id] = [];
               subByCategory[s.category_id].push(s);
             }
 
             let subcatBlock = '\n\n# Subcategory Focus (MANDATORY when provided):';
             subcatBlock += '\nNarrow each question to one of these specific subcategories within its parent category:';
-            for (const cat of catData) {
+            for (const cat of categoryData) {
               const subs = subByCategory[cat.id];
               if (subs && subs.length > 0) {
                 subcatBlock += `\n\n**${cat.name}** subcategories:`;
@@ -270,6 +316,23 @@ For EACH question, choose which mood level(s) it is most relevant for as a follo
 Return the mood_levels array in each question object.`;
     }
 
+    // 5c. Affective State Matrixing (NEW)
+    systemPrompt += `
+
+# Affective State Distribution (MANDATORY):
+For each subcategory, distribute questions across three affective states:
+- "positive" (Engaged/Thriving) - questions exploring strengths, satisfaction, growth
+- "neutral" (Passive/Observational) - questions measuring baseline, routine, factual state
+- "negative" (Stressed/At-Risk) - questions detecting burnout, dissatisfaction, risk
+
+Aim for balanced distribution: ~33% each per subcategory.
+Tag each question with its affective_state.
+
+# Mood Score (MANDATORY):
+Assign a numeric mood_score (1-5) to each question:
+1 = distress/crisis, 2 = struggling/at-risk, 3 = baseline/neutral, 4 = positive/engaged, 5 = thriving/flourishing
+The mood_score should reflect the emotional valence of the question's expected response context.`;
+
     // 6. Integration Priority Directive
     const activeSources = [];
     if (frameworkNames.length > 0) activeSources.push('Reference Frameworks');
@@ -289,7 +352,7 @@ Apply them in this strict priority order:
 All sources work together: a question should satisfy the category requirement while being grounded in frameworks and informed by documents.`;
     }
 
-    // 6. Tool definition
+    // 7. Tool definition (enhanced with affective_state and mood_score)
     const toolDefinition = {
       type: "function" as const,
       function: {
@@ -326,6 +389,15 @@ All sources work together: a question should satisfy the category requirement wh
                     items: { type: "string", enum: ["great", "good", "okay", "struggling", "need_help"] },
                     description: "Which mood levels this question is relevant for as a follow-up"
                   },
+                  affective_state: {
+                    type: "string",
+                    enum: ["positive", "neutral", "negative"],
+                    description: "The emotional valence of this question: positive (engaged/thriving), neutral (baseline/observational), negative (stressed/at-risk)"
+                  },
+                  mood_score: {
+                    type: "integer",
+                    description: "Numeric wellness score 1-5 where 1=distress, 5=thriving"
+                  },
                   options: {
                     type: "array",
                     items: {
@@ -335,7 +407,7 @@ All sources work together: a question should satisfy the category requirement wh
                     },
                   },
                 },
-                required: ["question_text", "question_text_ar", "type", "complexity", "tone", "explanation", "confidence_score", "bias_flag", "ambiguity_flag"],
+                required: ["question_text", "question_text_ar", "type", "complexity", "tone", "explanation", "confidence_score", "bias_flag", "ambiguity_flag", "affective_state", "mood_score"],
               },
             },
           },
@@ -354,7 +426,7 @@ Ensure variety in question types and assign a confidence score (0-100) based on 
 ${advancedSettings.enableBiasDetection ? "Flag any questions with potential bias issues." : ""}
 ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous wording." : ""}`;
 
-    console.log(`Generating ${questionCount} questions with model: ${selectedModel}, accuracy: ${accuracyMode}, frameworks: ${frameworkNames.length}, categories: ${categoryIds.length}, subcategories: ${subcategoryIds.length}`);
+    console.log(`Generating ${questionCount} questions with model: ${selectedModel}, accuracy: ${accuracyMode}, frameworks: ${frameworkNames.length}, categories: ${categoryIds.length}, subcategories: ${subcategoryIds.length}, period: ${generationPeriodId || 'freeform'}`);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -465,7 +537,7 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
             } catch { /* ignore parse error on retry */ }
           }
         } else {
-          await retryResponse.text(); // consume body
+          await retryResponse.text();
         }
       } catch (retryErr) {
         console.error("Retry failed:", retryErr);
@@ -485,33 +557,108 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       return "likert_5";
     };
 
-    questions = questions.map((q: any) => ({
-      question_text: q.question_text || q.text || "",
-      question_text_ar: q.question_text_ar || q.text_ar || "",
-      type: normalizeType(q.type),
-      complexity: q.complexity || complexity,
-      tone: q.tone || tone,
-      explanation: q.explanation || "",
-      confidence_score: typeof q.confidence_score === "number" ? q.confidence_score : 75,
-      bias_flag: q.bias_flag === true,
-      ambiguity_flag: q.ambiguity_flag === true,
-      validation_status: "pending",
-      validation_details: {},
-      options: q.options || [],
-      framework_reference: q.framework_reference || null,
-      psychological_construct: q.psychological_construct || null,
-      scoring_mechanism: q.scoring_mechanism || null,
-      category_name: q.category_name || null,
-      subcategory_name: q.subcategory_name || null,
-      mood_levels: Array.isArray(q.mood_levels) ? q.mood_levels : [],
-    }));
+    // ========== CATEGORY/SUBCATEGORY ID RESOLUTION ==========
+    const resolveCategoryId = (catName: string | null): string | null => {
+      if (!catName || categoryData.length === 0) return null;
+      const lower = catName.toLowerCase().trim();
+      const match = categoryData.find((c: any) =>
+        c.name.toLowerCase().trim() === lower ||
+        (c.name_ar && c.name_ar.toLowerCase().trim() === lower)
+      );
+      return match?.id || null;
+    };
+
+    const resolveSubcategoryId = (subName: string | null): string | null => {
+      if (!subName || subcategoryData.length === 0) return null;
+      const lower = subName.toLowerCase().trim();
+      const match = subcategoryData.find((s: any) =>
+        s.name.toLowerCase().trim() === lower ||
+        (s.name_ar && s.name_ar.toLowerCase().trim() === lower)
+      );
+      return match?.id || null;
+    };
+
+    // ========== MOOD SCORE DERIVATION ==========
+    const deriveMoodScore = (q: any): number => {
+      if (typeof q.mood_score === "number" && q.mood_score >= 1 && q.mood_score <= 5) return q.mood_score;
+      const levels: string[] = Array.isArray(q.mood_levels) ? q.mood_levels : [];
+      if (levels.length > 0) {
+        const scores = levels.map(l => MOOD_SCORE_MAP[l] || 3);
+        return Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length);
+      }
+      // Derive from affective_state
+      if (q.affective_state === "positive") return 4;
+      if (q.affective_state === "negative") return 2;
+      return 3;
+    };
+
+    // ========== SEMANTIC DEDUP (Cross-Period Memory) ==========
+    let existingHashes = new Set<string>();
+    if (generationPeriodId) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data: userData } = await supabase.auth.getUser(token);
+      const tenantId = userData?.user
+        ? await supabase.rpc("get_user_tenant_id", { _user_id: userData.user.id }).then(r => r.data)
+        : null;
+
+      if (tenantId) {
+        const { data: existingQuestions } = await supabase
+          .from("generated_questions")
+          .select("question_hash")
+          .eq("generation_period_id", generationPeriodId)
+          .eq("tenant_id", tenantId);
+
+        if (existingQuestions) {
+          existingHashes = new Set(existingQuestions.map((q: any) => q.question_hash).filter(Boolean));
+        }
+      }
+    }
+
+    // ========== NORMALIZE AND ENRICH QUESTIONS ==========
+    questions = questions.map((q: any) => {
+      const hash = generateQuestionHash(q.question_text || "");
+      const isDuplicate = existingHashes.has(hash);
+      const categoryId = resolveCategoryId(q.category_name);
+      const subcategoryId = resolveSubcategoryId(q.subcategory_name);
+      const moodScore = deriveMoodScore(q);
+      const affectiveState = ["positive", "neutral", "negative"].includes(q.affective_state)
+        ? q.affective_state
+        : (moodScore >= 4 ? "positive" : moodScore <= 2 ? "negative" : "neutral");
+
+      return {
+        question_text: q.question_text || q.text || "",
+        question_text_ar: q.question_text_ar || q.text_ar || "",
+        type: normalizeType(q.type),
+        complexity: q.complexity || complexity,
+        tone: q.tone || tone,
+        explanation: q.explanation || "",
+        confidence_score: typeof q.confidence_score === "number" ? q.confidence_score : 75,
+        bias_flag: q.bias_flag === true,
+        ambiguity_flag: isDuplicate ? true : (q.ambiguity_flag === true),
+        validation_status: isDuplicate ? "warning" : "pending",
+        validation_details: isDuplicate ? { issues: ["semantic_duplicate"] } : {},
+        options: q.options || [],
+        framework_reference: q.framework_reference || null,
+        psychological_construct: q.psychological_construct || null,
+        scoring_mechanism: q.scoring_mechanism || null,
+        category_name: q.category_name || null,
+        subcategory_name: q.subcategory_name || null,
+        mood_levels: Array.isArray(q.mood_levels) ? q.mood_levels : [],
+        // New analytical fields
+        category_id: categoryId,
+        subcategory_id: subcategoryId,
+        mood_score: moodScore,
+        affective_state: affectiveState,
+        generation_period_id: generationPeriodId,
+        question_hash: hash,
+      };
+    });
 
     // Log generation
     const token = authHeader.replace("Bearer ", "");
     const { data: userData } = await supabase.auth.getUser(token);
 
     if (userData?.user) {
-      // Fetch tenant_id for proper RLS-based log visibility
       const { data: tenantIdData } = await supabase.rpc("get_user_tenant_id", { _user_id: userData.user.id });
 
       await supabase.from("ai_generation_logs").insert({
@@ -530,6 +677,7 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
           document_ids: knowledgeDocumentIds,
           category_ids: categoryIds,
           subcategory_ids: subcategoryIds,
+          period_id: generationPeriodId,
           prompt_snapshot: systemPrompt.substring(0, 10000),
         },
         success: true,

@@ -247,6 +247,40 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
           );
         })()}
 
+        {/* Affective State & Mood Score Badges (NEW) */}
+        {(question.affective_state || question.mood_score) && (
+          <div className="flex flex-wrap gap-1.5">
+            {question.affective_state && (
+              <Badge
+                variant="outline"
+                className={`text-xs ${
+                  question.affective_state === 'positive' ? 'border-primary text-primary' :
+                  question.affective_state === 'negative' ? 'border-destructive text-destructive' :
+                  'border-muted-foreground text-muted-foreground'
+                }`}
+              >
+                {question.affective_state === 'positive' ? '🟢' : question.affective_state === 'negative' ? '🔴' : '⚪'}
+                {' '}{t(`aiGenerator.affective_${question.affective_state}`)}
+              </Badge>
+            )}
+            {typeof question.mood_score === 'number' && (
+              <Badge variant="secondary" className="text-xs">
+                {t('aiGenerator.moodScoreLabel')}: {question.mood_score}/5
+              </Badge>
+            )}
+            {question.category_name && (
+              <Badge variant="outline" className="text-xs">
+                {question.category_name}
+              </Badge>
+            )}
+            {question.subcategory_name && (
+              <Badge variant="outline" className="text-xs text-muted-foreground">
+                {question.subcategory_name}
+              </Badge>
+            )}
+          </div>
+        )}
+
         {/* Expert Knowledge Badges */}
         {(question.framework_reference || question.psychological_construct || question.scoring_mechanism) && (
           <div className="flex flex-wrap gap-1.5">

@@ -24,6 +24,13 @@ export interface EnhancedGeneratedQuestion {
   category_name?: string | null;
   subcategory_name?: string | null;
   mood_levels: string[];
+  // Analytical fields
+  category_id?: string | null;
+  subcategory_id?: string | null;
+  mood_score?: number;
+  affective_state?: string;
+  generation_period_id?: string | null;
+  question_hash?: string;
 }
 
 export interface ValidationReport {
@@ -59,6 +66,7 @@ export interface GenerateInput {
   categoryIds?: string[];
   subcategoryIds?: string[];
   moodLevels?: string[];
+  periodId?: string;
 }
 
 const MAX_BATCH_SIZE = 64;
@@ -269,6 +277,10 @@ export function useEnhancedAIGeneration() {
         is_global: false,
         ai_generated: true,
         created_by: userData.user.id,
+        category_id: q.category_id || null,
+        subcategory_id: q.subcategory_id || null,
+        mood_score: q.mood_score || null,
+        affective_state: q.affective_state || null,
       }));
       await supabase.from('questions').insert(unifiedInsert as any);
 
@@ -328,7 +340,7 @@ export function useEnhancedAIGeneration() {
         const toAdd = remainingQuestions.splice(0, capacity);
 
         if (toAdd.length > 0) {
-          const questionsToInsert = toAdd.map(q => ({
+        const questionsToInsert = toAdd.map(q => ({
             question_set_id: params.targetBatchId!,
             tenant_id: tenantId,
             question_text: q.question_text,
@@ -343,6 +355,12 @@ export function useEnhancedAIGeneration() {
             validation_status: q.validation_status,
             validation_details: q.validation_details,
             options: q.options || [],
+            category_id: q.category_id || null,
+            subcategory_id: q.subcategory_id || null,
+            mood_score: q.mood_score || null,
+            affective_state: q.affective_state || null,
+            generation_period_id: q.generation_period_id || null,
+            question_hash: q.question_hash || null,
           }));
 
           const { error: qError } = await supabase.from('generated_questions').insert(questionsToInsert);
@@ -394,6 +412,12 @@ export function useEnhancedAIGeneration() {
           validation_status: q.validation_status,
           validation_details: q.validation_details,
           options: q.options || [],
+          category_id: q.category_id || null,
+          subcategory_id: q.subcategory_id || null,
+          mood_score: q.mood_score || null,
+          affective_state: q.affective_state || null,
+          generation_period_id: q.generation_period_id || null,
+          question_hash: q.question_hash || null,
         }));
 
         const { error: qError } = await supabase.from('generated_questions').insert(questionsToInsert);
