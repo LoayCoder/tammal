@@ -12,7 +12,7 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { moodLevel, questionText, answerValue, pathwayAnswers, language } = await req.json();
+    const { moodLevel, pathwayAnswers, language } = await req.json();
 
     const lang = language === "ar" ? "Arabic" : "English";
 
@@ -33,11 +33,11 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are a workplace wellness coach. Generate a brief, actionable wellness tip (2-3 sentences max) based on the employee's mood and response. Respond in ${lang}. Be warm, supportive, and practical. Focus on immediate actions the employee can take.`,
+            content: `You are a workplace wellness coach. Generate a brief, actionable wellness tip (2-3 sentences max) based on the employee's mood. Respond in ${lang}. Be warm, supportive, and practical. Focus on immediate actions the employee can take.`,
           },
           {
             role: "user",
-            content: `Mood: ${moodLevel}\nQuestion: ${questionText}\nAnswer: ${JSON.stringify(answerValue)}${pathwayContext}`,
+            content: `Mood: ${moodLevel}${pathwayContext}`,
           },
         ],
       }),

@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useDailyWellnessQuestions } from '@/hooks/useDailyWellnessQuestions';
 import { useGamification } from '@/hooks/useGamification';
 import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
 import { useCheckinScheduledQuestions } from '@/hooks/useCheckinScheduledQuestions';
@@ -15,12 +14,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Flame, Star, Loader2, ArrowRight, ArrowLeft, Send, AlertCircle, RefreshCw, UserX } from 'lucide-react';
 import { MoodStep } from '@/components/checkin/MoodStep';
 import { useMoodDefinitions } from '@/hooks/useMoodDefinitions';
-import { WellnessQuestionStep } from '@/components/checkin/WellnessQuestionStep';
 import { ScheduledQuestionsStep, type ScheduledAnswer } from '@/components/checkin/ScheduledQuestionsStep';
 import { SupportStep } from '@/components/checkin/SupportStep';
 import { CheckinSuccess } from '@/components/checkin/CheckinSuccess';
 
-type Step = 'mood' | 'wellness' | 'scheduled' | 'support';
+type Step = 'mood' | 'scheduled' | 'support';
 
 export default function DailyCheckin() {
   const { t } = useTranslation();
@@ -28,12 +26,9 @@ export default function DailyCheckin() {
   const queryClient = useQueryClient();
   const { employee, isLoading: employeeLoading } = useCurrentEmployee();
   const tenantId = employee?.tenant_id || null;
-  const { question, isLoading: questionLoading } = useDailyWellnessQuestions(tenantId);
   const { streak, totalPoints, calculatePoints } = useGamification(employee?.id || null);
 
-  // Deduplicate: pass daily wellness question_id so scheduled questions can filter it out
-  const dailyWellnessQuestionId = question?.question_id || undefined;
-  const { questions: scheduledQuestions, isLoading: scheduledLoading } = useCheckinScheduledQuestions(employee?.id, dailyWellnessQuestionId);
+  const { questions: scheduledQuestions, isLoading: scheduledLoading } = useCheckinScheduledQuestions(employee?.id, undefined);
   const { submitResponse } = useEmployeeResponses(employee?.id);
   const { moods: moodDefinitions } = useMoodDefinitions(tenantId);
 
@@ -56,7 +51,6 @@ export default function DailyCheckin() {
 
   const [step, setStep] = useState<Step>('mood');
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
-  const [wellnessAnswer, setWellnessAnswer] = useState<unknown>(null);
   const [scheduledAnswers, setScheduledAnswers] = useState<ScheduledAnswer[]>([]);
   const [supportActions, setSupportActions] = useState<string[]>([]);
   const [comment, setComment] = useState('');
@@ -70,31 +64,22 @@ export default function DailyCheckin() {
   const showSupport = selectedMood === 'struggling' || selectedMood === 'need_help';
   const hasScheduledQuestions = scheduledQuestions.length > 0;
 
-  const steps = ['mood', 'wellness', ...(hasScheduledQuestions ? ['scheduled'] : []), 'support'];
+  const steps = ['mood', ...(hasScheduledQuestions ? ['scheduled'] : []), 'support'];
   const stepLabels: Record<string, string> = {
     mood: t('wellness.mood.title', 'Mood'),
-    wellness: t('wellness.dailyQuestion', 'Question'),
     scheduled: t('wellness.scheduledQuestion', 'Survey'),
     support: t('wellness.submitCheckin', 'Submit'),
   };
 
   const handleMoodSelected = (mood: string) => {
     setSelectedMood(mood);
-    // Auto-advance after brief delay for visual feedback
     setTimeout(() => {
-      if (question || questionLoading) setStep('wellness');
-      else if (hasScheduledQuestions) setStep('scheduled');
+      if (hasScheduledQuestions) setStep('scheduled');
       else setStep('support');
     }, 400);
   };
 
   const advanceFromMood = () => {
-    if (question || questionLoading) setStep('wellness');
-    else if (hasScheduledQuestions) setStep('scheduled');
-    else setStep('support');
-  };
-
-  const advanceFromWellness = () => {
     if (hasScheduledQuestions) setStep('scheduled');
     else setStep('support');
   };
@@ -104,12 +89,8 @@ export default function DailyCheckin() {
   const goBack = () => {
     if (step === 'support') {
       if (hasScheduledQuestions) setStep('scheduled');
-      else if (question) setStep('wellness');
       else setStep('mood');
     } else if (step === 'scheduled') {
-      if (question) setStep('wellness');
-      else setStep('mood');
-    } else if (step === 'wellness') {
       setStep('mood');
     }
   };
@@ -127,7 +108,7 @@ export default function DailyCheckin() {
       let tip = '';
       try {
         const { data } = await supabase.functions.invoke('generate-daily-tip', {
-          body: { moodLevel: selectedMood, questionText: question?.question_text || '', answerValue: wellnessAnswer, language: document.documentElement.lang || 'en' },
+          body: { moodLevel: selectedMood, pathwayAnswers: [], language: document.documentElement.lang || 'en' },
         });
         tip = data?.tip || '';
       } catch { /* tip is optional */ }
@@ -138,7 +119,7 @@ export default function DailyCheckin() {
         .from('mood_entries' as any)
         .insert({
           tenant_id: employee.tenant_id, employee_id: employee.id, mood_level: selectedMood, mood_score: moodObj.score,
-          question_id: question?.question_id || null, answer_value: wellnessAnswer, answer_text: comment || null,
+          answer_value: null, answer_text: comment || null,
           ai_tip: tip || null, support_actions: supportActions, points_earned: points, streak_count: streak + 1,
           entry_date: today,
         });
@@ -264,26 +245,6 @@ export default function DailyCheckin() {
                 {t('common.next')} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
               </Button>
             )}
-          </div>
-        )}
-
-        {step === 'wellness' && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-end-4 duration-300">
-            <WellnessQuestionStep
-              question={question}
-              isLoading={questionLoading}
-              answerValue={wellnessAnswer}
-              onAnswerChange={setWellnessAnswer}
-              onAutoAdvance={() => setTimeout(advanceFromWellness, 400)}
-            />
-            <div className="flex gap-3">
-              <Button variant="ghost" size="icon" className="rounded-xl h-12 w-12 shrink-0" onClick={goBack}>
-                <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
-              </Button>
-              <Button className="flex-1 rounded-xl h-12 text-base gap-2" onClick={advanceFromWellness}>
-                {t('common.next')} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-              </Button>
-            </div>
           </div>
         )}
 
