@@ -40,7 +40,9 @@ import ArticlesPage from "@/pages/mental-toolkit/ArticlesPage";
 import CrisisPage from "@/pages/mental-toolkit/CrisisPage";
 import AssessmentPage from "@/pages/mental-toolkit/AssessmentPage";
 import PrayerTracker from "@/pages/spiritual/PrayerTracker";
-
+import QuranReader from "@/pages/spiritual/QuranReader";
+import SunnahFasting from "@/pages/spiritual/SunnahFasting";
+import SpiritualInsights from "@/pages/spiritual/SpiritualInsights";
 
 import UnifiedUserManagement from "@/pages/admin/UnifiedUserManagement";
 import AcceptInvite from "@/pages/auth/AcceptInvite";
@@ -117,6 +119,9 @@ const App = () => (
             <Route path="/mental-toolkit/crisis" element={<CrisisPage />} />
             <Route path="/mental-toolkit/assessment" element={<AssessmentPage />} />
             <Route path="/spiritual/prayer" element={<PrayerTracker />} />
+            <Route path="/spiritual/quran" element={<QuranReader />} />
+            <Route path="/spiritual/fasting" element={<SunnahFasting />} />
+            <Route path="/spiritual/insights" element={<SpiritualInsights />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
