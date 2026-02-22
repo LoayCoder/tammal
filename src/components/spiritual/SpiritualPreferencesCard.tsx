@@ -1,19 +1,24 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Moon, MapPin } from 'lucide-react';
 import { useSpiritualPreferences } from '@/hooks/useSpiritualPreferences';
 import { CALCULATION_METHODS } from '@/hooks/usePrayerTimes';
+import { COUNTRIES, getCitiesForCountry } from '@/data/countryCities';
 
 export function SpiritualPreferencesCard() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
   const { preferences, isLoading, upsertPreferences } = useSpiritualPreferences();
+
+  const selectedCountry = preferences?.country ?? '';
+  const cities = useMemo(() => getCitiesForCountry(selectedCountry), [selectedCountry]);
 
   const handleToggle = (field: string, value: boolean) => {
     const updates: Record<string, any> = { [field]: value };
@@ -24,6 +29,16 @@ export function SpiritualPreferencesCard() {
       updates.fasting_enabled = false;
       updates.reminders_enabled = false;
     }
+    upsertPreferences.mutate(updates);
+  };
+
+  const handleCountryChange = (value: string) => {
+    // Clear city if switching countries
+    const currentCity = preferences?.city ?? '';
+    const newCities = getCitiesForCountry(value);
+    const cityStillValid = newCities.some((c) => c.en === currentCity);
+    const updates: Record<string, any> = { country: value };
+    if (!cityStillValid) updates.city = '';
     upsertPreferences.mutate(updates);
   };
 
@@ -131,20 +146,45 @@ export function SpiritualPreferencesCard() {
               </h4>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>{t('spiritual.preferences.city')}</Label>
-                  <Input
-                    value={preferences?.city ?? ''}
-                    onChange={(e) => handleFieldChange('city', e.target.value)}
-                    placeholder={isRTL ? 'مثال: الرياض' : 'e.g. Riyadh'}
-                  />
+                  <Label>{t('spiritual.preferences.country')}</Label>
+                  <Select
+                    value={selectedCountry}
+                    onValueChange={handleCountryChange}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t('spiritual.preferences.selectCountry')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <ScrollArea className="h-60">
+                        {COUNTRIES.map((c) => (
+                          <SelectItem key={c.code} value={c.code}>
+                            {isRTL ? c.ar : c.en}
+                          </SelectItem>
+                        ))}
+                      </ScrollArea>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>{t('spiritual.preferences.country')}</Label>
-                  <Input
-                    value={preferences?.country ?? ''}
-                    onChange={(e) => handleFieldChange('country', e.target.value)}
-                    placeholder={isRTL ? 'مثال: SA' : 'e.g. SA'}
-                  />
+                  <Label>{t('spiritual.preferences.city')}</Label>
+                  <Select
+                    value={preferences?.city ?? ''}
+                    onValueChange={(v) => handleFieldChange('city', v)}
+                    disabled={!selectedCountry}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t('spiritual.preferences.selectCity')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <ScrollArea className="h-60">
+                        {cities.map((c) => (
+                          <SelectItem key={c.en} value={c.en}>
+                            {isRTL ? c.ar : c.en}
+                          </SelectItem>
+                        ))}
+                      </ScrollArea>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
