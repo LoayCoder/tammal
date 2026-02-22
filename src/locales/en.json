@@ -1535,7 +1535,15 @@
     "distributionPreview": "Distribution Preview",
     "checkDistribution": "Distribution Balance",
     "checkSemanticDedup": "Semantic Dedup",
-    "issue_semantic_duplicate": "Semantic Duplicate"
+    "issue_semantic_duplicate": "Semantic Duplicate",
+    "noFrameworksYet": "No frameworks yet",
+    "noFrameworksDesc": "Add your first framework to guide AI question generation",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "searchFrameworks": "Search frameworks...",
+    "docsCount": "{{count}} docs",
+    "frameworkDetails": "Framework Details",
+    "defaultArea": "Default"
   },
   "survey": {
     "title": "My Survey",
