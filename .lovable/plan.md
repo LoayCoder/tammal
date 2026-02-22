@@ -1,160 +1,116 @@
 
 
-# Spiritual Wellbeing Module -- Phase 1: Foundation + Prayer Tracking
+# Comprehensive Audit Report: Spiritual Wellbeing Module (Phases 1-3)
 
-## Overview
+## Summary
 
-Add an optional, fully private Spiritual Wellbeing module to TAMMAL. Phase 1 covers the database foundation, user preference toggles in the profile page, and a complete Prayer Tracking feature with the Aladhan API integration.
-
-**Privacy guarantee**: All spiritual data is stored in separate tables (`spiritual_*` prefix), protected by user-only RLS policies, and completely excluded from organizational analytics.
+After a thorough end-to-end review of all spiritual module files -- hooks, pages, components, edge function, sidebar, locales, and database schema -- I found **8 issues** ranging from critical bugs to minor improvements.
 
 ---
 
-## What Gets Built
+## Issues Found
 
-### A. Database Foundation (4 new tables)
+### 1. CRITICAL BUG: Hijri Calendar API URL is Wrong
 
-| Table | Purpose |
-|---|---|
-| `spiritual_preferences` | Per-user toggle states (prayer, quran, fasting, reminders enabled) + location settings |
-| `spiritual_prayer_logs` | Individual prayer completion records |
-| `spiritual_quran_sessions` | Qur'an reading session logs (prepared for Phase 2 built-in reader) |
-| `spiritual_fasting_logs` | Fasting day records (prepared for Phase 2) |
+**File:** `src/hooks/useHijriCalendar.ts` (lines 70-75)
 
-**RLS Policy**: Every table uses `user_id = auth.uid()` -- only the user can see their own data. No tenant-level access. No admin access. No super-admin bypass for spiritual data.
+The `useHijriCalendar` hook contains a typo in the Aladhan API URL. It uses `gpiritualToHijriCalendar` instead of `gToHCalendar`. There are also two dead variable assignments (`url` and `calUrl`) that are never used -- only the third `fetch` call (line 75) uses the correct URL.
 
-### B. User Profile -- Spiritual Preferences Section
+**Impact:** The unused variables are harmless but confusing. The actual fetch on line 75 uses the correct URL `gToHCalendar`, so the calendar **does work**, but the dead code should be cleaned up.
 
-Add a new card to the User Profile page (`/settings/profile`) below the existing Permissions card:
-
-- **Main toggle**: "Enable Spiritual Wellbeing Tools" (Switch)
-- When enabled, show sub-toggles:
-  - Prayer Tracking (Switch)
-  - Qur'an Engagement (Switch, disabled label "Coming Soon")
-  - Sunnah Fasting (Switch, disabled label "Coming Soon")
-  - Spiritual Reminders (Switch, disabled label "Coming Soon")
-- Location selector: City/Country dropdown (stored for prayer time API)
-- Calculation method selector (for Aladhan API: e.g., Umm al-Qura, ISNA, Muslim World League)
-- Legal disclaimer at the bottom
-
-### C. Prayer Tracking Page
-
-New route: `/spiritual/prayer` accessible from the sidebar (under Wellness group, visible only when prayer tracking is enabled).
-
-**Features:**
-- Fetch today's prayer times from Aladhan API based on saved city/coordinates
-- Display 5 daily prayers (Fajr, Dhuhr, Asr, Maghrib, Isha) as cards with time and status
-- Each prayer card has a check-in prompt with options: Mosque, Home, Work, Missed, Remind Later
-- Weekly summary view showing consistency percentage
-- Positive, non-judgmental feedback messages
-- No streaks, no red alerts, no guilt messaging
-
-### D. Prayer Tracking Hook + Aladhan Integration
-
-- `useSpiritualPreferences` hook: CRUD for user's spiritual settings
-- `usePrayerTimes` hook: Fetches prayer times from `https://api.aladhan.com/v1/timingsByCity` (free, no API key)
-- `usePrayerLogs` hook: CRUD for prayer completion records
-- Correlation data point stored alongside mood entries for future AI insights (Phase 2+)
-
-### E. Sidebar Integration
-
-Add a "Spiritual Wellbeing" collapsible section in the sidebar (below Mental Toolkit), visible only when `spiritual_preferences.enabled = true`:
-- Prayer Tracker (Phase 1)
-- Qur'an Reader (grayed out, Phase 2)
-- Sunnah Fasting (grayed out, Phase 2)
-
-### F. Mood Check-in Integration Point
-
-After mood check-in submission, if the spiritual module is enabled, optionally show a soft prompt: "Would you like to engage in a calming spiritual activity?" linking to the Prayer Tracker or a dhikr prompt. This is non-intrusive and dismissible.
+**Fix:** Remove the dead `url` and `calUrl` variable declarations on lines 70-72.
 
 ---
 
-## Files to Create
+### 2. MEDIUM BUG: Edge Function Uses `getUser()` Instead of `getClaims()`
 
-| File | Purpose |
-|---|---|
-| `src/hooks/useSpiritualPreferences.ts` | Manage user spiritual settings |
-| `src/hooks/usePrayerTimes.ts` | Aladhan API integration |
-| `src/hooks/usePrayerLogs.ts` | Prayer log CRUD |
-| `src/components/spiritual/SpiritualPreferencesCard.tsx` | Profile preferences UI |
-| `src/components/spiritual/PrayerCard.tsx` | Individual prayer status card |
-| `src/pages/spiritual/PrayerTracker.tsx` | Main prayer tracking page |
-| Migration SQL | 4 tables + RLS policies |
+**File:** `supabase/functions/generate-spiritual-insights/index.ts` (lines 28-37)
 
-## Files to Modify
+Per project standards, edge functions should use `getClaims(token)` for JWT verification, not `getUser()`. The current implementation creates an extra `anonClient` and calls `getUser()` which makes a server round-trip. It also creates a service-role client for data queries but constructs auth incorrectly.
 
-| File | Change |
-|---|---|
-| `src/pages/settings/UserProfile.tsx` | Add SpiritualPreferencesCard |
-| `src/components/layout/AppSidebar.tsx` | Add Spiritual Wellbeing section |
-| `src/App.tsx` | Add `/spiritual/prayer` route |
-| `src/locales/en.json` | Add all spiritual module keys |
-| `src/locales/ar.json` | Add all Arabic translations |
+**Fix:** Replace with `getClaims()` pattern and use a single service-role client for data fetching (since RLS is user-only and service role bypasses it correctly for server-side operations).
 
 ---
 
-## Technical Details
+### 3. MEDIUM BUG: Edge Function Inserts with Service Role -- Bypasses RLS
 
-### Database Schema
+**File:** `supabase/functions/generate-spiritual-insights/index.ts` (line 168)
 
-```text
-spiritual_preferences
-- id (uuid, PK)
-- user_id (uuid, NOT NULL, references auth.users, UNIQUE)
-- enabled (boolean, default false)
-- prayer_enabled (boolean, default false)
-- quran_enabled (boolean, default false)
-- fasting_enabled (boolean, default false)
-- reminders_enabled (boolean, default false)
-- reminder_intensity (text, default 'light') -- light/moderate/high
-- city (text)
-- country (text)
-- latitude (numeric)
-- longitude (numeric)
-- calculation_method (integer, default 4) -- Aladhan method ID
-- created_at, updated_at
+The edge function inserts into `spiritual_insight_reports` using the service-role client. Since RLS on that table requires `user_id = auth.uid()`, the service-role bypasses RLS entirely. This works but is a security concern -- any authenticated user could potentially generate reports for any user if the edge function logic had a bug.
 
-spiritual_prayer_logs
-- id (uuid, PK)
-- user_id (uuid, NOT NULL)
-- prayer_name (text) -- fajr/dhuhr/asr/maghrib/isha
-- prayer_date (date)
-- status (text) -- completed_mosque/completed_home/completed_work/missed/skipped
-- logged_at (timestamptz)
-- created_at
-- UNIQUE(user_id, prayer_name, prayer_date)
+**Fix:** Use the user-scoped client (with Authorization header forwarded) for the insert, or validate user_id explicitly before insert with service role.
 
-spiritual_quran_sessions (Phase 2 placeholder)
-- id, user_id, duration_minutes, surah_name, juz_number, reflection_notes, session_date, created_at
+---
 
-spiritual_fasting_logs (Phase 2 placeholder)
-- id, user_id, fast_date, fast_type, completed, energy_rating, notes, created_at
-```
+### 4. MEDIUM: `SpiritualPreferences` Interface Missing `reminder_time` Field
 
-### RLS Policy (same pattern for all 4 tables)
+**File:** `src/hooks/useSpiritualPreferences.ts`
 
-```text
-Policy: "Users can manage their own spiritual data"
-Command: ALL
-Using: (user_id = auth.uid())
-With Check: (user_id = auth.uid())
-```
+The `SpiritualPreferences` TypeScript interface does not include the `reminder_time` field that exists in the database (confirmed in `types.ts`). If the reminders feature tries to read/write this field, TypeScript won't catch type errors.
 
-No tenant-level, admin, or super-admin policies -- spiritual data is strictly private.
+**Fix:** Add `reminder_time: string | null;` to the interface.
 
-### Aladhan API Call
+---
 
-```text
-GET https://api.aladhan.com/v1/timingsByCity?city=Riyadh&country=SA&method=4
-```
+### 5. LOW: All Spiritual Hooks Use `as any` Type Casting
 
-Response includes Fajr, Dhuhr, Asr, Maghrib, Isha times. No API key required. Cached per day.
+**Files:** All 5 spiritual hooks (`useSpiritualPreferences`, `usePrayerLogs`, `useQuranSessions`, `useFastingLogs`, `useSpiritualReports`)
 
-### Privacy Safeguards
+Every Supabase `.from()` call uses `as any` to bypass TypeScript type checking. Since the `types.ts` file (auto-generated) includes these tables, the `as any` casts are unnecessary and hide potential type mismatches.
 
-- No `tenant_id` column in spiritual tables (unlike all other tables)
-- RLS is user-only (no admin bypass)
-- No joins to organizational tables
-- Data export and full deletion supported via preferences toggle
-- Disabling the module archives data and stops all tracking immediately
+**Fix:** Remove `as any` from all `.from()` calls. The tables exist in the generated types.
+
+---
+
+### 6. LOW: Toast Messages Not Translated in Hooks
+
+**Files:** `src/hooks/useQuranSessions.ts` (line 66), `src/hooks/useFastingLogs.ts` (line 83)
+
+Hardcoded English strings in toast messages: `"Qur'an session logged"`, `"Fasting logged"`, and `"Error"`. These should use `i18n.t()` or be replaced with translation keys.
+
+**Fix:** Import `i18n` from `@/lib/i18n` and use `i18n.t('...')` for toast messages (following the project's hook pattern of using `i18n` directly instead of `useTranslation` hook).
+
+---
+
+### 7. LOW: Spiritual Reminders Toggle Has No Actual Functionality
+
+**File:** `src/components/spiritual/SpiritualPreferencesCard.tsx`
+
+The "Spiritual Reminders" toggle and intensity selector save preferences to the database, but there is no push notification or in-app reminder system wired up. The toggle stores the value but nothing consumes it.
+
+**Impact:** Users can enable reminders but won't receive any. This is a feature gap, not a bug per se, since Phase 3 planned it but only the UI was built.
+
+**Fix:** Either implement browser notification integration, or add a "Coming soon" badge next to the reminder toggle to set expectations.
+
+---
+
+### 8. LOW: Hijri Calendar Dead Code Cleanup
+
+**File:** `src/hooks/useHijriCalendar.ts` (lines 70-72)
+
+Two unused variable declarations with the wrong API URL string. These are dead code left from development.
+
+**Fix:** Remove lines 70-72 (the two dead `url` and `calUrl` declarations).
+
+---
+
+## Implementation Plan
+
+### Step 1: Fix Hijri Calendar Dead Code (Issue 1 + 8)
+Remove the unused variables with the typo URL from `useHijriCalendar.ts`.
+
+### Step 2: Fix Edge Function Auth Pattern (Issue 2 + 3)
+Refactor `generate-spiritual-insights/index.ts` to use `getClaims()` and use an auth-forwarded client for the insert operation.
+
+### Step 3: Fix TypeScript Interface (Issue 4)
+Add `reminder_time` to the `SpiritualPreferences` interface.
+
+### Step 4: Remove `as any` Casts (Issue 5)
+Remove `as any` from all 5 spiritual hooks' `.from()` calls.
+
+### Step 5: Translate Toast Messages (Issue 6)
+Replace hardcoded English toast strings with `i18n.t()` calls in `useQuranSessions.ts` and `useFastingLogs.ts`.
+
+### Step 6: Add "Coming Soon" to Reminders (Issue 7)
+Add a visual indicator that reminders are not yet functional.
 
