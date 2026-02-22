@@ -69,7 +69,10 @@ export function SubcategoryDialog({
   const isNameTaken = siblings.some(s => s.name.toLowerCase() === name.trim().toLowerCase());
   const isNameArTaken = !!(nameAr.trim() && siblings.some(s => s.name_ar?.toLowerCase() === nameAr.trim().toLowerCase()));
 
-  const canSave = name.trim() && categoryId && !isNameTaken && !isNameArTaken;
+  // Max 5 subcategories per category enforcement
+  const isMaxReached = !subcategory && siblings.length >= 5;
+
+  const canSave = name.trim() && categoryId && !isNameTaken && !isNameArTaken && !isMaxReached;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,6 +173,15 @@ export function SubcategoryDialog({
               <Label>{t('categories.isActive')}</Label>
             </div>
           </div>
+
+          {isMaxReached && (
+            <Alert variant="destructive" className="py-2">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-xs">
+                {t('subcategories.maxPerCategory', { defaultValue: 'Maximum 5 subcategories per category' })}
+              </AlertDescription>
+            </Alert>
+          )}
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.cancel')}</Button>

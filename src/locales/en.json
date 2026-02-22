@@ -1205,7 +1205,8 @@
     "nameTaken": "This name is already used in this category",
     "nameArTaken": "This Arabic name is already used in this category",
     "colorTaken": "This color is already used in this category",
-    "colorInherited": "Color is inherited from parent category"
+    "colorInherited": "Color is inherited from parent category",
+    "maxPerCategory": "Maximum 5 subcategories per category"
   },
   "employees": {
     "title": "Employee Management",

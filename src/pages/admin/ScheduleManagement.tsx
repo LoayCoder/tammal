@@ -23,8 +23,10 @@ import SchedulePreviewDialog from '@/components/schedules/SchedulePreviewDialog'
 import { useQuestionSchedules, QuestionSchedule } from '@/hooks/useQuestionSchedules';
 import { useQuestionBatches } from '@/hooks/useQuestionBatches';
 import { useProfile } from '@/hooks/useProfile';
+import { useGenerationPeriods } from '@/hooks/useGenerationPeriods';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { CalendarClock } from 'lucide-react';
 
 // --- Audience Resolution Utility ---
 interface Employee {
@@ -78,6 +80,7 @@ export default function ScheduleManagement() {
   const tenantId = profile?.tenant_id || undefined;
   const { schedules, isLoading, createSchedule, updateSchedule, toggleStatus, deleteSchedule } = useQuestionSchedules(tenantId);
   const { batches } = useQuestionBatches(tenantId || null);
+  const { periods } = useGenerationPeriods(tenantId || null);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<QuestionSchedule | null>(null);
@@ -105,6 +108,10 @@ export default function ScheduleManagement() {
   const [scheduleType, setScheduleType] = useState<'daily_checkin' | 'survey'>('daily_checkin');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [linkedPeriodId, setLinkedPeriodId] = useState<string | null>(null);
+
+  // Resolve linked period
+  const linkedPeriod = linkedPeriodId ? periods.find(p => p.id === linkedPeriodId) : null;
 
   // Fetch departments and employees for audience selection
   const { data: availableDepartments = [] } = useQuery({
@@ -188,6 +195,7 @@ export default function ScheduleManagement() {
     setScheduleType('daily_checkin');
     setStartDate('');
     setEndDate('');
+    setLinkedPeriodId(null);
   };
 
   const openEditDialog = (schedule: QuestionSchedule) => {
@@ -218,6 +226,7 @@ export default function ScheduleManagement() {
     setScheduleType(schedule.schedule_type || 'daily_checkin');
     setStartDate(schedule.start_date || '');
     setEndDate(schedule.end_date || '');
+    setLinkedPeriodId(schedule.generation_period_id || null);
     setDialogOpen(true);
   };
 
@@ -253,6 +262,7 @@ export default function ScheduleManagement() {
       frequency: scheduleType === 'daily_checkin' ? frequency as any : '1_per_day' as any,
       avoid_weekends: scheduleType === 'daily_checkin' ? weekendDays.length > 0 : false,
       weekend_days: scheduleType === 'daily_checkin' ? weekendDays : [],
+      generation_period_id: linkedPeriodId || undefined,
     };
 
     if (editingSchedule) {
@@ -664,6 +674,45 @@ export default function ScheduleManagement() {
                 </div>
               </RadioGroup>
             </div>
+
+            {/* Link to Generation Period */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <CalendarClock className="h-4 w-4" />
+                {t('aiGenerator.generationPeriod')}
+              </Label>
+              <Select
+                value={linkedPeriodId || '__none__'}
+                onValueChange={(v) => {
+                  if (v === '__none__') {
+                    setLinkedPeriodId(null);
+                  } else {
+                    setLinkedPeriodId(v);
+                    const period = periods.find(p => p.id === v);
+                    if (period) {
+                      setStartDate(period.start_date);
+                      setEndDate(period.end_date);
+                    }
+                  }
+                }}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">{t('common.none')}</SelectItem>
+                  {periods.filter(p => p.status === 'active').map(p => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.start_date} → {p.end_date}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {linkedPeriod && (
+                <Badge variant="secondary" className="text-xs">
+                  {t('aiGenerator.periodLinked')}: {linkedPeriod.start_date} → {linkedPeriod.end_date}
+                </Badge>
+              )}
+            </div>
+
             {/* Frequency - only for daily_checkin */}
             {scheduleType === 'daily_checkin' && (
               <div className="space-y-2">
@@ -691,6 +740,7 @@ export default function ScheduleManagement() {
                     type="date"
                     value={startDate}
                     onChange={e => setStartDate(e.target.value)}
+                    readOnly={!!linkedPeriod}
                   />
                 </div>
                 <div className="space-y-2">
@@ -700,6 +750,7 @@ export default function ScheduleManagement() {
                     value={endDate}
                     onChange={e => setEndDate(e.target.value)}
                     min={startDate}
+                    readOnly={!!linkedPeriod}
                   />
                 </div>
               </div>

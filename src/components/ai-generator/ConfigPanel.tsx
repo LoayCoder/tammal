@@ -592,17 +592,20 @@ export function ConfigPanel({
           </div>
           )}
 
-          <div className="space-y-2">
-            <Label>{t('aiGenerator.complexity')}</Label>
-            <Select value={complexity} onValueChange={onComplexityChange}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="simple">{t('aiGenerator.simple')}</SelectItem>
-                <SelectItem value="moderate">{t('aiGenerator.moderate')}</SelectItem>
-                <SelectItem value="advanced">{t('aiGenerator.advanced')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {/* Complexity - shown once regardless of period */}
+          {selectedPeriod && (
+            <div className="space-y-2">
+              <Label>{t('aiGenerator.complexity')}</Label>
+              <Select value={complexity} onValueChange={onComplexityChange}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="simple">{t('aiGenerator.simple')}</SelectItem>
+                  <SelectItem value="moderate">{t('aiGenerator.moderate')}</SelectItem>
+                  <SelectItem value="advanced">{t('aiGenerator.advanced')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>{t('aiGenerator.tone')}</Label>
