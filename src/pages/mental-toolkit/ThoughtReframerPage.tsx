@@ -36,6 +36,7 @@ function MicButton({
   onResult: (transcript: string) => void;
   lang: string;
 }) {
+  const { t } = useTranslation();
   const { isListening, startListening, stopListening, isSupported } = useSpeechToText({
     lang,
     onResult,
@@ -58,7 +59,7 @@ function MicButton({
           </Button>
         </TooltipTrigger>
         <TooltipContent side="top">
-          {isListening ? "Stop" : "Voice input"}
+          {isListening ? t("mentalToolkit.thoughtReframer.stopListening") : t("mentalToolkit.thoughtReframer.voiceInput")}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -91,7 +92,7 @@ export default function ThoughtReframerPage() {
       toast({ title: t("mentalToolkit.thoughtReframer.saveSuccess") });
       resetWizard();
     } catch {
-      toast({ title: "Error saving reframe", variant: "destructive" });
+      toast({ title: t("mentalToolkit.thoughtReframer.saveError"), variant: "destructive" });
     }
   };
 
@@ -100,7 +101,7 @@ export default function ThoughtReframerPage() {
       await deleteReframe(id);
       toast({ title: t("mentalToolkit.thoughtReframer.deleteSuccess") });
     } catch {
-      toast({ title: "Error deleting", variant: "destructive" });
+      toast({ title: t("mentalToolkit.thoughtReframer.deleteError"), variant: "destructive" });
     }
   };
 

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { SmilePlus, Flame, TrendingUp, CalendarCheck, Activity, BarChart3, PieChart, Grid3X3, ClipboardList, RefreshCw } from "lucide-react";
+import { SmilePlus, Flame, TrendingUp, CalendarCheck, Activity, BarChart3, PieChart, Grid3X3, ClipboardList, RefreshCw, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -449,7 +449,7 @@ export default function MoodTrackerPage() {
                 <Link to="/mental-toolkit/thought-reframer"
                   className="mt-3 block text-center text-sm font-medium hover:underline"
                   style={{ color: PALETTE.sage }}>
-                  {t("mentalToolkit.moodDashboard.goToReframer")} →
+                  {t("mentalToolkit.moodDashboard.goToReframer")} <ArrowRight className="inline h-4 w-4 ms-1 rtl:-scale-x-100" />
                 </Link>
               </CardContent>
             </Card>
