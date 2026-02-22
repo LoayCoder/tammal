@@ -72,19 +72,21 @@ export function SpiritualPreferencesCard() {
               </div>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Label className="text-muted-foreground">{t('spiritual.preferences.quranEngagement')}</Label>
-                  <Badge variant="secondary" className="text-xs">{t('spiritual.preferences.comingSoon')}</Badge>
-                </div>
-                <Switch disabled checked={false} />
+                <Label>{t('spiritual.preferences.quranEngagement')}</Label>
+                <Switch
+                  checked={preferences?.quran_enabled ?? false}
+                  onCheckedChange={(v) => handleToggle('quran_enabled', v)}
+                  disabled={upsertPreferences.isPending}
+                />
               </div>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Label className="text-muted-foreground">{t('spiritual.preferences.sunnahFasting')}</Label>
-                  <Badge variant="secondary" className="text-xs">{t('spiritual.preferences.comingSoon')}</Badge>
-                </div>
-                <Switch disabled checked={false} />
+                <Label>{t('spiritual.preferences.sunnahFasting')}</Label>
+                <Switch
+                  checked={preferences?.fasting_enabled ?? false}
+                  onCheckedChange={(v) => handleToggle('fasting_enabled', v)}
+                  disabled={upsertPreferences.isPending}
+                />
               </div>
 
               <div className="flex items-center justify-between">

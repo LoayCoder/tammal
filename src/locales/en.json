@@ -2133,7 +2133,8 @@
       "title": "Spiritual Wellbeing",
       "prayerTracker": "Prayer Tracker",
       "quranReader": "Qur'an Reader",
-      "sunnahFasting": "Sunnah Fasting"
+      "sunnahFasting": "Sunnah Fasting",
+      "insights": "Spiritual Insights"
     },
     "preferences": {
       "title": "Spiritual Wellbeing",
@@ -2184,6 +2185,82 @@
         "good": "Good progress — small consistent steps create long-term balance.",
         "encouragement": "Every prayer counts. Keep showing up, and the journey will unfold beautifully."
       }
+    },
+    "quran": {
+      "title": "Qur'an Reader",
+      "subtitle": "Track your Qur'an reading sessions and reflections",
+      "notEnabled": "Qur'an Engagement Not Enabled",
+      "enablePrompt": "Enable Qur'an engagement in your profile settings to start.",
+      "logSession": "Log Session",
+      "sessionsThisWeek": "Sessions (7 days)",
+      "minutesThisWeek": "Minutes (7 days)",
+      "avgMinutes": "Avg. Min/Session",
+      "newSession": "Log a Reading Session",
+      "newSessionDesc": "Record your Qur'an reading activity",
+      "duration": "Duration (minutes)",
+      "surah": "Surah",
+      "selectSurah": "Select surah...",
+      "juz": "Juz",
+      "selectJuz": "Select juz...",
+      "juzLabel": "Juz",
+      "reflection": "Reflection Notes",
+      "reflectionPlaceholder": "What stood out to you in today's reading? (optional)",
+      "recentSessions": "Recent Sessions",
+      "noSessions": "No Qur'an sessions logged yet. Start your journey above.",
+      "min": "min",
+      "feedback": {
+        "excellent": "Mashallah — consistent engagement with the Qur'an nurtures the soul.",
+        "good": "Beautiful progress — every verse brings you closer to peace.",
+        "encouragement": "Start with even a few minutes. The Qur'an meets you where you are."
+      }
+    },
+    "fasting": {
+      "title": "Sunnah Fasting",
+      "subtitle": "Track your voluntary fasting with ease and intention",
+      "notEnabled": "Sunnah Fasting Not Enabled",
+      "enablePrompt": "Enable Sunnah fasting in your profile settings to start.",
+      "suggestion": "Today is a recommended Sunnah fasting day ({{day}}). Are you fasting?",
+      "completedFasts": "Completed Fasts",
+      "totalDays": "Total Logged Days",
+      "avgEnergy": "Avg. Energy",
+      "todayCheckin": "Today's Check-in",
+      "alreadyLogged": "You've already logged today's fasting.",
+      "areYouFasting": "Are you fasting today?",
+      "fastType": "Fasting Type",
+      "energyLevel": "Energy Level",
+      "notes": "Notes (optional)",
+      "notesPlaceholder": "How are you feeling today?",
+      "yesFasting": "Yes, I'm Fasting",
+      "notToday": "Not Today",
+      "completed": "Fasting",
+      "notFasting": "Not Fasting",
+      "history": "Fasting History",
+      "noLogs": "No fasting records yet. Start tracking your Sunnah fasts.",
+      "feedback": {
+        "excellent": "Mashallah — your consistency in Sunnah fasting reflects beautiful discipline.",
+        "good": "Every fast is a gift. Keep nurturing your body and soul.",
+        "encouragement": "Begin with Mondays or Thursdays. Small steps lead to lasting habits."
+      }
+    },
+    "insights": {
+      "title": "Spiritual Insights",
+      "subtitle": "Discover how your spiritual activities connect with your wellbeing",
+      "notEnabled": "Spiritual Wellbeing Not Enabled",
+      "enablePrompt": "Enable spiritual tools in your profile to see insights.",
+      "currentMood": "Current Mood Score",
+      "sevenDayAvg": "7-day average from your daily check-ins",
+      "prayerCorrelation": "Prayer & Mood",
+      "prayerPositive": "Your mood tends to be higher on days you maintain prayer consistency.",
+      "prayerNeutral": "Continue tracking to discover patterns between prayer and mood.",
+      "quranCorrelation": "Qur'an & Mood",
+      "quranPositive": "On days you read ~{{minutes}} min of Qur'an, your stress scores tend to decrease.",
+      "quranNeutral": "Continue reading to discover patterns between Qur'an and mood.",
+      "fastingCorrelation": "Fasting & Mood",
+      "fastingPositive": "Fasting days show a positive correlation with emotional regulation.",
+      "fastingNeutral": "Continue tracking to discover patterns between fasting and mood.",
+      "notEnoughData": "Not enough data yet",
+      "notEnoughDataDesc": "Continue using the spiritual tools and daily check-ins to unlock personalized insights.",
+      "privacyNote": "These insights are calculated locally and are visible only to you. They are never shared with your organization."
     }
   }
 }

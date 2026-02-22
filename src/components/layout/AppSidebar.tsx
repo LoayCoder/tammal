@@ -73,7 +73,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
   const { isSuperAdmin, isLoading: permLoading } = useUserPermissions();
   const { hasRole: isTenantAdmin } = useHasRole('tenant_admin');
   const { hasEmployeeProfile } = useCurrentEmployee();
-  const { isEnabled: spiritualEnabled, isPrayerEnabled } = useSpiritualPreferences();
+  const { preferences, isEnabled: spiritualEnabled, isPrayerEnabled } = useSpiritualPreferences();
   const location = useLocation();
 
   const isAdmin = isSuperAdmin || isTenantAdmin;
@@ -375,18 +375,47 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )}
+                {preferences?.quran_enabled && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild tooltip={t('spiritual.nav.quranReader')}>
+                      <NavLink
+                        to="/spiritual/quran"
+                        className="flex items-center gap-2"
+                        activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                        onClick={handleNavClick}
+                      >
+                        <BookOpenCheck className="h-4 w-4" />
+                        <span>{t('spiritual.nav.quranReader')}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+                {preferences?.fasting_enabled && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild tooltip={t('spiritual.nav.sunnahFasting')}>
+                      <NavLink
+                        to="/spiritual/fasting"
+                        className="flex items-center gap-2"
+                        activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                        onClick={handleNavClick}
+                      >
+                        <UtensilsCrossed className="h-4 w-4" />
+                        <span>{t('spiritual.nav.sunnahFasting')}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
                 <SidebarMenuItem>
-                  <SidebarMenuButton disabled tooltip={t('spiritual.nav.quranReader')}>
-                    <BookOpenCheck className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">{t('spiritual.nav.quranReader')}</span>
-                    <Badge variant="secondary" className="ms-auto text-[10px]">{t('spiritual.preferences.comingSoon')}</Badge>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton disabled tooltip={t('spiritual.nav.sunnahFasting')}>
-                    <UtensilsCrossed className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">{t('spiritual.nav.sunnahFasting')}</span>
-                    <Badge variant="secondary" className="ms-auto text-[10px]">{t('spiritual.preferences.comingSoon')}</Badge>
+                  <SidebarMenuButton asChild tooltip={t('spiritual.nav.insights')}>
+                    <NavLink
+                      to="/spiritual/insights"
+                      className="flex items-center gap-2"
+                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                      onClick={handleNavClick}
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      <span>{t('spiritual.nav.insights')}</span>
+                    </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
