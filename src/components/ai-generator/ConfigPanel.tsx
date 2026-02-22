@@ -155,7 +155,7 @@ export function ConfigPanel({
   // When a period is selected, lock to its categories/subcategories
   const selectedPeriod = periods.find(p => p.id === selectedPeriodId) || null;
   const isPeriodLocked = !!selectedPeriod;
-  const isGenerationLocked = !!activePeriodForPurpose;
+  const isGenerationLocked = !!activePeriodForPurpose && activePeriodForPurpose.id !== selectedPeriodId;
 
   // Filter periods by current purpose
   const purposePeriods = periods.filter(p => p.purpose === purpose);
