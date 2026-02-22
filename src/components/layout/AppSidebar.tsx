@@ -5,7 +5,7 @@ import {
   MessageSquare, Tags, UserCheck, Sparkles, Calendar, ClipboardList,
   User, Heart, Settings, Package, Brain, SmilePlus, RefreshCw, Wind,
   BookOpen, Music, CheckSquare, BookMarked, Phone, ClipboardCheck,
-  ChevronRight, Shield, HeartHandshake, Inbox
+  ChevronRight, Shield, HeartHandshake, Inbox, Moon, BookOpenCheck, UtensilsCrossed
 } from 'lucide-react';
 import {
   Sidebar,
@@ -23,6 +23,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Badge } from "@/components/ui/badge";
 import { NavLink } from "@/components/NavLink";
 import { useTranslation } from 'react-i18next';
 import { ThemeLogo } from "@/components/branding/ThemeLogo";
@@ -30,6 +31,7 @@ import { ThemeIcon } from "@/components/branding/ThemeIcon";
 import type { BrandingConfig } from "@/hooks/useBranding";
 import { useUserPermissions, useHasRole } from '@/hooks/useUserPermissions';
 import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
+import { useSpiritualPreferences } from '@/hooks/useSpiritualPreferences';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -71,6 +73,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
   const { isSuperAdmin, isLoading: permLoading } = useUserPermissions();
   const { hasRole: isTenantAdmin } = useHasRole('tenant_admin');
   const { hasEmployeeProfile } = useCurrentEmployee();
+  const { isEnabled: spiritualEnabled, isPrayerEnabled } = useSpiritualPreferences();
   const location = useLocation();
 
   const isAdmin = isSuperAdmin || isTenantAdmin;
@@ -345,6 +348,51 @@ export function AppSidebar({ branding }: AppSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Spiritual Wellbeing — visible only when enabled */}
+        {spiritualEnabled && (
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              <span className="flex items-center gap-2">
+                <Moon className="h-3.5 w-3.5" />
+                {!isCollapsed && t('spiritual.nav.title')}
+              </span>
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {isPrayerEnabled && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild tooltip={t('spiritual.nav.prayerTracker')}>
+                      <NavLink
+                        to="/spiritual/prayer"
+                        className="flex items-center gap-2"
+                        activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                        onClick={handleNavClick}
+                      >
+                        <Moon className="h-4 w-4" />
+                        <span>{t('spiritual.nav.prayerTracker')}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+                <SidebarMenuItem>
+                  <SidebarMenuButton disabled tooltip={t('spiritual.nav.quranReader')}>
+                    <BookOpenCheck className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">{t('spiritual.nav.quranReader')}</span>
+                    <Badge variant="secondary" className="ms-auto text-[10px]">{t('spiritual.preferences.comingSoon')}</Badge>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton disabled tooltip={t('spiritual.nav.sunnahFasting')}>
+                    <UtensilsCrossed className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">{t('spiritual.nav.sunnahFasting')}</span>
+                    <Badge variant="secondary" className="ms-auto text-[10px]">{t('spiritual.preferences.comingSoon')}</Badge>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
     </Sidebar>
   );

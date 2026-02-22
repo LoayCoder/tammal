@@ -2127,5 +2127,63 @@
     "admin": { "title": "إعدادات دعم الأزمات", "subtitle": "تكوين المسعفين النفسيين والجداول وموارد الطوارئ", "firstAidersTab": "المسعفون", "schedulesTab": "الجداول", "emergencyTab": "جهات الطوارئ", "rulesTab": "القواعد", "analyticsTab": "التحليلات", "firstAiders": "المسعفون النفسيون", "firstAidersDesc": "إدارة متطوعي الدعم في مؤسستك", "addFirstAider": "إضافة مسعف", "editFirstAider": "تعديل مسعف", "firstAiderFormDesc": "تكوين ملف المسعف والإعدادات", "noFirstAiders": "لا يوجد مسعفون بعد", "name": "الاسم", "department": "القسم", "statusLabel": "الحالة", "activeCases": "الحد الأقصى", "roleTitle": "المسمى الوظيفي", "bio": "نبذة", "maxCases": "أقصى عدد حالات", "allowAnonymous": "السماح بالطلبات المجهولة", "selectEmployee": "اختر موظفاً", "noAvailableEmployees": "لا يوجد موظفون متاحون", "nameRequired": "الاسم مطلوب", "tenantRequired": "سياق المؤسسة غير موجود. يرجى إعادة التحميل.", "schedules": "جداول التوفر", "schedulesDesc": "تكوين ساعات العمل ومستوى الاستجابة لكل مسعف", "selectFirstAider": "اختر مسعفاً", "dayOff": "يوم إجازة", "markOff": "تحديد إجازة", "addSlot": "إضافة فترة", "slaMinutes": "وقت الاستجابة (دقائق)", "emergencyContacts": "جهات اتصال الطوارئ", "emergencyContactsDesc": "إدارة خطوط الطوارئ الخاصة بالمؤسسة", "addContact": "إضافة جهة", "editContact": "تعديل جهة", "contactFormDesc": "تكوين تفاصيل جهة الطوارئ", "noContacts": "لا توجد جهات طوارئ", "contactTitle": "العنوان", "contactPhone": "الهاتف", "contactDescription": "الوصف", "availability": "التوفر", "available247": "متاح 24/7", "limited": "محدود", "riskMapping": "تصنيف مستوى الخطر", "riskMappingDesc": "كيف يتم تصنيف نوايا المستخدم إلى مستويات خطر", "intent": "النية", "riskLevel": "مستوى الخطر", "action": "إجراء النظام", "highRiskAction": "عرض جهات الطوارئ فوراً وتصعيد الحالة", "normalAction": "توجيه لمسعف متاح", "highRiskNote": "حالات عالية الخطورة", "highRiskNoteDesc": "عند اكتشاف نية عالية الخطورة، يتم عرض جهات الطوارئ فوراً وتصعيد الحالة. يمكن للمستخدم طلب دعم الأقران." },
     "analytics": { "totalCases": "إجمالي الحالات", "activeCases": "نشطة", "resolvedCases": "محلولة", "escalatedCases": "مُصعّدة", "avgResponse": "متوسط الاستجابة", "avgResolution": "متوسط الحل", "monthlyCases": "الحالات الشهرية", "riskDistribution": "توزيع المخاطر", "intentDistribution": "توزيع النوايا", "firstAiderLoad": "حِمل المسعفين" },
     "notifications": { "title": "الإشعارات", "markAllRead": "تحديد الكل كمقروء", "empty": "لا توجد إشعارات" }
+  },
+  "spiritual": {
+    "nav": {
+      "title": "الرفاهية الروحية",
+      "prayerTracker": "متتبع الصلاة",
+      "quranReader": "قارئ القرآن",
+      "sunnahFasting": "صيام السنة"
+    },
+    "preferences": {
+      "title": "الرفاهية الروحية",
+      "description": "أدوات اختيارية لرحلتك الروحية — خاصة تماماً",
+      "enableToggle": "تفعيل أدوات الرفاهية الروحية",
+      "enableDescription": "تفعيل أدوات التتبع الروحي الشخصية",
+      "prayerTracking": "تتبع الصلاة",
+      "quranEngagement": "متابعة القرآن",
+      "sunnahFasting": "صيام السنة",
+      "spiritualReminders": "التذكيرات الروحية",
+      "comingSoon": "قريباً",
+      "locationSettings": "إعدادات الموقع (لمواقيت الصلاة)",
+      "city": "المدينة",
+      "country": "رمز الدولة",
+      "calculationMethod": "طريقة الحساب",
+      "disclaimer": "الأدوات الروحية مقدمة لدعم الرفاهية الشخصية وليست بديلاً عن العلم الشرعي أو المشورة الطبية."
+    },
+    "prayer": {
+      "title": "متتبع الصلاة",
+      "subtitle": "تتبع صلواتك اليومية بسكينة ونية",
+      "notEnabled": "تتبع الصلاة غير مفعّل",
+      "enablePrompt": "فعّل تتبع الصلاة في إعدادات ملفك الشخصي للبدء.",
+      "goToSettings": "الذهاب للإعدادات",
+      "setLocation": "يرجى تحديد مدينتك ودولتك في إعدادات ملفك الشخصي لجلب مواقيت الصلاة.",
+      "mosque": "المسجد",
+      "home": "المنزل",
+      "work": "العمل",
+      "missed": "فاتت",
+      "logNow": "سجّل الآن",
+      "weeklySummary": "الملخص الأسبوعي",
+      "weeklyDescription": "انتظامك في الصلاة خلال آخر 7 أيام",
+      "weeklyDetail": "{{completed}} من {{total}} صلاة مكتملة",
+      "names": {
+        "fajr": "الفجر",
+        "dhuhr": "الظهر",
+        "asr": "العصر",
+        "maghrib": "المغرب",
+        "isha": "العشاء"
+      },
+      "status": {
+        "completed_mosque": "المسجد",
+        "completed_home": "المنزل",
+        "completed_work": "العمل",
+        "missed": "فاتت"
+      },
+      "feedback": {
+        "excellent": "ما شاء الله — حافظت على انتظام قوي هذا الأسبوع. الانتظام يبني الاستقرار الداخلي.",
+        "good": "تقدم جيد — الخطوات الصغيرة المنتظمة تصنع التوازن على المدى البعيد.",
+        "encouragement": "كل صلاة تُحتسب. استمر في الحضور، وستتكشف الرحلة بجمال."
+      }
+    }
   }
 }

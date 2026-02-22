@@ -2564,6 +2564,156 @@ export type Database = {
           },
         ]
       }
+      spiritual_fasting_logs: {
+        Row: {
+          completed: boolean
+          created_at: string
+          energy_rating: number | null
+          fast_date: string
+          fast_type: string
+          id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          energy_rating?: number | null
+          fast_date: string
+          fast_type?: string
+          id?: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          energy_rating?: number | null
+          fast_date?: string
+          fast_type?: string
+          id?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      spiritual_prayer_logs: {
+        Row: {
+          created_at: string
+          id: string
+          logged_at: string
+          prayer_date: string
+          prayer_name: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logged_at?: string
+          prayer_date: string
+          prayer_name: string
+          status: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logged_at?: string
+          prayer_date?: string
+          prayer_name?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      spiritual_preferences: {
+        Row: {
+          calculation_method: number
+          city: string | null
+          country: string | null
+          created_at: string
+          enabled: boolean
+          fasting_enabled: boolean
+          id: string
+          latitude: number | null
+          longitude: number | null
+          prayer_enabled: boolean
+          quran_enabled: boolean
+          reminder_intensity: string
+          reminders_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          calculation_method?: number
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          enabled?: boolean
+          fasting_enabled?: boolean
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          prayer_enabled?: boolean
+          quran_enabled?: boolean
+          reminder_intensity?: string
+          reminders_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          calculation_method?: number
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          enabled?: boolean
+          fasting_enabled?: boolean
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          prayer_enabled?: boolean
+          quran_enabled?: boolean
+          reminder_intensity?: string
+          reminders_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      spiritual_quran_sessions: {
+        Row: {
+          created_at: string
+          duration_minutes: number
+          id: string
+          juz_number: number | null
+          reflection_notes: string | null
+          session_date: string
+          surah_name: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          juz_number?: number | null
+          reflection_notes?: string | null
+          session_date?: string
+          surah_name?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          juz_number?: number | null
+          reflection_notes?: string | null
+          session_date?: string
+          surah_name?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancelled_at: string | null

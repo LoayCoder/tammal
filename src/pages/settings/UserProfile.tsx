@@ -19,6 +19,7 @@ import { DeleteAccountDialog } from '@/components/profile/DeleteAccountDialog';
 import { SessionManagementDialog } from '@/components/profile/SessionManagementDialog';
 import { MFASetupDialog } from '@/components/profile/MFASetupDialog';
 import { LoginActivityDialog } from '@/components/profile/LoginActivityDialog';
+import { SpiritualPreferencesCard } from '@/components/spiritual/SpiritualPreferencesCard';
 
 export default function UserProfile() {
   const { t, i18n } = useTranslation();
@@ -353,6 +354,9 @@ export default function UserProfile() {
           )}
         </CardContent>
       </Card>
+
+      {/* Spiritual Preferences */}
+      <SpiritualPreferencesCard />
 
       {/* Edit Profile Dialog */}
       <EditProfileDialog
