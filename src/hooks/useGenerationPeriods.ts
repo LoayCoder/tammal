@@ -96,9 +96,29 @@ export function useGenerationPeriods(tenantId: string | null) {
         .update({ status: 'expired' } as any)
         .eq('id', periodId);
       if (error) throw error;
+
+      // Cascade: deactivate linked question_sets
+      await supabase
+        .from('question_sets')
+        .update({ status: 'inactive' })
+        .eq('generation_period_id', periodId);
+
+      // Cascade: deactivate linked question_generation_batches
+      await supabase
+        .from('question_generation_batches')
+        .update({ status: 'inactive' } as any)
+        .eq('generation_period_id', periodId);
+
+      // Cascade: pause linked question_schedules
+      await supabase
+        .from('question_schedules')
+        .update({ status: 'paused' })
+        .eq('generation_period_id', periodId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['generation-periods'] });
+      queryClient.invalidateQueries({ queryKey: ['question-batches'] });
+      queryClient.invalidateQueries({ queryKey: ['question-schedules'] });
       toast.success(t('aiGenerator.periodExpired'));
     },
     onError: (err: Error) => {

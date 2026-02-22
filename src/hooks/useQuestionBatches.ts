@@ -17,6 +17,7 @@ export interface QuestionBatch {
   deleted_at: string | null;
   creator_name?: string | null;
   purpose: 'survey' | 'wellness';
+  generation_period_id?: string | null;
 }
 
 export interface BatchQuestion {
@@ -94,6 +95,7 @@ export function useQuestionBatches(tenantId: string | null) {
         deleted_at: b.deleted_at,
         creator_name: b.user_id ? profileMap[b.user_id] || null : null,
         purpose: 'survey' as const,
+        generation_period_id: (b as any).generation_period_id || null,
       }));
 
       const wellnessBatches: QuestionBatch[] = (wellnessData || []).map(b => ({
@@ -109,6 +111,7 @@ export function useQuestionBatches(tenantId: string | null) {
         deleted_at: b.deleted_at,
         creator_name: b.created_by ? profileMap[b.created_by] || null : null,
         purpose: 'wellness' as const,
+        generation_period_id: (b as any).generation_period_id || null,
       }));
 
       // Merge and sort by created_at descending

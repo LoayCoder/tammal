@@ -238,6 +238,7 @@ export function useEnhancedAIGeneration() {
       // Create new batch for remaining questions (or all if no targetBatchId)
       if (remainingQuestions.length > 0) {
         const batchName = `${format(new Date(), 'dd MMMM yyyy')} - ${fullName}`;
+        const periodId = params.questions[0]?.generation_period_id || null;
         const { data: batch, error: batchError } = await supabase
           .from('question_generation_batches')
           .insert({
@@ -247,6 +248,7 @@ export function useEnhancedAIGeneration() {
             status: 'draft',
             created_by: userData.user.id,
             name: batchName,
+            generation_period_id: periodId,
           } as any)
           .select()
           .single();
@@ -391,6 +393,7 @@ export function useEnhancedAIGeneration() {
             status: params.validationReport?.overall_result === 'passed' ? 'validated' : 'draft',
             name: batchName,
             question_count: chunk.length,
+            generation_period_id: chunk[0]?.generation_period_id || null,
           })
           .select()
           .single();

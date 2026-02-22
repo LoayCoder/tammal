@@ -1204,7 +1204,8 @@
     "maxReached": "الحد الأقصى {{max}} تصنيفات فرعية لكل تصنيف",
     "nameTaken": "هذا الاسم مستخدم بالفعل في هذا التصنيف",
     "nameArTaken": "هذا الاسم العربي مستخدم بالفعل في هذا التصنيف",
-    "colorTaken": "هذا اللون مستخدم بالفعل في هذا التصنيف"
+    "colorTaken": "هذا اللون مستخدم بالفعل في هذا التصنيف",
+    "colorInherited": "اللون موروث من الفئة الأم"
   },
   "employees": {
     "title": "إدارة الموظفين",
@@ -1609,6 +1610,13 @@
     "periodPurposeSurvey": "استبيان",
     "periodPurposeWellness": "تسجيل يومي",
     "managePeriod": "إدارة الفترة",
+    "prerequisiteMinCategories": "يجب إنشاء 3 فئات نشطة على الأقل قبل التوليد",
+    "prerequisitesNotMet": "لم يتم استيفاء متطلبات التوليد",
+    "prerequisiteSelectCategory": "اختر فئة واحدة على الأقل",
+    "questionsPerDay": "أسئلة في اليوم",
+    "questionsPerDayDesc": "اختر عدد الأسئلة المراد توليدها يومياً",
+    "totalQuestionsCalc": "{{days}} يوم × {{perDay}} يومياً = {{total}} سؤال",
+    "periodLinked": "مرتبط بالفترة",
     "distributionPreview": "معاينة التوزيع",
     "checkDistribution": "توازن التوزيع",
     "checkSemanticDedup": "إزالة التكرار الدلالي",

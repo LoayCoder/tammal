@@ -1204,7 +1204,8 @@
     "maxReached": "Maximum {{max}} subcategories allowed per category",
     "nameTaken": "This name is already used in this category",
     "nameArTaken": "This Arabic name is already used in this category",
-    "colorTaken": "This color is already used in this category"
+    "colorTaken": "This color is already used in this category",
+    "colorInherited": "Color is inherited from parent category"
   },
   "employees": {
     "title": "Employee Management",
@@ -1609,6 +1610,13 @@
     "periodPurposeSurvey": "Survey",
     "periodPurposeWellness": "Daily Check-in",
     "managePeriod": "Manage Period",
+    "prerequisiteMinCategories": "At least 3 active categories are required before generating",
+    "prerequisitesNotMet": "Generation prerequisites not met",
+    "prerequisiteSelectCategory": "Select at least 1 category",
+    "questionsPerDay": "Questions Per Day",
+    "questionsPerDayDesc": "Select how many questions to generate per day",
+    "totalQuestionsCalc": "{{days}} days × {{perDay}} per day = {{total}} questions",
+    "periodLinked": "Linked to period",
     "distributionPreview": "Distribution Preview",
     "checkDistribution": "Distribution Balance",
     "checkSemanticDedup": "Semantic Dedup",

@@ -29,6 +29,7 @@ export interface QuestionSchedule {
   schedule_type: 'daily_checkin' | 'survey';
   start_date: string | null;
   end_date: string | null;
+  generation_period_id: string | null;
 }
 
 export interface CreateScheduleInput {
@@ -52,6 +53,7 @@ export interface CreateScheduleInput {
   schedule_type?: 'daily_checkin' | 'survey';
   start_date?: string | null;
   end_date?: string | null;
+  generation_period_id?: string | null;
 }
 
 export function useQuestionSchedules(tenantId?: string) {
@@ -83,6 +85,7 @@ export function useQuestionSchedules(tenantId?: string) {
         schedule_type: (schedule.schedule_type || 'daily_checkin') as QuestionSchedule['schedule_type'],
         start_date: schedule.start_date || null,
         end_date: schedule.end_date || null,
+        generation_period_id: (schedule as any).generation_period_id || null,
       })) as QuestionSchedule[];
     },
   });
@@ -110,6 +113,7 @@ export function useQuestionSchedules(tenantId?: string) {
         schedule_type: input.schedule_type || 'daily_checkin',
         start_date: input.start_date || null,
         end_date: input.end_date || null,
+        generation_period_id: input.generation_period_id || null,
       };
 
       const { data, error } = await supabase
@@ -152,6 +156,7 @@ export function useQuestionSchedules(tenantId?: string) {
       if (updates.schedule_type !== undefined) updateData.schedule_type = updates.schedule_type;
       if (updates.start_date !== undefined) updateData.start_date = updates.start_date;
       if (updates.end_date !== undefined) updateData.end_date = updates.end_date;
+      if (updates.generation_period_id !== undefined) updateData.generation_period_id = updates.generation_period_id;
       
       const { data, error } = await supabase
         .from('question_schedules')

@@ -1845,6 +1845,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           deleted_at: string | null
+          generation_period_id: string | null
           id: string
           name: string | null
           published_at: string | null
@@ -1857,6 +1858,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
+          generation_period_id?: string | null
           id?: string
           name?: string | null
           published_at?: string | null
@@ -1869,6 +1871,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
+          generation_period_id?: string | null
           id?: string
           name?: string | null
           published_at?: string | null
@@ -1878,6 +1881,13 @@ export type Database = {
           tenant_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "question_generation_batches_generation_period_id_fkey"
+            columns: ["generation_period_id"]
+            isOneToOne: false
+            referencedRelation: "generation_periods"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "question_generation_batches_tenant_id_fkey"
             columns: ["tenant_id"]
@@ -1943,6 +1953,7 @@ export type Database = {
           enable_validation: boolean | null
           end_date: string | null
           frequency: string
+          generation_period_id: string | null
           id: string
           name: string
           preferred_time: string | null
@@ -1970,6 +1981,7 @@ export type Database = {
           enable_validation?: boolean | null
           end_date?: string | null
           frequency?: string
+          generation_period_id?: string | null
           id?: string
           name: string
           preferred_time?: string | null
@@ -1997,6 +2009,7 @@ export type Database = {
           enable_validation?: boolean | null
           end_date?: string | null
           frequency?: string
+          generation_period_id?: string | null
           id?: string
           name?: string
           preferred_time?: string | null
@@ -2012,6 +2025,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "question_schedules_generation_period_id_fkey"
+            columns: ["generation_period_id"]
+            isOneToOne: false
+            referencedRelation: "generation_periods"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "question_schedules_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
@@ -2026,6 +2046,7 @@ export type Database = {
           created_at: string | null
           critic_pass_result: Json | null
           deleted_at: string | null
+          generation_period_id: string | null
           id: string
           model_used: string
           name: string | null
@@ -2042,6 +2063,7 @@ export type Database = {
           created_at?: string | null
           critic_pass_result?: Json | null
           deleted_at?: string | null
+          generation_period_id?: string | null
           id?: string
           model_used: string
           name?: string | null
@@ -2058,6 +2080,7 @@ export type Database = {
           created_at?: string | null
           critic_pass_result?: Json | null
           deleted_at?: string | null
+          generation_period_id?: string | null
           id?: string
           model_used?: string
           name?: string | null
@@ -2070,6 +2093,13 @@ export type Database = {
           validation_result?: Json | null
         }
         Relationships: [
+          {
+            foreignKeyName: "question_sets_generation_period_id_fkey"
+            columns: ["generation_period_id"]
+            isOneToOne: false
+            referencedRelation: "generation_periods"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "question_sets_tenant_id_fkey"
             columns: ["tenant_id"]
