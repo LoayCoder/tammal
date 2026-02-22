@@ -16,6 +16,25 @@ export function useMoodPathwayQuestions(
     queryFn: async (): Promise<Question[]> => {
       if (!moodLevel || !tenantId) return [];
 
+      // Check if at least one active, non-expired daily_checkin schedule exists
+      const today = new Date().toISOString().split('T')[0];
+      const { data: activeSchedules, error: schedError } = await supabase
+        .from('question_schedules')
+        .select('id, end_date')
+        .eq('tenant_id', tenantId)
+        .eq('schedule_type', 'daily_checkin')
+        .eq('status', 'active')
+        .is('deleted_at', null)
+        .limit(50);
+
+      if (schedError) throw schedError;
+
+      // Filter out expired schedules (end_date set and in the past)
+      const validSchedules = (activeSchedules || []).filter(
+        (s) => !s.end_date || s.end_date >= today,
+      );
+      if (validSchedules.length === 0) return [];
+
       const { data, error } = await supabase
         .from('questions')
         .select(`
@@ -35,7 +54,6 @@ export function useMoodPathwayQuestions(
       if (error) throw error;
       if (!data || data.length === 0) return [];
 
-      // Pick up to maxQuestions randomly for rotation effect
       const shuffled = [...data].sort(() => Math.random() - 0.5);
       return shuffled.slice(0, maxQuestions) as Question[];
     },
