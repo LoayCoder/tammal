@@ -592,7 +592,7 @@ export function ConfigPanel({
           </div>
           )}
 
-          {/* Complexity - shown once regardless of period */}
+          {/* Complexity - always shown once */}
           {selectedPeriod && (
             <div className="space-y-2">
               <Label>{t('aiGenerator.complexity')}</Label>
