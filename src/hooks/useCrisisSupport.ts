@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCurrentEmployee } from './useCurrentEmployee';
+import { createCrisisNotification } from './useCrisisNotifications';
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface FirstAider {
@@ -326,7 +327,7 @@ export function useCrisisCases(options?: { role?: 'requester' | 'first_aider' | 
         .single();
       if (error) throw error;
 
-      // If high risk, also create escalation record
+      // If high risk, create escalation record
       if (risk_level === 'high') {
         await supabase.from('mh_crisis_escalations').insert({
           tenant_id: data.tenant_id,
@@ -335,6 +336,31 @@ export function useCrisisCases(options?: { role?: 'requester' | 'first_aider' | 
           triggered_by: 'system',
           notes: `High-risk intent: ${data.intent}`,
         } as any);
+      } else {
+        // Auto-assign to best available first aider
+        const { data: assignedId } = await supabase.rpc('auto_assign_crisis_case', {
+          p_case_id: result.id,
+          p_tenant_id: data.tenant_id,
+        });
+
+        // Notify assigned first aider
+        if (assignedId) {
+          const { data: fa } = await supabase
+            .from('mh_first_aiders')
+            .select('user_id')
+            .eq('id', assignedId)
+            .single();
+          if (fa?.user_id) {
+            await createCrisisNotification({
+              tenant_id: data.tenant_id,
+              user_id: fa.user_id,
+              case_id: result.id,
+              type: 'case_assigned',
+              title: 'New support case assigned',
+              body: `A new ${data.intent.replace('_', ' ')} support request needs your attention.`,
+            });
+          }
+        }
       }
 
       return result as CrisisCase;
@@ -351,6 +377,64 @@ export function useCrisisCases(options?: { role?: 'requester' | 'first_aider' | 
 
       const { error } = await supabase.from('mh_crisis_cases').update(updateData).eq('id', id);
       if (error) throw error;
+
+      // Fetch the case for notification context
+      const { data: caseData } = await supabase.from('mh_crisis_cases').select('*').eq('id', id).single();
+      if (!caseData) return;
+
+      // Send notification based on status change
+      if (status === 'active') {
+        // Notify requester that case was accepted
+        await createCrisisNotification({
+          tenant_id: caseData.tenant_id,
+          user_id: caseData.requester_user_id,
+          case_id: id,
+          type: 'case_accepted',
+          title: 'Support request accepted',
+          body: 'A first aider has accepted your request and will respond shortly.',
+        });
+      } else if (status === 'resolved') {
+        await createCrisisNotification({
+          tenant_id: caseData.tenant_id,
+          user_id: caseData.requester_user_id,
+          case_id: id,
+          type: 'case_resolved',
+          title: 'Support case resolved',
+          body: 'Your support case has been marked as resolved.',
+        });
+      } else if (status === 'pending_assignment' && extra.assigned_first_aider_id === null) {
+        // Declined — re-assign automatically
+        const { data: newAiderId } = await supabase.rpc('auto_assign_crisis_case', {
+          p_case_id: id,
+          p_tenant_id: caseData.tenant_id,
+        });
+        // Increment reroute count
+        await supabase.from('mh_crisis_cases').update({ reroute_count: (caseData.reroute_count || 0) + 1 } as any).eq('id', id);
+
+        // Log decline as escalation
+        await supabase.from('mh_crisis_escalations').insert({
+          tenant_id: caseData.tenant_id,
+          case_id: id,
+          escalation_type: 'declined',
+          triggered_by: 'first_aider',
+          notes: 'First aider declined the case',
+        } as any);
+
+        // Notify new aider
+        if (newAiderId) {
+          const { data: fa } = await supabase.from('mh_first_aiders').select('user_id').eq('id', newAiderId).single();
+          if (fa?.user_id) {
+            await createCrisisNotification({
+              tenant_id: caseData.tenant_id,
+              user_id: fa.user_id,
+              case_id: id,
+              type: 'case_assigned',
+              title: 'New support case assigned',
+              body: 'A rerouted support request needs your attention.',
+            });
+          }
+        }
+      }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mh-crisis-cases'] }),
   });
@@ -387,6 +471,39 @@ export function useCrisisMessages(caseId?: string) {
         message: data.message,
       } as any);
       if (error) throw error;
+
+      // Notify the other party
+      const { data: caseData } = await supabase.from('mh_crisis_cases').select('requester_user_id, assigned_first_aider_id, tenant_id').eq('id', data.case_id).single();
+      if (caseData) {
+        const isRequester = caseData.requester_user_id === user!.id;
+        let recipientUserId: string | null = null;
+
+        if (isRequester && caseData.assigned_first_aider_id) {
+          const { data: fa } = await supabase.from('mh_first_aiders').select('user_id').eq('id', caseData.assigned_first_aider_id).single();
+          recipientUserId = fa?.user_id || null;
+        } else if (!isRequester) {
+          recipientUserId = caseData.requester_user_id;
+        }
+
+        if (recipientUserId) {
+          await createCrisisNotification({
+            tenant_id: caseData.tenant_id,
+            user_id: recipientUserId,
+            case_id: data.case_id,
+            type: 'new_message',
+            title: 'New message',
+            body: data.message.substring(0, 100),
+          });
+        }
+
+        // Update first_response_at if first aider sends first message
+        if (!isRequester) {
+          await supabase.from('mh_crisis_cases')
+            .update({ first_response_at: new Date().toISOString() } as any)
+            .eq('id', data.case_id)
+            .is('first_response_at', null);
+        }
+      }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mh-crisis-messages', caseId] }),
   });

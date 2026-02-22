@@ -1189,6 +1189,57 @@ export type Database = {
           },
         ]
       }
+      mh_crisis_notifications: {
+        Row: {
+          body: string | null
+          case_id: string | null
+          created_at: string
+          id: string
+          is_read: boolean
+          tenant_id: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          case_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          tenant_id: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          case_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          tenant_id?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mh_crisis_notifications_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "mh_crisis_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mh_crisis_notifications_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mh_emergency_contacts: {
         Row: {
           available_24_7: boolean
@@ -3103,6 +3154,10 @@ export type Database = {
       }
     }
     Functions: {
+      auto_assign_crisis_case: {
+        Args: { p_case_id: string; p_tenant_id: string }
+        Returns: string
+      }
       count_active_cases: { Args: { _first_aider_id: string }; Returns: number }
       get_first_aider_id: { Args: { _user_id: string }; Returns: string }
       get_profile_email: { Args: { _user_id: string }; Returns: string }

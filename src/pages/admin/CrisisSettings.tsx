@@ -13,7 +13,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFirstAiders, useEmergencyContacts, useFirstAiderSchedule, type FirstAider, type EmergencyContact, type FirstAiderSchedule } from '@/hooks/useCrisisSupport';
 import { useAuth } from '@/hooks/useAuth';
-import { Shield, Users, Clock, Phone, Plus, Trash2, Edit, AlertTriangle } from 'lucide-react';
+import { Shield, Users, Clock, Phone, Plus, Trash2, Edit, AlertTriangle, BarChart3 } from 'lucide-react';
+import CrisisAnalyticsTab from '@/components/crisis/CrisisAnalyticsTab';
 import { toast } from 'sonner';
 
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
@@ -60,6 +61,10 @@ export default function CrisisSettings() {
             <Shield className="h-4 w-4" />
             {t('crisisSupport.admin.rulesTab')}
           </TabsTrigger>
+          <TabsTrigger value="analytics" className="gap-1.5">
+            <BarChart3 className="h-4 w-4" />
+            {t('crisisSupport.admin.analyticsTab')}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="first-aiders">
@@ -73,6 +78,9 @@ export default function CrisisSettings() {
         </TabsContent>
         <TabsContent value="rules">
           <RulesTab />
+        </TabsContent>
+        <TabsContent value="analytics">
+          <CrisisAnalyticsTab />
         </TabsContent>
       </Tabs>
     </div>
