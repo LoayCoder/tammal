@@ -1,153 +1,120 @@
 
 
-# Comprehensive Audit Report: Organization Wellness Dashboard
+# Personal Mood Analytics Dashboard
 
-## Audit Findings Summary
+## Overview
 
-After a deep code review of all dashboard files, database schemas, RLS policies, console logs, and data state, I identified **12 issues** categorized by severity.
-
----
-
-## CRITICAL Issues (Will cause failures or incorrect data)
-
-### 1. `answer_value` is JSONB, not a number -- category/subcategory score parsing will fail
-
-**File**: `src/hooks/useOrgAnalytics.ts`, lines 335-336
-
-The `answer_value` column in `employee_responses` is `jsonb`. The current code tries to parse it as a number directly:
-
-```
-const numVal = typeof r.answer_value === 'number' ? r.answer_value
-  : typeof r.answer_value === 'string' ? parseFloat(r.answer_value) : null;
-```
-
-When Supabase returns JSONB, it can arrive as `{"value": 4}` or `4` or `"4"` depending on how it was stored. The `submit-response` edge function stores values in varying formats (numeric for scales, string for labels). The code has **no fallback** for object-type values like `{"value": 4}` or `{"selected": "Agree"}`, so these will all produce `null` and be excluded from category scoring.
-
-**Fix**: Add object-type handling: `if (typeof r.answer_value === 'object' && r.answer_value !== null) { numVal = r.answer_value.value ?? r.answer_value.score ?? null; }`
-
-### 2. `batchIn` helper function is defined but NEVER used
-
-**File**: `src/hooks/useOrgAnalytics.ts`, lines 129-135
-
-The `batchIn` function was created to handle the Supabase `.in()` limit of ~1000 items, but it is never called anywhere. All `.in('employee_id', filteredIds)` calls pass the raw array directly. If a tenant has more than ~1000 employees, these queries will silently fail or truncate results.
-
-**Fix**: Apply `batchIn` to all `.in()` calls with `filteredIds`, or at minimum add a guard that chunks the IDs.
-
-### 3. Survey Response Rate query is missing end-date filter
-
-**File**: `src/hooks/useOrgAnalytics.ts`, lines 276-288
-
-Both `schedQuery` and `answeredQuery` use `.gte('...', startDate)` but **do not** apply `.lte('...', endDate)`. This means the survey response rate includes ALL data from startDate to the present, regardless of the selected time range or custom end date. When the user selects "7 days" or a custom range, the KPI will show inflated or incorrect numbers.
-
-**Fix**: Add `.lte('scheduled_delivery', endDate + 'T23:59:59')` and `.lte('responded_at', endDate + 'T23:59:59')` to both queries.
-
-### 4. Mood entries query may hit the default 1000-row Supabase limit
-
-**File**: `src/hooks/useOrgAnalytics.ts`, line 188-194
-
-The mood entries query has no `.limit()` override. Supabase defaults to 1000 rows. A tenant with 200 employees doing daily check-ins for 30 days would generate 6,000 entries. The query would silently return only the first 1000, making ALL downstream calculations (mood trend, risk trend, streak, distribution, org comparison, top engagers) **wrong**.
-
-**Fix**: Add `.limit(10000)` or paginate results. This is the most impactful bug -- it corrupts every KPI and chart.
-
-### 5. Same 1000-row limit applies to `employee_responses` queries
-
-**File**: `src/hooks/useOrgAnalytics.ts`, lines 247-253 and 296-301
-
-The `employee_responses` queries for daily trend and category scores also have no explicit limit. Large tenants will get truncated data.
-
-**Fix**: Add `.limit(10000)` to both queries.
+Transform the Mood Tracker page (`/mental-toolkit/mood-tracker`) from a localStorage-based submission tool into a **read-only personal analytics dashboard** powered by real database data. The user sees their own mood history, trends, and statistics -- plus an anonymized comparison against the organization average. No submission forms on this page.
 
 ---
 
-## HIGH Issues (Functional problems)
+## What the User Will See
 
-### 6. `useOrgWellnessStats` hook is now orphaned/dead code
+### Section 1: Summary KPI Cards (top row)
+- **Current Streak** -- consecutive daily check-in days
+- **7-Day Average Mood** -- with a burnout zone indicator (Thriving / Watch / At Risk)
+- **Monthly Check-ins** -- count this month out of total days
+- **Today's Mood** -- emoji + label, or "Not checked in yet"
 
-**File**: `src/hooks/useOrgWellnessStats.ts`
+### Section 2: Mood Trend Line Chart (14 days)
+- Area chart showing the user's daily mood scores over the last 14 days
+- A dashed **Organization Average** reference line so the user can compare themselves to the org norm
+- Emoji tooltips showing the mood level for each day
 
-This hook is no longer imported by any component (confirmed by search). It was the original data source before `useOrgAnalytics` replaced it. It wastes bundle size and creates maintenance confusion.
+### Section 3: Mood Distribution (Donut Chart)
+- Breakdown of how often the user felt each mood level (Great, Good, Okay, Struggling, Need Help) over the selected period
+- Uses the tenant's configured `mood_definitions` for labels and emojis
 
-**Fix**: Delete the file.
+### Section 4: Weekly Activity Heatmap
+- Small grid showing which days of the week the user typically checks in
+- Highlights consistency patterns
 
-### 7. OrgComparison names are not localized (Arabic not shown)
-
-**File**: `src/hooks/useOrgAnalytics.ts`, lines 433-436
-
-The comparison data fetches only `id, name` from branches, departments, divisions, and sections. It does NOT fetch `name_ar`. The `OrgComparisonChart` displays `u.name` directly with no RTL fallback, so Arabic users will always see English names.
-
-**Fix**: Fetch `name_ar` alongside `name` in all four queries, and use `isRTL ? name_ar || name : name` in `OrgComparisonChart.tsx`.
-
-### 8. TopEngagersCard does not localize department names for Arabic
-
-**File**: `src/hooks/useOrgAnalytics.ts`, line 546
-
-The department lookup only fetches `id, name` but not `name_ar`. Arabic users see English department names in the leaderboard.
-
-**Fix**: Fetch `name_ar` from departments and pass the locale-appropriate name.
-
-### 9. Console warning: "Function components cannot be given refs" in CartesianGrid
-
-**Source**: Console logs
-
-Recharts `CartesianGrid` is receiving a ref from a parent. This is a known Recharts v2 issue with React 18 StrictMode. It's a warning, not a crash, but it clutters the console.
-
-**Fix**: This is a library-level issue. No action needed unless it causes visual bugs.
+### Section 5: Survey Response Stats
+- Total questions answered
+- Average response score
+- Completion rate (answered vs. delivered)
 
 ---
 
-## MEDIUM Issues (Edge cases and UX)
+## Data Sources (all real database data)
 
-### 10. OrgComparison ReferenceLine only shows one avg line for wellness score
-
-**File**: `src/components/dashboard/OrgComparisonChart.tsx`, line 69
-
-Only `orgAvgScore` is used as a `ReferenceLine`, but the chart shows three metrics (Wellness, Participation, Risk) with very different scales (0-5 vs 0-100%). A single reference line at ~3.5 makes no visual sense when plotted alongside percentages.
-
-**Fix**: Either use separate Y-axes for score vs percentage, or remove the misleading single reference line and show per-metric averages in tooltips instead.
-
-### 11. Custom date range arrow symbol "right arrow" not RTL-aware
-
-**File**: `src/components/dashboard/TimeRangeSelector.tsx`, line 72
-
-The separator between start and end date is a hardcoded `-->` character. In RTL mode, the arrow should point left (`<--`).
-
-**Fix**: Use `isRTL ? 'leftarrow' : 'rightarrow'` or replace with a neutral separator like "—".
-
-### 12. OrgFilterBar branch selection clears division/department/section but NOT vice versa
-
-**File**: `src/components/dashboard/OrgFilterBar.tsx`, line 59
-
-When changing branch, it correctly clears downstream filters. However, when changing division (line 78), it preserves `branchId` which may be unrelated to the selected division. This can create contradictory filters (Branch A + Division from Branch B) resulting in zero matched employees.
-
-**Fix**: When division changes, also clear branchId if the selected division doesn't belong to the selected branch.
-
----
-
-## Implementation Plan
-
-### Phase 1: Fix Critical Data Issues (highest priority)
-1. Add `.limit(10000)` to mood_entries and employee_responses queries
-2. Add missing `.lte(endDate)` to survey response rate queries
-3. Fix `answer_value` JSONB parsing to handle object types
-4. Wire `batchIn` to all `.in()` calls or add a size guard
-
-### Phase 2: Fix Localization Gaps
-5. Add `name_ar` to all OrgComparison and TopEngager data fetches
-6. Update OrgComparisonChart and TopEngagersCard to use locale-aware names
-7. Fix the custom date range RTL arrow
-
-### Phase 3: Clean Up
-8. Delete orphaned `useOrgWellnessStats.ts`
-9. Fix OrgComparison chart reference line to not be misleading
-10. Fix OrgFilterBar cascading to prevent contradictory filter states
-
-### Files to Modify
-| File | Changes |
+| Data | Source |
 |---|---|
-| `src/hooks/useOrgAnalytics.ts` | Fix limits, date filters, JSONB parsing, batchIn usage, add name_ar fields |
-| `src/components/dashboard/OrgComparisonChart.tsx` | RTL names, fix reference line |
-| `src/components/dashboard/TopEngagersCard.tsx` | RTL department names |
-| `src/components/dashboard/TimeRangeSelector.tsx` | RTL arrow fix |
-| `src/components/dashboard/OrgFilterBar.tsx` | Fix cascading logic |
-| `src/hooks/useOrgWellnessStats.ts` | Delete (dead code) |
+| User's mood history | `mood_entries` table via `useMoodHistory` hook (extended to 90 days) |
+| Org average mood | `mood_entries` table -- aggregated across all tenant employees for the same period |
+| Mood definitions (emojis, labels) | `mood_definitions` table via `useMoodDefinitions` |
+| Survey responses | `employee_responses` + `scheduled_questions` via existing hooks |
+| Streak and gamification | `useGamification` hook (already exists) |
+| Current employee identity | `useCurrentEmployee` hook |
+
+---
+
+## Technical Implementation
+
+### New Hook: `src/hooks/usePersonalMoodDashboard.ts`
+
+A dedicated hook that fetches all data needed for this page:
+
+- **Extended mood history**: Query `mood_entries` for the current employee over the last 90 days (not just 14)
+- **Org average**: Query `mood_entries` for all employees in the same tenant, grouped by `entry_date`, computing daily average `mood_score`. Returns as `{ date: string, orgAvg: number }[]`
+- **Mood distribution**: Count entries grouped by `mood_level` for the user
+- **Day-of-week activity**: Count entries grouped by day of week (0-6) for the user
+- **Survey stats**: Count from `employee_responses` (total answers), count from `scheduled_questions` where status = 'delivered' (total delivered), compute completion rate
+
+All queries are scoped to the user's `employee_id` (personal data) or `tenant_id` (org average -- anonymized aggregate only).
+
+### Rewrite: `src/pages/mental-toolkit/MoodTrackerPage.tsx`
+
+Complete replacement of the page content. Instead of rendering `MoodTrackerTool`, it will render the dashboard sections described above using Cards and Recharts components. No import of `MoodTrackerTool` -- no submission UI at all.
+
+Layout:
+1. Page header (keep existing gradient style)
+2. KPI cards row (4 cards in a responsive grid)
+3. Mood Trend chart (full width, area chart with org avg reference line)
+4. Two-column row: Mood Distribution (donut) + Weekly Activity (heatmap grid)
+5. Survey Response Stats card
+
+### Keep: `src/components/mental-toolkit/tools/MoodTrackerTool.tsx`
+
+This file stays **unchanged**. It is still used on the main Mental Toolkit page (`/mental-toolkit`) as a quick-log tool inside the "Tools" tab. Only the dedicated Mood Tracker page changes.
+
+### Localization: `src/locales/en.json` and `src/locales/ar.json`
+
+New keys under `mentalToolkit.moodDashboard`:
+- `pageTitle`, `pageSubtitle`
+- `currentStreak`, `days`, `avgMood7d`, `monthlyCheckins`, `todayMood`, `notCheckedIn`
+- `moodTrend`, `orgAverage`, `yourMood`
+- `moodDistribution`, `weeklyActivity`, `surveyStats`
+- `totalAnswered`, `avgResponseScore`, `completionRate`
+- `thriving`, `watch`, `atRisk`
+- `noDataYet`, `startCheckinPrompt`
+
+---
+
+## Files Summary
+
+| Action | File |
+|---|---|
+| New | `src/hooks/usePersonalMoodDashboard.ts` -- all data fetching for the personal dashboard |
+| Rewrite | `src/pages/mental-toolkit/MoodTrackerPage.tsx` -- read-only analytics dashboard |
+| Modify | `src/locales/en.json` -- new translation keys |
+| Modify | `src/locales/ar.json` -- new translation keys |
+
+---
+
+## Privacy and Security
+
+- Personal data uses `employee_id` filter -- RLS on `mood_entries` already ensures users only see their own entries
+- Org average is computed as a single aggregate number per day -- no individual employee data is exposed
+- The org average query uses `.eq('tenant_id', tenantId)` which is allowed by the existing RLS policy "Users can view active mood definitions in their tenant" -- but for `mood_entries`, the RLS only allows viewing own entries. So the org average must be computed differently:
+  - Option: Use the already-computed org data from `useOrgAnalytics` if the user has admin access, OR
+  - Better: Fetch org average via a lightweight query that only returns aggregated scores (the RLS on `mood_entries` allows tenant-level access for admins but not regular employees)
+  - **Solution**: Since regular employees cannot query other employees' mood entries due to RLS, the org average will be computed from the `useOrgAnalytics` hook data if available, or hidden for non-admin users with a note "Organization comparison available for managers"
+
+## Design System
+
+- Uses the Mental Toolkit calming palette (Lavender #C9B8E8, Sage Green #A8C5A0, Deep Plum #4A3F6B)
+- Rounded cards with soft shadows matching the existing toolkit design
+- All classes use logical properties (ms-/me-/ps-/pe-) for RTL support
+- Responsive: cards stack on mobile, side-by-side on desktop
 
