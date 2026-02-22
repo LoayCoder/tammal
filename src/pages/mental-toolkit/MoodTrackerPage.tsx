@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { SmilePlus, Flame, TrendingUp, CalendarCheck, Activity, BarChart3, PieChart, Grid3X3, ClipboardList, RefreshCw, ArrowRight } from "lucide-react";
+import { SmilePlus, Flame, TrendingUp, CalendarCheck, Activity, BarChart3, PieChart, Grid3X3, ClipboardList, RefreshCw, ArrowRight, Wind } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -450,6 +450,42 @@ export default function MoodTrackerPage() {
                   className="mt-3 block text-center text-sm font-medium hover:underline"
                   style={{ color: PALETTE.sage }}>
                   {t("mentalToolkit.moodDashboard.goToReframer")} <ArrowRight className="inline h-4 w-4 ms-1 rtl:-scale-x-100" />
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* ── Breathing Activity ── */}
+            <Card className="rounded-2xl">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Wind className="h-4 w-4" style={{ color: PALETTE.lavender }} />
+                  {t("mentalToolkit.moodDashboard.breathingActivity")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p className="text-2xl font-bold text-foreground">{dashboard.breathingStats.totalSessions}</p>
+                    <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.breathingSessions")}</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-foreground">{dashboard.breathingStats.thisMonth}</p>
+                    <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.breathingThisMonth")}</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-foreground">{dashboard.breathingStats.currentStreak}d</p>
+                    <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.breathingStreak")}</p>
+                  </div>
+                </div>
+                {dashboard.breathingStats.avgMoodImprovement !== 0 && (
+                  <p className="text-center text-xs mt-2" style={{ color: dashboard.breathingStats.avgMoodImprovement > 0 ? PALETTE.sage : PALETTE.plum }}>
+                    {dashboard.breathingStats.avgMoodImprovement > 0 ? "+" : ""}{dashboard.breathingStats.avgMoodImprovement} avg mood change
+                  </p>
+                )}
+                <Link to="/mental-toolkit/breathing"
+                  className="mt-3 block text-center text-sm font-medium hover:underline"
+                  style={{ color: PALETTE.lavender }}>
+                  {t("mentalToolkit.moodDashboard.goToBreathing")} <ArrowRight className="inline h-4 w-4 ms-1 rtl:-scale-x-100" />
                 </Link>
               </CardContent>
             </Card>

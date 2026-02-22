@@ -166,7 +166,6 @@ export function usePersonalMoodDashboard() {
       const entries = (data || []) as unknown as { created_at: string }[];
       const monthStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
       const thisMonth = entries.filter(r => r.created_at.slice(0, 10) >= monthStart).length;
-      // streak
       const uniqueDays = [...new Set(entries.map(r => r.created_at.slice(0, 10)))].sort().reverse();
       let streak = 0;
       const today = format(new Date(), 'yyyy-MM-dd');
@@ -179,6 +178,51 @@ export function usePersonalMoodDashboard() {
         }
       }
       return { total: entries.length, thisMonth, streak };
+    },
+    enabled: !!employeeId,
+  });
+
+  // ── Breathing stats ──
+  const { data: breathingStats, isLoading: breathingLoading } = useQuery({
+    queryKey: ['breathing-stats', employeeId],
+    queryFn: async () => {
+      if (!employeeId) return { totalSessions: 0, totalMinutes: 0, currentStreak: 0, avgMoodImprovement: 0, thisMonth: 0, favoriteExercise: null as string | null };
+      const { data, error } = await supabase
+        .from('breathing_sessions' as any)
+        .select('created_at, duration_seconds, technique, mood_before, mood_after, completed')
+        .eq('employee_id', employeeId)
+        .is('deleted_at', null)
+        .eq('completed', true)
+        .order('created_at', { ascending: false })
+        .limit(500);
+      if (error) return { totalSessions: 0, totalMinutes: 0, currentStreak: 0, avgMoodImprovement: 0, thisMonth: 0, favoriteExercise: null as string | null };
+      const entries = (data || []) as unknown as { created_at: string; duration_seconds: number; technique: string; mood_before: number | null; mood_after: number | null; completed: boolean }[];
+      const totalSessions = entries.length;
+      const totalMinutes = Math.round(entries.reduce((s, r) => s + r.duration_seconds, 0) / 60);
+      const monthStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+      const thisMonth = entries.filter(r => r.created_at.slice(0, 10) >= monthStart).length;
+      // Streak
+      const uniqueDays = [...new Set(entries.map(r => r.created_at.slice(0, 10)))].sort().reverse();
+      let currentStreak = 0;
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd');
+      if (uniqueDays.length > 0 && (uniqueDays[0] === today || uniqueDays[0] === yesterday)) {
+        let expected = uniqueDays[0];
+        for (const day of uniqueDays) {
+          if (day === expected) { currentStreak++; expected = format(subDays(new Date(day), 1), 'yyyy-MM-dd'); }
+          else break;
+        }
+      }
+      // Avg mood improvement
+      const withBoth = entries.filter(r => r.mood_before != null && r.mood_after != null);
+      const avgMoodImprovement = withBoth.length > 0
+        ? Math.round((withBoth.reduce((s, r) => s + (r.mood_after! - r.mood_before!), 0) / withBoth.length) * 10) / 10
+        : 0;
+      // Favorite exercise
+      const techCounts: Record<string, number> = {};
+      for (const s of entries) techCounts[s.technique] = (techCounts[s.technique] || 0) + 1;
+      const favoriteExercise = Object.entries(techCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+      return { totalSessions, totalMinutes, currentStreak, avgMoodImprovement, thisMonth, favoriteExercise };
     },
     enabled: !!employeeId,
   });
@@ -233,7 +277,7 @@ export function usePersonalMoodDashboard() {
 
   const hasOrgData = Object.keys(orgAvgMap).length > 0;
 
-  const isLoading = empLoading || defsLoading || streakLoading || histLoading || orgLoading || surveyLoading || reframeLoading;
+  const isLoading = empLoading || defsLoading || streakLoading || histLoading || orgLoading || surveyLoading || reframeLoading || breathingLoading;
 
   return {
     employee,
@@ -253,5 +297,6 @@ export function usePersonalMoodDashboard() {
     dayActivity,
     surveyStats: surveyStats ?? { totalAnswered: 0, avgScore: 0, completionRate: 0 },
     reframeStats: reframeStats ?? { total: 0, thisMonth: 0, streak: 0 },
+    breathingStats: breathingStats ?? { totalSessions: 0, totalMinutes: 0, currentStreak: 0, avgMoodImprovement: 0, thisMonth: 0, favoriteExercise: null },
   };
 }
