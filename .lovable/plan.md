@@ -1,104 +1,105 @@
 
 
-# Enhanced Reference Frameworks UI
+# Thought Reframer -- Full Redesign & Database Integration
 
 ## Overview
 
-Redesign the `FrameworkSelector` component from a compact collapsible list into a visually rich, card-grid-based interface with better visual hierarchy, richer framework cards, inline document management, and smoother interactions. The component stays within the AI Generator config panel but becomes more spacious, attractive, and easier to manage.
+Redesign the Thought Reframer page from a localStorage-only CBT tool into a **fully database-integrated**, polished experience. Reframe entries will be persisted to a new `thought_reframes` table, and a **Reframe Insights** section will appear on the personal Mood Dashboard showing the user's reframing activity stats.
 
 ---
 
 ## Current Problems
 
-1. **Cramped layout** -- frameworks are tiny rows with 10px text, hard to read and interact with
-2. **Expand/collapse awkward** -- a small chevron button inside each row is easy to miss
-3. **No visual distinction** -- all frameworks look the same regardless of selection state or type (default vs custom)
-4. **Document management buried** -- documents only appear after expanding, with very small controls
-5. **Edit/delete actions hidden** -- only visible after expanding, easy to overlook
-6. **No empty state design** -- when there are no frameworks, the page just shows the "Add" button
+1. **localStorage only** -- entries are lost on device switch, not part of the employee's wellness profile
+2. **No dashboard integration** -- the personal mood dashboard has no visibility into reframing activity
+3. **Basic UI** -- hardcoded "Step X of 3" text, small plain textareas, bland summary card, no animations
+4. **RTL gaps** -- arrow symbols (arrow, back) are not RTL-aware; `borderLeft` used instead of logical properties
+5. **No delete capability** -- past reframes cannot be removed
+6. **Limited history** -- only shows last 5 entries in a collapsed accordion
 
 ---
 
-## Proposed Design
+## What Will Change
 
-### Framework Cards (replace flat list)
+### 1. New Database Table: `thought_reframes`
 
-Each framework becomes a **visual card** with:
-- Left accent border using the primary color when selected
-- Icon displayed large (24px) with a soft colored background circle
-- Name + description visible without expanding
-- A "Selected" chip/badge when active
-- Default badge for system frameworks
-- Document count badge (e.g., "3 docs")
-- Action buttons (Edit, Delete) as icon-only buttons in the card corner, visible on hover
-- Click anywhere on the card to toggle selection
+| Column | Type | Notes |
+|---|---|---|
+| `id` | uuid PK | |
+| `employee_id` | uuid NOT NULL | FK concept (no explicit FK to auth) |
+| `tenant_id` | uuid NOT NULL | For RLS |
+| `negative_thought` | text NOT NULL | The original thought |
+| `challenge_answers` | jsonb | `{q1: "...", q2: "...", q3: "..."}` |
+| `reframed_thought` | text NOT NULL | The reframed version |
+| `created_at` | timestamptz | Default `now()` |
+| `deleted_at` | timestamptz | Soft delete |
 
-### Expanded State
+**RLS Policies** (same pattern as `mood_entries`):
+- Employees can INSERT their own entries
+- Employees can SELECT their own entries (where `deleted_at IS NULL`)
+- Employees can UPDATE their own entries (for soft delete)
+- Super admins can manage all
+- Tenant admins can view tenant entries
 
-Clicking the expand chevron (or a "Details" button) slides open a panel below the card showing:
-- Full description text
-- Document list with status badges (Extracted / Pending)
-- Upload button for new documents
-- Delete buttons per document
+### 2. New Hook: `src/hooks/useThoughtReframes.ts`
 
-### Grid Layout
+- `reframes` -- fetched from DB, ordered by `created_at DESC`, limited to 50
+- `saveReframe(data)` -- inserts to DB using `useMutation` with cache invalidation
+- `deleteReframe(id)` -- soft-deletes (sets `deleted_at`) with `useMutation`
+- `stats` -- derived: total count, this month count, this week count, current streak (consecutive days with at least one reframe)
 
-- On wider screens (sidebar is ~320px), cards stack vertically but with more breathing room
-- Each card has `p-3` padding, `rounded-xl`, subtle shadow on hover
-- Selected cards have a gradient left border and a soft background tint
+### 3. Redesigned Page: `src/pages/mental-toolkit/ThoughtReframerPage.tsx`
 
-### Empty State
+The page itself becomes the full experience (no longer just a wrapper for `ThoughtReframerTool`).
 
-When no frameworks exist, show a centered illustration area with:
-- BookOpen icon (large, muted)
-- "No frameworks yet" message
-- "Add your first framework to guide AI question generation" subtitle
-- Prominent "Add Framework" button
+**Layout:**
 
-### Search/Filter (if > 5 frameworks)
+**A. Page Header** -- gradient banner with icon, title, subtitle (keep existing style)
 
-A small search input that filters frameworks by name -- only shown when there are more than 5 frameworks.
+**B. Stats Bar** (new) -- 3 small KPI pills below the header:
+- Total Reframes (all time)
+- This Month count
+- Current Streak (consecutive days)
 
-### Select All / Deselect All
+**C. Reframe Wizard** (redesigned multi-step flow):
+- Step indicators as **numbered circles** with connecting lines (not just a progress bar)
+- Step 1: "Identify the Thought" -- larger textarea with a thought-bubble icon, calming background
+- Step 2: "Challenge It" -- 3 guided questions in styled cards with question-mark icons
+- Step 3: "Reframe" -- shows original in a lavender quote card, textarea below with sage-green accent
+- Summary: side-by-side comparison cards with a "transformation arrow" between them, confetti-style save animation
 
-Quick action buttons in the header to select or deselect all frameworks at once.
+**D. Reframe Journal** (replaces accordion) -- scrollable list of past reframes:
+- Each entry as a card with date, original thought (truncated), reframed thought
+- Expand to see the full challenge answers
+- Delete button (trash icon) with confirmation
+- Empty state with illustration when no entries exist
+- "View more" pagination (loads 10 at a time)
 
----
+### 4. Dashboard Integration: Update `usePersonalMoodDashboard.ts`
 
-## Technical Implementation
+Add a new query to fetch reframe stats:
+- `reframeCount` -- total count from `thought_reframes`
+- `reframeThisMonth` -- count this month
+- `reframeStreak` -- consecutive days with reframes
 
-### File: `src/components/ai-generator/FrameworkSelector.tsx` (Major Rewrite)
+### 5. Dashboard UI: Update `MoodTrackerPage.tsx`
 
-- Replace the flat `button` rows with styled `Card`-like divs
-- Add search state and filtering logic
-- Add "Select All" / "Deselect All" buttons in header
-- Improve expand/collapse with smooth animation (Collapsible per card)
-- Add hover states for edit/delete actions
-- Add empty state UI
-- Use logical properties throughout (ms-/me-/ps-/pe-)
-- Increase touch targets for better mobile usability
+Add a new **"Reframe Activity"** card in the two-column section:
+- Shows total reframes, this month count, and streak
+- Small bar or sparkline showing weekly reframe frequency
+- Link to the Thought Reframer page
 
-### File: `src/components/ai-generator/FrameworkDialog.tsx` (Minor Polish)
+### 6. Localization Updates
 
-- Add subtle section dividers between EN and AR fields
-- Add emoji picker preview (show the icon larger in a preview area)
-- Improve file upload area with drag-and-drop visual zone
-- Add accepted file types hint text
+New keys in `en.json` and `ar.json` under `mentalToolkit.thoughtReframer`:
+- `statsTotal`, `statsMonth`, `statsStreak`
+- `stepIdentify`, `stepChallenge`, `stepReframe`
+- `transformationArrow`, `deleteConfirm`, `deleteSuccess`
+- `viewMore`, `noReframesYet`, `noReframesDesc`, `startReframing`
+- `journalTitle`, `expandDetails`, `challengeAnswers`
 
-### File: `src/components/ai-generator/FrameworkDocuments.tsx` (Minor Polish)
-
-- Slightly larger touch targets for delete buttons
-- Add file size display for each document
-- Improve status badge styling (green glow for extracted, amber pulse for pending)
-
-### File: `src/locales/en.json` and `src/locales/ar.json`
-
-New keys:
-- `aiGenerator.noFrameworksYet` / `aiGenerator.noFrameworksDesc`
-- `aiGenerator.selectAll` / `aiGenerator.deselectAll`
-- `aiGenerator.searchFrameworks`
-- `aiGenerator.docsCount` (e.g., "{{count}} docs")
-- `aiGenerator.frameworkDetails`
+New keys under `mentalToolkit.moodDashboard`:
+- `reframeActivity`, `totalReframes`, `reframesThisMonth`, `reframeStreak`, `goToReframer`
 
 ---
 
@@ -106,19 +107,24 @@ New keys:
 
 | Action | File |
 |---|---|
-| Rewrite | `src/components/ai-generator/FrameworkSelector.tsx` -- card-based layout, search, select all, empty state |
-| Modify | `src/components/ai-generator/FrameworkDialog.tsx` -- polish sections, file upload zone |
-| Modify | `src/components/ai-generator/FrameworkDocuments.tsx` -- improved badges, larger targets |
+| Migration | New `thought_reframes` table with RLS policies |
+| New | `src/hooks/useThoughtReframes.ts` -- DB CRUD + stats |
+| Rewrite | `src/pages/mental-toolkit/ThoughtReframerPage.tsx` -- full redesign with wizard + journal |
+| Modify | `src/hooks/usePersonalMoodDashboard.ts` -- add reframe stats query |
+| Modify | `src/pages/mental-toolkit/MoodTrackerPage.tsx` -- add Reframe Activity card |
 | Modify | `src/locales/en.json` -- new translation keys |
 | Modify | `src/locales/ar.json` -- new translation keys |
+| Keep | `src/components/mental-toolkit/tools/ThoughtReframerTool.tsx` -- unchanged (used elsewhere) |
 
 ---
 
-## Design Tokens
+## Design System
 
-- Card background: `bg-card` with `hover:shadow-md` transition
-- Selected state: `bg-primary/5 border-s-3 border-s-primary`
-- Icon circle: `w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center`
-- Text sizes: Name `text-sm font-medium`, Description `text-xs text-muted-foreground`
+- Lavender (#C9B8E8) for original thoughts, Sage Green (#A8C5A0) for reframed thoughts
+- Deep Plum (#4A3F6B) for text accents
+- Rounded cards (rounded-2xl), soft shadows
+- Step circles with gradient fills and connecting lines
 - All spacing uses logical properties (ms-/me-/ps-/pe-)
+- RTL-aware arrows and flow indicators
+- Smooth fade-in/slide-up transitions between steps
 
