@@ -501,16 +501,22 @@ export function ConfigPanel({
                 <ScrollArea className="max-h-[240px] px-2 py-2">
                   {(purpose === 'wellness'
                     ? [
-                        { value: 'likert_5', label: t('aiGenerator.typeScale') },
-                        { value: 'multiple_choice', label: t('aiGenerator.typeMCQ') },
-                        { value: 'open_ended', label: t('aiGenerator.typeOpen') },
+                        { value: 'likert_5', emoji: '📊', label: t('aiGenerator.typeScale') },
+                        { value: 'multiple_choice', emoji: '☑️', label: t('aiGenerator.typeMCQ') },
+                        { value: 'open_ended', emoji: '💬', label: t('aiGenerator.typeOpen') },
+                        { value: 'numeric_scale', emoji: '🔢', label: t('aiGenerator.typeNumeric') },
+                        { value: 'yes_no', emoji: '✅', label: t('aiGenerator.typeYesNo') },
+                        { value: 'slider', emoji: '🎚️', label: t('aiGenerator.typeSlider') },
+                        { value: 'emoji_rating', emoji: '😀', label: t('aiGenerator.typeEmojiRating') },
                       ]
                     : [
-                        { value: 'likert_5', label: t('aiGenerator.typeLikert') },
-                        { value: 'multiple_choice', label: t('aiGenerator.typeMCQ') },
-                        { value: 'open_ended', label: t('aiGenerator.typeOpen') },
-                        { value: 'numeric_scale', label: t('aiGenerator.typeNumeric') },
-                        { value: 'yes_no', label: t('aiGenerator.typeYesNo') },
+                        { value: 'likert_5', emoji: '📊', label: t('aiGenerator.typeLikert') },
+                        { value: 'multiple_choice', emoji: '☑️', label: t('aiGenerator.typeMCQ') },
+                        { value: 'open_ended', emoji: '💬', label: t('aiGenerator.typeOpen') },
+                        { value: 'numeric_scale', emoji: '🔢', label: t('aiGenerator.typeNumeric') },
+                        { value: 'yes_no', emoji: '✅', label: t('aiGenerator.typeYesNo') },
+                        { value: 'ranking', emoji: '🏆', label: t('aiGenerator.typeRanking') },
+                        { value: 'matrix', emoji: '📋', label: t('aiGenerator.typeMatrix') },
                       ]
                   ).map(opt => (
                     <label
@@ -527,7 +533,7 @@ export function ConfigPanel({
                           }
                         }}
                       />
-                      <span>{opt.label}</span>
+                      <span>{opt.emoji} {opt.label}</span>
                     </label>
                   ))}
                 </ScrollArea>
