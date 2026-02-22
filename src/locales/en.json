@@ -146,6 +146,7 @@
       "originalLabel": "Original Thought",
       "reframedLabel": "Reframed Thought",
       "saveStart": "Save & Start Over",
+      "saveReframe": "Save Reframe",
       "pastReframes": "Past Reframes",
       "noPastReframes": "No saved reframes yet.",
       "saveSuccess": "Reframe saved!",
@@ -167,7 +168,14 @@
       "noReframesDesc": "Complete the wizard above to save your first reframe.",
       "journalTitle": "Reframe Journal",
       "challengeAnswers": "Challenge Answers",
-      "loginRequired": "Sign in to save reframes to your profile"
+      "loginRequired": "Sign in to save reframes to your profile",
+      "aiSuggest": "AI Suggest",
+      "aiSuggesting": "Thinking...",
+      "aiSuggestTooltip": "Let AI suggest a reframed thought based on your answers",
+      "aiSuggestError": "Could not generate suggestion. Try again.",
+      "voiceInput": "Voice input",
+      "voiceListening": "Listening...",
+      "voiceNotSupported": "Voice input not supported in this browser"
     },
     "breathing": {
       "title": "Breathing & Grounding",
