@@ -175,7 +175,10 @@
       "aiSuggestError": "تعذر إنشاء الاقتراح. حاول مرة أخرى.",
       "voiceInput": "الإدخال الصوتي",
       "voiceListening": "جارٍ الاستماع...",
-      "voiceNotSupported": "الإدخال الصوتي غير مدعوم في هذا المتصفح"
+      "voiceNotSupported": "الإدخال الصوتي غير مدعوم في هذا المتصفح",
+      "saveError": "خطأ في حفظ إعادة الصياغة",
+      "deleteError": "خطأ في الحذف",
+      "stopListening": "إيقاف الاستماع"
     },
     "breathing": {
       "title": "التنفس والتأريض",

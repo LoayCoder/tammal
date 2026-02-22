@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useCurrentEmployee } from './useCurrentEmployee';
 import { useMemo } from 'react';
-import { format, subDays, differenceInCalendarDays, startOfMonth } from 'date-fns';
+import { format, subDays, startOfMonth } from 'date-fns';
 
 export interface ThoughtReframe {
   id: string;
@@ -92,7 +92,7 @@ export function useThoughtReframes() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
-      queryClient.invalidateQueries({ queryKey: ['reframe-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['reframe-stats', employeeId] });
     },
   });
 
@@ -106,7 +106,7 @@ export function useThoughtReframes() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
-      queryClient.invalidateQueries({ queryKey: ['reframe-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['reframe-stats', employeeId] });
     },
   });
 

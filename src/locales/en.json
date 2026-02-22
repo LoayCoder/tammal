@@ -175,7 +175,10 @@
       "aiSuggestError": "Could not generate suggestion. Try again.",
       "voiceInput": "Voice input",
       "voiceListening": "Listening...",
-      "voiceNotSupported": "Voice input not supported in this browser"
+      "voiceNotSupported": "Voice input not supported in this browser",
+      "saveError": "Error saving reframe",
+      "deleteError": "Error deleting",
+      "stopListening": "Stop listening"
     },
     "breathing": {
       "title": "Breathing & Grounding",
