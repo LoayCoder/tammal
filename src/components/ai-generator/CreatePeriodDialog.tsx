@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
 import { format, addMonths, startOfQuarter, endOfQuarter, startOfYear, endOfYear } from 'date-fns';
 import { GenerationPeriod } from '@/hooks/useGenerationPeriods';
 
@@ -79,9 +80,22 @@ export function CreatePeriodDialog({
   };
 
   const toggleSub = (id: string) => {
-    setSelectedSubIds(prev =>
-      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
-    );
+    if (selectedSubIds.includes(id)) {
+      setSelectedSubIds(prev => prev.filter(s => s !== id));
+    } else {
+      // Enforce max 5 per category
+      const sub = subcategories.find(s => s.id === id);
+      if (sub) {
+        const countInCat = selectedSubIds.filter(sid => 
+          subcategories.find(s => s.id === sid)?.category_id === sub.category_id
+        ).length;
+        if (countInCat >= 5) {
+          toast.error(t('aiGenerator.maxSubcategoriesPerCategory', { max: 5 }));
+          return;
+        }
+      }
+      setSelectedSubIds(prev => [...prev, id]);
+    }
   };
 
   const getLabel = (item: { name: string; name_ar: string | null }) =>
@@ -174,7 +188,12 @@ export function CreatePeriodDialog({
           {/* Lock Subcategories */}
           {filteredSubs.length > 0 && (
             <div className="space-y-2">
-              <Label>{t('aiGenerator.subcategory')}</Label>
+              <div className="flex items-center justify-between">
+                <Label>{t('aiGenerator.subcategory')}</Label>
+                <span className={`text-xs ${selectedSubIds.length < 1 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  {selectedSubIds.length} {t('common.selected')} · {t('common.max')} 5/{t('aiGenerator.category')}
+                </span>
+              </div>
               <ScrollArea className="h-[120px] rounded-md border p-2">
                 {filteredSubs.map(s => (
                   <label key={s.id} className="flex items-center gap-2 py-1 cursor-pointer hover:bg-accent rounded px-1">
@@ -190,7 +209,7 @@ export function CreatePeriodDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>{t('common.cancel')}</Button>
-          <Button onClick={handleSubmit} disabled={isCreating || selectedCatIds.length < 3 || hasActivePeriod}>
+          <Button onClick={handleSubmit} disabled={isCreating || selectedCatIds.length < 3 || selectedSubIds.length < 1 || hasActivePeriod}>
             {isCreating && <Loader2 className="h-4 w-4 animate-spin me-2" />}
             {t('common.create')}
           </Button>
