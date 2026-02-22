@@ -1,31 +1,28 @@
 
-# Fix: Subcategories Not Reflected When Period is Created
+
+# Fix: Generate Button Disabled When Active Period is Selected
 
 ## Problem
-When you create a Generation Period and select categories + subcategories in the dialog, the Category dropdown correctly shows "3 selected" but the Subcategory dropdown still shows "Select subcategories". This happens because:
+After creating a Generation Period, the "Generate Questions" button shows a lock icon and remains disabled with the tooltip "Generation is locked while a period is active". This happens because `isGenerationLocked` is set to `true` whenever there is ANY active period for the current purpose -- even when the user has already selected that period.
 
-1. After creating a period, the dropdown stays on "Freeform (No Lock)" -- the newly created period is NOT auto-selected
-2. Even when a period IS selected from the dropdown, the subcategory count display works but the auto-selection flow has a gap
+## Root Cause
+In `ConfigPanel.tsx` line 158:
+```text
+const isGenerationLocked = !!activePeriodForPurpose;
+```
+This disables generation whenever an active period exists, regardless of whether the user has selected it. The intended behavior should be: lock generation only if an active period exists but the user has NOT selected it (forcing them to use the period).
 
 ## Solution
-
-### 1. Auto-select the newly created period after creation
-In `AIQuestionGenerator.tsx`, after `createPeriod` succeeds, automatically set `selectedPeriodId` to the new period's ID so the user doesn't have to manually re-select it. This also triggers the category/subcategory auto-population.
-
-### 2. Auto-populate subcategories when period is selected
-Ensure that when a period is selected (either manually or auto-selected after creation), the locked subcategory IDs are properly synced to the `selectedSubcategoryIds` state, just like categories are already synced on line 314-315.
-
-## Technical Details
-
-### File: `src/hooks/useGenerationPeriods.ts`
-- Change `createPeriod` mutation to return the created period data so the caller can get the new period's ID
-
-### File: `src/pages/admin/AIQuestionGenerator.tsx`
-- Update the `onCreatePeriod` handler to:
-  - Wait for the mutation result
-  - Auto-set `selectedPeriodId` to the newly created period's ID
-  - Auto-set `selectedCategoryIds` from the period's `lockedCategoryIds`
-  - Auto-set `selectedSubcategoryIds` from the period's `lockedSubcategoryIds`
+Change the lock condition so that generation is only locked when an active period exists AND it is NOT the currently selected period.
 
 ### File: `src/components/ai-generator/ConfigPanel.tsx`
-- No changes needed -- the existing logic on lines 164-165 already correctly uses `effectiveSubcategoryIds` from the selected period when `isPeriodLocked` is true. Once the period is auto-selected after creation, this will work correctly.
+- Line 158: Change from:
+  `const isGenerationLocked = !!activePeriodForPurpose;`
+  To:
+  `const isGenerationLocked = !!activePeriodForPurpose && activePeriodForPurpose.id !== selectedPeriodId;`
+
+This means:
+- If no active period exists -- unlocked (freeform mode)
+- If an active period exists AND the user selected it -- unlocked (generate within the period)
+- If an active period exists but user selected a different period or "Freeform" -- locked (must use active period)
+
