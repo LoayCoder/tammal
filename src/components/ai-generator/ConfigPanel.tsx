@@ -9,7 +9,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Loader2, ChevronDown, Settings2, ChevronsUpDown, ClipboardList, Heart, CalendarClock, Plus, Lock } from 'lucide-react';
+import { Sparkles, Loader2, ChevronDown, Settings2, ChevronsUpDown, ClipboardList, Heart, CalendarClock, Plus, Lock, Trash2, TimerOff } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertTriangle } from 'lucide-react';
 import { AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { KnowledgeBasePanel } from './KnowledgeBasePanel';
@@ -81,6 +84,9 @@ interface ConfigPanelProps {
   onSelectedPeriodIdChange: (id: string | null) => void;
   onCreatePeriod: (params: any) => void;
   isCreatingPeriod: boolean;
+  activePeriodForPurpose: GenerationPeriod | null;
+  onExpirePeriod: (periodId: string) => void;
+  onDeletePeriod: (periodId: string) => void;
 }
 
 export function ConfigPanel({
@@ -126,6 +132,9 @@ export function ConfigPanel({
   onSelectedPeriodIdChange,
   onCreatePeriod,
   isCreatingPeriod,
+  activePeriodForPurpose,
+  onExpirePeriod,
+  onDeletePeriod,
 }: ConfigPanelProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
@@ -140,6 +149,10 @@ export function ConfigPanel({
   // When a period is selected, lock to its categories/subcategories
   const selectedPeriod = periods.find(p => p.id === selectedPeriodId) || null;
   const isPeriodLocked = !!selectedPeriod;
+  const isGenerationLocked = !!activePeriodForPurpose;
+
+  // Filter periods by current purpose
+  const purposePeriods = periods.filter(p => p.purpose === purpose);
 
   // Filter subcategories by selected categories
   const effectiveCategoryIds = isPeriodLocked ? (selectedPeriod.locked_category_ids || []) as string[] : selectedCategoryIds;
@@ -275,7 +288,6 @@ export function ConfigPanel({
                     onSelectedPeriodIdChange(null);
                   } else {
                     onSelectedPeriodIdChange(v);
-                    // Apply locked categories/subcategories from the period
                     const period = periods.find(p => p.id === v);
                     if (period) {
                       onSelectedCategoryIdsChange((period.locked_category_ids || []) as string[]);
@@ -287,7 +299,7 @@ export function ConfigPanel({
                 <SelectTrigger className="flex-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__freeform__">{t('aiGenerator.freeformMode')}</SelectItem>
-                  {periods.filter(p => p.status === 'active').map(p => (
+                  {purposePeriods.filter(p => p.status === 'active').map(p => (
                     <SelectItem key={p.id} value={p.id}>
                       {t(`aiGenerator.period${p.period_type.charAt(0).toUpperCase() + p.period_type.slice(1)}`)} — {p.start_date} → {p.end_date}
                     </SelectItem>
@@ -303,6 +315,30 @@ export function ConfigPanel({
                 <Lock className="h-3 w-3" />
                 {t('aiGenerator.periodLocked')}
               </p>
+            )}
+            {/* Active period management */}
+            {activePeriodForPurpose && (
+              <Alert className="py-2">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription className="flex items-center justify-between">
+                  <span className="text-xs">
+                    {t('aiGenerator.periodActiveInfo', {
+                      start: activePeriodForPurpose.start_date,
+                      end: activePeriodForPurpose.end_date,
+                    })}
+                  </span>
+                  <div className="flex gap-1 ms-2">
+                    <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => onExpirePeriod(activePeriodForPurpose.id)}>
+                      <TimerOff className="h-3 w-3 me-1" />
+                      {t('aiGenerator.periodExpire')}
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-destructive" onClick={() => onDeletePeriod(activePeriodForPurpose.id)}>
+                      <Trash2 className="h-3 w-3 me-1" />
+                      {t('aiGenerator.periodDelete')}
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
             )}
           </div>
 
@@ -563,19 +599,42 @@ export function ConfigPanel({
           </Collapsible>
 
           {/* Generate Button */}
-          <Button onClick={onGenerate} disabled={isGenerating || effectiveCategoryIds.length === 0} className="w-full" size="lg">
-            {isGenerating ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin me-2" />
-                {t('aiGenerator.generating')}
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-5 w-5 me-2" />
-                {t('aiGenerator.generate')}
-              </>
-            )}
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="w-full">
+                  <Button
+                    onClick={onGenerate}
+                    disabled={isGenerating || effectiveCategoryIds.length === 0 || isGenerationLocked}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin me-2" />
+                        {t('aiGenerator.generating')}
+                      </>
+                    ) : isGenerationLocked ? (
+                      <>
+                        <Lock className="h-5 w-5 me-2" />
+                        {t('aiGenerator.generate')}
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-5 w-5 me-2" />
+                        {t('aiGenerator.generate')}
+                      </>
+                    )}
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {isGenerationLocked && (
+                <TooltipContent>
+                  <p>{t('aiGenerator.periodLockedGenerate')}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         </CardContent>
       </Card>
 
@@ -615,6 +674,8 @@ export function ConfigPanel({
           setCreatePeriodOpen(false);
         }}
         isCreating={isCreatingPeriod}
+        purpose={purpose}
+        activePeriodForPurpose={activePeriodForPurpose}
       />
     </div>
   );

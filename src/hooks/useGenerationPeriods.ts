@@ -12,6 +12,7 @@ export interface GenerationPeriod {
   locked_category_ids: string[];
   locked_subcategory_ids: string[];
   status: string;
+  purpose: string;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -40,6 +41,10 @@ export function useGenerationPeriods(tenantId: string | null) {
 
   const activePeriods = periods.filter(p => p.status === 'active');
 
+  const getActivePeriodForPurpose = (purpose: string): GenerationPeriod | null => {
+    return activePeriods.find(p => p.purpose === purpose) || null;
+  };
+
   const createPeriod = useMutation({
     mutationFn: async (params: {
       tenantId: string;
@@ -48,8 +53,15 @@ export function useGenerationPeriods(tenantId: string | null) {
       endDate: string;
       lockedCategoryIds: string[];
       lockedSubcategoryIds: string[];
+      purpose: string;
       createdBy?: string;
     }) => {
+      // Check for existing active period for the same purpose
+      const existing = activePeriods.find(p => p.purpose === params.purpose);
+      if (existing) {
+        throw new Error(t('aiGenerator.periodAlreadyActive'));
+      }
+
       const { data, error } = await supabase
         .from('generation_periods')
         .insert({
@@ -59,6 +71,7 @@ export function useGenerationPeriods(tenantId: string | null) {
           end_date: params.endDate,
           locked_category_ids: params.lockedCategoryIds,
           locked_subcategory_ids: params.lockedSubcategoryIds,
+          purpose: params.purpose,
           created_by: params.createdBy || null,
           status: 'active',
         } as any)
@@ -76,11 +89,50 @@ export function useGenerationPeriods(tenantId: string | null) {
     },
   });
 
+  const expirePeriod = useMutation({
+    mutationFn: async (periodId: string) => {
+      const { error } = await supabase
+        .from('generation_periods')
+        .update({ status: 'expired' } as any)
+        .eq('id', periodId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['generation-periods'] });
+      toast.success(t('aiGenerator.periodExpired'));
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || t('aiGenerator.periodError'));
+    },
+  });
+
+  const softDeletePeriod = useMutation({
+    mutationFn: async (periodId: string) => {
+      const { error } = await supabase
+        .from('generation_periods')
+        .update({ deleted_at: new Date().toISOString() } as any)
+        .eq('id', periodId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['generation-periods'] });
+      toast.success(t('aiGenerator.periodDeleted'));
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || t('aiGenerator.periodError'));
+    },
+  });
+
   return {
     periods,
     activePeriods,
     isLoading,
+    getActivePeriodForPurpose,
     createPeriod: createPeriod.mutate,
     isCreating: createPeriod.isPending,
+    expirePeriod: expirePeriod.mutate,
+    isExpiring: expirePeriod.isPending,
+    softDeletePeriod: softDeletePeriod.mutate,
+    isDeleting: softDeletePeriod.isPending,
   };
 }

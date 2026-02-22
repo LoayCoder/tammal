@@ -53,7 +53,7 @@ export default function AIQuestionGenerator() {
 
   const { availableBatches, availableWellnessBatches, MAX_BATCH_SIZE } = useQuestionBatches(tenantId || null);
   const { moods: moodDefinitions } = useMoodDefinitions(tenantId || null);
-  const { periods, createPeriod, isCreating: isCreatingPeriod } = useGenerationPeriods(tenantId || null);
+  const { periods, createPeriod, isCreating: isCreatingPeriod, getActivePeriodForPurpose, expirePeriod, softDeletePeriod } = useGenerationPeriods(tenantId || null);
 
   const [accuracyMode, setAccuracyMode] = useState('standard');
   const [selectedModel, setSelectedModel] = useState('google/gemini-3-flash-preview');
@@ -357,11 +357,21 @@ export default function AIQuestionGenerator() {
                   endDate: params.endDate,
                   lockedCategoryIds: params.lockedCategoryIds,
                   lockedSubcategoryIds: params.lockedSubcategoryIds,
+                  purpose: params.purpose || purpose,
                   createdBy: user?.id,
                 });
               }
             }}
             isCreatingPeriod={isCreatingPeriod}
+            activePeriodForPurpose={getActivePeriodForPurpose(purpose)}
+            onExpirePeriod={(periodId) => {
+              expirePeriod(periodId);
+              if (selectedPeriodId === periodId) setSelectedPeriodId(null);
+            }}
+            onDeletePeriod={(periodId) => {
+              softDeletePeriod(periodId);
+              if (selectedPeriodId === periodId) setSelectedPeriodId(null);
+            }}
           />
         </div>
 

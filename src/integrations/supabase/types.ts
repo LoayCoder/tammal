@@ -841,6 +841,7 @@ export type Database = {
           locked_category_ids: Json
           locked_subcategory_ids: Json
           period_type: string
+          purpose: string
           start_date: string
           status: string
           tenant_id: string
@@ -855,6 +856,7 @@ export type Database = {
           locked_category_ids?: Json
           locked_subcategory_ids?: Json
           period_type?: string
+          purpose?: string
           start_date: string
           status?: string
           tenant_id: string
@@ -869,6 +871,7 @@ export type Database = {
           locked_category_ids?: Json
           locked_subcategory_ids?: Json
           period_type?: string
+          purpose?: string
           start_date?: string
           status?: string
           tenant_id?: string
