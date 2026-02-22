@@ -122,7 +122,12 @@
       "atRisk": "At Risk",
       "noDataYet": "No mood data yet",
       "startCheckinPrompt": "Start your daily check-in to see your mood trends here.",
-      "orgComparisonNote": "Organization comparison available for managers"
+      "orgComparisonNote": "Organization comparison available for managers",
+      "reframeActivity": "Reframe Activity",
+      "totalReframes": "Total Reframes",
+      "reframesThisMonth": "This Month",
+      "reframeStreak": "Streak",
+      "goToReframer": "Open Thought Reframer"
     },
     "thoughtReframer": {
       "title": "Thought Reframer",
@@ -143,7 +148,26 @@
       "saveStart": "Save & Start Over",
       "pastReframes": "Past Reframes",
       "noPastReframes": "No saved reframes yet.",
-      "saveSuccess": "Reframe saved!"
+      "saveSuccess": "Reframe saved!",
+      "statsTotal": "Total Reframes",
+      "statsMonth": "This Month",
+      "statsStreak": "Streak",
+      "stepIdentify": "Identify",
+      "stepChallenge": "Challenge",
+      "stepReframe": "Reframe",
+      "continueBtn": "Continue",
+      "backBtn": "Back",
+      "seeSummary": "See Summary",
+      "startOver": "Start Over",
+      "deleteConfirm": "Delete this reframe?",
+      "deleteDesc": "This action cannot be undone.",
+      "deleteSuccess": "Reframe deleted",
+      "viewMore": "View More",
+      "noReframesYet": "No reframes yet",
+      "noReframesDesc": "Complete the wizard above to save your first reframe.",
+      "journalTitle": "Reframe Journal",
+      "challengeAnswers": "Challenge Answers",
+      "loginRequired": "Sign in to save reframes to your profile"
     },
     "breathing": {
       "title": "Breathing & Grounding",

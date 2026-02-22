@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { SmilePlus, Flame, TrendingUp, CalendarCheck, Activity, BarChart3, PieChart, Grid3X3, ClipboardList } from "lucide-react";
+import { SmilePlus, Flame, TrendingUp, CalendarCheck, Activity, BarChart3, PieChart, Grid3X3, ClipboardList, RefreshCw } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePersonalMoodDashboard } from "@/hooks/usePersonalMoodDashboard";
@@ -419,6 +420,37 @@ export default function MoodTrackerPage() {
                     </p>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* ── Reframe Activity ── */}
+            <Card className="rounded-2xl">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <RefreshCw className="h-4 w-4" style={{ color: PALETTE.sage }} />
+                  {t("mentalToolkit.moodDashboard.reframeActivity")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p className="text-2xl font-bold text-foreground">{dashboard.reframeStats.total}</p>
+                    <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.totalReframes")}</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-foreground">{dashboard.reframeStats.thisMonth}</p>
+                    <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.reframesThisMonth")}</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-foreground">{dashboard.reframeStats.streak}d</p>
+                    <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.reframeStreak")}</p>
+                  </div>
+                </div>
+                <Link to="/mental-toolkit/thought-reframer"
+                  className="mt-3 block text-center text-sm font-medium hover:underline"
+                  style={{ color: PALETTE.sage }}>
+                  {t("mentalToolkit.moodDashboard.goToReframer")} →
+                </Link>
               </CardContent>
             </Card>
           </>

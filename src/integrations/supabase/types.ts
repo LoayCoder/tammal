@@ -2351,6 +2351,54 @@ export type Database = {
           },
         ]
       }
+      thought_reframes: {
+        Row: {
+          challenge_answers: Json | null
+          created_at: string
+          deleted_at: string | null
+          employee_id: string
+          id: string
+          negative_thought: string
+          reframed_thought: string
+          tenant_id: string
+        }
+        Insert: {
+          challenge_answers?: Json | null
+          created_at?: string
+          deleted_at?: string | null
+          employee_id: string
+          id?: string
+          negative_thought: string
+          reframed_thought: string
+          tenant_id: string
+        }
+        Update: {
+          challenge_answers?: Json | null
+          created_at?: string
+          deleted_at?: string | null
+          employee_id?: string
+          id?: string
+          negative_thought?: string
+          reframed_thought?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "thought_reframes_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "thought_reframes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
