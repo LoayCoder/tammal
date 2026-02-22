@@ -79,6 +79,7 @@ export default function AIQuestionGenerator() {
   const [wellnessPreviewOpen, setWellnessPreviewOpen] = useState(false);
   const [selectedPeriodId, setSelectedPeriodId] = useState<string | null>(null);
   const [purpose, setPurpose] = useState<QuestionPurpose>('survey');
+  const [questionsPerDay, setQuestionsPerDay] = useState(1);
 
   const isStrict = accuracyMode === 'strict';
   const hasFailures = validationReport?.overall_result === 'failed';
@@ -372,6 +373,8 @@ export default function AIQuestionGenerator() {
               softDeletePeriod(periodId);
               if (selectedPeriodId === periodId) setSelectedPeriodId(null);
             }}
+            questionsPerDay={questionsPerDay}
+            onQuestionsPerDayChange={setQuestionsPerDay}
           />
         </div>
 

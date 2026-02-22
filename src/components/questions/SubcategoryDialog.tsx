@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Info } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,15 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useQuestionCategories } from "@/hooks/useQuestionCategories";
 import { QuestionSubcategory, CreateSubcategoryInput } from "@/hooks/useQuestionSubcategories";
-
-const PRESET_COLORS = [
-  '#EF4444', '#F97316', '#F59E0B', '#EAB308', '#84CC16',
-  '#22C55E', '#10B981', '#14B8A6', '#06B6D4', '#0EA5E9',
-  '#3B82F6', '#6366F1', '#8B5CF6', '#A855F7', '#D946EF',
-  '#EC4899', '#F43F5E',
-];
 
 interface SubcategoryDialogProps {
   open: boolean;
@@ -40,10 +34,12 @@ export function SubcategoryDialog({
   const [nameAr, setNameAr] = useState("");
   const [description, setDescription] = useState("");
   const [descriptionAr, setDescriptionAr] = useState("");
-  const [color, setColor] = useState("#6366F1");
   const [weight, setWeight] = useState(1);
   const [isActive, setIsActive] = useState(true);
-  const [isGlobal, setIsGlobal] = useState(false);
+
+  // Auto-inherit color from parent category
+  const parentCategory = categories.find(c => c.id === categoryId);
+  const inheritedColor = parentCategory?.color || '#3B82F6';
 
   useEffect(() => {
     if (subcategory) {
@@ -52,20 +48,16 @@ export function SubcategoryDialog({
       setNameAr(subcategory.name_ar || "");
       setDescription(subcategory.description || "");
       setDescriptionAr(subcategory.description_ar || "");
-      setColor(subcategory.color);
       setWeight(subcategory.weight);
       setIsActive(subcategory.is_active);
-      setIsGlobal(subcategory.is_global);
     } else {
       setCategoryId(defaultCategoryId || "");
       setName("");
       setNameAr("");
       setDescription("");
       setDescriptionAr("");
-      setColor("#6366F1");
       setWeight(1);
       setIsActive(true);
-      setIsGlobal(false);
     }
   }, [subcategory, open, defaultCategoryId]);
 
@@ -76,10 +68,8 @@ export function SubcategoryDialog({
   );
   const isNameTaken = siblings.some(s => s.name.toLowerCase() === name.trim().toLowerCase());
   const isNameArTaken = !!(nameAr.trim() && siblings.some(s => s.name_ar?.toLowerCase() === nameAr.trim().toLowerCase()));
-  const isColorTaken = siblings.some(s => s.color === color);
-  const takenColors = new Set(siblings.map(s => s.color));
 
-  const canSave = name.trim() && categoryId && !isNameTaken && !isNameArTaken && !isColorTaken;
+  const canSave = name.trim() && categoryId && !isNameTaken && !isNameArTaken;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,7 +80,7 @@ export function SubcategoryDialog({
       name_ar: nameAr || undefined,
       description: description || undefined,
       description_ar: descriptionAr || undefined,
-      color,
+      color: inheritedColor,
       weight,
       is_active: isActive,
       is_global: false,
@@ -152,23 +142,19 @@ export function SubcategoryDialog({
             <Textarea value={descriptionAr} onChange={e => setDescriptionAr(e.target.value)} rows={2} dir="rtl" />
           </div>
 
+          {/* Color inherited from parent - read only */}
           <div className="space-y-2">
             <Label>{t('categories.color')}</Label>
-            <div className="flex flex-wrap gap-2">
-              {PRESET_COLORS.map(c => {
-                const isTaken = takenColors.has(c) && c !== subcategory?.color;
-                return (
-                  <button key={c} type="button"
-                    className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 relative ${color === c ? 'border-foreground ring-2 ring-offset-2 ring-primary' : 'border-transparent'} ${isTaken ? 'opacity-40' : ''}`}
-                    style={{ backgroundColor: c }} onClick={() => setColor(c)}>
-                    {isTaken && <span className="absolute inset-0 flex items-center justify-center text-white text-xs font-bold">✓</span>}
-                  </button>
-                );
-              })}
-            </div>
-            {isColorTaken && (
-              <p className="text-sm text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{t('subcategories.colorTaken')}</p>
-            )}
+            <Alert className="py-2">
+              <Info className="h-4 w-4" />
+              <AlertDescription className="flex items-center gap-2">
+                <span
+                  className="h-4 w-4 rounded-full shrink-0 border"
+                  style={{ backgroundColor: inheritedColor }}
+                />
+                <span className="text-xs">{t('subcategories.colorInherited')}</span>
+              </AlertDescription>
+            </Alert>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

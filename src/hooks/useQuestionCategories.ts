@@ -72,6 +72,15 @@ export function useQuestionCategories() {
     },
   });
 
+  const cascadeColorToSubcategories = async (categoryId: string, color: string) => {
+    await supabase
+      .from('question_subcategories' as any)
+      .update({ color })
+      .eq('category_id', categoryId)
+      .is('deleted_at', null);
+    queryClient.invalidateQueries({ queryKey: ['question-subcategories'] });
+  };
+
   const updateCategory = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<QuestionCategory> & { id: string }) => {
       const { data, error } = await supabase
@@ -82,6 +91,12 @@ export function useQuestionCategories() {
         .single();
 
       if (error) throw error;
+
+      // Cascade color change to subcategories
+      if (updates.color) {
+        await cascadeColorToSubcategories(id, updates.color);
+      }
+
       return data;
     },
     onSuccess: () => {

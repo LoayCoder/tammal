@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -9,10 +10,11 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Loader2, ChevronDown, Settings2, ChevronsUpDown, ClipboardList, Heart, CalendarClock, Plus, Lock, Trash2, TimerOff } from 'lucide-react';
+import { Sparkles, Loader2, ChevronDown, Settings2, ChevronsUpDown, ClipboardList, Heart, CalendarClock, Plus, Lock, Trash2, TimerOff, CheckCircle2, XCircle, Calculator } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
+import { differenceInDays, parseISO } from 'date-fns';
 import { AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { KnowledgeBasePanel } from './KnowledgeBasePanel';
@@ -87,6 +89,8 @@ interface ConfigPanelProps {
   activePeriodForPurpose: GenerationPeriod | null;
   onExpirePeriod: (periodId: string) => void;
   onDeletePeriod: (periodId: string) => void;
+  questionsPerDay: number;
+  onQuestionsPerDayChange: (perDay: number) => void;
 }
 
 export function ConfigPanel({
@@ -135,6 +139,8 @@ export function ConfigPanel({
   activePeriodForPurpose,
   onExpirePeriod,
   onDeletePeriod,
+  questionsPerDay,
+  onQuestionsPerDayChange,
 }: ConfigPanelProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
@@ -161,6 +167,21 @@ export function ConfigPanel({
     s => s.is_active && effectiveCategoryIds.includes(s.category_id)
   );
   const selectedSubsForPreview = filteredSubcategories.filter(s => effectiveSubcategoryIds.includes(s.id));
+
+  // Prerequisites check
+  const prerequisitesMet = activeCategories.length >= 3;
+  const hasCategorySelected = effectiveCategoryIds.length > 0;
+
+  // Auto question count from period
+  const periodDays = selectedPeriod
+    ? Math.max(1, differenceInDays(parseISO(selectedPeriod.end_date), parseISO(selectedPeriod.start_date)))
+    : 0;
+  const autoQuestionCount = selectedPeriod ? periodDays * questionsPerDay : 0;
+
+  // Sync auto-calculated count to parent when period is selected
+  if (selectedPeriod && autoQuestionCount !== questionCount) {
+    onQuestionCountChange(autoQuestionCount);
+  }
 
   // Search filtering
   const searchedCategories = activeCategories.filter(c => {
@@ -515,6 +536,36 @@ export function ConfigPanel({
             <p className="text-xs text-muted-foreground">{t('aiGenerator.typeMultiSelectHint')}</p>
           </div>
 
+          {/* Question Count — auto-calc when period selected */}
+          {selectedPeriod ? (
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Calculator className="h-4 w-4" />
+                  {t('aiGenerator.questionsPerDay')}
+                </Label>
+                <p className="text-xs text-muted-foreground">{t('aiGenerator.questionsPerDayDesc')}</p>
+                <ToggleGroup
+                  type="single"
+                  value={String(questionsPerDay)}
+                  onValueChange={(v) => { if (v) onQuestionsPerDayChange(Number(v)); }}
+                  className="justify-start"
+                >
+                  {[1, 2, 3].map(n => (
+                    <ToggleGroupItem key={n} value={String(n)} className="px-4">
+                      {n}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              </div>
+              <div className="bg-muted/50 rounded-lg p-3 text-sm">
+                <p className="font-medium">{t('aiGenerator.questionCount')}: {autoQuestionCount}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t('aiGenerator.totalQuestionsCalc', { days: periodDays, perDay: questionsPerDay, total: autoQuestionCount })}
+                </p>
+              </div>
+            </div>
+          ) : (
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>{t('aiGenerator.questionCount')}</Label>
@@ -538,6 +589,19 @@ export function ConfigPanel({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+          )}
+
+          <div className="space-y-2">
+            <Label>{t('aiGenerator.complexity')}</Label>
+            <Select value={complexity} onValueChange={onComplexityChange}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="simple">{t('aiGenerator.simple')}</SelectItem>
+                <SelectItem value="moderate">{t('aiGenerator.moderate')}</SelectItem>
+                <SelectItem value="advanced">{t('aiGenerator.advanced')}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
@@ -598,6 +662,22 @@ export function ConfigPanel({
             </CollapsibleContent>
           </Collapsible>
 
+          {/* Prerequisites Check */}
+          {!prerequisitesMet && (
+            <Alert variant="destructive" className="py-2">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription className="text-xs">
+                <p className="font-medium mb-1">{t('aiGenerator.prerequisitesNotMet')}</p>
+                <ul className="space-y-1">
+                  <li className="flex items-center gap-1.5">
+                    {activeCategories.length >= 3 ? <CheckCircle2 className="h-3 w-3 text-chart-2" /> : <XCircle className="h-3 w-3" />}
+                    {t('aiGenerator.prerequisiteMinCategories')}
+                  </li>
+                </ul>
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Generate Button */}
           <TooltipProvider>
             <Tooltip>
@@ -605,7 +685,7 @@ export function ConfigPanel({
                 <span className="w-full">
                   <Button
                     onClick={onGenerate}
-                    disabled={isGenerating || effectiveCategoryIds.length === 0 || isGenerationLocked}
+                    disabled={isGenerating || !hasCategorySelected || isGenerationLocked || !prerequisitesMet}
                     className="w-full"
                     size="lg"
                   >
