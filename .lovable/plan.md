@@ -1,200 +1,78 @@
 
 
-# Breathing & Grounding Module -- Full Upgrade + Dashboard Integration
+# Crisis Support -- Fix First Aider Assignment & Creation Gaps
 
-## Overview
+## Problem Summary
 
-Transform the current breathing module from a simple timer into a clinically-aligned, data-driven wellness experience with database-backed session tracking, mood tagging, configurable sessions, and full analytics integration into the personal dashboard (MoodTrackerPage).
-
----
-
-## Audit Findings (Current State)
-
-| # | Issue | Severity |
-|---|---|---|
-| 1 | **No data persistence** -- sessions are not tracked at all (no DB table, no localStorage) | Critical |
-| 2 | **No dashboard integration** -- breathing activity is invisible in the personal dashboard | Critical |
-| 3 | **Hardcoded English strings** -- "Next", "Finish", "Start Over", "Step X of 5", "Ground yourself..." are not translated | Medium |
-| 4 | **Hardcoded 5 rounds** -- no way to adjust session length or breathing durations | Medium |
-| 5 | **No pause/resume** -- "Pause" button actually resets the entire session (calls `stop()`) | High |
-| 6 | **Raw arrow character** -- "Next (right arrow)" in grounding step is not RTL-aware | Medium |
-| 7 | **No mood tagging** -- no before/after mood capture for insight generation | Medium |
-| 8 | **No completion encouragement** -- completion screen is bare (just an emoji and "Start Over") | Low |
-| 9 | **No audio guidance** -- no optional ambient tone or breath cue sounds | Low |
-| 10 | **`Inhale again` label** not translated for Physiological Sigh technique | Medium |
-| 11 | **Timer logic race condition** -- `setTimeLeft` and `setPhaseIdx` updates can conflict because `phaseIdx` in the closure is stale | Medium |
+The admin "First Aiders" tab and "Emergency Contacts" tab have broken create flows. When clicking "Add First Aider", the dialog opens but the save handler shows a `toast.error('Please assign a user first')` and does nothing. Similarly, "Add Contact" shows `toast.error('Tenant context required')` and returns. These are placeholder error messages left during initial implementation -- the actual logic to resolve `tenant_id` and `user_id` was never wired up.
 
 ---
 
-## Implementation Plan
+## Issues Found
 
-### Phase 1: Database Table + Migration
-
-Create a `breathing_sessions` table to track every completed (or abandoned) session.
-
-| Column | Type | Notes |
-|---|---|---|
-| `id` | uuid PK | Default `gen_random_uuid()` |
-| `employee_id` | uuid NOT NULL | Links to `employees.id` |
-| `tenant_id` | uuid NOT NULL | For RLS |
-| `technique` | text NOT NULL | `box`, `sigh`, or `grounding` |
-| `duration_seconds` | integer NOT NULL | Total session time in seconds |
-| `rounds_completed` | integer | Rounds finished (for box/sigh) |
-| `rounds_target` | integer | Target rounds configured |
-| `mood_before` | integer | 1-5 mood score before session |
-| `mood_after` | integer | 1-5 mood score after session |
-| `completed` | boolean DEFAULT false | Whether the session was fully completed |
-| `created_at` | timestamptz DEFAULT now() | |
-| `deleted_at` | timestamptz | Soft delete |
-
-**RLS Policies** (mirroring `thought_reframes` pattern):
-- Employees can INSERT their own sessions
-- Employees can SELECT their own sessions (where `deleted_at IS NULL`)
-- Employees can UPDATE their own sessions (for mood_after + completion)
-- Super admins can manage all
-- Tenant admins can view tenant sessions
-
-**Indexes:**
-- `idx_breathing_sessions_employee` on `(employee_id, created_at)`
-- `idx_breathing_sessions_tenant` on `(tenant_id, created_at)`
+| # | Issue | Location | Severity |
+|---|---|---|---|
+| 1 | **Create First Aider is broken**: `handleSave` returns early with hardcoded error "Please assign a user first" because there's no user picker and no `tenant_id` resolution | `CrisisSettings.tsx` line 123-127 | Critical |
+| 2 | **Create Emergency Contact is broken**: `handleSave` returns early with "Tenant context required" because `tenant_id` is not injected on create | `CrisisSettings.tsx` line 371-374 | Critical |
+| 3 | **No employee/user picker** in the Add First Aider dialog -- the dialog has name/department/bio fields but no way to link a first aider to an actual user account | `CrisisSettings.tsx` dialog | Critical |
+| 4 | **Schedules tab doesn't auto-load** when selecting a first aider -- `handleLoadSchedule` exists but is never called | `CrisisSettings.tsx` line 241 | Medium |
+| 5 | **Hardcoded English strings** in error messages: "Please assign a user first", "Tenant context required" | `CrisisSettings.tsx` lines 125, 373 | Low |
 
 ---
 
-### Phase 2: New Hook -- `src/hooks/useBreathingSessions.ts`
+## Fix Plan
 
-- `sessions` -- fetched from DB, ordered by `created_at DESC`, limited to 100
-- `startSession(data)` -- inserts a new row with `mood_before`, technique, target rounds; returns the session ID
-- `completeSession(id, moodAfter, roundsCompleted, durationSeconds)` -- updates the row
-- `stats` -- derived from fetched data:
-  - `totalSessions` (completed only)
-  - `totalMinutes` (sum of `duration_seconds / 60`)
-  - `currentStreak` (consecutive days with at least 1 completed session)
-  - `longestStreak`
-  - `thisWeekSessions`
-  - `thisMonthSessions`
-  - `avgMoodImprovement` (average of `mood_after - mood_before` where both exist)
-  - `favoriteExercise` (most-used technique)
-  - `weeklyData` (last 7 days, count per day for bar chart)
+### 1. Fix First Aiders Tab -- Add Employee/User Picker + Working Create
 
----
+**Changes to the `FirstAidersTab` in `CrisisSettings.tsx`:**
 
-### Phase 3: Redesigned Page -- `src/pages/mental-toolkit/BreathingPage.tsx`
+- Import `useProfile` to get the admin's `tenant_id` from their profile
+- Import `useEmployees` to get a list of employees in the tenant
+- Add a `user_id` field to the form state
+- Add an employee selector (Select dropdown) in the create dialog that shows tenant employees, allowing the admin to pick which employee becomes a first aider
+- Auto-fill `display_name` and `department` from the selected employee
+- On save (create), pass `tenant_id` (from profile) and `user_id` (from selected employee) to `createFirstAider.mutateAsync`
+- On save (edit), keep existing behavior but remove the early return
 
-The page becomes the full experience (replaces the simple wrapper).
+### 2. Fix Emergency Contacts Tab -- Inject tenant_id on Create
 
-**A. Page Header** -- keeps existing gradient banner style
+**Changes to `EmergencyContactsTab`:**
 
-**B. Stats Bar** -- 4 small KPI pills:
-- Total Sessions | Total Minutes | Current Streak | Avg Mood Improvement
+- Import `useProfile` to get the admin's `tenant_id`
+- On create, pass `tenant_id` alongside the form data to `createContact.mutateAsync`
+- Remove the early-return error
 
-**C. Pre-Session Setup** (new, shown before starting):
-- **Technique selector** (existing, refined with descriptions for each technique)
-- **Session length selector**: Short (3 rounds), Medium (5 rounds), Long (8 rounds) -- or Beginner/Intermediate/Advanced labels
-- **Mood before** prompt: 5 emoji row (uses tenant mood definitions) asking "How are you feeling right now?"
+### 3. Fix Schedules Tab -- Auto-Load Schedule on Selection
 
-**D. Active Session** (redesigned `BreathingGroundingTool`):
-- Fix pause/resume (true pause, not reset)
-- Animated breathing circle with smooth CSS transitions (existing, refined)
-- Clear phase label (Inhale/Hold/Exhale) with countdown timer
-- Progress indicator: visual round counter (dots or ring)
-- All strings translated
-- RTL-aware navigation arrows for grounding steps
+- Call schedule-loading logic in a `useEffect` or directly when `selectedFA` changes, rather than relying on the never-called `handleLoadSchedule`
 
-**E. Post-Session** (new completion flow):
-- Celebration screen with gentle animation
-- **Mood after** prompt: same 5 emoji row
-- Encouragement message based on mood change (improved, same, declined)
-- "Practice again" + "View history" buttons
-- Auto-saves session to DB on completion
+### 4. Replace Hardcoded English Strings
 
-**F. Session History** (new section below the tool):
-- Scrollable list of recent sessions as cards (date, technique, duration, mood change)
-- Empty state when no sessions exist
+- Replace all hardcoded error strings with translation keys
+- Add new keys to `en.json` and `ar.json`
 
 ---
 
-### Phase 4: Dashboard Integration -- `usePersonalMoodDashboard.ts`
+## Files to Modify
 
-Add a new query block (same pattern as `reframeStats`):
-
-```text
-breathingStats: {
-  totalSessions, totalMinutes, currentStreak,
-  avgMoodImprovement, thisMonth, favoriteExercise
-}
-```
-
-Fetches from `breathing_sessions` table filtered by `employee_id`.
-
----
-
-### Phase 5: Dashboard UI -- `MoodTrackerPage.tsx`
-
-Add a new **"Breathing Activity"** card (same layout as the Reframe Activity card):
-- 3 KPI values: Total Sessions | This Month | Current Streak
-- Average Mood Improvement indicator
-- "Go to Breathing" link with RTL-aware arrow
-
----
-
-### Phase 6: Localization
-
-New keys in `en.json` and `ar.json` under `mentalToolkit.breathing`:
-- `moodBeforePrompt`: "How are you feeling right now?"
-- `moodAfterPrompt`: "How do you feel now?"
-- `sessionLength`: "Session Length"
-- `beginner`: "Beginner (3 rounds)"
-- `intermediate`: "Intermediate (5 rounds)"
-- `advanced`: "Advanced (8 rounds)"
-- `next`: "Next"
-- `finish`: "Finish"
-- `startOver`: "Start Over"
-- `step`: "Step {{current}} of {{total}}"
-- `groundingIntro`: "Ground yourself by engaging all 5 senses"
-- `inhaleAgain`: "Inhale Again"
-- `longExhale`: "Long Exhale"
-- `encouragementImproved`: "Your mood improved! Keep practicing."
-- `encouragementSame`: "Consistency matters. Great job showing up."
-- `encouragementDeclined`: "It's okay to not feel better right away. You showed up, and that matters."
-- `practiceAgain`: "Practice Again"
-- `viewHistory`: "Session History"
-- `noSessionsYet`: "No sessions yet"
-- `noSessionsDesc`: "Complete your first breathing exercise to start tracking"
-- `totalSessions`: "Total Sessions"
-- `totalMinutes`: "Total Minutes"
-- `avgImprovement`: "Avg Improvement"
-- `favoriteExercise`: "Most Used"
-
-Under `mentalToolkit.moodDashboard`:
-- `breathingActivity`: "Breathing Activity"
-- `breathingSessions`: "Sessions"
-- `breathingThisMonth`: "This Month"
-- `breathingStreak`: "Streak"
-- `goToBreathing`: "Go to Breathing"
-
----
-
-## Files Summary
-
-| Action | File |
+| File | Change |
 |---|---|
-| Migration | New `breathing_sessions` table with RLS + indexes |
-| New | `src/hooks/useBreathingSessions.ts` -- DB CRUD + stats |
-| Rewrite | `src/pages/mental-toolkit/BreathingPage.tsx` -- full page with setup, session, completion, history |
-| Rewrite | `src/components/mental-toolkit/tools/BreathingGroundingTool.tsx` -- fix pause/resume, translate all strings, RTL arrows, accept props for round config + callbacks |
-| Modify | `src/hooks/usePersonalMoodDashboard.ts` -- add breathing stats query |
-| Modify | `src/pages/mental-toolkit/MoodTrackerPage.tsx` -- add Breathing Activity card |
-| Modify | `src/locales/en.json` -- new translation keys |
-| Modify | `src/locales/ar.json` -- new translation keys |
+| `src/pages/admin/CrisisSettings.tsx` | Fix create flows for first aiders and emergency contacts; add employee picker; fix schedule auto-load |
+| `src/locales/en.json` | Add missing keys if needed |
+| `src/locales/ar.json` | Add matching Arabic keys |
 
 ---
 
-## Design System
+## Technical Details
 
-- Lavender (#C9B8E8) for breathing phases, Sage Green (#A8C5A0) for completion states
-- Deep Plum (#4A3F6B) for text accents
-- Rounded cards (rounded-2xl), soft shadows
-- All spacing uses logical properties (ms-/me-/ps-/pe-)
-- RTL-aware arrows using Lucide icons with `rtl:-scale-x-100`
-- Smooth fade-in transitions between session states
+**Employee picker approach:**
+- Use `useEmployees()` to fetch employees for the current tenant
+- Filter out employees who are already first aiders (compare `user_id` against existing `firstAiders` list)
+- Show a `<Select>` dropdown with employee name + department
+- When an employee is selected, auto-populate `display_name` and `department` from the employee record
+- Store the selected employee's `user_id` in form state
+
+**Tenant ID resolution:**
+- Use `useProfile()` to get the logged-in admin's `tenant_id` from their profile
+- Pass this `tenant_id` to both `createFirstAider` and `createContact` mutations
 
