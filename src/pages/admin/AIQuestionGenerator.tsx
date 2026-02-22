@@ -53,7 +53,7 @@ export default function AIQuestionGenerator() {
 
   const { availableBatches, availableWellnessBatches, MAX_BATCH_SIZE } = useQuestionBatches(tenantId || null);
   const { moods: moodDefinitions } = useMoodDefinitions(tenantId || null);
-  const { periods, createPeriod, isCreating: isCreatingPeriod, getActivePeriodForPurpose, expirePeriod, softDeletePeriod } = useGenerationPeriods(tenantId || null);
+  const { periods, createPeriod, createPeriodAsync, isCreating: isCreatingPeriod, getActivePeriodForPurpose, expirePeriod, softDeletePeriod } = useGenerationPeriods(tenantId || null);
 
   const [accuracyMode, setAccuracyMode] = useState('standard');
   const [selectedModel, setSelectedModel] = useState('google/gemini-3-flash-preview');
@@ -349,18 +349,29 @@ export default function AIQuestionGenerator() {
             periods={periods}
             selectedPeriodId={selectedPeriodId}
             onSelectedPeriodIdChange={setSelectedPeriodId}
-            onCreatePeriod={(params: any) => {
+            onCreatePeriod={async (params: any) => {
               if (tenantId) {
-                createPeriod({
-                  tenantId,
-                  periodType: params.periodType,
-                  startDate: params.startDate,
-                  endDate: params.endDate,
-                  lockedCategoryIds: params.lockedCategoryIds,
-                  lockedSubcategoryIds: params.lockedSubcategoryIds,
-                  purpose: params.purpose || purpose,
-                  createdBy: user?.id,
-                });
+                try {
+                  const newPeriod = await createPeriodAsync({
+                    tenantId,
+                    periodType: params.periodType,
+                    startDate: params.startDate,
+                    endDate: params.endDate,
+                    lockedCategoryIds: params.lockedCategoryIds,
+                    lockedSubcategoryIds: params.lockedSubcategoryIds,
+                    purpose: params.purpose || purpose,
+                    createdBy: user?.id,
+                  });
+                  if (newPeriod?.id) {
+                    setSelectedPeriodId(newPeriod.id);
+                    const catIds = (newPeriod.locked_category_ids as string[]) || [];
+                    const subIds = (newPeriod.locked_subcategory_ids as string[]) || [];
+                    setSelectedCategoryIds(catIds);
+                    setSelectedSubcategoryIds(subIds);
+                  }
+                } catch {
+                  // Error already handled by mutation onError
+                }
               }
             }}
             isCreatingPeriod={isCreatingPeriod}

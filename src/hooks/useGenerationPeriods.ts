@@ -149,6 +149,7 @@ export function useGenerationPeriods(tenantId: string | null) {
     isLoading,
     getActivePeriodForPurpose,
     createPeriod: createPeriod.mutate,
+    createPeriodAsync: createPeriod.mutateAsync,
     isCreating: createPeriod.isPending,
     expirePeriod: expirePeriod.mutate,
     isExpiring: expirePeriod.isPending,
