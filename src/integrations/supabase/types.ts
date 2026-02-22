@@ -259,6 +259,66 @@ export type Database = {
           },
         ]
       }
+      breathing_sessions: {
+        Row: {
+          completed: boolean | null
+          created_at: string
+          deleted_at: string | null
+          duration_seconds: number
+          employee_id: string
+          id: string
+          mood_after: number | null
+          mood_before: number | null
+          rounds_completed: number | null
+          rounds_target: number | null
+          technique: string
+          tenant_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string
+          deleted_at?: string | null
+          duration_seconds?: number
+          employee_id: string
+          id?: string
+          mood_after?: number | null
+          mood_before?: number | null
+          rounds_completed?: number | null
+          rounds_target?: number | null
+          technique: string
+          tenant_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string
+          deleted_at?: string | null
+          duration_seconds?: number
+          employee_id?: string
+          id?: string
+          mood_after?: number | null
+          mood_before?: number | null
+          rounds_completed?: number | null
+          rounds_target?: number | null
+          technique?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "breathing_sessions_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "breathing_sessions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_question_schedule: {
         Row: {
           created_at: string
