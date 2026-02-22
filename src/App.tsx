@@ -44,6 +44,10 @@ import AssessmentPage from "@/pages/mental-toolkit/AssessmentPage";
 import UnifiedUserManagement from "@/pages/admin/UnifiedUserManagement";
 import AcceptInvite from "@/pages/auth/AcceptInvite";
 import MoodPathwaySettings from "@/pages/admin/MoodPathwaySettings";
+import CrisisSettings from "@/pages/admin/CrisisSettings";
+import CrisisRequestPage from "@/pages/crisis/CrisisRequestPage";
+import MySupportPage from "@/pages/crisis/MySupportPage";
+import FirstAiderDashboard from "@/pages/crisis/FirstAiderDashboard";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
@@ -92,7 +96,11 @@ const App = () => (
             <Route path="/admin/branding" element={<AdminRoute><AdminBranding /></AdminRoute>} />
             <Route path="/admin/docs" element={<AdminRoute><DocumentSettings /></AdminRoute>} />
             <Route path="/admin/mood-pathways" element={<AdminRoute><MoodPathwaySettings /></AdminRoute>} />
+            <Route path="/admin/crisis-settings" element={<AdminRoute><CrisisSettings /></AdminRoute>} />
             
+            <Route path="/crisis-support" element={<CrisisRequestPage />} />
+            <Route path="/my-support" element={<MySupportPage />} />
+            <Route path="/first-aider" element={<FirstAiderDashboard />} />
             
             <Route path="/settings/usage" element={<UsageBilling />} />
             <Route path="/settings/profile" element={<UserProfile />} />

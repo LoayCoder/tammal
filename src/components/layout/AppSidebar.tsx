@@ -5,7 +5,7 @@ import {
   MessageSquare, Tags, UserCheck, Sparkles, Calendar, ClipboardList,
   User, Heart, Settings, Package, Brain, SmilePlus, RefreshCw, Wind,
   BookOpen, Music, CheckSquare, BookMarked, Phone, ClipboardCheck,
-  ChevronRight
+  ChevronRight, Shield, HeartHandshake, Inbox
 } from 'lucide-react';
 import {
   Sidebar,
@@ -155,6 +155,9 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       access: 'all',
       items: [
         { title: t('nav.dailyCheckin'), url: "/", icon: Heart, access: 'employee' },
+        { title: t('crisisSupport.nav.crisisSupport'), url: "/crisis-support", icon: Phone, access: 'employee' },
+        { title: t('crisisSupport.nav.mySupport'), url: "/my-support", icon: Inbox, access: 'employee' },
+        { title: t('crisisSupport.nav.firstAider'), url: "/first-aider", icon: HeartHandshake, access: 'employee' },
       ]
     },
     {
@@ -172,6 +175,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         { title: t('nav.userProfile'), url: "/settings/profile", icon: User },
         { title: t('nav.usageBilling'), url: "/settings/usage", icon: BarChart3, access: 'admin' },
         { title: t('nav.brandManagement'), url: "/admin/branding", icon: Palette, access: 'admin' },
+        { title: t('crisisSupport.admin.title'), url: "/admin/crisis-settings", icon: Shield, access: 'admin' },
         { title: t('nav.documentSettings'), url: "/admin/docs", icon: FileText, access: 'admin' },
         { title: t('nav.auditLogs'), url: "/admin/audit-logs", icon: History, access: 'admin' },
       ]
