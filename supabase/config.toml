@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.generate-mood-questions]
 verify_jwt = false
+
+[functions.suggest-reframe]
+verify_jwt = false

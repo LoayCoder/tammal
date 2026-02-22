@@ -1,18 +1,23 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { RefreshCw, Brain, HelpCircle, Sparkles, Trash2, ChevronDown, BookOpen } from "lucide-react";
+import {
+  RefreshCw, Brain, HelpCircle, Sparkles, Trash2, ChevronDown, BookOpen,
+  ArrowRight, ArrowLeft, Mic, MicOff, Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "@/hooks/use-toast";
 import { useThoughtReframes } from "@/hooks/useThoughtReframes";
 import { useCurrentEmployee } from "@/hooks/useCurrentEmployee";
+import { useSpeechToText } from "@/hooks/useSpeechToText";
+import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
 const PALETTE = {
@@ -23,8 +28,45 @@ const PALETTE = {
 
 const STEPS = ["stepIdentify", "stepChallenge", "stepReframe"] as const;
 
+/* ── Mic Button Component ── */
+function MicButton({
+  onResult,
+  lang,
+}: {
+  onResult: (transcript: string) => void;
+  lang: string;
+}) {
+  const { isListening, startListening, stopListening, isSupported } = useSpeechToText({
+    lang,
+    onResult,
+  });
+
+  if (!isSupported) return null;
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className={`h-8 w-8 shrink-0 ${isListening ? "text-destructive animate-pulse" : "text-muted-foreground"}`}
+            onClick={isListening ? stopListening : startListening}
+          >
+            {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="top">
+          {isListening ? "Stop" : "Voice input"}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
 export default function ThoughtReframerPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { employee } = useCurrentEmployee();
   const { reframes, isLoading, stats, saveReframe, isSaving, deleteReframe, isDeleting } = useThoughtReframes();
 
@@ -35,6 +77,9 @@ export default function ThoughtReframerPage() {
   const [showSummary, setShowSummary] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(10);
+  const [aiSuggesting, setAiSuggesting] = useState(false);
+
+  const speechLang = i18n.language?.startsWith("ar") ? "ar-SA" : "en-US";
 
   const handleSave = async () => {
     try {
@@ -44,11 +89,7 @@ export default function ThoughtReframerPage() {
         reframed_thought: reframedThought,
       });
       toast({ title: t("mentalToolkit.thoughtReframer.saveSuccess") });
-      setStep(0);
-      setNegativeThought("");
-      setAnswers({ q1: "", q2: "", q3: "" });
-      setReframedThought("");
-      setShowSummary(false);
+      resetWizard();
     } catch {
       toast({ title: "Error saving reframe", variant: "destructive" });
     }
@@ -70,6 +111,49 @@ export default function ThoughtReframerPage() {
     setReframedThought("");
     setShowSummary(false);
   };
+
+  const handleAiSuggest = async () => {
+    setAiSuggesting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("suggest-reframe", {
+        body: {
+          negative_thought: negativeThought,
+          challenge_answers: answers,
+        },
+      });
+      if (error) throw error;
+      if (data?.reframed_thought) {
+        setReframedThought(data.reframed_thought);
+      } else if (data?.error) {
+        toast({ title: data.error, variant: "destructive" });
+      }
+    } catch {
+      toast({ title: t("mentalToolkit.thoughtReframer.aiSuggestError"), variant: "destructive" });
+    } finally {
+      setAiSuggesting(false);
+    }
+  };
+
+  // Speech callbacks
+  const onNegativeThoughtVoice = useCallback((transcript: string) => {
+    setNegativeThought((prev) => (prev ? prev + " " + transcript : transcript));
+  }, []);
+
+  const onQ1Voice = useCallback((transcript: string) => {
+    setAnswers((prev) => ({ ...prev, q1: prev.q1 ? prev.q1 + " " + transcript : transcript }));
+  }, []);
+  const onQ2Voice = useCallback((transcript: string) => {
+    setAnswers((prev) => ({ ...prev, q2: prev.q2 ? prev.q2 + " " + transcript : transcript }));
+  }, []);
+  const onQ3Voice = useCallback((transcript: string) => {
+    setAnswers((prev) => ({ ...prev, q3: prev.q3 ? prev.q3 + " " + transcript : transcript }));
+  }, []);
+
+  const onReframedVoice = useCallback((transcript: string) => {
+    setReframedThought((prev) => (prev ? prev + " " + transcript : transcript));
+  }, []);
+
+  const qVoiceHandlers = [onQ1Voice, onQ2Voice, onQ3Voice];
 
   if (isLoading) {
     return (
@@ -174,9 +258,10 @@ export default function ThoughtReframerPage() {
                   <div className="rounded-xl p-4" style={{ background: `${PALETTE.lavender}15` }}>
                     <div className="flex items-start gap-2 mb-2">
                       <Brain className="h-5 w-5 mt-0.5 shrink-0" style={{ color: PALETTE.plum }} />
-                      <label className="text-sm font-medium text-foreground">
+                      <label className="text-sm font-medium text-foreground flex-1">
                         {t("mentalToolkit.thoughtReframer.step1Prompt")}
                       </label>
+                      <MicButton onResult={onNegativeThoughtVoice} lang={speechLang} />
                     </div>
                     <Textarea
                       placeholder={t("mentalToolkit.thoughtReframer.step1Placeholder")}
@@ -192,7 +277,8 @@ export default function ThoughtReframerPage() {
                     className="w-full rounded-xl"
                     style={{ background: PALETTE.lavender, color: PALETTE.plum }}
                   >
-                    {t("mentalToolkit.thoughtReframer.continueBtn")} →
+                    {t("mentalToolkit.thoughtReframer.continueBtn")}
+                    <ArrowRight className="h-4 w-4 ms-1 rtl:-scale-x-100" />
                   </Button>
                 </div>
               )}
@@ -204,9 +290,10 @@ export default function ThoughtReframerPage() {
                     <div key={key} className="rounded-xl p-3 border border-border/50" style={{ background: `${PALETTE.lavender}08` }}>
                       <div className="flex items-start gap-2 mb-2">
                         <HelpCircle className="h-4 w-4 mt-0.5 shrink-0" style={{ color: PALETTE.lavender }} />
-                        <label className="text-sm font-medium text-foreground">
+                        <label className="text-sm font-medium text-foreground flex-1">
                           {t(`mentalToolkit.thoughtReframer.${key}`)}
                         </label>
+                        <MicButton onResult={qVoiceHandlers[i]} lang={speechLang} />
                       </div>
                       <Textarea
                         value={answers[key]}
@@ -218,11 +305,13 @@ export default function ThoughtReframerPage() {
                   ))}
                   <div className="flex gap-2">
                     <Button variant="outline" onClick={() => setStep(0)} className="flex-1 rounded-xl">
-                      ← {t("mentalToolkit.thoughtReframer.backBtn")}
+                      <ArrowLeft className="h-4 w-4 me-1 rtl:-scale-x-100" />
+                      {t("mentalToolkit.thoughtReframer.backBtn")}
                     </Button>
                     <Button onClick={() => setStep(2)} className="flex-1 rounded-xl"
                       style={{ background: PALETTE.lavender, color: PALETTE.plum }}>
-                      {t("mentalToolkit.thoughtReframer.continueBtn")} →
+                      {t("mentalToolkit.thoughtReframer.continueBtn")}
+                      <ArrowRight className="h-4 w-4 ms-1 rtl:-scale-x-100" />
                     </Button>
                   </div>
                 </div>
@@ -232,7 +321,7 @@ export default function ThoughtReframerPage() {
               {step === 2 && !showSummary && (
                 <div className="space-y-3 animate-in fade-in duration-300">
                   {/* Original thought card */}
-                  <div className="rounded-xl p-3 border-s-3" style={{
+                  <div className="rounded-xl p-3" style={{
                     background: `${PALETTE.lavender}15`,
                     borderInlineStartColor: PALETTE.lavender,
                     borderInlineStartWidth: "3px",
@@ -245,9 +334,10 @@ export default function ThoughtReframerPage() {
                   <div className="rounded-xl p-4" style={{ background: `${PALETTE.sage}12` }}>
                     <div className="flex items-start gap-2 mb-2">
                       <Sparkles className="h-5 w-5 mt-0.5 shrink-0" style={{ color: PALETTE.sage }} />
-                      <label className="text-sm font-medium text-foreground">
+                      <label className="text-sm font-medium text-foreground flex-1">
                         {t("mentalToolkit.thoughtReframer.step3Prompt")}
                       </label>
+                      <MicButton onResult={onReframedVoice} lang={speechLang} />
                     </div>
                     <Textarea
                       placeholder={t("mentalToolkit.thoughtReframer.step3Placeholder")}
@@ -257,13 +347,43 @@ export default function ThoughtReframerPage() {
                       className="resize-none rounded-xl border-border/50 bg-background/80"
                     />
                   </div>
+
+                  {/* AI Suggest */}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          onClick={handleAiSuggest}
+                          disabled={aiSuggesting}
+                          className="w-full rounded-xl gap-2"
+                        >
+                          {aiSuggesting ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              {t("mentalToolkit.thoughtReframer.aiSuggesting")}
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="h-4 w-4" />
+                              {t("mentalToolkit.thoughtReframer.aiSuggest")}
+                            </>
+                          )}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{t("mentalToolkit.thoughtReframer.aiSuggestTooltip")}</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
                   <div className="flex gap-2">
                     <Button variant="outline" onClick={() => setStep(1)} className="flex-1 rounded-xl">
-                      ← {t("mentalToolkit.thoughtReframer.backBtn")}
+                      <ArrowLeft className="h-4 w-4 me-1 rtl:-scale-x-100" />
+                      {t("mentalToolkit.thoughtReframer.backBtn")}
                     </Button>
                     <Button disabled={!reframedThought.trim()} onClick={() => setShowSummary(true)}
                       className="flex-1 rounded-xl"
                       style={{ background: `linear-gradient(135deg, ${PALETTE.lavender}, ${PALETTE.sage})`, color: PALETTE.plum }}>
+                      <Sparkles className="h-4 w-4 me-1" />
                       {t("mentalToolkit.thoughtReframer.seeSummary")}
                     </Button>
                   </div>
@@ -283,10 +403,6 @@ export default function ThoughtReframerPage() {
                       </p>
                       <p className="text-sm text-foreground">{negativeThought}</p>
                     </div>
-                    {/* Arrow */}
-                    <div className="hidden sm:flex items-center justify-center absolute inset-0 pointer-events-none">
-                      {/* We skip absolute positioning – keep simple */}
-                    </div>
                     <div className="rounded-2xl p-4 space-y-2" style={{ background: `${PALETTE.sage}20`, border: `1px solid ${PALETTE.sage}` }}>
                       <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#2d6b3f" }}>
                         {t("mentalToolkit.thoughtReframer.reframedLabel")}
@@ -301,7 +417,7 @@ export default function ThoughtReframerPage() {
                     <Button onClick={handleSave} disabled={isSaving || noEmployee}
                       className="flex-1 rounded-xl font-semibold"
                       style={{ background: `linear-gradient(135deg, ${PALETTE.sage}, ${PALETTE.lavender})`, color: PALETTE.plum }}>
-                      {isSaving ? "..." : t("mentalToolkit.thoughtReframer.saveStart")}
+                      {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : t("mentalToolkit.thoughtReframer.saveReframe")}
                     </Button>
                   </div>
                   {noEmployee && (
@@ -345,7 +461,8 @@ export default function ThoughtReframerPage() {
                           </p>
                           <p className="text-sm text-foreground line-clamp-2">{entry.negative_thought}</p>
                           <p className="text-sm font-medium mt-1" style={{ color: "#2d6b3f" }}>
-                            <span className="rtl:-scale-x-100 inline-block">→</span> {entry.reframed_thought}
+                            <ArrowRight className="h-3 w-3 inline-block me-1 rtl:-scale-x-100" />
+                            {entry.reframed_thought}
                           </p>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
