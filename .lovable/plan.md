@@ -1,28 +1,29 @@
 
-
-# Fix: Generate Button Disabled When Active Period is Selected
+# Fix: Mood Follow-up Questions Shown When No Active Schedules Exist
 
 ## Problem
-After creating a Generation Period, the "Generate Questions" button shows a lock icon and remains disabled with the tooltip "Generation is locked while a period is active". This happens because `isGenerationLocked` is set to `true` whenever there is ANY active period for the current purpose -- even when the user has already selected that period.
+After deleting all Question Batches and Schedules, the Daily Check-in still shows Mood Follow-up Questions. This happens because `useMoodPathwayQuestions` fetches questions directly from the `questions` table based on `mood_levels` tags -- it has no awareness of whether any active schedules or batches exist.
 
 ## Root Cause
-In `ConfigPanel.tsx` line 158:
+The `useMoodPathwayQuestions` hook (line 19-33) queries:
 ```text
-const isGenerationLocked = !!activePeriodForPurpose;
+questions WHERE deleted_at IS NULL AND is_active = true AND mood_levels @> '["great"]'
 ```
-This disables generation whenever an active period exists, regardless of whether the user has selected it. The intended behavior should be: lock generation only if an active period exists but the user has NOT selected it (forcing them to use the period).
+This returns questions purely based on their mood tags, ignoring whether the tenant has any active Daily Check-in schedules. Currently, 5 questions in the database have `mood_levels` set and are active, so they always appear.
 
 ## Solution
-Change the lock condition so that generation is only locked when an active period exists AND it is NOT the currently selected period.
+Add a validation check in the `useMoodPathwayQuestions` hook: before returning mood pathway questions, verify that at least one active `daily_checkin` schedule exists for the tenant. If none exists, return an empty array.
 
-### File: `src/components/ai-generator/ConfigPanel.tsx`
-- Line 158: Change from:
-  `const isGenerationLocked = !!activePeriodForPurpose;`
-  To:
-  `const isGenerationLocked = !!activePeriodForPurpose && activePeriodForPurpose.id !== selectedPeriodId;`
+## Technical Details
 
-This means:
-- If no active period exists -- unlocked (freeform mode)
-- If an active period exists AND the user selected it -- unlocked (generate within the period)
-- If an active period exists but user selected a different period or "Freeform" -- locked (must use active period)
+### File: `src/hooks/useMoodPathwayQuestions.ts`
+- Before querying for questions, first check if there is at least one active daily_checkin schedule for the tenant:
+  - Query `question_schedules` where `schedule_type = 'daily_checkin'`, `status = 'active'`, `deleted_at IS NULL`, and `tenant_id` matches
+  - Also validate `end_date`: if set, it must be >= today (not expired)
+- If no active schedule is found, return an empty array immediately (no follow-up questions shown)
+- If at least one valid schedule exists, proceed with the existing mood-tagged question fetch
 
+This approach ensures:
+- No follow-up questions appear when all schedules are deleted
+- No follow-up questions appear when all schedules are expired
+- Follow-up questions only appear when the tenant has a valid, active daily check-in schedule
