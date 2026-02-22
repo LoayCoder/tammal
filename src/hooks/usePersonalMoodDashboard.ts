@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useCurrentEmployee } from './useCurrentEmployee';
 import { useMoodDefinitions } from './useMoodDefinitions';
 import { useGamification } from './useGamification';
-import { format, subDays, getDay } from 'date-fns';
+import { format, subDays, getDay, startOfMonth } from 'date-fns';
 
 export interface PersonalMoodEntry {
   date: string;
@@ -150,6 +150,39 @@ export function usePersonalMoodDashboard() {
     enabled: !!employeeId,
   });
 
+  // ── Reframe stats ──
+  const { data: reframeStats, isLoading: reframeLoading } = useQuery({
+    queryKey: ['reframe-stats', employeeId],
+    queryFn: async () => {
+      if (!employeeId) return { total: 0, thisMonth: 0, streak: 0 };
+      const { data, error } = await supabase
+        .from('thought_reframes' as any)
+        .select('created_at')
+        .eq('employee_id', employeeId)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false })
+        .limit(500);
+      if (error) return { total: 0, thisMonth: 0, streak: 0 };
+      const entries = (data || []) as unknown as { created_at: string }[];
+      const monthStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+      const thisMonth = entries.filter(r => r.created_at.slice(0, 10) >= monthStart).length;
+      // streak
+      const uniqueDays = [...new Set(entries.map(r => r.created_at.slice(0, 10)))].sort().reverse();
+      let streak = 0;
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd');
+      if (uniqueDays[0] === today || uniqueDays[0] === yesterday) {
+        let expected = uniqueDays[0];
+        for (const day of uniqueDays) {
+          if (day === expected) { streak++; expected = format(subDays(new Date(day), 1), 'yyyy-MM-dd'); }
+          else break;
+        }
+      }
+      return { total: entries.length, thisMonth, streak };
+    },
+    enabled: !!employeeId,
+  });
+
   // ── Derived data ──
   const today = format(new Date(), 'yyyy-MM-dd');
   const todayEntry = moodHistory.find((e) => e.date === today);
@@ -200,7 +233,7 @@ export function usePersonalMoodDashboard() {
 
   const hasOrgData = Object.keys(orgAvgMap).length > 0;
 
-  const isLoading = empLoading || defsLoading || streakLoading || histLoading || orgLoading || surveyLoading;
+  const isLoading = empLoading || defsLoading || streakLoading || histLoading || orgLoading || surveyLoading || reframeLoading;
 
   return {
     employee,
@@ -219,5 +252,6 @@ export function usePersonalMoodDashboard() {
     distribution,
     dayActivity,
     surveyStats: surveyStats ?? { totalAnswered: 0, avgScore: 0, completionRate: 0 },
+    reframeStats: reframeStats ?? { total: 0, thisMonth: 0, streak: 0 },
   };
 }

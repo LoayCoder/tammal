@@ -122,7 +122,12 @@
       "atRisk": "معرض للخطر",
       "noDataYet": "لا توجد بيانات مزاج بعد",
       "startCheckinPrompt": "ابدأ التسجيل اليومي لترى اتجاهات مزاجك هنا.",
-      "orgComparisonNote": "مقارنة المنظمة متاحة للمديرين"
+      "orgComparisonNote": "مقارنة المنظمة متاحة للمديرين",
+      "reframeActivity": "نشاط إعادة الصياغة",
+      "totalReframes": "إجمالي إعادة الصياغات",
+      "reframesThisMonth": "هذا الشهر",
+      "reframeStreak": "التتابع",
+      "goToReframer": "فتح إعادة صياغة الأفكار"
     },
     "thoughtReframer": {
       "title": "إعادة صياغة الأفكار",
@@ -143,7 +148,26 @@
       "saveStart": "حفظ والبدء من جديد",
       "pastReframes": "إعادة الصياغات السابقة",
       "noPastReframes": "لا توجد إعادة صياغات محفوظة بعد.",
-      "saveSuccess": "تم حفظ إعادة الصياغة!"
+      "saveSuccess": "تم حفظ إعادة الصياغة!",
+      "statsTotal": "إجمالي إعادة الصياغات",
+      "statsMonth": "هذا الشهر",
+      "statsStreak": "التتابع",
+      "stepIdentify": "تحديد",
+      "stepChallenge": "تحدّي",
+      "stepReframe": "إعادة صياغة",
+      "continueBtn": "متابعة",
+      "backBtn": "رجوع",
+      "seeSummary": "عرض الملخص",
+      "startOver": "البدء من جديد",
+      "deleteConfirm": "حذف هذه الإعادة؟",
+      "deleteDesc": "لا يمكن التراجع عن هذا الإجراء.",
+      "deleteSuccess": "تم حذف إعادة الصياغة",
+      "viewMore": "عرض المزيد",
+      "noReframesYet": "لا توجد إعادة صياغات بعد",
+      "noReframesDesc": "أكمل المعالج أعلاه لحفظ أول إعادة صياغة لك.",
+      "journalTitle": "سجل إعادة الصياغة",
+      "challengeAnswers": "إجابات التحدي",
+      "loginRequired": "سجّل الدخول لحفظ إعادة الصياغات في ملفك"
     },
     "breathing": {
       "title": "التنفس والتأريض",
