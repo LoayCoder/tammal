@@ -39,6 +39,7 @@ import HabitsPage from "@/pages/mental-toolkit/HabitsPage";
 import ArticlesPage from "@/pages/mental-toolkit/ArticlesPage";
 import CrisisPage from "@/pages/mental-toolkit/CrisisPage";
 import AssessmentPage from "@/pages/mental-toolkit/AssessmentPage";
+import PrayerTracker from "@/pages/spiritual/PrayerTracker";
 
 
 import UnifiedUserManagement from "@/pages/admin/UnifiedUserManagement";
@@ -115,6 +116,7 @@ const App = () => (
             <Route path="/mental-toolkit/articles" element={<ArticlesPage />} />
             <Route path="/mental-toolkit/crisis" element={<CrisisPage />} />
             <Route path="/mental-toolkit/assessment" element={<AssessmentPage />} />
+            <Route path="/spiritual/prayer" element={<PrayerTracker />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
