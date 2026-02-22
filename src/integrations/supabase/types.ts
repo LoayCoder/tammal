@@ -1030,6 +1030,334 @@ export type Database = {
           },
         ]
       }
+      mh_crisis_cases: {
+        Row: {
+          accepted_at: string | null
+          anonymity_mode: string
+          assigned_first_aider_id: string | null
+          closed_at: string | null
+          created_at: string
+          first_response_at: string | null
+          id: string
+          intent: string
+          requester_user_id: string
+          reroute_count: number
+          resolved_at: string | null
+          risk_level: string
+          status: string
+          summary: string | null
+          tenant_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          anonymity_mode?: string
+          assigned_first_aider_id?: string | null
+          closed_at?: string | null
+          created_at?: string
+          first_response_at?: string | null
+          id?: string
+          intent: string
+          requester_user_id: string
+          reroute_count?: number
+          resolved_at?: string | null
+          risk_level?: string
+          status?: string
+          summary?: string | null
+          tenant_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          anonymity_mode?: string
+          assigned_first_aider_id?: string | null
+          closed_at?: string | null
+          created_at?: string
+          first_response_at?: string | null
+          id?: string
+          intent?: string
+          requester_user_id?: string
+          reroute_count?: number
+          resolved_at?: string | null
+          risk_level?: string
+          status?: string
+          summary?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mh_crisis_cases_assigned_first_aider_id_fkey"
+            columns: ["assigned_first_aider_id"]
+            isOneToOne: false
+            referencedRelation: "mh_first_aiders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mh_crisis_cases_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mh_crisis_escalations: {
+        Row: {
+          case_id: string
+          created_at: string
+          escalation_type: string
+          id: string
+          notes: string | null
+          tenant_id: string
+          triggered_by: string
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          escalation_type: string
+          id?: string
+          notes?: string | null
+          tenant_id: string
+          triggered_by: string
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          escalation_type?: string
+          id?: string
+          notes?: string | null
+          tenant_id?: string
+          triggered_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mh_crisis_escalations_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "mh_crisis_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mh_crisis_escalations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mh_crisis_messages: {
+        Row: {
+          attachments: Json | null
+          case_id: string
+          created_at: string
+          id: string
+          message: string
+          sender_user_id: string
+          tenant_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          case_id: string
+          created_at?: string
+          id?: string
+          message: string
+          sender_user_id: string
+          tenant_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          case_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          sender_user_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mh_crisis_messages_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "mh_crisis_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mh_crisis_messages_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mh_emergency_contacts: {
+        Row: {
+          available_24_7: boolean
+          country: string
+          created_at: string
+          deleted_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          phone: string | null
+          sort_order: number
+          tenant_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          available_24_7?: boolean
+          country?: string
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          phone?: string | null
+          sort_order?: number
+          tenant_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          available_24_7?: boolean
+          country?: string
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          phone?: string | null
+          sort_order?: number
+          tenant_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mh_emergency_contacts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mh_first_aider_schedule: {
+        Row: {
+          created_at: string
+          first_aider_id: string
+          id: string
+          is_enabled: boolean
+          response_sla_minutes: number
+          temp_unavailable: boolean
+          tenant_id: string
+          timezone: string
+          updated_at: string
+          weekly_rules: Json
+        }
+        Insert: {
+          created_at?: string
+          first_aider_id: string
+          id?: string
+          is_enabled?: boolean
+          response_sla_minutes?: number
+          temp_unavailable?: boolean
+          tenant_id: string
+          timezone?: string
+          updated_at?: string
+          weekly_rules?: Json
+        }
+        Update: {
+          created_at?: string
+          first_aider_id?: string
+          id?: string
+          is_enabled?: boolean
+          response_sla_minutes?: number
+          temp_unavailable?: boolean
+          tenant_id?: string
+          timezone?: string
+          updated_at?: string
+          weekly_rules?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mh_first_aider_schedule_first_aider_id_fkey"
+            columns: ["first_aider_id"]
+            isOneToOne: false
+            referencedRelation: "mh_first_aiders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mh_first_aider_schedule_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mh_first_aiders: {
+        Row: {
+          allow_anonymous_requests: boolean
+          bio: string | null
+          contact_modes: Json | null
+          created_at: string
+          deleted_at: string | null
+          department: string | null
+          display_name: string
+          id: string
+          is_active: boolean
+          languages: string[] | null
+          max_active_cases: number
+          role_title: string | null
+          tenant_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allow_anonymous_requests?: boolean
+          bio?: string | null
+          contact_modes?: Json | null
+          created_at?: string
+          deleted_at?: string | null
+          department?: string | null
+          display_name: string
+          id?: string
+          is_active?: boolean
+          languages?: string[] | null
+          max_active_cases?: number
+          role_title?: string | null
+          tenant_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allow_anonymous_requests?: boolean
+          bio?: string | null
+          contact_modes?: Json | null
+          created_at?: string
+          deleted_at?: string | null
+          department?: string | null
+          display_name?: string
+          id?: string
+          is_active?: boolean
+          languages?: string[] | null
+          max_active_cases?: number
+          role_title?: string | null
+          tenant_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mh_first_aiders_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mood_definitions: {
         Row: {
           color: string
@@ -2775,6 +3103,8 @@ export type Database = {
       }
     }
     Functions: {
+      count_active_cases: { Args: { _first_aider_id: string }; Returns: number }
+      get_first_aider_id: { Args: { _user_id: string }; Returns: string }
       get_profile_email: { Args: { _user_id: string }; Returns: string }
       get_user_department_id: { Args: { _user_id: string }; Returns: string }
       get_user_email: { Args: { _user_id: string }; Returns: string }
@@ -2790,7 +3120,9 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_first_aider: { Args: { _user_id: string }; Returns: boolean }
       is_manager: { Args: { _user_id: string }; Returns: boolean }
+      map_intent_to_risk: { Args: { p_intent: string }; Returns: string }
     }
     Enums: {
       app_role: "super_admin" | "tenant_admin" | "manager" | "user"
