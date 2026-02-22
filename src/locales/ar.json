@@ -1535,7 +1535,15 @@
     "distributionPreview": "معاينة التوزيع",
     "checkDistribution": "توازن التوزيع",
     "checkSemanticDedup": "إزالة التكرار الدلالي",
-    "issue_semantic_duplicate": "تكرار دلالي"
+    "issue_semantic_duplicate": "تكرار دلالي",
+    "noFrameworksYet": "لا توجد أطر مرجعية بعد",
+    "noFrameworksDesc": "أضف أول إطار مرجعي لتوجيه توليد الأسئلة بالذكاء الاصطناعي",
+    "selectAll": "تحديد الكل",
+    "deselectAll": "إلغاء تحديد الكل",
+    "searchFrameworks": "بحث في الأطر المرجعية...",
+    "docsCount": "{{count}} مستندات",
+    "frameworkDetails": "تفاصيل الإطار",
+    "defaultArea": "افتراضي"
   },
   "survey": {
     "title": "استبياني",
