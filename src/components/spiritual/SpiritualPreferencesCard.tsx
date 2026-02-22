@@ -90,12 +90,35 @@ export function SpiritualPreferencesCard() {
               </div>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Label className="text-muted-foreground">{t('spiritual.preferences.spiritualReminders')}</Label>
-                  <Badge variant="secondary" className="text-xs">{t('spiritual.preferences.comingSoon')}</Badge>
+                <div className="space-y-0.5">
+                  <Label>{t('spiritual.preferences.spiritualReminders')}</Label>
+                  <p className="text-xs text-muted-foreground">{t('spiritual.preferences.remindersDescription')}</p>
                 </div>
-                <Switch disabled checked={false} />
+                <Switch
+                  checked={preferences?.reminders_enabled ?? false}
+                  onCheckedChange={(v) => handleToggle('reminders_enabled', v)}
+                  disabled={upsertPreferences.isPending}
+                />
               </div>
+
+              {preferences?.reminders_enabled && (
+                <div className="space-y-2 ps-4 border-s-2 border-primary/20">
+                  <Label className="text-sm">{t('spiritual.preferences.reminderIntensity')}</Label>
+                  <Select
+                    value={preferences?.reminder_intensity ?? 'light'}
+                    onValueChange={(v) => handleFieldChange('reminder_intensity', v)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="light">{t('spiritual.preferences.intensityLight')}</SelectItem>
+                      <SelectItem value="moderate">{t('spiritual.preferences.intensityModerate')}</SelectItem>
+                      <SelectItem value="high">{t('spiritual.preferences.intensityHigh')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
 
             <Separator />

@@ -2597,6 +2597,36 @@ export type Database = {
         }
         Relationships: []
       }
+      spiritual_insight_reports: {
+        Row: {
+          created_at: string
+          id: string
+          period_end: string
+          period_start: string
+          report_data: Json
+          report_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          period_end: string
+          period_start: string
+          report_data?: Json
+          report_type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          report_data?: Json
+          report_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       spiritual_prayer_logs: {
         Row: {
           created_at: string
@@ -2641,6 +2671,7 @@ export type Database = {
           prayer_enabled: boolean
           quran_enabled: boolean
           reminder_intensity: string
+          reminder_time: string | null
           reminders_enabled: boolean
           updated_at: string
           user_id: string
@@ -2658,6 +2689,7 @@ export type Database = {
           prayer_enabled?: boolean
           quran_enabled?: boolean
           reminder_intensity?: string
+          reminder_time?: string | null
           reminders_enabled?: boolean
           updated_at?: string
           user_id: string
@@ -2675,6 +2707,7 @@ export type Database = {
           prayer_enabled?: boolean
           quran_enabled?: boolean
           reminder_intensity?: string
+          reminder_time?: string | null
           reminders_enabled?: boolean
           updated_at?: string
           user_id?: string

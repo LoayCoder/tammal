@@ -43,6 +43,7 @@ import PrayerTracker from "@/pages/spiritual/PrayerTracker";
 import QuranReader from "@/pages/spiritual/QuranReader";
 import SunnahFasting from "@/pages/spiritual/SunnahFasting";
 import SpiritualInsights from "@/pages/spiritual/SpiritualInsights";
+import IslamicCalendar from "@/pages/spiritual/IslamicCalendar";
 
 import UnifiedUserManagement from "@/pages/admin/UnifiedUserManagement";
 import AcceptInvite from "@/pages/auth/AcceptInvite";
@@ -122,6 +123,7 @@ const App = () => (
             <Route path="/spiritual/quran" element={<QuranReader />} />
             <Route path="/spiritual/fasting" element={<SunnahFasting />} />
             <Route path="/spiritual/insights" element={<SpiritualInsights />} />
+            <Route path="/spiritual/calendar" element={<IslamicCalendar />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -5,7 +5,7 @@ import {
   MessageSquare, Tags, UserCheck, Sparkles, Calendar, ClipboardList,
   User, Heart, Settings, Package, Brain, SmilePlus, RefreshCw, Wind,
   BookOpen, Music, CheckSquare, BookMarked, Phone, ClipboardCheck,
-  ChevronRight, Shield, HeartHandshake, Inbox, Moon, BookOpenCheck, UtensilsCrossed
+  ChevronRight, Shield, HeartHandshake, Inbox, Moon, BookOpenCheck, UtensilsCrossed, CalendarDays
 } from 'lucide-react';
 import {
   Sidebar,
@@ -405,6 +405,19 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )}
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip={t('spiritual.nav.calendar')}>
+                    <NavLink
+                      to="/spiritual/calendar"
+                      className="flex items-center gap-2"
+                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                      onClick={handleNavClick}
+                    >
+                      <CalendarDays className="h-4 w-4" />
+                      <span>{t('spiritual.nav.calendar')}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip={t('spiritual.nav.insights')}>
                     <NavLink

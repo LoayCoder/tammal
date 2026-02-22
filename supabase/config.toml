@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.suggest-reframe]
 verify_jwt = false
+
+[functions.generate-spiritual-insights]
+verify_jwt = false
