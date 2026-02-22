@@ -154,7 +154,12 @@ export function CreatePeriodDialog({
 
           {/* Lock Categories */}
           <div className="space-y-2">
-            <Label>{t('aiGenerator.category')}</Label>
+            <div className="flex items-center justify-between">
+              <Label>{t('aiGenerator.category')}</Label>
+              <span className={`text-xs ${selectedCatIds.length < 3 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                {selectedCatIds.length}/3 {t('common.minimum')}
+              </span>
+            </div>
             <ScrollArea className="h-[140px] rounded-md border p-2">
               {categories.map(c => (
                 <label key={c.id} className="flex items-center gap-2 py-1 cursor-pointer hover:bg-accent rounded px-1">
@@ -185,7 +190,7 @@ export function CreatePeriodDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>{t('common.cancel')}</Button>
-          <Button onClick={handleSubmit} disabled={isCreating || selectedCatIds.length === 0 || hasActivePeriod}>
+          <Button onClick={handleSubmit} disabled={isCreating || selectedCatIds.length < 3 || hasActivePeriod}>
             {isCreating && <Loader2 className="h-4 w-4 animate-spin me-2" />}
             {t('common.create')}
           </Button>
