@@ -1,93 +1,104 @@
 
 
-# Personal Mood Analytics Dashboard
+# Enhanced Reference Frameworks UI
 
 ## Overview
 
-Transform the Mood Tracker page (`/mental-toolkit/mood-tracker`) from a localStorage-based submission tool into a **read-only personal analytics dashboard** powered by real database data. The user sees their own mood history, trends, and statistics -- plus an anonymized comparison against the organization average. No submission forms on this page.
+Redesign the `FrameworkSelector` component from a compact collapsible list into a visually rich, card-grid-based interface with better visual hierarchy, richer framework cards, inline document management, and smoother interactions. The component stays within the AI Generator config panel but becomes more spacious, attractive, and easier to manage.
 
 ---
 
-## What the User Will See
+## Current Problems
 
-### Section 1: Summary KPI Cards (top row)
-- **Current Streak** -- consecutive daily check-in days
-- **7-Day Average Mood** -- with a burnout zone indicator (Thriving / Watch / At Risk)
-- **Monthly Check-ins** -- count this month out of total days
-- **Today's Mood** -- emoji + label, or "Not checked in yet"
-
-### Section 2: Mood Trend Line Chart (14 days)
-- Area chart showing the user's daily mood scores over the last 14 days
-- A dashed **Organization Average** reference line so the user can compare themselves to the org norm
-- Emoji tooltips showing the mood level for each day
-
-### Section 3: Mood Distribution (Donut Chart)
-- Breakdown of how often the user felt each mood level (Great, Good, Okay, Struggling, Need Help) over the selected period
-- Uses the tenant's configured `mood_definitions` for labels and emojis
-
-### Section 4: Weekly Activity Heatmap
-- Small grid showing which days of the week the user typically checks in
-- Highlights consistency patterns
-
-### Section 5: Survey Response Stats
-- Total questions answered
-- Average response score
-- Completion rate (answered vs. delivered)
+1. **Cramped layout** -- frameworks are tiny rows with 10px text, hard to read and interact with
+2. **Expand/collapse awkward** -- a small chevron button inside each row is easy to miss
+3. **No visual distinction** -- all frameworks look the same regardless of selection state or type (default vs custom)
+4. **Document management buried** -- documents only appear after expanding, with very small controls
+5. **Edit/delete actions hidden** -- only visible after expanding, easy to overlook
+6. **No empty state design** -- when there are no frameworks, the page just shows the "Add" button
 
 ---
 
-## Data Sources (all real database data)
+## Proposed Design
 
-| Data | Source |
-|---|---|
-| User's mood history | `mood_entries` table via `useMoodHistory` hook (extended to 90 days) |
-| Org average mood | `mood_entries` table -- aggregated across all tenant employees for the same period |
-| Mood definitions (emojis, labels) | `mood_definitions` table via `useMoodDefinitions` |
-| Survey responses | `employee_responses` + `scheduled_questions` via existing hooks |
-| Streak and gamification | `useGamification` hook (already exists) |
-| Current employee identity | `useCurrentEmployee` hook |
+### Framework Cards (replace flat list)
+
+Each framework becomes a **visual card** with:
+- Left accent border using the primary color when selected
+- Icon displayed large (24px) with a soft colored background circle
+- Name + description visible without expanding
+- A "Selected" chip/badge when active
+- Default badge for system frameworks
+- Document count badge (e.g., "3 docs")
+- Action buttons (Edit, Delete) as icon-only buttons in the card corner, visible on hover
+- Click anywhere on the card to toggle selection
+
+### Expanded State
+
+Clicking the expand chevron (or a "Details" button) slides open a panel below the card showing:
+- Full description text
+- Document list with status badges (Extracted / Pending)
+- Upload button for new documents
+- Delete buttons per document
+
+### Grid Layout
+
+- On wider screens (sidebar is ~320px), cards stack vertically but with more breathing room
+- Each card has `p-3` padding, `rounded-xl`, subtle shadow on hover
+- Selected cards have a gradient left border and a soft background tint
+
+### Empty State
+
+When no frameworks exist, show a centered illustration area with:
+- BookOpen icon (large, muted)
+- "No frameworks yet" message
+- "Add your first framework to guide AI question generation" subtitle
+- Prominent "Add Framework" button
+
+### Search/Filter (if > 5 frameworks)
+
+A small search input that filters frameworks by name -- only shown when there are more than 5 frameworks.
+
+### Select All / Deselect All
+
+Quick action buttons in the header to select or deselect all frameworks at once.
 
 ---
 
 ## Technical Implementation
 
-### New Hook: `src/hooks/usePersonalMoodDashboard.ts`
+### File: `src/components/ai-generator/FrameworkSelector.tsx` (Major Rewrite)
 
-A dedicated hook that fetches all data needed for this page:
+- Replace the flat `button` rows with styled `Card`-like divs
+- Add search state and filtering logic
+- Add "Select All" / "Deselect All" buttons in header
+- Improve expand/collapse with smooth animation (Collapsible per card)
+- Add hover states for edit/delete actions
+- Add empty state UI
+- Use logical properties throughout (ms-/me-/ps-/pe-)
+- Increase touch targets for better mobile usability
 
-- **Extended mood history**: Query `mood_entries` for the current employee over the last 90 days (not just 14)
-- **Org average**: Query `mood_entries` for all employees in the same tenant, grouped by `entry_date`, computing daily average `mood_score`. Returns as `{ date: string, orgAvg: number }[]`
-- **Mood distribution**: Count entries grouped by `mood_level` for the user
-- **Day-of-week activity**: Count entries grouped by day of week (0-6) for the user
-- **Survey stats**: Count from `employee_responses` (total answers), count from `scheduled_questions` where status = 'delivered' (total delivered), compute completion rate
+### File: `src/components/ai-generator/FrameworkDialog.tsx` (Minor Polish)
 
-All queries are scoped to the user's `employee_id` (personal data) or `tenant_id` (org average -- anonymized aggregate only).
+- Add subtle section dividers between EN and AR fields
+- Add emoji picker preview (show the icon larger in a preview area)
+- Improve file upload area with drag-and-drop visual zone
+- Add accepted file types hint text
 
-### Rewrite: `src/pages/mental-toolkit/MoodTrackerPage.tsx`
+### File: `src/components/ai-generator/FrameworkDocuments.tsx` (Minor Polish)
 
-Complete replacement of the page content. Instead of rendering `MoodTrackerTool`, it will render the dashboard sections described above using Cards and Recharts components. No import of `MoodTrackerTool` -- no submission UI at all.
+- Slightly larger touch targets for delete buttons
+- Add file size display for each document
+- Improve status badge styling (green glow for extracted, amber pulse for pending)
 
-Layout:
-1. Page header (keep existing gradient style)
-2. KPI cards row (4 cards in a responsive grid)
-3. Mood Trend chart (full width, area chart with org avg reference line)
-4. Two-column row: Mood Distribution (donut) + Weekly Activity (heatmap grid)
-5. Survey Response Stats card
+### File: `src/locales/en.json` and `src/locales/ar.json`
 
-### Keep: `src/components/mental-toolkit/tools/MoodTrackerTool.tsx`
-
-This file stays **unchanged**. It is still used on the main Mental Toolkit page (`/mental-toolkit`) as a quick-log tool inside the "Tools" tab. Only the dedicated Mood Tracker page changes.
-
-### Localization: `src/locales/en.json` and `src/locales/ar.json`
-
-New keys under `mentalToolkit.moodDashboard`:
-- `pageTitle`, `pageSubtitle`
-- `currentStreak`, `days`, `avgMood7d`, `monthlyCheckins`, `todayMood`, `notCheckedIn`
-- `moodTrend`, `orgAverage`, `yourMood`
-- `moodDistribution`, `weeklyActivity`, `surveyStats`
-- `totalAnswered`, `avgResponseScore`, `completionRate`
-- `thriving`, `watch`, `atRisk`
-- `noDataYet`, `startCheckinPrompt`
+New keys:
+- `aiGenerator.noFrameworksYet` / `aiGenerator.noFrameworksDesc`
+- `aiGenerator.selectAll` / `aiGenerator.deselectAll`
+- `aiGenerator.searchFrameworks`
+- `aiGenerator.docsCount` (e.g., "{{count}} docs")
+- `aiGenerator.frameworkDetails`
 
 ---
 
@@ -95,26 +106,19 @@ New keys under `mentalToolkit.moodDashboard`:
 
 | Action | File |
 |---|---|
-| New | `src/hooks/usePersonalMoodDashboard.ts` -- all data fetching for the personal dashboard |
-| Rewrite | `src/pages/mental-toolkit/MoodTrackerPage.tsx` -- read-only analytics dashboard |
+| Rewrite | `src/components/ai-generator/FrameworkSelector.tsx` -- card-based layout, search, select all, empty state |
+| Modify | `src/components/ai-generator/FrameworkDialog.tsx` -- polish sections, file upload zone |
+| Modify | `src/components/ai-generator/FrameworkDocuments.tsx` -- improved badges, larger targets |
 | Modify | `src/locales/en.json` -- new translation keys |
 | Modify | `src/locales/ar.json` -- new translation keys |
 
 ---
 
-## Privacy and Security
+## Design Tokens
 
-- Personal data uses `employee_id` filter -- RLS on `mood_entries` already ensures users only see their own entries
-- Org average is computed as a single aggregate number per day -- no individual employee data is exposed
-- The org average query uses `.eq('tenant_id', tenantId)` which is allowed by the existing RLS policy "Users can view active mood definitions in their tenant" -- but for `mood_entries`, the RLS only allows viewing own entries. So the org average must be computed differently:
-  - Option: Use the already-computed org data from `useOrgAnalytics` if the user has admin access, OR
-  - Better: Fetch org average via a lightweight query that only returns aggregated scores (the RLS on `mood_entries` allows tenant-level access for admins but not regular employees)
-  - **Solution**: Since regular employees cannot query other employees' mood entries due to RLS, the org average will be computed from the `useOrgAnalytics` hook data if available, or hidden for non-admin users with a note "Organization comparison available for managers"
-
-## Design System
-
-- Uses the Mental Toolkit calming palette (Lavender #C9B8E8, Sage Green #A8C5A0, Deep Plum #4A3F6B)
-- Rounded cards with soft shadows matching the existing toolkit design
-- All classes use logical properties (ms-/me-/ps-/pe-) for RTL support
-- Responsive: cards stack on mobile, side-by-side on desktop
+- Card background: `bg-card` with `hover:shadow-md` transition
+- Selected state: `bg-primary/5 border-s-3 border-s-primary`
+- Icon circle: `w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center`
+- Text sizes: Name `text-sm font-medium`, Description `text-xs text-muted-foreground`
+- All spacing uses logical properties (ms-/me-/ps-/pe-)
 
