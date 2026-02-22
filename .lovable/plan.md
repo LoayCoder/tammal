@@ -1,75 +1,100 @@
 
 
-# Convert City and Country to Standard Dropdown Lists
+# Generation Period: One-Active-Per-Purpose Enforcement
 
-## What Changes
+## Current State
 
-Replace the free-text City and Country input fields in the Spiritual Preferences card with standard `Select` dropdown lists. Saudi Arabia will appear at the top of the country list, and the city list will dynamically update based on the selected country.
+- The `generation_periods` table has no `purpose` column -- all periods are purpose-agnostic
+- No validation prevents creating multiple active periods
+- The Generate button is not locked when an active period exists
+- The `CreatePeriodDialog` has no purpose awareness
 
-## Implementation Details
+## Changes Required
 
-### 1. Create a Country/City Data File
+### 1. Database Migration: Add `purpose` Column + Unique Constraint
 
-**New file:** `src/data/countryCities.ts`
+Add a `purpose` column (`text NOT NULL DEFAULT 'survey'`) to `generation_periods` and create a partial unique index ensuring only one active period per purpose per tenant:
 
-A structured data file containing:
-- A list of countries with their codes (ISO 2-letter), English names, and Arabic names
-- Saudi Arabia ("SA") placed first in the list
-- For each country, a list of major cities with English and Arabic names
+```sql
+ALTER TABLE generation_periods ADD COLUMN purpose text NOT NULL DEFAULT 'survey';
 
-Countries to include (Saudi Arabia first, then alphabetical):
-- Saudi Arabia (SA) -- with all major cities (Riyadh, Jeddah, Makkah, Madinah, Dammam, Khobar, Dhahran, Tabuk, Abha, Taif, Hail, Jazan, Najran, Buraidah, Yanbu, Al Jubail, etc.)
-- United Arab Emirates (AE)
-- Bahrain (BH)
-- Kuwait (KW)
-- Oman (OM)
-- Qatar (QA)
-- Egypt (EG)
-- Jordan (JO)
-- Iraq (IQ)
-- Lebanon (LB)
-- Palestine (PS)
-- Syria (SY)
-- Yemen (YE)
-- Sudan (SD)
-- Libya (LY)
-- Tunisia (TN)
-- Algeria (DZ)
-- Morocco (MA)
-- Turkey (TR)
-- Pakistan (PK)
-- Malaysia (MY)
-- Indonesia (ID)
-- United Kingdom (GB)
-- United States (US)
-- Canada (CA)
-- Germany (DE)
-- France (FR)
+CREATE UNIQUE INDEX idx_one_active_period_per_purpose
+  ON generation_periods (tenant_id, purpose)
+  WHERE status = 'active' AND deleted_at IS NULL;
+```
 
-Each entry will include major cities relevant for prayer time calculations.
+This database-level constraint guarantees the rule cannot be bypassed.
 
-### 2. Update SpiritualPreferencesCard Component
+### 2. Update `useGenerationPeriods` Hook
 
-**File:** `src/components/spiritual/SpiritualPreferencesCard.tsx`
+- Add `purpose` to the `GenerationPeriod` interface
+- Add a `getActivePeriodForPurpose(purpose)` helper that returns the active period for a given purpose (or `null`)
+- Before creating, check for an existing active period for the same purpose -- show a clear translated error toast if one exists
+- Add a `softDeletePeriod` mutation to set `deleted_at = now()` (allowing a new period to be created)
+- Add an `expirePeriod` mutation to set `status = 'expired'`
 
-Changes:
-- Import the country/city data
-- Replace the Country `Input` (line 143-148) with a `Select` dropdown showing country names (Arabic or English based on locale), with Saudi Arabia at the top
-- Replace the City `Input` (line 135-139) with a `Select` dropdown that filters cities based on the selected country
-- When country changes, auto-clear the city if it doesn't belong to the new country
-- The country field stores the ISO code (e.g., "SA") which is what the Aladhan API expects
+### 3. Update `CreatePeriodDialog`
 
-### 3. Add Translation Keys
+- Accept a new `purpose` prop (passed from `ConfigPanel`)
+- Accept an `activePeriodForPurpose` prop -- if one exists, show an Alert banner explaining a period is already active, with its date range, and disable the Create button
+- Pass the `purpose` value in `onConfirm` params so it gets saved to the database
 
-**Files:** `src/locales/en.json` and `src/locales/ar.json`
+### 4. Update `ConfigPanel`
 
-Add:
-- `spiritual.preferences.selectCountry` -- placeholder text
-- `spiritual.preferences.selectCity` -- placeholder text
+- Pass `purpose` to `CreatePeriodDialog`
+- Filter the period dropdown to only show periods matching the current purpose
+- Compute `activePeriodForPurpose` and pass to `CreatePeriodDialog`
+- When an active period exists for the selected purpose:
+  - Auto-select it in the period dropdown
+  - Show a lock indicator with "Active period in effect" message
+  - Disable the Generate button with a tooltip explaining the lock
+- Add a "Manage Period" action (soft-delete or expire) to unlock generation
 
-### Technical Notes
+### 5. Update `AIQuestionGenerator` Page
 
-- The Aladhan prayer times API (`/v1/timingsByCity`) accepts city name and country code, so the dropdown values align perfectly with the existing API integration
-- No database changes needed -- the `city` and `country` columns remain text fields storing the same values
-- The Select component uses Shadcn's `Select` already imported in the file
-- A `ScrollArea` will wrap the dropdown content for long lists
+- Pass `purpose` through to `createPeriod` call so it gets stored
+- When purpose changes, check if the new purpose has an active period and auto-select it
+
+### 6. Translation Keys (en.json + ar.json)
+
+New keys:
+- `aiGenerator.periodAlreadyActive` -- "An active generation period already exists for this purpose"
+- `aiGenerator.periodActiveInfo` -- "Active period: {{start}} to {{end}}"
+- `aiGenerator.periodExpire` -- "Expire Period"
+- `aiGenerator.periodDelete` -- "Delete Period"
+- `aiGenerator.periodLockedGenerate` -- "Generation is locked while a period is active"
+- `aiGenerator.periodExpired` -- "Period expired successfully"
+- `aiGenerator.periodDeleted` -- "Period deleted successfully"
+- `aiGenerator.periodPurposeSurvey` -- "Survey"
+- `aiGenerator.periodPurposeWellness` -- "Daily Check-in"
+
+## Technical Details
+
+### File changes:
+1. **New migration** -- adds `purpose` column + partial unique index
+2. **`src/hooks/useGenerationPeriods.ts`** -- add `purpose` field, `softDeletePeriod`, `expirePeriod`, `getActivePeriodForPurpose`
+3. **`src/components/ai-generator/CreatePeriodDialog.tsx`** -- add `purpose` prop, active-period warning Alert, disable Create when active
+4. **`src/components/ai-generator/ConfigPanel.tsx`** -- filter periods by purpose, auto-select active, lock Generate button, add expire/delete actions
+5. **`src/pages/admin/AIQuestionGenerator.tsx`** -- pass `purpose` to `createPeriod`, react to purpose changes
+6. **`src/locales/en.json`** -- new translation keys
+7. **`src/locales/ar.json`** -- new Arabic translation keys
+
+### Flow Summary
+
+```text
+User selects Purpose (Survey/Wellness)
+  |
+  +--> Check: active period exists for this purpose?
+  |      |
+  |      YES --> Auto-select period, lock categories, lock Generate button
+  |      |       Show: "Active period until {date}" with Expire/Delete options
+  |      |
+  |      NO  --> Generator unlocked, user can generate freely
+  |              User can optionally create a new period
+  |
+  +--> User clicks "Create Period"
+         |
+         +--> Active period exists? --> Show error Alert, disable Create
+         +--> No active period? --> Allow creation with purpose tag
+```
+
