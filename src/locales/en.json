@@ -2154,7 +2154,9 @@
       "comingSoon": "Coming Soon",
       "locationSettings": "Location Settings (for Prayer Times)",
       "city": "City",
-      "country": "Country Code",
+      "country": "Country",
+      "selectCountry": "Select country",
+      "selectCity": "Select city",
       "calculationMethod": "Calculation Method",
       "disclaimer": "Spiritual tools are provided for personal wellbeing support and are not intended to replace religious scholarship or medical advice."
     },
