@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+
 import { BookOpen, ChevronDown, Plus, Pencil, Trash2, Check, Search, CheckCheck, XCircle, FileText } from 'lucide-react';
 import { ReferenceFramework } from '@/hooks/useReferenceFrameworks';
 import { FrameworkDialog } from './FrameworkDialog';
@@ -260,16 +260,14 @@ export function FrameworkSelector({
                               </Button>
                             </>
                           )}
-                          <CollapsibleTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 w-7 p-0"
-                              onClick={() => setExpandedId(isExpanded ? null : fw.id)}
-                            >
-                              <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
-                            </Button>
-                          </CollapsibleTrigger>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0"
+                            onClick={() => setExpandedId(isExpanded ? null : fw.id)}
+                          >
+                            <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                          </Button>
                         </div>
                       </div>
                     </div>
