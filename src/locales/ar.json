@@ -2134,7 +2134,8 @@
       "prayerTracker": "متتبع الصلاة",
       "quranReader": "قارئ القرآن",
       "sunnahFasting": "صيام السنة",
-      "insights": "الرؤى الروحية"
+      "insights": "الرؤى الروحية",
+      "calendar": "التقويم الإسلامي"
     },
     "preferences": {
       "title": "الرفاهية الروحية",
@@ -2145,6 +2146,11 @@
       "quranEngagement": "متابعة القرآن",
       "sunnahFasting": "صيام السنة",
       "spiritualReminders": "التذكيرات الروحية",
+      "remindersDescription": "تلقَّ تذكيرات لطيفة بمواقيت الصلاة والأنشطة الروحية",
+      "reminderIntensity": "تكرار التذكير",
+      "intensityLight": "خفيف — مواقيت الصلاة فقط",
+      "intensityModerate": "متوسط — الصلاة + أهداف القراءة",
+      "intensityHigh": "نشط — جميع الأنشطة الروحية",
       "comingSoon": "قريباً",
       "locationSettings": "إعدادات الموقع (لمواقيت الصلاة)",
       "city": "المدينة",
@@ -2249,7 +2255,34 @@
       "fastingNeutral": "استمر في التتبع لاكتشاف أنماط بين الصيام والمزاج.",
       "notEnoughData": "لا توجد بيانات كافية بعد",
       "notEnoughDataDesc": "استمر في استخدام الأدوات الروحية والتسجيل اليومي لفتح رؤى مخصصة.",
-      "privacyNote": "هذه الرؤى تُحسب محلياً وتظهر لك فقط. لا تُشارك أبداً مع مؤسستك."
+      "privacyNote": "هذه الرؤى تُحسب محلياً وتظهر لك فقط. لا تُشارك أبداً مع مؤسستك.",
+      "correlationsTab": "الارتباطات",
+      "reportsTab": "تقارير الذكاء الاصطناعي",
+      "generateWeekly": "إنشاء تقرير أسبوعي",
+      "generateMonthly": "إنشاء تقرير شهري",
+      "reportGenerated": "تم إنشاء التقرير بنجاح",
+      "weeklyReport": "التقرير الروحي الأسبوعي",
+      "monthlyReport": "التقرير الروحي الشهري",
+      "prayerConsistency": "نسبة الصلاة",
+      "quranMinutes": "دقائق القرآن",
+      "fastsCompleted": "صيام مكتمل",
+      "recommendations": "التوصيات",
+      "highlightsTitle": "الإنجازات",
+      "overallScore": "الدرجة الإجمالية",
+      "noReports": "لم تُنشأ تقارير بعد",
+      "noReportsDesc": "أنشئ تقريراً أسبوعياً أو شهرياً للحصول على رؤى مدعومة بالذكاء الاصطناعي."
+    },
+    "calendar": {
+      "title": "التقويم الإسلامي",
+      "notEnabled": "الرفاهية الروحية غير مفعّلة",
+      "enablePrompt": "فعّل الأدوات الروحية في ملفك للوصول إلى التقويم الإسلامي.",
+      "upcomingEvents": "الأحداث والأيام المميزة",
+      "noEvents": "لا توجد أحداث مميزة هذا الشهر.",
+      "fastingDay": "صيام",
+      "whiteDay": "أيام البيض",
+      "legendEvent": "حدث إسلامي",
+      "legendFasting": "صيام مستحب"
+    }
     }
   }
 }

@@ -2134,7 +2134,8 @@
       "prayerTracker": "Prayer Tracker",
       "quranReader": "Qur'an Reader",
       "sunnahFasting": "Sunnah Fasting",
-      "insights": "Spiritual Insights"
+      "insights": "Spiritual Insights",
+      "calendar": "Islamic Calendar"
     },
     "preferences": {
       "title": "Spiritual Wellbeing",
@@ -2145,6 +2146,11 @@
       "quranEngagement": "Qur'an Engagement",
       "sunnahFasting": "Sunnah Fasting",
       "spiritualReminders": "Spiritual Reminders",
+      "remindersDescription": "Get gentle reminders for prayer times and spiritual activities",
+      "reminderIntensity": "Reminder Frequency",
+      "intensityLight": "Light — prayer times only",
+      "intensityModerate": "Moderate — prayers + reading goals",
+      "intensityHigh": "Active — all spiritual activities",
       "comingSoon": "Coming Soon",
       "locationSettings": "Location Settings (for Prayer Times)",
       "city": "City",
@@ -2260,7 +2266,34 @@
       "fastingNeutral": "Continue tracking to discover patterns between fasting and mood.",
       "notEnoughData": "Not enough data yet",
       "notEnoughDataDesc": "Continue using the spiritual tools and daily check-ins to unlock personalized insights.",
-      "privacyNote": "These insights are calculated locally and are visible only to you. They are never shared with your organization."
+      "privacyNote": "These insights are calculated locally and are visible only to you. They are never shared with your organization.",
+      "correlationsTab": "Correlations",
+      "reportsTab": "AI Reports",
+      "generateWeekly": "Generate Weekly Report",
+      "generateMonthly": "Generate Monthly Report",
+      "reportGenerated": "Report generated successfully",
+      "weeklyReport": "Weekly Spiritual Report",
+      "monthlyReport": "Monthly Spiritual Report",
+      "prayerConsistency": "Prayer %",
+      "quranMinutes": "Qur'an Min",
+      "fastsCompleted": "Fasts Done",
+      "recommendations": "Recommendations",
+      "highlightsTitle": "Highlights",
+      "overallScore": "Overall Score",
+      "noReports": "No reports generated yet",
+      "noReportsDesc": "Generate a weekly or monthly report to get AI-powered insights about your spiritual journey."
+    },
+    "calendar": {
+      "title": "Islamic Calendar",
+      "notEnabled": "Spiritual Wellbeing Not Enabled",
+      "enablePrompt": "Enable spiritual tools in your profile to access the Islamic calendar.",
+      "upcomingEvents": "Events & Notable Days",
+      "noEvents": "No notable events this month.",
+      "fastingDay": "Fasting",
+      "whiteDay": "White Day",
+      "legendEvent": "Islamic Event",
+      "legendFasting": "Recommended Fasting"
+    }
     }
   }
 }
