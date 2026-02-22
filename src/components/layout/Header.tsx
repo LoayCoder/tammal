@@ -2,6 +2,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { UserMenu } from "@/components/UserMenu";
+import NotificationBell from "@/components/crisis/NotificationBell";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -77,6 +78,7 @@ export function Header() {
       </Breadcrumb>
 
       <div className="ms-auto flex items-center gap-2">
+        <NotificationBell />
         <LanguageSelector />
         <ThemeToggle />
         <UserMenu />
