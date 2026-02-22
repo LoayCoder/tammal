@@ -1,100 +1,76 @@
 
 
-# Thought Reframer -- UI Fixes, AI Rewrite & Voice Input
+# Thought Reframer -- Audit & Fix Plan
 
-## Overview
+## Audit Results
 
-Fix mislabeled button text, add an **AI-assisted reframe** feature (the AI suggests a reframed thought for the user), and add **voice-to-text** input on all textareas so users can speak instead of type.
+After reviewing all previous plans against the current codebase, here is the status of every planned feature:
 
----
+### Fully Implemented (no issues)
+- Database table `thought_reframes` with proper RLS policies
+- `useThoughtReframes` hook with CRUD operations and stats
+- Multi-step wizard UI (Steps 1-3 + Summary)
+- Stats bar (Total, This Month, Streak)
+- Reframe Journal with expand/collapse and soft-delete
+- AI Suggest edge function (`suggest-reframe`) with Gemini integration
+- AI Suggest button on Step 3
+- Voice-to-text (`useSpeechToText` hook + MicButton component)
+- RTL-aware arrow icons (ArrowRight/ArrowLeft with `rtl:-scale-x-100`)
+- "Save Reframe" relabeled button
+- Reframe Activity card on MoodTrackerPage
+- Reframe stats in `usePersonalMoodDashboard`
+- All localization keys (EN + AR)
 
-## 1. UI Fixes -- Mislabeled Buttons
+### Issues Found
 
-**Issue**: The "Continue" button on Step 1 shows an arrow character that isn't RTL-aware. The Step 2 back/forward buttons use raw arrow characters. The summary "Save & Start Over" label is unclear.
-
-**Fixes**:
-- Replace raw `→` and `←` arrow characters with Lucide `ArrowRight` / `ArrowLeft` icons wrapped in `rtl:-scale-x-100` for proper RTL flipping
-- The Step 3 "See Summary" button label is fine but will get a `Sparkles` icon prefix
-- The Summary "Save & Start Over" button will be relabeled to just "Save Reframe" for clarity (separate "Start Over" button already exists)
-- Ensure all button labels use translation keys (some hardcoded `"..."` for loading state will use a proper spinner)
-
----
-
-## 2. AI Reframe Suggestion
-
-Add an "AI Suggest" button on Step 3 that sends the negative thought + challenge answers to Lovable AI and returns a suggested reframed thought.
-
-### New Edge Function: `supabase/functions/suggest-reframe/index.ts`
-
-- Accepts: `negative_thought`, `challenge_answers` (q1, q2, q3)
-- Uses Lovable AI (`google/gemini-3-flash-preview`) with a CBT-specialist system prompt
-- Returns a suggested `reframed_thought` string via tool calling
-- Handles 429/402 errors properly
-
-### Frontend Changes (in `ThoughtReframerPage.tsx`)
-
-- On Step 3, add a button: "AI Suggest" with a `Sparkles` icon
-- When clicked, calls the edge function via `supabase.functions.invoke('suggest-reframe', ...)`
-- Shows a loading spinner while waiting
-- Populates the reframed thought textarea with the AI suggestion
-- User can edit the suggestion before proceeding
-- Toast on error (rate limit, payment, etc.)
+| # | Issue | Location | Severity |
+|---|---|---|---|
+| 1 | **Unused import**: `differenceInCalendarDays` imported but never used | `useThoughtReframes.ts` line 5 | Low (lint warning) |
+| 2 | **Raw arrow character** `→` not RTL-aware in "Go to Reframer" link | `MoodTrackerPage.tsx` line 452 | Medium (RTL bug) |
+| 3 | **Cache invalidation mismatch**: `useThoughtReframes` invalidates `['reframe-stats']` but `usePersonalMoodDashboard` uses `['reframe-stats', employeeId]` -- the invalidation won't match the dashboard query | `useThoughtReframes.ts` lines 95, 109 | High (data not refreshing on dashboard after save) |
+| 4 | **MicButton tooltip hardcoded**: "Stop" and "Voice input" are hardcoded English strings instead of using translation keys | `ThoughtReframerPage.tsx` lines 61-62 | Medium (i18n gap) |
+| 5 | **Error toast hardcoded**: "Error saving reframe" and "Error deleting" are hardcoded English | `ThoughtReframerPage.tsx` lines 94, 103 | Medium (i18n gap) |
 
 ---
 
-## 3. Voice-to-Text Input
+## Fix Plan
 
-Use the **Web Speech API** (`SpeechRecognition`) built into browsers -- no external API needed, completely free.
+### 1. Fix `useThoughtReframes.ts`
+- Remove the unused `differenceInCalendarDays` import
+- Fix cache invalidation to use the correct query key pattern: `queryClient.invalidateQueries({ queryKey: ['reframe-stats'] })` should use fuzzy matching which actually already works -- BUT to be safe and explicit, add `exact: false` or invalidate with `['reframe-stats', employeeId]`
 
-### New Hook: `src/hooks/useSpeechToText.ts`
+### 2. Fix `MoodTrackerPage.tsx` line 452
+- Replace the raw `→` with a Lucide `ArrowRight` icon wrapped in `rtl:-scale-x-100`
 
-- Wraps `window.SpeechRecognition` / `window.webkitSpeechRecognition`
-- Returns `{ isListening, startListening, stopListening, transcript, isSupported }`
-- Supports language parameter (uses current i18n language: 'en-US' or 'ar-SA')
-- Appends recognized text to existing textarea content
-- Auto-stops after silence
+### 3. Fix `ThoughtReframerPage.tsx` hardcoded strings
+- Replace tooltip text "Stop" / "Voice input" with `t("mentalToolkit.thoughtReframer.voiceListening")` / `t("mentalToolkit.thoughtReframer.voiceInput")`
+- Replace "Error saving reframe" with a translation key
+- Replace "Error deleting" with a translation key
 
-### Frontend Changes (in `ThoughtReframerPage.tsx`)
-
-- Add a small microphone icon button (`Mic` from Lucide) next to each textarea
-- When tapped, starts speech recognition and appends transcribed text to the field
-- Icon turns red/pulsing while listening (`Mic` becomes `MicOff` to stop)
-- Only shown if `isSupported` is true (graceful degradation for unsupported browsers)
-- Works on all 5 textareas: negative thought (Step 1), q1/q2/q3 (Step 2), reframed thought (Step 3)
+### 4. Add missing translation keys
+- `mentalToolkit.thoughtReframer.saveError`: "Error saving reframe" / "خطأ في حفظ إعادة الصياغة"
+- `mentalToolkit.thoughtReframer.deleteError`: "Error deleting" / "خطأ في الحذف"
+- `mentalToolkit.thoughtReframer.stopListening`: "Stop listening" / "إيقاف الاستماع"
 
 ---
 
-## Files Summary
+## Files to Modify
 
-| Action | File |
+| File | Change |
 |---|---|
-| New | `supabase/functions/suggest-reframe/index.ts` -- AI reframe suggestion edge function |
-| New | `src/hooks/useSpeechToText.ts` -- Web Speech API wrapper hook |
-| Modify | `supabase/config.toml` -- add `suggest-reframe` function config |
-| Rewrite | `src/pages/mental-toolkit/ThoughtReframerPage.tsx` -- fix buttons, add AI suggest, add mic buttons |
-| Modify | `src/locales/en.json` -- new keys for AI suggest and voice |
-| Modify | `src/locales/ar.json` -- new keys for AI suggest and voice |
+| `src/hooks/useThoughtReframes.ts` | Remove unused import, fix cache invalidation key |
+| `src/pages/mental-toolkit/MoodTrackerPage.tsx` | Replace raw arrow with RTL-aware icon |
+| `src/pages/mental-toolkit/ThoughtReframerPage.tsx` | Replace hardcoded English strings with translation keys |
+| `src/locales/en.json` | Add `saveError`, `deleteError`, `stopListening` keys |
+| `src/locales/ar.json` | Add `saveError`, `deleteError`, `stopListening` keys |
 
 ---
 
-## New Localization Keys
+## Dashboard Integration Verification
 
-Under `mentalToolkit.thoughtReframer`:
-- `aiSuggest`: "AI Suggest"
-- `aiSuggesting`: "Thinking..."
-- `aiSuggestTooltip`: "Let AI suggest a reframed thought based on your answers"
-- `aiSuggestError`: "Could not generate suggestion. Try again."
-- `voiceInput`: "Voice input"
-- `voiceListening`: "Listening..."
-- `voiceNotSupported`: "Voice input not supported in this browser"
-- `saveReframe`: "Save Reframe"
-
----
-
-## Technical Notes
-
-- **Web Speech API** is available in Chrome, Edge, Safari (mobile + desktop). Firefox has limited support. The hook checks `isSupported` and hides the mic button if unavailable.
-- **AI Suggest** uses the same Lovable AI gateway pattern as `rewrite-question`, with tool calling for structured output.
-- All new buttons use logical properties for RTL support.
-- The edge function config entry uses `verify_jwt = false` matching the existing pattern.
+The reframe data IS properly reflected in the personal dashboard:
+- `usePersonalMoodDashboard` fetches reframe stats from `thought_reframes` table (line 153)
+- `MoodTrackerPage` displays a "Reframe Activity" card with total, monthly, and streak stats (line 426)
+- A "Go to Reframer" link navigates to `/mental-toolkit/thought-reframer` (line 449)
+- The cache invalidation fix (item 3) ensures the dashboard updates immediately after saving/deleting a reframe
 
