@@ -7,8 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2 } from 'lucide-react';
-import { format, addMonths, addDays, startOfQuarter, endOfQuarter, startOfYear, endOfYear } from 'date-fns';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, AlertTriangle } from 'lucide-react';
+import { format, addMonths, startOfQuarter, endOfQuarter, startOfYear, endOfYear } from 'date-fns';
+import { GenerationPeriod } from '@/hooks/useGenerationPeriods';
 
 interface CreatePeriodDialogProps {
   open: boolean;
@@ -21,8 +23,11 @@ interface CreatePeriodDialogProps {
     endDate: string;
     lockedCategoryIds: string[];
     lockedSubcategoryIds: string[];
+    purpose: string;
   }) => void;
   isCreating: boolean;
+  purpose: string;
+  activePeriodForPurpose: GenerationPeriod | null;
 }
 
 export function CreatePeriodDialog({
@@ -32,6 +37,8 @@ export function CreatePeriodDialog({
   subcategories,
   onConfirm,
   isCreating,
+  purpose,
+  activePeriodForPurpose,
 }: CreatePeriodDialogProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
@@ -41,6 +48,8 @@ export function CreatePeriodDialog({
   const [endDate, setEndDate] = useState(format(addMonths(new Date(), 1), 'yyyy-MM-dd'));
   const [selectedCatIds, setSelectedCatIds] = useState<string[]>([]);
   const [selectedSubIds, setSelectedSubIds] = useState<string[]>([]);
+
+  const hasActivePeriod = !!activePeriodForPurpose;
 
   const handlePeriodTypeChange = (type: string) => {
     setPeriodType(type);
@@ -85,22 +94,43 @@ export function CreatePeriodDialog({
       endDate,
       lockedCategoryIds: selectedCatIds,
       lockedSubcategoryIds: selectedSubIds,
+      purpose,
     });
   };
+
+  const purposeLabel = purpose === 'wellness'
+    ? t('aiGenerator.periodPurposeWellness')
+    : t('aiGenerator.periodPurposeSurvey');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{t('aiGenerator.createPeriod')}</DialogTitle>
-          <DialogDescription>{t('aiGenerator.createPeriodDesc', 'Lock categories & subcategories for a generation period')}</DialogDescription>
+          <DialogDescription>{t('aiGenerator.createPeriodDesc')} — {purposeLabel}</DialogDescription>
         </DialogHeader>
+
+        {hasActivePeriod && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              {t('aiGenerator.periodAlreadyActive')}
+              <br />
+              <span className="text-xs">
+                {t('aiGenerator.periodActiveInfo', {
+                  start: activePeriodForPurpose.start_date,
+                  end: activePeriodForPurpose.end_date,
+                })}
+              </span>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="space-y-4">
           {/* Period Type */}
           <div className="space-y-2">
             <Label>{t('aiGenerator.periodType')}</Label>
-            <Select value={periodType} onValueChange={handlePeriodTypeChange}>
+            <Select value={periodType} onValueChange={handlePeriodTypeChange} disabled={hasActivePeriod}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="monthly">{t('aiGenerator.periodMonthly')}</SelectItem>
@@ -114,11 +144,11 @@ export function CreatePeriodDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">{t('common.from')}</Label>
-              <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+              <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} disabled={hasActivePeriod} />
             </div>
             <div className="space-y-1">
               <Label className="text-xs">{t('common.to')}</Label>
-              <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+              <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} disabled={hasActivePeriod} />
             </div>
           </div>
 
@@ -128,7 +158,7 @@ export function CreatePeriodDialog({
             <ScrollArea className="h-[140px] rounded-md border p-2">
               {categories.map(c => (
                 <label key={c.id} className="flex items-center gap-2 py-1 cursor-pointer hover:bg-accent rounded px-1">
-                  <Checkbox checked={selectedCatIds.includes(c.id)} onCheckedChange={() => toggleCat(c.id)} />
+                  <Checkbox checked={selectedCatIds.includes(c.id)} onCheckedChange={() => toggleCat(c.id)} disabled={hasActivePeriod} />
                   <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: c.color }} />
                   <span className="text-sm truncate">{getLabel(c)}</span>
                 </label>
@@ -143,7 +173,7 @@ export function CreatePeriodDialog({
               <ScrollArea className="h-[120px] rounded-md border p-2">
                 {filteredSubs.map(s => (
                   <label key={s.id} className="flex items-center gap-2 py-1 cursor-pointer hover:bg-accent rounded px-1">
-                    <Checkbox checked={selectedSubIds.includes(s.id)} onCheckedChange={() => toggleSub(s.id)} />
+                    <Checkbox checked={selectedSubIds.includes(s.id)} onCheckedChange={() => toggleSub(s.id)} disabled={hasActivePeriod} />
                     <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
                     <span className="text-sm truncate">{getLabel(s)}</span>
                   </label>
@@ -155,7 +185,7 @@ export function CreatePeriodDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>{t('common.cancel')}</Button>
-          <Button onClick={handleSubmit} disabled={isCreating || selectedCatIds.length === 0}>
+          <Button onClick={handleSubmit} disabled={isCreating || selectedCatIds.length === 0 || hasActivePeriod}>
             {isCreating && <Loader2 className="h-4 w-4 animate-spin me-2" />}
             {t('common.create')}
           </Button>
