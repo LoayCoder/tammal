@@ -1,78 +1,160 @@
 
 
-# Crisis Support -- Fix First Aider Assignment & Creation Gaps
+# Spiritual Wellbeing Module -- Phase 1: Foundation + Prayer Tracking
 
-## Problem Summary
+## Overview
 
-The admin "First Aiders" tab and "Emergency Contacts" tab have broken create flows. When clicking "Add First Aider", the dialog opens but the save handler shows a `toast.error('Please assign a user first')` and does nothing. Similarly, "Add Contact" shows `toast.error('Tenant context required')` and returns. These are placeholder error messages left during initial implementation -- the actual logic to resolve `tenant_id` and `user_id` was never wired up.
+Add an optional, fully private Spiritual Wellbeing module to TAMMAL. Phase 1 covers the database foundation, user preference toggles in the profile page, and a complete Prayer Tracking feature with the Aladhan API integration.
 
----
-
-## Issues Found
-
-| # | Issue | Location | Severity |
-|---|---|---|---|
-| 1 | **Create First Aider is broken**: `handleSave` returns early with hardcoded error "Please assign a user first" because there's no user picker and no `tenant_id` resolution | `CrisisSettings.tsx` line 123-127 | Critical |
-| 2 | **Create Emergency Contact is broken**: `handleSave` returns early with "Tenant context required" because `tenant_id` is not injected on create | `CrisisSettings.tsx` line 371-374 | Critical |
-| 3 | **No employee/user picker** in the Add First Aider dialog -- the dialog has name/department/bio fields but no way to link a first aider to an actual user account | `CrisisSettings.tsx` dialog | Critical |
-| 4 | **Schedules tab doesn't auto-load** when selecting a first aider -- `handleLoadSchedule` exists but is never called | `CrisisSettings.tsx` line 241 | Medium |
-| 5 | **Hardcoded English strings** in error messages: "Please assign a user first", "Tenant context required" | `CrisisSettings.tsx` lines 125, 373 | Low |
+**Privacy guarantee**: All spiritual data is stored in separate tables (`spiritual_*` prefix), protected by user-only RLS policies, and completely excluded from organizational analytics.
 
 ---
 
-## Fix Plan
+## What Gets Built
 
-### 1. Fix First Aiders Tab -- Add Employee/User Picker + Working Create
+### A. Database Foundation (4 new tables)
 
-**Changes to the `FirstAidersTab` in `CrisisSettings.tsx`:**
+| Table | Purpose |
+|---|---|
+| `spiritual_preferences` | Per-user toggle states (prayer, quran, fasting, reminders enabled) + location settings |
+| `spiritual_prayer_logs` | Individual prayer completion records |
+| `spiritual_quran_sessions` | Qur'an reading session logs (prepared for Phase 2 built-in reader) |
+| `spiritual_fasting_logs` | Fasting day records (prepared for Phase 2) |
 
-- Import `useProfile` to get the admin's `tenant_id` from their profile
-- Import `useEmployees` to get a list of employees in the tenant
-- Add a `user_id` field to the form state
-- Add an employee selector (Select dropdown) in the create dialog that shows tenant employees, allowing the admin to pick which employee becomes a first aider
-- Auto-fill `display_name` and `department` from the selected employee
-- On save (create), pass `tenant_id` (from profile) and `user_id` (from selected employee) to `createFirstAider.mutateAsync`
-- On save (edit), keep existing behavior but remove the early return
+**RLS Policy**: Every table uses `user_id = auth.uid()` -- only the user can see their own data. No tenant-level access. No admin access. No super-admin bypass for spiritual data.
 
-### 2. Fix Emergency Contacts Tab -- Inject tenant_id on Create
+### B. User Profile -- Spiritual Preferences Section
 
-**Changes to `EmergencyContactsTab`:**
+Add a new card to the User Profile page (`/settings/profile`) below the existing Permissions card:
 
-- Import `useProfile` to get the admin's `tenant_id`
-- On create, pass `tenant_id` alongside the form data to `createContact.mutateAsync`
-- Remove the early-return error
+- **Main toggle**: "Enable Spiritual Wellbeing Tools" (Switch)
+- When enabled, show sub-toggles:
+  - Prayer Tracking (Switch)
+  - Qur'an Engagement (Switch, disabled label "Coming Soon")
+  - Sunnah Fasting (Switch, disabled label "Coming Soon")
+  - Spiritual Reminders (Switch, disabled label "Coming Soon")
+- Location selector: City/Country dropdown (stored for prayer time API)
+- Calculation method selector (for Aladhan API: e.g., Umm al-Qura, ISNA, Muslim World League)
+- Legal disclaimer at the bottom
 
-### 3. Fix Schedules Tab -- Auto-Load Schedule on Selection
+### C. Prayer Tracking Page
 
-- Call schedule-loading logic in a `useEffect` or directly when `selectedFA` changes, rather than relying on the never-called `handleLoadSchedule`
+New route: `/spiritual/prayer` accessible from the sidebar (under Wellness group, visible only when prayer tracking is enabled).
 
-### 4. Replace Hardcoded English Strings
+**Features:**
+- Fetch today's prayer times from Aladhan API based on saved city/coordinates
+- Display 5 daily prayers (Fajr, Dhuhr, Asr, Maghrib, Isha) as cards with time and status
+- Each prayer card has a check-in prompt with options: Mosque, Home, Work, Missed, Remind Later
+- Weekly summary view showing consistency percentage
+- Positive, non-judgmental feedback messages
+- No streaks, no red alerts, no guilt messaging
 
-- Replace all hardcoded error strings with translation keys
-- Add new keys to `en.json` and `ar.json`
+### D. Prayer Tracking Hook + Aladhan Integration
+
+- `useSpiritualPreferences` hook: CRUD for user's spiritual settings
+- `usePrayerTimes` hook: Fetches prayer times from `https://api.aladhan.com/v1/timingsByCity` (free, no API key)
+- `usePrayerLogs` hook: CRUD for prayer completion records
+- Correlation data point stored alongside mood entries for future AI insights (Phase 2+)
+
+### E. Sidebar Integration
+
+Add a "Spiritual Wellbeing" collapsible section in the sidebar (below Mental Toolkit), visible only when `spiritual_preferences.enabled = true`:
+- Prayer Tracker (Phase 1)
+- Qur'an Reader (grayed out, Phase 2)
+- Sunnah Fasting (grayed out, Phase 2)
+
+### F. Mood Check-in Integration Point
+
+After mood check-in submission, if the spiritual module is enabled, optionally show a soft prompt: "Would you like to engage in a calming spiritual activity?" linking to the Prayer Tracker or a dhikr prompt. This is non-intrusive and dismissible.
 
 ---
+
+## Files to Create
+
+| File | Purpose |
+|---|---|
+| `src/hooks/useSpiritualPreferences.ts` | Manage user spiritual settings |
+| `src/hooks/usePrayerTimes.ts` | Aladhan API integration |
+| `src/hooks/usePrayerLogs.ts` | Prayer log CRUD |
+| `src/components/spiritual/SpiritualPreferencesCard.tsx` | Profile preferences UI |
+| `src/components/spiritual/PrayerCard.tsx` | Individual prayer status card |
+| `src/pages/spiritual/PrayerTracker.tsx` | Main prayer tracking page |
+| Migration SQL | 4 tables + RLS policies |
 
 ## Files to Modify
 
 | File | Change |
 |---|---|
-| `src/pages/admin/CrisisSettings.tsx` | Fix create flows for first aiders and emergency contacts; add employee picker; fix schedule auto-load |
-| `src/locales/en.json` | Add missing keys if needed |
-| `src/locales/ar.json` | Add matching Arabic keys |
+| `src/pages/settings/UserProfile.tsx` | Add SpiritualPreferencesCard |
+| `src/components/layout/AppSidebar.tsx` | Add Spiritual Wellbeing section |
+| `src/App.tsx` | Add `/spiritual/prayer` route |
+| `src/locales/en.json` | Add all spiritual module keys |
+| `src/locales/ar.json` | Add all Arabic translations |
 
 ---
 
 ## Technical Details
 
-**Employee picker approach:**
-- Use `useEmployees()` to fetch employees for the current tenant
-- Filter out employees who are already first aiders (compare `user_id` against existing `firstAiders` list)
-- Show a `<Select>` dropdown with employee name + department
-- When an employee is selected, auto-populate `display_name` and `department` from the employee record
-- Store the selected employee's `user_id` in form state
+### Database Schema
 
-**Tenant ID resolution:**
-- Use `useProfile()` to get the logged-in admin's `tenant_id` from their profile
-- Pass this `tenant_id` to both `createFirstAider` and `createContact` mutations
+```text
+spiritual_preferences
+- id (uuid, PK)
+- user_id (uuid, NOT NULL, references auth.users, UNIQUE)
+- enabled (boolean, default false)
+- prayer_enabled (boolean, default false)
+- quran_enabled (boolean, default false)
+- fasting_enabled (boolean, default false)
+- reminders_enabled (boolean, default false)
+- reminder_intensity (text, default 'light') -- light/moderate/high
+- city (text)
+- country (text)
+- latitude (numeric)
+- longitude (numeric)
+- calculation_method (integer, default 4) -- Aladhan method ID
+- created_at, updated_at
+
+spiritual_prayer_logs
+- id (uuid, PK)
+- user_id (uuid, NOT NULL)
+- prayer_name (text) -- fajr/dhuhr/asr/maghrib/isha
+- prayer_date (date)
+- status (text) -- completed_mosque/completed_home/completed_work/missed/skipped
+- logged_at (timestamptz)
+- created_at
+- UNIQUE(user_id, prayer_name, prayer_date)
+
+spiritual_quran_sessions (Phase 2 placeholder)
+- id, user_id, duration_minutes, surah_name, juz_number, reflection_notes, session_date, created_at
+
+spiritual_fasting_logs (Phase 2 placeholder)
+- id, user_id, fast_date, fast_type, completed, energy_rating, notes, created_at
+```
+
+### RLS Policy (same pattern for all 4 tables)
+
+```text
+Policy: "Users can manage their own spiritual data"
+Command: ALL
+Using: (user_id = auth.uid())
+With Check: (user_id = auth.uid())
+```
+
+No tenant-level, admin, or super-admin policies -- spiritual data is strictly private.
+
+### Aladhan API Call
+
+```text
+GET https://api.aladhan.com/v1/timingsByCity?city=Riyadh&country=SA&method=4
+```
+
+Response includes Fajr, Dhuhr, Asr, Maghrib, Isha times. No API key required. Cached per day.
+
+### Privacy Safeguards
+
+- No `tenant_id` column in spiritual tables (unlike all other tables)
+- RLS is user-only (no admin bypass)
+- No joins to organizational tables
+- Data export and full deletion supported via preferences toggle
+- Disabling the module archives data and stops all tracking immediately
 
