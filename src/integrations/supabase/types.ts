@@ -3192,6 +3192,38 @@ export type Database = {
           },
         ]
       }
+      wellness_insight_cache: {
+        Row: {
+          created_at: string
+          id: string
+          insight_data: Json
+          insight_date: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          insight_data?: Json
+          insight_date?: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          insight_data?: Json
+          insight_date?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wellness_insight_cache_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wellness_questions: {
         Row: {
           batch_id: string | null

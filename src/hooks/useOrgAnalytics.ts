@@ -2,6 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { subDays, format, eachDayOfInterval, getDay, parseISO } from 'date-fns';
+import {
+  computeCategoryRiskScores, computeHealthScore, computePeriodComparison,
+  detectEarlyWarnings,
+  type CategoryRiskScore, type CategoryTrendPoint, type CategoryMoodCell,
+  type EarlyWarning, type PeriodComparison,
+} from '@/lib/wellnessAnalytics';
 
 export type TimeRange = 7 | 30 | 90 | 'custom';
 
@@ -92,6 +98,14 @@ export interface OrgAnalyticsData {
   riskTrend: RiskTrendPoint[];
   orgComparison: OrgComparison;
   topEngagers: TopEngager[];
+  // New enhanced analytics fields
+  categoryRiskScores: CategoryRiskScore[];
+  categoryTrends: Map<string, CategoryTrendPoint[]>;
+  categoryMoodMatrix: CategoryMoodCell[];
+  earlyWarnings: EarlyWarning[];
+  periodComparison: PeriodComparison | null;
+  compositeHealthScore: number;
+  moodByCategoryData: Map<string, { date: string; label: string; great: number; good: number; okay: number; struggling: number; need_help: number }[]>;
 }
 
 function hasOrgFilter(f?: OrgFilter): boolean {
@@ -439,11 +453,132 @@ export function useOrgAnalytics(
       // 14. Top Engagers
       const topEngagers = await computeTopEngagers(entries, filteredIds, startDate, endDate);
 
+      // 15. Enhanced analytics stubs (computed client-side from existing data)
+      const categoryTrends = new Map<string, CategoryTrendPoint[]>();
+      const categoryMoodMatrix: CategoryMoodCell[] = [];
+      const moodByCategoryData = new Map<string, { date: string; label: string; great: number; good: number; okay: number; struggling: number; need_help: number }[]>();
+
+      // Build per-category daily trends from catResponses
+      const catNegMap = new Map<string, { negativeCount: number; totalCount: number }>();
+      if (categoryScores.length > 0 && (catResponses ?? []).length > 0) {
+        const questionIds2 = [...new Set((catResponses ?? []).map(r => r.question_id))];
+        const { data: questions2 } = questionIds2.length > 0
+          ? await supabase.from('questions').select('id, category_id').in('id', questionIds2)
+          : { data: [] };
+        const q2Map = new Map((questions2 ?? []).map(q => [q.id, q]));
+        const entryByEmpDate = new Map<string, string>();
+        entries.forEach(e => entryByEmpDate.set(`${e.employee_id}_${e.entry_date}`, e.mood_level));
+
+        let catRespWithEmp: any[] = [];
+        let q3 = supabase.from('employee_responses').select('answer_value, question_id, responded_at, employee_id')
+          .gte('responded_at', `${startDate}T00:00:00`).lte('responded_at', `${endDate}T23:59:59`).limit(10000);
+        if (filteredIds) q3 = q3.in('employee_id', filteredIds);
+        const { data: r3 } = await q3;
+        catRespWithEmp = r3 ?? [];
+
+        const catDailyAgg: Record<string, Record<string, { total: number; count: number }>> = {};
+        const catMoodAgg: Record<string, Record<string, { count: number; totalScore: number }>> = {};
+        const catNegAgg: Record<string, { neg: number; total: number }> = {};
+
+        catRespWithEmp.forEach(r => {
+          const q = q2Map.get(r.question_id);
+          if (!q || !q.category_id) return;
+          const catId = q.category_id;
+          const dateStr = r.responded_at?.slice(0, 10) ?? '';
+          if (!dateStr) return;
+          let numVal: number | null = null;
+          const av = r.answer_value;
+          if (typeof av === 'number') numVal = av;
+          else if (typeof av === 'string') numVal = parseFloat(av);
+          else if (typeof av === 'object' && av !== null && !Array.isArray(av)) {
+            const objVal = (av as any).value ?? (av as any).score ?? null;
+            numVal = typeof objVal === 'number' ? objVal : typeof objVal === 'string' ? parseFloat(objVal) : null;
+          }
+          if (numVal === null || isNaN(numVal)) return;
+
+          if (!catDailyAgg[catId]) catDailyAgg[catId] = {};
+          if (!catDailyAgg[catId][dateStr]) catDailyAgg[catId][dateStr] = { total: 0, count: 0 };
+          catDailyAgg[catId][dateStr].total += numVal;
+          catDailyAgg[catId][dateStr].count += 1;
+
+          if (!catNegAgg[catId]) catNegAgg[catId] = { neg: 0, total: 0 };
+          catNegAgg[catId].total += 1;
+          if (numVal <= 2) catNegAgg[catId].neg += 1;
+
+          const moodLevel = entryByEmpDate.get(`${r.employee_id}_${dateStr}`) ?? 'okay';
+          if (!catMoodAgg[catId]) catMoodAgg[catId] = {};
+          if (!catMoodAgg[catId][moodLevel]) catMoodAgg[catId][moodLevel] = { count: 0, totalScore: 0 };
+          catMoodAgg[catId][moodLevel].count += 1;
+          catMoodAgg[catId][moodLevel].totalScore += numVal;
+        });
+
+        categoryScores.forEach(cat => {
+          const dailyData = catDailyAgg[cat.id] ?? {};
+          categoryTrends.set(cat.id, allDays.map(day => {
+            const ds = format(day, 'yyyy-MM-dd');
+            const d = dailyData[ds];
+            return { date: ds, avgScore: d ? Math.round((d.total / d.count) * 10) / 10 : 0, count: d?.count ?? 0 };
+          }));
+          const neg = catNegAgg[cat.id];
+          catNegMap.set(cat.id, { negativeCount: neg?.neg ?? 0, totalCount: neg?.total ?? 0 });
+
+          // Mood by category stacked data
+          const moodDayAgg: Record<string, Record<string, number>> = {};
+          catRespWithEmp.forEach(r => {
+            const q = q2Map.get(r.question_id);
+            if (!q || q.category_id !== cat.id) return;
+            const ds = r.responded_at?.slice(0, 10) ?? '';
+            if (!ds) return;
+            const ml = entryByEmpDate.get(`${r.employee_id}_${ds}`) ?? 'okay';
+            if (!moodDayAgg[ds]) moodDayAgg[ds] = {};
+            moodDayAgg[ds][ml] = (moodDayAgg[ds][ml] ?? 0) + 1;
+          });
+          moodByCategoryData.set(cat.id, allDays.map(day => {
+            const ds = format(day, 'yyyy-MM-dd');
+            const d = moodDayAgg[ds] ?? {};
+            return { date: ds, label: format(day, 'dd/MM'), great: d.great ?? 0, good: d.good ?? 0, okay: d.okay ?? 0, struggling: d.struggling ?? 0, need_help: d.need_help ?? 0 };
+          }));
+        });
+
+        Object.entries(catMoodAgg).forEach(([catId, moods]) => {
+          const cat = categoryScores.find(c => c.id === catId);
+          Object.entries(moods).forEach(([moodLevel, agg]) => {
+            categoryMoodMatrix.push({ categoryId: catId, categoryName: cat?.name ?? 'Unknown', categoryNameAr: cat?.nameAr ?? null, moodLevel, count: agg.count, avgScore: Math.round((agg.totalScore / agg.count) * 10) / 10 });
+          });
+        });
+      }
+
+      const categoryRiskScores = computeCategoryRiskScores(categoryScores, categoryScores.map(c => categoryTrends.get(c.id) ?? []), catNegMap);
+      const compositeHealthScore = computeHealthScore(avgMoodScore, participationRate, riskPercentage);
+      const earlyWarnings = detectEarlyWarnings(categoryRiskScores, categoryTrends, participationRate, riskTrend);
+
+      // Period comparison
+      let periodComparison: PeriodComparison | null = null;
+      const rangeDays = Math.round((rangeEnd.getTime() - rangeStart.getTime()) / 86400000);
+      const prevStart = subDays(rangeStart, rangeDays + 1);
+      const prevEnd = subDays(rangeStart, 1);
+      let prevMoodQ = supabase.from('mood_entries').select('mood_score, mood_level, entry_date, employee_id')
+        .gte('entry_date', format(prevStart, 'yyyy-MM-dd')).lte('entry_date', format(prevEnd, 'yyyy-MM-dd')).limit(10000);
+      if (filteredIds) prevMoodQ = prevMoodQ.in('employee_id', filteredIds);
+      const { data: prevEntries } = await prevMoodQ;
+      if (prevEntries && prevEntries.length > 0) {
+        const prevAvg = prevEntries.reduce((s, e) => s + e.mood_score, 0) / prevEntries.length;
+        const prevUnique = new Set(prevEntries.map(e => e.employee_id)).size;
+        const prevPart = totalActive > 0 ? Math.round((prevUnique / totalActive) * 100) : 0;
+        const prevRisk = Math.round((prevEntries.filter(e => e.mood_score <= 2).length / prevEntries.length) * 100);
+        periodComparison = computePeriodComparison(
+          { avgMood: avgMoodScore, participation: participationRate, risk: riskPercentage },
+          { avgMood: Math.round(prevAvg * 10) / 10, participation: prevPart, risk: prevRisk },
+        );
+      }
+
       return {
         activeEmployees: totalActive, avgMoodScore, participationRate, surveyResponseRate,
         riskPercentage, avgStreak, moodTrend, moodDistribution, categoryScores,
         subcategoryScores, affectiveDistribution, dayOfWeekActivity,
         riskTrend, orgComparison, topEngagers,
+        categoryRiskScores, categoryTrends, categoryMoodMatrix,
+        earlyWarnings, periodComparison, compositeHealthScore, moodByCategoryData,
       };
     },
     enabled: !!user?.id,
@@ -609,5 +744,7 @@ function emptyResult(): OrgAnalyticsData {
     riskPercentage: 0, avgStreak: 0, moodTrend: [], moodDistribution: [],
     categoryScores: [], subcategoryScores: [], affectiveDistribution: [], dayOfWeekActivity: [],
     riskTrend: [], orgComparison: { branches: [], divisions: [], departments: [], sections: [] }, topEngagers: [],
+    categoryRiskScores: [], categoryTrends: new Map(), categoryMoodMatrix: [],
+    earlyWarnings: [], periodComparison: null, compositeHealthScore: 0, moodByCategoryData: new Map(),
   };
 }
