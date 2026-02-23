@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.generate-spiritual-insights]
 verify_jwt = false
+
+[functions.generate-wellness-insights]
+verify_jwt = false
