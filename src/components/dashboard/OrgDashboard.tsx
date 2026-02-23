@@ -20,6 +20,10 @@ import { SubcategoryRiskBubble } from './SubcategoryRiskBubble';
 import { MoodByCategoryTrend } from './MoodByCategoryTrend';
 import { EarlyWarningPanel } from './EarlyWarningPanel';
 import { AIInsightsCard } from './AIInsightsCard';
+import { CheckinMoodOverTime } from './CheckinMoodOverTime';
+import { SupportActionsChart } from './SupportActionsChart';
+import { StreakDistribution } from './StreakDistribution';
+import { CheckinByOrgUnit } from './CheckinByOrgUnit';
 import { Users, Heart, TrendingUp, AlertTriangle, Flame, ClipboardCheck } from 'lucide-react';
 import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -171,26 +175,40 @@ export function OrgDashboard() {
 
         {/* ── Deep Analysis Tab ── */}
         <TabsContent value="deep" className="space-y-4">
-          <CategoryTrendCards
-            risks={stats?.categoryRiskScores ?? []}
-            trends={stats?.categoryTrends ?? new Map()}
-            isLoading={isLoading}
-          />
+          <Tabs defaultValue="checkin" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="checkin">{t('orgDashboard.checkinAnalysis')}</TabsTrigger>
+              <TabsTrigger value="survey">{t('orgDashboard.surveyAnalysis')}</TabsTrigger>
+            </TabsList>
 
-          <CategoryMoodMatrix data={stats?.categoryMoodMatrix ?? []} isLoading={isLoading} />
+            <TabsContent value="checkin" className="space-y-4">
+              <CheckinMoodOverTime data={stats?.checkinMoodOverTime ?? []} isLoading={isLoading} />
+              <div className="grid gap-4 md:grid-cols-2">
+                <SupportActionsChart data={stats?.supportActionCounts ?? []} isLoading={isLoading} />
+                <StreakDistribution data={stats?.streakDistribution ?? []} isLoading={isLoading} />
+              </div>
+              <CheckinByOrgUnit data={stats?.checkinByOrgUnit ?? []} orgAvgScore={stats?.avgMoodScore ?? 0} isLoading={isLoading} />
+            </TabsContent>
 
-          <SubcategoryRiskBubble
-            data={(stats?.subcategoryScores ?? []).map(s => ({ ...s, declineRate: 0 }))}
-            isLoading={isLoading}
-          />
-
-          <MoodByCategoryTrend
-            categories={stats?.categoryScores ?? []}
-            moodByCategoryData={stats?.moodByCategoryData ?? new Map()}
-            isLoading={isLoading}
-          />
-
-          <SubcategoryChart data={stats?.subcategoryScores ?? []} isLoading={isLoading} />
+            <TabsContent value="survey" className="space-y-4">
+              <CategoryTrendCards
+                risks={stats?.categoryRiskScores ?? []}
+                trends={stats?.categoryTrends ?? new Map()}
+                isLoading={isLoading}
+              />
+              <CategoryMoodMatrix data={stats?.categoryMoodMatrix ?? []} isLoading={isLoading} />
+              <SubcategoryRiskBubble
+                data={(stats?.subcategoryScores ?? []).map(s => ({ ...s, declineRate: 0 }))}
+                isLoading={isLoading}
+              />
+              <MoodByCategoryTrend
+                categories={stats?.categoryScores ?? []}
+                moodByCategoryData={stats?.moodByCategoryData ?? new Map()}
+                isLoading={isLoading}
+              />
+              <SubcategoryChart data={stats?.subcategoryScores ?? []} isLoading={isLoading} />
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         {/* ── Alerts & Insights Tab ── */}

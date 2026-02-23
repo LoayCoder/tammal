@@ -82,6 +82,34 @@ export interface TopEngager {
   totalPoints: number;
 }
 
+export interface CheckinMoodOverTimePoint {
+  date: string;
+  label: string;
+  great: number;
+  good: number;
+  okay: number;
+  struggling: number;
+  need_help: number;
+}
+
+export interface SupportActionCount {
+  action: string;
+  count: number;
+}
+
+export interface StreakBucket {
+  bucket: string;
+  count: number;
+}
+
+export interface CheckinByOrgUnitItem {
+  id: string;
+  name: string;
+  nameAr?: string | null;
+  avgScore: number;
+  entryCount: number;
+}
+
 export interface OrgAnalyticsData {
   activeEmployees: number;
   avgMoodScore: number;
@@ -106,6 +134,11 @@ export interface OrgAnalyticsData {
   periodComparison: PeriodComparison | null;
   compositeHealthScore: number;
   moodByCategoryData: Map<string, { date: string; label: string; great: number; good: number; okay: number; struggling: number; need_help: number }[]>;
+  // Check-in deep analysis fields
+  checkinMoodOverTime: CheckinMoodOverTimePoint[];
+  supportActionCounts: SupportActionCount[];
+  streakDistribution: StreakBucket[];
+  checkinByOrgUnit: CheckinByOrgUnitItem[];
 }
 
 function hasOrgFilter(f?: OrgFilter): boolean {
@@ -219,17 +252,17 @@ export function useOrgAnalytics(
       const { count: activeEmployees } = await empQuery;
       const totalActive = activeEmployees ?? 0;
 
-      // 2. Mood entries (with explicit limit to avoid 1000 default)
-      let moodEntries: { mood_score: number; mood_level: string; entry_date: string; employee_id: string }[] = [];
+      // 2. Mood entries (with explicit limit to avoid 1000 default) — include support_actions & streak_count
+      let moodEntries: { mood_score: number; mood_level: string; entry_date: string; employee_id: string; support_actions: any; streak_count: number; created_at: string }[] = [];
       if (filteredIds && filteredIds.length > 500) {
-        moodEntries = await batchedQuery<{ mood_score: number; mood_level: string; entry_date: string; employee_id: string }>(
-          () => supabase.from('mood_entries').select('mood_score, mood_level, entry_date, employee_id').gte('entry_date', startDate).lte('entry_date', endDate).limit(10000),
+        moodEntries = await batchedQuery<{ mood_score: number; mood_level: string; entry_date: string; employee_id: string; support_actions: any; streak_count: number; created_at: string }>(
+          () => supabase.from('mood_entries').select('mood_score, mood_level, entry_date, employee_id, support_actions, streak_count, created_at').gte('entry_date', startDate).lte('entry_date', endDate).limit(10000),
           'employee_id', filteredIds,
         );
       } else {
         let moodQuery = supabase
           .from('mood_entries')
-          .select('mood_score, mood_level, entry_date, employee_id')
+          .select('mood_score, mood_level, entry_date, employee_id, support_actions, streak_count, created_at')
           .gte('entry_date', startDate)
           .lte('entry_date', endDate)
           .limit(10000);
@@ -587,6 +620,67 @@ export function useOrgAnalytics(
         );
       }
 
+      // ── Check-in Deep Analysis ──
+      // A) Mood over time (stacked by mood level per day)
+      const checkinMoodOverTime: CheckinMoodOverTimePoint[] = allDays.map(day => {
+        const ds = format(day, 'yyyy-MM-dd');
+        const dayEntries = entries.filter(e => e.entry_date === ds);
+        return {
+          date: ds,
+          label: format(day, 'dd/MM'),
+          great: dayEntries.filter(e => e.mood_level === 'great').length,
+          good: dayEntries.filter(e => e.mood_level === 'good').length,
+          okay: dayEntries.filter(e => e.mood_level === 'okay').length,
+          struggling: dayEntries.filter(e => e.mood_level === 'struggling').length,
+          need_help: dayEntries.filter(e => e.mood_level === 'need_help').length,
+        };
+      });
+
+      // B) Support actions aggregation
+      const supportMap: Record<string, number> = {};
+      entries.forEach(e => {
+        if (Array.isArray(e.support_actions)) {
+          (e.support_actions as string[]).forEach(a => {
+            supportMap[a] = (supportMap[a] ?? 0) + 1;
+          });
+        }
+      });
+      const supportActionCounts: SupportActionCount[] = Object.entries(supportMap)
+        .map(([action, count]) => ({ action, count }))
+        .sort((a, b) => b.count - a.count);
+
+      // C) Streak distribution
+      const streakValues = Object.values(employeeEntryMap).map(dates => {
+        const sorted = [...new Set(dates)].sort();
+        let maxStreak = 1, currentStr = 1;
+        for (let i = 1; i < sorted.length; i++) {
+          const diff = (new Date(sorted[i]).getTime() - new Date(sorted[i - 1]).getTime()) / 86400000;
+          if (diff === 1) { currentStr++; maxStreak = Math.max(maxStreak, currentStr); }
+          else { currentStr = 1; }
+        }
+        return maxStreak;
+      });
+      const buckets = [
+        { bucket: '1', min: 0, max: 1 },
+        { bucket: '2-3', min: 2, max: 3 },
+        { bucket: '4-7', min: 4, max: 7 },
+        { bucket: '8-14', min: 8, max: 14 },
+        { bucket: '15+', min: 15, max: Infinity },
+      ];
+      const streakDistribution: StreakBucket[] = buckets.map(b => ({
+        bucket: b.bucket,
+        count: streakValues.filter(v => v >= b.min && v <= b.max).length,
+      }));
+
+      // D) Check-in by org unit — reuse orgComparison employees
+      const checkinByOrgUnit: CheckinByOrgUnitItem[] = orgComparison.departments.map(d => ({
+        id: d.id,
+        name: d.name,
+        nameAr: d.nameAr,
+        avgScore: d.avgScore,
+        entryCount: d.employeeCount,
+      })).filter(d => d.avgScore > 0).sort((a, b) => a.avgScore - b.avgScore);
+
       return {
         activeEmployees: totalActive, avgMoodScore, participationRate, surveyResponseRate,
         riskPercentage, avgStreak, moodTrend, moodDistribution, categoryScores,
@@ -594,6 +688,7 @@ export function useOrgAnalytics(
         riskTrend, orgComparison, topEngagers,
         categoryRiskScores, categoryTrends, categoryMoodMatrix,
         earlyWarnings, periodComparison, compositeHealthScore, moodByCategoryData,
+        checkinMoodOverTime, supportActionCounts, streakDistribution, checkinByOrgUnit,
       };
     },
     enabled: !!user?.id,
@@ -761,5 +856,6 @@ function emptyResult(): OrgAnalyticsData {
     riskTrend: [], orgComparison: { branches: [], divisions: [], departments: [], sections: [] }, topEngagers: [],
     categoryRiskScores: [], categoryTrends: new Map(), categoryMoodMatrix: [],
     earlyWarnings: [], periodComparison: null, compositeHealthScore: 0, moodByCategoryData: new Map(),
+    checkinMoodOverTime: [], supportActionCounts: [], streakDistribution: [], checkinByOrgUnit: [],
   };
 }

@@ -531,6 +531,30 @@
       "high": "High",
       "medium": "Medium",
       "low": "Low"
+    },
+    "surveyAnalysis": "Survey Analysis",
+    "checkinAnalysis": "Check-in Analysis",
+    "checkinMoodOverTime": "Mood Distribution Over Time",
+    "supportActions": "Support Actions Requested",
+    "streakDistribution": "Streak & Engagement Depth",
+    "checkinByOrgUnit": "Mood Score by Department",
+    "employees": "Employees",
+    "supportAction": {
+      "talk_to_someone": "Talk to Someone",
+      "resources": "Resources",
+      "time_off": "Time Off",
+      "professional_help": "Professional Help",
+      "peer_support": "Peer Support",
+      "manager_support": "Manager Support",
+      "wellness_activities": "Wellness Activities",
+      "nothing": "No Action Needed"
+    },
+    "streakBucket": {
+      "1": "1 day",
+      "2-3": "2-3 days",
+      "4-7": "4-7 days",
+      "8-14": "8-14 days",
+      "15+": "15+ days"
     }
   },
   "install": {

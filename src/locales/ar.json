@@ -531,6 +531,30 @@
       "high": "مرتفع",
       "medium": "متوسط",
       "low": "منخفض"
+    },
+    "surveyAnalysis": "تحليل الاستبيانات",
+    "checkinAnalysis": "تحليل التسجيل اليومي",
+    "checkinMoodOverTime": "توزيع المزاج عبر الزمن",
+    "supportActions": "إجراءات الدعم المطلوبة",
+    "streakDistribution": "عمق التتابع والتفاعل",
+    "checkinByOrgUnit": "درجة المزاج حسب الإدارة",
+    "employees": "الموظفون",
+    "supportAction": {
+      "talk_to_someone": "التحدث مع شخص",
+      "resources": "موارد",
+      "time_off": "إجازة",
+      "professional_help": "مساعدة متخصصة",
+      "peer_support": "دعم الأقران",
+      "manager_support": "دعم المدير",
+      "wellness_activities": "أنشطة الرفاهية",
+      "nothing": "لا حاجة لإجراء"
+    },
+    "streakBucket": {
+      "1": "يوم واحد",
+      "2-3": "٢-٣ أيام",
+      "4-7": "٤-٧ أيام",
+      "8-14": "٨-١٤ يوم",
+      "15+": "١٥+ يوم"
     }
   },
   "install": {
