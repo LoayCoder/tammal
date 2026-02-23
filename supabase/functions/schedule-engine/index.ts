@@ -28,7 +28,8 @@ serve(async (req) => {
       .from("question_schedules")
       .select("*")
       .eq("status", "active")
-      .is("deleted_at", null);
+      .is("deleted_at", null)
+      .eq("schedule_type", "survey"); // Only process survey schedules; daily check-ins use the mood pathway
 
     if (scheduleId) {
       schedulesQuery = schedulesQuery.eq("id", scheduleId);

@@ -18,7 +18,31 @@ serve(async (req) => {
 
     const now = new Date().toISOString();
 
-    // Find pending questions that are due for delivery
+    // First, fetch survey-only schedule IDs to scope delivery
+    const { data: surveySchedules, error: schedError } = await supabase
+      .from("question_schedules")
+      .select("id")
+      .eq("schedule_type", "survey")
+      .eq("status", "active")
+      .is("deleted_at", null);
+
+    if (schedError) {
+      console.error("Error fetching survey schedules:", schedError);
+      throw schedError;
+    }
+
+    const surveyScheduleIds = (surveySchedules ?? []).map(s => s.id);
+
+    if (!surveyScheduleIds.length) {
+      return new Response(JSON.stringify({ 
+        message: "No active survey schedules found", 
+        delivered: 0 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Find pending questions that are due for delivery — scoped to survey schedules only
     const { data: pendingQuestions, error: fetchError } = await supabase
       .from("scheduled_questions")
       .select(`
@@ -31,6 +55,7 @@ serve(async (req) => {
       `)
       .eq("status", "pending")
       .lte("scheduled_delivery", now)
+      .in("schedule_id", surveyScheduleIds)
       .limit(100);
 
     if (fetchError) {
@@ -40,14 +65,14 @@ serve(async (req) => {
 
     if (!pendingQuestions?.length) {
       return new Response(JSON.stringify({ 
-        message: "No questions due for delivery", 
+        message: "No survey questions due for delivery", 
         delivered: 0 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log(`Found ${pendingQuestions.length} questions to deliver`);
+    console.log(`Found ${pendingQuestions.length} survey questions to deliver`);
 
     // Update status to delivered
     const questionIds = pendingQuestions.map(q => q.id);
@@ -65,9 +90,6 @@ serve(async (req) => {
       throw updateError;
     }
 
-    // Here you could send notifications (email, push, etc.)
-    // For now, we just mark them as delivered and they'll appear in the employee portal
-    
     // Group by employee for notification purposes
     const employeeNotifications = pendingQuestions.reduce((acc, q) => {
       const empId = q.employee_id;
@@ -81,13 +103,13 @@ serve(async (req) => {
       return acc;
     }, {} as Record<string, { employee: any; questions: string[] }>);
 
-    console.log(`Delivered questions to ${Object.keys(employeeNotifications).length} employees`);
+    console.log(`Delivered survey questions to ${Object.keys(employeeNotifications).length} employees`);
 
     return new Response(JSON.stringify({ 
       success: true,
       delivered: pendingQuestions.length,
       employees: Object.keys(employeeNotifications).length,
-      message: `Delivered ${pendingQuestions.length} questions to ${Object.keys(employeeNotifications).length} employees`
+      message: `Delivered ${pendingQuestions.length} survey questions to ${Object.keys(employeeNotifications).length} employees`
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
