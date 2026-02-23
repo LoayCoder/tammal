@@ -318,15 +318,30 @@ export function useOrgAnalytics(
         };
       });
 
-      // 9. Survey response rate
-      let schedQuery = supabase
-        .from('scheduled_questions')
-        .select('id', { count: 'exact', head: true })
-        .gte('scheduled_delivery', `${startDate}T00:00:00`)
-        .lte('scheduled_delivery', `${endDate}T23:59:59`);
-      if (filteredIds) schedQuery = schedQuery.in('employee_id', filteredIds);
-      const { count: totalScheduled } = await schedQuery;
+      // 9. Survey response rate — scoped to survey-type schedules only
+      // First fetch survey schedule IDs to filter scheduled_questions
+      const { data: surveySchedules } = await supabase
+        .from('question_schedules')
+        .select('id')
+        .eq('schedule_type', 'survey')
+        .eq('status', 'active')
+        .is('deleted_at', null);
+      const surveyScheduleIds = (surveySchedules ?? []).map(s => s.id);
 
+      let totalScheduled = 0;
+      if (surveyScheduleIds.length > 0) {
+        let schedQuery = supabase
+          .from('scheduled_questions')
+          .select('id', { count: 'exact', head: true })
+          .in('schedule_id', surveyScheduleIds)
+          .gte('scheduled_delivery', `${startDate}T00:00:00`)
+          .lte('scheduled_delivery', `${endDate}T23:59:59`);
+        if (filteredIds) schedQuery = schedQuery.in('employee_id', filteredIds);
+        const { count } = await schedQuery;
+        totalScheduled = count ?? 0;
+      }
+
+      // employee_responses is survey-only (daily check-in responses go to mood_entries)
       let answeredQuery = supabase
         .from('employee_responses')
         .select('id', { count: 'exact', head: true })
@@ -335,8 +350,8 @@ export function useOrgAnalytics(
       if (filteredIds) answeredQuery = answeredQuery.in('employee_id', filteredIds);
       const { count: answeredCount } = await answeredQuery;
 
-      const surveyResponseRate = (totalScheduled ?? 0) > 0
-        ? Math.round(((answeredCount ?? 0) / (totalScheduled ?? 1)) * 100)
+      const surveyResponseRate = totalScheduled > 0
+        ? Math.round(((answeredCount ?? 0) / totalScheduled) * 100)
         : 0;
 
       // 10. Category / subcategory / affective scores
