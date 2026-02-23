@@ -83,7 +83,7 @@ export default function ScheduleManagement() {
   const { schedules, isLoading, createSchedule, updateSchedule, toggleStatus, deleteSchedule } = useQuestionSchedules(tenantId);
   const { batches } = useQuestionBatches(tenantId || null);
   const { periods } = useGenerationPeriods(tenantId || null);
-  const { configs: moodConfigs, upsertConfig } = useMoodQuestionConfig(tenantId || null);
+  const { configs: moodConfigs, batchUpsertConfigs } = useMoodQuestionConfig(tenantId || null);
   const { activeMoods } = useMoodDefinitions(tenantId || null);
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -284,12 +284,12 @@ export default function ScheduleManagement() {
 
     const saveMoodConfigs = () => {
       if (scheduleType !== 'daily_checkin' || !tenantId) return;
-      for (const mood of activeMoods) {
+      const configList = activeMoods.map(mood => {
         const override = moodOverrides[mood.key];
         const isOverridden = override?.enabled === true;
         const maxQ = isOverridden ? Math.min(override.value, questionsPerDelivery) : questionsPerDelivery;
         const existingCfg = moodConfigs.find(c => c.mood_level === mood.key);
-        upsertConfig.mutate({
+        return {
           tenant_id: tenantId,
           mood_level: mood.key,
           is_enabled: existingCfg?.is_enabled ?? true,
@@ -297,8 +297,9 @@ export default function ScheduleManagement() {
           custom_prompt_context: existingCfg?.custom_prompt_context ?? null,
           max_questions: maxQ,
           is_custom_override: isOverridden,
-        });
-      }
+        };
+      });
+      batchUpsertConfigs.mutate(configList);
     };
 
     if (editingSchedule) {

@@ -36,7 +36,7 @@ export function useMoodQuestionConfig(tenantId: string | null) {
       if (!tenantId) return [];
 
       const { data, error } = await supabase
-        .from('mood_question_configs' as any)
+        .from('mood_question_configs')
         .select('*')
         .eq('tenant_id', tenantId)
         .order('mood_level');
@@ -64,7 +64,7 @@ export function useMoodQuestionConfig(tenantId: string | null) {
   const upsertConfig = useMutation({
     mutationFn: async (config: MoodQuestionConfig) => {
       const { error } = await supabase
-        .from('mood_question_configs' as any)
+        .from('mood_question_configs')
         .upsert(
           {
             tenant_id: config.tenant_id,
@@ -88,5 +88,29 @@ export function useMoodQuestionConfig(tenantId: string | null) {
     },
   });
 
-  return { configs: configs || [], isLoading, upsertConfig };
+  const batchUpsertConfigs = useMutation({
+    mutationFn: async (configList: MoodQuestionConfig[]) => {
+      const rows = configList.map(config => ({
+        tenant_id: config.tenant_id,
+        mood_level: config.mood_level,
+        is_enabled: config.is_enabled,
+        enable_free_text: config.enable_free_text,
+        custom_prompt_context: config.custom_prompt_context,
+        max_questions: config.max_questions,
+        is_custom_override: config.is_custom_override,
+      }));
+      const { error } = await supabase
+        .from('mood_question_configs')
+        .upsert(rows, { onConflict: 'tenant_id,mood_level' });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mood-question-configs', tenantId] });
+    },
+    onError: () => {
+      toast({ title: t('moodPathway.settingsFailed'), variant: 'destructive' });
+    },
+  });
+
+  return { configs: configs || [], isLoading, upsertConfig, batchUpsertConfigs };
 }
