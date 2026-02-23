@@ -512,7 +512,25 @@
     "aiInsightsError": "Unable to generate insights. Please try again.",
     "recommendations": "Recommendations",
     "predictedRisks": "Predicted Risks",
-    "positiveHighlights": "Positive Highlights"
+    "positiveHighlights": "Positive Highlights",
+    "categoryRiskRanking": "Category Risk Ranking",
+    "statusCritical": "Critical",
+    "statusWatch": "Watch",
+    "statusStable": "Stable",
+    "statusImproving": "Improving",
+    "subcategoryRiskMatrix": "Subcategory Risk Matrix",
+    "bubbleHint": "Bubble size represents decline rate. Lower score + higher volume = higher risk.",
+    "executiveSummary": "Executive Summary",
+    "periodChange": "Period-over-Period Change",
+    "warningDeclining": "Declining Trend",
+    "warningSpike": "Spike Detected",
+    "warningLowEngagement": "Low Engagement",
+    "warningRecurring": "Recurring Risk",
+    "severity": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    }
   },
   "install": {
     "title": "Install App",
