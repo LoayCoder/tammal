@@ -12,7 +12,7 @@ export function useMoodPathwayQuestions(
   maxQuestions = 2,
 ) {
   return useQuery({
-    queryKey: ['mood-pathway-questions', moodLevel, tenantId],
+    queryKey: ['mood-pathway-questions', moodLevel, tenantId, maxQuestions],
     queryFn: async (): Promise<Question[]> => {
       if (!moodLevel || !tenantId) return [];
 
@@ -57,7 +57,7 @@ export function useMoodPathwayQuestions(
       const shuffled = [...data].sort(() => Math.random() - 0.5);
       return shuffled.slice(0, maxQuestions) as Question[];
     },
-    enabled: !!moodLevel && !!tenantId,
+    enabled: !!moodLevel && !!tenantId && maxQuestions > 0,
     staleTime: 0, // Always re-fetch so rotation works
   });
 }
