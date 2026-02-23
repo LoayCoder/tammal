@@ -657,6 +657,9 @@ export default function ScheduleManagement() {
                 onValueChange={(val) => {
                   setScheduleType(val as 'daily_checkin' | 'survey');
                   setSelectedBatchIds([]);
+                  setLinkedPeriodId(null);
+                  setStartDate('');
+                  setEndDate('');
                 }}
                 className="flex gap-4"
               >
@@ -699,7 +702,7 @@ export default function ScheduleManagement() {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">{t('common.none')}</SelectItem>
-                  {periods.filter(p => p.status === 'active').map(p => (
+                  {periods.filter(p => p.status === 'active' && p.purpose === (scheduleType === 'daily_checkin' ? 'wellness' : 'survey')).map(p => (
                     <SelectItem key={p.id} value={p.id}>
                       {p.start_date} → {p.end_date}
                     </SelectItem>
