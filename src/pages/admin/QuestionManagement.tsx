@@ -182,6 +182,40 @@ export default function QuestionManagement() {
               <CardDescription>{t('batches.libraryDescription')}</CardDescription>
             </div>
           </div>
+          {batches.length > 0 && (
+            <div className="flex items-center gap-2 flex-wrap pt-2">
+              {(() => {
+                const counts = batches.reduce((acc, b) => {
+                  acc[b.status] = (acc[b.status] || 0) + 1;
+                  return acc;
+                }, {} as Record<string, number>);
+                return (
+                  <>
+                    {counts.published && (
+                      <Badge variant="outline" className="bg-green-500/10 text-green-700 dark:text-green-400 text-xs">
+                        {t('batches.statusPublished')}: {counts.published}
+                      </Badge>
+                    )}
+                    {counts.draft && (
+                      <Badge variant="outline" className="bg-muted text-muted-foreground text-xs">
+                        {t('batches.statusDraft')}: {counts.draft}
+                      </Badge>
+                    )}
+                    {counts.inactive && (
+                      <Badge variant="outline" className="bg-orange-500/10 text-orange-700 dark:text-orange-400 text-xs">
+                        {t('batches.statusInactive')}: {counts.inactive}
+                      </Badge>
+                    )}
+                    {counts.validated && (
+                      <Badge variant="outline" className="bg-green-500/10 text-green-700 dark:text-green-400 text-xs">
+                        {t('batches.statusValidated')}: {counts.validated}
+                      </Badge>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="relative max-w-sm">
