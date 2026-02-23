@@ -99,7 +99,7 @@ export default function ScheduleManagement() {
   const [preferredTime, setPreferredTime] = useState('09:00');
   const [questionsPerDelivery, setQuestionsPerDelivery] = useState(1);
   const [weekendDays, setWeekendDays] = useState<number[]>([5, 6]);
-  const [enableAI, setEnableAI] = useState(false);
+  
   const [selectedBatchIds, setSelectedBatchIds] = useState<string[]>([]);
   const [audienceType, setAudienceType] = useState<'all' | 'departments' | 'specific'>('all');
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
@@ -185,7 +185,7 @@ export default function ScheduleManagement() {
     setPreferredTime('09:00');
     setQuestionsPerDelivery(1);
     setWeekendDays([5, 6]);
-    setEnableAI(false);
+    
     setSelectedBatchIds([]);
     setEditingSchedule(null);
     setAudienceType('all');
@@ -206,7 +206,7 @@ export default function ScheduleManagement() {
     setPreferredTime(schedule.preferred_time || '09:00');
     setQuestionsPerDelivery(schedule.questions_per_delivery || 1);
     setWeekendDays((schedule as any).weekend_days || (schedule.avoid_weekends ? [5, 6] : []));
-    setEnableAI(schedule.enable_ai_generation);
+    
     setSelectedBatchIds(schedule.batch_ids || []);
     const ta = schedule.target_audience;
     if (ta?.departments && ta.departments.length > 0) {
@@ -253,7 +253,7 @@ export default function ScheduleManagement() {
       description: description || undefined,
       preferred_time: preferredTime,
       questions_per_delivery: questionsPerDelivery,
-      enable_ai_generation: enableAI,
+      enable_ai_generation: false,
       batch_ids: selectedBatchIds,
       target_audience,
       schedule_type: scheduleType,
@@ -1032,10 +1032,8 @@ export default function ScheduleManagement() {
               </div>
             </div>
             )}
-            <div className="flex items-center justify-between">
-              <Label>{t('schedules.enableAI')}</Label>
-              <Switch checked={enableAI} onCheckedChange={setEnableAI} />
-            </div>
+
+
           </div>
           </ScrollArea>
           <DialogFooter>
