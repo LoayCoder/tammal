@@ -1382,7 +1382,12 @@
     "startDate": "تاريخ البداية",
     "endDate": "تاريخ النهاية",
     "dateRangeRequired": "تاريخ البداية والنهاية مطلوبان للاستبيانات",
-    "type": "النوع"
+    "type": "النوع",
+    "questionsPerMood": "أسئلة لكل حالة مزاجية",
+    "customized": "مخصص",
+    "customizedBadge": "مخصص",
+    "defaultBadge": "افتراضي",
+    "moodInheritHint": "تَرِث الحالات المزاجية قيمة الأسئلة لكل توصيل ما لم يتم تجاوزها."
   },
   "aiGenerator": {
     "title": "مولد الأسئلة بالذكاء الاصطناعي",

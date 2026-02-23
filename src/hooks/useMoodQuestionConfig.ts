@@ -11,6 +11,7 @@ export interface MoodQuestionConfig {
   enable_free_text: boolean;
   custom_prompt_context: string | null;
   max_questions: number;
+  is_custom_override: boolean;
 }
 
 const MOOD_LEVELS = ['great', 'good', 'okay', 'struggling', 'need_help'];
@@ -21,6 +22,7 @@ const DEFAULT_CONFIGS: Omit<MoodQuestionConfig, 'tenant_id'>[] = MOOD_LEVELS.map
   enable_free_text: level === 'great' || level === 'need_help',
   custom_prompt_context: null,
   max_questions: 2,
+  is_custom_override: false,
 }));
 
 export function useMoodQuestionConfig(tenantId: string | null) {
@@ -52,6 +54,7 @@ export function useMoodQuestionConfig(tenantId: string | null) {
           enable_free_text: level === 'great' || level === 'need_help',
           custom_prompt_context: null,
           max_questions: 2,
+          is_custom_override: false,
         } as MoodQuestionConfig;
       });
     },
@@ -70,6 +73,7 @@ export function useMoodQuestionConfig(tenantId: string | null) {
             enable_free_text: config.enable_free_text,
             custom_prompt_context: config.custom_prompt_context,
             max_questions: config.max_questions,
+            is_custom_override: config.is_custom_override,
           },
           { onConflict: 'tenant_id,mood_level' }
         );

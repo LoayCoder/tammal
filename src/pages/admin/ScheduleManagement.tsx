@@ -18,12 +18,14 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
-import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Package, Building2, UserCheck, Search, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Package, Building2, UserCheck, Search, Check, X, ChevronDown, ChevronUp, Settings2 } from 'lucide-react';
 import SchedulePreviewDialog from '@/components/schedules/SchedulePreviewDialog';
 import { useQuestionSchedules, QuestionSchedule } from '@/hooks/useQuestionSchedules';
 import { useQuestionBatches } from '@/hooks/useQuestionBatches';
 import { useProfile } from '@/hooks/useProfile';
 import { useGenerationPeriods } from '@/hooks/useGenerationPeriods';
+import { useMoodQuestionConfig } from '@/hooks/useMoodQuestionConfig';
+import { useMoodDefinitions } from '@/hooks/useMoodDefinitions';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { CalendarClock } from 'lucide-react';
@@ -81,6 +83,8 @@ export default function ScheduleManagement() {
   const { schedules, isLoading, createSchedule, updateSchedule, toggleStatus, deleteSchedule } = useQuestionSchedules(tenantId);
   const { batches } = useQuestionBatches(tenantId || null);
   const { periods } = useGenerationPeriods(tenantId || null);
+  const { configs: moodConfigs, upsertConfig } = useMoodQuestionConfig(tenantId || null);
+  const { activeMoods } = useMoodDefinitions(tenantId || null);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<QuestionSchedule | null>(null);
@@ -109,6 +113,8 @@ export default function ScheduleManagement() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [linkedPeriodId, setLinkedPeriodId] = useState<string | null>(null);
+  const [moodOverrides, setMoodOverrides] = useState<Record<string, { enabled: boolean; value: number }>>({});
+  const [moodConfigOpen, setMoodConfigOpen] = useState(false);
 
   // Resolve linked period
   const linkedPeriod = linkedPeriodId ? periods.find(p => p.id === linkedPeriodId) : null;
@@ -196,6 +202,8 @@ export default function ScheduleManagement() {
     setStartDate('');
     setEndDate('');
     setLinkedPeriodId(null);
+    setMoodOverrides({});
+    setMoodConfigOpen(false);
   };
 
   const openEditDialog = (schedule: QuestionSchedule) => {
@@ -227,6 +235,15 @@ export default function ScheduleManagement() {
     setStartDate(schedule.start_date || '');
     setEndDate(schedule.end_date || '');
     setLinkedPeriodId(schedule.generation_period_id || null);
+    // Load mood overrides from existing configs
+    const overrides: Record<string, { enabled: boolean; value: number }> = {};
+    for (const cfg of moodConfigs) {
+      if ((cfg as any).is_custom_override) {
+        overrides[cfg.mood_level] = { enabled: true, value: cfg.max_questions };
+      }
+    }
+    setMoodOverrides(overrides);
+    setMoodConfigOpen(Object.keys(overrides).length > 0);
     setDialogOpen(true);
   };
 
@@ -265,15 +282,34 @@ export default function ScheduleManagement() {
       generation_period_id: linkedPeriodId || undefined,
     };
 
+    const saveMoodConfigs = () => {
+      if (scheduleType !== 'daily_checkin' || !tenantId) return;
+      for (const mood of activeMoods) {
+        const override = moodOverrides[mood.key];
+        const isOverridden = override?.enabled === true;
+        const maxQ = isOverridden ? Math.min(override.value, questionsPerDelivery) : questionsPerDelivery;
+        const existingCfg = moodConfigs.find(c => c.mood_level === mood.key);
+        upsertConfig.mutate({
+          tenant_id: tenantId,
+          mood_level: mood.key,
+          is_enabled: existingCfg?.is_enabled ?? true,
+          enable_free_text: existingCfg?.enable_free_text ?? (mood.key === 'great' || mood.key === 'need_help'),
+          custom_prompt_context: existingCfg?.custom_prompt_context ?? null,
+          max_questions: maxQ,
+          is_custom_override: isOverridden,
+        });
+      }
+    };
+
     if (editingSchedule) {
       updateSchedule.mutate(
         { id: editingSchedule.id, ...commonFields },
-        { onSuccess: () => { setDialogOpen(false); resetForm(); } }
+        { onSuccess: () => { saveMoodConfigs(); setDialogOpen(false); resetForm(); } }
       );
     } else {
       createSchedule.mutate(
         { tenant_id: tenantId, ...commonFields, status: 'active' },
-        { onSuccess: () => { setDialogOpen(false); resetForm(); } }
+        { onSuccess: () => { saveMoodConfigs(); setDialogOpen(false); resetForm(); } }
       );
     }
   };
@@ -775,7 +811,20 @@ export default function ScheduleManagement() {
                     variant="outline"
                     size="icon"
                     className="h-10 w-10"
-                    onClick={() => setQuestionsPerDelivery(prev => Math.max(1, prev - 1))}
+                    onClick={() => {
+                      const newVal = Math.max(1, questionsPerDelivery - 1);
+                      setQuestionsPerDelivery(newVal);
+                      // Clamp overrides
+                      setMoodOverrides(prev => {
+                        const updated = { ...prev };
+                        for (const key of Object.keys(updated)) {
+                          if (updated[key].enabled && updated[key].value > newVal) {
+                            updated[key] = { ...updated[key], value: newVal };
+                          }
+                        }
+                        return updated;
+                      });
+                    }}
                     disabled={questionsPerDelivery <= 1}
                   >
                     <ChevronDown className="h-4 w-4" />
@@ -796,6 +845,98 @@ export default function ScheduleManagement() {
                 </div>
               </div>
             </div>
+            {/* Questions Per Mood Configuration - only for daily_checkin */}
+            {scheduleType === 'daily_checkin' && activeMoods.length > 0 && (
+              <Collapsible open={moodConfigOpen} onOpenChange={setMoodConfigOpen}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="outline" type="button" className="w-full justify-between">
+                    <span className="flex items-center gap-2">
+                      <Settings2 className="h-4 w-4" />
+                      {t('schedules.questionsPerMood', 'Questions Per Mood')}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {Object.values(moodOverrides).some(o => o.enabled) && (
+                        <Badge variant="default" className="text-xs">
+                          {Object.values(moodOverrides).filter(o => o.enabled).length} {t('schedules.customized', 'customized')}
+                        </Badge>
+                      )}
+                      {moodConfigOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </div>
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="border rounded-md p-3 mt-2 space-y-3">
+                    <p className="text-xs text-muted-foreground">
+                      {t('schedules.moodInheritHint', 'Moods inherit the global Questions Per Delivery value unless overridden.')}
+                    </p>
+                    {activeMoods.map(mood => {
+                      const override = moodOverrides[mood.key];
+                      const isOverridden = override?.enabled === true;
+                      const displayValue = isOverridden ? Math.min(override.value, questionsPerDelivery) : questionsPerDelivery;
+                      return (
+                        <div key={mood.key} className="flex items-center justify-between gap-2 py-1.5 border-b last:border-b-0">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-lg">{mood.emoji}</span>
+                            <span className="text-sm font-medium truncate">{mood.label_en}</span>
+                            <Badge variant={isOverridden ? 'default' : 'secondary'} className="text-xs shrink-0">
+                              {isOverridden ? t('schedules.customizedBadge', 'Customized') : t('schedules.defaultBadge', 'Default')}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Switch
+                              checked={isOverridden}
+                              onCheckedChange={(checked) => {
+                                setMoodOverrides(prev => ({
+                                  ...prev,
+                                  [mood.key]: { enabled: checked, value: prev[mood.key]?.value || questionsPerDelivery },
+                                }));
+                              }}
+                            />
+                            {isOverridden ? (
+                              <div className="flex items-center gap-1">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => {
+                                    setMoodOverrides(prev => ({
+                                      ...prev,
+                                      [mood.key]: { ...prev[mood.key], value: Math.max(1, (prev[mood.key]?.value || 1) - 1) },
+                                    }));
+                                  }}
+                                  disabled={displayValue <= 1}
+                                >
+                                  <ChevronDown className="h-3 w-3" />
+                                </Button>
+                                <span className="w-6 text-center text-sm font-semibold tabular-nums">{displayValue}</span>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => {
+                                    setMoodOverrides(prev => ({
+                                      ...prev,
+                                      [mood.key]: { ...prev[mood.key], value: Math.min(questionsPerDelivery, (prev[mood.key]?.value || 1) + 1) },
+                                    }));
+                                  }}
+                                  disabled={displayValue >= questionsPerDelivery}
+                                >
+                                  <ChevronUp className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <span className="w-[76px] text-center text-sm text-muted-foreground tabular-nums">{displayValue}</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
             {/* Question Batches Multi-Select */}
             <div className="space-y-2">
               <Label>{t('schedules.questionBatches')}</Label>
