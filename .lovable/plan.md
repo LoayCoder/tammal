@@ -1,32 +1,21 @@
 
+# Remove "Enable AI Generation" Toggle from Schedule Management
 
-# Fix: Filter Generation Period Dropdown by Schedule Type
-
-## Problem
-When creating or editing a Schedule, the Generation Period dropdown shows ALL active periods regardless of their purpose. This means a "Daily Check-in" schedule can be linked to a "Survey" period and vice versa, which causes data integrity issues -- questions from the wrong purpose get linked to the schedule.
-
-## Solution
-Filter the Generation Period dropdown options by matching the period's `purpose` field to the selected `scheduleType`:
-- `scheduleType === 'daily_checkin'` should only show periods where `purpose === 'wellness'`
-- `scheduleType === 'survey'` should only show periods where `purpose === 'survey'`
+## What Changes
+Remove the non-functional "Enable AI Generation" toggle from the schedule creation/editing form to avoid user confusion, since the backend does not act on this flag.
 
 ## Technical Details
 
 ### File: `src/pages/admin/ScheduleManagement.tsx`
 
-**Line 702** -- Change the filter from:
-```text
-periods.filter(p => p.status === 'active')
-```
-To:
-```text
-periods.filter(p => p.status === 'active' && p.purpose === (scheduleType === 'daily_checkin' ? 'wellness' : 'survey'))
-```
+1. **Remove the UI toggle** (lines 1035-1038): Delete the `div` containing the "Enable AI Generation" label and switch.
 
-Additionally, when the user changes `scheduleType` (the radio toggle on lines 660-675), the currently selected `linkedPeriodId` should be cleared if it no longer matches the new type. This prevents stale links.
+2. **Remove state variable** (line 102): Remove `const [enableAI, setEnableAI] = useState(false);`
 
-**In the `scheduleType` radio group's `onValueChange` handler** -- add logic to reset `linkedPeriodId` when switching types:
-- Clear `linkedPeriodId` to `null`
-- Clear `startDate` and `endDate` if they were auto-populated from a period
+3. **Remove state reset** (line 188): Remove `setEnableAI(false);` from the reset function.
 
-This is a small, targeted change -- two modifications in one file.
+4. **Remove state load** (line 209): Remove `setEnableAI(schedule.enable_ai_generation);` from the edit handler.
+
+5. **Hardcode the value in save** (line 256): Change `enable_ai_generation: enableAI` to `enable_ai_generation: false` so the database column stays consistent.
+
+No database changes needed -- the column remains for future use when the feature is implemented.
