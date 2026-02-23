@@ -1,29 +1,29 @@
 
-# Fix: Mood Follow-up Questions Shown When No Active Schedules Exist
+
+# Fix: Auto-Deactivate Wellness Questions When Generation Period Expires
 
 ## Problem
-After deleting all Question Batches and Schedules, the Daily Check-in still shows Mood Follow-up Questions. This happens because `useMoodPathwayQuestions` fetches questions directly from the `questions` table based on `mood_levels` tags -- it has no awareness of whether any active schedules or batches exist.
-
-## Root Cause
-The `useMoodPathwayQuestions` hook (line 19-33) queries:
-```text
-questions WHERE deleted_at IS NULL AND is_active = true AND mood_levels @> '["great"]'
-```
-This returns questions purely based on their mood tags, ignoring whether the tenant has any active Daily Check-in schedules. Currently, 5 questions in the database have `mood_levels` set and are active, so they always appear.
+When a Generation Period expires, the cascade in `useGenerationPeriods.ts` updates the `question_generation_batches` status to `inactive`, but it does NOT update the child `wellness_questions` within those batches. This means the individual questions remain in `published` status and can still be served during Daily Check-in.
 
 ## Solution
-Add a validation check in the `useMoodPathwayQuestions` hook: before returning mood pathway questions, verify that at least one active `daily_checkin` schedule exists for the tenant. If none exists, return an empty array.
+Enhance the `expirePeriod` mutation in `src/hooks/useGenerationPeriods.ts` to also deactivate all `wellness_questions` linked to the batches under the expiring period.
 
 ## Technical Details
 
-### File: `src/hooks/useMoodPathwayQuestions.ts`
-- Before querying for questions, first check if there is at least one active daily_checkin schedule for the tenant:
-  - Query `question_schedules` where `schedule_type = 'daily_checkin'`, `status = 'active'`, `deleted_at IS NULL`, and `tenant_id` matches
-  - Also validate `end_date`: if set, it must be >= today (not expired)
-- If no active schedule is found, return an empty array immediately (no follow-up questions shown)
-- If at least one valid schedule exists, proceed with the existing mood-tagged question fetch
+### File: `src/hooks/useGenerationPeriods.ts`
 
-This approach ensures:
-- No follow-up questions appear when all schedules are deleted
-- No follow-up questions appear when all schedules are expired
-- Follow-up questions only appear when the tenant has a valid, active daily check-in schedule
+In the `expirePeriod` mutation (around lines 92-117), after deactivating `question_generation_batches`, add a step to:
+
+1. Fetch all batch IDs from `question_generation_batches` that belong to this period
+2. Update all `wellness_questions` where `batch_id` is in that list, setting `status = 'inactive'`
+
+The updated cascade order will be:
+1. Set `generation_periods.status = 'expired'`
+2. Set `question_sets.status = 'inactive'` (survey batches)
+3. Set `question_generation_batches.status = 'inactive'` (wellness batches)
+4. **NEW**: Fetch batch IDs from `question_generation_batches` for this period, then set `wellness_questions.status = 'inactive'` for all matching `batch_id`s
+5. **NEW**: Set `generated_questions.validation_status = 'inactive'` for all questions linked to this period via `generation_period_id`
+6. Set `question_schedules.status = 'paused'`
+
+This ensures complete cascading deactivation from period down to individual questions.
+
