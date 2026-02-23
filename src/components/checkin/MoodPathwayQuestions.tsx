@@ -292,14 +292,6 @@ export function MoodPathwayQuestions({
 
         return (
           <div key={q.id} className="rounded-xl border bg-card p-3 sm:p-4 space-y-3">
-            {categoryName && (
-              <div className="flex justify-center">
-                <Badge variant="secondary" className="text-[10px] px-2 py-0.5">
-                  {categoryName}
-                </Badge>
-              </div>
-            )}
-
             <p className="font-medium text-sm text-center" dir="auto">
               {questionText}
             </p>
