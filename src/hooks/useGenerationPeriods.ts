@@ -109,6 +109,26 @@ export function useGenerationPeriods(tenantId: string | null) {
         .update({ status: 'inactive' } as any)
         .eq('generation_period_id', periodId);
 
+      // Cascade: deactivate wellness_questions linked to batches under this period
+      const { data: batches } = await supabase
+        .from('question_generation_batches')
+        .select('id')
+        .eq('generation_period_id', periodId);
+
+      if (batches && batches.length > 0) {
+        const batchIds = batches.map((b: any) => b.id);
+        await supabase
+          .from('wellness_questions')
+          .update({ status: 'inactive' })
+          .in('batch_id', batchIds);
+      }
+
+      // Cascade: deactivate generated_questions linked to this period
+      await supabase
+        .from('generated_questions')
+        .update({ validation_status: 'inactive' } as any)
+        .eq('generation_period_id', periodId);
+
       // Cascade: pause linked question_schedules
       await supabase
         .from('question_schedules')
