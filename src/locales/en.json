@@ -1382,7 +1382,12 @@
     "startDate": "Start Date",
     "endDate": "End Date",
     "dateRangeRequired": "Start and end dates are required for surveys",
-    "type": "Type"
+    "type": "Type",
+    "questionsPerMood": "Questions Per Mood",
+    "customized": "customized",
+    "customizedBadge": "Customized",
+    "defaultBadge": "Default",
+    "moodInheritHint": "Moods inherit the global Questions Per Delivery value unless overridden."
   },
   "aiGenerator": {
     "title": "AI Question Generator",

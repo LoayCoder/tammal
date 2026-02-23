@@ -1550,6 +1550,7 @@ export type Database = {
           custom_prompt_context: string | null
           enable_free_text: boolean
           id: string
+          is_custom_override: boolean
           is_enabled: boolean
           max_questions: number
           mood_level: string
@@ -1561,6 +1562,7 @@ export type Database = {
           custom_prompt_context?: string | null
           enable_free_text?: boolean
           id?: string
+          is_custom_override?: boolean
           is_enabled?: boolean
           max_questions?: number
           mood_level: string
@@ -1572,6 +1574,7 @@ export type Database = {
           custom_prompt_context?: string | null
           enable_free_text?: boolean
           id?: string
+          is_custom_override?: boolean
           is_enabled?: boolean
           max_questions?: number
           mood_level?: string
