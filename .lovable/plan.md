@@ -1,219 +1,153 @@
 
 
-# Enhanced Organization Wellness Analytics Dashboard
+# Audit: Survey vs Daily Check-in Workflow Separation
 
-## Overview
+## Audit Summary
 
-Transform the existing Organization Wellness module from a basic metrics display into a strategic intelligence platform with advanced analytics, AI-powered insights, cross-dimensional analysis, and executive decision-support tools.
-
-## Current State
-
-The dashboard currently has:
-- 6 KPI cards (Active Employees, Wellness Score, Participation, Survey Response, Risk, Streak)
-- Engagement Trend (dual-axis: mood avg + response volume)
-- Risk Trend with threshold line
-- Category Health (horizontal bars)
-- Subcategory Deep Dive (horizontal bars)
-- Affective State Distribution (donut chart)
-- Org Comparison (Branch/Division/Department/Section tabs)
-- Top Engagers leaderboard
-- Response Heatmap (day-of-week)
-- Filtering by org unit + time range
-
-## What Will Be Added
-
-### Section 1: Executive Summary Panel (New Component)
-
-A collapsible top section with:
-- **Overall Health Score**: Weighted composite of mood, participation, and risk (0-100 scale with color-coded gauge)
-- **Period-over-Period Comparison**: Delta arrows showing improvement/decline vs previous period
-- **Top 3 Critical Alerts**: Auto-generated from risk scoring algorithm (e.g., "Burnout Indicators in Engineering declining 15% over 2 weeks")
-- **AI-Powered Recommendations**: 3-5 actionable items generated via Lovable AI (using gemini-2.5-flash) based on current data patterns
-
-### Section 2: Category x Mood Cross-Analysis (New Component)
-
-A **heatmap matrix** showing:
-- Rows = Categories (e.g., Burnout Indicators, Job Satisfaction)
-- Columns = Mood levels (Great, Good, Okay, Struggling, Need Help)
-- Cell values = Response count or avg score, color-coded by intensity
-- Click a cell to drill down into subcategory details for that Category+Mood intersection
-
-### Section 3: Category Trend Analysis (New Component)
-
-- **Sparkline cards per category**: Each category gets a mini trend line showing score trajectory over the selected period
-- **Risk Score per Category**: Computed as weighted combination of (avg score inversion + decline rate + volume of negative responses)
-- **Priority ranking**: Categories sorted by risk score, with badges: "Critical", "Watch", "Stable", "Improving"
-
-### Section 4: Subcategory Risk Matrix (New Component)
-
-- **Bubble chart**: X-axis = avg score, Y-axis = response volume, bubble size = decline rate
-- Subcategories in the "high volume + low score + declining" quadrant are flagged
-- Color-coded by parent category
-
-### Section 5: Mood Trend by Category (Enhanced)
-
-- **Stacked area chart**: Shows mood distribution breakdown over time per selected category
-- Dropdown selector to pick a category and see how mood composition changes daily/weekly
-
-### Section 6: Early Warning Indicators (New Component)
-
-Algorithm-driven alerts that detect:
-- **Consecutive decline**: 3+ consecutive days of declining avg score in any category
-- **Spike detection**: Sudden increase in "Struggling" or "Need Help" entries (>2x standard deviation)
-- **Participation drop**: Department participation falling below 30%
-- **Pattern recurrence**: Same category flagged as critical in 2+ consecutive periods
-
-Each alert shows: severity badge, affected area, trend mini-chart, and suggested action.
-
-### Section 7: AI Strategic Insights (New Edge Function + Component)
-
-A dedicated card that calls an edge function `generate-wellness-insights` which:
-- Takes the aggregated analytics data as input
-- Uses Lovable AI (gemini-2.5-flash) to generate:
-  - Natural language executive summary
-  - Priority-ranked intervention recommendations
-  - Predicted risk areas for next period
-  - Suggested team-level actions
-- Results are cached per tenant per day to avoid repeated API calls
-
-### Section 8: Enhanced Existing Charts
-
-- **Category Health**: Add trend arrows (up/down) comparing to previous period
-- **Org Comparison**: Add a "highlight below average" toggle that visually flags underperforming units
-- **Response Heatmap**: Expand to full week x hour grid (7 days x time-of-day buckets)
+After a thorough review of all backend logic, frontend hooks, edge functions, and analytics, the system is **mostly well-separated** but has **5 concrete gaps** that need fixing.
 
 ---
 
-## Technical Implementation Plan
+## Current State: What Is Already Correct
 
-### Step 1: Extend the Analytics Hook (`useOrgAnalytics.ts`)
-
-Add new computed fields to `OrgAnalyticsData`:
-- `categoryTrends`: Per-category daily trend data (date, category_id, avgScore, count)
-- `categoryMoodMatrix`: Cross-tabulation of category x mood level (category_id, mood_level, count, avgScore)
-- `categoryRiskScores`: Risk score per category (id, name, riskScore, trend, status)
-- `subcategoryRiskMatrix`: Bubble data (id, name, avgScore, responseCount, declineRate, categoryColor)
-- `earlyWarnings`: Array of detected warning objects
-- `periodComparison`: Delta values comparing current period vs previous equivalent period
-- `compositeHealthScore`: Single 0-100 number
-
-The additional queries will:
-- Fetch mood_entries grouped by category (via question_id -> questions -> category_id) for mood pathway answers stored in `answer_value.pathway`
-- Compute previous-period equivalents for delta calculations
-- Run early warning detection algorithms client-side on the fetched data
-
-### Step 2: Create New Dashboard Components
-
-| Component | File | Purpose |
-|-----------|------|---------|
-| ExecutiveSummary | `src/components/dashboard/ExecutiveSummary.tsx` | Health score gauge, deltas, alerts, AI recommendations |
-| CategoryMoodMatrix | `src/components/dashboard/CategoryMoodMatrix.tsx` | Heatmap cross-analysis grid |
-| CategoryTrendCards | `src/components/dashboard/CategoryTrendCards.tsx` | Sparkline cards with risk ranking |
-| SubcategoryRiskBubble | `src/components/dashboard/SubcategoryRiskBubble.tsx` | Scatter/bubble chart |
-| MoodByCategoryTrend | `src/components/dashboard/MoodByCategoryTrend.tsx` | Stacked area with category selector |
-| EarlyWarningPanel | `src/components/dashboard/EarlyWarningPanel.tsx` | Alert cards with severity badges |
-| AIInsightsCard | `src/components/dashboard/AIInsightsCard.tsx` | AI-generated strategic text |
-
-### Step 3: Create Edge Function for AI Insights
-
-`supabase/functions/generate-wellness-insights/index.ts`:
-- Accepts aggregated stats JSON
-- Calls Lovable AI (gemini-2.5-flash) with a structured prompt
-- Returns executive summary, recommendations, and predictions
-- Includes CORS headers and auth validation
-
-### Step 4: Create AI Insights Cache Table
-
-New table `wellness_insight_cache`:
-- `id`, `tenant_id`, `insight_date` (date), `insight_data` (jsonb), `created_at`
-- RLS: tenant isolation + super admin access
-- One insight per tenant per day
-
-### Step 5: Update OrgDashboard Layout
-
-Reorganize `OrgDashboard.tsx` to add tabs for different analytical views:
-- **Overview** tab: KPIs + Executive Summary + Engagement Trend + Risk Trend (existing + new)
-- **Deep Analysis** tab: Category Trends + Category x Mood Matrix + Subcategory Risk Bubble
-- **Alerts & Insights** tab: Early Warning Panel + AI Strategic Insights
-- **Comparison** tab: Org Comparison + Mood Distribution + Top Engagers + Heatmap (existing)
-
-### Step 6: Localization
-
-Add all new translation keys to both `en.json` and `ar.json` under the `orgDashboard` namespace.
-
-### Step 7: Risk Scoring Algorithm
-
-Implemented client-side in a utility function:
-
-```text
-Risk Score = (5 - avgScore) * 20              // Inversion weight (0-80)
-           + declineRate * 10                  // Trend penalty (0-20)  
-           + (negativeRatio > 0.3 ? 10 : 0)   // High negative flag
-
-Status mapping:
-  >= 60: "Critical"
-  >= 40: "Watch"  
-  >= 20: "Stable"
-  < 20:  "Improving"
-```
-
-### Step 8: Early Warning Detection Algorithm
-
-```text
-For each category over the time window:
-  1. Compute 3-day moving average
-  2. If 3+ consecutive declining points -> "Declining Trend" warning
-  3. If today's negative count > mean + 2*stddev -> "Spike Detected" warning
-  4. If department participation < 30% -> "Low Engagement" warning
-  5. If category was "Critical" in previous period too -> "Recurring Risk" warning
-```
+| Area | Status | Details |
+|------|--------|---------|
+| Frontend: Daily Check-in UI | Clean | `InlineDailyCheckin.tsx` and `DailyCheckin.tsx` use only `mood_entries` -- no survey pipeline involvement |
+| Frontend: Survey UI | Clean | `EmployeeSurvey.tsx` uses `useScheduledQuestions` which filters `schedule_type = 'survey'` |
+| Hook: `useScheduledQuestions` | Clean | Explicitly filters `schedule_type = 'survey'` before fetching scheduled_questions |
+| Hook: `useCheckinScheduledQuestions` | Clean | Explicitly filters `schedule_type = 'daily_checkin'` (though no longer called from check-in UI) |
+| Hook: `useMoodPathwayQuestions` | Clean | Uses `daily_checkin` schedules as a gate only; pulls from `questions` bank by mood tag |
+| Question Batches | Clean | `useQuestionBatches` separates `survey` (question_sets/generated_questions) from `wellness` (question_generation_batches/wellness_questions) |
+| Response Storage | Clean | Daily Check-in saves to `mood_entries.answer_value`; Surveys save to `employee_responses` via `submit-response` edge function |
+| Schedule Management UI | Clean | Schedule type selector properly filters batches by purpose |
 
 ---
 
-## Data Flow
+## Gaps Found
 
-```text
-mood_entries (mood_level, mood_score, entry_date, employee_id)
-     |
-     +-- mood pathway answers in answer_value.pathway[].theme (links to question text)
-     |
-employee_responses (question_id, answer_value, employee_id)
-     |
-     +-- question_id -> questions (category_id, subcategory_id, mood_levels, affective_state)
-     |
-     +-- category_id -> question_categories (name, color)
-     |
-     +-- subcategory_id -> question_subcategories (name, color, category_id)
-     |
-     v
-useOrgAnalytics (computes all metrics client-side)
-     |
-     v
-OrgDashboard (tabbed layout with all visualization components)
-     |
-     +-- generate-wellness-insights edge function (AI analysis)
+### GAP 1: Schedule Engine Does NOT Filter by Schedule Type (CRITICAL)
+
+**File:** `supabase/functions/schedule-engine/index.ts`
+
+**Problem:** The schedule engine processes ALL active schedules without distinguishing between `daily_checkin` and `survey` types. It fetches `question_schedules` with only `status = 'active'` and `deleted_at IS NULL` -- no `schedule_type` filter. This means:
+- It creates `scheduled_questions` rows for daily check-in schedules
+- These rows are never consumed (the check-in UI uses mood pathway, not scheduled_questions)
+- This wastes database rows and could confuse analytics
+
+**Fix:** Add `.eq('schedule_type', 'survey')` filter to the schedule engine query, OR accept a `scheduleType` parameter. Since Daily Check-in no longer uses the scheduled_questions pipeline, the engine should only process survey schedules.
+
+---
+
+### GAP 2: Deliver-Questions Edge Function Has No Schedule Type Filter (MEDIUM)
+
+**File:** `supabase/functions/deliver-questions/index.ts`
+
+**Problem:** The `deliver-questions` function marks ALL pending `scheduled_questions` as "delivered" regardless of which schedule type created them. If GAP 1 creates daily_checkin rows, this function would deliver them too.
+
+**Fix:** Join `scheduled_questions` with `question_schedules` to only deliver rows belonging to `survey` schedules, or rely on GAP 1 fix to prevent daily_checkin rows from being created.
+
+---
+
+### GAP 3: Survey Response Rate in Analytics Counts ALL Scheduled Questions (MEDIUM)
+
+**File:** `src/hooks/useOrgAnalytics.ts` (lines 322-340)
+
+**Problem:** The "Survey Response Rate" KPI counts ALL rows from `scheduled_questions` and ALL rows from `employee_responses` without filtering by schedule type. If any daily_checkin scheduled_questions exist (from GAP 1), they inflate the denominator, making the survey response rate appear lower than it actually is.
+
+**Fix:** Join or pre-filter `scheduled_questions` to only count rows whose `schedule_id` belongs to a `survey` type schedule. Similarly, `employee_responses` should only count those linked to survey scheduled_questions.
+
+---
+
+### GAP 4: Analytics `employee_responses` Queries Include Both Workflows (LOW)
+
+**File:** `src/hooks/useOrgAnalytics.ts` (lines 292-307, 343-409, 472-477)
+
+**Problem:** The analytics dashboard queries `employee_responses` for trend data, category scores, and cross-analysis without distinguishing whether responses came from surveys or check-ins. Currently this works because daily check-in responses go to `mood_entries` (not `employee_responses`), but if the system ever changes, there is no guard. More importantly, the `responseCount` in the daily trend merges survey response volume with mood entry volume on the same chart without labeling the distinction.
+
+**Fix:** Add a comment/guard to clarify that `employee_responses` is survey-only. Optionally, label the trend chart axis to say "Survey Responses" rather than generic "Daily Responses".
+
+---
+
+### GAP 5: Employee Home Page Uses `useScheduledQuestions` Without Schedule Type Context (LOW)
+
+**File:** `src/pages/EmployeeHome.tsx` (line 55-58)
+
+**Problem:** The Employee Home page calls `useScheduledQuestions(employee?.id)` to show the "Pending Surveys" card. While `useScheduledQuestions` correctly filters to `survey` type, the hook name is generic and the import at EmployeeHome doesn't make the survey-only intent explicit. This is a code clarity issue, not a functional bug.
+
+**Fix:** No code change required -- just noting for documentation. The hook is correctly scoped.
+
+---
+
+## Fix Plan
+
+### Fix 1: Schedule Engine -- Filter to Survey Only
+
+In `supabase/functions/schedule-engine/index.ts`, add schedule type filter:
+
+```
+// Change line 30 from:
+.is("deleted_at", null);
+
+// To:
+.is("deleted_at", null)
+.eq("schedule_type", "survey");
 ```
 
-## Files to Create
-- `src/components/dashboard/ExecutiveSummary.tsx`
-- `src/components/dashboard/CategoryMoodMatrix.tsx`
-- `src/components/dashboard/CategoryTrendCards.tsx`
-- `src/components/dashboard/SubcategoryRiskBubble.tsx`
-- `src/components/dashboard/MoodByCategoryTrend.tsx`
-- `src/components/dashboard/EarlyWarningPanel.tsx`
-- `src/components/dashboard/AIInsightsCard.tsx`
-- `src/lib/wellnessAnalytics.ts` (risk scoring + early warning algorithms)
-- `src/hooks/useWellnessInsights.ts` (AI insights hook with caching)
-- `supabase/functions/generate-wellness-insights/index.ts`
+This ensures the schedule engine never creates `scheduled_questions` rows for daily check-in schedules, since check-ins use the mood pathway (questions bank filtered by mood_levels) instead.
+
+### Fix 2: Deliver-Questions -- Filter to Survey Only
+
+In `supabase/functions/deliver-questions/index.ts`, add a join filter to only deliver survey-type scheduled questions. Since direct join isn't straightforward, the preferred approach is:
+1. First fetch survey schedule IDs
+2. Then filter `scheduled_questions` to only those schedule IDs
+
+### Fix 3: Analytics Survey Response Rate -- Scope to Survey
+
+In `src/hooks/useOrgAnalytics.ts`, modify the "Survey Response Rate" calculation (around line 322) to:
+1. First fetch survey-type schedule IDs
+2. Filter `scheduled_questions` count to only those schedule IDs
+3. Filter `employee_responses` count to only those linked via `scheduled_question_id` to survey schedules
+
+### Fix 4: Analytics Labels Clarity
+
+In `src/hooks/useOrgAnalytics.ts` and `OrgDashboard.tsx`:
+- Rename `responseCount` in the trend data to `surveyResponseCount` for clarity
+- Update the chart tooltip label from generic "Daily Responses" to explicitly say "Survey Responses"
+
+### Fix 5: Cleanup Orphaned Daily Check-in Scheduled Questions (Optional)
+
+Run a one-time cleanup to soft-delete any `scheduled_questions` rows that were created by `daily_checkin` schedules (if any exist). This prevents them from affecting analytics.
+
+```sql
+UPDATE scheduled_questions
+SET status = 'expired'
+WHERE schedule_id IN (
+  SELECT id FROM question_schedules WHERE schedule_type = 'daily_checkin'
+)
+AND status IN ('pending', 'delivered');
+```
+
+---
 
 ## Files to Modify
-- `src/hooks/useOrgAnalytics.ts` (extend with new computed fields)
-- `src/components/dashboard/OrgDashboard.tsx` (tabbed layout, new components)
-- `src/components/dashboard/CategoryHealthChart.tsx` (add trend arrows)
-- `src/components/dashboard/OrgComparisonChart.tsx` (add below-average highlighting)
-- `src/locales/en.json` (new keys)
-- `src/locales/ar.json` (new keys)
 
-## Database Migration
-- Create `wellness_insight_cache` table with RLS policies for tenant isolation
+| File | Change |
+|------|--------|
+| `supabase/functions/schedule-engine/index.ts` | Add `.eq('schedule_type', 'survey')` filter |
+| `supabase/functions/deliver-questions/index.ts` | Add survey-only scope |
+| `src/hooks/useOrgAnalytics.ts` | Scope survey response rate and response counts to survey schedules; rename field for clarity |
+| `src/components/dashboard/OrgDashboard.tsx` | Update chart label to "Survey Responses" |
+
+## No Changes Needed
+
+| File | Reason |
+|------|--------|
+| `InlineDailyCheckin.tsx` | Already uses mood_entries only |
+| `DailyCheckin.tsx` | Already uses mood_entries only |
+| `MoodPathwayQuestions.tsx` | Correctly scoped to questions bank + daily_checkin gate |
+| `EmployeeSurvey.tsx` | Correctly uses survey-scoped hook |
+| `useScheduledQuestions.ts` | Already filters schedule_type = 'survey' |
+| `useCheckinScheduledQuestions.ts` | Already filters schedule_type = 'daily_checkin' (unused but correct) |
+| `submit-response` edge function | Only processes scheduled_questions (survey pipeline) |
+| `useQuestionBatches.ts` | Correctly separates survey vs wellness batches |
 
