@@ -51,10 +51,9 @@ export function MoodPathwayQuestions({
   const [freeTexts, setFreeTexts] = useState<Record<string, string>>({});
   const [isSkipped, setIsSkipped] = useState(false);
 
-  const { configs } = useMoodQuestionConfig(tenantId);
+  const { configs, isLoading: configsLoading } = useMoodQuestionConfig(tenantId);
   const config = configs.find(c => c.mood_level === moodLevel);
-  const maxQuestions = config?.max_questions ?? 2;
-
+  const maxQuestions = configsLoading ? 0 : (config?.max_questions ?? 2);
   const { data: questions = [], isLoading } = useMoodPathwayQuestions(moodLevel, tenantId, maxQuestions);
 
   const isEnabled = !config || config.is_enabled;
