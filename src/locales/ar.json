@@ -512,7 +512,25 @@
     "aiInsightsError": "تعذّر توليد الرؤى. يرجى المحاولة مرة أخرى.",
     "recommendations": "التوصيات",
     "predictedRisks": "المخاطر المتوقعة",
-    "positiveHighlights": "النقاط الإيجابية"
+    "positiveHighlights": "النقاط الإيجابية",
+    "categoryRiskRanking": "ترتيب مخاطر التصنيفات",
+    "statusCritical": "حرج",
+    "statusWatch": "مراقبة",
+    "statusStable": "مستقر",
+    "statusImproving": "تحسّن",
+    "subcategoryRiskMatrix": "مصفوفة مخاطر التصنيفات الفرعية",
+    "bubbleHint": "حجم الفقاعة يمثل معدل الانخفاض. درجة أقل + حجم أعلى = خطر أعلى.",
+    "executiveSummary": "الملخص التنفيذي",
+    "periodChange": "التغيّر بين الفترات",
+    "warningDeclining": "اتجاه هابط",
+    "warningSpike": "ارتفاع مفاجئ",
+    "warningLowEngagement": "مشاركة منخفضة",
+    "warningRecurring": "خطر متكرر",
+    "severity": {
+      "high": "مرتفع",
+      "medium": "متوسط",
+      "low": "منخفض"
+    }
   },
   "install": {
     "title": "تثبيت التطبيق",
