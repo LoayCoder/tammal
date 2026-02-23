@@ -1,103 +1,195 @@
 
 
-# Deep Analysis for Daily Check-in Entries
+# Three-Layer Intelligence Comparison Engine
 
-## Problem
-The "Deep Analysis" tab currently only shows survey-based analytics (from `employee_responses` + `questions`). Since there are 0 survey responses but 2+ check-in entries in `mood_entries`, the entire tab appears empty. Daily check-in data needs its own deep analysis visualizations.
+## Overview
 
-## Solution
-Add a **Check-in Analysis** sub-tab within the Deep Analysis tab, using data already available in `mood_entries` (mood_level, mood_score, support_actions, streak_count, entry_date, employee_id).
+Transform the existing Comparison tab from a simple org-unit bar chart into a three-layer intelligence dashboard: Check-In Pulse Analytics, Survey Structural Analytics, and a Synthesis Engine that computes divergence between the two.
 
-## New Visualizations
+All computation happens client-side from existing data already fetched by `useOrgAnalytics`. No new database tables or edge functions are needed for Phase 1 -- the synthesis engine is a pure TypeScript utility that consumes processed analytics from the two separate pipelines. Workflow separation remains intact: no raw table joins between `mood_entries` and `employee_responses`.
 
-### 1. Mood Distribution Over Time (Stacked Area)
-- Daily stacked area chart showing count of each mood level (great/good/okay/struggling/need_help) over time
-- Shows emotional pulse of the organization day by day
-
-### 2. Support Actions Analysis (Horizontal Bar)
-- Aggregates `support_actions` JSONB array from mood_entries
-- Shows which support types employees request most (e.g., "talk_to_someone", "resources", "time_off")
-- Helps management understand what employees need
-
-### 3. Streak & Engagement Depth (Distribution Bar)
-- Histogram of streak lengths across employees
-- Shows how many employees have 1-day, 2-3 day, 4-7 day, 7+ day streaks
-- Measures engagement depth beyond simple participation rate
-
-### 4. Mood Score by Org Unit (Grouped Bar)
-- Average check-in mood score broken down by department/branch
-- Identifies which org units are struggling vs thriving based on daily mood data
-
-### 5. Check-in Completion Heatmap
-- Day-of-week x time-of-day heatmap for when check-ins happen
-- Already partially exists in the Comparison tab but will be scoped to check-in only
+---
 
 ## Architecture
 
-### Data Layer Changes (`src/hooks/useOrgAnalytics.ts`)
-- Add new fields to `OrgAnalyticsData` interface:
-  - `checkinMoodOverTime`: daily mood level counts for stacked chart
-  - `supportActionCounts`: aggregated support action frequencies
-  - `streakDistribution`: histogram of streak buckets
-  - `checkinByOrgUnit`: mood scores per department/branch from mood_entries
-- Compute these from the already-fetched `entries` array (no extra queries needed for most)
-- `support_actions` requires fetching the JSONB column (one additional select field)
+```text
+mood_entries (Check-In)          employee_responses (Survey)
+       |                                    |
+useOrgAnalytics hook             useOrgAnalytics hook
+(entries array)                  (catResponses, categoryScores)
+       |                                    |
+  checkinPulse()                   surveyStructural()
+       |                                    |
+       +----------> synthesisEngine() <-----+
+                         |
+              BAI Score, Divergence,
+              Risk Classification,
+              Alerts, Trend Overlay
+```
 
-### New Components
-- `src/components/dashboard/CheckinMoodOverTime.tsx` -- Stacked area chart
-- `src/components/dashboard/SupportActionsChart.tsx` -- Horizontal bar chart  
-- `src/components/dashboard/StreakDistribution.tsx` -- Histogram bar chart
-- `src/components/dashboard/CheckinByOrgUnit.tsx` -- Grouped bar comparing departments
+No raw data crosses between pipelines. The synthesis engine only receives pre-computed summary metrics.
 
-### Dashboard Layout (`src/components/dashboard/OrgDashboard.tsx`)
-- Split the Deep Analysis tab into two sub-tabs using nested Tabs:
-  - **Survey Analysis** -- existing survey-driven components (CategoryTrendCards, CategoryMoodMatrix, SubcategoryRiskBubble, MoodByCategoryTrend, SubcategoryChart)
-  - **Check-in Analysis** -- new check-in components (CheckinMoodOverTime, SupportActionsChart, StreakDistribution, CheckinByOrgUnit)
+---
 
-### Localization (`src/locales/en.json` and `src/locales/ar.json`)
-- Add keys under `orgDashboard`:
-  - `tabs.surveyAnalysis` / `tabs.checkinAnalysis`
-  - `checkinMoodOverTime`, `supportActions`, `streakDistribution`, `checkinByOrgUnit`
-  - Support action labels (e.g., `supportAction.talk_to_someone`, etc.)
-  - Streak bucket labels
+## What Gets Built
+
+### Layer 1: Check-In Pulse Card (KPI Card)
+Displays four metrics computed from `mood_entries`:
+- **Mood Volatility Index**: Standard deviation of daily average mood scores over the last 14 days
+- **Participation Stability**: Coefficient of variation of daily check-in counts (low = stable)
+- **Energy Trend**: Direction arrow comparing last 7 days avg mood vs previous 7 days
+- **Top Emotion Cluster**: Most frequent mood_level in the period
+
+### Layer 2: Survey Structural Card (KPI Card)
+Displays four metrics computed from `employee_responses` + `question_categories`:
+- **Category Health Score**: Weighted average across all category scores
+- **Lowest Performing Category**: Category with lowest avgScore
+- **Survey Participation Quality**: Response rate (already computed as `surveyResponseRate`)
+- **Risk Category Count**: Number of categories in "critical" or "watch" status
+
+### Layer 3: Synthesis Engine Card
+Computes cross-layer intelligence:
+- **Behavioral Alignment Index (BAI)**: `1 - abs(normalize(checkinAvg) - normalize(surveyAvg))` where both are normalized to 0-1 scale
+- **Divergence Level**: High Alignment (>0.75), Moderate (0.5-0.75), Significant (<0.5)
+- **Risk Classification Badge**: Color-coded (Green/Yellow/Orange/Red)
+- **Confidence Score**: Based on sample size and participation rates
+- **Recommended Action**: Text suggestion based on divergence pattern
+
+### Divergence Heatmap
+Department-level grid showing BAI scores per department with color coding:
+- Green: BAI > 0.75
+- Yellow: 0.5-0.75
+- Orange: 0.3-0.5
+- Red: < 0.3
+
+Privacy guard: departments with < 5 employees show "Insufficient Data"
+
+### Alerts Panel
+Pattern detection rules:
+1. High check-in volatility + low survey safety score = "Sentiment-Structure Misalignment"
+2. Dropping check-in participation + stable survey engagement = "Participation Fatigue"
+3. Good check-in mood + poor survey scores = "Surface Positivity Risk"
+
+Each alert shows: pattern name, description, confidence %, suggested intervention.
+
+### Trend Overlay Chart
+Dual-axis line chart overlaying:
+- Check-in daily mood average (left axis, 1-5)
+- Survey category average (right axis, 1-5)
+Both on the same time axis to visually spot divergence.
+
+---
+
+## Privacy Rules
+- No synthesis for groups < 5 employees
+- No individual-level divergence
+- All data is aggregated only
+- Alert triggers are logged to existing `audit_logs` table via the `useAuditLog` hook
+
+---
+
+## Files to Create
+
+| File | Purpose |
+|------|---------|
+| `src/lib/synthesisEngine.ts` | Pure functions: computeBAI, computeVolatility, detectDivergencePatterns, classifyRisk |
+| `src/components/dashboard/comparison/CheckinPulseCard.tsx` | Layer 1 KPI card |
+| `src/components/dashboard/comparison/SurveyStructuralCard.tsx` | Layer 2 KPI card |
+| `src/components/dashboard/comparison/SynthesisCard.tsx` | Layer 3 BAI + divergence display |
+| `src/components/dashboard/comparison/DivergenceHeatmap.tsx` | Department x Risk grid |
+| `src/components/dashboard/comparison/AlertsPanel.tsx` | Pattern detection alerts |
+| `src/components/dashboard/comparison/TrendOverlayChart.tsx` | Dual-axis check-in vs survey trend |
+
+## Files to Modify
+
+| File | Change |
+|------|---------|
+| `src/hooks/useOrgAnalytics.ts` | Add computed fields for pulse metrics (volatility, energy trend, top emotion), survey structural metrics, and per-department BAI data to the `OrgAnalyticsData` interface |
+| `src/components/dashboard/OrgDashboard.tsx` | Replace the Comparison tab content with the new three-layer layout |
+| `src/locales/en.json` | Add ~40 translation keys for all new components |
+| `src/locales/ar.json` | Add ~40 Arabic translation keys |
+
+---
 
 ## Technical Details
 
-### Data Computation (in useOrgAnalytics.ts)
+### Synthesis Engine (`src/lib/synthesisEngine.ts`)
 
-**Mood Over Time** -- computed from existing `entries` array:
 ```text
-Group entries by entry_date + mood_level -> daily counts per mood level
+Volatility Index:
+  dailyAvgs = entries grouped by date -> avg mood_score per day
+  volatility = stddev(last 14 dailyAvgs)
+  Flag if volatility > 1.0
+
+BAI Calculation:
+  checkinNorm = (avgMoodScore - 1) / 4   // normalize 1-5 to 0-1
+  surveyNorm = (weightedCatAvg - 1) / 4  // normalize 1-5 to 0-1
+  BAI = 1 - abs(checkinNorm - surveyNorm)
+
+Confidence Score:
+  factors = [
+    min(checkinParticipation / 60, 1) * 0.3,
+    min(surveyResponseRate / 60, 1) * 0.3,
+    min(totalEntries / 30, 1) * 0.2,
+    min(totalResponses / 20, 1) * 0.2,
+  ]
+  confidence = sum(factors) * 100
+
+Divergence Rules (require minimumSampleSize >= 5, participationRate >= 60%):
+  Rule 1: volatility > 1.0 AND lowestCatScore < 2.5
+    -> "Sentiment-Structure Misalignment"
+  Rule 2: participationDrop > 40% AND surveyResponseRate stable
+    -> "Participation Fatigue"
+  Rule 3: avgMoodScore > 3.5 AND weightedCatAvg < 2.5
+    -> "Surface Positivity Risk"
 ```
 
-**Support Actions** -- requires adding `support_actions` to the mood_entries select:
+### Data Flow in `useOrgAnalytics.ts`
+
+New fields added to `OrgAnalyticsData`:
 ```text
-Flatten all support_actions arrays -> count frequency of each action key
+checkinPulse: {
+  volatilityIndex: number
+  participationStability: number
+  energyTrend: 'up' | 'down' | 'stable'
+  topEmotionCluster: string
+}
+surveyStructural: {
+  categoryHealthScore: number
+  lowestCategory: { name: string, score: number } | null
+  participationQuality: number
+  riskCategoryCount: number
+}
+synthesisData: {
+  baiScore: number
+  divergenceLevel: 'high_alignment' | 'moderate' | 'significant'
+  riskClassification: 'green' | 'yellow' | 'orange' | 'red'
+  confidenceScore: number
+  recommendedAction: string
+  alerts: DivergenceAlert[]
+  departmentBAI: DepartmentBAIItem[]
+}
 ```
 
-**Streak Distribution** -- computed from existing streak calculation:
+All computed from existing `entries`, `categoryScores`, `categoryRiskScores`, `orgComparison`, `surveyResponseRate`, and `participationRate` -- no additional database queries.
+
+### Comparison Tab Layout
+
 ```text
-Bucket employee streaks into: 0, 1-2, 3-5, 6-10, 11+ -> count per bucket
+---------------------------------------------
+| Check-In Pulse   | Survey Structural       |
+| (4 KPIs)         | (4 KPIs)                |
+---------------------------------------------
+| Synthesis Summary (BAI, Divergence, Risk,  |
+| Confidence, Action)                         |
+---------------------------------------------
+| Divergence Heatmap (Dept x Risk Color)     |
+---------------------------------------------
+| Alerts Panel (Pattern + Intervention)      |
+---------------------------------------------
+| Trend Overlay (Check-In vs Survey lines)   |
+---------------------------------------------
 ```
 
-**Check-in by Org Unit** -- join entries with employees (already fetched in orgComparison):
-```text
-Group entries by employee department/branch -> avg mood_score per unit
-```
-
-### Files to Create
-| File | Purpose |
-|------|---------|
-| `src/components/dashboard/CheckinMoodOverTime.tsx` | Stacked area chart of mood levels over time |
-| `src/components/dashboard/SupportActionsChart.tsx` | Horizontal bar of support action frequencies |
-| `src/components/dashboard/StreakDistribution.tsx` | Histogram of streak lengths |
-| `src/components/dashboard/CheckinByOrgUnit.tsx` | Avg mood by department/branch bars |
-
-### Files to Modify
-| File | Change |
-|------|--------|
-| `src/hooks/useOrgAnalytics.ts` | Add support_actions to query, compute 4 new data fields |
-| `src/components/dashboard/OrgDashboard.tsx` | Split Deep Analysis into Survey/Check-in sub-tabs |
-| `src/locales/en.json` | Add ~15 new translation keys |
-| `src/locales/ar.json` | Add ~15 new Arabic translation keys |
+The existing `OrgComparisonChart`, `TopEngagersCard`, `ResponseHeatmap`, and mood distribution chart remain available and are moved into an "Org Breakdown" collapsible section below the new intelligence layer.
 
