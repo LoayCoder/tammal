@@ -6,7 +6,7 @@ export type AuditLog = Tables<'audit_logs'>;
 export type AuditLogInsert = TablesInsert<'audit_logs'>;
 
 export type AuditAction = 'create' | 'update' | 'delete' | 'module_toggle' | 'status_change' | 'permission_change';
-export type EntityType = 'tenant' | 'subscription' | 'user' | 'plan' | 'role' | 'permission' | 'user_role';
+export type EntityType = 'tenant' | 'subscription' | 'user' | 'plan' | 'role' | 'permission' | 'user_role' | 'strategic_objective' | 'initiative' | 'objective_action';
 
 interface LogEventParams {
   tenant_id?: string | null;

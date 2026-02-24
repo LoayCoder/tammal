@@ -7,7 +7,7 @@ import {
   User, Heart, Settings, Package, Brain, SmilePlus, RefreshCw, Wind,
   BookOpen, Music, CheckSquare, BookMarked, Phone, ClipboardCheck,
   ChevronRight, Shield, HeartHandshake, Inbox, Moon, BookOpenCheck, UtensilsCrossed, CalendarDays,
-  Activity
+  Activity, Target
 } from 'lucide-react';
 import {
   Sidebar,
@@ -164,6 +164,13 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         { title: t('crisisSupport.nav.crisisSupport'), url: "/crisis-support", icon: Phone, access: 'employee' },
         { title: t('crisisSupport.nav.mySupport'), url: "/my-support", icon: Inbox, access: 'employee' },
         { title: t('crisisSupport.nav.firstAider'), url: "/first-aider", icon: HeartHandshake, access: 'employee' },
+      ]
+    },
+    {
+      label: t('nav.workloadIntelligence'),
+      access: 'admin',
+      items: [
+        { title: t('nav.objectives'), url: "/admin/workload/objectives", icon: Target },
       ]
     },
     {
