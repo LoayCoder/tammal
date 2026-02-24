@@ -543,7 +543,7 @@ export function ConfigPanel({
           </div>
 
           {/* Question Count — auto-calc when period selected */}
-          {selectedPeriod ? (
+          {selectedPeriod && purpose === 'wellness' ? (
             <div className="space-y-3">
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
