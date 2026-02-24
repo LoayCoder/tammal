@@ -28,7 +28,7 @@ export function PrayerCard({ prayerName, prayerTime, log, onLog, isPending }: Pr
   const prayerNameKey = prayerName.toLowerCase();
 
   return (
-    <Card className={`transition-all duration-300 ${borderClass}`}>
+    <Card className={`glass-card border-0 rounded-xl transition-all duration-300 ${borderClass}`}>
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>
