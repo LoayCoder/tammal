@@ -86,7 +86,7 @@ export function DivergenceHeatmap({ branchData, divisionData, departmentData, se
   ];
 
   return (
-    <Card>
+    <Card className="glass-card border-0">
       <CardHeader className="pb-3">
         <CardTitle className="text-base">{t('synthesis.heatmapTitle')}</CardTitle>
         <p className="text-xs text-muted-foreground">{t('synthesis.heatmapDesc')}</p>

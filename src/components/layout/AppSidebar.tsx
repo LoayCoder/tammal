@@ -222,7 +222,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
 
   return (
     <Sidebar variant="sidebar" collapsible="icon" side={isRTL ? "right" : "left"}>
-      <SidebarHeader className="border-b border-sidebar-border p-4">
+      <SidebarHeader className="border-b border-sidebar-border/30 p-4">
         {isCollapsed ? (
           <ThemeIcon
             iconLightUrl={branding.icon_light_url}
@@ -277,7 +277,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                               to={item.url}
                               end={item.url === '/'}
                               className="flex items-center gap-2"
-                              activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                              activeClassName="glass-active text-sidebar-primary"
                               onClick={handleNavClick}
                             >
                               <item.icon className="h-4 w-4" />
@@ -298,7 +298,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                                 <NavLink
                                   to={item.url}
                                   className="flex items-center gap-2"
-                                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                                  activeClassName="glass-active text-sidebar-primary"
                                   onClick={handleNavClick}
                                 >
                                   <item.icon className="h-4 w-4" />
@@ -319,7 +319,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                             <SidebarMenuItem>
                               <CollapsibleTrigger asChild>
                                 <SidebarMenuButton
-                                  className={isSectionActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""}
+                                  className={isSectionActive ? "glass-active text-sidebar-primary" : ""}
                                   tooltip={section.label}
                                 >
                                   <span className="flex-1 text-start text-xs font-medium">{section.label}</span>
@@ -334,7 +334,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                                         <NavLink
                                           to={item.url}
                                           className="flex items-center gap-2"
-                                          activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                                          activeClassName="glass-active text-sidebar-primary font-medium"
                                           onClick={handleNavClick}
                                         >
                                           <item.icon className="h-3.5 w-3.5 shrink-0" />
@@ -371,7 +371,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                           <NavLink
                             to="/spiritual/prayer"
                             className="flex items-center gap-2"
-                            activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                            activeClassName="glass-active text-sidebar-primary"
                             onClick={handleNavClick}
                           >
                             <Moon className="h-4 w-4" />
@@ -386,7 +386,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                           <NavLink
                             to="/spiritual/quran"
                             className="flex items-center gap-2"
-                            activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                            activeClassName="glass-active text-sidebar-primary"
                             onClick={handleNavClick}
                           >
                             <BookOpenCheck className="h-4 w-4" />
@@ -401,7 +401,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                           <NavLink
                             to="/spiritual/fasting"
                             className="flex items-center gap-2"
-                            activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                            activeClassName="glass-active text-sidebar-primary"
                             onClick={handleNavClick}
                           >
                             <UtensilsCrossed className="h-4 w-4" />
@@ -415,7 +415,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                         <NavLink
                           to="/spiritual/calendar"
                           className="flex items-center gap-2"
-                          activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                          activeClassName="glass-active text-sidebar-primary"
                           onClick={handleNavClick}
                         >
                           <CalendarDays className="h-4 w-4" />
@@ -428,7 +428,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                         <NavLink
                           to="/spiritual/insights"
                           className="flex items-center gap-2"
-                          activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                          activeClassName="glass-active text-sidebar-primary"
                           onClick={handleNavClick}
                         >
                           <Sparkles className="h-4 w-4" />

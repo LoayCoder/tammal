@@ -61,7 +61,7 @@ export function ExecutiveSummary({ healthScore, periodComparison, warnings, isLo
   }
 
   return (
-    <Card className="border-primary/20">
+    <Card className="glass-card border-0 ring-1 ring-primary/20">
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary" />

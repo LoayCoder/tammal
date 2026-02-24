@@ -22,7 +22,7 @@ export function CheckinMoodOverTime({ data, isLoading }: Props) {
   const hasData = data.some(d => d.great + d.good + d.okay + d.struggling + d.need_help > 0);
 
   return (
-    <Card>
+    <Card className="glass-chart border-0">
       <CardHeader className="pb-2">
         <CardTitle className="text-base">{t('orgDashboard.checkinMoodOverTime')}</CardTitle>
       </CardHeader>
