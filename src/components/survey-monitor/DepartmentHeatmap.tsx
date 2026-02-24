@@ -34,7 +34,7 @@ export function DepartmentHeatmap({ departments, isLoading, riskThreshold = 50 }
   };
 
   return (
-    <Card>
+    <Card className="glass-card border-0 rounded-xl">
       <CardHeader>
         <CardTitle className="text-base">{t('surveyMonitor.departmentHeatmap')}</CardTitle>
       </CardHeader>

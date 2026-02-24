@@ -26,7 +26,7 @@ export function SLAIndicator({ startDate, endDate }: Props) {
   const isNearDeadline = hoursRemaining !== null && hoursRemaining > 0 && hoursRemaining <= 24;
 
   return (
-    <Card>
+    <Card className="glass-card border-0 rounded-xl">
       <CardContent className="p-4 flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-muted-foreground" />
