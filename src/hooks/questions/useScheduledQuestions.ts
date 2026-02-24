@@ -246,11 +246,35 @@ export function useAnsweredSurveyCheck(employeeId?: string) {
     queryKey: ['answered-survey-check', employeeId],
     queryFn: async () => {
       if (!employeeId) return false;
+
+      // BUG-14 fix: Scope to survey-type schedules and exclude soft-deleted rows
+      const { data: surveySchedules } = await supabase
+        .from('question_schedules')
+        .select('id')
+        .eq('schedule_type', 'survey')
+        .is('deleted_at', null);
+
+      const surveyScheduleIds = (surveySchedules ?? []).map(s => s.id);
+      if (!surveyScheduleIds.length) return false;
+
+      // Get scheduled_question IDs for this employee's survey schedules
+      const { data: sqData } = await supabase
+        .from('scheduled_questions')
+        .select('id')
+        .in('schedule_id', surveyScheduleIds)
+        .eq('employee_id', employeeId);
+
+      const sqIds = (sqData ?? []).map(sq => sq.id);
+      if (!sqIds.length) return false;
+
       const { count } = await supabase
         .from('employee_responses')
         .select('id', { count: 'exact', head: true })
+        .in('scheduled_question_id', sqIds)
         .eq('employee_id', employeeId)
-        .eq('is_draft', false);
+        .eq('is_draft', false)
+        .is('deleted_at', null);
+
       return (count ?? 0) > 0;
     },
     enabled: !!employeeId,

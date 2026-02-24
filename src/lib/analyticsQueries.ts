@@ -131,17 +131,33 @@ export async function fetchSurveyResponseRate(
     totalScheduled = count ?? 0;
   }
 
-  let answeredQuery = supabase
-    .from('employee_responses')
-    .select('id', { count: 'exact', head: true })
-    .eq('is_draft', false)
-    .gte('responded_at', `${startDate}T00:00:00`)
-    .lte('responded_at', `${endDate}T23:59:59`);
-  if (filteredIds) answeredQuery = answeredQuery.in('employee_id', filteredIds);
-  const { count: answeredCount } = await answeredQuery;
+  // BUG-15 fix: Scope answered count to survey-specific scheduled_question_ids
+  let answeredCount = 0;
+  if (surveyScheduleIds.length > 0) {
+    // Get all scheduled_question IDs for these survey schedules within the date range
+    let sqQuery = supabase
+      .from('scheduled_questions')
+      .select('id')
+      .in('schedule_id', surveyScheduleIds)
+      .gte('scheduled_delivery', `${startDate}T00:00:00`)
+      .lte('scheduled_delivery', `${endDate}T23:59:59`);
+    if (filteredIds) sqQuery = sqQuery.in('employee_id', filteredIds);
+    const { data: sqData } = await sqQuery;
+    const sqIds = (sqData ?? []).map(sq => sq.id);
+
+    if (sqIds.length > 0) {
+      const { count } = await supabase
+        .from('employee_responses')
+        .select('id', { count: 'exact', head: true })
+        .in('scheduled_question_id', sqIds)
+        .eq('is_draft', false)
+        .is('deleted_at', null);
+      answeredCount = count ?? 0;
+    }
+  }
 
   return totalScheduled > 0
-    ? Math.round(((answeredCount ?? 0) / totalScheduled) * 100)
+    ? Math.round((answeredCount / totalScheduled) * 100)
     : 0;
 }
 

@@ -100,26 +100,53 @@ export function usePersonalMoodDashboard() {
     queryFn: async (): Promise<SurveyStats> => {
       if (!employeeId) return { totalAnswered: 0, avgScore: 0, completionRate: 0 };
 
-      // Total answered
+      // BUG-16 fix: Scope to survey-type schedules and exclude soft-deleted rows
+      const { data: surveySchedules } = await supabase
+        .from('question_schedules')
+        .select('id')
+        .eq('schedule_type', 'survey')
+        .is('deleted_at', null);
+
+      const surveyScheduleIds = (surveySchedules ?? []).map(s => s.id);
+      if (!surveyScheduleIds.length) return { totalAnswered: 0, avgScore: 0, completionRate: 0 };
+
+      // Get scheduled_question IDs for this employee's survey schedules
+      const { data: sqData } = await supabase
+        .from('scheduled_questions')
+        .select('id')
+        .in('schedule_id', surveyScheduleIds)
+        .eq('employee_id', employeeId);
+
+      const sqIds = (sqData ?? []).map(sq => sq.id);
+      if (!sqIds.length) return { totalAnswered: 0, avgScore: 0, completionRate: 0 };
+
+      // Total answered (non-draft, non-deleted, scoped to survey)
       const { count: answeredCount, error: aErr } = await supabase
         .from('employee_responses')
         .select('id', { count: 'exact', head: true })
-        .eq('employee_id', employeeId);
+        .in('scheduled_question_id', sqIds)
+        .eq('employee_id', employeeId)
+        .eq('is_draft', false)
+        .is('deleted_at', null);
       if (aErr) throw aErr;
 
       // Total delivered
       const { count: deliveredCount, error: dErr } = await supabase
         .from('scheduled_questions')
         .select('id', { count: 'exact', head: true })
+        .in('schedule_id', surveyScheduleIds)
         .eq('employee_id', employeeId)
-        .eq('status', 'delivered');
+        .in('status', ['delivered', 'answered']);
       if (dErr) throw dErr;
 
-      // Avg score from responses
+      // Avg score from survey responses only
       const { data: responses, error: rErr } = await supabase
         .from('employee_responses')
         .select('answer_value')
+        .in('scheduled_question_id', sqIds)
         .eq('employee_id', employeeId)
+        .eq('is_draft', false)
+        .is('deleted_at', null)
         .limit(5000);
       if (rErr) throw rErr;
 
