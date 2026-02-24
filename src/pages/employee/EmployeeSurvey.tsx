@@ -4,10 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { CheckCircle2, Loader2, Save, Send, Clock, AlertCircle, Lock, PartyPopper, Sparkles } from 'lucide-react';
@@ -15,6 +11,7 @@ import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
 import { useScheduledQuestions, useAnsweredSurveyCheck } from '@/hooks/useScheduledQuestions';
 import { useEmployeeResponses, useDraftResponses } from '@/hooks/useEmployeeResponses';
 import { useProfile } from '@/hooks/useProfile';
+import { AnswerInput } from '@/components/survey/AnswerInput';
 
 export default function EmployeeSurvey() {
   const { t, i18n } = useTranslation();
@@ -243,7 +240,7 @@ export default function EmployeeSurvey() {
                 <CardTitle className="text-lg" dir="auto">{questionText}</CardTitle>
               </CardHeader>
               <CardContent>
-                {renderAnswerInput(question, currentAnswer, (val) => setAnswer(sq.id, val), isClosed, isRTL, t, resolveOption)}
+                <AnswerInput question={question} answer={currentAnswer} onAnswer={(val) => setAnswer(sq.id, val)} disabled={isClosed} isRTL={isRTL} resolveOption={resolveOption} />
               </CardContent>
             </Card>
           );
@@ -308,128 +305,3 @@ export default function EmployeeSurvey() {
   );
 }
 
-function renderAnswerInput(
-  question: any,
-  answer: unknown,
-  setAnswer: (val: unknown) => void,
-  disabled: boolean,
-  isRTL: boolean,
-  t: any,
-  resolveOption: (opt: unknown) => string
-) {
-  if (!question) return null;
-
-  switch (question.type) {
-    case 'likert_5':
-      return (
-        <RadioGroup
-          value={String(answer || '')}
-          onValueChange={(v) => setAnswer(Number(v))}
-          className="flex justify-between gap-2"
-          disabled={disabled}
-        >
-          {[1, 2, 3, 4, 5].map((value) => (
-            <div key={value} className="flex flex-col items-center gap-2">
-              <RadioGroupItem value={String(value)} id={`likert-${question.id}-${value}`} className="h-8 w-8" />
-              <Label htmlFor={`likert-${question.id}-${value}`} className="text-xs text-center">
-                {value === 1 ? t('survey.stronglyDisagree') :
-                 value === 5 ? t('survey.stronglyAgree') : value}
-              </Label>
-            </div>
-          ))}
-        </RadioGroup>
-      );
-
-    case 'numeric_scale':
-    case 'scale':
-      return (
-        <div className="space-y-4">
-          <Slider
-            value={[Number(answer) || 5]}
-            onValueChange={([v]) => setAnswer(v)}
-            min={1}
-            max={10}
-            step={1}
-            className="py-4"
-            disabled={disabled}
-          />
-          <div className="flex justify-between text-sm text-muted-foreground">
-            <span>1</span>
-            <span className="text-2xl font-bold text-primary">{String(answer ?? 5)}</span>
-            <span>10</span>
-          </div>
-        </div>
-      );
-
-    case 'yes_no':
-      return (
-        <div className="flex gap-4">
-          <Button
-            variant={answer === true ? 'default' : 'outline'}
-            className="flex-1 h-12"
-            onClick={() => setAnswer(true)}
-            disabled={disabled}
-          >
-            {t('common.yes')}
-          </Button>
-          <Button
-            variant={answer === false ? 'default' : 'outline'}
-            className="flex-1 h-12"
-            onClick={() => setAnswer(false)}
-            disabled={disabled}
-          >
-            {t('common.no')}
-          </Button>
-        </div>
-      );
-
-    case 'multiple_choice':
-      if (!question.options || !Array.isArray(question.options) || question.options.length === 0) {
-        // Fallback to text input when options are missing/empty
-        return (
-          <Textarea
-            value={String(answer || '')}
-            onChange={(e) => setAnswer(e.target.value)}
-            placeholder={t('survey.typeYourAnswer')}
-            className="min-h-[100px]"
-            dir="auto"
-            disabled={disabled}
-          />
-        );
-      }
-      return (
-        <RadioGroup
-          value={String(answer || '')}
-          onValueChange={(v) => setAnswer(v)}
-          className="space-y-2"
-          disabled={disabled}
-        >
-          {(question.options as unknown[]).map((opt, i) => {
-            const label = resolveOption(opt);
-            return (
-              <div key={i} className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-all">
-                <RadioGroupItem value={label} id={`mc-${question.id}-${i}`} />
-                <Label htmlFor={`mc-${question.id}-${i}`} className="cursor-pointer flex-1">{label}</Label>
-              </div>
-            );
-          })}
-        </RadioGroup>
-      );
-
-    case 'open_ended':
-    case 'text':
-      return (
-        <Textarea
-          value={String(answer || '')}
-          onChange={(e) => setAnswer(e.target.value)}
-          placeholder={t('survey.typeYourAnswer')}
-          className="min-h-[100px]"
-          dir="auto"
-          disabled={disabled}
-        />
-      );
-
-    default:
-      return null;
-  }
-}
