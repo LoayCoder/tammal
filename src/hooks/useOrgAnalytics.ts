@@ -388,6 +388,7 @@ export function useOrgAnalytics(
       let answeredQuery = supabase
         .from('employee_responses')
         .select('id', { count: 'exact', head: true })
+        .eq('is_draft', false)
         .gte('responded_at', `${startDate}T00:00:00`)
         .lte('responded_at', `${endDate}T23:59:59`);
       if (filteredIds) answeredQuery = answeredQuery.in('employee_id', filteredIds);

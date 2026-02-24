@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useMoodDefinitions, type MoodDefinition } from '@/hooks/useMoodDefinitions';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 // Tailwind color mapping for dynamic mood colors
@@ -36,7 +36,7 @@ interface MoodStepProps {
   onSelect: (mood: string) => void;
 }
 
-export function MoodStep({ selectedMood, onSelect }: MoodStepProps) {
+export const MoodStep = React.forwardRef<HTMLDivElement, MoodStepProps>(function MoodStep({ selectedMood, onSelect }, ref) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
@@ -86,10 +86,10 @@ export function MoodStep({ selectedMood, onSelect }: MoodStepProps) {
     );
   }
 
-  const colsClass = displayMoods.length <= 5 ? `grid-cols-${displayMoods.length}` : 'grid-cols-5';
+  
 
   return (
-    <div className="space-y-3">
+    <div ref={ref} className="space-y-3">
       <div className="text-center space-y-1">
         <h2 className="text-lg font-bold">{t('wellness.howAreYou')}</h2>
         <p className="text-muted-foreground text-xs">{t('wellness.selectMood')}</p>
@@ -124,4 +124,4 @@ export function MoodStep({ selectedMood, onSelect }: MoodStepProps) {
       </div>
     </div>
   );
-}
+});
