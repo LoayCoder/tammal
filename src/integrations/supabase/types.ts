@@ -2851,6 +2851,41 @@ export type Database = {
           },
         ]
       }
+      survey_monitor_snapshots: {
+        Row: {
+          created_at: string
+          id: string
+          schedule_id: string
+          snapshot_date: string
+          stats: Json
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          schedule_id: string
+          snapshot_date?: string
+          stats?: Json
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          schedule_id?: string
+          snapshot_date?: string
+          stats?: Json
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_monitor_snapshots_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_usage: {
         Row: {
           active_users: number | null

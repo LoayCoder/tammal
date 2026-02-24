@@ -78,7 +78,36 @@
     "wellnessSettings": "إعدادات الرفاهية",
     "subcategories": "التصنيفات الفرعية",
     "moodPathways": "مسارات المزاج",
-    "mentalToolkit": "أدوات الصحة النفسية"
+    "mentalToolkit": "أدوات الصحة النفسية",
+    "surveyMonitor": "مراقبة الاستبيان"
+  },
+  "surveyMonitor": {
+    "title": "مراقبة الاستبيان",
+    "subtitle": "تتبع المشاركة والتقدم للاستبيانات المنشورة",
+    "selectSurvey": "اختر استبيان...",
+    "selectPrompt": "اختر استبيان لعرض بيانات المراقبة",
+    "noSurveys": "لا توجد استبيانات",
+    "noTrendData": "لا توجد بيانات اتجاه بعد",
+    "stats": {
+      "totalTargeted": "إجمالي المستهدفين",
+      "notStarted": "لم يبدأ",
+      "inProgress": "قيد التنفيذ",
+      "completed": "مكتمل",
+      "expired": "منتهي",
+      "completionPercent": "نسبة الإتمام"
+    },
+    "departmentHeatmap": "المشاركة حسب القسم",
+    "participationTrend": "اتجاه الإكمال عبر الزمن",
+    "sla": {
+      "window": "نافذة الجدولة",
+      "expired": "منتهي",
+      "nearDeadline": "{{hours}} ساعة متبقية",
+      "daysLeft": "{{days}} يوم متبقي"
+    },
+    "riskPanel": {
+      "title": "مخاطر انخفاض المشاركة",
+      "noRisk": "جميع الأقسام فوق حد المشاركة المطلوب."
+    }
   },
   "mentalToolkit": {
     "pageTitle": "أدوات الصحة النفسية",

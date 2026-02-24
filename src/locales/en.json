@@ -78,7 +78,36 @@
     "wellnessSettings": "Wellness Settings",
     "subcategories": "Subcategories",
     "moodPathways": "Mood Pathways",
-    "mentalToolkit": "Mental Toolkit"
+    "mentalToolkit": "Mental Toolkit",
+    "surveyMonitor": "Survey Monitor"
+  },
+  "surveyMonitor": {
+    "title": "Survey Monitor",
+    "subtitle": "Track participation and progress for published surveys",
+    "selectSurvey": "Select a survey...",
+    "selectPrompt": "Select a survey to view monitoring data",
+    "noSurveys": "No surveys found",
+    "noTrendData": "No trend data available yet",
+    "stats": {
+      "totalTargeted": "Total Targeted",
+      "notStarted": "Not Started",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "expired": "Expired",
+      "completionPercent": "Completion %"
+    },
+    "departmentHeatmap": "Participation by Department",
+    "participationTrend": "Completion Trend Over Time",
+    "sla": {
+      "window": "Schedule Window",
+      "expired": "Expired",
+      "nearDeadline": "{{hours}}h remaining",
+      "daysLeft": "{{days}} days left"
+    },
+    "riskPanel": {
+      "title": "Low Participation Risk",
+      "noRisk": "All departments are above the participation threshold."
+    }
   },
   "mentalToolkit": {
     "pageTitle": "Mental Toolkit",
