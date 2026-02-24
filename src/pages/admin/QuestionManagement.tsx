@@ -174,7 +174,67 @@ export default function QuestionManagement() {
         <p className="text-muted-foreground">{t('batches.subtitle')}</p>
       </div>
 
-      <Card>
+      {/* Status KPI badges */}
+      {batches.length > 0 && (
+        <div className="flex items-center gap-3 flex-wrap">
+          {(() => {
+            const counts = batches.reduce((acc, b) => {
+              acc[b.status] = (acc[b.status] || 0) + 1;
+              return acc;
+            }, {} as Record<string, number>);
+            return (
+              <>
+                {counts.published && (
+                  <div className="glass-stat border-0 flex items-center gap-2 px-4 py-2.5 rounded-xl">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-green-500/10">
+                      <Send className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold leading-none">{counts.published}</p>
+                      <p className="text-[10px] text-muted-foreground">{t('batches.statusPublished')}</p>
+                    </div>
+                  </div>
+                )}
+                {counts.draft && (
+                  <div className="glass-stat border-0 flex items-center gap-2 px-4 py-2.5 rounded-xl">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted/30">
+                      <Package className="h-3.5 w-3.5 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold leading-none">{counts.draft}</p>
+                      <p className="text-[10px] text-muted-foreground">{t('batches.statusDraft')}</p>
+                    </div>
+                  </div>
+                )}
+                {counts.inactive && (
+                  <div className="glass-stat border-0 flex items-center gap-2 px-4 py-2.5 rounded-xl">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10">
+                      <Ban className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold leading-none">{counts.inactive}</p>
+                      <p className="text-[10px] text-muted-foreground">{t('batches.statusInactive')}</p>
+                    </div>
+                  </div>
+                )}
+                {counts.validated && (
+                  <div className="glass-stat border-0 flex items-center gap-2 px-4 py-2.5 rounded-xl">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-green-500/10">
+                      <CheckCircle className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold leading-none">{counts.validated}</p>
+                      <p className="text-[10px] text-muted-foreground">{t('batches.statusValidated')}</p>
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
+        </div>
+      )}
+
+      <Card className="glass-card border-0">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -182,40 +242,6 @@ export default function QuestionManagement() {
               <CardDescription>{t('batches.libraryDescription')}</CardDescription>
             </div>
           </div>
-          {batches.length > 0 && (
-            <div className="flex items-center gap-2 flex-wrap pt-2">
-              {(() => {
-                const counts = batches.reduce((acc, b) => {
-                  acc[b.status] = (acc[b.status] || 0) + 1;
-                  return acc;
-                }, {} as Record<string, number>);
-                return (
-                  <>
-                    {counts.published && (
-                      <Badge variant="outline" className="bg-green-500/10 text-green-700 dark:text-green-400 text-xs">
-                        {t('batches.statusPublished')}: {counts.published}
-                      </Badge>
-                    )}
-                    {counts.draft && (
-                      <Badge variant="outline" className="bg-muted text-muted-foreground text-xs">
-                        {t('batches.statusDraft')}: {counts.draft}
-                      </Badge>
-                    )}
-                    {counts.inactive && (
-                      <Badge variant="outline" className="bg-orange-500/10 text-orange-700 dark:text-orange-400 text-xs">
-                        {t('batches.statusInactive')}: {counts.inactive}
-                      </Badge>
-                    )}
-                    {counts.validated && (
-                      <Badge variant="outline" className="bg-green-500/10 text-green-700 dark:text-green-400 text-xs">
-                        {t('batches.statusValidated')}: {counts.validated}
-                      </Badge>
-                    )}
-                  </>
-                );
-              })()}
-            </div>
-          )}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="relative max-w-sm">
@@ -251,7 +277,7 @@ export default function QuestionManagement() {
                 const selectedCount = selectedQuestions[batch.id]?.size || 0;
 
                 return (
-                  <AccordionItem key={batch.id} value={batch.id} className="border rounded-lg mb-3 px-1 group">
+                  <AccordionItem key={batch.id} value={batch.id} className="glass-card border-0 mb-3 px-1 group rounded-xl overflow-hidden">
                     <AccordionTrigger className="hover:no-underline px-3">
                       <div className="flex items-center gap-3 flex-1 text-start flex-wrap">
                         {editingBatchId === batch.id ? (
@@ -440,7 +466,7 @@ export default function QuestionManagement() {
                       ) : filtered.length === 0 ? (
                         <p className="text-sm text-muted-foreground text-center py-4">{t('batches.noQuestions')}</p>
                       ) : (
-                        <div className="rounded-md border overflow-auto">
+                        <div className="rounded-xl border border-white/[0.06] overflow-auto">
                           <Table>
                             <TableHeader>
                               <TableRow>
