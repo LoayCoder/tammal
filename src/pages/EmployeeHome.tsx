@@ -261,6 +261,7 @@ export default function EmployeeHome() {
         <Card className="glass-card border-0">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">{t('home.burnout')}</CardTitle>
+            <p className="text-muted-foreground text-xs">{t('home.burnoutPeriod')}</p>
           </CardHeader>
           <CardContent className="space-y-3">
             {moodLoading ? (
