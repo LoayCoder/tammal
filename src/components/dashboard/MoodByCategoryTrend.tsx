@@ -48,7 +48,7 @@ export function MoodByCategoryTrend({ categories, moodByCategoryData, isLoading 
   }
 
   return (
-    <Card>
+    <Card className="glass-card border-0 rounded-xl">
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-base">{t('orgDashboard.moodByCategory')}</CardTitle>
         {categories.length > 0 && (
@@ -73,7 +73,7 @@ export function MoodByCategoryTrend({ categories, moodByCategoryData, isLoading 
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={24} />
-              <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: 12 }} />
+              <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '12px', fontSize: 12, boxShadow: '0 8px 32px hsl(var(--primary) / 0.1)' }} />
               <Legend wrapperStyle={{ fontSize: 10 }} />
               {Object.entries(MOOD_COLORS).map(([key, color]) => (
                 <Area key={key} type="monotone" dataKey={key} stackId="1" stroke={color} fill={color}

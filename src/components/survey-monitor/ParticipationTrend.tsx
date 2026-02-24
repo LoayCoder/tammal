@@ -52,7 +52,8 @@ export function ParticipationTrend({ trendData, isLoading }: Props) {
                 backgroundColor: 'hsl(var(--popover))',
                 borderColor: 'hsl(var(--border))',
                 color: 'hsl(var(--popover-foreground))',
-                borderRadius: 8,
+                borderRadius: 12,
+                boxShadow: '0 8px 32px hsl(var(--primary) / 0.1)',
               }}
             />
             <Line

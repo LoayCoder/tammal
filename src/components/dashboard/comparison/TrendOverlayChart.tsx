@@ -62,10 +62,11 @@ export function TrendOverlayChart({ data, isLoading }: Props) {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
+                  backgroundColor: 'hsl(var(--popover))',
                   border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: 12,
+                  boxShadow: '0 8px 32px hsl(var(--primary) / 0.1)',
                 }}
               />
               <Legend wrapperStyle={{ fontSize: 11 }} />

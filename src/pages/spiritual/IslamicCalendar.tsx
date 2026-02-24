@@ -66,7 +66,7 @@ export default function IslamicCalendar() {
   if (!isEnabled) {
     return (
       <div className="container mx-auto py-6">
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardContent className="p-12 text-center space-y-4">
             <CalendarIcon className="h-12 w-12 mx-auto text-muted-foreground" />
             <h2 className="text-xl font-semibold">{t('spiritual.calendar.notEnabled')}</h2>
@@ -100,7 +100,7 @@ export default function IslamicCalendar() {
       </div>
 
       {/* Month navigation */}
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="icon" onClick={prevMonth}>
@@ -156,7 +156,7 @@ export default function IslamicCalendar() {
       </Card>
 
       {/* Events list */}
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <CardTitle className="text-base">{t('spiritual.calendar.upcomingEvents')}</CardTitle>
         </CardHeader>

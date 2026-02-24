@@ -90,13 +90,12 @@ export default function MoodTrackerPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-card border-b border-border px-4 py-5 sm:px-6">
+      <div className="glass-card border-0 rounded-none border-b border-border/50 px-4 py-5 sm:px-6">
         <div className="max-w-4xl mx-auto flex items-center gap-3">
           <div
-            className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
-            style={{ background: `linear-gradient(135deg, ${PALETTE.lavender}, ${PALETTE.sage})` }}
+            className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 bg-primary/10"
           >
-            <SmilePlus className="h-5 w-5 text-card" />
+            <SmilePlus className="h-5 w-5 text-primary" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-foreground">
@@ -111,7 +110,7 @@ export default function MoodTrackerPage() {
 
       <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 space-y-6">
         {noData ? (
-          <Card className="rounded-2xl border-dashed">
+          <Card className="glass-card border-0 rounded-2xl border-dashed">
             <CardContent className="py-12 text-center space-y-2">
               <SmilePlus className="h-12 w-12 mx-auto text-muted-foreground" />
               <p className="text-lg font-semibold text-foreground">
@@ -127,7 +126,7 @@ export default function MoodTrackerPage() {
             {/* ── KPI Cards ── */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {/* Streak */}
-              <Card className="rounded-2xl">
+              <Card className="glass-stat border-0 rounded-2xl">
                 <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
                   <Flame className="h-6 w-6" style={{ color: PALETTE.lavender }} />
                   <span className="text-2xl font-bold text-foreground">{dashboard.streak}</span>
@@ -138,7 +137,7 @@ export default function MoodTrackerPage() {
               </Card>
 
               {/* 7-Day Avg */}
-              <Card className="rounded-2xl">
+              <Card className="glass-stat border-0 rounded-2xl">
                 <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
                   <TrendingUp
                     className="h-6 w-6"
@@ -163,7 +162,7 @@ export default function MoodTrackerPage() {
               </Card>
 
               {/* Monthly */}
-              <Card className="rounded-2xl">
+              <Card className="glass-stat border-0 rounded-2xl">
                 <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
                   <CalendarCheck className="h-6 w-6" style={{ color: PALETTE.sage }} />
                   <span className="text-2xl font-bold text-foreground">
@@ -179,7 +178,7 @@ export default function MoodTrackerPage() {
               </Card>
 
               {/* Today */}
-              <Card className="rounded-2xl">
+              <Card className="glass-stat border-0 rounded-2xl">
                 <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
                   {todayDef ? (
                     <>
@@ -204,7 +203,7 @@ export default function MoodTrackerPage() {
             </div>
 
             {/* ── Mood Trend Chart ── */}
-            <Card className="rounded-2xl">
+            <Card className="glass-card border-0 rounded-2xl">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
                   <BarChart3 className="h-4 w-4" style={{ color: PALETTE.lavender }} />
@@ -302,7 +301,7 @@ export default function MoodTrackerPage() {
             {/* ── Two-column: Distribution + Activity ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Donut */}
-              <Card className="rounded-2xl">
+              <Card className="glass-card border-0 rounded-2xl">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base flex items-center gap-2">
                     <PieChart className="h-4 w-4" style={{ color: PALETTE.sage }} />
@@ -347,7 +346,7 @@ export default function MoodTrackerPage() {
               </Card>
 
               {/* Weekly Activity Heatmap */}
-              <Card className="rounded-2xl">
+              <Card className="glass-card border-0 rounded-2xl">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base flex items-center gap-2">
                     <Grid3X3 className="h-4 w-4" style={{ color: PALETTE.plum }} />
@@ -386,7 +385,7 @@ export default function MoodTrackerPage() {
             </div>
 
             {/* ── Survey Stats ── */}
-            <Card className="rounded-2xl">
+            <Card className="glass-card border-0 rounded-2xl">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
                   <ClipboardList className="h-4 w-4" style={{ color: PALETTE.lavender }} />

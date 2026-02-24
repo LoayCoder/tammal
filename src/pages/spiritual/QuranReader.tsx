@@ -82,7 +82,7 @@ export default function QuranReader() {
   if (!isActive) {
     return (
       <div className="container mx-auto py-6">
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardContent className="p-12 text-center space-y-4">
             <BookOpenCheck className="h-12 w-12 mx-auto text-muted-foreground" />
             <h2 className="text-xl font-semibold">{t('spiritual.quran.notEnabled')}</h2>
@@ -113,7 +113,7 @@ export default function QuranReader() {
 
       {/* Weekly stats */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
+        <Card className="glass-stat border-0 rounded-xl">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="rounded-full bg-primary/10 p-2">
               <BookOpen className="h-5 w-5 text-primary" />
@@ -124,7 +124,7 @@ export default function QuranReader() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="glass-stat border-0 rounded-xl">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="rounded-full bg-primary/10 p-2">
               <Clock className="h-5 w-5 text-primary" />
@@ -135,7 +135,7 @@ export default function QuranReader() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="glass-stat border-0 rounded-xl">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="rounded-full bg-primary/10 p-2">
               <TrendingUp className="h-5 w-5 text-primary" />
@@ -150,7 +150,7 @@ export default function QuranReader() {
 
       {/* Log form */}
       {showForm && (
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardHeader>
             <CardTitle className="text-lg">{t('spiritual.quran.newSession')}</CardTitle>
             <CardDescription>{t('spiritual.quran.newSessionDesc')}</CardDescription>
@@ -215,7 +215,7 @@ export default function QuranReader() {
       )}
 
       {/* Session history */}
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <CardTitle className="text-lg">{t('spiritual.quran.recentSessions')}</CardTitle>
         </CardHeader>

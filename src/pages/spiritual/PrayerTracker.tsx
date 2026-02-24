@@ -59,7 +59,7 @@ export default function PrayerTracker() {
   if (!isActive) {
     return (
       <div className="container mx-auto py-6">
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardContent className="p-12 text-center space-y-4">
             <Moon className="h-12 w-12 mx-auto text-muted-foreground" />
             <h2 className="text-xl font-semibold">{t('spiritual.prayer.notEnabled')}</h2>
@@ -95,7 +95,7 @@ export default function PrayerTracker() {
       )}
 
       {noLocation ? (
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardContent className="p-8 text-center space-y-4">
             <p className="text-muted-foreground">{t('spiritual.prayer.setLocation')}</p>
             <Button onClick={() => navigate('/settings/profile')}>{t('spiritual.prayer.goToSettings')}</Button>
@@ -122,7 +122,7 @@ export default function PrayerTracker() {
           </div>
 
           {/* Weekly summary */}
-          <Card>
+          <Card className="glass-card border-0 rounded-xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <TrendingUp className="h-5 w-5" />
