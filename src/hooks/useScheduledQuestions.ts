@@ -13,6 +13,7 @@ export interface ScheduledQuestion {
   actual_delivery: string | null;
   status: 'pending' | 'delivered' | 'answered' | 'skipped' | 'expired' | 'failed';
   delivery_channel: 'email' | 'app' | 'sms';
+  question_source: string;
   reminder_count: number;
   created_at: string;
   question?: {
@@ -214,4 +215,22 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
     refetch,
     skipQuestion,
   };
+}
+
+export function useAnsweredSurveyCheck(employeeId?: string) {
+  const { data: hasAnswered = false, isLoading } = useQuery({
+    queryKey: ['answered-survey-check', employeeId],
+    queryFn: async () => {
+      if (!employeeId) return false;
+      const { count } = await supabase
+        .from('employee_responses')
+        .select('id', { count: 'exact', head: true })
+        .eq('employee_id', employeeId)
+        .eq('is_draft', false);
+      return (count ?? 0) > 0;
+    },
+    enabled: !!employeeId,
+  });
+
+  return { hasAnswered, isLoading };
 }

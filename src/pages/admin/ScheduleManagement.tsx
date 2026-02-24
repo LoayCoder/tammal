@@ -730,8 +730,9 @@ export default function ScheduleManagement() {
                     setLinkedPeriodId(v);
                     const period = periods.find(p => p.id === v);
                     if (period) {
-                      setStartDate(period.start_date);
-                      setEndDate(period.end_date);
+                      // Append T00:00 for datetime-local compatibility if needed
+                      setStartDate(period.start_date.includes('T') ? period.start_date : `${period.start_date}T00:00`);
+                      setEndDate(period.end_date.includes('T') ? period.end_date : `${period.end_date}T23:59`);
                     }
                   }
                 }}

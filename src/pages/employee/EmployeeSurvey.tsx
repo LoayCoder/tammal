@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, Loader2, Save, Send, Clock, AlertCircle, Lock } from 'lucide-react';
 import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
-import { useScheduledQuestions } from '@/hooks/useScheduledQuestions';
+import { useScheduledQuestions, useAnsweredSurveyCheck } from '@/hooks/useScheduledQuestions';
 import { useEmployeeResponses, useDraftResponses } from '@/hooks/useEmployeeResponses';
 
 export default function EmployeeSurvey() {
@@ -20,6 +20,7 @@ export default function EmployeeSurvey() {
 
   const { employee, isLoading: loadingEmployee } = useCurrentEmployee();
   const { pendingQuestions, surveyMeta, isLoading: loadingQuestions } = useScheduledQuestions(employee?.id);
+  const { hasAnswered, isLoading: loadingAnswered } = useAnsweredSurveyCheck(employee?.id);
   const { saveDraft, submitSurvey } = useEmployeeResponses(employee?.id);
 
   // Draft responses for pre-population
@@ -27,9 +28,9 @@ export default function EmployeeSurvey() {
 
   // Answers map: scheduledQuestionId -> answerValue
   const [answers, setAnswers] = useState<Record<string, unknown>>({});
-  const [surveySessionId] = useState(() => crypto.randomUUID());
+  const [surveySessionId, setSurveySessionId] = useState<string>(() => crypto.randomUUID());
 
-  // Pre-populate from drafts
+  // Pre-populate from drafts and reuse existing session ID
   useEffect(() => {
     if (draftResponses.length > 0) {
       const drafts: Record<string, unknown> = {};
@@ -39,6 +40,11 @@ export default function EmployeeSurvey() {
         }
       }
       setAnswers(prev => ({ ...drafts, ...prev }));
+      // Reuse existing survey_session_id from drafts if available
+      const existingSessionId = draftResponses.find(d => d.survey_session_id)?.survey_session_id;
+      if (existingSessionId) {
+        setSurveySessionId(existingSessionId);
+      }
     }
   }, [draftResponses]);
 
@@ -108,7 +114,7 @@ export default function EmployeeSurvey() {
     return String(opt);
   };
 
-  if (loadingEmployee || loadingQuestions || loadingDrafts) {
+  if (loadingEmployee || loadingQuestions || loadingDrafts || loadingAnswered) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -128,9 +134,13 @@ export default function EmployeeSurvey() {
   if (pendingQuestions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <CheckCircle2 className="h-16 w-16 text-green-500 mb-4" />
-        <h2 className="text-2xl font-bold mb-2">{t('survey.allCaughtUp')}</h2>
-        <p className="text-muted-foreground">{t('survey.noMoreQuestions')}</p>
+        <CheckCircle2 className="h-16 w-16 text-primary mb-4" />
+        <h2 className="text-2xl font-bold mb-2">
+          {hasAnswered ? t('survey.surveyCompleted', 'Survey Completed') : t('survey.allCaughtUp')}
+        </h2>
+        <p className="text-muted-foreground">
+          {hasAnswered ? t('survey.alreadySubmitted', 'You have already submitted this survey.') : t('survey.noMoreQuestions')}
+        </p>
       </div>
     );
   }
