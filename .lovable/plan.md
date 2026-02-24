@@ -1,45 +1,53 @@
 
-
-# Fix: Survey Submission Unique Constraint Violation
+# Fix: Survey Response Data Missing from Organization Wellness Dashboard
 
 ## Root Cause
 
-The unique index `idx_employee_responses_unique_active` on the `employee_responses` table is defined as:
+The submitted survey responses reference questions from the `generated_questions` table (AI-generated wellness questions), but the analytics engine in `useOrgAnalytics.ts` only looks up question metadata from the `questions` table.
 
-```text
-UNIQUE (scheduled_question_id, employee_id) WHERE (scheduled_question_id IS NOT NULL)
-```
+Since none of the 25 submitted response `question_id` values exist in `questions` (they all live in `generated_questions`), every join returns empty, resulting in:
+- 0 category scores
+- 0 subcategory scores
+- 0 affective distribution data
+- Empty survey structural metrics
+- No data shown in the dashboard
 
-This index does **not** exclude soft-deleted rows. The current bulk submission logic soft-deletes old responses (sets `deleted_at`), then inserts new ones. But because the index still sees soft-deleted rows, the insert fails with a duplicate key violation.
+The survey response rate KPI may show a value, but all the rich analytics (category health, subcategory breakdown, mood matrix, etc.) appear empty.
 
 ## Fix
 
-Recreate the unique index to only cover **active** (non-deleted) rows by adding `AND deleted_at IS NULL` to the index condition.
+Update `src/hooks/useOrgAnalytics.ts` to resolve question metadata from **both** `questions` and `generated_questions` tables.
 
-### Step 1: Database Migration
+### Changes to `src/hooks/useOrgAnalytics.ts`
 
-Drop and recreate the unique index with the correct partial filter:
-
-```sql
-DROP INDEX IF EXISTS idx_employee_responses_unique_active;
-CREATE UNIQUE INDEX idx_employee_responses_unique_active 
-  ON public.employee_responses (scheduled_question_id, employee_id) 
-  WHERE (scheduled_question_id IS NOT NULL AND deleted_at IS NULL);
+**Section 10 (Category/Subcategory/Affective scores, ~line 416-420):**
+Currently:
+```typescript
+const { data: questions } = await supabase
+  .from('questions')
+  .select('id, category_id, subcategory_id, affective_state')
+  .in('id', questionIds);
 ```
 
-This is the only change needed. Once the index correctly excludes soft-deleted rows, the existing soft-delete-then-insert logic in the `submit-response` edge function will work as intended.
+Change to: Query both `questions` and `generated_questions`, then merge results into a single map. Generated questions have `category_id` and `subcategory_id` but no `affective_state` column, so default that to `null`.
 
-### No code changes required
+**Section 15 (Per-category daily trends, ~line 524-526):**
+Same pattern -- the second query to `questions` also needs to include `generated_questions` as a fallback.
 
-The edge function already:
-1. Soft-deletes all existing responses for the target scheduled questions
-2. Inserts fresh response rows
+**Specifically:**
+1. After fetching from `questions`, collect any `questionIds` not found in the result
+2. Query those missing IDs from `generated_questions` (selecting `id, category_id, subcategory_id`)
+3. Merge both result sets into the `questionMap` / `q2Map`
 
-This flow is correct -- only the database index definition was wrong.
+This ensures all survey responses -- whether from hand-crafted or AI-generated questions -- are included in every analytics visualization.
 
-## Impact
+### No other files need changes
 
-- Fixes the 500 error when submitting surveys
-- No data loss (existing soft-deleted rows remain untouched)
-- No edge function redeployment needed
+The dashboard components (`OrgDashboard.tsx`, `CategoryHealthChart`, `SubcategoryChart`, etc.) already handle the data correctly once it's populated. The synthesis engine also derives its structural metrics from the same `categoryScores` array, so fixing the data source fixes everything downstream.
 
+### Summary
+
+| Location | Change |
+|----------|--------|
+| `src/hooks/useOrgAnalytics.ts` ~line 417 | Add fallback query to `generated_questions` for unresolved question IDs |
+| `src/hooks/useOrgAnalytics.ts` ~line 524 | Same fallback for the per-category trend computation |
