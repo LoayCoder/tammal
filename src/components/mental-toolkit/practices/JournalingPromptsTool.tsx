@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { format } from "date-fns";
 
 interface JournalEntry {
@@ -91,7 +91,7 @@ export default function JournalingPromptsTool() {
     localStorage.setItem(LS_KEY, JSON.stringify(updated));
     setEntries(updated);
     setResponse("");
-    toast({ title: t("mentalToolkit.journaling.saved") });
+    toast.success(t("mentalToolkit.journaling.saved"));
   };
 
   return (

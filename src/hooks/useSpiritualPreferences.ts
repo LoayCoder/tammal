@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export interface SpiritualPreferences {
   id: string;
@@ -24,7 +24,7 @@ export interface SpiritualPreferences {
 export function useSpiritualPreferences() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { toast } = useToast();
+  
 
   const { data: preferences, isLoading } = useQuery({
     queryKey: ['spiritual-preferences', user?.id],
@@ -68,11 +68,7 @@ export function useSpiritualPreferences() {
       queryClient.invalidateQueries({ queryKey: ['spiritual-preferences'] });
     },
     onError: (error: any) => {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
+      toast.error(error.message);
     },
   });
 

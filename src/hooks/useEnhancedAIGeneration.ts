@@ -69,7 +69,7 @@ export interface GenerateInput {
   periodId?: string;
 }
 
-const MAX_BATCH_SIZE = 64;
+import { MAX_BATCH_SIZE } from '@/lib/constants';
 
 const VALID_TYPES = ['likert_5', 'numeric_scale', 'yes_no', 'open_ended', 'multiple_choice'];
 

@@ -14,7 +14,7 @@ import { useMoodHistory } from '@/hooks/useMoodHistory';
 import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
 import { useSpiritualReports, type SpiritualReport } from '@/hooks/useSpiritualReports';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { format, subDays, startOfMonth, startOfWeek } from 'date-fns';
 
 interface InsightCard {
@@ -152,7 +152,7 @@ function ReportCard({ report }: { report: SpiritualReport }) {
 export default function SpiritualInsights() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
   const { preferences, isLoading: prefsLoading, isEnabled } = useSpiritualPreferences();
   const { employee } = useCurrentEmployee();
   const { reports, isLoading: reportsLoading, generateReport } = useSpiritualReports();
@@ -236,9 +236,9 @@ export default function SpiritualInsights() {
 
     try {
       await generateReport.mutateAsync({ reportType: type, periodStart, periodEnd });
-      toast({ title: '✓', description: t('spiritual.insights.reportGenerated') });
+      toast.success(t('spiritual.insights.reportGenerated'));
     } catch (e: any) {
-      toast({ title: t('common.error'), description: e.message, variant: 'destructive' });
+      toast.error(e.message);
     }
   };
 

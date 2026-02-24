@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useGamification } from '@/hooks/useGamification';
 import { Flame, Star, Loader2, Send, RefreshCw } from 'lucide-react';
 import { MoodStep } from '@/components/checkin/MoodStep';
@@ -23,7 +23,7 @@ interface InlineDailyCheckinProps {
 
 export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDailyCheckinProps) {
   const { t, i18n } = useTranslation();
-  const { toast } = useToast();
+  
   const queryClient = useQueryClient();
   const { streak, totalPoints, calculatePoints } = useGamification(employeeId);
 
@@ -103,7 +103,7 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
       setComment('');
     } catch (err: any) {
       setSubmitError(err.message || t('common.error'));
-      toast({ title: t('common.error'), description: err.message, variant: 'destructive' });
+      toast.error(err.message || t('common.error'));
     } finally {
       setSubmitting(false);
     }

@@ -5,7 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface MoodEntry {
   date: string;
@@ -58,7 +58,7 @@ export default function MoodTrackerTool() {
     saveEntries(updated);
     setEntries(updated);
     setNotes("");
-    toast({ title: t("mentalToolkit.moodTracker.todayLogged") });
+    toast.success(t("mentalToolkit.moodTracker.todayLogged"));
   };
 
   // Build last 7 days chart data

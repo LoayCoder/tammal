@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { format } from "date-fns";
 
 interface ReframeEntry {
@@ -50,7 +50,7 @@ export default function ThoughtReframerTool() {
     setAnswers({ q1: "", q2: "", q3: "" });
     setReframedThought("");
     setShowSummary(false);
-    toast({ title: t("mentalToolkit.thoughtReframer.saveSuccess") });
+    toast.success(t("mentalToolkit.thoughtReframer.saveSuccess"));
   };
 
   const progressWidth = `${((step - 1) / 2) * 100}%`;

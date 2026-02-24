@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Trash2, Plus, Flame } from "lucide-react";
 import { format } from "date-fns";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface Habit {
   id: string;
@@ -85,7 +85,7 @@ export default function HabitsPlanner() {
 
   const deleteHabit = (id: string) => {
     update(habits.filter((h) => h.id !== id));
-    toast({ title: "Habit removed" });
+    toast.success("Habit removed");
   };
 
   return (

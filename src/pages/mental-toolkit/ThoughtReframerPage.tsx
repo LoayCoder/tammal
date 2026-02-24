@@ -13,7 +13,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useThoughtReframes } from "@/hooks/useThoughtReframes";
 import { useCurrentEmployee } from "@/hooks/useCurrentEmployee";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
@@ -89,19 +89,19 @@ export default function ThoughtReframerPage() {
         challenge_answers: answers,
         reframed_thought: reframedThought,
       });
-      toast({ title: t("mentalToolkit.thoughtReframer.saveSuccess") });
+      toast.success(t("mentalToolkit.thoughtReframer.saveSuccess"));
       resetWizard();
     } catch {
-      toast({ title: t("mentalToolkit.thoughtReframer.saveError"), variant: "destructive" });
+      toast.error(t("mentalToolkit.thoughtReframer.saveError"));
     }
   };
 
   const handleDelete = async (id: string) => {
     try {
       await deleteReframe(id);
-      toast({ title: t("mentalToolkit.thoughtReframer.deleteSuccess") });
+      toast.success(t("mentalToolkit.thoughtReframer.deleteSuccess"));
     } catch {
-      toast({ title: t("mentalToolkit.thoughtReframer.deleteError"), variant: "destructive" });
+      toast.error(t("mentalToolkit.thoughtReframer.deleteError"));
     }
   };
 
@@ -126,10 +126,10 @@ export default function ThoughtReframerPage() {
       if (data?.reframed_thought) {
         setReframedThought(data.reframed_thought);
       } else if (data?.error) {
-        toast({ title: data.error, variant: "destructive" });
+        toast.error(data.error);
       }
     } catch {
-      toast({ title: t("mentalToolkit.thoughtReframer.aiSuggestError"), variant: "destructive" });
+      toast.error(t("mentalToolkit.thoughtReframer.aiSuggestError"));
     } finally {
       setAiSuggesting(false);
     }
