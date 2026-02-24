@@ -1,9 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { format, subDays, startOfDay, parseISO } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import type { OrgFilters } from '@/hooks/analytics/useSurveyMonitor';
+import type { Database } from '@/integrations/supabase/types';
 
 export type DateRange = 'today' | '7d' | '30d';
+
+type MoodEntryRow = Database['public']['Tables']['mood_entries']['Row'];
+type MoodDefinitionRow = Database['public']['Tables']['mood_definitions']['Row'];
 
 export interface ParticipationStats {
   totalEmployees: number;
@@ -18,6 +22,7 @@ export interface ParticipationStats {
 export interface MoodBreakdownItem {
   moodLevel: string;
   label: string;
+  labelAr: string;
   emoji: string;
   color: string;
   count: number;
@@ -58,6 +63,8 @@ export interface RiskAlert {
   type: 'low_mood' | 'disengaged' | 'low_department';
   label: string;
   detail: string;
+  detailKey: string;
+  detailParams: Record<string, string | number>;
   employeeId?: string;
   departmentId?: string;
 }
@@ -98,26 +105,28 @@ export function useCheckinMonitor(
         .is('deleted_at', null);
       if (deptErr) throw deptErr;
 
-      // 3. Fetch mood_entries for date range
+      // 3. Fetch mood_entries for date range (with limit to prevent truncation)
       const { data: moodEntries, error: moodErr } = await supabase
-        .from('mood_entries' as any)
+        .from('mood_entries')
         .select('id, employee_id, entry_date, mood_level, mood_score, streak_count')
         .eq('tenant_id', tenantId)
         .gte('entry_date', rangeStart)
-        .lte('entry_date', today);
+        .lte('entry_date', today)
+        .limit(5000);
       if (moodErr) throw moodErr;
 
       // 4. Fetch yesterday's entries for comparison
       const { data: yesterdayEntries, error: yErr } = await supabase
-        .from('mood_entries' as any)
-        .select('mood_score')
+        .from('mood_entries')
+        .select('employee_id, mood_score')
         .eq('tenant_id', tenantId)
-        .eq('entry_date', yesterday);
+        .eq('entry_date', yesterday)
+        .limit(5000);
       if (yErr) throw yErr;
 
       // 5. Fetch mood_definitions for emoji/color mapping
       const { data: moodDefs, error: mdErr } = await supabase
-        .from('mood_definitions' as any)
+        .from('mood_definitions')
         .select('key, emoji, label_en, label_ar, color, score, sort_order')
         .eq('tenant_id', tenantId)
         .eq('is_active', true)
@@ -128,9 +137,9 @@ export function useCheckinMonitor(
       return {
         employees: employees ?? [],
         departments: departments ?? [],
-        moodEntries: (moodEntries as any[]) ?? [],
-        yesterdayEntries: (yesterdayEntries as any[]) ?? [],
-        moodDefs: (moodDefs as any[]) ?? [],
+        moodEntries: (moodEntries ?? []) as MoodEntryRow[],
+        yesterdayEntries: (yesterdayEntries ?? []) as Pick<MoodEntryRow, 'employee_id' | 'mood_score'>[],
+        moodDefs: (moodDefs ?? []) as MoodDefinitionRow[],
       };
     },
     enabled: !!tenantId,
@@ -152,7 +161,7 @@ export function useCheckinMonitor(
     const { employees, departments, moodEntries, yesterdayEntries, moodDefs } = raw;
 
     const deptMap = new Map(departments.map(d => [d.id, d]));
-    const moodDefMap = new Map(moodDefs.map((m: any) => [m.key, m]));
+    const moodDefMap = new Map(moodDefs.map(m => [m.key, m]));
 
     // Apply org filters
     let filteredEmployees = employees;
@@ -169,12 +178,12 @@ export function useCheckinMonitor(
     }
 
     const filteredEmpIds = new Set(filteredEmployees.map(e => e.id));
-    const filteredMoodEntries = moodEntries.filter((m: any) => filteredEmpIds.has(m.employee_id));
+    const filteredMoodEntries = moodEntries.filter(m => filteredEmpIds.has(m.employee_id));
 
     // Today's entries
-    const todayEntries = filteredMoodEntries.filter((m: any) => m.entry_date === today);
-    const todayByEmployee = new Map<string, any>();
-    todayEntries.forEach((m: any) => todayByEmployee.set(m.employee_id, m));
+    const todayEntries = filteredMoodEntries.filter(m => m.entry_date === today);
+    const todayByEmployee = new Map<string, MoodEntryRow>();
+    todayEntries.forEach(m => todayByEmployee.set(m.employee_id, m));
 
     // Participation stats
     const totalEmployees = filteredEmployees.length;
@@ -182,19 +191,21 @@ export function useCheckinMonitor(
     const notCheckedIn = totalEmployees - checkedInToday;
     const participationRate = totalEmployees > 0 ? Math.round((checkedInToday / totalEmployees) * 100) : 0;
 
-    const todayScores = todayEntries.map((m: any) => m.mood_score as number);
+    const todayScores = todayEntries.map(m => m.mood_score);
     const avgMoodScore = todayScores.length > 0
-      ? Math.round((todayScores.reduce((a: number, b: number) => a + b, 0) / todayScores.length) * 10) / 10
+      ? Math.round((todayScores.reduce((a, b) => a + b, 0) / todayScores.length) * 10) / 10
       : 0;
 
-    const yScores = yesterdayEntries.map((m: any) => m.mood_score as number);
+    // Filter yesterday entries through same org filters
+    const filteredYesterdayEntries = yesterdayEntries.filter(m => filteredEmpIds.has(m.employee_id));
+    const yScores = filteredYesterdayEntries.map(m => m.mood_score);
     const avgMoodScoreYesterday = yScores.length > 0
-      ? Math.round((yScores.reduce((a: number, b: number) => a + b, 0) / yScores.length) * 10) / 10
+      ? Math.round((yScores.reduce((a, b) => a + b, 0) / yScores.length) * 10) / 10
       : null;
 
-    const todayStreaks = todayEntries.map((m: any) => (m.streak_count as number) || 0);
+    const todayStreaks = todayEntries.map(m => m.streak_count || 0);
     const avgStreak = todayStreaks.length > 0
-      ? Math.round((todayStreaks.reduce((a: number, b: number) => a + b, 0) / todayStreaks.length) * 10) / 10
+      ? Math.round((todayStreaks.reduce((a, b) => a + b, 0) / todayStreaks.length) * 10) / 10
       : 0;
 
     const participationStats: ParticipationStats = {
@@ -202,22 +213,23 @@ export function useCheckinMonitor(
       avgMoodScore, avgMoodScoreYesterday, avgStreak,
     };
 
-    // Mood breakdown
+    // Mood breakdown (bilingual)
     const moodCounts = new Map<string, number>();
-    todayEntries.forEach((m: any) => {
+    todayEntries.forEach(m => {
       moodCounts.set(m.mood_level, (moodCounts.get(m.mood_level) ?? 0) + 1);
     });
-    const moodBreakdown: MoodBreakdownItem[] = moodDefs.map((d: any) => {
+    const moodBreakdown: MoodBreakdownItem[] = moodDefs.map(d => {
       const count = moodCounts.get(d.key) ?? 0;
       return {
         moodLevel: d.key,
         label: d.label_en,
+        labelAr: d.label_ar,
         emoji: d.emoji,
         color: d.color,
         count,
         percent: todayEntries.length > 0 ? Math.round((count / todayEntries.length) * 100) : 0,
       };
-    }).filter((m: MoodBreakdownItem) => m.count > 0);
+    }).filter(m => m.count > 0);
 
     // Department stats
     const deptGroups = new Map<string, { total: number; checkedIn: number; moods: number[] }>();
@@ -249,12 +261,10 @@ export function useCheckinMonitor(
     const employeeList: CheckinEmployeeRow[] = filteredEmployees.map(e => {
       const dept = e.department_id ? deptMap.get(e.department_id) : null;
       const entry = todayByEmployee.get(e.id);
-      // Find last check-in across all fetched entries
       const empEntries = filteredMoodEntries
-        .filter((m: any) => m.employee_id === e.id)
-        .sort((a: any, b: any) => b.entry_date.localeCompare(a.entry_date));
+        .filter(m => m.employee_id === e.id)
+        .sort((a, b) => b.entry_date.localeCompare(a.entry_date));
       const lastEntry = empEntries[0];
-
       const moodDef = entry ? moodDefMap.get(entry.mood_level) : null;
 
       return {
@@ -273,7 +283,7 @@ export function useCheckinMonitor(
 
     // Trend data
     const dateGroups = new Map<string, { scores: number[]; count: number }>();
-    filteredMoodEntries.forEach((m: any) => {
+    filteredMoodEntries.forEach(m => {
       const cur = dateGroups.get(m.entry_date) ?? { scores: [], count: 0 };
       cur.scores.push(m.mood_score);
       cur.count++;
@@ -289,20 +299,20 @@ export function useCheckinMonitor(
         participationRate: totalEmployees > 0 ? Math.round((d.count / totalEmployees) * 100) : 0,
       }));
 
-    // Risk alerts
+    // Risk alerts (with i18n-ready detail keys)
     const riskAlerts: RiskAlert[] = [];
 
-    // Low mood: employees with 3+ consecutive low scores (<=2)
-    const empEntriesByEmp = new Map<string, any[]>();
-    filteredMoodEntries.forEach((m: any) => {
+    const empEntriesByEmp = new Map<string, MoodEntryRow[]>();
+    filteredMoodEntries.forEach(m => {
       const arr = empEntriesByEmp.get(m.employee_id) ?? [];
       arr.push(m);
       empEntriesByEmp.set(m.employee_id, arr);
     });
     const empNameMap = new Map(filteredEmployees.map(e => [e.id, e.full_name]));
 
+    // Low mood: 3+ consecutive low scores
     empEntriesByEmp.forEach((entries, empId) => {
-      const sorted = [...entries].sort((a: any, b: any) => b.entry_date.localeCompare(a.entry_date));
+      const sorted = [...entries].sort((a, b) => b.entry_date.localeCompare(a.entry_date));
       let consecutiveLow = 0;
       for (const e of sorted) {
         if (e.mood_score <= 2) consecutiveLow++;
@@ -313,12 +323,14 @@ export function useCheckinMonitor(
           type: 'low_mood',
           label: empNameMap.get(empId) ?? 'Unknown',
           detail: `${consecutiveLow} consecutive low mood entries`,
+          detailKey: 'checkinMonitor.risk.consecutiveLowDetail',
+          detailParams: { count: consecutiveLow },
           employeeId: empId,
         });
       }
     });
 
-    // Disengaged: employees who haven't checked in for 3+ days (only if range >= 7d)
+    // Disengaged: 3+ days no check-in
     if (dateRange !== 'today') {
       filteredEmployees.forEach(e => {
         const entries = empEntriesByEmp.get(e.id) ?? [];
@@ -327,17 +339,21 @@ export function useCheckinMonitor(
             type: 'disengaged',
             label: e.full_name,
             detail: 'No check-ins in selected period',
+            detailKey: 'checkinMonitor.risk.noCheckinsDetail',
+            detailParams: {},
             employeeId: e.id,
           });
           return;
         }
-        const latest = [...entries].sort((a: any, b: any) => b.entry_date.localeCompare(a.entry_date))[0];
+        const latest = [...entries].sort((a, b) => b.entry_date.localeCompare(a.entry_date))[0];
         const daysSince = Math.floor((new Date().getTime() - new Date(latest.entry_date).getTime()) / (1000 * 60 * 60 * 24));
         if (daysSince >= 3) {
           riskAlerts.push({
             type: 'disengaged',
             label: e.full_name,
             detail: `${daysSince} days since last check-in`,
+            detailKey: 'checkinMonitor.risk.daysSinceDetail',
+            detailParams: { days: daysSince },
             employeeId: e.id,
           });
         }
@@ -351,6 +367,8 @@ export function useCheckinMonitor(
           type: 'low_department',
           label: d.departmentName,
           detail: `${d.rate}% participation`,
+          detailKey: 'checkinMonitor.risk.participationDetail',
+          detailParams: { rate: d.rate },
           departmentId: d.departmentId,
         });
       }

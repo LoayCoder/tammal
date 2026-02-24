@@ -7,7 +7,7 @@ interface Props {
   breakdown: MoodBreakdownItem[];
 }
 
-// Map Tailwind text-* color classes to bg-* for the bar segments
+// Map known Tailwind semantic color classes to bg equivalents
 const colorToBg: Record<string, string> = {
   'text-chart-1': 'bg-chart-1',
   'text-chart-2': 'bg-chart-2',
@@ -19,8 +19,19 @@ const colorToBg: Record<string, string> = {
   'text-muted-foreground': 'bg-muted-foreground',
 };
 
+/** Resolve a color value from mood_definitions to a usable style.
+ *  If it matches a known Tailwind token, return a className.
+ *  Otherwise treat it as a raw CSS color value for inline style. */
+function resolveColor(color: string): { className?: string; style?: React.CSSProperties } {
+  const bg = colorToBg[color];
+  if (bg) return { className: bg };
+  // Raw CSS value (hex, hsl, rgb, named color, or a CSS var reference)
+  return { style: { backgroundColor: color } };
+}
+
 export function MoodDistributionBar({ breakdown }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
 
   if (breakdown.length === 0) {
     return (
@@ -44,17 +55,18 @@ export function MoodDistributionBar({ breakdown }: Props) {
         {/* Stacked bar */}
         <div className="flex h-6 rounded-full overflow-hidden">
           {breakdown.map(item => {
-            const bgClass = colorToBg[item.color] ?? 'bg-muted';
+            const resolved = resolveColor(item.color);
+            const displayLabel = isAr ? item.labelAr : item.label;
             return (
               <Tooltip key={item.moodLevel}>
                 <TooltipTrigger asChild>
                   <div
-                    className={`${bgClass} transition-all`}
-                    style={{ width: `${item.percent}%` }}
+                    className={`${resolved.className ?? ''} transition-all`}
+                    style={{ width: `${item.percent}%`, ...resolved.style }}
                   />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <span>{item.emoji} {item.label}: {item.count} ({item.percent}%)</span>
+                  <span>{item.emoji} {displayLabel}: {item.count} ({item.percent}%)</span>
                 </TooltipContent>
               </Tooltip>
             );
@@ -62,12 +74,15 @@ export function MoodDistributionBar({ breakdown }: Props) {
         </div>
         {/* Legend */}
         <div className="flex flex-wrap gap-3">
-          {breakdown.map(item => (
-            <div key={item.moodLevel} className="flex items-center gap-1.5 text-sm">
-              <span>{item.emoji}</span>
-              <span className="text-muted-foreground">{item.count}</span>
-            </div>
-          ))}
+          {breakdown.map(item => {
+            const displayLabel = isAr ? item.labelAr : item.label;
+            return (
+              <div key={item.moodLevel} className="flex items-center gap-1.5 text-sm">
+                <span>{item.emoji}</span>
+                <span className="text-muted-foreground">{displayLabel} ({item.count})</span>
+              </div>
+            );
+          })}
         </div>
       </CardContent>
     </Card>
