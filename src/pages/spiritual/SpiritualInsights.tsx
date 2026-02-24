@@ -36,7 +36,7 @@ function CorrelationCards({ insights }: { insights: InsightCard[] }) {
 
   if (insights.length === 0) {
     return (
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardContent className="p-8 text-center space-y-2">
           <Sparkles className="h-8 w-8 mx-auto text-muted-foreground" />
           <p className="text-sm text-muted-foreground">{t('spiritual.insights.notEnoughData')}</p>
@@ -49,7 +49,7 @@ function CorrelationCards({ insights }: { insights: InsightCard[] }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {insights.map((insight, i) => (
-        <Card key={i}>
+        <Card key={i} className="glass-stat border-0 rounded-xl">
           <CardContent className="p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ function ReportCard({ report }: { report: SpiritualReport }) {
   const data = report.report_data;
 
   return (
-    <Card>
+    <Card className="glass-card border-0 rounded-xl">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base flex items-center gap-2">
@@ -249,7 +249,7 @@ export default function SpiritualInsights() {
   if (!isEnabled) {
     return (
       <div className="container mx-auto py-6">
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardContent className="p-12 text-center space-y-4">
             <Sparkles className="h-12 w-12 mx-auto text-muted-foreground" />
             <h2 className="text-xl font-semibold">{t('spiritual.insights.notEnabled')}</h2>
@@ -273,7 +273,7 @@ export default function SpiritualInsights() {
       </div>
 
       {/* Current mood */}
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardContent className="p-4 flex items-center gap-4">
           <div className="text-3xl font-bold text-primary">{avgMood7d || '—'}</div>
           <div>
@@ -321,7 +321,7 @@ export default function SpiritualInsights() {
           {reportsLoading ? (
             <Skeleton className="h-48" />
           ) : reports.length === 0 ? (
-            <Card>
+            <Card className="glass-card border-0 rounded-xl">
               <CardContent className="p-8 text-center space-y-2">
                 <FileText className="h-8 w-8 mx-auto text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">{t('spiritual.insights.noReports')}</p>

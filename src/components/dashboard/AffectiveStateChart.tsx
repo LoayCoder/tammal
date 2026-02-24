@@ -58,10 +58,11 @@ export function AffectiveStateChart({ data, isLoading }: AffectiveStateChartProp
               </Pie>
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
+                  backgroundColor: 'hsl(var(--popover))',
                   border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: 12,
+                  boxShadow: '0 8px 32px hsl(var(--primary) / 0.1)',
                 }}
                 formatter={(value: number, name: string) => [`${value} (${Math.round((value / totalCount) * 100)}%)`, name]}
               />

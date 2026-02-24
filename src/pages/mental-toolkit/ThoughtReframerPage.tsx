@@ -178,11 +178,10 @@ export default function ThoughtReframerPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-card border-b border-border px-4 py-5 sm:px-6">
+      <div className="glass-card border-0 rounded-none border-b border-border/50 px-4 py-5 sm:px-6">
         <div className="max-w-2xl mx-auto flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
-            style={{ background: `linear-gradient(135deg, ${PALETTE.lavender}, ${PALETTE.sage})` }}>
-            <RefreshCw className="h-5 w-5 text-card" />
+          <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 bg-primary/10">
+            <RefreshCw className="h-5 w-5 text-primary" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-foreground">{t("mentalToolkit.thoughtReframer.title")}</h1>
@@ -200,7 +199,7 @@ export default function ThoughtReframerPage() {
               { label: t("mentalToolkit.thoughtReframer.statsMonth"), value: stats.thisMonth, icon: "📅" },
               { label: t("mentalToolkit.thoughtReframer.statsStreak"), value: `${stats.streak}d`, icon: "🔥" },
             ].map((s) => (
-              <Card key={s.label} className="rounded-2xl">
+              <Card key={s.label} className="glass-stat border-0 rounded-2xl">
                 <CardContent className="py-3 px-3 flex items-center gap-2">
                   <span className="text-lg">{s.icon}</span>
                   <div>
@@ -214,7 +213,7 @@ export default function ThoughtReframerPage() {
         )}
 
         {/* Wizard */}
-        <Card className="rounded-2xl overflow-hidden">
+        <Card className="glass-card border-0 rounded-2xl overflow-hidden">
           <CardContent className="p-0">
             {/* Step Indicator */}
             {!showSummary && (

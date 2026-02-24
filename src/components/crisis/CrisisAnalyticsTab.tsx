@@ -43,7 +43,7 @@ export default function CrisisAnalyticsTab({ tenantId }: { tenantId?: string }) 
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Monthly Cases Bar Chart */}
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardHeader>
             <CardTitle className="text-base">{t('crisisSupport.analytics.monthlyCases')}</CardTitle>
           </CardHeader>
@@ -61,7 +61,7 @@ export default function CrisisAnalyticsTab({ tenantId }: { tenantId?: string }) 
         </Card>
 
         {/* Risk Distribution Pie */}
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardHeader>
             <CardTitle className="text-base">{t('crisisSupport.analytics.riskDistribution')}</CardTitle>
           </CardHeader>
@@ -85,7 +85,7 @@ export default function CrisisAnalyticsTab({ tenantId }: { tenantId?: string }) 
         </Card>
 
         {/* Intent Distribution */}
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardHeader>
             <CardTitle className="text-base">{t('crisisSupport.analytics.intentDistribution')}</CardTitle>
           </CardHeader>
@@ -103,7 +103,7 @@ export default function CrisisAnalyticsTab({ tenantId }: { tenantId?: string }) 
         </Card>
 
         {/* First Aider Load */}
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardHeader>
             <CardTitle className="text-base">{t('crisisSupport.analytics.firstAiderLoad')}</CardTitle>
           </CardHeader>
@@ -132,7 +132,7 @@ export default function CrisisAnalyticsTab({ tenantId }: { tenantId?: string }) 
 
 function KPICard({ icon: Icon, label, value, variant }: { icon: any; label: string; value: string | number; variant?: 'destructive' }) {
   return (
-    <Card>
+    <Card className="glass-stat border-0 rounded-xl">
       <CardContent className="pt-4 pb-3 px-4">
         <div className="flex items-center gap-2 mb-2">
           <Icon className={`h-4 w-4 ${variant === 'destructive' ? 'text-destructive' : 'text-muted-foreground'}`} />

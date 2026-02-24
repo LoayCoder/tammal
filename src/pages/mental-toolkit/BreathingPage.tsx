@@ -82,10 +82,10 @@ export default function BreathingPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-card border-b border-border px-4 py-5 sm:px-6">
+      <div className="glass-card border-0 rounded-none border-b border-border/50 px-4 py-5 sm:px-6">
         <div className="max-w-2xl mx-auto flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ background: `linear-gradient(135deg, ${PALETTE.sage}, ${PALETTE.lavender})` }}>
-            <Wind className="h-5 w-5 text-card" />
+          <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 bg-primary/10">
+            <Wind className="h-5 w-5 text-primary" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-foreground">{t("mentalToolkit.breathing.title")}</h1>
@@ -111,7 +111,7 @@ export default function BreathingPage() {
 
         {/* ── SETUP STATE ── */}
         {pageState === "setup" && (
-          <Card className="rounded-2xl">
+          <Card className="glass-card border-0 rounded-2xl">
             <CardContent className="p-5 space-y-5">
               {/* Technique Selector */}
               <div>
@@ -192,7 +192,7 @@ export default function BreathingPage() {
 
         {/* ── ACTIVE SESSION ── */}
         {pageState === "active" && (
-          <Card className="rounded-2xl">
+          <Card className="glass-card border-0 rounded-2xl">
             <CardContent className="p-5">
               <BreathingGroundingTool
                 technique={technique}
@@ -206,7 +206,7 @@ export default function BreathingPage() {
 
         {/* ── COMPLETION STATE ── */}
         {pageState === "complete" && (
-          <Card className="rounded-2xl">
+          <Card className="glass-card border-0 rounded-2xl">
             <CardContent className="p-6 text-center space-y-5 animate-in fade-in duration-500">
               <div className="text-5xl">🌿</div>
               <h2 className="text-xl font-bold text-foreground">{t("mentalToolkit.breathing.complete")}</h2>
@@ -255,7 +255,7 @@ export default function BreathingPage() {
         <div>
           <h3 className="text-base font-semibold text-foreground mb-3">{t("mentalToolkit.breathing.viewHistory")}</h3>
           {sessions.length === 0 ? (
-            <Card className="rounded-2xl border-dashed">
+            <Card className="glass-card border-0 rounded-2xl border-dashed">
               <CardContent className="py-10 text-center space-y-2">
                 <Wind className="h-10 w-10 mx-auto text-muted-foreground" />
                 <p className="text-sm font-medium text-foreground">{t("mentalToolkit.breathing.noSessionsYet")}</p>
@@ -265,7 +265,7 @@ export default function BreathingPage() {
           ) : (
             <div className="space-y-2">
               {sessions.slice(0, 10).map((s: BreathingSession) => (
-                <Card key={s.id} className="rounded-xl">
+                <Card key={s.id} className="glass-card border-0 rounded-xl">
                   <CardContent className="py-3 px-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className="text-xl">{TECHNIQUE_INFO[s.technique as Technique]?.emoji || "🌬️"}</span>
@@ -304,7 +304,7 @@ export default function BreathingPage() {
 
 function StatPill({ icon, color, value, label }: { icon: React.ReactNode; color: string; value: string | number; label: string }) {
   return (
-    <Card className="rounded-2xl">
+    <Card className="glass-stat border-0 rounded-2xl">
       <CardContent className="pt-4 pb-3 px-3 flex flex-col items-center text-center gap-1">
         <span style={{ color }}>{icon}</span>
         <span className="text-xl font-bold text-foreground">{value}</span>

@@ -63,7 +63,7 @@ export default function SunnahFasting() {
   if (!isActive) {
     return (
       <div className="container mx-auto py-6">
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardContent className="p-12 text-center space-y-4">
             <UtensilsCrossed className="h-12 w-12 mx-auto text-muted-foreground" />
             <h2 className="text-xl font-semibold">{t('spiritual.fasting.notEnabled')}</h2>
@@ -88,7 +88,7 @@ export default function SunnahFasting() {
 
       {/* Suggestion banner */}
       {suggestedType && !todayLog && (
-        <Card className="border-primary/30 bg-primary/5">
+        <Card className="glass-card border-0 rounded-xl border-primary/30 bg-primary/5">
           <CardContent className="p-4 flex items-center gap-3">
             <Calendar className="h-5 w-5 text-primary" />
             <p className="text-sm">
@@ -104,7 +104,7 @@ export default function SunnahFasting() {
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
+        <Card className="glass-stat border-0 rounded-xl">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="rounded-full bg-primary/10 p-2">
               <Check className="h-5 w-5 text-primary" />
@@ -115,7 +115,7 @@ export default function SunnahFasting() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="glass-stat border-0 rounded-xl">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="rounded-full bg-primary/10 p-2">
               <Calendar className="h-5 w-5 text-primary" />
@@ -126,7 +126,7 @@ export default function SunnahFasting() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="glass-stat border-0 rounded-xl">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="rounded-full bg-primary/10 p-2">
               <Zap className="h-5 w-5 text-primary" />
@@ -144,7 +144,7 @@ export default function SunnahFasting() {
       </div>
 
       {/* Today's check-in */}
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <CardTitle className="text-lg">{t('spiritual.fasting.todayCheckin')}</CardTitle>
           <CardDescription>
@@ -223,7 +223,7 @@ export default function SunnahFasting() {
       </Card>
 
       {/* History */}
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <CardTitle className="text-lg">{t('spiritual.fasting.history')}</CardTitle>
         </CardHeader>
