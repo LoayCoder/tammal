@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { Branch, BranchInput } from '@/hooks/useBranches';
+import type { Branch, BranchInput } from '@/hooks/org/useBranches';
 
 interface BranchSheetProps {
   open: boolean;

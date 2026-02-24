@@ -8,9 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Slider } from '@/components/ui/slider';
 import { Brain, CheckCircle2, ChevronDown } from 'lucide-react';
-import { useMoodPathwayQuestions } from '@/hooks/useMoodPathwayQuestions';
-import { useMoodQuestionConfig } from '@/hooks/useMoodQuestionConfig';
-import { Question } from '@/hooks/useQuestions';
+import { useMoodPathwayQuestions } from '@/hooks/wellness/useMoodPathwayQuestions';
+import { useMoodQuestionConfig } from '@/hooks/wellness/useMoodQuestionConfig';
+import { Question } from '@/hooks/questions/useQuestions';
 
 export interface PathwayAnswer {
   questionId: string;

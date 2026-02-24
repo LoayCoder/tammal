@@ -7,10 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 
 import { BookOpen, ChevronDown, Plus, Pencil, Trash2, Check, Search, CheckCheck, XCircle, FileText } from 'lucide-react';
-import { ReferenceFramework } from '@/hooks/useReferenceFrameworks';
+import { ReferenceFramework } from '@/hooks/questions/useReferenceFrameworks';
 import { FrameworkDialog } from './FrameworkDialog';
 import { FrameworkDocuments } from './FrameworkDocuments';
-import { useFrameworkDocuments } from '@/hooks/useFrameworkDocuments';
+import { useFrameworkDocuments } from '@/hooks/questions/useFrameworkDocuments';
 
 interface FrameworkSelectorProps {
   frameworks: ReferenceFramework[];

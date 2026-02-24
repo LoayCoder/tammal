@@ -9,8 +9,8 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useEmergencyContacts, type EmergencyContact } from '@/hooks/useCrisisSupport';
-import { useProfile } from '@/hooks/useProfile';
+import { useEmergencyContacts, type EmergencyContact } from '@/hooks/crisis/useCrisisSupport';
+import { useProfile } from '@/hooks/auth/useProfile';
 import { Plus, Trash2, Edit } from 'lucide-react';
 import { toast } from 'sonner';
 

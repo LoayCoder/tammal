@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Employee } from "@/hooks/useEmployees";
+import { Employee } from "@/hooks/org/useEmployees";
 
 interface ManagerSelectProps {
   employees: Employee[];

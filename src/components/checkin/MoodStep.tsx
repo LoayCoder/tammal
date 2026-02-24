@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useMoodDefinitions, type MoodDefinition } from '@/hooks/useMoodDefinitions';
+import { useMoodDefinitions, type MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';

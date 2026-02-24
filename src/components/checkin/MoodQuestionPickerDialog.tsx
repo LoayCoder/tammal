@@ -9,8 +9,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Tag } from 'lucide-react';
-import { useQuestions, Question } from '@/hooks/useQuestions';
-import { useQuestionCategories } from '@/hooks/useQuestionCategories';
+import { useQuestions, Question } from '@/hooks/questions/useQuestions';
+import { useQuestionCategories } from '@/hooks/questions/useQuestionCategories';
 
 const MOOD_META: Record<string, { emoji: string; label: string; label_ar: string }> = {
   great: { emoji: '😄', label: 'Great', label_ar: 'ممتاز' },

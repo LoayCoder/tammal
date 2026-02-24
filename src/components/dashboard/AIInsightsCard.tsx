@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Brain, RefreshCw, Lightbulb, AlertTriangle, TrendingUp } from 'lucide-react';
-import { useWellnessInsights, type WellnessInsight } from '@/hooks/useWellnessInsights';
+import { useWellnessInsights, type WellnessInsight } from '@/hooks/analytics/useWellnessInsights';
 
 interface Props {
   analyticsData: any;

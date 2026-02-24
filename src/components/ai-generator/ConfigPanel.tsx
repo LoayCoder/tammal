@@ -15,17 +15,17 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 import { differenceInDays, parseISO } from 'date-fns';
-import { AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
+import { AdvancedSettings } from '@/hooks/questions/useEnhancedAIGeneration';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { KnowledgeBasePanel } from './KnowledgeBasePanel';
 import { FrameworkSelector } from './FrameworkSelector';
 import { CreatePeriodDialog } from './CreatePeriodDialog';
 import { DistributionPreview } from './DistributionPreview';
-import { KnowledgeDocument } from '@/hooks/useAIKnowledge';
-import { ReferenceFramework } from '@/hooks/useReferenceFrameworks';
-import { GenerationPeriod } from '@/hooks/useGenerationPeriods';
-import { useQuestionCategories } from '@/hooks/useQuestionCategories';
-import { useQuestionSubcategories } from '@/hooks/useQuestionSubcategories';
+import { KnowledgeDocument } from '@/hooks/questions/useAIKnowledge';
+import { ReferenceFramework } from '@/hooks/questions/useReferenceFrameworks';
+import { GenerationPeriod } from '@/hooks/questions/useGenerationPeriods';
+import { useQuestionCategories } from '@/hooks/questions/useQuestionCategories';
+import { useQuestionSubcategories } from '@/hooks/questions/useQuestionSubcategories';
 import { useState } from 'react';
 
 export type QuestionPurpose = 'survey' | 'wellness';

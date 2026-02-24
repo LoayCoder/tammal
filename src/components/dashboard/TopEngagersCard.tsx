@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Trophy, Medal, Award, Flame, MessageSquare } from 'lucide-react';
-import type { TopEngager } from '@/hooks/useOrgAnalytics';
+import type { TopEngager } from '@/hooks/analytics/useOrgAnalytics';
 
 interface Props {
   data: TopEngager[];

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useOrgAnalytics, type TimeRange, type OrgFilter } from '@/hooks/useOrgAnalytics';
+import { useOrgAnalytics, type TimeRange, type OrgFilter } from '@/hooks/analytics/useOrgAnalytics';
 import { TimeRangeSelector } from './TimeRangeSelector';
 import { OrgFilterBar } from './OrgFilterBar';
 import { CategoryHealthChart } from './CategoryHealthChart';

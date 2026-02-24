@@ -13,7 +13,7 @@ import {
   Upload, ChevronDown, Trash2, FileText, Loader2,
   Wand2, Brain, Info,
 } from 'lucide-react';
-import { KnowledgeDocument } from '@/hooks/useAIKnowledge';
+import { KnowledgeDocument } from '@/hooks/questions/useAIKnowledge';
 
 interface KnowledgeBasePanelProps {
   documents: KnowledgeDocument[];

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { CalendarIcon } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
-import type { TimeRange } from '@/hooks/useOrgAnalytics';
+import type { TimeRange } from '@/hooks/analytics/useOrgAnalytics';
 
 interface TimeRangeSelectorProps {
   value: TimeRange;

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirstAiders, useFirstAiderSchedule } from '@/hooks/useCrisisSupport';
+import { useFirstAiders, useFirstAiderSchedule } from '@/hooks/crisis/useCrisisSupport';
 import { toast } from 'sonner';
 
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;

@@ -3,11 +3,11 @@ import { Outlet } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { Header } from "./Header";
-import { useBranding } from "@/hooks/useBranding";
-import { useBrandingColors } from "@/hooks/useBrandingColors";
-import { useDynamicFavicon } from "@/hooks/useDynamicFavicon";
-import { useDynamicPWA } from "@/hooks/useDynamicPWA";
-import { useTenantId } from "@/hooks/useTenantId";
+import { useBranding } from "@/hooks/branding/useBranding";
+import { useBrandingColors } from "@/hooks/branding/useBrandingColors";
+import { useDynamicFavicon } from "@/hooks/branding/useDynamicFavicon";
+import { useDynamicPWA } from "@/hooks/branding/useDynamicPWA";
+import { useTenantId } from "@/hooks/org/useTenantId";
 
 export function MainLayout() {
   const { tenantId } = useTenantId();

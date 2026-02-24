@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import type { StreakBucket } from '@/hooks/useOrgAnalytics';
+import type { StreakBucket } from '@/hooks/analytics/useOrgAnalytics';
 
 interface Props {
   data: StreakBucket[];

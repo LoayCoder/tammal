@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, AlertTriangle, XCircle, ChevronDown, ArrowRight } from 'lucide-react';
-import { ValidationReport as ValidationReportType } from '@/hooks/useEnhancedAIGeneration';
+import { ValidationReport as ValidationReportType } from '@/hooks/questions/useEnhancedAIGeneration';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 

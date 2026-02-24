@@ -4,9 +4,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import type { WorkSite } from '@/hooks/useWorkSites';
-import type { Department } from '@/hooks/useDepartments';
-import type { Site } from '@/hooks/useSites';
+import type { WorkSite } from '@/hooks/org/useWorkSites';
+import type { Department } from '@/hooks/org/useDepartments';
+import type { Site } from '@/hooks/org/useSites';
 
 interface WorkSiteTableProps {
   workSites: WorkSite[];

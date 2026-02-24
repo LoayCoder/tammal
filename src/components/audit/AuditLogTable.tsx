@@ -19,7 +19,7 @@ import {
   Plus, Edit, Trash2, ToggleLeft, RefreshCw, 
   Building2, CreditCard, Users, Layers, Eye 
 } from 'lucide-react';
-import type { AuditLog } from '@/hooks/useAuditLog';
+import type { AuditLog } from '@/hooks/audit/useAuditLog';
 
 interface AuditLogTableProps {
   logs: AuditLog[];

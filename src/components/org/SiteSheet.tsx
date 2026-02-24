@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { Site, SiteInput } from '@/hooks/useSites';
-import type { Department } from '@/hooks/useDepartments';
-import type { Branch } from '@/hooks/useBranches';
-import type { Employee } from '@/hooks/useEmployees';
+import type { Site, SiteInput } from '@/hooks/org/useSites';
+import type { Department } from '@/hooks/org/useDepartments';
+import type { Branch } from '@/hooks/org/useBranches';
+import type { Employee } from '@/hooks/org/useEmployees';
 
 interface SiteSheetProps {
   open: boolean;
