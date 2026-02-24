@@ -276,7 +276,7 @@ export default function EmployeeHome() {
                     {avgMood7d}/5
                   </span>
                 </div>
-                <div className="relative h-3 w-full overflow-hidden rounded-full bg-secondary/20">
+                <div className="relative h-3 w-full overflow-hidden rounded-full bg-muted">
                   <div
                     className={`h-full rounded-full transition-all duration-700 ${burnoutBg}`}
                     style={{ width: `${burnoutPercent}%` }}
