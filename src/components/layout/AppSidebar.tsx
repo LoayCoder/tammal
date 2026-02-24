@@ -168,9 +168,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     },
     {
       label: t('nav.workloadIntelligence'),
-      access: 'admin',
+      access: 'all',
       items: [
-        { title: t('nav.objectives'), url: "/admin/workload/objectives", icon: Target },
+        { title: t('nav.myWorkload'), url: "/my-workload", icon: ClipboardList, access: 'employee' },
+        { title: t('nav.objectives'), url: "/admin/workload/objectives", icon: Target, access: 'admin' },
       ]
     },
     {
