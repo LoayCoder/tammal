@@ -45,7 +45,7 @@ export function TopControlBar({
   const selectedModelData = models.find(m => m.model_key === selectedModel);
 
   return (
-    <div className="flex items-center justify-between gap-4 p-4 rounded-lg border bg-card flex-wrap">
+    <div className="flex items-center justify-between gap-4 p-4 rounded-xl flex-wrap">
       <div className="flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <Tooltip>
