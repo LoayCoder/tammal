@@ -2241,6 +2241,7 @@
     "last14Days": "Your mood over the last 14 days",
     "noMoodData": "Start checking in to see your mood trends",
     "burnout": "Wellness Indicator",
+    "burnoutPeriod": "Based on last 7 days",
     "thriving": "Thriving",
     "watch": "Watch",
     "atRisk": "At Risk",
