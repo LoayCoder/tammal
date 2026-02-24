@@ -143,13 +143,13 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
     enabled: !!employeeId,
   });
 
-  // Fetch survey schedule metadata (start/end dates) for time-window enforcement
+  // BUG-13 fix: Fetch ALL survey schedule metadata, not just the first one.
+  // Returns the schedule whose time window is currently active (or the earliest upcoming one).
   const { data: surveyMeta } = useQuery({
     queryKey: ['survey-schedule-meta', employeeId],
     queryFn: async () => {
       if (!employeeId) return null;
 
-      // Get the survey schedules that have questions assigned to this employee
       const { data: sqData } = await supabase
         .from('scheduled_questions')
         .select('schedule_id')
@@ -169,14 +169,35 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
 
       if (!schedules?.length) return null;
 
-      // Return the first active survey schedule meta
-      const s = schedules[0];
-      return {
+      // Pick the most relevant schedule: prefer currently-open, then earliest upcoming
+      const now = new Date();
+      const mapped = schedules.map(s => ({
         schedule_id: s.id,
         schedule_name: s.name,
         start_date: s.start_date,
         end_date: s.end_date,
-      } as SurveyScheduleMeta;
+      } as SurveyScheduleMeta));
+
+      // Currently open window
+      const active = mapped.find(m => {
+        const started = !m.start_date || new Date(m.start_date) <= now;
+        const notEnded = !m.end_date || new Date(m.end_date) >= now;
+        return started && notEnded;
+      });
+      if (active) return active;
+
+      // Earliest upcoming
+      const upcoming = mapped
+        .filter(m => m.start_date && new Date(m.start_date) > now)
+        .sort((a, b) => new Date(a.start_date!).getTime() - new Date(b.start_date!).getTime());
+      if (upcoming.length) return upcoming[0];
+
+      // Fallback: most recently ended
+      return mapped.sort((a, b) => {
+        const aEnd = a.end_date ? new Date(a.end_date).getTime() : 0;
+        const bEnd = b.end_date ? new Date(b.end_date).getTime() : 0;
+        return bEnd - aEnd;
+      })[0];
     },
     enabled: !!employeeId,
   });

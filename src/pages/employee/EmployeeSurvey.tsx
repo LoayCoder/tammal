@@ -30,7 +30,11 @@ export default function EmployeeSurvey() {
   const [answers, setAnswers] = useState<Record<string, unknown>>({});
   const [surveySessionId, setSurveySessionId] = useState<string>(() => crypto.randomUUID());
 
-  // Pre-populate from drafts and reuse existing session ID
+  // BUG-11 (documented): Draft pre-population intentionally uses { ...drafts, ...prev }
+  // so that user-typed answers (already in `prev`) take priority over late-arriving drafts.
+  // This is the correct merge order: if a user starts typing before drafts load, their
+  // in-progress answers are preserved. The dependency array only includes draftResponses,
+  // so this effect only fires when drafts load/change, not on every keystroke.
   useEffect(() => {
     if (draftResponses.length > 0) {
       const drafts: Record<string, unknown> = {};
