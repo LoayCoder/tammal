@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -18,6 +18,8 @@ import {
   Calendar,
   Heart,
   ChevronRight,
+  Phone,
+  HeartHandshake,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -194,7 +196,40 @@ export default function EmployeeHome() {
           </Card>
         </div>
 
-        {/* Mood History Chart */}
+        {/* Quick Actions */}
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold">{t('dashboard.quickActions')}</h2>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+            <Link to="/crisis-support">
+              <Card className="glass-card border-0 ring-1 ring-destructive/20 cursor-pointer transition-all hover:shadow-lg hover:ring-destructive/40">
+                <CardContent className="flex items-center gap-4 p-5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-destructive/10">
+                    <Phone className="h-6 w-6 text-destructive" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm">{t('crisisSupport.nav.crisisSupport')}</h3>
+                    <p className="text-muted-foreground text-xs mt-0.5">{t('dashboard.crisisSupportDesc')}</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
+                </CardContent>
+              </Card>
+            </Link>
+            <Link to="/first-aider">
+              <Card className="glass-card border-0 ring-1 ring-chart-1/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-1/40">
+                <CardContent className="flex items-center gap-4 p-5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-chart-1/10">
+                    <HeartHandshake className="h-6 w-6 text-chart-1" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm">{t('crisisSupport.nav.firstAider')}</h3>
+                    <p className="text-muted-foreground text-xs mt-0.5">{t('dashboard.firstAiderDesc')}</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </div>
         <Card className="glass-card border-0">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">{t('home.moodHistory')}</CardTitle>
