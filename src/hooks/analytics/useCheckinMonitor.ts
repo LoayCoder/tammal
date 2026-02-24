@@ -4,7 +4,7 @@ import { format, subDays } from 'date-fns';
 import type { OrgFilters } from '@/hooks/analytics/useSurveyMonitor';
 import type { Database } from '@/integrations/supabase/types';
 
-export type DateRange = 'today' | '7d' | '30d';
+export type DateRange = 'today' | '7d' | '30d' | 'ytd';
 
 type MoodEntryRow = Database['public']['Tables']['mood_entries']['Row'];
 type MoodDefinitionRow = Database['public']['Tables']['mood_definitions']['Row'];
@@ -80,6 +80,10 @@ export function useCheckinMonitor(
   const rangeStart = (() => {
     if (dateRange === '7d') return format(subDays(new Date(), 6), 'yyyy-MM-dd');
     if (dateRange === '30d') return format(subDays(new Date(), 29), 'yyyy-MM-dd');
+    if (dateRange === 'ytd') {
+      const now = new Date();
+      return format(new Date(now.getFullYear(), 0, 1), 'yyyy-MM-dd');
+    }
     return today;
   })();
 
