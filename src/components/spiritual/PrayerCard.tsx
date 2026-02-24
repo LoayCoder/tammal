@@ -14,10 +14,10 @@ interface PrayerCardProps {
 }
 
 const STATUS_STYLES: Record<string, { border: string; bg: string }> = {
-  completed_mosque: { border: 'border-emerald-500/40', bg: 'bg-emerald-500/[0.02]' },
-  completed_home:   { border: 'border-amber-500/40',   bg: 'bg-amber-500/[0.02]' },
-  completed_work:   { border: 'border-gray-500/40',     bg: 'bg-gray-500/[0.02]' },
-  missed:           { border: 'border-red-500/40',       bg: 'bg-red-500/[0.02]' },
+  completed_mosque: { border: 'border-emerald-500/40', bg: 'bg-emerald-500/20' },
+  completed_home:   { border: 'border-amber-500/40',   bg: 'bg-amber-500/20' },
+  completed_work:   { border: 'border-gray-500/40',     bg: 'bg-gray-500/20' },
+  missed:           { border: 'border-red-500/40',       bg: 'bg-red-500/20' },
 };
 
 export function PrayerCard({ prayerName, prayerTime, log, onLog, isPending }: PrayerCardProps) {
