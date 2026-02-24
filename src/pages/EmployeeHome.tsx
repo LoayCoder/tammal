@@ -60,8 +60,7 @@ export default function EmployeeHome() {
   const isAr = i18n.language === 'ar';
   const firstName = employee?.full_name?.split(' ')[0] ?? '';
 
-  const burnoutPercent =
-    burnoutZone === 'thriving' ? 85 : burnoutZone === 'watch' ? 55 : 25;
+  const burnoutPercent = Math.round((avgMood7d / 5) * 100);
 
   const burnoutColor =
     burnoutZone === 'thriving'
