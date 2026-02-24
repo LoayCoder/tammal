@@ -179,6 +179,8 @@ export function OrgDashboard() {
             <CategoryHealthChart data={stats?.categoryScores ?? []} isLoading={isLoading} />
             <AffectiveStateChart data={stats?.affectiveDistribution ?? []} isLoading={isLoading} />
           </div>
+
+          <TopEngagersCard data={stats?.topEngagers ?? []} isLoading={isLoading} />
         </TabsContent>
 
         {/* ── Deep Analysis Tab ── */}
