@@ -1,234 +1,128 @@
 
 
-# Admin Monitoring & Support System for Survey Process
+# Fix Survey Monitor: Full Functionality, Real Data, No Gaps
 
-## Overview
+## Issues Found
 
-This plan implements a comprehensive admin framework for monitoring published surveys, handling user support tickets, tracking survey interactions, sending notifications/escalations, and enforcing data privacy -- all integrated into the existing survey pipeline.
+1. **Trend Chart Always Empty** -- The `ParticipationTrend` relies on `survey_monitor_snapshots` table which has zero rows. No mechanism exists to populate it. The chart should compute trend data live from `employee_responses` timestamps instead.
 
-The implementation is split into **5 phases** matching the 5 requirement areas, delivered as incremental work.
+2. **Department Heatmap Shows Question Counts, Not Employee Counts** -- Currently displays "50/25 (50%)" which is confusing. It counts per-question completion, not per-employee. Should aggregate at the employee level: an employee is "completed" if ALL their questions are answered.
 
----
+3. **No Employee-Level Detail** -- The dashboard lacks any visibility into which employees have completed, are in progress, or haven't started. Admin needs an employee breakdown table.
 
-## Phase 1: Survey Monitoring Dashboard
+4. **No Branch/Division Filter** -- The dashboard only has the survey selector. Missing org-structure filters (Branch, Division, Department) to drill down into participation data.
 
-### What It Does
-A new admin page at `/admin/survey-monitor` that shows real-time progress of all published (active) surveys. Admins can select a survey and see participation stats, status breakdowns, department heatmaps, and timeline trends.
+5. **Stats Count Questions Not Employees** -- `totalTargeted: 50` is misleading when there are only 2 employees with 25 questions each. Should show both question-level and employee-level metrics.
 
-### Database Changes
-- **New table: `survey_monitor_snapshots`** -- Stores periodic aggregated participation data for trend-over-time charts (tenant_id, schedule_id, snapshot_date, stats JSONB). RLS: super_admin ALL, tenant_admin read/write for own tenant.
-
-No other new tables needed -- participation data is already derivable from `scheduled_questions` (status field: pending, delivered, answered, skipped, expired, failed) and `employee_responses` (is_draft, deleted_at).
-
-### New Components
-- `src/pages/admin/SurveyMonitor.tsx` -- Main page with survey selector and dashboard tabs
-- `src/components/survey-monitor/ParticipationOverview.tsx` -- Cards: Total Targeted, Not Started, In Progress (draft), Completed, Expired, overall completion %
-- `src/components/survey-monitor/DepartmentHeatmap.tsx` -- Color-coded participation rate by department/branch (reuses existing org structure queries)
-- `src/components/survey-monitor/ParticipationTrend.tsx` -- Line chart showing completion rate over the survey window (uses snapshot data)
-- `src/components/survey-monitor/SLAIndicator.tsx` -- Shows start/end time window, time remaining, warning if nearing deadline
-- `src/components/survey-monitor/RiskPanel.tsx` -- Highlights departments/branches with participation below a configurable threshold
-
-### New Hook
-- `src/hooks/analytics/useSurveyMonitor.ts` -- Fetches and computes stats from `scheduled_questions` + `employee_responses` for a given schedule_id
-
-### Route & Sidebar
-- Route: `/admin/survey-monitor` wrapped in `AdminRoute`
-- Sidebar: Added under "Survey System" group with a BarChart3 icon
-
-### Status Mapping
-```text
-Not Started  = scheduled_questions.status = 'pending' AND no employee_response exists
-In Progress  = employee_responses.is_draft = true (draft saved)
-Completed    = scheduled_questions.status = 'answered'
-Expired      = scheduled_questions.status = 'expired'
-```
+6. **`survey_monitor_snapshots` Table Unused** -- Table exists but nothing writes to it. Either populate it or replace with live computation.
 
 ---
 
-## Phase 2: Support Ticketing System
+## Solution
 
-### What It Does
-A ticket system where employees can report survey-related issues, and admins can track, assign, and resolve them.
+### 1. Rewrite `useSurveyMonitor` Hook -- Employee-Centric Metrics
 
-### Database Changes
+Refactor the hook to compute stats at **employee level** (primary) alongside question-level detail:
 
-**New table: `support_tickets`**
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | PK |
-| tenant_id | uuid | RLS isolation |
-| reporter_user_id | uuid | Who filed |
-| schedule_id | uuid | nullable, links to survey |
-| assigned_to | uuid | nullable, support owner |
-| priority | text | low/medium/high/critical |
-| status | text | open/in_review/resolved/closed |
-| subject | text | Title |
-| description | text | Body |
-| category | text | technical/clarification/access/other |
-| created_at | timestamptz | |
-| updated_at | timestamptz | |
-| resolved_at | timestamptz | nullable |
-| deleted_at | timestamptz | Soft delete |
+- **Employee Stats**: Total employees targeted, employees completed (all questions answered), employees in progress (some answered/draft), employees not started
+- **Question Stats**: Keep existing question-level breakdown as secondary detail
+- **Department Stats**: Compute per-department using employee-level completion (employee completed = all their questions answered)
+- **Employee List**: Return full employee breakdown (name, department, status, question progress) for the detail table
+- **Live Trend Data**: Instead of relying on empty `survey_monitor_snapshots`, compute trend from `employee_responses.created_at` -- group responses by date to show how completion grew over time
 
-RLS: super_admin ALL, tenant_admin ALL for own tenant, users can INSERT + SELECT own tickets.
+### 2. Add Org-Structure Filters to SurveyMonitor Page
 
-**New table: `support_ticket_comments`**
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | PK |
-| ticket_id | uuid | FK to support_tickets |
-| user_id | uuid | commenter |
-| tenant_id | uuid | RLS |
-| message | text | |
-| is_internal | boolean | Admin-only note |
-| created_at | timestamptz | |
+Add filter bar with:
+- **Branch** filter (from `branches` table)
+- **Division** filter (from `divisions` table)  
+- **Department** filter (from `departments` table, cascading based on selected division/branch)
 
-RLS: super_admin ALL, tenant_admin ALL for own tenant, users can read non-internal comments on own tickets + insert comments on own tickets.
+Filters narrow down all stats, heatmap, employee list, and trend chart. Uses existing `useBranches`, `useDivisions`, `useDepartments` hooks.
 
-### Audit Integration
-All status changes on support_tickets are logged to `audit_logs` using the existing `useAuditLog` hook.
+### 3. New Component: `EmployeeStatusTable`
 
-### New Components
-- `src/pages/admin/SurveySupport.tsx` -- Admin view: ticket table with filters (status, priority, survey, assignee)
-- `src/components/support/TicketTable.tsx` -- Filterable, sortable table
-- `src/components/support/TicketDetailDialog.tsx` -- View ticket + comment thread + status controls
-- `src/components/support/CreateTicketDialog.tsx` -- Employee-facing form (also accessible from survey page)
+A new table component showing per-employee breakdown:
+- Employee name (bilingual)
+- Department name (bilingual)
+- Status badge (Completed / In Progress / Not Started)
+- Progress fraction (e.g., "15/25 questions")
+- Last activity timestamp
 
-### New Hooks
-- `src/hooks/support/useSupportTickets.ts` -- CRUD for tickets
-- `src/hooks/support/useTicketComments.ts` -- CRUD for comments
+Searchable by employee name. Sortable by status and progress.
 
-### Routes
-- `/admin/survey-support` -- Admin ticket dashboard (AdminRoute)
-- The existing `/support` page will link to "Survey Issues" section
+### 4. Fix `ParticipationTrend` -- Live Computed Chart
+
+Replace snapshot-based approach with live computation:
+- Query `employee_responses` for the selected schedule, grouped by `DATE(created_at)`
+- Build cumulative completion curve showing how many employees completed over time
+- Show both "completed responses" and "completion %" lines
+
+### 5. Fix `DepartmentHeatmap` -- Employee-Level Rates
+
+Change display from question counts to employee counts:
+- "2 employees: 1/2 completed (50%)" instead of "50/25 questions"
+- Color coding remains the same (green >= 80%, yellow >= 50%, red < 50%)
+
+### 6. Fix `ParticipationOverview` -- Dual Metrics
+
+Show employee-level metrics as the primary row and question-level as secondary:
+- Primary cards: Employees Targeted, Employees Completed, Employees In Progress, Employees Not Started
+- Secondary row: Total Questions, Questions Answered, Completion %
 
 ---
 
-## Phase 3: Survey Interaction Oversight
+## Technical Details
 
-### What It Does
-Adds an "Interactions" tab to the Survey Monitor dashboard showing individual-level activity patterns (without revealing answers when anonymity is required).
+### Files Modified
 
-### Components
-- `src/components/survey-monitor/InteractionOversight.tsx` -- Table showing:
-  - Users who saved draft but did not complete (filter: `is_draft = true` + no final submission)
-  - Users who were assigned but never opened (status = 'delivered', no response at all)
-  - Technical errors (status = 'failed')
-- `src/components/survey-monitor/ExtensionRequests.tsx` -- Simple list if extension requests exist (stored as support tickets with category = 'extension_request')
+**`src/hooks/analytics/useSurveyMonitor.ts`** -- Major rewrite:
+- Add `EmployeeStatus` interface (employeeId, name, departmentId, departmentName, totalQuestions, answeredQuestions, status, lastActivity)
+- Add org-filter parameters (branchId, divisionId, departmentId)
+- Compute employee-level stats by grouping `scheduled_questions` by `employee_id`
+- Compute live trend from `employee_responses.created_at` grouped by date
+- Join `employees` table to get `full_name`, `department_id`, `branch_id`
+- Join `departments` to get department name for display
+- Filter employees by org-structure when filters are applied
 
-### Data Source
-All data comes from existing `scheduled_questions` + `employee_responses` tables -- no new tables needed.
+**`src/pages/admin/SurveyMonitor.tsx`** -- Add filter bar and employee table:
+- Import and use `useBranches`, `useDivisions`, `useDepartments` for filter dropdowns
+- Add filter state (selectedBranch, selectedDivision, selectedDepartment)
+- Pass filters to `useSurveyMonitor`
+- Add `EmployeeStatusTable` below heatmap section
+- Auto-select first survey if only one exists
 
-### Privacy Guard
-When anonymity is enabled on a survey, the interaction view shows department-level aggregates only, not individual names. This is enforced in the hook by checking a new `anonymity_enabled` boolean on `question_schedules`.
+**`src/components/survey-monitor/ParticipationOverview.tsx`** -- Dual metrics:
+- Accept both employee-level and question-level stats
+- Show employee metrics as primary cards
+- Show question metrics as secondary smaller cards
 
-### Database Change
-- Add column `anonymity_enabled` (boolean, default false) to `question_schedules` table.
+**`src/components/survey-monitor/DepartmentHeatmap.tsx`** -- Employee-level display:
+- Change interface to include `employeeCount` and `employeesCompleted`
+- Display "X/Y employees (Z%)" instead of question counts
 
----
+**`src/components/survey-monitor/ParticipationTrend.tsx`** -- Live trend:
+- Accept `trendData` computed from responses instead of snapshots
+- Show cumulative completion curve with dual lines (count + percentage)
 
-## Phase 4: Notifications & Escalation
+**`src/components/survey-monitor/OrgFilterBar.tsx`** -- New component:
+- Three cascading Select dropdowns: Branch, Division, Department
+- "Clear Filters" button
+- Compact responsive layout
 
-### What It Does
-Automated and manual notification capabilities for survey lifecycle events.
+**`src/components/survey-monitor/EmployeeStatusTable.tsx`** -- New component:
+- Table with columns: Employee Name, Department, Status, Progress, Last Activity
+- Search input for filtering by name
+- Status badges with appropriate colors
+- Sortable columns
 
-### Database Changes
-
-**New table: `survey_notifications`**
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | PK |
-| tenant_id | uuid | RLS |
-| schedule_id | uuid | Which survey |
-| type | text | reminder/escalation/deadline_warning/error_alert |
-| target_user_id | uuid | nullable (null = broadcast) |
-| message | text | |
-| is_read | boolean | default false |
-| created_at | timestamptz | |
-
-RLS: super_admin ALL, tenant_admin manage for own tenant, users can read own notifications.
-
-**New table: `survey_escalation_rules`**
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | PK |
-| tenant_id | uuid | RLS |
-| schedule_id | uuid | nullable (null = global) |
-| rule_type | text | low_participation/deadline_approaching/error_threshold |
-| threshold_value | integer | e.g. 50 for 50% participation |
-| notify_role | text | tenant_admin/manager |
-| is_active | boolean | |
-| created_at | timestamptz | |
-| deleted_at | timestamptz | Soft delete |
-
-### Edge Function
-- `supabase/functions/survey-notifications/index.ts` -- Scheduled via pg_cron, runs every hour:
-  1. Checks active surveys against escalation rules
-  2. Sends reminders to employees who haven't responded
-  3. Creates escalation alerts if participation below threshold
-  4. Warns if survey nearing deadline (configurable hours before end)
-  5. Alerts on error counts exceeding threshold
-
-### UI Components
-- `src/components/survey-monitor/NotificationCenter.tsx` -- Bell icon + dropdown in monitor page
-- `src/components/survey-monitor/EscalationRulesDialog.tsx` -- CRUD for rules per survey
-- `src/components/survey-monitor/SendReminderDialog.tsx` -- Manual reminder to specific employees/departments
-
----
-
-## Phase 5: Data Integrity & Compliance
-
-### What It Does
-Enforces privacy controls across the monitoring system.
-
-### Implementation (Code-Level Guards)
-- **Anonymity check**: When `question_schedules.anonymity_enabled = true`, the Survey Monitor hook strips employee names and returns only aggregated department-level data. Individual response content is never returned.
-- **RBAC enforcement**: All new pages use `AdminRoute` + `PermissionGate`. New permission codes:
-  - `survey.monitor` -- View survey monitoring dashboard
-  - `survey.support.manage` -- Manage support tickets
-  - `survey.notifications.manage` -- Configure escalation rules
-  - `survey.interactions.view` -- View interaction oversight
-- **Aggregated-only mode**: A toggle in the monitor that forces all views into aggregate mode regardless of anonymity setting (for compliance-conscious admins).
-- **Audit trail**: All admin actions (sending reminders, changing ticket status, viewing interaction data) are logged via `useAuditLog`.
-
-### Database Changes
-- Insert 4 new permission rows into the `permissions` table (seeded via migration).
-
----
-
-## Technical Summary
-
-### New Database Tables (4)
-1. `survey_monitor_snapshots` -- Trend data
-2. `support_tickets` -- Ticketing
-3. `support_ticket_comments` -- Ticket thread
-4. `survey_notifications` -- In-app notifications
-5. `survey_escalation_rules` -- Automation rules
-
-### Modified Tables (2)
-1. `question_schedules` -- Add `anonymity_enabled` column
-2. `permissions` -- Insert 4 new permission rows
-
-### New Edge Function (1)
-- `survey-notifications` -- Scheduled notification engine
-
-### New Pages (2)
-- `/admin/survey-monitor` -- Monitoring dashboard
-- `/admin/survey-support` -- Support ticket management
-
-### New Hooks (5)
-- `useSurveyMonitor`
-- `useSupportTickets`
-- `useTicketComments`
-- `useSurveyNotifications`
-- `useEscalationRules`
-
-### New Components (~12)
-Spread across `src/components/survey-monitor/` and `src/components/support/`
+### Files Created
+- `src/components/survey-monitor/OrgFilterBar.tsx`
+- `src/components/survey-monitor/EmployeeStatusTable.tsx`
 
 ### Localization
-All new UI strings added to both `en.json` and `ar.json` using logical properties (me-, ms-, text-start, etc.) per the Dhuud RTL protocol.
+- Add all new keys to `src/locales/en.json` and `src/locales/ar.json` under `surveyMonitor` namespace
 
-### Implementation Order
-Phase 1 (Monitor) -> Phase 2 (Support) -> Phase 3 (Interactions) -> Phase 4 (Notifications) -> Phase 5 (Compliance) -- each phase is independently functional.
+### No Database Changes Required
+- All data is already available in existing tables
+- The `survey_monitor_snapshots` table remains but is no longer the primary data source for the trend chart
 
