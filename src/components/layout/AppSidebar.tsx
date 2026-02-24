@@ -251,39 +251,31 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         {/* Regular menu groups */}
         {filteredGroups.map((group) => {
           const isWellnessGroup = group.label === t('nav.wellness');
+          const isGroupActive = group.items.some(item => 
+            item.url === '/' ? location.pathname === '/' : location.pathname.startsWith(item.url)
+          ) || (isWellnessGroup && location.pathname.startsWith('/mental-toolkit'));
+
           return (
             <React.Fragment key={group.label}>
             <SidebarGroup>
-              <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {group.items.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild tooltip={item.title}>
-                        <NavLink
-                          to={item.url}
-                          end={item.url === '/'}
-                          className="flex items-center gap-2"
-                          activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
-                          onClick={handleNavClick}
-                        >
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.title}</span>
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                  {/* Mental Toolkit collapsible sections inside Wellness */}
-                  {isWellnessGroup && mentalToolkitSections.map((section, sectionIdx) => {
-                    const { open, setOpen } = sectionStates[sectionIdx];
-                    const isSectionActive = section.items.some(i => location.pathname.startsWith(i.url));
-
-                    if (isCollapsed) {
-                      return section.items.map((item) => (
-                        <SidebarMenuItem key={item.url}>
+              <Collapsible defaultOpen={isGroupActive || isCollapsed} className="group/collapsible-group">
+                <SidebarGroupLabel asChild>
+                  <CollapsibleTrigger className="flex w-full items-center justify-between">
+                    {group.label}
+                    {!isCollapsed && (
+                      <ChevronRight className="h-3 w-3 transition-transform duration-200 group-data-[state=open]/collapsible-group:rotate-90 rtl:-scale-x-100" />
+                    )}
+                  </CollapsibleTrigger>
+                </SidebarGroupLabel>
+                <CollapsibleContent>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {group.items.map((item) => (
+                        <SidebarMenuItem key={item.title}>
                           <SidebarMenuButton asChild tooltip={item.title}>
                             <NavLink
                               to={item.url}
+                              end={item.url === '/'}
                               className="flex items-center gap-2"
                               activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
                               onClick={handleNavClick}
@@ -293,51 +285,74 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                             </NavLink>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
-                      ));
-                    }
+                      ))}
+                      {/* Mental Toolkit collapsible sections inside Wellness */}
+                      {isWellnessGroup && mentalToolkitSections.map((section, sectionIdx) => {
+                        const { open, setOpen } = sectionStates[sectionIdx];
+                        const isSectionActive = section.items.some(i => location.pathname.startsWith(i.url));
 
-                    return (
-                      <Collapsible
-                        key={section.label}
-                        open={open}
-                        onOpenChange={setOpen}
-                        className="group/collapsible"
-                      >
-                        <SidebarMenuItem>
-                          <CollapsibleTrigger asChild>
-                            <SidebarMenuButton
-                              className={isSectionActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""}
-                              tooltip={section.label}
-                            >
-                              <span className="flex-1 text-start text-xs font-medium">{section.label}</span>
-                              <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 rtl:-scale-x-100" />
-                            </SidebarMenuButton>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent>
-                            <SidebarMenuSub>
-                              {section.items.map((item) => (
-                                <SidebarMenuSubItem key={item.url}>
-                                  <SidebarMenuSubButton asChild>
-                                    <NavLink
-                                      to={item.url}
-                                      className="flex items-center gap-2"
-                                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                                      onClick={handleNavClick}
-                                    >
-                                      <item.icon className="h-3.5 w-3.5 shrink-0" />
-                                      <span>{item.title}</span>
-                                    </NavLink>
-                                  </SidebarMenuSubButton>
-                                </SidebarMenuSubItem>
-                              ))}
-                            </SidebarMenuSub>
-                          </CollapsibleContent>
-                        </SidebarMenuItem>
-                      </Collapsible>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
+                        if (isCollapsed) {
+                          return section.items.map((item) => (
+                            <SidebarMenuItem key={item.url}>
+                              <SidebarMenuButton asChild tooltip={item.title}>
+                                <NavLink
+                                  to={item.url}
+                                  className="flex items-center gap-2"
+                                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                                  onClick={handleNavClick}
+                                >
+                                  <item.icon className="h-4 w-4" />
+                                  <span>{item.title}</span>
+                                </NavLink>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          ));
+                        }
+
+                        return (
+                          <Collapsible
+                            key={section.label}
+                            open={open}
+                            onOpenChange={setOpen}
+                            className="group/collapsible"
+                          >
+                            <SidebarMenuItem>
+                              <CollapsibleTrigger asChild>
+                                <SidebarMenuButton
+                                  className={isSectionActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""}
+                                  tooltip={section.label}
+                                >
+                                  <span className="flex-1 text-start text-xs font-medium">{section.label}</span>
+                                  <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 rtl:-scale-x-100" />
+                                </SidebarMenuButton>
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                                <SidebarMenuSub>
+                                  {section.items.map((item) => (
+                                    <SidebarMenuSubItem key={item.url}>
+                                      <SidebarMenuSubButton asChild>
+                                        <NavLink
+                                          to={item.url}
+                                          className="flex items-center gap-2"
+                                          activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                                          onClick={handleNavClick}
+                                        >
+                                          <item.icon className="h-3.5 w-3.5 shrink-0" />
+                                          <span>{item.title}</span>
+                                        </NavLink>
+                                      </SidebarMenuSubButton>
+                                    </SidebarMenuSubItem>
+                                  ))}
+                                </SidebarMenuSub>
+                              </CollapsibleContent>
+                            </SidebarMenuItem>
+                          </Collapsible>
+                        );
+                      })}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </CollapsibleContent>
+              </Collapsible>
             </SidebarGroup>
             {/* Spiritual Wellbeing — rendered right after Wellness */}
             {isWellnessGroup && spiritualEnabled && (
