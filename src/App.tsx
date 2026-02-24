@@ -58,7 +58,8 @@ const MySupportPage = lazy(() => import("@/pages/crisis/MySupportPage"));
 const FirstAiderDashboard = lazy(() => import("@/pages/crisis/FirstAiderDashboard"));
 const SurveyMonitor = lazy(() => import("@/pages/admin/SurveyMonitor"));
 const CheckinMonitor = lazy(() => import("@/pages/admin/CheckinMonitor"));
-
+const ObjectivesManagement = lazy(() => import("@/pages/admin/ObjectivesManagement"));
+const ObjectiveDetail = lazy(() => import("@/pages/admin/ObjectiveDetail"));
 const queryClient = new QueryClient();
 
 const PageFallback = () => (
@@ -112,7 +113,8 @@ const App = () => (
               <Route path="/admin/crisis-settings" element={<AdminRoute><CrisisSettings /></AdminRoute>} />
               <Route path="/admin/survey-monitor" element={<AdminRoute><SurveyMonitor /></AdminRoute>} />
               <Route path="/admin/checkin-monitor" element={<AdminRoute><CheckinMonitor /></AdminRoute>} />
-              
+              <Route path="/admin/workload/objectives" element={<AdminRoute><ObjectivesManagement /></AdminRoute>} />
+              <Route path="/admin/workload/objectives/:id" element={<AdminRoute><ObjectiveDetail /></AdminRoute>} />
               <Route path="/crisis-support" element={<CrisisRequestPage />} />
               <Route path="/my-support" element={<MySupportPage />} />
               <Route path="/first-aider" element={<FirstAiderDashboard />} />

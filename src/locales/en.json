@@ -80,7 +80,9 @@
     "moodPathways": "Mood Pathways",
     "mentalToolkit": "Mental Toolkit",
     "surveyMonitor": "Survey Monitor",
-    "checkinMonitor": "Check-in Monitor"
+    "checkinMonitor": "Check-in Monitor",
+    "workloadIntelligence": "Workload Intelligence",
+    "objectives": "Strategic Objectives"
   },
   "checkinMonitor": {
     "title": "Check-in Monitor",
@@ -2578,6 +2580,103 @@
       "whiteDay": "White Day",
       "legendEvent": "Islamic Event",
       "legendFasting": "Recommended Fasting"
+    }
+  },
+  "workload": {
+    "nav": {
+      "title": "Workload Intelligence",
+      "objectives": "Strategic Objectives",
+      "tasks": "Unified Tasks"
+    },
+    "status": {
+      "onTrack": "On Track",
+      "atRisk": "At Risk",
+      "delayed": "Delayed",
+      "completed": "Completed",
+      "planned": "Planned",
+      "inProgress": "In Progress",
+      "onHold": "On Hold",
+      "scheduled": "Scheduled",
+      "blocked": "Blocked"
+    },
+    "objectives": {
+      "pageTitle": "Strategic Objectives",
+      "pageDesc": "Manage organization-wide OKRs and strategic goals",
+      "add": "Add Objective",
+      "edit": "Edit Objective",
+      "addDesc": "Create a new strategic objective for your organization",
+      "editDesc": "Update the strategic objective details",
+      "title": "Title",
+      "titleAr": "Title (Arabic)",
+      "description": "Description",
+      "year": "Year",
+      "quarter": "Quarter",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "empty": "No strategic objectives yet. Create your first objective to get started.",
+      "deleteTitle": "Delete Objective",
+      "deleteDesc": "This will archive the objective and all its initiatives and actions. This action cannot be undone.",
+      "createSuccess": "Objective created successfully",
+      "createError": "Failed to create objective",
+      "updateSuccess": "Objective updated successfully",
+      "updateError": "Failed to update objective",
+      "deleteSuccess": "Objective deleted successfully",
+      "deleteError": "Failed to delete objective"
+    },
+    "initiatives": {
+      "sectionTitle": "Initiatives",
+      "add": "Add Initiative",
+      "edit": "Edit Initiative",
+      "addDesc": "Create a new initiative under this objective",
+      "editDesc": "Update the initiative details",
+      "title": "Title",
+      "titleAr": "Title (Arabic)",
+      "description": "Description",
+      "budget": "Budget",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "empty": "No initiatives yet. Add an initiative to break down this objective.",
+      "deleteTitle": "Delete Initiative",
+      "deleteDesc": "This will archive the initiative and all its actions. This action cannot be undone.",
+      "createSuccess": "Initiative created successfully",
+      "createError": "Failed to create initiative",
+      "updateSuccess": "Initiative updated successfully",
+      "updateError": "Failed to update initiative",
+      "deleteSuccess": "Initiative deleted successfully",
+      "deleteError": "Failed to delete initiative"
+    },
+    "actions": {
+      "sectionTitle": "Actions",
+      "add": "Add Action",
+      "edit": "Edit Action",
+      "addDesc": "Create a new action under this initiative",
+      "editDesc": "Update the action details",
+      "title": "Title",
+      "titleAr": "Title (Arabic)",
+      "description": "Description",
+      "priority": "Priority",
+      "estimatedHours": "Est. Hours",
+      "plannedStart": "Planned Start",
+      "plannedEnd": "Planned End",
+      "workHoursOnly": "Work Hours Only",
+      "workHoursOnlyHint": "Restrict scheduling to standard work hours",
+      "empty": "No actions yet. Add an action to this initiative.",
+      "deleteTitle": "Delete Action",
+      "deleteDesc": "This will archive the action. This action cannot be undone.",
+      "createSuccess": "Action created successfully",
+      "createError": "Failed to create action",
+      "updateSuccess": "Action updated successfully",
+      "updateError": "Failed to update action",
+      "deleteSuccess": "Action deleted successfully",
+      "deleteError": "Failed to delete action"
+    },
+    "tasks": {
+      "createSuccess": "Task created successfully",
+      "createError": "Failed to create task",
+      "updateSuccess": "Task updated successfully",
+      "updateError": "Failed to update task",
+      "deleteSuccess": "Task deleted successfully",
+      "deleteError": "Failed to delete task"
     }
   }
 }
