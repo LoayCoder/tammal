@@ -1,74 +1,51 @@
 
+# Fix: Survey Question Count Mismatch and Numbering Gap
 
-# Glassmorphism UI for Employee Dashboard (EmployeeHome)
+## Root Cause Analysis
 
-## Overview
+### Issue 1: 25 questions in batch, only 24 in survey
+The question "How often do you feel emotionally drained from your work?" (`69624610`) has `validation_status = 'pending'` while all other 24 questions have `validation_status = 'passed'`. The schedule engine only includes questions with status `published` or `passed`, so this question was skipped during scheduling.
 
-Apply a frosted-glass (glassmorphism) design to the Employee Dashboard page. This involves translucent backgrounds with backdrop blur, subtle borders, and soft shadows across all cards and containers on the `EmployeeHome` component.
+Ironically, this is the only `multiple_choice` question that actually has proper bilingual options filled in.
 
-## Visual Style
+### Issue 2: Question numbering mismatch (Survey #10 != Batch #9)
+The batch lists questions ordered by `created_at`. The survey orders by `scheduled_delivery`, but since all questions receive the same delivery timestamp, the database returns them in arbitrary (non-deterministic) order. This causes numbering to drift between the two views.
 
-- **Cards**: Semi-transparent backgrounds with `backdrop-blur`, white/dark translucent fills, and light border
-- **Badges**: Glass-style with translucent backgrounds
-- **Charts**: Glass container with blurred backdrop
-- **Check-in Card**: Frosted overlay with accent tint
-- **Background**: A subtle gradient mesh behind the page content to make the glass effect visible
+### Issue 3: Empty options on multiple_choice questions
+Three `multiple_choice` questions in the batch have empty `options: []`, which is a data-quality issue from the AI generation step.
 
-## Files to Modify
+---
+
+## Fix Plan
+
+### Fix 1: Include "pending" questions in the schedule engine
+Update the schedule engine to also accept `pending` validation status for generated questions, so all batch questions get scheduled. The schedule is explicitly linked to a batch -- if the admin chose to schedule it, all questions should be delivered.
+
+**File:** `supabase/functions/schedule-engine/index.ts`
+- Line 102: Change `.in("validation_status", ["published", "passed"])` to `.in("validation_status", ["published", "passed", "pending"])`
+
+### Fix 2: Patch the missing question into scheduled_questions
+Run a one-time database migration to insert the missing question (`69624610`) into the `scheduled_questions` table for all employees in schedule `6dca6b30`, so the current survey immediately shows 25/25 without needing to re-run the engine.
+
+**File:** New SQL migration
+
+### Fix 3: Deterministic question ordering in the survey
+Update `useScheduledQuestions.ts` to add a secondary sort by `question_id` so the order is stable and consistent, preventing numbering drift.
+
+**File:** `src/hooks/useScheduledQuestions.ts`
+- Add `.order('question_id', { ascending: true })` as a secondary sort after `scheduled_delivery`
+
+### Fix 4: Update the missing question's validation_status
+Set question `69624610`'s `validation_status` to `passed` so it's treated consistently with the rest of the batch.
+
+**File:** Included in the same SQL migration
+
+---
+
+## Technical Summary
 
 | File | Change |
 |------|--------|
-| `src/pages/EmployeeHome.tsx` | Apply glass classes to all Card components, badges, and wrapper; add a decorative gradient background |
-| `src/index.css` | Add reusable `.glass` and `.glass-card` utility classes for glassmorphism (backdrop-blur, semi-transparent bg, subtle border) |
-
-## Technical Details
-
-### 1. New CSS Utilities (`src/index.css`)
-
-Add under `@layer components`:
-
-```css
-.glass {
-  background: hsl(var(--card) / 0.55);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid hsl(var(--border) / 0.3);
-  box-shadow: 0 8px 32px hsl(0 0% 0% / 0.06);
-}
-
-.glass-card {
-  background: hsl(var(--card) / 0.45);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid hsl(var(--border) / 0.25);
-  box-shadow:
-    0 8px 32px hsl(0 0% 0% / 0.08),
-    inset 0 1px 0 hsl(0 0% 100% / 0.1);
-}
-
-.glass-badge {
-  background: hsl(var(--secondary) / 0.35);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid hsl(var(--border) / 0.2);
-}
-```
-
-Dark mode variants will inherit automatically since CSS variables switch.
-
-### 2. EmployeeHome Page Updates (`src/pages/EmployeeHome.tsx`)
-
-- Wrap the entire page content in a container with decorative gradient blobs (using absolute-positioned divs with `bg-primary/10`, `bg-chart-1/10`, `bg-chart-2/10` and large `blur-3xl` / `rounded-full`)
-- Replace all `<Card>` instances with `<Card className="glass-card border-0">` to override the default opaque card background
-- Replace Badge components with `<Badge className="glass-badge">` for translucent tag pills
-- The chart tooltip container already uses inline styles -- update those to use translucent background
-- The completed check-in card and survey card get accent-tinted glass: `glass-card` plus their existing accent color at reduced opacity
-
-### 3. RTL Compliance
-
-No directional properties are being changed -- all modifications use background, backdrop-filter, border, and box-shadow which are direction-agnostic.
-
-### 4. Dark Mode
-
-The glass utilities use CSS variables (`--card`, `--border`) which already switch between light and dark themes, so the glassmorphism will adapt automatically. The gradient background blobs will use low-opacity theme colors that look good in both modes.
-
+| `supabase/functions/schedule-engine/index.ts` | Accept `pending` validation status |
+| `src/hooks/useScheduledQuestions.ts` | Add secondary sort by `question_id` for deterministic ordering |
+| New SQL migration | Insert missing question for existing employees + update its validation_status to `passed` |
