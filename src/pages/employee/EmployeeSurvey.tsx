@@ -9,19 +9,24 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle2, Loader2, Save, Send, Clock, AlertCircle, Lock } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { CheckCircle2, Loader2, Save, Send, Clock, AlertCircle, Lock, PartyPopper, Sparkles } from 'lucide-react';
 import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
 import { useScheduledQuestions, useAnsweredSurveyCheck } from '@/hooks/useScheduledQuestions';
 import { useEmployeeResponses, useDraftResponses } from '@/hooks/useEmployeeResponses';
+import { useProfile } from '@/hooks/useProfile';
 
 export default function EmployeeSurvey() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
 
   const { employee, isLoading: loadingEmployee } = useCurrentEmployee();
+  const { profile } = useProfile();
   const { pendingQuestions, surveyMeta, isLoading: loadingQuestions } = useScheduledQuestions(employee?.id);
   const { hasAnswered, isLoading: loadingAnswered } = useAnsweredSurveyCheck(employee?.id);
   const { saveDraft, submitSurvey } = useEmployeeResponses(employee?.id);
+
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   // Draft responses for pre-population
   const { data: draftResponses = [], isLoading: loadingDrafts } = useDraftResponses(employee?.id, surveyMeta?.schedule_id);
@@ -107,6 +112,8 @@ export default function EmployeeSurvey() {
       responses: responsesToSubmit,
       deviceType: 'web',
     });
+
+    setShowSuccessDialog(true);
   };
 
   const resolveOption = (opt: unknown): string => {
@@ -264,6 +271,39 @@ export default function EmployeeSurvey() {
           </Button>
         </div>
       )}
+      {/* Success Dialog */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className="sm:max-w-md text-center">
+          <div className="flex flex-col items-center gap-4 py-4">
+            <div className="relative">
+              <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
+                <CheckCircle2 className="h-10 w-10 text-primary" />
+              </div>
+              <PartyPopper className="h-6 w-6 text-primary absolute -top-1 -end-1 animate-bounce" />
+              <Sparkles className="h-5 w-5 text-primary absolute -bottom-1 -start-1 animate-pulse" />
+            </div>
+
+            <h2 className="text-2xl font-bold">
+              {t('survey.thankYouTitle', 'Thank You, {{name}}!', { name: profile?.full_name || employee?.full_name || '' })}
+            </h2>
+
+            <p className="text-muted-foreground text-base leading-relaxed max-w-sm">
+              {t('survey.thankYouMessage', 'Your responses have been submitted successfully. Your voice matters and helps us build a better workplace for everyone.')}
+            </p>
+
+            <div className="bg-muted/50 rounded-lg p-4 w-full">
+              <p className="text-sm font-medium flex items-center justify-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                {t('survey.motivationMessage', 'Every survey response brings us one step closer to positive change!')}
+              </p>
+            </div>
+
+            <Button onClick={() => setShowSuccessDialog(false)} className="mt-2 w-full">
+              {t('common.done', 'Done')}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
