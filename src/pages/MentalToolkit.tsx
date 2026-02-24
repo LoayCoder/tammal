@@ -9,7 +9,6 @@ import JournalingPromptsTool from "@/components/mental-toolkit/practices/Journal
 import MeditationLibraryTool from "@/components/mental-toolkit/practices/MeditationLibraryTool";
 import HabitsPlanner from "@/components/mental-toolkit/practices/HabitsPlanner";
 import PsychoeducationArticles from "@/components/mental-toolkit/resources/PsychoeducationArticles";
-import CrisisSupport from "@/components/mental-toolkit/resources/CrisisSupport";
 import SelfAssessmentQuiz from "@/components/mental-toolkit/resources/SelfAssessmentQuiz";
 
 export default function MentalToolkit() {
@@ -89,7 +88,6 @@ export default function MentalToolkit() {
           {/* Mental Resources Tab */}
           <TabsContent value="resources" className="space-y-6 animate-in fade-in duration-300">
             <PsychoeducationArticles />
-            <CrisisSupport />
             <SelfAssessmentQuiz />
           </TabsContent>
         </Tabs>

@@ -12,6 +12,7 @@ import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
 import { useFirstAiders, useEmergencyContacts, useCrisisCases, mapIntentToRisk } from '@/hooks/useCrisisSupport';
 import { Phone, MessageSquare, Shield, AlertTriangle, ArrowRight, Clock, User, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
+import CrisisSupport from '@/components/mental-toolkit/resources/CrisisSupport';
 
 const INTENTS = [
   { key: 'talk', icon: MessageSquare, color: 'bg-chart-2/20 text-chart-2' },
@@ -253,20 +254,9 @@ export default function CrisisRequestPage() {
           </div>
         )}
 
-        {/* Always-visible: Quick emergency contacts */}
+        {/* Global Emergency Hotline Directory */}
         {step !== 'high_risk' && (
-          <Card className="border-dashed">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2 mb-3">
-                <Phone className="h-4 w-4 text-destructive" />
-                <p className="text-sm font-medium">{t('crisisSupport.quickAccess')}</p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <a href="tel:911"><Badge variant="outline" className="cursor-pointer">🚑 911</Badge></a>
-                <a href="tel:920033360"><Badge variant="outline" className="cursor-pointer">🇸🇦 920033360</Badge></a>
-              </div>
-            </CardContent>
-          </Card>
+          <CrisisSupport />
         )}
       </div>
     </div>

@@ -89,7 +89,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     isMentalToolkitActive && ['/mental-toolkit/journaling', '/mental-toolkit/meditation', '/mental-toolkit/habits'].some(p => location.pathname.startsWith(p))
   );
   const [resourcesOpen, setResourcesOpen] = useState(
-    isMentalToolkitActive && ['/mental-toolkit/articles', '/mental-toolkit/crisis', '/mental-toolkit/assessment'].some(p => location.pathname.startsWith(p))
+    isMentalToolkitActive && ['/mental-toolkit/articles', '/mental-toolkit/assessment'].some(p => location.pathname.startsWith(p))
   );
 
   const mentalToolkitSections: ToolSection[] = [
@@ -113,7 +113,6 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       label: t('mentalToolkit.tabs.resources'),
       items: [
         { title: t('mentalToolkit.articles.title'), url: '/mental-toolkit/articles', icon: BookMarked },
-        { title: t('mentalToolkit.crisis.title'), url: '/mental-toolkit/crisis', icon: Phone },
         { title: t('mentalToolkit.quiz.title'), url: '/mental-toolkit/assessment', icon: ClipboardCheck },
       ],
     },
