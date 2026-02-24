@@ -100,7 +100,6 @@ export function useEnhancedAIGeneration() {
     mutationFn: async (input: GenerateInput & { _replaceAtIndex?: number }) => {
       lastMoodLevelsRef.current = input.moodLevels || [];
       replaceAtIndexRef.current = input._replaceAtIndex ?? null;
-      setRegeneratingIndex(input._replaceAtIndex ?? null);
       const { _replaceAtIndex, ...body } = input;
       const { data, error } = await supabase.functions.invoke('generate-questions', {
         body,
@@ -464,7 +463,10 @@ export function useEnhancedAIGeneration() {
     questions,
     validationReport,
     generationMeta,
-    generate: generateMutation.mutate,
+    generate: (input: GenerateInput & { _replaceAtIndex?: number }) => {
+      setRegeneratingIndex(input._replaceAtIndex ?? null);
+      generateMutation.mutate(input);
+    },
     validate: validateMutation.mutate,
     saveSet: saveSetMutation.mutate,
     saveWellness: saveWellnessMutation.mutate,
