@@ -211,13 +211,22 @@ export default function EmployeeSurvey() {
           const questionText = isRTL && question?.text_ar ? question.text_ar : question?.text;
           const currentAnswer = answers[sq.id];
 
+          const isPending = question?.validation_status === 'pending';
+
           return (
-            <Card key={sq.id} className="overflow-hidden">
+            <Card key={sq.id} className={`overflow-hidden ${isPending ? 'border-amber-500/50 bg-amber-500/5' : ''}`}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    {t('survey.question')} {index + 1}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">
+                      {t('survey.question')} {index + 1}
+                    </span>
+                    {isPending && (
+                      <Badge variant="outline" className="border-amber-500 text-amber-600 text-xs">
+                        {t('survey.pendingReview', 'Pending Review')}
+                      </Badge>
+                    )}
+                  </div>
                   {question?.category && (
                     <Badge style={{ backgroundColor: question.category.color }}>
                       {isRTL && question.category.name_ar ? question.category.name_ar : question.category.name}
