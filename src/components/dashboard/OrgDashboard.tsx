@@ -136,11 +136,11 @@ export function OrgDashboard() {
 
       {/* Tabbed Analytics */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="glass-card border-0 p-1">
-          <TabsTrigger value="overview" className="rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">{t('orgDashboard.tabs.overview')}</TabsTrigger>
-          <TabsTrigger value="deep" className="rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">{t('orgDashboard.tabs.deepAnalysis')}</TabsTrigger>
-          <TabsTrigger value="alerts" className="rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">{t('orgDashboard.tabs.alertsInsights')}</TabsTrigger>
-          <TabsTrigger value="comparison" className="rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">{t('orgDashboard.tabs.comparison')}</TabsTrigger>
+        <TabsList className="glass-tabs border-0 h-auto">
+          <TabsTrigger value="overview" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">{t('orgDashboard.tabs.overview')}</TabsTrigger>
+          <TabsTrigger value="deep" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">{t('orgDashboard.tabs.deepAnalysis')}</TabsTrigger>
+          <TabsTrigger value="alerts" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">{t('orgDashboard.tabs.alertsInsights')}</TabsTrigger>
+          <TabsTrigger value="comparison" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">{t('orgDashboard.tabs.comparison')}</TabsTrigger>
         </TabsList>
 
         {/* ── Overview Tab ── */}
@@ -197,9 +197,9 @@ export function OrgDashboard() {
         {/* ── Deep Analysis Tab ── */}
         <TabsContent value="deep" className="space-y-4">
           <Tabs defaultValue="checkin" className="space-y-4">
-            <TabsList className="glass-card border-0 p-1">
-              <TabsTrigger value="checkin" className="rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">{t('orgDashboard.checkinAnalysis')}</TabsTrigger>
-              <TabsTrigger value="survey" className="rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">{t('orgDashboard.surveyAnalysis')}</TabsTrigger>
+            <TabsList className="glass-tabs border-0 h-auto">
+              <TabsTrigger value="checkin" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">{t('orgDashboard.checkinAnalysis')}</TabsTrigger>
+              <TabsTrigger value="survey" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">{t('orgDashboard.surveyAnalysis')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="checkin" className="space-y-4">

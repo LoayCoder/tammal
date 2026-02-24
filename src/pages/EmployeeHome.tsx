@@ -96,12 +96,7 @@ export default function EmployeeHome() {
 
   return (
     <div className="relative min-h-full">
-      {/* Decorative gradient blobs for glass effect visibility */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        <div className="absolute -top-32 -start-32 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute top-1/3 -end-24 h-80 w-80 rounded-full bg-chart-1/10 blur-3xl" />
-        <div className="absolute bottom-0 start-1/4 h-72 w-72 rounded-full bg-chart-2/10 blur-3xl" />
-      </div>
+      {/* Gradient blobs handled by MainLayout */}
 
       <div className="relative space-y-6">
         {/* Greeting */}
@@ -170,25 +165,31 @@ export default function EmployeeHome() {
 
         {/* Quick Stats */}
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-          <Card className="glass-card border-0">
-            <CardContent className="p-4 text-center">
-              <Calendar className="h-5 w-5 inline-block text-muted-foreground mb-1" />
+          <Card className="glass-stat border-0">
+            <CardContent className="p-5 flex flex-col items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                <Calendar className="h-5 w-5 text-primary" />
+              </div>
               <div className="text-2xl font-bold">{moodLoading ? '—' : monthlyCheckins}</div>
-              <p className="text-muted-foreground text-xs mt-0.5">{t('home.monthlyCheckins')}</p>
+              <p className="text-muted-foreground text-xs">{t('home.monthlyCheckins')}</p>
             </CardContent>
           </Card>
-          <Card className="glass-card border-0">
-            <CardContent className="p-4 text-center">
-              <TrendingUp className="h-5 w-5 inline-block text-muted-foreground mb-1" />
+          <Card className="glass-stat border-0">
+            <CardContent className="p-5 flex flex-col items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-chart-1/10">
+                <TrendingUp className="h-5 w-5 text-chart-1" />
+              </div>
               <div className="text-2xl font-bold">{moodLoading ? '—' : avgMood7d}</div>
-              <p className="text-muted-foreground text-xs mt-0.5">{t('home.avgMood')}</p>
+              <p className="text-muted-foreground text-xs">{t('home.avgMood')}</p>
             </CardContent>
           </Card>
-          <Card className="glass-card border-0">
-            <CardContent className="p-4 text-center">
-              <Flame className="h-5 w-5 inline-block text-chart-4 mb-1" />
+          <Card className="glass-stat border-0">
+            <CardContent className="p-5 flex flex-col items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-chart-4/10">
+                <Flame className="h-5 w-5 text-chart-4" />
+              </div>
               <div className="text-2xl font-bold">{gamLoading ? '—' : streak}</div>
-              <p className="text-muted-foreground text-xs mt-0.5">{t('home.currentStreak')}</p>
+              <p className="text-muted-foreground text-xs">{t('home.currentStreak')}</p>
             </CardContent>
           </Card>
         </div>
