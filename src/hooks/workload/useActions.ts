@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { useAuditLog } from '@/hooks/audit/useAuditLog';
 import { useTenantId } from '@/hooks/org/useTenantId';
+import type { TaskComment } from './useUnifiedTasks';
 
 export interface ObjAction {
   id: string;
@@ -23,6 +24,11 @@ export interface ObjAction {
   source: string;
   dependencies: string[];
   metadata: Record<string, unknown>;
+  is_locked: boolean;
+  locked_by: string | null;
+  locked_at: string | null;
+  comments: TaskComment[];
+  created_by: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -42,6 +48,7 @@ export interface ActionInsert {
   work_hours_only?: boolean;
   status?: string;
   source?: string;
+  created_by?: string | null;
 }
 
 export interface ActionUpdate extends Partial<ActionInsert> {
@@ -66,7 +73,7 @@ export function useActions(initiativeId?: string) {
       if (initiativeId) query = query.eq('initiative_id', initiativeId);
       const { data, error } = await query;
       if (error) throw error;
-      return data as ObjAction[];
+      return (data as any[]).map(d => ({ ...d, comments: d.comments ?? [] })) as ObjAction[];
     },
     enabled: !!tenantId,
   });
@@ -79,6 +86,8 @@ export function useActions(initiativeId?: string) {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['objective-actions'] });
+      queryClient.invalidateQueries({ queryKey: ['initiatives'] });
+      queryClient.invalidateQueries({ queryKey: ['objectives'] });
       toast.success(t('workload.actions.createSuccess'));
       logEvent({ entity_type: 'objective_action', entity_id: data.id, action: 'create', changes: { after: data } });
     },
@@ -94,6 +103,8 @@ export function useActions(initiativeId?: string) {
     },
     onSuccess: ({ data, before }) => {
       queryClient.invalidateQueries({ queryKey: ['objective-actions'] });
+      queryClient.invalidateQueries({ queryKey: ['initiatives'] });
+      queryClient.invalidateQueries({ queryKey: ['objectives'] });
       toast.success(t('workload.actions.updateSuccess'));
       logEvent({ entity_type: 'objective_action', entity_id: data.id, action: 'update', changes: { before, after: data } });
     },
@@ -109,10 +120,56 @@ export function useActions(initiativeId?: string) {
     },
     onSuccess: (before) => {
       queryClient.invalidateQueries({ queryKey: ['objective-actions'] });
+      queryClient.invalidateQueries({ queryKey: ['initiatives'] });
+      queryClient.invalidateQueries({ queryKey: ['objectives'] });
       toast.success(t('workload.actions.deleteSuccess'));
       if (before) logEvent({ entity_type: 'objective_action', entity_id: before.id, action: 'delete', changes: { before } });
     },
     onError: () => toast.error(t('workload.actions.deleteError')),
+  });
+
+  const lockMutation = useMutation({
+    mutationFn: async ({ id, locked_by }: { id: string; locked_by: string }) => {
+      const { error } = await supabase.from('objective_actions').update({
+        is_locked: true, locked_by, locked_at: new Date().toISOString(),
+      }).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['objective-actions'] });
+      toast.success(t('workload.lock.lockSuccess'));
+    },
+    onError: () => toast.error(t('workload.lock.lockError')),
+  });
+
+  const unlockMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('objective_actions').update({
+        is_locked: false, locked_by: null, locked_at: null,
+      }).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['objective-actions'] });
+      toast.success(t('workload.lock.unlockSuccess'));
+    },
+    onError: () => toast.error(t('workload.lock.unlockError')),
+  });
+
+  const addCommentMutation = useMutation({
+    mutationFn: async ({ id, comment }: { id: string; comment: TaskComment }) => {
+      const { data: current, error: fetchErr } = await supabase
+        .from('objective_actions').select('comments').eq('id', id).single();
+      if (fetchErr) throw fetchErr;
+      const comments = [...((current as any)?.comments ?? []), comment];
+      const { error } = await supabase.from('objective_actions').update({ comments }).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['objective-actions'] });
+      toast.success(t('workload.comments.addSuccess'));
+    },
+    onError: () => toast.error(t('workload.comments.addError')),
   });
 
   return {
@@ -121,6 +178,9 @@ export function useActions(initiativeId?: string) {
     createAction: createMutation.mutate,
     updateAction: updateMutation.mutate,
     deleteAction: deleteMutation.mutate,
+    lockAction: lockMutation.mutate,
+    unlockAction: unlockMutation.mutate,
+    addComment: addCommentMutation.mutate,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,

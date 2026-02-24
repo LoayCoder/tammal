@@ -19,6 +19,9 @@ export interface Objective {
   status: string;
   start_date: string;
   end_date: string | null;
+  is_locked: boolean;
+  locked_by: string | null;
+  locked_at: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -40,7 +43,6 @@ export interface ObjectiveInsert {
 
 export interface ObjectiveUpdate extends Partial<ObjectiveInsert> {
   id: string;
-  progress?: number;
 }
 
 export function useObjectives() {
@@ -112,12 +114,42 @@ export function useObjectives() {
     onError: () => toast.error(t('workload.objectives.deleteError')),
   });
 
+  const lockMutation = useMutation({
+    mutationFn: async ({ id, locked_by }: { id: string; locked_by: string }) => {
+      const { error } = await supabase.from('strategic_objectives').update({
+        is_locked: true, locked_by, locked_at: new Date().toISOString(),
+      }).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['objectives'] });
+      toast.success(t('workload.lock.lockSuccess'));
+    },
+    onError: () => toast.error(t('workload.lock.lockError')),
+  });
+
+  const unlockMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('strategic_objectives').update({
+        is_locked: false, locked_by: null, locked_at: null,
+      }).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['objectives'] });
+      toast.success(t('workload.lock.unlockSuccess'));
+    },
+    onError: () => toast.error(t('workload.lock.unlockError')),
+  });
+
   return {
     objectives: objectivesQuery.data ?? [],
     isLoading: objectivesQuery.isLoading,
     createObjective: createMutation.mutate,
     updateObjective: updateMutation.mutate,
     deleteObjective: deleteMutation.mutate,
+    lockObjective: lockMutation.mutate,
+    unlockObjective: unlockMutation.mutate,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,

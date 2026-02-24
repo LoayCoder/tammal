@@ -957,6 +957,9 @@ export type Database = {
           division_id: string | null
           end_date: string | null
           id: string
+          is_locked: boolean
+          locked_at: string | null
+          locked_by: string | null
           objective_id: string
           owner_user_id: string | null
           progress: number
@@ -977,6 +980,9 @@ export type Database = {
           division_id?: string | null
           end_date?: string | null
           id?: string
+          is_locked?: boolean
+          locked_at?: string | null
+          locked_by?: string | null
           objective_id: string
           owner_user_id?: string | null
           progress?: number
@@ -997,6 +1003,9 @@ export type Database = {
           division_id?: string | null
           end_date?: string | null
           id?: string
+          is_locked?: boolean
+          locked_at?: string | null
+          locked_by?: string | null
           objective_id?: string
           owner_user_id?: string | null
           progress?: number
@@ -1841,13 +1850,18 @@ export type Database = {
         Row: {
           actual_hours: number | null
           assignee_id: string | null
+          comments: Json
           created_at: string
+          created_by: string | null
           deleted_at: string | null
           dependencies: string[] | null
           description: string | null
           estimated_hours: number
           id: string
           initiative_id: string
+          is_locked: boolean
+          locked_at: string | null
+          locked_by: string | null
           metadata: Json | null
           planned_end: string | null
           planned_start: string | null
@@ -1863,13 +1877,18 @@ export type Database = {
         Insert: {
           actual_hours?: number | null
           assignee_id?: string | null
+          comments?: Json
           created_at?: string
+          created_by?: string | null
           deleted_at?: string | null
           dependencies?: string[] | null
           description?: string | null
           estimated_hours?: number
           id?: string
           initiative_id: string
+          is_locked?: boolean
+          locked_at?: string | null
+          locked_by?: string | null
           metadata?: Json | null
           planned_end?: string | null
           planned_start?: string | null
@@ -1885,13 +1904,18 @@ export type Database = {
         Update: {
           actual_hours?: number | null
           assignee_id?: string | null
+          comments?: Json
           created_at?: string
+          created_by?: string | null
           deleted_at?: string | null
           dependencies?: string[] | null
           description?: string | null
           estimated_hours?: number
           id?: string
           initiative_id?: string
+          is_locked?: boolean
+          locked_at?: string | null
+          locked_by?: string | null
           metadata?: Json | null
           planned_end?: string | null
           planned_start?: string | null
@@ -3153,6 +3177,9 @@ export type Database = {
           description_ar: string | null
           end_date: string | null
           id: string
+          is_locked: boolean
+          locked_at: string | null
+          locked_by: string | null
           owner_user_id: string | null
           progress: number
           quarter: string
@@ -3171,6 +3198,9 @@ export type Database = {
           description_ar?: string | null
           end_date?: string | null
           id?: string
+          is_locked?: boolean
+          locked_at?: string | null
+          locked_by?: string | null
           owner_user_id?: string | null
           progress?: number
           quarter?: string
@@ -3189,6 +3219,9 @@ export type Database = {
           description_ar?: string | null
           end_date?: string | null
           id?: string
+          is_locked?: boolean
+          locked_at?: string | null
+          locked_by?: string | null
           owner_user_id?: string | null
           progress?: number
           quarter?: string
@@ -3636,8 +3669,10 @@ export type Database = {
       unified_tasks: {
         Row: {
           actual_minutes: number | null
+          comments: Json
           connector_id: string | null
           created_at: string
+          created_by: string | null
           deleted_at: string | null
           description: string | null
           due_date: string | null
@@ -3645,7 +3680,10 @@ export type Database = {
           estimated_minutes: number | null
           external_url: string | null
           id: string
+          is_locked: boolean
           is_work_hours: boolean
+          locked_at: string | null
+          locked_by: string | null
           metadata: Json | null
           priority: number
           scheduled_end: string | null
@@ -3662,8 +3700,10 @@ export type Database = {
         }
         Insert: {
           actual_minutes?: number | null
+          comments?: Json
           connector_id?: string | null
           created_at?: string
+          created_by?: string | null
           deleted_at?: string | null
           description?: string | null
           due_date?: string | null
@@ -3671,7 +3711,10 @@ export type Database = {
           estimated_minutes?: number | null
           external_url?: string | null
           id?: string
+          is_locked?: boolean
           is_work_hours?: boolean
+          locked_at?: string | null
+          locked_by?: string | null
           metadata?: Json | null
           priority?: number
           scheduled_end?: string | null
@@ -3688,8 +3731,10 @@ export type Database = {
         }
         Update: {
           actual_minutes?: number | null
+          comments?: Json
           connector_id?: string | null
           created_at?: string
+          created_by?: string | null
           deleted_at?: string | null
           description?: string | null
           due_date?: string | null
@@ -3697,7 +3742,10 @@ export type Database = {
           estimated_minutes?: number | null
           external_url?: string | null
           id?: string
+          is_locked?: boolean
           is_work_hours?: boolean
+          locked_at?: string | null
+          locked_by?: string | null
           metadata?: Json | null
           priority?: number
           scheduled_end?: string | null

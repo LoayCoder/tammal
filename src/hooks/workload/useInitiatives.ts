@@ -21,6 +21,9 @@ export interface Initiative {
   end_date: string | null;
   progress: number;
   status: string;
+  is_locked: boolean;
+  locked_by: string | null;
+  locked_at: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -44,7 +47,6 @@ export interface InitiativeInsert {
 
 export interface InitiativeUpdate extends Partial<InitiativeInsert> {
   id: string;
-  progress?: number;
 }
 
 export function useInitiatives(objectiveId?: string) {
@@ -113,12 +115,42 @@ export function useInitiatives(objectiveId?: string) {
     onError: () => toast.error(t('workload.initiatives.deleteError')),
   });
 
+  const lockMutation = useMutation({
+    mutationFn: async ({ id, locked_by }: { id: string; locked_by: string }) => {
+      const { error } = await supabase.from('initiatives').update({
+        is_locked: true, locked_by, locked_at: new Date().toISOString(),
+      }).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['initiatives'] });
+      toast.success(t('workload.lock.lockSuccess'));
+    },
+    onError: () => toast.error(t('workload.lock.lockError')),
+  });
+
+  const unlockMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('initiatives').update({
+        is_locked: false, locked_by: null, locked_at: null,
+      }).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['initiatives'] });
+      toast.success(t('workload.lock.unlockSuccess'));
+    },
+    onError: () => toast.error(t('workload.lock.unlockError')),
+  });
+
   return {
     initiatives: initiativesQuery.data ?? [],
     isLoading: initiativesQuery.isLoading,
     createInitiative: createMutation.mutate,
     updateInitiative: updateMutation.mutate,
     deleteInitiative: deleteMutation.mutate,
+    lockInitiative: lockMutation.mutate,
+    unlockInitiative: unlockMutation.mutate,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,

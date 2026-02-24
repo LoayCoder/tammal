@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { AdminRoute } from "@/components/auth/AdminRoute";
+import { ManagerOrAdminRoute } from "@/components/auth/ManagerOrAdminRoute";
 import { useTranslation } from "react-i18next";
 import { useEffect, lazy, Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -117,8 +118,8 @@ const App = () => (
               <Route path="/admin/crisis-settings" element={<AdminRoute><CrisisSettings /></AdminRoute>} />
               <Route path="/admin/survey-monitor" element={<AdminRoute><SurveyMonitor /></AdminRoute>} />
               <Route path="/admin/checkin-monitor" element={<AdminRoute><CheckinMonitor /></AdminRoute>} />
-              <Route path="/admin/workload/objectives" element={<AdminRoute><ObjectivesManagement /></AdminRoute>} />
-              <Route path="/admin/workload/objectives/:id" element={<AdminRoute><ObjectiveDetail /></AdminRoute>} />
+              <Route path="/admin/workload/objectives" element={<ManagerOrAdminRoute><ObjectivesManagement /></ManagerOrAdminRoute>} />
+              <Route path="/admin/workload/objectives/:id" element={<ManagerOrAdminRoute><ObjectiveDetail /></ManagerOrAdminRoute>} />
               <Route path="/my-workload" element={<PersonalCommandCenter />} />
               <Route path="/admin/workload/dashboard" element={<AdminRoute><WorkloadDashboard /></AdminRoute>} />
               <Route path="/admin/workload/team" element={<AdminRoute><TeamWorkload /></AdminRoute>} />
