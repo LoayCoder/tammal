@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, Plus, FolderPlus } from 'lucide-react';
-import type { QuestionBatch } from '@/hooks/useQuestionBatches';
+import type { QuestionBatch } from '@/hooks/questions/useQuestionBatches';
 
 interface BatchSaveDialogProps {
   open: boolean;

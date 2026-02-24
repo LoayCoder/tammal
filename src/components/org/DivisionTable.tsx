@@ -4,10 +4,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import type { Division } from '@/hooks/useDivisions';
-import type { Department } from '@/hooks/useDepartments';
-import type { Site } from '@/hooks/useSites';
-import type { Employee } from '@/hooks/useEmployees';
+import type { Division } from '@/hooks/org/useDivisions';
+import type { Department } from '@/hooks/org/useDepartments';
+import type { Site } from '@/hooks/org/useSites';
+import type { Employee } from '@/hooks/org/useEmployees';
 
 interface DivisionTableProps {
   divisions: Division[];

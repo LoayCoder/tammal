@@ -10,9 +10,9 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirstAiders, type FirstAider } from '@/hooks/useCrisisSupport';
-import { useProfile } from '@/hooks/useProfile';
-import { useEmployees } from '@/hooks/useEmployees';
+import { useFirstAiders, type FirstAider } from '@/hooks/crisis/useCrisisSupport';
+import { useProfile } from '@/hooks/auth/useProfile';
+import { useEmployees } from '@/hooks/org/useEmployees';
 import { Plus, Trash2, Edit } from 'lucide-react';
 import { toast } from 'sonner';
 

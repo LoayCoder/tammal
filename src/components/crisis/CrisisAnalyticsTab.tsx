@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useCrisisAnalytics } from '@/hooks/useCrisisAnalytics';
+import { useCrisisAnalytics } from '@/hooks/analytics/useCrisisAnalytics';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { Activity, Clock, AlertTriangle, CheckCircle, TrendingUp, Users } from 'lucide-react';
 

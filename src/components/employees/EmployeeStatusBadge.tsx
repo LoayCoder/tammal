@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
-import { EmployeeStatus } from "@/hooks/useEmployees";
+import { EmployeeStatus } from "@/hooks/org/useEmployees";
 
 interface EmployeeStatusBadgeProps {
   status: EmployeeStatus;

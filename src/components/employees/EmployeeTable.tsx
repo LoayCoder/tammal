@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EmployeeStatusBadge } from "./EmployeeStatusBadge";
 import { AccountStatusBadge } from "./AccountStatusBadge";
-import { Employee } from "@/hooks/useEmployees";
+import { Employee } from "@/hooks/org/useEmployees";
 import { Edit2, Trash2, MoreHorizontal, User, Mail } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { useDepartments } from "@/hooks/useDepartments";
-import { useDivisions } from "@/hooks/useDivisions";
-import { useSites } from "@/hooks/useSites";
-import { useBranches } from "@/hooks/useBranches";
+import { useDepartments } from "@/hooks/org/useDepartments";
+import { useDivisions } from "@/hooks/org/useDivisions";
+import { useSites } from "@/hooks/org/useSites";
+import { useBranches } from "@/hooks/org/useBranches";
 
 interface UnifiedEmployee extends Employee {
   accountStatus?: 'not_invited' | 'invited' | 'active' | 'suspended' | 'inactive';

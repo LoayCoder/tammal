@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useCrisisNotifications } from '@/hooks/useCrisisNotifications';
+import { useCrisisNotifications } from '@/hooks/crisis/useCrisisNotifications';
 import { Bell, Check, CheckCheck, MessageSquare, AlertTriangle, UserCheck, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';

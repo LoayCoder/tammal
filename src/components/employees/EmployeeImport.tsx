@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Upload, FileText, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CreateEmployeeInput } from "@/hooks/useEmployees";
+import { CreateEmployeeInput } from "@/hooks/org/useEmployees";
 
 interface EmployeeImportProps {
   open: boolean;

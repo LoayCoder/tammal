@@ -28,10 +28,10 @@ import { NavLink } from "@/components/NavLink";
 import { useTranslation } from 'react-i18next';
 import { ThemeLogo } from "@/components/branding/ThemeLogo";
 import { ThemeIcon } from "@/components/branding/ThemeIcon";
-import type { BrandingConfig } from "@/hooks/useBranding";
-import { useUserPermissions, useHasRole } from '@/hooks/useUserPermissions';
-import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
-import { useSpiritualPreferences } from '@/hooks/useSpiritualPreferences';
+import type { BrandingConfig } from "@/hooks/branding/useBranding";
+import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
+import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 

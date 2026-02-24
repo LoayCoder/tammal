@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Upload, FileText, X } from 'lucide-react';
-import { ReferenceFramework } from '@/hooks/useReferenceFrameworks';
+import { ReferenceFramework } from '@/hooks/questions/useReferenceFrameworks';
 
 interface FrameworkDialogProps {
   open: boolean;

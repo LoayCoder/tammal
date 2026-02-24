@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ResponsiveContainer, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ZAxis } from 'recharts';
-import type { SubcategoryScore } from '@/hooks/useOrgAnalytics';
+import type { SubcategoryScore } from '@/hooks/analytics/useOrgAnalytics';
 
 interface SubcategoryBubble extends SubcategoryScore {
   declineRate: number;

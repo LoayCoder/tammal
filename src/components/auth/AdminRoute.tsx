@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
-import { useUserPermissions, useHasRole } from '@/hooks/useUserPermissions';
-import { useAuth } from '@/hooks/useAuth';
+import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface AdminRouteProps {

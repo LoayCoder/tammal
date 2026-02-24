@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { SkipForward, ClipboardList, ArrowLeft, CheckCircle2 } from 'lucide-react';
-import type { CheckinScheduledQuestion } from '@/hooks/useCheckinScheduledQuestions';
+import type { CheckinScheduledQuestion } from '@/hooks/questions/useCheckinScheduledQuestions';
 
 export interface ScheduledAnswer {
   scheduledQuestionId: string;

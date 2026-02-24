@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { WorkSite, WorkSiteInput } from '@/hooks/useWorkSites';
-import type { Department } from '@/hooks/useDepartments';
-import type { Site } from '@/hooks/useSites';
+import type { WorkSite, WorkSiteInput } from '@/hooks/org/useWorkSites';
+import type { Department } from '@/hooks/org/useDepartments';
+import type { Site } from '@/hooks/org/useSites';
 
 interface WorkSiteSheetProps {
   open: boolean;

@@ -12,11 +12,11 @@ import {
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { EnhancedGeneratedQuestion } from '@/hooks/useEnhancedAIGeneration';
+import { EnhancedGeneratedQuestion } from '@/hooks/questions/useEnhancedAIGeneration';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import type { QuestionPurpose } from '@/components/ai-generator/ConfigPanel';
-import type { MoodDefinition } from '@/hooks/useMoodDefinitions';
+import type { MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';
 
 const DEFAULT_MOOD_META: { key: string; emoji: string; labelKey: string }[] = [
   { key: 'great', emoji: '😄', labelKey: 'checkin.moodGreat' },

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import type { CategoryScore } from '@/hooks/useOrgAnalytics';
+import type { CategoryScore } from '@/hooks/analytics/useOrgAnalytics';
 
 interface MoodByCategoryData {
   date: string;

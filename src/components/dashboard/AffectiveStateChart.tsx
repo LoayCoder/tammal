@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
-import type { AffectiveDistribution } from '@/hooks/useOrgAnalytics';
+import type { AffectiveDistribution } from '@/hooks/analytics/useOrgAnalytics';
 
 const STATE_COLORS: Record<string, string> = {
   positive: 'hsl(var(--chart-2))',

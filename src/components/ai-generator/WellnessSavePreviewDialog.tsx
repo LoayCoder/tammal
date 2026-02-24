@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Heart, Package, Plus } from 'lucide-react';
-import type { QuestionBatch } from '@/hooks/useQuestionBatches';
+import type { QuestionBatch } from '@/hooks/questions/useQuestionBatches';
 
 const MOOD_META: Record<string, { emoji: string; labelKey: string }> = {
   great: { emoji: '😄', labelKey: 'checkin.moodGreat' },

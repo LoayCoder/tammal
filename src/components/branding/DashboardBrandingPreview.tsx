@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Palette, Settings } from 'lucide-react';
-import { useBranding } from '@/hooks/useBranding';
+import { useBranding } from '@/hooks/branding/useBranding';
 import { ThemeLogo } from './ThemeLogo';
 
 interface DashboardBrandingPreviewProps {

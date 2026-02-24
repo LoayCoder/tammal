@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Upload, FileText, Trash2, Loader2 } from 'lucide-react';
-import { useFrameworkDocuments } from '@/hooks/useFrameworkDocuments';
+import { useFrameworkDocuments } from '@/hooks/questions/useFrameworkDocuments';
 
 interface FrameworkDocumentsProps {
   frameworkId: string;

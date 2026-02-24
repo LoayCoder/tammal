@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Building2, CreditCard, DollarSign, Ticket } from 'lucide-react';
-import { useDashboardStats } from '@/hooks/useDashboardStats';
+import { useDashboardStats } from '@/hooks/analytics/useDashboardStats';
 import { formatCurrency } from '@/lib/utils';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { DashboardBrandingPreview } from '@/components/branding/DashboardBrandingPreview';

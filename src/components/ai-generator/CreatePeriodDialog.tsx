@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, addMonths, startOfQuarter, endOfQuarter, startOfYear, endOfYear } from 'date-fns';
-import { GenerationPeriod } from '@/hooks/useGenerationPeriods';
+import { GenerationPeriod } from '@/hooks/questions/useGenerationPeriods';
 
 interface CreatePeriodDialogProps {
   open: boolean;

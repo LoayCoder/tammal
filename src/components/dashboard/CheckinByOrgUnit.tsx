@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
-import type { CheckinByOrgUnitItem } from '@/hooks/useOrgAnalytics';
+import type { CheckinByOrgUnitItem } from '@/hooks/analytics/useOrgAnalytics';
 import i18n from '@/lib/i18n';
 
 interface Props {

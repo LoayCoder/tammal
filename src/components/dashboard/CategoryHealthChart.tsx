@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell,
 } from 'recharts';
-import type { CategoryScore } from '@/hooks/useOrgAnalytics';
+import type { CategoryScore } from '@/hooks/analytics/useOrgAnalytics';
 
 interface CategoryHealthChartProps {
   data: CategoryScore[];

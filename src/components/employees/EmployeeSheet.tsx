@@ -7,11 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ManagerSelect } from "./ManagerSelect";
-import { Employee, CreateEmployeeInput, EmployeeStatus } from "@/hooks/useEmployees";
-import { useDepartments } from "@/hooks/useDepartments";
-import { useBranches } from "@/hooks/useBranches";
-import { useDivisions } from "@/hooks/useDivisions";
-import { useSites } from "@/hooks/useSites";
+import { Employee, CreateEmployeeInput, EmployeeStatus } from "@/hooks/org/useEmployees";
+import { useDepartments } from "@/hooks/org/useDepartments";
+import { useBranches } from "@/hooks/org/useBranches";
+import { useDivisions } from "@/hooks/org/useDivisions";
+import { useSites } from "@/hooks/org/useSites";
 import { supabase } from "@/integrations/supabase/client";
 
 interface EmployeeSheetProps {

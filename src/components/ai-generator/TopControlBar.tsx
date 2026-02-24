@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Save, Download, FileJson, FileText, Info } from 'lucide-react';
-import { AIModel } from '@/hooks/useAIModels';
+import { AIModel } from '@/hooks/questions/useAIModels';
 
 interface TopControlBarProps {
   accuracyMode: string;
