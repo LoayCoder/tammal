@@ -1,51 +1,45 @@
 
-# Fix: Survey Question Count Mismatch and Numbering Gap
 
-## Root Cause Analysis
+# Fix: Survey Submission Unique Constraint Violation
 
-### Issue 1: 25 questions in batch, only 24 in survey
-The question "How often do you feel emotionally drained from your work?" (`69624610`) has `validation_status = 'pending'` while all other 24 questions have `validation_status = 'passed'`. The schedule engine only includes questions with status `published` or `passed`, so this question was skipped during scheduling.
+## Root Cause
 
-Ironically, this is the only `multiple_choice` question that actually has proper bilingual options filled in.
+The unique index `idx_employee_responses_unique_active` on the `employee_responses` table is defined as:
 
-### Issue 2: Question numbering mismatch (Survey #10 != Batch #9)
-The batch lists questions ordered by `created_at`. The survey orders by `scheduled_delivery`, but since all questions receive the same delivery timestamp, the database returns them in arbitrary (non-deterministic) order. This causes numbering to drift between the two views.
+```text
+UNIQUE (scheduled_question_id, employee_id) WHERE (scheduled_question_id IS NOT NULL)
+```
 
-### Issue 3: Empty options on multiple_choice questions
-Three `multiple_choice` questions in the batch have empty `options: []`, which is a data-quality issue from the AI generation step.
+This index does **not** exclude soft-deleted rows. The current bulk submission logic soft-deletes old responses (sets `deleted_at`), then inserts new ones. But because the index still sees soft-deleted rows, the insert fails with a duplicate key violation.
 
----
+## Fix
 
-## Fix Plan
+Recreate the unique index to only cover **active** (non-deleted) rows by adding `AND deleted_at IS NULL` to the index condition.
 
-### Fix 1: Include "pending" questions in the schedule engine
-Update the schedule engine to also accept `pending` validation status for generated questions, so all batch questions get scheduled. The schedule is explicitly linked to a batch -- if the admin chose to schedule it, all questions should be delivered.
+### Step 1: Database Migration
 
-**File:** `supabase/functions/schedule-engine/index.ts`
-- Line 102: Change `.in("validation_status", ["published", "passed"])` to `.in("validation_status", ["published", "passed", "pending"])`
+Drop and recreate the unique index with the correct partial filter:
 
-### Fix 2: Patch the missing question into scheduled_questions
-Run a one-time database migration to insert the missing question (`69624610`) into the `scheduled_questions` table for all employees in schedule `6dca6b30`, so the current survey immediately shows 25/25 without needing to re-run the engine.
+```sql
+DROP INDEX IF EXISTS idx_employee_responses_unique_active;
+CREATE UNIQUE INDEX idx_employee_responses_unique_active 
+  ON public.employee_responses (scheduled_question_id, employee_id) 
+  WHERE (scheduled_question_id IS NOT NULL AND deleted_at IS NULL);
+```
 
-**File:** New SQL migration
+This is the only change needed. Once the index correctly excludes soft-deleted rows, the existing soft-delete-then-insert logic in the `submit-response` edge function will work as intended.
 
-### Fix 3: Deterministic question ordering in the survey
-Update `useScheduledQuestions.ts` to add a secondary sort by `question_id` so the order is stable and consistent, preventing numbering drift.
+### No code changes required
 
-**File:** `src/hooks/useScheduledQuestions.ts`
-- Add `.order('question_id', { ascending: true })` as a secondary sort after `scheduled_delivery`
+The edge function already:
+1. Soft-deletes all existing responses for the target scheduled questions
+2. Inserts fresh response rows
 
-### Fix 4: Update the missing question's validation_status
-Set question `69624610`'s `validation_status` to `passed` so it's treated consistently with the rest of the batch.
+This flow is correct -- only the database index definition was wrong.
 
-**File:** Included in the same SQL migration
+## Impact
 
----
+- Fixes the 500 error when submitting surveys
+- No data loss (existing soft-deleted rows remain untouched)
+- No edge function redeployment needed
 
-## Technical Summary
-
-| File | Change |
-|------|--------|
-| `supabase/functions/schedule-engine/index.ts` | Accept `pending` validation status |
-| `src/hooks/useScheduledQuestions.ts` | Add secondary sort by `question_id` for deterministic ordering |
-| New SQL migration | Insert missing question for existing employees + update its validation_status to `passed` |
