@@ -1,68 +1,46 @@
 
 
-# Add Branch/Division/Department/Section Comparative Analysis
+# Replace Question Count Dropdown with Stepper (Survey Only)
 
 ## Problem
-The Divergence Heatmap and BAI comparative data currently only covers **Departments**. The user wants the synthesis comparison to span all four organizational unit types: Branch, Division, Department, and Section.
+The "Number of Questions" field currently uses a dropdown (`Select`) limited to 1-20 for both Survey and Wellness purposes (in freeform/no-period mode). The user wants a modern +/- stepper control with a range of 1-200, applied **only** to Survey questions.
 
-## Solution
-Extend the synthesis engine and Divergence Heatmap to compute and display BAI scores for all four org unit types, with a tab selector to switch between them.
+## What Changes
 
-## Changes
+### `src/components/ai-generator/ConfigPanel.tsx` (lines 574-598)
+The freeform (no period selected) question count section currently renders a `Select` dropdown for both purposes. This will be split:
 
-### 1. `src/lib/synthesisEngine.ts`
-- Rename `departmentBAI` to a generic structure
-- Update `SynthesisResult` to include four arrays: `branchBAI`, `divisionBAI`, `departmentBAI`, `sectionBAI` (all typed as `DepartmentBAIItem[]`)
-- Update `computeSynthesis` to accept four org unit data arrays instead of one
+- **When `purpose === 'survey'`**: Replace the `Select` with a numeric `Input` field flanked by a minus (-) button on the start side and a plus (+) button on the end side.
+  - Min: 1, Max: 200
+  - (+) disabled at 200, (-) disabled at 1
+  - Input validates on change: clamps to 1-200, rejects non-numeric input
+  - Clean, compact layout matching the existing grid
 
-### 2. `src/hooks/useOrgAnalytics.ts`
-- Build synthesis data for all four org unit types from `orgComparison.branches`, `orgComparison.divisions`, `orgComparison.departments`, and `orgComparison.sections`
-- Each unit maps its `avgScore` (check-in avg) against the global `surveyStructural.categoryHealthScore` (survey avg) to compute per-unit BAI
-- Pass all four arrays to `computeSynthesis`
+- **When `purpose === 'wellness'`**: Keep the existing `Select` dropdown (1-20) exactly as-is, no changes.
 
-### 3. `src/components/dashboard/comparison/DivergenceHeatmap.tsx`
-- Add a `Tabs` component with four tabs: Branch, Division, Department, Section
-- Each tab renders the existing heatmap grid for the corresponding BAI array
-- Reuse existing color logic and privacy guard (< 5 employees = hidden)
+The period-selected path (lines 546-573 with `questionsPerDay` stepper) is **not touched at all**.
 
-### 4. `src/locales/en.json` and `src/locales/ar.json`
-- Add translation keys for the four tab labels in the heatmap context
-
----
+### No other files change
+- No backend changes needed -- the `questionCount` state is already a number passed to the generate function
+- No localization changes needed -- the existing `aiGenerator.questionCount` label is reused
+- No hook or page-level changes
 
 ## Technical Details
 
-### Updated `SynthesisResult` interface
+The stepper replaces only the `Select` inside the `else` branch (freeform mode), and only when `purpose === 'survey'`. The layout becomes:
+
 ```text
-SynthesisResult {
-  ...existing fields...
-  branchBAI: DepartmentBAIItem[]
-  divisionBAI: DepartmentBAIItem[]
-  departmentBAI: DepartmentBAIItem[]   (already exists)
-  sectionBAI: DepartmentBAIItem[]
-}
+[- button] [ numeric input ] [+ button]
 ```
 
-### Data mapping in `useOrgAnalytics.ts`
-For each unit type (branch, division, department, section), map from `orgComparison[type]`:
-```text
-{ id, name, nameAr, checkinAvg: unit.avgScore, surveyAvg: surveyStructural.categoryHealthScore, employeeCount: unit.employeeCount }
-```
-Then filter by employeeCount >= 5 and compute BAI in `computeSynthesis`.
+- Buttons use `variant="outline"` and `size="icon"` (h-9 w-9) matching the existing `sm` input height
+- Input uses `type="number"`, `min={1}`, `max={200}`, `className="text-center"`, no spin buttons (CSS hide)
+- `onChange` handler: parse int, clamp to 1-200, ignore NaN
+- `onBlur` handler: if empty or invalid, reset to 1
+- The grid remains `grid-cols-2 gap-4` with complexity select in the second column (unchanged)
 
-### DivergenceHeatmap tabs
-The heatmap component will receive all four arrays and render a tabbed view. The grid rendering logic stays identical -- only the data source changes per tab.
-
----
-
-## Files to Modify
+### Files to Modify
 
 | File | Change |
 |------|--------|
-| `src/lib/synthesisEngine.ts` | Add `branchBAI`, `divisionBAI`, `sectionBAI` to `SynthesisResult`; update `computeSynthesis` to accept and process all four unit type arrays |
-| `src/hooks/useOrgAnalytics.ts` | Build synthesis input data for branches, divisions, and sections (departments already done) |
-| `src/components/dashboard/comparison/DivergenceHeatmap.tsx` | Add tabbed UI (Branch / Division / Department / Section) to switch between heatmap datasets |
-| `src/locales/en.json` | Add ~4 keys for heatmap tab labels |
-| `src/locales/ar.json` | Add ~4 Arabic keys for heatmap tab labels |
-
-No new files are needed. No database changes required.
+| `src/components/ai-generator/ConfigPanel.tsx` | Replace question count `Select` with stepper UI when `purpose === 'survey'` in freeform mode (lines ~574-598) |
