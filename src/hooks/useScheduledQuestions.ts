@@ -59,7 +59,8 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
         .from('scheduled_questions')
         .select('*')
         .in('schedule_id', surveyScheduleIds)
-        .order('scheduled_delivery', { ascending: true });
+        .order('scheduled_delivery', { ascending: true })
+        .order('question_id', { ascending: true });
 
       if (employeeId) {
         query = query.eq('employee_id', employeeId);
