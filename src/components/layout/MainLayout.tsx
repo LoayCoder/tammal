@@ -26,9 +26,10 @@ export function MainLayout() {
           <main className="relative flex-1 overflow-x-hidden p-4 md:p-6">
             {/* Decorative gradient blobs for glass depth */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-              <div className="absolute -top-32 -start-32 h-96 w-96 rounded-full bg-primary/8 blur-3xl" />
-              <div className="absolute top-1/3 -end-24 h-80 w-80 rounded-full bg-chart-1/8 blur-3xl" />
-              <div className="absolute bottom-0 start-1/4 h-72 w-72 rounded-full bg-chart-2/6 blur-3xl" />
+              <div className="absolute -top-24 -start-24 h-[500px] w-[500px] rounded-full bg-primary/15 blur-[120px]" />
+              <div className="absolute top-1/4 -end-16 h-[400px] w-[400px] rounded-full bg-chart-1/12 blur-[100px]" />
+              <div className="absolute bottom-0 start-1/3 h-[350px] w-[350px] rounded-full bg-chart-2/10 blur-[100px]" />
+              <div className="absolute top-2/3 end-1/4 h-[300px] w-[300px] rounded-full bg-primary/8 blur-[80px]" />
             </div>
             <div className="relative">
               <Outlet />

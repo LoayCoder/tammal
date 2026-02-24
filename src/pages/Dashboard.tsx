@@ -32,18 +32,18 @@ export default function Dashboard() {
 
   return (
     <Tabs value={view} onValueChange={(v) => setView(v as any)} className="space-y-6">
-      <TabsList className="glass-card border-0 p-1">
-        <TabsTrigger value="overview" className="gap-1.5 rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
-          <Building2 className="h-3.5 w-3.5" />
+      <TabsList className="glass-tabs border-0 h-auto">
+        <TabsTrigger value="overview" className="gap-2 rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">
+          <Building2 className="h-4 w-4" />
           <span className="hidden sm:inline">{t('dashboard.overviewTab')}</span>
         </TabsTrigger>
-        <TabsTrigger value="wellness" className="gap-1.5 rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
-          <Heart className="h-3.5 w-3.5" />
+        <TabsTrigger value="wellness" className="gap-2 rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">
+          <Heart className="h-4 w-4" />
           <span className="hidden sm:inline">{t('dashboard.wellnessTab')}</span>
         </TabsTrigger>
         {canSwitch && (
-          <TabsTrigger value="personal" className="gap-1.5 rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
-            <User className="h-3.5 w-3.5" />
+          <TabsTrigger value="personal" className="gap-2 rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">
+            <User className="h-4 w-4" />
             <span className="hidden sm:inline">{t('dashboard.personalTab')}</span>
           </TabsTrigger>
         )}
