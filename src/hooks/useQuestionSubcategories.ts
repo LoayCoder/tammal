@@ -41,7 +41,7 @@ export function useQuestionSubcategories(categoryId?: string) {
     queryKey: ['question-subcategories', categoryId ?? '__all__'],
     queryFn: async () => {
       let query = supabase
-        .from('question_subcategories' as any)
+        .from('question_subcategories')
         .select('*')
         .is('deleted_at', null)
         .order('weight', { ascending: false })
@@ -60,7 +60,7 @@ export function useQuestionSubcategories(categoryId?: string) {
   const createSubcategory = useMutation({
     mutationFn: async (input: CreateSubcategoryInput) => {
       const { data, error } = await supabase
-        .from('question_subcategories' as any)
+        .from('question_subcategories')
         .insert(input)
         .select()
         .single();
@@ -79,7 +79,7 @@ export function useQuestionSubcategories(categoryId?: string) {
   const updateSubcategory = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<QuestionSubcategory> & { id: string }) => {
       const { data, error } = await supabase
-        .from('question_subcategories' as any)
+        .from('question_subcategories')
         .update(updates)
         .eq('id', id)
         .select()
@@ -99,7 +99,7 @@ export function useQuestionSubcategories(categoryId?: string) {
   const deleteSubcategory = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('question_subcategories' as any)
+        .from('question_subcategories')
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', id);
       if (error) throw error;

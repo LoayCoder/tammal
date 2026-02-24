@@ -31,7 +31,7 @@ export function useSpiritualPreferences() {
     queryFn: async () => {
       if (!user?.id) return null;
       const { data, error } = await supabase
-        .from('spiritual_preferences' as any)
+        .from('spiritual_preferences')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
@@ -47,7 +47,7 @@ export function useSpiritualPreferences() {
       
       if (preferences?.id) {
         const { data, error } = await supabase
-          .from('spiritual_preferences' as any)
+          .from('spiritual_preferences')
           .update(updates)
           .eq('id', preferences.id)
           .select()
@@ -56,7 +56,7 @@ export function useSpiritualPreferences() {
         return data;
       } else {
         const { data, error } = await supabase
-          .from('spiritual_preferences' as any)
+          .from('spiritual_preferences')
           .insert({ user_id: user.id, ...updates })
           .select()
           .single();

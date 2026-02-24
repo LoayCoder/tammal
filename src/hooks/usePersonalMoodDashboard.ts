@@ -156,7 +156,7 @@ export function usePersonalMoodDashboard() {
     queryFn: async () => {
       if (!employeeId) return { total: 0, thisMonth: 0, streak: 0 };
       const { data, error } = await supabase
-        .from('thought_reframes' as any)
+        .from('thought_reframes')
         .select('created_at')
         .eq('employee_id', employeeId)
         .is('deleted_at', null)
@@ -188,7 +188,7 @@ export function usePersonalMoodDashboard() {
     queryFn: async () => {
       if (!employeeId) return { totalSessions: 0, totalMinutes: 0, currentStreak: 0, avgMoodImprovement: 0, thisMonth: 0, favoriteExercise: null as string | null };
       const { data, error } = await supabase
-        .from('breathing_sessions' as any)
+        .from('breathing_sessions')
         .select('created_at, duration_seconds, technique, mood_before, mood_after, completed')
         .eq('employee_id', employeeId)
         .is('deleted_at', null)

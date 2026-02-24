@@ -39,7 +39,7 @@ export function useFastingLogs(dateRange?: { from: string; to: string }) {
     queryFn: async () => {
       if (!user?.id) return [];
       const { data, error } = await supabase
-        .from('spiritual_fasting_logs' as any)
+        .from('spiritual_fasting_logs')
         .select('*')
         .eq('user_id', user.id)
         .gte('fast_date', from)
@@ -61,7 +61,7 @@ export function useFastingLogs(dateRange?: { from: string; to: string }) {
     }) => {
       if (!user?.id) throw new Error('Not authenticated');
       const { data, error } = await supabase
-        .from('spiritual_fasting_logs' as any)
+        .from('spiritual_fasting_logs')
         .upsert(
           {
             user_id: user.id,

@@ -16,7 +16,7 @@ export function usePlatformSettings() {
     queryKey: ['platform-settings'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('platform_settings' as any)
+        .from('platform_settings')
         .select('*')
         .limit(1)
         .single();
@@ -29,9 +29,9 @@ export function usePlatformSettings() {
   const updateSettings = useMutation({
     mutationFn: async (updates: Partial<Pick<PlatformSettings, 'allow_public_signup' | 'show_invitation_link'>>) => {
       const { error } = await supabase
-        .from('platform_settings' as any)
-        .update({ ...updates, updated_at: new Date().toISOString() } as any)
-        .eq('id', data?.id as any);
+        .from('platform_settings')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', data?.id ?? '');
 
       if (error) throw error;
     },

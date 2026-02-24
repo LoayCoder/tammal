@@ -43,7 +43,7 @@ export function useBreathingSessions() {
     queryFn: async () => {
       if (!employeeId) return [];
       const { data, error } = await supabase
-        .from('breathing_sessions' as any)
+        .from('breathing_sessions')
         .select('*')
         .eq('employee_id', employeeId)
         .is('deleted_at', null)
@@ -129,7 +129,7 @@ export function useBreathingSessions() {
     }) => {
       if (!employeeId || !tenantId) throw new Error('No employee context');
       const { data: result, error } = await supabase
-        .from('breathing_sessions' as any)
+        .from('breathing_sessions')
         .insert({
           employee_id: employeeId,
           tenant_id: tenantId,
@@ -141,7 +141,7 @@ export function useBreathingSessions() {
         .select('id')
         .single();
       if (error) throw error;
-      return (result as any).id as string;
+      return result.id as string;
     },
   });
 
@@ -153,7 +153,7 @@ export function useBreathingSessions() {
       duration_seconds: number;
     }) => {
       const { error } = await supabase
-        .from('breathing_sessions' as any)
+        .from('breathing_sessions')
         .update({
           mood_after: data.mood_after,
           rounds_completed: data.rounds_completed,

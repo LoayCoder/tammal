@@ -30,7 +30,7 @@ export function useSpiritualReports() {
     queryFn: async () => {
       if (!user?.id) return [];
       const { data, error } = await supabase
-        .from('spiritual_insight_reports' as any)
+        .from('spiritual_insight_reports')
         .select('*')
         .eq('user_id', user.id)
         .order('period_end', { ascending: false })

@@ -28,7 +28,7 @@ export function useQuranSessions(dateRange?: { from: string; to: string }) {
     queryFn: async () => {
       if (!user?.id) return [];
       const { data, error } = await supabase
-        .from('spiritual_quran_sessions' as any)
+        .from('spiritual_quran_sessions')
         .select('*')
         .eq('user_id', user.id)
         .gte('session_date', from)
@@ -50,7 +50,7 @@ export function useQuranSessions(dateRange?: { from: string; to: string }) {
     }) => {
       if (!user?.id) throw new Error('Not authenticated');
       const { data, error } = await supabase
-        .from('spiritual_quran_sessions' as any)
+        .from('spiritual_quran_sessions')
         .insert({
           user_id: user.id,
           duration_minutes: input.duration_minutes,

@@ -74,7 +74,7 @@ export function useQuestionCategories() {
 
   const cascadeColorToSubcategories = async (categoryId: string, color: string) => {
     await supabase
-      .from('question_subcategories' as any)
+      .from('question_subcategories')
       .update({ color })
       .eq('category_id', categoryId)
       .is('deleted_at', null);
