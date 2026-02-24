@@ -557,6 +557,77 @@
       "15+": "15+ days"
     }
   },
+  "synthesis": {
+    "checkinPulse": "Check-In Pulse",
+    "checkinPulseDesc": "Real-time emotional indicators from daily check-ins",
+    "surveyStructural": "Survey Structural",
+    "surveyStructuralDesc": "Organizational health from structured survey responses",
+    "title": "Synthesis Intelligence",
+    "titleDesc": "Cross-layer behavioral alignment analysis",
+    "volatilityIndex": "Volatility Index",
+    "participationStability": "Participation Stability",
+    "energyTrend": "Energy Trend",
+    "topEmotion": "Top Emotion",
+    "categoryHealth": "Category Health",
+    "lowestCategory": "Lowest Category",
+    "surveyQuality": "Survey Quality",
+    "riskCategories": "Risk Categories",
+    "baiScore": "Alignment Index",
+    "divergenceLevel": "Divergence Level",
+    "riskLevel": "Risk Level",
+    "confidence": "Confidence",
+    "action": "Recommended Action",
+    "trend": {
+      "up": "Improving",
+      "down": "Declining",
+      "stable": "Stable"
+    },
+    "divergence": {
+      "high_alignment": "High Alignment",
+      "moderate": "Moderate Divergence",
+      "significant": "Significant Divergence"
+    },
+    "risk": {
+      "green": "Aligned",
+      "yellow": "Moderate",
+      "orange": "Elevated",
+      "red": "Critical"
+    },
+    "heatmapTitle": "Divergence Heatmap",
+    "heatmapDesc": "BAI score by department — departments with fewer than 5 employees are excluded",
+    "insufficientData": "Insufficient data for synthesis analysis",
+    "checkinAvg": "Check-in Average",
+    "surveyAvg": "Survey Average",
+    "alertsTitle": "Divergence Alerts",
+    "noAlerts": "No divergence patterns detected — alignment is healthy",
+    "confidenceLabel": "Confidence",
+    "trendOverlay": "Trend Overlay",
+    "trendOverlayDesc": "Check-in mood vs survey structural trends over time",
+    "checkinAxis": "Check-in",
+    "surveyAxis": "Survey",
+    "checkinLine": "Check-in Mood",
+    "surveyLine": "Survey Score",
+    "orgBreakdown": "Org Breakdown (Legacy Charts)",
+    "alerts": {
+      "misalignment": "Sentiment-Structure Misalignment",
+      "misalignmentDesc": "High mood volatility detected alongside low structural survey scores, indicating emotional instability not captured by surveys",
+      "misalignmentAction": "Conduct targeted focus groups in affected departments",
+      "fatigue": "Participation Fatigue",
+      "fatigueDesc": "Check-in participation is declining while survey engagement remains stable, suggesting daily check-in fatigue",
+      "fatigueAction": "Simplify check-in format or reduce frequency",
+      "surfacePositivity": "Surface Positivity Risk",
+      "surfacePositivityDesc": "Positive daily moods contrast with poor structural survey scores, suggesting employees may be masking concerns",
+      "surfacePositivityAction": "Increase anonymous feedback channels and review psychological safety measures"
+    },
+    "actions": {
+      "maintain": "Continue current wellness programs",
+      "monitor": "Increase monitoring frequency",
+      "investigate": "Initiate targeted investigation",
+      "misalignment": "Address structural gaps",
+      "fatigue": "Optimize engagement touchpoints",
+      "surfacePositivity": "Strengthen feedback safety"
+    }
+  },
   "install": {
     "title": "Install App",
     "subtitle": "Get the best experience by installing our app",

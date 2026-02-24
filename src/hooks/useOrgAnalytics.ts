@@ -8,6 +8,11 @@ import {
   type CategoryRiskScore, type CategoryTrendPoint, type CategoryMoodCell,
   type EarlyWarning, type PeriodComparison,
 } from '@/lib/wellnessAnalytics';
+import {
+  computeCheckinPulse, computeSurveyStructural, computeSynthesis,
+  type CheckinPulseMetrics, type SurveyStructuralMetrics, type SynthesisResult,
+} from '@/lib/synthesisEngine';
+import type { TrendOverlayPoint } from '@/components/dashboard/comparison/TrendOverlayChart';
 
 export type TimeRange = 7 | 30 | 90 | 'custom';
 
@@ -139,6 +144,11 @@ export interface OrgAnalyticsData {
   supportActionCounts: SupportActionCount[];
   streakDistribution: StreakBucket[];
   checkinByOrgUnit: CheckinByOrgUnitItem[];
+  // Three-Layer Intelligence fields
+  checkinPulse: CheckinPulseMetrics;
+  surveyStructural: SurveyStructuralMetrics;
+  synthesisData: SynthesisResult;
+  trendOverlayData: TrendOverlayPoint[];
 }
 
 function hasOrgFilter(f?: OrgFilter): boolean {
@@ -681,6 +691,42 @@ export function useOrgAnalytics(
         entryCount: d.employeeCount,
       })).filter(d => d.avgScore > 0).sort((a, b) => a.avgScore - b.avgScore);
 
+      // ── Three-Layer Intelligence ──
+      const checkinPulse = computeCheckinPulse(entries);
+      const surveyStructural = computeSurveyStructural(categoryScores, categoryRiskScores, surveyResponseRate);
+
+      // Use orgComparison departments for checkin avg and categoryScores for survey avg
+      const deptSynthesisData = orgComparison.departments.map(d => ({
+        id: d.id,
+        name: d.name,
+        nameAr: d.nameAr,
+        checkinAvg: d.avgScore,
+        surveyAvg: surveyStructural.categoryHealthScore,
+        employeeCount: d.employeeCount,
+      }));
+
+      const totalCatResponses = categoryScores.reduce((s, c) => s + c.responseCount, 0);
+      const synthesisData = computeSynthesis(
+        checkinPulse, surveyStructural,
+        avgMoodScore, participationRate, surveyResponseRate,
+        entries.length, totalCatResponses,
+        deptSynthesisData,
+      );
+
+      // Build trend overlay data using dailyMap (check-in) and catDailyAgg from category trends
+      const trendOverlayData: TrendOverlayPoint[] = allDays.map(day => {
+        const ds = format(day, 'yyyy-MM-dd');
+        const moodEntry = dailyMap[ds];
+        // Survey daily avg — aggregate from responseDailyMap and categoryScores
+        // Simple approach: use survey response count as proxy; actual avg from catResponses
+        return {
+          date: ds,
+          checkinAvg: moodEntry ? Math.round((moodEntry.total / moodEntry.count) * 10) / 10 : 0,
+          surveyAvg: surveyStructural.categoryHealthScore > 0 && (responseDailyMap[ds] ?? 0) > 0
+            ? surveyStructural.categoryHealthScore : 0,
+        };
+      });
+
       return {
         activeEmployees: totalActive, avgMoodScore, participationRate, surveyResponseRate,
         riskPercentage, avgStreak, moodTrend, moodDistribution, categoryScores,
@@ -689,6 +735,7 @@ export function useOrgAnalytics(
         categoryRiskScores, categoryTrends, categoryMoodMatrix,
         earlyWarnings, periodComparison, compositeHealthScore, moodByCategoryData,
         checkinMoodOverTime, supportActionCounts, streakDistribution, checkinByOrgUnit,
+        checkinPulse, surveyStructural, synthesisData, trendOverlayData,
       };
     },
     enabled: !!user?.id,
@@ -857,5 +904,9 @@ function emptyResult(): OrgAnalyticsData {
     categoryRiskScores: [], categoryTrends: new Map(), categoryMoodMatrix: [],
     earlyWarnings: [], periodComparison: null, compositeHealthScore: 0, moodByCategoryData: new Map(),
     checkinMoodOverTime: [], supportActionCounts: [], streakDistribution: [], checkinByOrgUnit: [],
+    checkinPulse: { volatilityIndex: 0, participationStability: 0, energyTrend: 'stable', topEmotionCluster: 'okay' },
+    surveyStructural: { categoryHealthScore: 0, lowestCategory: null, participationQuality: 0, riskCategoryCount: 0 },
+    synthesisData: { baiScore: 0, divergenceLevel: 'high_alignment', riskClassification: 'green', confidenceScore: 0, recommendedActionKey: 'synthesis.actions.maintain', alerts: [], departmentBAI: [] },
+    trendOverlayData: [],
   };
 }

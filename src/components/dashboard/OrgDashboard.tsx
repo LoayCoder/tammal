@@ -15,6 +15,14 @@ import { OrgComparisonChart } from './OrgComparisonChart';
 import { TopEngagersCard } from './TopEngagersCard';
 import { ExecutiveSummary } from './ExecutiveSummary';
 import { CategoryMoodMatrix } from './CategoryMoodMatrix';
+import { CheckinPulseCard } from './comparison/CheckinPulseCard';
+import { SurveyStructuralCard } from './comparison/SurveyStructuralCard';
+import { SynthesisCard } from './comparison/SynthesisCard';
+import { DivergenceHeatmap } from './comparison/DivergenceHeatmap';
+import { AlertsPanel } from './comparison/AlertsPanel';
+import { TrendOverlayChart } from './comparison/TrendOverlayChart';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown } from 'lucide-react';
 import { CategoryTrendCards } from './CategoryTrendCards';
 import { SubcategoryRiskBubble } from './SubcategoryRiskBubble';
 import { MoodByCategoryTrend } from './MoodByCategoryTrend';
@@ -24,7 +32,7 @@ import { CheckinMoodOverTime } from './CheckinMoodOverTime';
 import { SupportActionsChart } from './SupportActionsChart';
 import { StreakDistribution } from './StreakDistribution';
 import { CheckinByOrgUnit } from './CheckinByOrgUnit';
-import { Users, Heart, TrendingUp, AlertTriangle, Flame, ClipboardCheck } from 'lucide-react';
+import { Users, Heart, TrendingUp, AlertTriangle, Flame, ClipboardCheck, ChevronDown as _CD } from 'lucide-react';
 import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   BarChart, Bar, Cell, Line, ComposedChart, Area,
@@ -217,44 +225,69 @@ export function OrgDashboard() {
           <AIInsightsCard analyticsData={aiPayload} isLoading={isLoading} />
         </TabsContent>
 
-        {/* ── Comparison Tab ── */}
+        {/* ── Comparison Tab — Three-Layer Intelligence ── */}
         <TabsContent value="comparison" className="space-y-4">
-          <OrgComparisonChart
-            data={stats?.orgComparison ?? { branches: [], divisions: [], departments: [], sections: [] }}
-            isLoading={isLoading}
-          />
-
+          {/* Layer 1 + Layer 2 side by side */}
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">{t('orgDashboard.moodDistribution')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <Skeleton className="h-[200px] w-full" />
-                ) : distributionData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={distributionData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={24} />
-                      <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: 12 }} formatter={(value: number, _name: string, props: any) => [`${value} (${props.payload.percentage}%)`, t('orgDashboard.count')]} />
-                      <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                        {distributionData.map((entry, index) => (
-                          <Cell key={index} fill={entry.fill} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <p className="text-muted-foreground text-sm text-center py-10">{t('common.noData')}</p>
-                )}
-              </CardContent>
-            </Card>
-            <TopEngagersCard data={stats?.topEngagers ?? []} isLoading={isLoading} />
+            <CheckinPulseCard data={stats?.checkinPulse ?? null} isLoading={isLoading} />
+            <SurveyStructuralCard data={stats?.surveyStructural ?? null} isLoading={isLoading} />
           </div>
 
-          <ResponseHeatmap data={stats?.dayOfWeekActivity ?? []} isLoading={isLoading} />
+          {/* Layer 3: Synthesis */}
+          <SynthesisCard data={stats?.synthesisData ?? null} isLoading={isLoading} />
+
+          {/* Divergence Heatmap */}
+          <DivergenceHeatmap data={stats?.synthesisData?.departmentBAI ?? []} isLoading={isLoading} />
+
+          {/* Alerts Panel */}
+          <AlertsPanel alerts={stats?.synthesisData?.alerts ?? []} isLoading={isLoading} />
+
+          {/* Trend Overlay */}
+          <TrendOverlayChart data={stats?.trendOverlayData ?? []} isLoading={isLoading} />
+
+          {/* Collapsible Org Breakdown (existing charts) */}
+          <Collapsible>
+            <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-full py-2">
+              <ChevronDown className="h-4 w-4 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
+              {t('synthesis.orgBreakdown')}
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-4 pt-2">
+              <OrgComparisonChart
+                data={stats?.orgComparison ?? { branches: [], divisions: [], departments: [], sections: [] }}
+                isLoading={isLoading}
+              />
+              <div className="grid gap-4 md:grid-cols-2">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">{t('orgDashboard.moodDistribution')}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {isLoading ? (
+                      <Skeleton className="h-[200px] w-full" />
+                    ) : distributionData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={200}>
+                        <BarChart data={distributionData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                          <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={24} />
+                          <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: 12 }} formatter={(value: number, _name: string, props: any) => [`${value} (${props.payload.percentage}%)`, t('orgDashboard.count')]} />
+                          <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                            {distributionData.map((entry, index) => (
+                              <Cell key={index} fill={entry.fill} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <p className="text-muted-foreground text-sm text-center py-10">{t('common.noData')}</p>
+                    )}
+                  </CardContent>
+                </Card>
+                <TopEngagersCard data={stats?.topEngagers ?? []} isLoading={isLoading} />
+              </div>
+              <ResponseHeatmap data={stats?.dayOfWeekActivity ?? []} isLoading={isLoading} />
+            </CollapsibleContent>
+          </Collapsible>
         </TabsContent>
       </Tabs>
     </div>
