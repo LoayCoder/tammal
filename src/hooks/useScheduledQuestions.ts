@@ -22,6 +22,7 @@ export interface ScheduledQuestion {
     text_ar: string | null;
     type: string;
     options: unknown[] | null;
+    validation_status?: string | null;
     category?: {
       id: string;
       name: string;
