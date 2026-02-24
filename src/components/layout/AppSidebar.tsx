@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Users, Building2, CreditCard,
   HelpCircle, Palette, FileText, LayoutDashboard,
@@ -252,7 +253,8 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         {filteredGroups.map((group) => {
           const isWellnessGroup = group.label === t('nav.wellness');
           return (
-            <SidebarGroup key={group.label}>
+            <React.Fragment key={group.label}>
+            <SidebarGroup>
               <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -338,95 +340,96 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+            {/* Spiritual Wellbeing — rendered right after Wellness */}
+            {isWellnessGroup && spiritualEnabled && (
+              <SidebarGroup>
+                <SidebarGroupLabel>
+                  <span className="flex items-center gap-2">
+                    <Moon className="h-3.5 w-3.5" />
+                    {!isCollapsed && t('spiritual.nav.title')}
+                  </span>
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {isPrayerEnabled && (
+                      <SidebarMenuItem>
+                        <SidebarMenuButton asChild tooltip={t('spiritual.nav.prayerTracker')}>
+                          <NavLink
+                            to="/spiritual/prayer"
+                            className="flex items-center gap-2"
+                            activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                            onClick={handleNavClick}
+                          >
+                            <Moon className="h-4 w-4" />
+                            <span>{t('spiritual.nav.prayerTracker')}</span>
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    )}
+                    {preferences?.quran_enabled && (
+                      <SidebarMenuItem>
+                        <SidebarMenuButton asChild tooltip={t('spiritual.nav.quranReader')}>
+                          <NavLink
+                            to="/spiritual/quran"
+                            className="flex items-center gap-2"
+                            activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                            onClick={handleNavClick}
+                          >
+                            <BookOpenCheck className="h-4 w-4" />
+                            <span>{t('spiritual.nav.quranReader')}</span>
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    )}
+                    {preferences?.fasting_enabled && (
+                      <SidebarMenuItem>
+                        <SidebarMenuButton asChild tooltip={t('spiritual.nav.sunnahFasting')}>
+                          <NavLink
+                            to="/spiritual/fasting"
+                            className="flex items-center gap-2"
+                            activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                            onClick={handleNavClick}
+                          >
+                            <UtensilsCrossed className="h-4 w-4" />
+                            <span>{t('spiritual.nav.sunnahFasting')}</span>
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    )}
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild tooltip={t('spiritual.nav.calendar')}>
+                        <NavLink
+                          to="/spiritual/calendar"
+                          className="flex items-center gap-2"
+                          activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                          onClick={handleNavClick}
+                        >
+                          <CalendarDays className="h-4 w-4" />
+                          <span>{t('spiritual.nav.calendar')}</span>
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild tooltip={t('spiritual.nav.insights')}>
+                        <NavLink
+                          to="/spiritual/insights"
+                          className="flex items-center gap-2"
+                          activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                          onClick={handleNavClick}
+                        >
+                          <Sparkles className="h-4 w-4" />
+                          <span>{t('spiritual.nav.insights')}</span>
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
+          </React.Fragment>
           );
         })}
 
-        {/* Spiritual Wellbeing — visible only when enabled */}
-        {spiritualEnabled && (
-          <SidebarGroup>
-            <SidebarGroupLabel>
-              <span className="flex items-center gap-2">
-                <Moon className="h-3.5 w-3.5" />
-                {!isCollapsed && t('spiritual.nav.title')}
-              </span>
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {isPrayerEnabled && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild tooltip={t('spiritual.nav.prayerTracker')}>
-                      <NavLink
-                        to="/spiritual/prayer"
-                        className="flex items-center gap-2"
-                        activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
-                        onClick={handleNavClick}
-                      >
-                        <Moon className="h-4 w-4" />
-                        <span>{t('spiritual.nav.prayerTracker')}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )}
-                {preferences?.quran_enabled && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild tooltip={t('spiritual.nav.quranReader')}>
-                      <NavLink
-                        to="/spiritual/quran"
-                        className="flex items-center gap-2"
-                        activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
-                        onClick={handleNavClick}
-                      >
-                        <BookOpenCheck className="h-4 w-4" />
-                        <span>{t('spiritual.nav.quranReader')}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )}
-                {preferences?.fasting_enabled && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild tooltip={t('spiritual.nav.sunnahFasting')}>
-                      <NavLink
-                        to="/spiritual/fasting"
-                        className="flex items-center gap-2"
-                        activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
-                        onClick={handleNavClick}
-                      >
-                        <UtensilsCrossed className="h-4 w-4" />
-                        <span>{t('spiritual.nav.sunnahFasting')}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )}
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip={t('spiritual.nav.calendar')}>
-                    <NavLink
-                      to="/spiritual/calendar"
-                      className="flex items-center gap-2"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
-                      onClick={handleNavClick}
-                    >
-                      <CalendarDays className="h-4 w-4" />
-                      <span>{t('spiritual.nav.calendar')}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip={t('spiritual.nav.insights')}>
-                    <NavLink
-                      to="/spiritual/insights"
-                      className="flex items-center gap-2"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
-                      onClick={handleNavClick}
-                    >
-                      <Sparkles className="h-4 w-4" />
-                      <span>{t('spiritual.nav.insights')}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
       </SidebarContent>
     </Sidebar>
   );
