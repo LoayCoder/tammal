@@ -79,7 +79,45 @@
     "subcategories": "التصنيفات الفرعية",
     "moodPathways": "مسارات المزاج",
     "mentalToolkit": "أدوات الصحة النفسية",
-    "surveyMonitor": "مراقبة الاستبيان"
+    "surveyMonitor": "مراقبة الاستبيان",
+    "checkinMonitor": "مراقبة التسجيل اليومي"
+  },
+  "checkinMonitor": {
+    "title": "مراقبة التسجيل اليومي",
+    "subtitle": "تتبع مشاركة التسجيل اليومي واتجاهات المزاج وتفاعل الموظفين",
+    "moodDistribution": "توزيع المزاج",
+    "departmentHeatmap": "التسجيل حسب القسم",
+    "trendChart": "اتجاه المزاج والمشاركة",
+    "dateRange": {
+      "today": "اليوم",
+      "7d": "آخر 7 أيام",
+      "30d": "آخر 30 يوم"
+    },
+    "stats": {
+      "totalEmployees": "إجمالي الموظفين",
+      "checkedIn": "سجّلوا اليوم",
+      "notCheckedIn": "لم يسجّلوا",
+      "participationRate": "نسبة المشاركة",
+      "avgMood": "متوسط المزاج",
+      "avgStreak": "متوسط السلسلة"
+    },
+    "employeeTable": {
+      "title": "تفاصيل تسجيل الموظفين",
+      "name": "اسم الموظف",
+      "department": "القسم",
+      "mood": "المزاج",
+      "streak": "السلسلة",
+      "lastCheckin": "آخر تسجيل",
+      "checkedIn": "سجّل",
+      "notYet": "لم يسجّل بعد"
+    },
+    "risk": {
+      "title": "المخاطر والتفاعل",
+      "noRisk": "لا توجد تنبيهات مخاطر حالياً.",
+      "low_mood": "في خطر",
+      "disengaged": "غير متفاعل",
+      "low_department": "تفاعل منخفض"
+    }
   },
   "surveyMonitor": {
     "title": "مراقبة الاستبيان",

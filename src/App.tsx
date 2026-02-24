@@ -57,6 +57,7 @@ const CrisisRequestPage = lazy(() => import("@/pages/crisis/CrisisRequestPage"))
 const MySupportPage = lazy(() => import("@/pages/crisis/MySupportPage"));
 const FirstAiderDashboard = lazy(() => import("@/pages/crisis/FirstAiderDashboard"));
 const SurveyMonitor = lazy(() => import("@/pages/admin/SurveyMonitor"));
+const CheckinMonitor = lazy(() => import("@/pages/admin/CheckinMonitor"));
 
 const queryClient = new QueryClient();
 
@@ -110,6 +111,7 @@ const App = () => (
               <Route path="/admin/mood-pathways" element={<AdminRoute><MoodPathwaySettings /></AdminRoute>} />
               <Route path="/admin/crisis-settings" element={<AdminRoute><CrisisSettings /></AdminRoute>} />
               <Route path="/admin/survey-monitor" element={<AdminRoute><SurveyMonitor /></AdminRoute>} />
+              <Route path="/admin/checkin-monitor" element={<AdminRoute><CheckinMonitor /></AdminRoute>} />
               
               <Route path="/crisis-support" element={<CrisisRequestPage />} />
               <Route path="/my-support" element={<MySupportPage />} />

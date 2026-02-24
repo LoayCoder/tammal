@@ -79,7 +79,45 @@
     "subcategories": "Subcategories",
     "moodPathways": "Mood Pathways",
     "mentalToolkit": "Mental Toolkit",
-    "surveyMonitor": "Survey Monitor"
+    "surveyMonitor": "Survey Monitor",
+    "checkinMonitor": "Check-in Monitor"
+  },
+  "checkinMonitor": {
+    "title": "Check-in Monitor",
+    "subtitle": "Track daily check-in participation, mood trends, and employee engagement",
+    "moodDistribution": "Mood Distribution",
+    "departmentHeatmap": "Check-in by Department",
+    "trendChart": "Mood & Participation Trend",
+    "dateRange": {
+      "today": "Today",
+      "7d": "Last 7 Days",
+      "30d": "Last 30 Days"
+    },
+    "stats": {
+      "totalEmployees": "Total Employees",
+      "checkedIn": "Checked In",
+      "notCheckedIn": "Not Checked In",
+      "participationRate": "Participation Rate",
+      "avgMood": "Avg Mood",
+      "avgStreak": "Avg Streak"
+    },
+    "employeeTable": {
+      "title": "Employee Check-in Details",
+      "name": "Employee Name",
+      "department": "Department",
+      "mood": "Mood",
+      "streak": "Streak",
+      "lastCheckin": "Last Check-in",
+      "checkedIn": "Checked In",
+      "notYet": "Not Yet"
+    },
+    "risk": {
+      "title": "Risk & Engagement",
+      "noRisk": "No risk alerts at this time.",
+      "low_mood": "At Risk",
+      "disengaged": "Disengaged",
+      "low_department": "Low Engagement"
+    }
   },
   "surveyMonitor": {
     "title": "Survey Monitor",
