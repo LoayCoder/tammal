@@ -222,30 +222,32 @@ export function AppSidebar({ branding }: AppSidebarProps) {
 
   return (
     <Sidebar variant="sidebar" collapsible="icon" side={isRTL ? "right" : "left"}>
-      <SidebarHeader className="border-b border-white/[0.06] p-4">
-        {isCollapsed ? (
-          <ThemeIcon
-            iconLightUrl={branding.icon_light_url}
-            iconDarkUrl={branding.icon_dark_url}
-            className="h-8 w-8 object-contain mx-auto"
-            alt={t('branding.themeIcon')}
-            fallback={<Building className="h-8 w-8 text-sidebar-foreground" />}
-          />
-        ) : (
-          <ThemeLogo
-            logoUrl={branding.logo_url}
-            logoLightUrl={branding.logo_light_url}
-            logoDarkUrl={branding.logo_dark_url}
-            className="h-8 max-w-full object-contain"
-            alt={t('branding.themeLogo')}
-            fallback={
-              <div className="flex items-center gap-2">
-                <Building className="h-6 w-6 text-sidebar-foreground" />
-                <span className="font-semibold text-sidebar-foreground">SaaS Admin</span>
-              </div>
-            }
-          />
-        )}
+      <SidebarHeader className="p-4">
+        <div className="glass-card border-0 rounded-xl p-3 flex items-center justify-center shadow-[0_0_20px_hsl(var(--primary)/0.08)]">
+          {isCollapsed ? (
+            <ThemeIcon
+              iconLightUrl={branding.icon_light_url}
+              iconDarkUrl={branding.icon_dark_url}
+              className="h-10 w-10 object-contain mx-auto drop-shadow-sm"
+              alt={t('branding.themeIcon')}
+              fallback={<Building className="h-10 w-10 text-sidebar-foreground" />}
+            />
+          ) : (
+            <ThemeLogo
+              logoUrl={branding.logo_url}
+              logoLightUrl={branding.logo_light_url}
+              logoDarkUrl={branding.logo_dark_url}
+              className="h-10 max-w-full object-contain drop-shadow-sm"
+              alt={t('branding.themeLogo')}
+              fallback={
+                <div className="flex items-center gap-2">
+                  <Building className="h-7 w-7 text-sidebar-foreground" />
+                  <span className="font-semibold text-sidebar-foreground">SaaS Admin</span>
+                </div>
+              }
+            />
+          )}
+        </div>
       </SidebarHeader>
       <SidebarContent className="pt-4">
         {/* Regular menu groups */}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Save, RotateCcw } from 'lucide-react';
+import { Save, RotateCcw, Palette } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -166,10 +166,13 @@ export default function AdminBranding() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('branding.title')}</h1>
-          <p className="text-muted-foreground mt-1">{t('branding.description')}</p>
+      <div className="glass-card border-0 rounded-xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 rounded-lg p-2"><Palette className="h-6 w-6 text-primary" /></div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{t('branding.title')}</h1>
+            <p className="text-muted-foreground mt-1">{t('branding.description')}</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleReset} disabled={isSaving}>
@@ -188,7 +191,7 @@ export default function AdminBranding() {
         {/* Left Column - Settings */}
         <div className="lg:col-span-2 space-y-6">
           {/* Colors Section */}
-          <Card>
+          <Card className="glass-card border-0 rounded-xl">
             <CardHeader>
               <CardTitle>{t('branding.colorsSection')}</CardTitle>
               <CardDescription>{t('branding.colorsDescription')}</CardDescription>
@@ -215,7 +218,7 @@ export default function AdminBranding() {
           </Card>
 
           {/* Primary Assets Section */}
-          <Card>
+          <Card className="glass-card border-0 rounded-xl">
             <CardHeader>
               <CardTitle>{t('branding.assetsSection')}</CardTitle>
               <CardDescription>{t('branding.assetsDescription')}</CardDescription>
@@ -243,7 +246,7 @@ export default function AdminBranding() {
           </Card>
 
           {/* Logo Variants Section */}
-          <Card>
+          <Card className="glass-card border-0 rounded-xl">
             <CardHeader>
               <CardTitle>{t('branding.logosSection')}</CardTitle>
               <CardDescription>{t('branding.logosDescription')}</CardDescription>
@@ -271,7 +274,7 @@ export default function AdminBranding() {
           </Card>
 
           {/* Icon Variants Section */}
-          <Card>
+          <Card className="glass-card border-0 rounded-xl">
             <CardHeader>
               <CardTitle>{t('branding.iconsSection')}</CardTitle>
               <CardDescription>{t('branding.iconsDescription')}</CardDescription>

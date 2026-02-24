@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { CategoryDialog } from "@/components/questions/CategoryDialog";
 import { useQuestionCategories, QuestionCategory, CreateCategoryInput } from "@/hooks/useQuestionCategories";
-import { Plus, MoreHorizontal, Edit2, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Plus, MoreHorizontal, Edit2, Trash2, ToggleLeft, ToggleRight, Tags } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
@@ -44,10 +44,13 @@ export default function CategoryManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('categories.title')}</h1>
-          <p className="text-muted-foreground">{t('categories.subtitle')}</p>
+      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 rounded-lg p-2"><Tags className="h-6 w-6 text-primary" /></div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{t('categories.title')}</h1>
+            <p className="text-muted-foreground">{t('categories.subtitle')}</p>
+          </div>
         </div>
         <Button 
           onClick={() => {
@@ -65,7 +68,7 @@ export default function CategoryManagement() {
         </Button>
       </div>
 
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <CardTitle>{t('categories.list')}</CardTitle>
           <CardDescription>{t('categories.listDescription')}</CardDescription>

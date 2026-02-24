@@ -11,7 +11,7 @@ import { EmployeeInviteDialog } from "@/components/employees/EmployeeInviteDialo
 import { useEmployees, CreateEmployeeInput, Employee, EmployeeStatus } from "@/hooks/useEmployees";
 import { useTenants } from "@/hooks/useTenants";
 import { useTenantInvitations } from "@/hooks/useTenantInvitations";
-import { Plus, Search, Upload, Download } from "lucide-react";
+import { Plus, Search, Upload, Download, Users } from "lucide-react";
 import { toast } from "sonner";
 
 export default function EmployeeManagement() {
@@ -111,10 +111,13 @@ export default function EmployeeManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('employees.title')}</h1>
-          <p className="text-muted-foreground">{t('employees.subtitle')}</p>
+      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 rounded-lg p-2"><Users className="h-6 w-6 text-primary" /></div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{t('employees.title')}</h1>
+            <p className="text-muted-foreground">{t('employees.subtitle')}</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={() => setImportOpen(true)}>
@@ -132,7 +135,7 @@ export default function EmployeeManagement() {
         </div>
       </div>
 
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <CardTitle>{t('employees.directory')}</CardTitle>
           <CardDescription>{t('employees.directoryDescription')}</CardDescription>

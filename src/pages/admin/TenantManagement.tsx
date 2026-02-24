@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Building2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -140,10 +140,13 @@ export default function TenantManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('tenants.title')}</h1>
-          <p className="text-muted-foreground">{t('tenants.subtitle')}</p>
+      <div className="glass-card border-0 rounded-xl p-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 rounded-lg p-2"><Building2 className="h-6 w-6 text-primary" /></div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{t('tenants.title')}</h1>
+            <p className="text-muted-foreground">{t('tenants.subtitle')}</p>
+          </div>
         </div>
         <Button onClick={handleCreate}>
           <Plus className="me-2 h-4 w-4" />
@@ -151,7 +154,7 @@ export default function TenantManagement() {
         </Button>
       </div>
 
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle>{t('tenants.title')}</CardTitle>

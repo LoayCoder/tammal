@@ -87,7 +87,7 @@ export default function TenantDashboard() {
 
       {/* Quick Info Cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <CreditCard className="h-4 w-4" />
@@ -119,7 +119,7 @@ export default function TenantDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">
               {t('tenantDashboard.plan')}
@@ -139,7 +139,7 @@ export default function TenantDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">
               {t('tenantDashboard.createdAt')}
@@ -171,7 +171,7 @@ export default function TenantDashboard() {
       />
 
       {/* Recent Activity */}
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">

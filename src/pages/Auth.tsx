@@ -111,7 +111,7 @@ export default function Auth() {
       </div>
       
       <div className="flex-1 flex items-center justify-center px-4">
-        <Card className="w-full max-w-md">
+        <Card className="glass-card border-0 rounded-xl w-full max-w-md shadow-2xl">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">
               {isLogin ? t('auth.loginTitle') : t('auth.signupTitle')}

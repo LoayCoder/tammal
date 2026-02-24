@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus } from 'lucide-react';
+import { Plus, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -68,8 +68,9 @@ export default function SubscriptionManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 rounded-lg p-2"><CreditCard className="h-6 w-6 text-primary" /></div>
           <h1 className="text-3xl font-bold tracking-tight">{t('subscriptions.title')}</h1>
         </div>
         <Button onClick={handleCreate}>
@@ -78,7 +79,7 @@ export default function SubscriptionManagement() {
         </Button>
       </div>
 
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <CardTitle>{t('subscriptions.title')}</CardTitle>
         </CardHeader>

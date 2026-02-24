@@ -193,13 +193,13 @@ export default function MoodPathwaySettings() {
       </div>
 
       {/* Info banner */}
-      <div className="flex items-start gap-3 rounded-xl border bg-card p-4">
+      <div className="glass-card border-0 rounded-xl p-4 flex items-start gap-3">
         <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
         <p className="text-sm text-muted-foreground">{t('moodPathway.settingsInfo')}</p>
       </div>
 
       {/* ==================== Mood Definitions Management ==================== */}
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -327,7 +327,7 @@ export default function MoodPathwaySettings() {
             const taggedQuestions = getTaggedQuestions(moodLevel);
 
             return (
-              <Card key={moodDef.id} className="overflow-hidden">
+              <Card key={moodDef.id} className="glass-card border-0 rounded-xl overflow-hidden">
                 <CardHeader className="pb-3 border-b">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">

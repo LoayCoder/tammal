@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useCrisisCases, useCrisisMessages, useIsFirstAider, useFirstAiderSchedule } from '@/hooks/useCrisisSupport';
 import { useAuth } from '@/hooks/useAuth';
-import { MessageSquare, Clock, Send, ArrowLeft, Check, X, AlertTriangle, Activity } from 'lucide-react';
+import { MessageSquare, Clock, Send, ArrowLeft, Check, X, AlertTriangle, Activity, Shield } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -63,10 +63,13 @@ export default function FirstAiderDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('crisisSupport.firstAider.title')}</h1>
-          <p className="text-muted-foreground">{t('crisisSupport.firstAider.subtitle')}</p>
+      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 rounded-lg p-2"><Shield className="h-6 w-6 text-primary" /></div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{t('crisisSupport.firstAider.title')}</h1>
+            <p className="text-muted-foreground">{t('crisisSupport.firstAider.subtitle')}</p>
+          </div>
         </div>
         {schedule && (
           <div className="flex items-center gap-2">
@@ -78,19 +81,19 @@ export default function FirstAiderDashboard() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
+        <Card className="glass-stat border-0 rounded-xl">
           <CardContent className="pt-6 text-center">
             <p className="text-3xl font-bold">{activeCases.length}</p>
             <p className="text-sm text-muted-foreground">{t('crisisSupport.firstAider.activeCases')}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="glass-stat border-0 rounded-xl">
           <CardContent className="pt-6 text-center">
             <p className="text-3xl font-bold">{pendingCases.length}</p>
             <p className="text-sm text-muted-foreground">{t('crisisSupport.firstAider.pendingRequests')}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="glass-stat border-0 rounded-xl">
           <CardContent className="pt-6 text-center">
             <p className="text-3xl font-bold">{resolvedCases.length}</p>
             <p className="text-sm text-muted-foreground">{t('crisisSupport.firstAider.resolvedCases')}</p>
@@ -99,13 +102,13 @@ export default function FirstAiderDashboard() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="pending">
+        <TabsList className="glass-tabs">
+          <TabsTrigger value="pending" className="rounded-xl">
             {t('crisisSupport.firstAider.pending')}
             {pendingCases.length > 0 && <Badge variant="destructive" className="ms-1.5 text-xs">{pendingCases.length}</Badge>}
           </TabsTrigger>
-          <TabsTrigger value="active">{t('crisisSupport.firstAider.active')}</TabsTrigger>
-          <TabsTrigger value="resolved">{t('crisisSupport.firstAider.resolved')}</TabsTrigger>
+          <TabsTrigger value="active" className="rounded-xl">{t('crisisSupport.firstAider.active')}</TabsTrigger>
+          <TabsTrigger value="resolved" className="rounded-xl">{t('crisisSupport.firstAider.resolved')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="pending">
@@ -145,7 +148,7 @@ function CaseList({ cases, isLoading, onSelect, actions }: { cases: any[]; isLoa
   return (
     <div className="space-y-3 mt-4">
       {cases.map(c => (
-        <Card key={c.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => onSelect(c.id)}>
+        <Card key={c.id} className="glass-card border-0 rounded-xl cursor-pointer hover:bg-white/5 transition-colors" onClick={() => onSelect(c.id)}>
           <CardContent className="py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -213,14 +216,14 @@ function FirstAiderCaseThread({ caseData, onBack }: { caseData: any; onBack: () 
       </div>
 
       {caseData.summary && (
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardContent className="pt-4">
             <p className="text-sm text-muted-foreground">{caseData.summary}</p>
           </CardContent>
         </Card>
       )}
 
-      <Card className="min-h-[300px] flex flex-col">
+      <Card className="glass-card border-0 rounded-xl min-h-[300px] flex flex-col">
         <CardContent className="flex-1 pt-4 space-y-3 max-h-[400px] overflow-y-auto">
           {messages.length === 0 ? (
             <p className="text-muted-foreground text-center py-8 text-sm">{t('crisisSupport.mySupport.noMessages')}</p>
