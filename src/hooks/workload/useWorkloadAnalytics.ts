@@ -37,6 +37,7 @@ export function useWorkloadAnalytics() {
       const { data: employees, error: empErr } = await supabase
         .from('employees')
         .select('id, full_name, department')
+        .eq('tenant_id', tenantId!)
         .is('deleted_at', null)
         .eq('status', 'active');
       if (empErr) throw empErr;
