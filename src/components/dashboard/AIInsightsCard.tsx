@@ -33,7 +33,7 @@ export function AIInsightsCard({ analyticsData, isLoading: parentLoading }: Prop
   }
 
   return (
-    <Card className="border-primary/20">
+    <Card className="glass-card border-0 ring-1 ring-primary/20">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base flex items-center gap-2">

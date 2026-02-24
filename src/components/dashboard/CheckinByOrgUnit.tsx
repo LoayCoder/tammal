@@ -21,7 +21,7 @@ export function CheckinByOrgUnit({ data, orgAvgScore, isLoading }: Props) {
   }));
 
   return (
-    <Card>
+    <Card className="glass-chart border-0">
       <CardHeader className="pb-2">
         <CardTitle className="text-base">{t('orgDashboard.checkinByOrgUnit')}</CardTitle>
       </CardHeader>

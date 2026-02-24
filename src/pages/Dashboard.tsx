@@ -26,24 +26,23 @@ export default function Dashboard() {
     );
   }
 
-  // Non-admin users always see employee home
   if (!isAdmin) {
     return <EmployeeHome />;
   }
 
   return (
     <Tabs value={view} onValueChange={(v) => setView(v as any)} className="space-y-6">
-      <TabsList>
-        <TabsTrigger value="overview" className="gap-1.5">
+      <TabsList className="glass-card border-0 p-1">
+        <TabsTrigger value="overview" className="gap-1.5 rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
           <Building2 className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">{t('dashboard.overviewTab')}</span>
         </TabsTrigger>
-        <TabsTrigger value="wellness" className="gap-1.5">
+        <TabsTrigger value="wellness" className="gap-1.5 rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
           <Heart className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">{t('dashboard.wellnessTab')}</span>
         </TabsTrigger>
         {canSwitch && (
-          <TabsTrigger value="personal" className="gap-1.5">
+          <TabsTrigger value="personal" className="gap-1.5 rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
             <User className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">{t('dashboard.personalTab')}</span>
           </TabsTrigger>

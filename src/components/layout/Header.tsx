@@ -55,7 +55,7 @@ export function Header() {
   const breadcrumbs = getBreadcrumbs();
 
   return (
-    <header className="sticky top-0 z-50 flex h-14 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
+    <header className="glass-header sticky top-0 z-50 flex h-14 items-center gap-4 px-4">
       <SidebarTrigger className="-ms-2" />
       
       <Breadcrumb className="hidden md:flex">

@@ -42,7 +42,7 @@ export function CheckinPulseCard({ data, isLoading }: Props) {
   ];
 
   return (
-    <Card>
+    <Card className="glass-card border-0">
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <Activity className="h-4 w-4 text-primary" />

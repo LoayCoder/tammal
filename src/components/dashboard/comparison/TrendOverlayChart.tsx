@@ -26,7 +26,7 @@ export function TrendOverlayChart({ data, isLoading }: Props) {
   }));
 
   return (
-    <Card>
+    <Card className="glass-chart border-0">
       <CardHeader className="pb-3">
         <CardTitle className="text-base">{t('synthesis.trendOverlay')}</CardTitle>
         <p className="text-xs text-muted-foreground">{t('synthesis.trendOverlayDesc')}</p>

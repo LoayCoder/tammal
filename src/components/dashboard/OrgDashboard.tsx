@@ -47,6 +47,16 @@ const MOOD_COLORS: Record<string, string> = {
   need_help: 'hsl(var(--destructive))',
 };
 
+const GLASS_TOOLTIP = {
+  background: 'hsl(var(--card) / 0.6)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
+  border: '1px solid hsl(var(--border) / 0.25)',
+  borderRadius: '12px',
+  fontSize: 12,
+  boxShadow: '0 8px 32px hsl(0 0% 0% / 0.08)',
+};
+
 export function OrgDashboard() {
   const { t } = useTranslation();
   const [timeRange, setTimeRange] = useState<TimeRange>(30);
@@ -76,7 +86,6 @@ export function OrgDashboard() {
     fill: MOOD_COLORS[d.level] ?? 'hsl(var(--muted))',
   }));
 
-  // AI insights data payload
   const aiPayload = stats ? {
     activeEmployees: stats.activeEmployees,
     avgMoodScore: stats.avgMoodScore,
@@ -111,10 +120,12 @@ export function OrgDashboard() {
       {/* KPI Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
         {statCards.map((stat) => (
-          <Card key={stat.title}>
+          <Card key={stat.title} className="glass-stat border-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium truncate">{stat.title}</CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground shrink-0" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+                <stat.icon className="h-3.5 w-3.5 text-primary" />
+              </div>
             </CardHeader>
             <CardContent>
               {isLoading ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-bold">{stat.value}</div>}
@@ -125,11 +136,11 @@ export function OrgDashboard() {
 
       {/* Tabbed Analytics */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">{t('orgDashboard.tabs.overview')}</TabsTrigger>
-          <TabsTrigger value="deep">{t('orgDashboard.tabs.deepAnalysis')}</TabsTrigger>
-          <TabsTrigger value="alerts">{t('orgDashboard.tabs.alertsInsights')}</TabsTrigger>
-          <TabsTrigger value="comparison">{t('orgDashboard.tabs.comparison')}</TabsTrigger>
+        <TabsList className="glass-card border-0 p-1">
+          <TabsTrigger value="overview" className="rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">{t('orgDashboard.tabs.overview')}</TabsTrigger>
+          <TabsTrigger value="deep" className="rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">{t('orgDashboard.tabs.deepAnalysis')}</TabsTrigger>
+          <TabsTrigger value="alerts" className="rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">{t('orgDashboard.tabs.alertsInsights')}</TabsTrigger>
+          <TabsTrigger value="comparison" className="rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">{t('orgDashboard.tabs.comparison')}</TabsTrigger>
         </TabsList>
 
         {/* ── Overview Tab ── */}
@@ -142,7 +153,7 @@ export function OrgDashboard() {
           />
 
           {/* Engagement Trend */}
-          <Card>
+          <Card className="glass-chart border-0">
             <CardHeader className="pb-2">
               <CardTitle className="text-base">{t('orgDashboard.engagementTrend')}</CardTitle>
             </CardHeader>
@@ -158,12 +169,12 @@ export function OrgDashboard() {
                         <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
                     <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
                     <YAxis yAxisId="left" domain={[1, 5]} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={24} />
                     <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={30} />
-                    <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: 12 }} />
-                    <Area yAxisId="left" type="monotone" dataKey="avg" name={t('orgDashboard.moodAvg')} stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#orgMoodGradient)" dot={{ r: 3, fill: 'hsl(var(--primary))', strokeWidth: 0 }} activeDot={{ r: 5 }} />
+                    <Tooltip contentStyle={GLASS_TOOLTIP} />
+                    <Area yAxisId="left" type="monotone" dataKey="avg" name={t('orgDashboard.moodAvg')} stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#orgMoodGradient)" dot={{ r: 3, fill: 'hsl(var(--primary))', strokeWidth: 0 }} activeDot={{ r: 6, stroke: 'hsl(var(--primary))', strokeWidth: 2, fill: 'hsl(var(--background))' }} />
                     <Line yAxisId="right" type="monotone" dataKey="responseCount" name={t('orgDashboard.surveyResponses')} stroke="hsl(var(--chart-4))" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
                   </ComposedChart>
                 </ResponsiveContainer>
@@ -186,9 +197,9 @@ export function OrgDashboard() {
         {/* ── Deep Analysis Tab ── */}
         <TabsContent value="deep" className="space-y-4">
           <Tabs defaultValue="checkin" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="checkin">{t('orgDashboard.checkinAnalysis')}</TabsTrigger>
-              <TabsTrigger value="survey">{t('orgDashboard.surveyAnalysis')}</TabsTrigger>
+            <TabsList className="glass-card border-0 p-1">
+              <TabsTrigger value="checkin" className="rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">{t('orgDashboard.checkinAnalysis')}</TabsTrigger>
+              <TabsTrigger value="survey" className="rounded-lg data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">{t('orgDashboard.surveyAnalysis')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="checkin" className="space-y-4">
@@ -227,18 +238,15 @@ export function OrgDashboard() {
           <AIInsightsCard analyticsData={aiPayload} isLoading={isLoading} />
         </TabsContent>
 
-        {/* ── Comparison Tab — Three-Layer Intelligence ── */}
+        {/* ── Comparison Tab ── */}
         <TabsContent value="comparison" className="space-y-4">
-          {/* Layer 1 + Layer 2 side by side */}
           <div className="grid gap-4 md:grid-cols-2">
             <CheckinPulseCard data={stats?.checkinPulse ?? null} isLoading={isLoading} />
             <SurveyStructuralCard data={stats?.surveyStructural ?? null} isLoading={isLoading} />
           </div>
 
-          {/* Layer 3: Synthesis */}
           <SynthesisCard data={stats?.synthesisData ?? null} isLoading={isLoading} />
 
-          {/* Divergence Heatmap */}
           <DivergenceHeatmap
             branchData={stats?.synthesisData?.branchBAI ?? []}
             divisionData={stats?.synthesisData?.divisionBAI ?? []}
@@ -247,13 +255,11 @@ export function OrgDashboard() {
             isLoading={isLoading}
           />
 
-          {/* Alerts Panel */}
           <AlertsPanel alerts={stats?.synthesisData?.alerts ?? []} isLoading={isLoading} />
 
-          {/* Trend Overlay */}
           <TrendOverlayChart data={stats?.trendOverlayData ?? []} isLoading={isLoading} />
 
-          {/* Collapsible Org Breakdown (existing charts) */}
+          {/* Collapsible Org Breakdown */}
           <Collapsible>
             <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-full py-2">
               <ChevronDown className="h-4 w-4 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
@@ -265,7 +271,7 @@ export function OrgDashboard() {
                 isLoading={isLoading}
               />
               <div className="grid gap-4 md:grid-cols-2">
-                <Card>
+                <Card className="glass-chart border-0">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base">{t('orgDashboard.moodDistribution')}</CardTitle>
                   </CardHeader>
@@ -275,11 +281,11 @@ export function OrgDashboard() {
                     ) : distributionData.length > 0 ? (
                       <ResponsiveContainer width="100%" height={200}>
                         <BarChart data={distributionData}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
                           <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
                           <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={24} />
-                          <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: 12 }} formatter={(value: number, _name: string, props: any) => [`${value} (${props.payload.percentage}%)`, t('orgDashboard.count')]} />
-                          <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                          <Tooltip contentStyle={GLASS_TOOLTIP} formatter={(value: number, _name: string, props: any) => [`${value} (${props.payload.percentage}%)`, t('orgDashboard.count')]} />
+                          <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                             {distributionData.map((entry, index) => (
                               <Cell key={index} fill={entry.fill} />
                             ))}

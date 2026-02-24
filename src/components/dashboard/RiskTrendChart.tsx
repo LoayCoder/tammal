@@ -22,7 +22,7 @@ export function RiskTrendChart({ data, isLoading, threshold = 20 }: Props) {
     .map(d => ({ ...d, label: format(parseISO(d.date), 'dd/MM') }));
 
   return (
-    <Card>
+    <Card className="glass-chart border-0">
       <CardHeader className="pb-2">
         <CardTitle className="text-base">{t('orgDashboard.riskTrend')}</CardTitle>
       </CardHeader>

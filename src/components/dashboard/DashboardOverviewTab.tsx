@@ -23,7 +23,7 @@ export function DashboardOverviewTab({ isSuperAdmin }: DashboardOverviewTabProps
         </div>
       )}
 
-      <Card>
+      <Card className="glass-chart border-0">
         <CardHeader>
           <CardTitle>{t('dashboard.recentActivity')}</CardTitle>
         </CardHeader>

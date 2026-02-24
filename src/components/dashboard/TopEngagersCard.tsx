@@ -21,7 +21,7 @@ export function TopEngagersCard({ data, isLoading }: Props) {
   const isAr = i18n.language === 'ar';
 
   return (
-    <Card>
+    <Card className="glass-card border-0">
       <CardHeader className="pb-2">
         <CardTitle className="text-base">{t('orgDashboard.topEngagers')}</CardTitle>
       </CardHeader>

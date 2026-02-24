@@ -35,7 +35,7 @@ export function EarlyWarningPanel({ warnings, isLoading }: Props) {
   }
 
   return (
-    <Card>
+    <Card className="glass-card border-0">
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 text-chart-4" />
@@ -57,7 +57,7 @@ export function EarlyWarningPanel({ warnings, isLoading }: Props) {
               const Icon = config.icon;
 
               return (
-                <div key={w.id} className="flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-muted/30">
+                <div key={w.id} className="flex items-start gap-3 p-3 rounded-lg glass-badge">
                   <div className={`mt-0.5 p-1.5 rounded ${w.severity === 'high' ? 'bg-destructive/10 text-destructive' : 'bg-chart-4/10 text-chart-4'}`}>
                     <Icon className="h-3.5 w-3.5" />
                   </div>

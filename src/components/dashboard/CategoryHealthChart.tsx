@@ -23,7 +23,7 @@ export function CategoryHealthChart({ data, isLoading }: CategoryHealthChartProp
   }));
 
   return (
-    <Card>
+    <Card className="glass-chart border-0">
       <CardHeader className="pb-2">
         <CardTitle className="text-base">{t('orgDashboard.categoryHealth')}</CardTitle>
       </CardHeader>
