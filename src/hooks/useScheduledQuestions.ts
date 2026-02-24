@@ -122,7 +122,7 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
       if (generatedIds.length > 0) {
         const { data: gData } = await supabase
           .from('generated_questions')
-          .select('id, question_text, question_text_ar, type, options')
+          .select('id, question_text, question_text_ar, type, options, validation_status')
           .in('id', generatedIds);
         (gData || []).forEach((q: any) => {
           questionsMap[q.id] = {
@@ -132,6 +132,7 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
             type: q.type,
             options: q.options,
             category: null,
+            validation_status: q.validation_status,
           };
         });
       }
