@@ -29,7 +29,7 @@ export function OrgFilterBar({ filters, onChange }: Props) {
   const hasFilters = filters.branchId || filters.divisionId || filters.departmentId;
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="glass-card border-0 rounded-xl p-4 flex flex-wrap items-center gap-3">
       {/* Branch */}
       <Select
         value={filters.branchId ?? '__all__'}

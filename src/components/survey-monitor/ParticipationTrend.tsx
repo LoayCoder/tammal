@@ -36,7 +36,7 @@ export function ParticipationTrend({ trendData, isLoading }: Props) {
   }));
 
   return (
-    <Card>
+    <Card className="glass-card border-0 rounded-xl">
       <CardHeader>
         <CardTitle className="text-base">{t('surveyMonitor.participationTrend')}</CardTitle>
       </CardHeader>

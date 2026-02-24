@@ -43,9 +43,11 @@ export function ParticipationOverview({ employeeStats, questionStats, isLoading 
       {/* Primary: Employee-level */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {employeeCards.map(({ label, value, icon: Icon, colorClass }) => (
-          <Card key={label}>
+          <Card key={label} className="glass-card border-0 rounded-xl">
             <CardContent className="p-4 flex flex-col items-center text-center gap-1">
-              <Icon className={`h-5 w-5 ${colorClass}`} />
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Icon className={`h-4 w-4 ${colorClass}`} />
+              </div>
               <span className="text-2xl font-bold">{value}</span>
               <span className="text-xs text-muted-foreground">{label}</span>
             </CardContent>
@@ -55,9 +57,11 @@ export function ParticipationOverview({ employeeStats, questionStats, isLoading 
       {/* Secondary: Question-level */}
       <div className="grid grid-cols-3 gap-3">
         {questionCards.map(({ label, value, icon: Icon }) => (
-          <Card key={label}>
+          <Card key={label} className="glass-card border-0 rounded-xl">
             <CardContent className="p-3 flex items-center gap-3">
-              <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
+              <div className="h-7 w-7 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
+                <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
               <div className="min-w-0">
                 <p className="text-lg font-semibold leading-none">{value}</p>
                 <p className="text-xs text-muted-foreground mt-0.5 truncate">{label}</p>
