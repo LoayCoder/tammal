@@ -1,48 +1,68 @@
 
 
-# Separate "Questions Per Day" from Survey Purpose
+# Add Branch/Division/Department/Section Comparative Analysis
 
 ## Problem
-When a Generation Period is selected, the "Questions Per Day" toggle (1/2/3) and auto-calculated total appear regardless of whether the purpose is Survey or Wellness. This incorrectly applies daily scheduling constraints to Survey questions, which should have a freely admin-defined question count with no daily cap.
+The Divergence Heatmap and BAI comparative data currently only covers **Departments**. The user wants the synthesis comparison to span all four organizational unit types: Branch, Division, Department, and Section.
 
 ## Solution
-Restrict the "Questions Per Day" UI and auto-calculation logic to the **wellness** purpose only. When purpose is **survey**, always show the standard question count selector -- even when a period is selected.
+Extend the synthesis engine and Divergence Heatmap to compute and display BAI scores for all four org unit types, with a tab selector to switch between them.
 
 ## Changes
 
-### `src/components/ai-generator/ConfigPanel.tsx`
-- Update the conditional at line 546 from `selectedPeriod ?` to `selectedPeriod && purpose === 'wellness' ?`
-- This ensures Survey mode always shows the manual question count dropdown (1-20), while Wellness mode retains the per-day toggle with auto-calculation
+### 1. `src/lib/synthesisEngine.ts`
+- Rename `departmentBAI` to a generic structure
+- Update `SynthesisResult` to include four arrays: `branchBAI`, `divisionBAI`, `departmentBAI`, `sectionBAI` (all typed as `DepartmentBAIItem[]`)
+- Update `computeSynthesis` to accept four org unit data arrays instead of one
 
-### `src/pages/admin/AIQuestionGenerator.tsx`
-- Update the auto-sync logic at line 182 (`if (selectedPeriod && autoQuestionCount !== questionCount)`) to only apply when `purpose === 'wellness'`
-- This prevents the parent from overwriting the admin's manual question count when in Survey mode
+### 2. `src/hooks/useOrgAnalytics.ts`
+- Build synthesis data for all four org unit types from `orgComparison.branches`, `orgComparison.divisions`, `orgComparison.departments`, and `orgComparison.sections`
+- Each unit maps its `avgScore` (check-in avg) against the global `surveyStructural.categoryHealthScore` (survey avg) to compute per-unit BAI
+- Pass all four arrays to `computeSynthesis`
 
-### No database or backend changes needed
-The "Questions Per Day" is purely a frontend UI control that determines how many questions to generate. No backend validation or database constraints reference this value for surveys.
+### 3. `src/components/dashboard/comparison/DivergenceHeatmap.tsx`
+- Add a `Tabs` component with four tabs: Branch, Division, Department, Section
+- Each tab renders the existing heatmap grid for the corresponding BAI array
+- Reuse existing color logic and privacy guard (< 5 employees = hidden)
+
+### 4. `src/locales/en.json` and `src/locales/ar.json`
+- Add translation keys for the four tab labels in the heatmap context
+
+---
 
 ## Technical Details
 
-### ConfigPanel.tsx (line 546)
-Change the conditional rendering guard:
+### Updated `SynthesisResult` interface
 ```text
-Before: selectedPeriod ? (show per-day UI) : (show manual count)
-After:  selectedPeriod && purpose === 'wellness' ? (show per-day UI) : (show manual count)
+SynthesisResult {
+  ...existing fields...
+  branchBAI: DepartmentBAIItem[]
+  divisionBAI: DepartmentBAIItem[]
+  departmentBAI: DepartmentBAIItem[]   (already exists)
+  sectionBAI: DepartmentBAIItem[]
+}
 ```
 
-### AIQuestionGenerator.tsx (line 182)
-Add purpose guard to auto-sync:
+### Data mapping in `useOrgAnalytics.ts`
+For each unit type (branch, division, department, section), map from `orgComparison[type]`:
 ```text
-Before: if (selectedPeriod && autoQuestionCount !== questionCount)
-After:  (no auto-sync needed -- the ConfigPanel handles it internally only for wellness)
+{ id, name, nameAr, checkinAvg: unit.avgScore, surveyAvg: surveyStructural.categoryHealthScore, employeeCount: unit.employeeCount }
 ```
-The auto-sync in ConfigPanel at lines 182-184 already runs inside ConfigPanel, so the parent page just needs to avoid interfering. The simplest fix is ensuring the parent does not force `questionCount` updates when purpose is survey.
+Then filter by employeeCount >= 5 and compute BAI in `computeSynthesis`.
+
+### DivergenceHeatmap tabs
+The heatmap component will receive all four arrays and render a tabbed view. The grid rendering logic stays identical -- only the data source changes per tab.
+
+---
 
 ## Files to Modify
 
 | File | Change |
 |------|--------|
-| `src/components/ai-generator/ConfigPanel.tsx` | Guard "Questions Per Day" UI behind `purpose === 'wellness'` |
-| `src/pages/admin/AIQuestionGenerator.tsx` | No changes needed (auto-sync is inside ConfigPanel) |
+| `src/lib/synthesisEngine.ts` | Add `branchBAI`, `divisionBAI`, `sectionBAI` to `SynthesisResult`; update `computeSynthesis` to accept and process all four unit type arrays |
+| `src/hooks/useOrgAnalytics.ts` | Build synthesis input data for branches, divisions, and sections (departments already done) |
+| `src/components/dashboard/comparison/DivergenceHeatmap.tsx` | Add tabbed UI (Branch / Division / Department / Section) to switch between heatmap datasets |
+| `src/locales/en.json` | Add ~4 keys for heatmap tab labels |
+| `src/locales/ar.json` | Add ~4 Arabic keys for heatmap tab labels |
 
-One file, one line change.
+No new files are needed. No database changes required.
