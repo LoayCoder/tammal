@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
-import { Progress } from '@/components/ui/progress';
 import type { DepartmentStat } from '@/hooks/analytics/useSurveyMonitor';
 
 interface Props {
@@ -47,7 +46,7 @@ export function DepartmentHeatmap({ departments, isLoading, riskThreshold = 50 }
                 {isAr && dept.departmentNameAr ? dept.departmentNameAr : dept.departmentName}
               </span>
               <span className="text-muted-foreground">
-                {dept.completed}/{dept.total} ({dept.rate}%)
+                {dept.employeesCompleted}/{dept.totalEmployees} {t('surveyMonitor.employees')} ({dept.rate}%)
               </span>
             </div>
             <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-secondary/30">

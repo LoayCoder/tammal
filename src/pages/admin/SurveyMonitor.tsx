@@ -1,33 +1,41 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTenantId } from '@/hooks/org/useTenantId';
-import { useSurveyMonitor } from '@/hooks/analytics/useSurveyMonitor';
+import { useSurveyMonitor, type OrgFilters } from '@/hooks/analytics/useSurveyMonitor';
 import { ParticipationOverview } from '@/components/survey-monitor/ParticipationOverview';
 import { DepartmentHeatmap } from '@/components/survey-monitor/DepartmentHeatmap';
 import { ParticipationTrend } from '@/components/survey-monitor/ParticipationTrend';
 import { SLAIndicator } from '@/components/survey-monitor/SLAIndicator';
 import { RiskPanel } from '@/components/survey-monitor/RiskPanel';
+import { OrgFilterBar } from '@/components/survey-monitor/OrgFilterBar';
+import { EmployeeStatusTable } from '@/components/survey-monitor/EmployeeStatusTable';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart3 } from 'lucide-react';
 
 export default function SurveyMonitor() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { tenantId } = useTenantId();
   const [selectedScheduleId, setSelectedScheduleId] = useState<string>('');
+  const [orgFilters, setOrgFilters] = useState<OrgFilters>({});
 
   const {
     schedules,
     schedulesLoading,
-    stats,
-    statsLoading,
+    employeeStats,
+    questionStats,
     departmentStats,
-    departmentStatsLoading,
-    snapshots,
-    snapshotsLoading,
-  } = useSurveyMonitor(selectedScheduleId || undefined, tenantId ?? undefined);
+    employeeList,
+    trendData,
+    isLoading,
+  } = useSurveyMonitor(selectedScheduleId || undefined, tenantId ?? undefined, orgFilters);
 
   const selectedSchedule = schedules.find(s => s.id === selectedScheduleId);
+
+  // Auto-select first survey if only one exists
+  if (schedules.length === 1 && !selectedScheduleId && !schedulesLoading) {
+    setSelectedScheduleId(schedules[0].id);
+  }
 
   return (
     <div className="space-y-6">
@@ -84,20 +92,30 @@ export default function SurveyMonitor() {
             endDate={selectedSchedule?.end_date}
           />
 
+          {/* Org Filters */}
+          <OrgFilterBar filters={orgFilters} onChange={setOrgFilters} />
+
           {/* Participation Overview Cards */}
-          <ParticipationOverview stats={stats} isLoading={statsLoading} />
+          <ParticipationOverview
+            employeeStats={employeeStats}
+            questionStats={questionStats}
+            isLoading={isLoading}
+          />
 
           {/* Two-column: Heatmap + Risk */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <DepartmentHeatmap
               departments={departmentStats}
-              isLoading={departmentStatsLoading}
+              isLoading={isLoading}
             />
             <RiskPanel departments={departmentStats} />
           </div>
 
+          {/* Employee Status Table */}
+          <EmployeeStatusTable employees={employeeList} isLoading={isLoading} />
+
           {/* Trend Chart */}
-          <ParticipationTrend snapshots={snapshots} isLoading={snapshotsLoading} />
+          <ParticipationTrend trendData={trendData} isLoading={isLoading} />
         </div>
       )}
     </div>

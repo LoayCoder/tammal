@@ -46,9 +46,14 @@ export function RiskPanel({ departments, threshold = 50 }: Props) {
             key={dept.departmentId}
             className="flex justify-between items-center p-2 rounded-md bg-destructive/10"
           >
-            <span className="text-sm font-medium">
-              {isAr && dept.departmentNameAr ? dept.departmentNameAr : dept.departmentName}
-            </span>
+            <div className="min-w-0">
+              <span className="text-sm font-medium">
+                {isAr && dept.departmentNameAr ? dept.departmentNameAr : dept.departmentName}
+              </span>
+              <span className="text-xs text-muted-foreground ms-2">
+                {dept.employeesCompleted}/{dept.totalEmployees}
+              </span>
+            </div>
             <Badge variant="destructive">{dept.rate}%</Badge>
           </div>
         ))}
