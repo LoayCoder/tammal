@@ -182,15 +182,25 @@ All colors MUST be HSL.
 
   /* ── Sidebar Glass ── */
   .glass-sidebar {
-    background: hsl(var(--sidebar-background) / 0.6) !important;
-    backdrop-filter: blur(32px) saturate(1.4);
-    -webkit-backdrop-filter: blur(32px) saturate(1.4);
-    border-inline-end: 1px solid hsl(0 0% 100% / 0.06) !important;
+    background: linear-gradient(
+      180deg,
+      hsl(var(--primary) / 0.06) 0%,
+      hsl(var(--sidebar-background) / 0.45) 40%,
+      hsl(var(--accent) / 0.08) 100%
+    ) !important;
+    backdrop-filter: blur(28px) saturate(2);
+    -webkit-backdrop-filter: blur(28px) saturate(2);
+    border-inline-end: 1px solid hsl(var(--primary) / 0.1) !important;
   }
 
   .dark .glass-sidebar {
-    background: hsl(var(--sidebar-background) / 0.65) !important;
-    border-inline-end: 1px solid hsl(0 0% 100% / 0.04) !important;
+    background: linear-gradient(
+      180deg,
+      hsl(var(--primary) / 0.1) 0%,
+      hsl(var(--sidebar-background) / 0.55) 40%,
+      hsl(var(--accent) / 0.06) 100%
+    ) !important;
+    border-inline-end: 1px solid hsl(var(--primary) / 0.08) !important;
   }
 
   /* ── Stat Card Glass ── */
