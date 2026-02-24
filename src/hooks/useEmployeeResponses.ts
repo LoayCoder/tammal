@@ -151,12 +151,14 @@ export function useDraftResponses(employeeId?: string, surveyScheduleId?: string
 
       const sqIds = sqData.map(sq => sq.id);
 
+      // BUG-12: Filter out soft-deleted draft rows
       const { data, error } = await supabase
         .from('employee_responses')
         .select('*')
         .in('scheduled_question_id', sqIds)
         .eq('employee_id', employeeId)
-        .eq('is_draft', true);
+        .eq('is_draft', true)
+        .is('deleted_at', null);
 
       if (error) throw error;
       return data as EmployeeResponse[];

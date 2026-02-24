@@ -519,6 +519,7 @@ export type Database = {
           answer_text: string | null
           answer_value: Json
           created_at: string | null
+          deleted_at: string | null
           device_type: string | null
           employee_id: string
           id: string
@@ -535,6 +536,7 @@ export type Database = {
           answer_text?: string | null
           answer_value: Json
           created_at?: string | null
+          deleted_at?: string | null
           device_type?: string | null
           employee_id: string
           id?: string
@@ -551,6 +553,7 @@ export type Database = {
           answer_text?: string | null
           answer_value?: Json
           created_at?: string | null
+          deleted_at?: string | null
           device_type?: string | null
           employee_id?: string
           id?: string
