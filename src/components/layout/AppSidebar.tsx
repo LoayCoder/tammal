@@ -5,7 +5,8 @@ import {
   MessageSquare, Tags, UserCheck, Sparkles, Calendar, ClipboardList,
   User, Heart, Settings, Package, Brain, SmilePlus, RefreshCw, Wind,
   BookOpen, Music, CheckSquare, BookMarked, Phone, ClipboardCheck,
-  ChevronRight, Shield, HeartHandshake, Inbox, Moon, BookOpenCheck, UtensilsCrossed, CalendarDays
+  ChevronRight, Shield, HeartHandshake, Inbox, Moon, BookOpenCheck, UtensilsCrossed, CalendarDays,
+  Activity
 } from 'lucide-react';
 import {
   Sidebar,
@@ -159,6 +160,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       access: 'all',
       items: [
         { title: t('nav.dailyCheckin'), url: "/", icon: Heart, access: 'employee' },
+        { title: t('nav.checkinMonitor'), url: "/admin/checkin-monitor", icon: Activity, access: 'admin' },
         { title: t('crisisSupport.nav.crisisSupport'), url: "/crisis-support", icon: Phone, access: 'employee' },
         { title: t('crisisSupport.nav.mySupport'), url: "/my-support", icon: Inbox, access: 'employee' },
         { title: t('crisisSupport.nav.firstAider'), url: "/first-aider", icon: HeartHandshake, access: 'employee' },
