@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 import type { Plan } from './usePlans';
-import { useAuditLog } from './useAuditLog';
+import { useAuditLog } from '@/hooks/audit/useAuditLog';
 import { addDays } from 'date-fns';
 import type { SecuritySettings } from '@/components/tenants/TenantSecurityControl';
 
