@@ -594,7 +594,11 @@
       "red": "Critical"
     },
     "heatmapTitle": "Divergence Heatmap",
-    "heatmapDesc": "BAI score by department — departments with fewer than 5 employees are excluded",
+    "heatmapDesc": "BAI score by organizational unit — units with fewer than 5 employees are excluded",
+    "heatmapBranch": "Branch",
+    "heatmapDivision": "Division",
+    "heatmapDepartment": "Department",
+    "heatmapSection": "Section",
     "insufficientData": "Insufficient data for synthesis analysis",
     "checkinAvg": "Check-in Average",
     "surveyAvg": "Survey Average",

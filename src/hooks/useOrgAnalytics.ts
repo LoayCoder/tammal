@@ -695,8 +695,8 @@ export function useOrgAnalytics(
       const checkinPulse = computeCheckinPulse(entries);
       const surveyStructural = computeSurveyStructural(categoryScores, categoryRiskScores, surveyResponseRate);
 
-      // Use orgComparison departments for checkin avg and categoryScores for survey avg
-      const deptSynthesisData = orgComparison.departments.map(d => ({
+      // Build synthesis data for all four org unit types
+      const mapUnit = (units: typeof orgComparison.departments) => units.map(d => ({
         id: d.id,
         name: d.name,
         nameAr: d.nameAr,
@@ -710,7 +710,12 @@ export function useOrgAnalytics(
         checkinPulse, surveyStructural,
         avgMoodScore, participationRate, surveyResponseRate,
         entries.length, totalCatResponses,
-        deptSynthesisData,
+        {
+          branches: mapUnit(orgComparison.branches),
+          divisions: mapUnit(orgComparison.divisions),
+          departments: mapUnit(orgComparison.departments),
+          sections: mapUnit(orgComparison.sections),
+        },
       );
 
       // Build trend overlay data using dailyMap (check-in) and catDailyAgg from category trends
@@ -906,7 +911,7 @@ function emptyResult(): OrgAnalyticsData {
     checkinMoodOverTime: [], supportActionCounts: [], streakDistribution: [], checkinByOrgUnit: [],
     checkinPulse: { volatilityIndex: 0, participationStability: 0, energyTrend: 'stable', topEmotionCluster: 'okay' },
     surveyStructural: { categoryHealthScore: 0, lowestCategory: null, participationQuality: 0, riskCategoryCount: 0 },
-    synthesisData: { baiScore: 0, divergenceLevel: 'high_alignment', riskClassification: 'green', confidenceScore: 0, recommendedActionKey: 'synthesis.actions.maintain', alerts: [], departmentBAI: [] },
+    synthesisData: { baiScore: 0, divergenceLevel: 'high_alignment', riskClassification: 'green', confidenceScore: 0, recommendedActionKey: 'synthesis.actions.maintain', alerts: [], branchBAI: [], divisionBAI: [], departmentBAI: [], sectionBAI: [] },
     trendOverlayData: [],
   };
 }

@@ -237,7 +237,13 @@ export function OrgDashboard() {
           <SynthesisCard data={stats?.synthesisData ?? null} isLoading={isLoading} />
 
           {/* Divergence Heatmap */}
-          <DivergenceHeatmap data={stats?.synthesisData?.departmentBAI ?? []} isLoading={isLoading} />
+          <DivergenceHeatmap
+            branchData={stats?.synthesisData?.branchBAI ?? []}
+            divisionData={stats?.synthesisData?.divisionBAI ?? []}
+            departmentData={stats?.synthesisData?.departmentBAI ?? []}
+            sectionData={stats?.synthesisData?.sectionBAI ?? []}
+            isLoading={isLoading}
+          />
 
           {/* Alerts Panel */}
           <AlertsPanel alerts={stats?.synthesisData?.alerts ?? []} isLoading={isLoading} />

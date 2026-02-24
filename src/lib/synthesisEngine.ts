@@ -42,7 +42,10 @@ export interface SynthesisResult {
   confidenceScore: number;
   recommendedActionKey: string;
   alerts: DivergenceAlert[];
+  branchBAI: DepartmentBAIItem[];
+  divisionBAI: DepartmentBAIItem[];
   departmentBAI: DepartmentBAIItem[];
+  sectionBAI: DepartmentBAIItem[];
 }
 
 // ── Helpers ──
@@ -239,7 +242,12 @@ export function computeSynthesis(
   surveyResponseRate: number,
   totalEntries: number,
   totalResponses: number,
-  departmentData: { id: string; name: string; nameAr?: string | null; checkinAvg: number; surveyAvg: number; employeeCount: number }[],
+  orgUnitData: {
+    branches: { id: string; name: string; nameAr?: string | null; checkinAvg: number; surveyAvg: number; employeeCount: number }[];
+    divisions: { id: string; name: string; nameAr?: string | null; checkinAvg: number; surveyAvg: number; employeeCount: number }[];
+    departments: { id: string; name: string; nameAr?: string | null; checkinAvg: number; surveyAvg: number; employeeCount: number }[];
+    sections: { id: string; name: string; nameAr?: string | null; checkinAvg: number; surveyAvg: number; employeeCount: number }[];
+  },
 ): SynthesisResult {
   const surveyAvg = surveyStructural.categoryHealthScore;
   const baiScore = computeBAI(checkinAvg, surveyAvg);
@@ -259,17 +267,15 @@ export function computeSynthesis(
 
   const recommendedActionKey = getRecommendedActionKey(divLevel, alerts);
 
-  // Per-department BAI
-  const departmentBAI: DepartmentBAIItem[] = departmentData
-    .filter(d => d.employeeCount >= 5)
-    .map(d => {
-      const deptBAI = computeBAI(d.checkinAvg, d.surveyAvg);
-      return {
-        ...d,
-        baiScore: deptBAI,
-        classification: classifyBAI(deptBAI),
-      };
-    });
+  // Compute BAI per org unit type
+  function computeUnitBAI(units: { id: string; name: string; nameAr?: string | null; checkinAvg: number; surveyAvg: number; employeeCount: number }[]): DepartmentBAIItem[] {
+    return units
+      .filter(d => d.employeeCount >= 5)
+      .map(d => {
+        const unitBAI = computeBAI(d.checkinAvg, d.surveyAvg);
+        return { ...d, baiScore: unitBAI, classification: classifyBAI(unitBAI) };
+      });
+  }
 
   return {
     baiScore,
@@ -278,6 +284,9 @@ export function computeSynthesis(
     confidenceScore,
     recommendedActionKey,
     alerts,
-    departmentBAI,
+    branchBAI: computeUnitBAI(orgUnitData.branches),
+    divisionBAI: computeUnitBAI(orgUnitData.divisions),
+    departmentBAI: computeUnitBAI(orgUnitData.departments),
+    sectionBAI: computeUnitBAI(orgUnitData.sections),
   };
 }
