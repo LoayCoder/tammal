@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export interface FastingLog {
   id: string;
@@ -28,7 +28,7 @@ export const FAST_TYPES = [
 export function useFastingLogs(dateRange?: { from: string; to: string }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { toast } = useToast();
+  
 
   const today = new Date().toISOString().split('T')[0];
   const from = dateRange?.from ?? new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0];
@@ -80,10 +80,10 @@ export function useFastingLogs(dateRange?: { from: string; to: string }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fasting-logs'] });
-      toast({ title: '✓', description: 'Fasting logged' });
+      toast.success('Fasting logged');
     },
     onError: (error: any) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast.error(error.message);
     },
   });
 

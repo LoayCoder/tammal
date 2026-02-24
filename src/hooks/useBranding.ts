@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { tenantAssetsService } from '@/services/tenantAssets';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import type { HSLColor } from '@/components/branding/HSLColorPicker';
 
@@ -44,7 +44,7 @@ const DEFAULT_BRANDING: BrandingConfig = {
 
 export function useBranding(tenantId?: string) {
   const { t } = useTranslation();
-  const { toast } = useToast();
+  
   const [branding, setBranding] = useState<BrandingConfig>(DEFAULT_BRANDING);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -143,11 +143,7 @@ export function useBranding(tenantId?: string) {
     files?: Partial<Record<AssetType, File | null>>
   ) => {
     if (!tenantId) {
-      toast({
-        title: t('branding.savedError'),
-        description: 'No tenant ID provided',
-        variant: 'destructive'
-      });
+      toast.error('No tenant ID provided');
       return false;
     }
 
@@ -211,17 +207,12 @@ export function useBranding(tenantId?: string) {
 
       setBranding(updatedConfig);
 
-      toast({
-        title: t('branding.savedSuccess'),
-      });
+      toast.success(t('branding.savedSuccess'));
 
       return true;
     } catch (error) {
       console.error('Error saving branding:', error);
-      toast({
-        title: t('branding.savedError'),
-        variant: 'destructive'
-      });
+      toast.error(t('branding.savedError'));
       return false;
     } finally {
       setIsSaving(false);

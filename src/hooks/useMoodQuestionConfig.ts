@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 
 export interface MoodQuestionConfig {
@@ -27,7 +27,7 @@ const DEFAULT_CONFIGS: Omit<MoodQuestionConfig, 'tenant_id'>[] = MOOD_LEVELS.map
 
 export function useMoodQuestionConfig(tenantId: string | null) {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
+  
   const { t } = useTranslation();
 
   const { data: configs, isLoading } = useQuery({
@@ -81,10 +81,10 @@ export function useMoodQuestionConfig(tenantId: string | null) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mood-question-configs', tenantId] });
-      toast({ title: t('moodPathway.settingsSaved') });
+      toast.success(t('moodPathway.settingsSaved'));
     },
     onError: () => {
-      toast({ title: t('moodPathway.settingsFailed'), variant: 'destructive' });
+      toast.error(t('moodPathway.settingsFailed'));
     },
   });
 
@@ -108,7 +108,7 @@ export function useMoodQuestionConfig(tenantId: string | null) {
       queryClient.invalidateQueries({ queryKey: ['mood-question-configs', tenantId] });
     },
     onError: () => {
-      toast({ title: t('moodPathway.settingsFailed'), variant: 'destructive' });
+      toast.error(t('moodPathway.settingsFailed'));
     },
   });
 

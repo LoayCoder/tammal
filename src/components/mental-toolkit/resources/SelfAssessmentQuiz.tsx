@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { format } from "date-fns";
 
 interface Quiz {
@@ -148,7 +148,7 @@ export default function SelfAssessmentQuiz() {
     };
     const existing: QuizResult[] = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
     localStorage.setItem(LS_KEY, JSON.stringify([entry, ...existing].slice(0, 20)));
-    toast({ title: t("mentalToolkit.quiz.resultSaved") });
+    toast.success(t("mentalToolkit.quiz.resultSaved"));
   };
 
   const handleRetake = () => {

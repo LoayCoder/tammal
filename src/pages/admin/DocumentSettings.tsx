@@ -3,19 +3,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { usePlatformSettings } from '@/hooks/usePlatformSettings';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export default function DocumentSettings() {
   const { t } = useTranslation();
-  const { toast } = useToast();
+  
   const { allowSignup, showInvitation, isLoading, updateSettings } = usePlatformSettings();
 
   const handleToggle = async (field: 'allow_public_signup' | 'show_invitation_link', value: boolean) => {
     try {
       await updateSettings.mutateAsync({ [field]: value });
-      toast({ title: t('toast.success'), description: t('toast.changesSaved') });
+      toast.success(t('toast.changesSaved'));
     } catch {
-      toast({ variant: 'destructive', title: t('toast.error'), description: t('toast.saveFailed') });
+      toast.error(t('toast.saveFailed'));
     }
   };
 

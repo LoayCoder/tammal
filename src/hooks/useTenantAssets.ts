@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tenantAssetsService, type TenantAssets, type AssetType } from '@/services/tenantAssets';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 
 export function useTenantAssets(tenantId?: string) {
-    const { toast } = useToast();
+    
     const { t } = useTranslation();
     const queryClient = useQueryClient();
 
@@ -24,14 +24,11 @@ export function useTenantAssets(tenantId?: string) {
         },
         onSuccess: (updatedAssets) => {
             queryClient.setQueryData(['tenant-assets', tenantId], updatedAssets);
-            toast({ title: t('branding.savedSuccess') });
+            toast.success(t('branding.savedSuccess'));
         },
         onError: (error) => {
             console.error('Failed to update assets:', error);
-            toast({
-                title: t('branding.savedError'),
-                variant: 'destructive'
-            });
+            toast.error(t('branding.savedError'));
         },
     });
 
@@ -54,14 +51,11 @@ export function useTenantAssets(tenantId?: string) {
         },
         onSuccess: (updatedAssets) => {
             queryClient.setQueryData(['tenant-assets', tenantId], updatedAssets);
-            toast({ title: t('branding.uploadSuccess') });
+            toast.success(t('branding.uploadSuccess'));
         },
         onError: (error) => {
             console.error('Failed to upload asset:', error);
-            toast({
-                title: t('branding.uploadError'),
-                variant: 'destructive'
-            });
+            toast.error(t('branding.uploadError'));
         },
     });
 

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageSelector } from '@/components/LanguageSelector';
@@ -20,7 +20,7 @@ export default function Auth() {
     password: z.string().min(6, t('validation.passwordMinLength')),
   });
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
   const { user, signIn, signUp, loading } = useAuth();
   
   const { allowSignup, showInvitation, isLoading: settingsLoading } = usePlatformSettings();
@@ -77,30 +77,16 @@ export default function Auth() {
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
-          toast({
-            variant: 'destructive',
-            title: t('toast.error'),
-            description: error.message || t('auth.invalidCredentials'),
-          });
+          toast.error(error.message || t('auth.invalidCredentials'));
         } else {
-          toast({
-            title: t('toast.success'),
-            description: t('toast.loggedIn'),
-          });
+          toast.success(t('toast.loggedIn'));
         }
       } else {
         const { error } = await signUp(email, password);
         if (error) {
-          toast({
-            variant: 'destructive',
-            title: t('toast.error'),
-            description: error.message,
-          });
+          toast.error(error.message);
         } else {
-          toast({
-            title: t('toast.success'),
-            description: t('toast.accountCreated'),
-          });
+          toast.success(t('toast.accountCreated'));
           setIsLogin(true);
         }
       }

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export interface QuranSession {
   id: string;
@@ -17,7 +17,7 @@ export interface QuranSession {
 export function useQuranSessions(dateRange?: { from: string; to: string }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { toast } = useToast();
+  
 
   const today = new Date().toISOString().split('T')[0];
   const from = dateRange?.from ?? today;
@@ -66,10 +66,10 @@ export function useQuranSessions(dateRange?: { from: string; to: string }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['quran-sessions'] });
-      toast({ title: '✓', description: 'Qur\'an session logged' });
+      toast.success('Qur\'an session logged');
     },
     onError: (error: any) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast.error(error.message);
     },
   });
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Outlet } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
@@ -7,30 +7,11 @@ import { useBranding } from "@/hooks/useBranding";
 import { useBrandingColors } from "@/hooks/useBrandingColors";
 import { useDynamicFavicon } from "@/hooks/useDynamicFavicon";
 import { useDynamicPWA } from "@/hooks/useDynamicPWA";
-import { supabase } from "@/integrations/supabase/client";
+import { useTenantId } from "@/hooks/useTenantId";
 
 export function MainLayout() {
-  const [tenantId, setTenantId] = useState<string | undefined>(undefined);
-  
-  // Fetch tenant ID for the current user
-  useEffect(() => {
-    const fetchTenantId = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('tenant_id')
-          .eq('user_id', user.id)
-          .single();
-        if (data?.tenant_id) {
-          setTenantId(data.tenant_id);
-        }
-      }
-    };
-    fetchTenantId();
-  }, []);
-
-  const { branding } = useBranding(tenantId);
+  const { tenantId } = useTenantId();
+  const { branding } = useBranding(tenantId ?? undefined);
   
   // Apply dynamic branding colors to CSS variables
   useBrandingColors(branding);

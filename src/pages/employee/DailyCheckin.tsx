@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useGamification } from '@/hooks/useGamification';
 import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { Flame, Star, Loader2, ArrowRight, ArrowLeft, Send, AlertCircle, RefreshCw, UserX } from 'lucide-react';
 import { MoodStep } from '@/components/checkin/MoodStep';
@@ -19,7 +19,7 @@ type Step = 'mood' | 'support';
 
 export default function DailyCheckin() {
   const { t } = useTranslation();
-  const { toast } = useToast();
+  
   const queryClient = useQueryClient();
   const { employee, isLoading: employeeLoading } = useCurrentEmployee();
   const tenantId = employee?.tenant_id || null;
@@ -109,10 +109,10 @@ export default function DailyCheckin() {
 
       setAiTip(tip);
       setSubmitted(true);
-      toast({ title: `🎉 +${points} ${t('wellness.points')}!` });
+      toast.success(`🎉 +${points} ${t('wellness.points')}!`);
     } catch (err: any) {
       setSubmitError(err.message || t('common.error'));
-      toast({ title: t('common.error'), description: err.message, variant: 'destructive' });
+      toast.error(err.message || t('common.error'));
     } finally {
       setSubmitting(false);
     }

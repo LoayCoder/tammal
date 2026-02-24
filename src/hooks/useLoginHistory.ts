@@ -31,51 +31,13 @@ interface LocationInfo {
   city: string;
 }
 
-// Parse user agent to extract device info
-function parseUserAgent(ua: string): DeviceInfo {
-  let device_type = 'Desktop';
-  if (/mobile/i.test(ua)) device_type = 'Mobile';
-  if (/tablet|ipad/i.test(ua)) device_type = 'Tablet';
+import { parseUserAgent, getLocationInfo } from '@/lib/deviceInfo';
+export type { DeviceInfo, LocationInfo } from '@/lib/deviceInfo';
 
-  let browser = 'Unknown';
-  if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Chrome';
-  else if (ua.includes('Firefox')) browser = 'Firefox';
-  else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
-  else if (ua.includes('Edg')) browser = 'Edge';
-  else if (ua.includes('Opera') || ua.includes('OPR')) browser = 'Opera';
+// Re-export parseUserAgent for backward compatibility
+export { parseUserAgent, getLocationInfo };
 
-  let os = 'Unknown';
-  if (ua.includes('Windows')) os = 'Windows';
-  else if (ua.includes('Mac')) os = 'macOS';
-  else if (ua.includes('Linux')) os = 'Linux';
-  else if (ua.includes('Android')) os = 'Android';
-  else if (ua.includes('iOS') || ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
-
-  return { device_type, browser, os };
-}
-
-// Fetch IP and location info
-async function getLocationInfo(): Promise<LocationInfo | null> {
-  try {
-    // Get IP address
-    const ipResponse = await fetch('https://api.ipify.org?format=json');
-    const ipData = await ipResponse.json();
-    const ip = ipData.ip;
-
-    // Get location from IP (using ip-api.com - free, no API key required)
-    const geoResponse = await fetch(`https://ip-api.com/json/${ip}?fields=country,city`);
-    const geoData = await geoResponse.json();
-
-    return {
-      ip,
-      country: geoData.country || 'Unknown',
-      city: geoData.city || 'Unknown',
-    };
-  } catch (error) {
-    console.error('Failed to get location info:', error);
-    return null;
-  }
-}
+// getLocationInfo is now imported from @/lib/deviceInfo
 
 export function useLoginHistory() {
   const { user } = useAuth();
