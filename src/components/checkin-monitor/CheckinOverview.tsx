@@ -49,9 +49,11 @@ export function CheckinOverview({ stats, isLoading }: Props) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
       {cards.map(({ label, value, icon: Icon, colorClass, suffix }) => (
-        <Card key={label}>
+        <Card key={label} className="glass-card border-0 rounded-xl">
           <CardContent className="p-4 flex flex-col items-center text-center gap-1">
-            <Icon className={`h-5 w-5 ${colorClass}`} />
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Icon className={`h-4 w-4 ${colorClass}`} />
+            </div>
             <div className="flex items-center gap-1">
               <span className="text-2xl font-bold">{value}</span>
               {(suffix as any) ?? null}

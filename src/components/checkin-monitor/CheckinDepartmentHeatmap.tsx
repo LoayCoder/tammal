@@ -16,7 +16,7 @@ export function CheckinDepartmentHeatmap({ departments, isLoading }: Props) {
 
   if (departments.length === 0) {
     return (
-      <Card>
+       <Card className="glass-card border-0 rounded-xl">
         <CardContent className="p-6 text-center text-muted-foreground">{t('common.noData')}</CardContent>
       </Card>
     );
@@ -29,7 +29,7 @@ export function CheckinDepartmentHeatmap({ departments, isLoading }: Props) {
   };
 
   return (
-    <Card>
+    <Card className="glass-card border-0 rounded-xl">
       <CardHeader>
         <CardTitle className="text-base">{t('checkinMonitor.departmentHeatmap')}</CardTitle>
       </CardHeader>

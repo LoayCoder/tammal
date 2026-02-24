@@ -35,7 +35,7 @@ export function MoodDistributionBar({ breakdown }: Props) {
 
   if (breakdown.length === 0) {
     return (
-      <Card>
+       <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <CardTitle className="text-base">{t('checkinMonitor.moodDistribution')}</CardTitle>
         </CardHeader>
@@ -47,7 +47,7 @@ export function MoodDistributionBar({ breakdown }: Props) {
   }
 
   return (
-    <Card>
+    <Card className="glass-card border-0 rounded-xl">
       <CardHeader>
         <CardTitle className="text-base">{t('checkinMonitor.moodDistribution')}</CardTitle>
       </CardHeader>
