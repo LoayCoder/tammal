@@ -99,7 +99,7 @@ serve(async (req) => {
           .from("generated_questions")
           .select("id")
           .in("question_set_id", batchIds)
-          .in("validation_status", ["published", "passed"]);
+          .in("validation_status", ["published", "passed", "pending"]);
 
         if (sqError) {
           console.error("Error fetching survey batch questions:", sqError);
