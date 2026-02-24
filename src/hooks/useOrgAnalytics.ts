@@ -421,13 +421,27 @@ export function useOrgAnalytics(
 
         const questionMap = new Map((questions ?? []).map(q => [q.id, q]));
 
-        const categoryIds = [...new Set((questions ?? []).map(q => q.category_id).filter(Boolean))] as string[];
+        // Fallback: resolve any unmatched IDs from generated_questions
+        const resolvedIds = new Set((questions ?? []).map(q => q.id));
+        const missingIds = questionIds.filter(id => !resolvedIds.has(id));
+        if (missingIds.length > 0) {
+          const { data: genQuestions } = await supabase
+            .from('generated_questions')
+            .select('id, category_id, subcategory_id, affective_state')
+            .in('id', missingIds);
+          (genQuestions ?? []).forEach(gq => {
+            questionMap.set(gq.id, { id: gq.id, category_id: gq.category_id, subcategory_id: gq.subcategory_id, affective_state: gq.affective_state ?? null });
+          });
+        }
+
+        const allQuestions = [...questionMap.values()];
+        const categoryIds = [...new Set(allQuestions.map(q => q.category_id).filter(Boolean))] as string[];
         const { data: categories } = categoryIds.length > 0
           ? await supabase.from('question_categories').select('id, name, name_ar, color').in('id', categoryIds)
           : { data: [] };
         const categoryMap = new Map((categories ?? []).map(c => [c.id, c]));
 
-        const subcategoryIds = [...new Set((questions ?? []).map(q => q.subcategory_id).filter(Boolean))] as string[];
+        const subcategoryIds = [...new Set(allQuestions.map(q => q.subcategory_id).filter(Boolean))] as string[];
         const { data: subcategories } = subcategoryIds.length > 0
           ? await supabase.from('question_subcategories').select('id, name, name_ar, color, category_id').in('id', subcategoryIds)
           : { data: [] };
@@ -525,6 +539,19 @@ export function useOrgAnalytics(
           ? await supabase.from('questions').select('id, category_id').in('id', questionIds2)
           : { data: [] };
         const q2Map = new Map((questions2 ?? []).map(q => [q.id, q]));
+
+        // Fallback: resolve unmatched IDs from generated_questions
+        const resolved2 = new Set((questions2 ?? []).map(q => q.id));
+        const missing2 = questionIds2.filter(id => !resolved2.has(id));
+        if (missing2.length > 0) {
+          const { data: genQ2 } = await supabase
+            .from('generated_questions')
+            .select('id, category_id')
+            .in('id', missing2);
+          (genQ2 ?? []).forEach(gq => {
+            q2Map.set(gq.id, { id: gq.id, category_id: gq.category_id });
+          });
+        }
         const entryByEmpDate = new Map<string, string>();
         entries.forEach(e => entryByEmpDate.set(`${e.employee_id}_${e.entry_date}`, e.mood_level));
 
