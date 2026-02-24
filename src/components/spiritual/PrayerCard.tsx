@@ -13,22 +13,23 @@ interface PrayerCardProps {
   isPending?: boolean;
 }
 
-const BORDER_COLORS: Record<string, string> = {
-  completed_mosque: 'border-emerald-500/30',
-  completed_home:   'border-amber-500/30',
-  completed_work:   'border-gray-500/30',
-  missed:           'border-red-500/30',
+const STATUS_STYLES: Record<string, { border: string; bg: string }> = {
+  completed_mosque: { border: 'border-emerald-500/40', bg: 'bg-emerald-500/5' },
+  completed_home:   { border: 'border-amber-500/40',   bg: 'bg-amber-500/5' },
+  completed_work:   { border: 'border-gray-500/40',     bg: 'bg-gray-500/5' },
+  missed:           { border: 'border-red-500/40',       bg: 'bg-red-500/5' },
 };
 
 export function PrayerCard({ prayerName, prayerTime, log, onLog, isPending }: PrayerCardProps) {
   const { t } = useTranslation();
 
   const isLogged = !!log;
-  const borderClass = log ? BORDER_COLORS[log.status] ?? '' : '';
+  const style = log ? STATUS_STYLES[log.status] : null;
+  const cardClass = style ? `${style.border} ${style.bg}` : '';
   const prayerNameKey = prayerName.toLowerCase();
 
   return (
-    <Card className={`glass-card border-0 rounded-xl transition-all duration-300 ${borderClass}`}>
+    <Card className={`glass-card border rounded-xl transition-all duration-300 ${cardClass}`}>
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>
