@@ -82,7 +82,8 @@
     "surveyMonitor": "Survey Monitor",
     "checkinMonitor": "Check-in Monitor",
     "workloadIntelligence": "Workload Intelligence",
-    "objectives": "Strategic Objectives"
+    "objectives": "Strategic Objectives",
+    "myWorkload": "My Workload"
   },
   "checkinMonitor": {
     "title": "Check-in Monitor",
@@ -2678,5 +2679,34 @@
       "deleteSuccess": "Task deleted successfully",
       "deleteError": "Failed to delete task"
     }
+  },
+  "commandCenter": {
+    "pageTitle": "My Workload",
+    "pageDesc": "Your unified task list, capacity gauge, and daily planner",
+    "addTask": "Add Task",
+    "editTask": "Edit Task",
+    "addTaskDesc": "Create a new personal task",
+    "editTaskDesc": "Update task details",
+    "taskTitle": "Title",
+    "taskTitlePlaceholder": "What needs to be done?",
+    "taskDescription": "Description",
+    "priority": "Priority",
+    "estMinutes": "Est. Minutes",
+    "dueDate": "Due Date",
+    "noTasks": "No tasks yet. Add your first task to get started.",
+    "noProfile": "No employee profile found.",
+    "activeTasks": "Active",
+    "completed": "Completed",
+    "overdue": "Overdue",
+    "streak": "Day Streak",
+    "capacity": "Today's Capacity",
+    "overloaded": "Overloaded",
+    "busy": "Busy",
+    "healthy": "Healthy",
+    "taskList": "Task List",
+    "myDay": "My Day",
+    "allTasks": "All Tasks",
+    "completedTab": "Done",
+    "openExternal": "Open in Source"
   }
 }

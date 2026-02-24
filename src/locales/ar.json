@@ -80,7 +80,10 @@
     "moodPathways": "مسارات المزاج",
     "mentalToolkit": "أدوات الصحة النفسية",
     "surveyMonitor": "مراقبة الاستبيان",
-    "checkinMonitor": "مراقبة التسجيل اليومي"
+    "checkinMonitor": "مراقبة التسجيل اليومي",
+    "workloadIntelligence": "ذكاء أعباء العمل",
+    "objectives": "الأهداف الاستراتيجية",
+    "myWorkload": "مهامي"
   },
   "checkinMonitor": {
     "title": "مراقبة التسجيل اليومي",
@@ -2576,5 +2579,34 @@
     "initiatives": { "sectionTitle": "المبادرات", "add": "إضافة مبادرة", "edit": "تعديل المبادرة", "addDesc": "إنشاء مبادرة جديدة", "editDesc": "تحديث تفاصيل المبادرة", "title": "العنوان", "titleAr": "العنوان (عربي)", "description": "الوصف", "budget": "الميزانية", "startDate": "تاريخ البداية", "endDate": "تاريخ النهاية", "empty": "لا توجد مبادرات بعد.", "deleteTitle": "حذف المبادرة", "deleteDesc": "سيتم أرشفة المبادرة.", "createSuccess": "تم إنشاء المبادرة بنجاح", "createError": "فشل في إنشاء المبادرة", "updateSuccess": "تم تحديث المبادرة بنجاح", "updateError": "فشل في تحديث المبادرة", "deleteSuccess": "تم حذف المبادرة بنجاح", "deleteError": "فشل في حذف المبادرة" },
     "actions": { "sectionTitle": "الإجراءات", "add": "إضافة إجراء", "edit": "تعديل الإجراء", "addDesc": "إنشاء إجراء جديد", "editDesc": "تحديث تفاصيل الإجراء", "title": "العنوان", "titleAr": "العنوان (عربي)", "description": "الوصف", "priority": "الأولوية", "estimatedHours": "الساعات المقدرة", "plannedStart": "بداية مخططة", "plannedEnd": "نهاية مخططة", "workHoursOnly": "ساعات العمل فقط", "workHoursOnlyHint": "تقييد الجدولة بساعات العمل", "empty": "لا توجد إجراءات بعد.", "deleteTitle": "حذف الإجراء", "deleteDesc": "سيتم أرشفة الإجراء.", "createSuccess": "تم إنشاء الإجراء بنجاح", "createError": "فشل في إنشاء الإجراء", "updateSuccess": "تم تحديث الإجراء بنجاح", "updateError": "فشل في تحديث الإجراء", "deleteSuccess": "تم حذف الإجراء بنجاح", "deleteError": "فشل في حذف الإجراء" },
     "tasks": { "createSuccess": "تم إنشاء المهمة بنجاح", "createError": "فشل في إنشاء المهمة", "updateSuccess": "تم تحديث المهمة بنجاح", "updateError": "فشل في تحديث المهمة", "deleteSuccess": "تم حذف المهمة بنجاح", "deleteError": "فشل في حذف المهمة" }
+  },
+  "commandCenter": {
+    "pageTitle": "مهامي",
+    "pageDesc": "قائمة المهام الموحدة ومقياس السعة والمخطط اليومي",
+    "addTask": "إضافة مهمة",
+    "editTask": "تعديل المهمة",
+    "addTaskDesc": "إنشاء مهمة شخصية جديدة",
+    "editTaskDesc": "تحديث تفاصيل المهمة",
+    "taskTitle": "العنوان",
+    "taskTitlePlaceholder": "ما الذي يجب إنجازه؟",
+    "taskDescription": "الوصف",
+    "priority": "الأولوية",
+    "estMinutes": "الدقائق المقدرة",
+    "dueDate": "تاريخ الاستحقاق",
+    "noTasks": "لا توجد مهام بعد. أضف مهمتك الأولى.",
+    "noProfile": "لم يتم العثور على ملف موظف.",
+    "activeTasks": "نشطة",
+    "completed": "مكتملة",
+    "overdue": "متأخرة",
+    "streak": "سلسلة أيام",
+    "capacity": "سعة اليوم",
+    "overloaded": "محمّل بشكل زائد",
+    "busy": "مشغول",
+    "healthy": "صحي",
+    "taskList": "قائمة المهام",
+    "myDay": "يومي",
+    "allTasks": "كل المهام",
+    "completedTab": "مكتملة",
+    "openExternal": "فتح في المصدر"
   }
 }

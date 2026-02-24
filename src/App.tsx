@@ -60,6 +60,7 @@ const SurveyMonitor = lazy(() => import("@/pages/admin/SurveyMonitor"));
 const CheckinMonitor = lazy(() => import("@/pages/admin/CheckinMonitor"));
 const ObjectivesManagement = lazy(() => import("@/pages/admin/ObjectivesManagement"));
 const ObjectiveDetail = lazy(() => import("@/pages/admin/ObjectiveDetail"));
+const PersonalCommandCenter = lazy(() => import("@/pages/employee/PersonalCommandCenter"));
 const queryClient = new QueryClient();
 
 const PageFallback = () => (
@@ -115,6 +116,7 @@ const App = () => (
               <Route path="/admin/checkin-monitor" element={<AdminRoute><CheckinMonitor /></AdminRoute>} />
               <Route path="/admin/workload/objectives" element={<AdminRoute><ObjectivesManagement /></AdminRoute>} />
               <Route path="/admin/workload/objectives/:id" element={<AdminRoute><ObjectiveDetail /></AdminRoute>} />
+              <Route path="/my-workload" element={<PersonalCommandCenter />} />
               <Route path="/crisis-support" element={<CrisisRequestPage />} />
               <Route path="/my-support" element={<MySupportPage />} />
               <Route path="/first-aider" element={<FirstAiderDashboard />} />
