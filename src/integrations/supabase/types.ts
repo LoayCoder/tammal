@@ -522,11 +522,13 @@ export type Database = {
           device_type: string | null
           employee_id: string
           id: string
+          is_draft: boolean
           question_id: string
           responded_at: string | null
           response_time_seconds: number | null
           scheduled_question_id: string | null
           session_id: string | null
+          survey_session_id: string | null
           tenant_id: string
         }
         Insert: {
@@ -536,11 +538,13 @@ export type Database = {
           device_type?: string | null
           employee_id: string
           id?: string
+          is_draft?: boolean
           question_id: string
           responded_at?: string | null
           response_time_seconds?: number | null
           scheduled_question_id?: string | null
           session_id?: string | null
+          survey_session_id?: string | null
           tenant_id: string
         }
         Update: {
@@ -550,11 +554,13 @@ export type Database = {
           device_type?: string | null
           employee_id?: string
           id?: string
+          is_draft?: boolean
           question_id?: string
           responded_at?: string | null
           response_time_seconds?: number | null
           scheduled_question_id?: string | null
           session_id?: string | null
+          survey_session_id?: string | null
           tenant_id?: string
         }
         Relationships: [

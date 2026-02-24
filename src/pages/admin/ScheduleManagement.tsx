@@ -269,7 +269,7 @@ export default function ScheduleManagement() {
       name,
       description: description || undefined,
       preferred_time: preferredTime,
-      questions_per_delivery: questionsPerDelivery,
+      questions_per_delivery: scheduleType === 'survey' ? 0 : questionsPerDelivery,
       enable_ai_generation: false,
       batch_ids: selectedBatchIds,
       target_audience,
@@ -771,13 +771,13 @@ export default function ScheduleManagement() {
                 </Select>
               </div>
             )}
-            {/* Start/End Date - only for survey */}
+            {/* Start/End Date/Time - only for survey */}
             {scheduleType === 'survey' && (
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>{t('schedules.startDate')}</Label>
                   <Input
-                    type="date"
+                    type="datetime-local"
                     value={startDate}
                     onChange={e => setStartDate(e.target.value)}
                     readOnly={!!linkedPeriod}
@@ -786,7 +786,7 @@ export default function ScheduleManagement() {
                 <div className="space-y-2">
                   <Label>{t('schedules.endDate')}</Label>
                   <Input
-                    type="date"
+                    type="datetime-local"
                     value={endDate}
                     onChange={e => setEndDate(e.target.value)}
                     min={startDate}
@@ -795,57 +795,59 @@ export default function ScheduleManagement() {
                 </div>
               </div>
             )}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>{t('schedules.preferredTime')}</Label>
-                <Input
-                  type="time"
-                  value={preferredTime}
-                  onChange={e => setPreferredTime(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>{t('schedules.questionsPerDelivery')}</Label>
-                <div className="flex items-center gap-1">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="h-10 w-10"
-                    onClick={() => {
-                      const newVal = Math.max(1, questionsPerDelivery - 1);
-                      setQuestionsPerDelivery(newVal);
-                      // Clamp overrides
-                      setMoodOverrides(prev => {
-                        const updated = { ...prev };
-                        for (const key of Object.keys(updated)) {
-                          if (updated[key].enabled && updated[key].value > newVal) {
-                            updated[key] = { ...updated[key], value: newVal };
+            {/* Preferred Time - only for daily_checkin */}
+            {scheduleType === 'daily_checkin' && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('schedules.preferredTime')}</Label>
+                  <Input
+                    type="time"
+                    value={preferredTime}
+                    onChange={e => setPreferredTime(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('schedules.questionsPerDelivery')}</Label>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-10 w-10"
+                      onClick={() => {
+                        const newVal = Math.max(1, questionsPerDelivery - 1);
+                        setQuestionsPerDelivery(newVal);
+                        setMoodOverrides(prev => {
+                          const updated = { ...prev };
+                          for (const key of Object.keys(updated)) {
+                            if (updated[key].enabled && updated[key].value > newVal) {
+                              updated[key] = { ...updated[key], value: newVal };
+                            }
                           }
-                        }
-                        return updated;
-                      });
-                    }}
-                    disabled={questionsPerDelivery <= 1}
-                  >
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                  <span className="w-10 text-center text-sm font-semibold tabular-nums">
-                    {questionsPerDelivery}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="h-10 w-10"
-                    onClick={() => setQuestionsPerDelivery(prev => Math.min(10, prev + 1))}
-                    disabled={questionsPerDelivery >= 10}
-                  >
-                    <ChevronUp className="h-4 w-4" />
-                  </Button>
+                          return updated;
+                        });
+                      }}
+                      disabled={questionsPerDelivery <= 1}
+                    >
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                    <span className="w-10 text-center text-sm font-semibold tabular-nums">
+                      {questionsPerDelivery}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-10 w-10"
+                      onClick={() => setQuestionsPerDelivery(prev => Math.min(10, prev + 1))}
+                      disabled={questionsPerDelivery >= 10}
+                    >
+                      <ChevronUp className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
             {/* Questions Per Mood Configuration - only for daily_checkin */}
             {scheduleType === 'daily_checkin' && activeMoods.length > 0 && (
               <Collapsible open={moodConfigOpen} onOpenChange={setMoodConfigOpen}>
