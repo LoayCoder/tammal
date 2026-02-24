@@ -1,33 +1,62 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-export interface SurveyParticipationStats {
-  totalTargeted: number;
-  notStarted: number;
-  inProgress: number;
-  completed: number;
-  expired: number;
-  failed: number;
-  completionPercent: number;
+export interface EmployeeStats {
+  totalEmployees: number;
+  employeesCompleted: number;
+  employeesInProgress: number;
+  employeesNotStarted: number;
+  employeeCompletionPercent: number;
+}
+
+export interface QuestionStats {
+  totalQuestions: number;
+  questionsAnswered: number;
+  questionsDraft: number;
+  questionsExpired: number;
+  questionsFailed: number;
+  questionCompletionPercent: number;
 }
 
 export interface DepartmentStat {
   departmentId: string;
   departmentName: string;
   departmentNameAr: string | null;
-  total: number;
-  completed: number;
+  totalEmployees: number;
+  employeesCompleted: number;
   rate: number;
 }
 
-export interface SnapshotPoint {
-  date: string;
-  completionPercent: number;
-  totalTargeted: number;
-  completed: number;
+export interface EmployeeStatus {
+  employeeId: string;
+  employeeName: string;
+  departmentId: string | null;
+  departmentName: string;
+  departmentNameAr: string | null;
+  totalQuestions: number;
+  answeredQuestions: number;
+  draftQuestions: number;
+  status: 'completed' | 'in_progress' | 'not_started';
+  lastActivity: string | null;
 }
 
-export function useSurveyMonitor(scheduleId?: string, tenantId?: string) {
+export interface TrendPoint {
+  date: string;
+  cumulativeCompleted: number;
+  completionPercent: number;
+}
+
+export interface OrgFilters {
+  branchId?: string;
+  divisionId?: string;
+  departmentId?: string;
+}
+
+export function useSurveyMonitor(
+  scheduleId?: string,
+  tenantId?: string,
+  filters?: OrgFilters
+) {
   // Fetch active survey schedules for the selector
   const schedulesQuery = useQuery({
     queryKey: ['survey-monitor-schedules', tenantId],
@@ -50,146 +79,256 @@ export function useSurveyMonitor(scheduleId?: string, tenantId?: string) {
     enabled: !!tenantId,
   });
 
-  // Fetch participation stats for a specific schedule
-  const statsQuery = useQuery({
-    queryKey: ['survey-monitor-stats', scheduleId],
-    queryFn: async (): Promise<SurveyParticipationStats> => {
-      if (!scheduleId) throw new Error('No schedule selected');
+  // Core data query — fetch scheduled_questions + employees + departments
+  const coreQuery = useQuery({
+    queryKey: ['survey-monitor-core', scheduleId, filters?.branchId, filters?.divisionId, filters?.departmentId],
+    queryFn: async () => {
+      if (!scheduleId) throw new Error('No schedule');
 
-      // Get all scheduled_questions for this schedule
+      // 1. Get all scheduled_questions for this schedule
       const { data: sq, error: sqError } = await supabase
         .from('scheduled_questions')
-        .select('id, status, employee_id')
+        .select('id, status, employee_id, question_id')
         .eq('schedule_id', scheduleId);
-
       if (sqError) throw sqError;
+      if (!sq || sq.length === 0) return { sq: [], employees: [], departments: [], responses: [] };
 
-      const total = sq?.length ?? 0;
-      const sqIds = sq?.map(s => s.id) ?? [];
-
-      // Get draft responses
-      let draftCount = 0;
-      if (sqIds.length > 0) {
-        const { count, error: draftError } = await supabase
-          .from('employee_responses')
-          .select('id', { count: 'exact', head: true })
-          .in('scheduled_question_id', sqIds)
-          .eq('is_draft', true)
-          .is('deleted_at', null);
-
-        if (!draftError) draftCount = count ?? 0;
-      }
-
-      const answered = sq?.filter(s => s.status === 'answered').length ?? 0;
-      const expired = sq?.filter(s => s.status === 'expired').length ?? 0;
-      const failed = sq?.filter(s => s.status === 'failed').length ?? 0;
-      const pending = sq?.filter(s => s.status === 'pending' || s.status === 'delivered').length ?? 0;
-      const notStarted = pending - draftCount > 0 ? pending - draftCount : pending;
-
-      return {
-        totalTargeted: total,
-        notStarted: Math.max(notStarted, 0),
-        inProgress: draftCount,
-        completed: answered,
-        expired,
-        failed,
-        completionPercent: total > 0 ? Math.round((answered / total) * 100) : 0,
-      };
-    },
-    enabled: !!scheduleId,
-  });
-
-  // Department-level breakdown
-  const departmentStatsQuery = useQuery({
-    queryKey: ['survey-monitor-departments', scheduleId],
-    queryFn: async (): Promise<DepartmentStat[]> => {
-      if (!scheduleId) return [];
-
-      const { data: sq, error: sqError } = await supabase
-        .from('scheduled_questions')
-        .select('id, status, employee_id')
-        .eq('schedule_id', scheduleId);
-
-      if (sqError) throw sqError;
-      if (!sq || sq.length === 0) return [];
-
+      // 2. Get unique employee IDs
       const employeeIds = [...new Set(sq.map(s => s.employee_id))];
 
+      // 3. Fetch employees with org data
       const { data: employees, error: empError } = await supabase
         .from('employees')
-        .select('id, department_id')
-        .in('id', employeeIds);
-
+        .select('id, full_name, department_id, branch_id, section_id')
+        .in('id', employeeIds)
+        .is('deleted_at', null);
       if (empError) throw empError;
 
+      // 4. Fetch departments with division linkage
       const { data: departments, error: deptError } = await supabase
         .from('departments')
-        .select('id, name, name_ar')
+        .select('id, name, name_ar, division_id, branch_id')
         .is('deleted_at', null);
-
       if (deptError) throw deptError;
 
-      const empDeptMap = new Map<string, string | null>();
-      employees?.forEach(e => empDeptMap.set(e.id, e.department_id));
+      // 5. Fetch draft responses for the scheduled question IDs
+      const sqIds = sq.map(s => s.id);
+      let responses: { scheduled_question_id: string; is_draft: boolean; created_at: string }[] = [];
+      if (sqIds.length > 0) {
+        // Batch in chunks of 500 to avoid URL length issues
+        const chunks = [];
+        for (let i = 0; i < sqIds.length; i += 500) {
+          chunks.push(sqIds.slice(i, i + 500));
+        }
+        for (const chunk of chunks) {
+          const { data: respData, error: respError } = await supabase
+            .from('employee_responses')
+            .select('scheduled_question_id, is_draft, created_at')
+            .in('scheduled_question_id', chunk)
+            .is('deleted_at', null);
+          if (respError) throw respError;
+          if (respData) responses = responses.concat(respData);
+        }
+      }
 
-      const deptStats = new Map<string, { total: number; completed: number }>();
+      return { sq, employees: employees ?? [], departments: departments ?? [], responses };
+    },
+    enabled: !!scheduleId,
+  });
 
-      sq.forEach(item => {
-        const deptId = empDeptMap.get(item.employee_id) ?? 'unassigned';
-        const current = deptStats.get(deptId) ?? { total: 0, completed: 0 };
-        current.total++;
-        if (item.status === 'answered') current.completed++;
-        deptStats.set(deptId, current);
+  // Compute all derived data
+  const computed = (() => {
+    const raw = coreQuery.data;
+    if (!raw || raw.sq.length === 0) {
+      return {
+        employeeStats: { totalEmployees: 0, employeesCompleted: 0, employeesInProgress: 0, employeesNotStarted: 0, employeeCompletionPercent: 0 } as EmployeeStats,
+        questionStats: { totalQuestions: 0, questionsAnswered: 0, questionsDraft: 0, questionsExpired: 0, questionsFailed: 0, questionCompletionPercent: 0 } as QuestionStats,
+        departmentStats: [] as DepartmentStat[],
+        employeeList: [] as EmployeeStatus[],
+        trendData: [] as TrendPoint[],
+      };
+    }
+
+    const { sq, employees, departments, responses } = raw;
+
+    // Build lookup maps
+    const deptMap = new Map(departments.map(d => [d.id, d]));
+    const empMap = new Map(employees.map(e => [e.id, e]));
+
+    // Apply org filters to employees
+    let filteredEmployeeIds = new Set(employees.map(e => e.id));
+    if (filters?.branchId || filters?.divisionId || filters?.departmentId) {
+      filteredEmployeeIds = new Set(
+        employees.filter(e => {
+          if (filters.departmentId && e.department_id !== filters.departmentId) return false;
+          if (filters.branchId && e.branch_id !== filters.branchId) return false;
+          if (filters.divisionId) {
+            const dept = e.department_id ? deptMap.get(e.department_id) : null;
+            if (!dept || dept.division_id !== filters.divisionId) return false;
+          }
+          return true;
+        }).map(e => e.id)
+      );
+    }
+
+    // Filter sq by filtered employees
+    const filteredSq = sq.filter(s => filteredEmployeeIds.has(s.employee_id));
+
+    // Response lookup: scheduled_question_id -> response
+    const responseMap = new Map(responses.map(r => [r.scheduled_question_id, r]));
+
+    // Group by employee
+    const empGroups = new Map<string, typeof filteredSq>();
+    filteredSq.forEach(item => {
+      const arr = empGroups.get(item.employee_id) ?? [];
+      arr.push(item);
+      empGroups.set(item.employee_id, arr);
+    });
+
+    // Build employee list
+    const employeeList: EmployeeStatus[] = [];
+    let employeesCompleted = 0;
+    let employeesInProgress = 0;
+    let employeesNotStarted = 0;
+
+    empGroups.forEach((questions, empId) => {
+      const emp = empMap.get(empId);
+      const dept = emp?.department_id ? deptMap.get(emp.department_id) : null;
+
+      const totalQ = questions.length;
+      const answeredQ = questions.filter(q => q.status === 'answered').length;
+      const draftQ = questions.filter(q => {
+        const resp = responseMap.get(q.id);
+        return resp?.is_draft === true;
+      }).length;
+
+      // Find last activity from responses
+      const empResponses = questions
+        .map(q => responseMap.get(q.id))
+        .filter(Boolean) as { created_at: string }[];
+      const lastActivity = empResponses.length > 0
+        ? empResponses.reduce((latest, r) => r.created_at > latest ? r.created_at : latest, empResponses[0].created_at)
+        : null;
+
+      let status: EmployeeStatus['status'] = 'not_started';
+      if (answeredQ === totalQ && totalQ > 0) {
+        status = 'completed';
+        employeesCompleted++;
+      } else if (answeredQ > 0 || draftQ > 0) {
+        status = 'in_progress';
+        employeesInProgress++;
+      } else {
+        employeesNotStarted++;
+      }
+
+      employeeList.push({
+        employeeId: empId,
+        employeeName: emp?.full_name ?? 'Unknown',
+        departmentId: emp?.department_id ?? null,
+        departmentName: dept?.name ?? 'Unassigned',
+        departmentNameAr: dept?.name_ar ?? null,
+        totalQuestions: totalQ,
+        answeredQuestions: answeredQ,
+        draftQuestions: draftQ,
+        status,
+        lastActivity,
       });
+    });
 
-      const deptMap = new Map<string, { name: string; name_ar: string | null }>();
-      departments?.forEach(d => deptMap.set(d.id, { name: d.name, name_ar: d.name_ar }));
+    const totalEmployees = employeeList.length;
+    const employeeStats: EmployeeStats = {
+      totalEmployees,
+      employeesCompleted,
+      employeesInProgress,
+      employeesNotStarted,
+      employeeCompletionPercent: totalEmployees > 0 ? Math.round((employeesCompleted / totalEmployees) * 100) : 0,
+    };
 
-      return Array.from(deptStats.entries()).map(([deptId, s]) => ({
-        departmentId: deptId,
-        departmentName: deptMap.get(deptId)?.name ?? 'Unassigned',
-        departmentNameAr: deptMap.get(deptId)?.name_ar ?? null,
-        total: s.total,
-        completed: s.completed,
+    // Question-level stats
+    const totalQuestions = filteredSq.length;
+    const questionsAnswered = filteredSq.filter(q => q.status === 'answered').length;
+    const questionsDraft = filteredSq.filter(q => {
+      const resp = responseMap.get(q.id);
+      return resp?.is_draft === true;
+    }).length;
+    const questionsExpired = filteredSq.filter(q => q.status === 'expired').length;
+    const questionsFailed = filteredSq.filter(q => q.status === 'failed').length;
+    const questionStats: QuestionStats = {
+      totalQuestions,
+      questionsAnswered,
+      questionsDraft,
+      questionsExpired,
+      questionsFailed,
+      questionCompletionPercent: totalQuestions > 0 ? Math.round((questionsAnswered / totalQuestions) * 100) : 0,
+    };
+
+    // Department stats (employee-level)
+    const deptGroups = new Map<string, { completed: number; total: number }>();
+    employeeList.forEach(e => {
+      const dId = e.departmentId ?? 'unassigned';
+      const cur = deptGroups.get(dId) ?? { completed: 0, total: 0 };
+      cur.total++;
+      if (e.status === 'completed') cur.completed++;
+      deptGroups.set(dId, cur);
+    });
+
+    const departmentStats: DepartmentStat[] = Array.from(deptGroups.entries())
+      .map(([dId, s]) => ({
+        departmentId: dId,
+        departmentName: deptMap.get(dId)?.name ?? 'Unassigned',
+        departmentNameAr: deptMap.get(dId)?.name_ar ?? null,
+        totalEmployees: s.total,
+        employeesCompleted: s.completed,
         rate: s.total > 0 ? Math.round((s.completed / s.total) * 100) : 0,
-      })).sort((a, b) => a.rate - b.rate);
-    },
-    enabled: !!scheduleId,
-  });
+      }))
+      .sort((a, b) => a.rate - b.rate);
 
-  // Trend snapshots
-  const snapshotsQuery = useQuery({
-    queryKey: ['survey-monitor-snapshots', scheduleId],
-    queryFn: async (): Promise<SnapshotPoint[]> => {
-      if (!scheduleId) return [];
+    // Live trend data from responses (cumulative by date)
+    const completedEmployeeDates = new Map<string, string>(); // empId -> date they completed
+    empGroups.forEach((questions, empId) => {
+      const totalQ = questions.length;
+      const answeredQ = questions.filter(q => q.status === 'answered').length;
+      if (answeredQ === totalQ && totalQ > 0) {
+        // Find the latest response date for this employee
+        const empResps = questions
+          .map(q => responseMap.get(q.id))
+          .filter(Boolean) as { created_at: string }[];
+        if (empResps.length > 0) {
+          const latestDate = empResps.reduce((l, r) => r.created_at > l ? r.created_at : l, empResps[0].created_at);
+          completedEmployeeDates.set(empId, latestDate.split('T')[0]);
+        }
+      }
+    });
 
-      const { data, error } = await supabase
-        .from('survey_monitor_snapshots' as any)
-        .select('snapshot_date, stats')
-        .eq('schedule_id', scheduleId)
-        .order('snapshot_date', { ascending: true });
+    // Group completions by date
+    const dateCompletions = new Map<string, number>();
+    completedEmployeeDates.forEach((date) => {
+      dateCompletions.set(date, (dateCompletions.get(date) ?? 0) + 1);
+    });
 
-      if (error) throw error;
+    const sortedDates = Array.from(dateCompletions.keys()).sort();
+    let cumulative = 0;
+    const trendData: TrendPoint[] = sortedDates.map(date => {
+      cumulative += dateCompletions.get(date)!;
+      return {
+        date,
+        cumulativeCompleted: cumulative,
+        completionPercent: totalEmployees > 0 ? Math.round((cumulative / totalEmployees) * 100) : 0,
+      };
+    });
 
-      return (data ?? []).map((row: any) => ({
-        date: row.snapshot_date,
-        completionPercent: row.stats?.completionPercent ?? 0,
-        totalTargeted: row.stats?.totalTargeted ?? 0,
-        completed: row.stats?.completed ?? 0,
-      }));
-    },
-    enabled: !!scheduleId,
-  });
+    return { employeeStats, questionStats, departmentStats, employeeList, trendData };
+  })();
 
   return {
     schedules: schedulesQuery.data ?? [],
     schedulesLoading: schedulesQuery.isLoading,
-    stats: statsQuery.data,
-    statsLoading: statsQuery.isLoading,
-    departmentStats: departmentStatsQuery.data ?? [],
-    departmentStatsLoading: departmentStatsQuery.isLoading,
-    snapshots: snapshotsQuery.data ?? [],
-    snapshotsLoading: snapshotsQuery.isLoading,
-    refetchStats: statsQuery.refetch,
+    employeeStats: computed.employeeStats,
+    questionStats: computed.questionStats,
+    departmentStats: computed.departmentStats,
+    employeeList: computed.employeeList,
+    trendData: computed.trendData,
+    isLoading: coreQuery.isLoading,
+    refetch: coreQuery.refetch,
   };
 }

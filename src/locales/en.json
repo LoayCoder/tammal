@@ -88,13 +88,30 @@
     "selectPrompt": "Select a survey to view monitoring data",
     "noSurveys": "No surveys found",
     "noTrendData": "No trend data available yet",
+    "employees": "employees",
+    "filters": {
+      "branch": "Branch",
+      "division": "Division",
+      "department": "Department"
+    },
     "stats": {
-      "totalTargeted": "Total Targeted",
-      "notStarted": "Not Started",
-      "inProgress": "In Progress",
-      "completed": "Completed",
-      "expired": "Expired",
+      "employeesTargeted": "Employees Targeted",
+      "employeesCompleted": "Employees Completed",
+      "employeesInProgress": "Employees In Progress",
+      "employeesNotStarted": "Employees Not Started",
+      "totalQuestions": "Total Questions",
+      "questionsAnswered": "Questions Answered",
       "completionPercent": "Completion %"
+    },
+    "employeeStatus": {
+      "title": "Employee Breakdown",
+      "name": "Employee Name",
+      "department": "Department",
+      "progress": "Progress",
+      "lastActivity": "Last Activity",
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "notStarted": "Not Started"
     },
     "departmentHeatmap": "Participation by Department",
     "participationTrend": "Completion Trend Over Time",

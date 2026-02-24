@@ -88,13 +88,30 @@
     "selectPrompt": "اختر استبيان لعرض بيانات المراقبة",
     "noSurveys": "لا توجد استبيانات",
     "noTrendData": "لا توجد بيانات اتجاه بعد",
+    "employees": "موظفين",
+    "filters": {
+      "branch": "الفرع",
+      "division": "القطاع",
+      "department": "القسم"
+    },
     "stats": {
-      "totalTargeted": "إجمالي المستهدفين",
-      "notStarted": "لم يبدأ",
-      "inProgress": "قيد التنفيذ",
-      "completed": "مكتمل",
-      "expired": "منتهي",
+      "employeesTargeted": "الموظفون المستهدفون",
+      "employeesCompleted": "الموظفون المكتملون",
+      "employeesInProgress": "الموظفون قيد التنفيذ",
+      "employeesNotStarted": "الموظفون لم يبدأوا",
+      "totalQuestions": "إجمالي الأسئلة",
+      "questionsAnswered": "الأسئلة المجابة",
       "completionPercent": "نسبة الإتمام"
+    },
+    "employeeStatus": {
+      "title": "تفصيل الموظفين",
+      "name": "اسم الموظف",
+      "department": "القسم",
+      "progress": "التقدم",
+      "lastActivity": "آخر نشاط",
+      "completed": "مكتمل",
+      "inProgress": "قيد التنفيذ",
+      "notStarted": "لم يبدأ"
     },
     "departmentHeatmap": "المشاركة حسب القسم",
     "participationTrend": "اتجاه الإكمال عبر الزمن",
