@@ -1,46 +1,82 @@
 
 
-# Replace Question Count Dropdown with Stepper (Survey Only)
+# Fix Single-Question Regeneration UX
 
 ## Problem
-The "Number of Questions" field currently uses a dropdown (`Select`) limited to 1-20 for both Survey and Wellness purposes (in freeform/no-period mode). The user wants a modern +/- stepper control with a range of 1-200, applied **only** to Survey questions.
+The backend logic for replacing a single question at a specific index already works correctly (`_replaceAtIndex` in `useEnhancedAIGeneration.ts` lines 118-124). However, the UI in `AIQuestionGenerator.tsx` (line 400) checks `isGenerating` globally and replaces the **entire question list with skeleton loaders**, hiding all existing questions even during a single-question regeneration.
 
-## What Changes
+## Root Cause
+`isGenerating` is a single boolean (`generateMutation.isPending`) that does not distinguish between a full batch generation and a single-question regeneration. The page uses this flag in a ternary that either shows all questions or shows only skeletons -- there is no middle state.
 
-### `src/components/ai-generator/ConfigPanel.tsx` (lines 574-598)
-The freeform (no period selected) question count section currently renders a `Select` dropdown for both purposes. This will be split:
+## Solution
+Track which specific question index is being regenerated so the UI can show a per-card loading state instead of replacing the entire list.
 
-- **When `purpose === 'survey'`**: Replace the `Select` with a numeric `Input` field flanked by a minus (-) button on the start side and a plus (+) button on the end side.
-  - Min: 1, Max: 200
-  - (+) disabled at 200, (-) disabled at 1
-  - Input validates on change: clamps to 1-200, rejects non-numeric input
-  - Clean, compact layout matching the existing grid
+## Changes
 
-- **When `purpose === 'wellness'`**: Keep the existing `Select` dropdown (1-20) exactly as-is, no changes.
+### 1. `src/hooks/useEnhancedAIGeneration.ts`
+- Expose a new state: `regeneratingIndex: number | null`
+- Set it to the `_replaceAtIndex` value when a single-question regeneration starts
+- Clear it on success or error
+- Return it alongside existing values
 
-The period-selected path (lines 546-573 with `questionsPerDay` stepper) is **not touched at all**.
+### 2. `src/pages/admin/AIQuestionGenerator.tsx`
+- Consume the new `regeneratingIndex` from the hook
+- Change the rendering condition: only show full skeletons when `isGenerating` is true **AND** `regeneratingIndex === null` (i.e., a full batch generation)
+- When `regeneratingIndex !== null`, keep showing all question cards normally
+- Pass `regeneratingIndex` to each `QuestionCard` so the specific card can show its own loading state
 
-### No other files change
-- No backend changes needed -- the `questionCount` state is already a number passed to the generate function
-- No localization changes needed -- the existing `aiGenerator.questionCount` label is reused
-- No hook or page-level changes
+### 3. `src/components/ai-generator/QuestionCard.tsx`
+- Accept a new prop `isRegenerating: boolean`
+- When `isRegenerating` is true, overlay the card with a loading state (skeleton or spinner overlay) while keeping it visible in position
+- Disable action buttons on that card during regeneration
 
 ## Technical Details
 
-The stepper replaces only the `Select` inside the `else` branch (freeform mode), and only when `purpose === 'survey'`. The layout becomes:
+### Hook changes (`useEnhancedAIGeneration.ts`)
 
+Add state:
 ```text
-[- button] [ numeric input ] [+ button]
+const [regeneratingIndex, setRegeneratingIndex] = useState<number | null>(null);
 ```
 
-- Buttons use `variant="outline"` and `size="icon"` (h-9 w-9) matching the existing `sm` input height
-- Input uses `type="number"`, `min={1}`, `max={200}`, `className="text-center"`, no spin buttons (CSS hide)
-- `onChange` handler: parse int, clamp to 1-200, ignore NaN
-- `onBlur` handler: if empty or invalid, reset to 1
-- The grid remains `grid-cols-2 gap-4` with complexity select in the second column (unchanged)
+In `generateMutation.mutationFn`:
+- Before the API call, set `setRegeneratingIndex(input._replaceAtIndex ?? null)`
 
-### Files to Modify
+In `onSuccess` and `onError`:
+- `setRegeneratingIndex(null)`
+
+Return:
+- `regeneratingIndex` alongside existing exports
+
+### Page changes (`AIQuestionGenerator.tsx`)
+
+Replace the rendering condition (line 400-411):
+```text
+Before:  {isGenerating ? <Skeletons /> : questions.length === 0 ? <Empty /> : <Cards />}
+After:   {(isGenerating && regeneratingIndex === null) ? <Skeletons /> : questions.length === 0 ? <Empty /> : <Cards />}
+```
+
+Pass to each QuestionCard:
+```text
+isRegenerating={regeneratingIndex === i}
+```
+
+### QuestionCard changes
+
+New prop: `isRegenerating?: boolean`
+
+When true:
+- Show a semi-transparent overlay with a centered Loader2 spinner
+- Disable the action buttons row
+- Keep the card content visible underneath (maintains position/scroll)
+
+## Files to Modify
 
 | File | Change |
 |------|--------|
-| `src/components/ai-generator/ConfigPanel.tsx` | Replace question count `Select` with stepper UI when `purpose === 'survey'` in freeform mode (lines ~574-598) |
+| `src/hooks/useEnhancedAIGeneration.ts` | Add `regeneratingIndex` state, set/clear it around the mutation lifecycle, expose it |
+| `src/pages/admin/AIQuestionGenerator.tsx` | Use `regeneratingIndex` to conditionally show full skeletons vs per-card loading; pass `isRegenerating` prop to QuestionCard |
+| `src/components/ai-generator/QuestionCard.tsx` | Accept `isRegenerating` prop, render loading overlay when true |
+
+No database changes. No new files. No localization changes needed.
+
