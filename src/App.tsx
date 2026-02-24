@@ -43,7 +43,7 @@ const JournalingPage = lazy(() => import("@/pages/mental-toolkit/JournalingPage"
 const MeditationPage = lazy(() => import("@/pages/mental-toolkit/MeditationPage"));
 const HabitsPage = lazy(() => import("@/pages/mental-toolkit/HabitsPage"));
 const ArticlesPage = lazy(() => import("@/pages/mental-toolkit/ArticlesPage"));
-const CrisisPage = lazy(() => import("@/pages/mental-toolkit/CrisisPage"));
+
 const AssessmentPage = lazy(() => import("@/pages/mental-toolkit/AssessmentPage"));
 const PrayerTracker = lazy(() => import("@/pages/spiritual/PrayerTracker"));
 const QuranReader = lazy(() => import("@/pages/spiritual/QuranReader"));
@@ -128,7 +128,7 @@ const App = () => (
               <Route path="/mental-toolkit/meditation" element={<MeditationPage />} />
               <Route path="/mental-toolkit/habits" element={<HabitsPage />} />
               <Route path="/mental-toolkit/articles" element={<ArticlesPage />} />
-              <Route path="/mental-toolkit/crisis" element={<CrisisPage />} />
+              
               <Route path="/mental-toolkit/assessment" element={<AssessmentPage />} />
               <Route path="/spiritual/prayer" element={<PrayerTracker />} />
               <Route path="/spiritual/quran" element={<QuranReader />} />
