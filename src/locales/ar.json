@@ -116,7 +116,11 @@
       "noRisk": "لا توجد تنبيهات مخاطر حالياً.",
       "low_mood": "في خطر",
       "disengaged": "غير متفاعل",
-      "low_department": "تفاعل منخفض"
+      "low_department": "تفاعل منخفض",
+      "noCheckinsDetail": "لا يوجد تسجيل في الفترة المحددة",
+      "consecutiveLowDetail": "{{count}} تسجيلات متتالية بمزاج منخفض",
+      "daysSinceDetail": "{{days}} أيام منذ آخر تسجيل",
+      "participationDetail": "{{rate}}% مشاركة"
     }
   },
   "surveyMonitor": {

@@ -116,7 +116,11 @@
       "noRisk": "No risk alerts at this time.",
       "low_mood": "At Risk",
       "disengaged": "Disengaged",
-      "low_department": "Low Engagement"
+      "low_department": "Low Engagement",
+      "noCheckinsDetail": "No check-ins in selected period",
+      "consecutiveLowDetail": "{{count}} consecutive low mood entries",
+      "daysSinceDetail": "{{days}} days since last check-in",
+      "participationDetail": "{{rate}}% participation"
     }
   },
   "surveyMonitor": {

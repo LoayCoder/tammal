@@ -51,13 +51,16 @@ export function CheckinRiskPanel({ alerts }: Props) {
       <CardContent className="space-y-2 max-h-80 overflow-auto">
         {alerts.map((alert, idx) => {
           const Icon = iconMap[alert.type];
+          const resolvedDetail = alert.detailKey
+            ? t(alert.detailKey, alert.detailParams)
+            : alert.detail;
           return (
             <div key={idx} className={`flex items-center justify-between p-2 rounded-md ${colorMap[alert.type]}`}>
               <div className="flex items-center gap-2 min-w-0">
                 <Icon className="h-4 w-4 shrink-0" />
                 <div className="min-w-0">
                   <span className="text-sm font-medium">{alert.label}</span>
-                  <span className="text-xs text-muted-foreground ms-2">{alert.detail}</span>
+                  <span className="text-xs text-muted-foreground ms-2">{resolvedDetail}</span>
                 </div>
               </div>
               <Badge variant="outline" className="shrink-0 text-xs">
