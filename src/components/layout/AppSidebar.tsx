@@ -222,27 +222,27 @@ export function AppSidebar({ branding }: AppSidebarProps) {
 
   return (
     <Sidebar variant="sidebar" collapsible="icon" side={isRTL ? "right" : "left"}>
-      <SidebarHeader className="p-3">
-        <div className="flex items-center justify-center py-2">
+      <SidebarHeader className="px-3 pt-3 pb-2">
+        <div className="rounded-lg border border-sidebar-border/50 bg-sidebar-accent/30 px-3 py-3 flex items-center justify-center">
           {isCollapsed ? (
             <ThemeIcon
               iconLightUrl={branding.icon_light_url}
               iconDarkUrl={branding.icon_dark_url}
-              className="h-8 w-8 object-contain shrink-0"
+              className="h-7 w-7 object-contain shrink-0"
               alt={t('branding.themeIcon')}
-              fallback={<Building className="h-8 w-8 text-sidebar-foreground/80" />}
+              fallback={<Building className="h-7 w-7 text-sidebar-foreground/70" />}
             />
           ) : (
             <ThemeLogo
               logoUrl={branding.logo_url}
               logoLightUrl={branding.logo_light_url}
               logoDarkUrl={branding.logo_dark_url}
-              className="h-9 max-w-[160px] object-contain"
+              className="h-8 max-w-[150px] object-contain"
               alt={t('branding.themeLogo')}
               fallback={
                 <div className="flex items-center gap-2">
-                  <Building className="h-6 w-6 text-sidebar-foreground/80" />
-                  <span className="font-semibold text-sm text-sidebar-foreground">SaaS Admin</span>
+                  <Building className="h-5 w-5 text-sidebar-foreground/70" />
+                  <span className="font-semibold text-sm text-sidebar-foreground/90">SaaS Admin</span>
                 </div>
               }
             />
