@@ -150,6 +150,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         { title: t('nav.categories'), url: "/admin/question-categories", icon: Tags },
         { title: t('nav.subcategories'), url: "/admin/question-subcategories", icon: GitBranch },
         { title: t('nav.moodPathways'), url: "/admin/mood-pathways", icon: Brain },
+        { title: t('nav.surveyMonitor'), url: "/admin/survey-monitor", icon: BarChart3 },
         { title: t('nav.employeeSurvey'), url: "/employee/survey", icon: ClipboardList, access: 'all' },
       ]
     },
