@@ -152,6 +152,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         { title: t('nav.subcategories'), url: "/admin/question-subcategories", icon: GitBranch },
         { title: t('nav.moodPathways'), url: "/admin/mood-pathways", icon: Brain },
         { title: t('nav.surveyMonitor'), url: "/admin/survey-monitor", icon: BarChart3 },
+        { title: t('nav.checkinMonitor'), url: "/admin/checkin-monitor", icon: Activity },
         { title: t('nav.employeeSurvey'), url: "/employee/survey", icon: ClipboardList, access: 'all' },
       ]
     },
@@ -160,7 +161,6 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       access: 'all',
       items: [
         { title: t('nav.dailyCheckin'), url: "/", icon: Heart, access: 'employee' },
-        { title: t('nav.checkinMonitor'), url: "/admin/checkin-monitor", icon: Activity, access: 'admin' },
         { title: t('crisisSupport.nav.crisisSupport'), url: "/crisis-support", icon: Phone, access: 'employee' },
         { title: t('crisisSupport.nav.mySupport'), url: "/my-support", icon: Inbox, access: 'employee' },
         { title: t('crisisSupport.nav.firstAider'), url: "/first-aider", icon: HeartHandshake, access: 'employee' },
