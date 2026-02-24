@@ -33,7 +33,7 @@ export function useThoughtReframes() {
     queryFn: async () => {
       if (!employeeId) return [];
       const { data, error } = await supabase
-        .from('thought_reframes' as any)
+        .from('thought_reframes')
         .select('*')
         .eq('employee_id', employeeId)
         .is('deleted_at', null)
@@ -81,7 +81,7 @@ export function useThoughtReframes() {
       reframed_thought: string;
     }) => {
       if (!employeeId || !tenantId) throw new Error('No employee context');
-      const { error } = await supabase.from('thought_reframes' as any).insert({
+      const { error } = await supabase.from('thought_reframes').insert({
         employee_id: employeeId,
         tenant_id: tenantId,
         negative_thought: data.negative_thought,
@@ -99,7 +99,7 @@ export function useThoughtReframes() {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('thought_reframes' as any)
+        .from('thought_reframes')
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', id);
       if (error) throw error;

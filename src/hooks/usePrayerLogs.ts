@@ -25,7 +25,7 @@ export function usePrayerLogs(dateRange?: { from: string; to: string }) {
     queryFn: async () => {
       if (!user?.id) return [];
       const { data, error } = await supabase
-        .from('spiritual_prayer_logs' as any)
+        .from('spiritual_prayer_logs')
         .select('*')
         .eq('user_id', user.id)
         .gte('prayer_date', from)
@@ -42,7 +42,7 @@ export function usePrayerLogs(dateRange?: { from: string; to: string }) {
       if (!user?.id) throw new Error('Not authenticated');
       // Upsert: use unique constraint
       const { data, error } = await supabase
-        .from('spiritual_prayer_logs' as any)
+        .from('spiritual_prayer_logs')
         .upsert(
           { user_id: user.id, ...input, logged_at: new Date().toISOString() },
           { onConflict: 'user_id,prayer_name,prayer_date' }

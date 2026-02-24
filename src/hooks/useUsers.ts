@@ -41,7 +41,7 @@ export function useUsers(filters?: UserFilters) {
 
       // Query from the profiles_with_email view to get emails
       let query = supabase
-        .from('profiles_with_email' as any)
+        .from('profiles_with_email')
         .select('*')
         .eq('tenant_id', filters.tenantId)
         .order('created_at', { ascending: false });

@@ -8,7 +8,7 @@ export function useGamification(employeeId: string | null) {
       if (!employeeId) return { streak: 0, totalPoints: 0 };
 
       const { data: entries, error } = await supabase
-        .from('mood_entries' as any)
+        .from('mood_entries')
         .select('entry_date, points_earned')
         .eq('employee_id', employeeId)
         .order('entry_date', { ascending: false })
@@ -23,7 +23,7 @@ export function useGamification(employeeId: string | null) {
       today.setHours(0, 0, 0, 0);
 
       for (let i = 0; i < entries.length; i++) {
-        const entryDate = new Date((entries as any)[i].entry_date);
+        const entryDate = new Date(entries[i].entry_date);
         entryDate.setHours(0, 0, 0, 0);
         const expected = new Date(today);
         expected.setDate(expected.getDate() - i);
@@ -35,7 +35,7 @@ export function useGamification(employeeId: string | null) {
         }
       }
 
-      const totalPoints = (entries as any[]).reduce((sum: number, e: any) => sum + (e.points_earned || 0), 0);
+      const totalPoints = entries.reduce((sum, e) => sum + (e.points_earned || 0), 0);
 
       return { streak, totalPoints };
     },

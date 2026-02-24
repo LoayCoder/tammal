@@ -44,7 +44,7 @@ export function useTenants() {
       
       return (tenants || []).map(tenant => ({
         ...tenant,
-        plan: (tenant as any).plan_id ? plansMap.get((tenant as any).plan_id) || null : null,
+        plan: tenant.plan_id ? plansMap.get(tenant.plan_id) || null : null,
       }));
     },
   });
