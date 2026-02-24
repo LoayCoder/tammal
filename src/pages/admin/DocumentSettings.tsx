@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { FileText } from 'lucide-react';
 import { usePlatformSettings } from '@/hooks/usePlatformSettings';
 import { toast } from 'sonner';
 
@@ -21,11 +22,14 @@ export default function DocumentSettings() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t('documents.title')}</h1>
+      <div className="glass-card border-0 rounded-xl p-6">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 rounded-lg p-2"><FileText className="h-6 w-6 text-primary" /></div>
+          <h1 className="text-3xl font-bold tracking-tight">{t('documents.title')}</h1>
+        </div>
       </div>
 
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <CardTitle>{t('platformSettings.title')}</CardTitle>
           <CardDescription>{t('platformSettings.description')}</CardDescription>
@@ -58,7 +62,7 @@ export default function DocumentSettings() {
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardHeader>
             <CardTitle>{t('documents.pdfTemplate')}</CardTitle>
           </CardHeader>
@@ -66,7 +70,7 @@ export default function DocumentSettings() {
             <p className="text-muted-foreground">PDF template settings coming soon...</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardHeader>
             <CardTitle>{t('documents.notificationTemplate')}</CardTitle>
           </CardHeader>

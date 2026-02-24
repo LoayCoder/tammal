@@ -269,20 +269,20 @@ export default function UnifiedUserManagement() {
 
       {/* Tabs */}
       <Tabs defaultValue="directory" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="directory" className="flex items-center gap-2">
+        <TabsList className="glass-tabs">
+          <TabsTrigger value="directory" className="flex items-center gap-2 rounded-xl">
             <FolderOpen className="h-4 w-4" />
             {t('userManagement.directoryTab')}
           </TabsTrigger>
-          <TabsTrigger value="access" className="flex items-center gap-2">
+          <TabsTrigger value="access" className="flex items-center gap-2 rounded-xl">
             <Users className="h-4 w-4" />
             {t('userManagement.accessTab')}
           </TabsTrigger>
-          <TabsTrigger value="roles" className="flex items-center gap-2">
+          <TabsTrigger value="roles" className="flex items-center gap-2 rounded-xl">
             <Shield className="h-4 w-4" />
             {t('userManagement.rolesTab')}
           </TabsTrigger>
-          <TabsTrigger value="invitations" className="flex items-center gap-2">
+          <TabsTrigger value="invitations" className="flex items-center gap-2 rounded-xl">
             <Mail className="h-4 w-4" />
             {t('userManagement.invitationsTab')}
           </TabsTrigger>
@@ -290,7 +290,7 @@ export default function UnifiedUserManagement() {
 
         {/* Directory Tab */}
         <TabsContent value="directory" className="space-y-4">
-          <Card>
+          <Card className="glass-card border-0 rounded-xl">
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
@@ -377,7 +377,7 @@ export default function UnifiedUserManagement() {
 
         {/* Access & Auth Tab */}
         <TabsContent value="access" className="space-y-4">
-          <Card>
+          <Card className="glass-card border-0 rounded-xl">
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>

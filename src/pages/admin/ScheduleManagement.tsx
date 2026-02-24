@@ -483,19 +483,22 @@ export default function ScheduleManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('schedules.title')}</h1>
-          <p className="text-muted-foreground">{t('schedules.subtitle')}</p>
+      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 rounded-lg p-2"><CalendarClock className="h-6 w-6 text-primary" /></div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{t('schedules.title')}</h1>
+            <p className="text-muted-foreground">{t('schedules.subtitle')}</p>
+          </div>
         </div>
         <Button onClick={() => { resetForm(); setDialogOpen(true); }}>
-          <Plus className="h-4 w-4 me-2" />
+          <Plus className="me-2 h-4 w-4" />
           {t('schedules.createSchedule')}
         </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('schedules.activeSchedules')}</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -506,7 +509,7 @@ export default function ScheduleManagement() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('schedules.totalSchedules')}</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -515,7 +518,7 @@ export default function ScheduleManagement() {
             <div className="text-2xl font-bold">{schedules.length}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('schedules.pausedSchedules')}</CardTitle>
             <Pause className="h-4 w-4 text-muted-foreground" />
@@ -528,7 +531,7 @@ export default function ScheduleManagement() {
         </Card>
       </div>
 
-      <Card>
+        <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <CardTitle>{t('schedules.allSchedules')}</CardTitle>
           <CardDescription>{t('schedules.manageDescription')}</CardDescription>

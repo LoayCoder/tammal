@@ -93,15 +93,15 @@ export default function AuditLogs() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="glass-card border-0 rounded-xl p-6">
         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-          <History className="h-8 w-8" />
+          <div className="bg-primary/10 rounded-lg p-2"><History className="h-6 w-6 text-primary" /></div>
           {t('audit.title')}
         </h1>
-        <p className="text-muted-foreground">{t('audit.subtitle')}</p>
+        <p className="text-muted-foreground mt-1">{t('audit.subtitle')}</p>
       </div>
 
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
@@ -176,7 +176,7 @@ export default function AuditLogs() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <CardTitle>{t('audit.logEntries')}</CardTitle>
           <CardDescription>

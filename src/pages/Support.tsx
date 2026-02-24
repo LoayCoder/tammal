@@ -8,8 +8,9 @@ export default function Support() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 rounded-lg p-2"><Plus className="h-6 w-6 text-primary" /></div>
           <h1 className="text-3xl font-bold tracking-tight">{t('support.title')}</h1>
         </div>
         <Button>
@@ -18,7 +19,7 @@ export default function Support() {
         </Button>
       </div>
 
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <CardTitle>{t('support.title')}</CardTitle>
         </CardHeader>

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useTenantUsage } from '@/hooks/useTenantUsage';
 import { useProfile } from '@/hooks/useProfile';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
-import { Users, HardDrive, Activity, TrendingUp, TrendingDown } from 'lucide-react';
+import { Users, HardDrive, Activity, TrendingUp, TrendingDown, CreditCard } from 'lucide-react';
 
 export default function UsageBilling() {
   const { t } = useTranslation();
@@ -42,14 +42,20 @@ export default function UsageBilling() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t('billing.title')}</h1>
-        <p className="text-muted-foreground mt-1">{t('billing.subtitle', 'Monitor your plan usage and billing information')}</p>
+      <div className="glass-card border-0 rounded-xl p-6">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 rounded-lg p-2"><CreditCard className="h-6 w-6 text-primary" /></div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{t('billing.title')}</h1>
+            <p className="text-muted-foreground mt-1">{t('billing.subtitle', 'Monitor your plan usage and billing information')}</p>
+          </div>
+        </div>
       </div>
 
       {/* Current Plan */}
       {!subLoading && activeSubscription && (
-        <Card>
+        <Card className="glass-stat border-0 rounded-xl overflow-hidden relative group hover:-translate-y-1 transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">{t('billing.currentPlan', 'Current Plan')}</CardTitle>
@@ -75,7 +81,7 @@ export default function UsageBilling() {
 
       {/* Usage Quotas */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -102,7 +108,7 @@ export default function UsageBilling() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -132,7 +138,7 @@ export default function UsageBilling() {
 
       {/* API Calls */}
       {usage && (
-        <Card>
+        <Card className="glass-stat border-0 rounded-xl">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <Activity className="h-4 w-4 text-muted-foreground" />
@@ -150,7 +156,7 @@ export default function UsageBilling() {
       )}
 
       {/* Invoice Placeholder */}
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <CardTitle>{t('billing.invoices')}</CardTitle>
           <CardDescription>{t('billing.invoicesDesc', 'Your billing history will appear here once invoices are generated.')}</CardDescription>

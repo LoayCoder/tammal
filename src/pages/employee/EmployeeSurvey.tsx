@@ -170,7 +170,7 @@ export default function EmployeeSurvey() {
       {/* Survey Header */}
       <div className="space-y-3">
         {surveyMeta && (
-          <Card>
+          <Card className="glass-card border-0 rounded-xl">
             <CardContent className="p-4">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <h1 className="text-xl font-bold">{surveyMeta.schedule_name}</h1>
@@ -218,7 +218,7 @@ export default function EmployeeSurvey() {
           const isPending = question?.validation_status === 'pending';
 
           return (
-            <Card key={sq.id} className={`overflow-hidden ${isPending ? 'border-amber-500/50 bg-amber-500/5' : ''}`}>
+            <Card key={sq.id} className={`glass-card border-0 rounded-xl overflow-hidden ${isPending ? 'border-amber-500/50 bg-amber-500/5' : ''}`}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">

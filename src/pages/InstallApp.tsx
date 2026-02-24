@@ -100,7 +100,7 @@ export default function InstallApp() {
         </div>
 
         {/* Features */}
-        <Card className="mb-8">
+        <Card className="glass-card border-0 rounded-xl mb-8">
           <CardContent className="pt-6">
             <div className="grid grid-cols-2 gap-4">
               {features.map(({ icon: Icon, key }) => (
@@ -117,7 +117,7 @@ export default function InstallApp() {
 
         {/* Notifications Section */}
         {notificationsSupported && (
-          <Card className="mb-8">
+          <Card className="glass-card border-0 rounded-xl mb-8">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Bell className="h-5 w-5" />
@@ -151,7 +151,7 @@ export default function InstallApp() {
           <div className="space-y-4">
             {/* iOS Instructions */}
             {isIOS && (
-              <Card>
+              <Card className="glass-card border-0 rounded-xl">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Smartphone className="h-5 w-5" />
@@ -183,7 +183,7 @@ export default function InstallApp() {
 
             {/* Android Instructions */}
             {isAndroid && !canInstall && (
-              <Card>
+              <Card className="glass-card border-0 rounded-xl">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Smartphone className="h-5 w-5" />
@@ -208,7 +208,7 @@ export default function InstallApp() {
 
             {/* Desktop Instructions */}
             {!isIOS && !isAndroid && !canInstall && (
-              <Card>
+              <Card className="glass-card border-0 rounded-xl">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Monitor className="h-5 w-5" />

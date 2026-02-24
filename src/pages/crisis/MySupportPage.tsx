@@ -37,15 +37,18 @@ export default function MySupportPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t('crisisSupport.mySupport.title')}</h1>
-        <p className="text-muted-foreground">{t('crisisSupport.mySupport.subtitle')}</p>
+      <div className="glass-card border-0 rounded-xl p-6 flex items-center gap-3">
+        <div className="bg-primary/10 rounded-lg p-2"><MessageSquare className="h-6 w-6 text-primary" /></div>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{t('crisisSupport.mySupport.title')}</h1>
+          <p className="text-muted-foreground">{t('crisisSupport.mySupport.subtitle')}</p>
+        </div>
       </div>
 
       {isLoading ? (
         <p className="text-muted-foreground">{t('common.loading')}</p>
       ) : myCases.length === 0 ? (
-        <Card>
+        <Card className="glass-card border-0 rounded-xl">
           <CardContent className="py-12 text-center">
             <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">{t('crisisSupport.mySupport.noCases')}</p>
@@ -54,7 +57,7 @@ export default function MySupportPage() {
       ) : (
         <div className="space-y-3">
           {myCases.map(c => (
-            <Card key={c.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => setSelectedCaseId(c.id)}>
+            <Card key={c.id} className="glass-card border-0 rounded-xl cursor-pointer hover:bg-white/5 transition-colors" onClick={() => setSelectedCaseId(c.id)}>
               <CardContent className="py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -131,7 +134,7 @@ function CaseThread({ caseData, onBack }: { caseData: any; onBack: () => void })
       </div>
 
       {/* Messages */}
-      <Card className="min-h-[300px] flex flex-col">
+      <Card className="glass-card border-0 rounded-xl min-h-[300px] flex flex-col">
         <CardContent className="flex-1 pt-4 space-y-3 max-h-[400px] overflow-y-auto">
           {isLoading ? (
             <p className="text-muted-foreground text-center py-8">{t('common.loading')}</p>

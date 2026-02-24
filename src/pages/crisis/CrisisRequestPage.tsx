@@ -96,7 +96,7 @@ export default function CrisisRequestPage() {
 
         {/* Step: Intent Selection */}
         {step === 'intent' && (
-          <Card>
+          <Card className="glass-card border-0 rounded-xl">
             <CardHeader>
               <CardTitle className="text-lg">{t('crisisSupport.request.whatHelp')}</CardTitle>
               <CardDescription>{t('crisisSupport.request.selectIntent')}</CardDescription>
@@ -137,7 +137,7 @@ export default function CrisisRequestPage() {
             </Card>
 
             {/* Emergency contacts */}
-            <Card>
+            <Card className="glass-card border-0 rounded-xl">
               <CardHeader>
                 <CardTitle className="text-base">{t('crisisSupport.highRisk.emergencyNumbers')}</CardTitle>
               </CardHeader>
@@ -179,7 +179,7 @@ export default function CrisisRequestPage() {
         {/* Step: Options */}
         {step === 'options' && (
           <div className="space-y-4">
-            <Card>
+            <Card className="glass-card border-0 rounded-xl">
               <CardHeader>
                 <CardTitle className="text-lg">{t('crisisSupport.request.options')}</CardTitle>
               </CardHeader>
@@ -213,7 +213,7 @@ export default function CrisisRequestPage() {
             </Card>
 
             {/* Available First Aiders */}
-            <Card>
+            <Card className="glass-card border-0 rounded-xl">
               <CardHeader>
                 <CardTitle className="text-base">{t('crisisSupport.request.availableAiders')}</CardTitle>
               </CardHeader>

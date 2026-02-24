@@ -199,19 +199,19 @@ export default function UserManagement() {
       </div>
 
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="users" className="flex items-center gap-2">
+        <TabsList className="glass-tabs">
+          <TabsTrigger value="users" className="flex items-center gap-2 rounded-xl">
             <Users className="h-4 w-4" />
             {t('users.usersTab')}
           </TabsTrigger>
-          <TabsTrigger value="roles" className="flex items-center gap-2">
+          <TabsTrigger value="roles" className="flex items-center gap-2 rounded-xl">
             <Shield className="h-4 w-4" />
             {t('users.rolesTab')}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="users" className="space-y-4">
-          <Card>
+          <Card className="glass-card border-0 rounded-xl">
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
@@ -257,7 +257,7 @@ export default function UserManagement() {
         </TabsContent>
 
         <TabsContent value="roles" className="space-y-4">
-          <Card>
+          <Card className="glass-card border-0 rounded-xl">
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
