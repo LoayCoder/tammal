@@ -17,7 +17,7 @@ export function CheckinTrendChart({ trendData, isLoading }: Props) {
 
   if (trendData.length === 0) {
     return (
-      <Card>
+       <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <CardTitle className="text-base">{t('checkinMonitor.trendChart')}</CardTitle>
         </CardHeader>
@@ -34,7 +34,7 @@ export function CheckinTrendChart({ trendData, isLoading }: Props) {
   }));
 
   return (
-    <Card>
+    <Card className="glass-card border-0 rounded-xl">
       <CardHeader>
         <CardTitle className="text-base">{t('checkinMonitor.trendChart')}</CardTitle>
       </CardHeader>

@@ -25,7 +25,7 @@ export function CheckinRiskPanel({ alerts }: Props) {
 
   if (alerts.length === 0) {
     return (
-      <Card>
+      <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-chart-1" />
@@ -40,7 +40,7 @@ export function CheckinRiskPanel({ alerts }: Props) {
   }
 
   return (
-    <Card>
+    <Card className="glass-card border-0 rounded-xl">
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 text-destructive" />

@@ -32,10 +32,12 @@ export default function CheckinMonitor() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="glass-card border-0 rounded-xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Activity className="h-6 w-6 text-primary" />
+            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Activity className="h-5 w-5 text-primary" />
+            </div>
             {t('checkinMonitor.title')}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
