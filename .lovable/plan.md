@@ -1,147 +1,48 @@
 
 
-# Hooks Directory Reorganization
+# Fix: Add Date Context to Wellness (Burnout) Indicator
 
-## Overview
+## Problem
 
-Reorganize the flat `src/hooks/` directory (71 files, 728 import references across 118 consumer files) into domain-based subdirectories for improved discoverability and maintainability.
+The Burnout Indicator card on the Employee Home page does not display any date or date range. It shows the wellness zone (Thriving/Watch/At Risk) and the 7-day average score, but the user has no way to know what time period this data covers. This is a UX gap, not a data bug -- the underlying data is loading and calculating correctly.
 
-## Risk Mitigation Strategy
+## Solution
 
-The previous deferral cited "728 imports across 118 files" as high risk. The mitigation is straightforward:
+Add a subtitle to the Burnout Indicator card showing the date range it covers (last 7 days), similar to how the Mood History chart already shows "Last 14 days".
 
-1. Move hook files into subdirectories
-2. Update all import paths in consumer files
-3. No barrel files (index.ts re-exports) -- direct imports are clearer and tree-shake better
+## Changes
 
-Since this is purely a file move + import path update with no logic changes, the risk of runtime breakage is minimal. The work is mechanical but voluminous.
+### 1. Update `src/pages/EmployeeHome.tsx`
 
----
-
-## Proposed Directory Structure
+Add a descriptive subtitle under the "Burnout" card title showing the evaluated date range:
 
 ```text
-src/hooks/
-  auth/
-    useAuth.ts
-    usePermissions.ts
-    useUserPermissions.ts
-    useLoginHistory.ts
-    useProfile.ts
-    useCurrentEmployee.ts
-    useRoles.ts
-
-  analytics/
-    useOrgAnalytics.ts
-    useDashboardStats.ts
-    useDashboardView.ts
-    useCrisisAnalytics.ts
-    usePersonalMoodDashboard.ts
-    useWellnessInsights.ts
-
-  questions/
-    useQuestions.ts
-    useQuestionBatches.ts
-    useQuestionCategories.ts
-    useQuestionSubcategories.ts
-    useQuestionSchedules.ts
-    useScheduledQuestions.ts
-    useCheckinScheduledQuestions.ts
-    useAIQuestionGeneration.ts
-    useEnhancedAIGeneration.ts
-    useGenerationPeriods.ts
-    useReferenceFrameworks.ts
-    useFrameworkDocuments.ts
-    useAIKnowledge.ts
-    useAIModels.ts
-
-  wellness/
-    useMoodHistory.ts
-    useMoodDefinitions.ts
-    useMoodPathwayQuestions.ts
-    useMoodQuestionConfig.ts
-    useThoughtReframes.ts
-    useBreathingSessions.ts
-    useGamification.ts
-    useEmployeeResponses.ts
-
-  spiritual/
-    useSpiritualPreferences.ts
-    useSpiritualReports.ts
-    usePrayerTimes.ts
-    usePrayerLogs.ts
-    useQuranSessions.ts
-    useFastingLogs.ts
-    useHijriCalendar.ts
-
-  org/
-    useTenants.ts
-    useTenantId.ts
-    useTenantAssets.ts
-    useTenantInvitations.ts
-    useTenantUsage.ts
-    useBranches.ts
-    useDepartments.ts
-    useDivisions.ts
-    useSites.ts
-    useWorkSites.ts
-    useEmployees.ts
-    useUsers.ts
-    useUnifiedUsers.ts
-    useSubscriptions.ts
-    usePlans.ts
-    usePlatformSettings.ts
-
-  crisis/
-    useCrisisSupport.ts
-    useCrisisNotifications.ts
-
-  branding/
-    useBranding.ts
-    useBrandingColors.ts
-    useTheme.ts
-    useDynamicFavicon.ts
-    useDynamicPWA.ts
-
-  ui/
-    use-mobile.tsx
-    use-toast.ts
-    useSpeechToText.ts
-    usePWAInstall.ts
-    usePushNotifications.ts
-
-  audit/
-    useAuditLog.ts
+Burnout Indicator
+Based on Feb 17 - Feb 24  (or use translation key: "home.burnoutPeriod")
 ```
 
----
+Specifically:
+- Add a `<p>` tag after the `<CardTitle>` inside the Burnout card, styled as `text-muted-foreground text-xs`
+- Display a computed date range string: from 7 days ago to today (formatted as `dd MMM - dd MMM`)
+- Add the translation key `home.burnoutPeriod` (e.g., "Based on last 7 days") to both `en.json` and `ar.json`
 
-## Implementation Steps
+### 2. Update `src/locales/en.json`
 
-### Step 1: Create subdirectories and move all 71 hook files
-Each hook file is recreated in its new location with identical content.
+Add:
+```json
+"home.burnoutPeriod": "Based on last 7 days"
+```
 
-### Step 2: Update all 728 import references across 118 consumer files
-Every `from '@/hooks/useXxx'` becomes `from '@/hooks/domain/useXxx'`. This is a mechanical find-and-replace per hook file.
+### 3. Update `src/locales/ar.json`
 
-### Step 3: Delete the original flat files
-After all imports are updated, the old files at the root of `src/hooks/` are removed.
+Add:
+```json
+"home.burnoutPeriod": "بناءً على آخر 7 أيام"
+```
 
-### Step 4: Verify application loads
-Browser test to confirm no broken imports.
+## Scope
 
----
-
-## Technical Details
-
-- **No logic changes** -- only file locations and import paths change
-- **No barrel files** -- each consumer imports the hook directly from its subdirectory path
-- **Cross-references between hooks** (e.g., `useCurrentEmployee` imports `useAuth`) will also be updated to use the new paths
-- **Type-only imports** (e.g., `type { RiskTrendPoint } from '@/hooks/useOrgAnalytics'`) are updated identically
-- The 3 files still importing `use-toast` and `use-mobile` with kebab-case will be updated to `@/hooks/ui/use-toast` and `@/hooks/ui/use-mobile`
-
-## Estimated Scope
-- 71 files moved
-- ~118 consumer files updated
-- 0 logic changes
+- 3 files modified
+- No logic changes, no database changes
+- Pure UI/UX improvement
 
