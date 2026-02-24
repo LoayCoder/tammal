@@ -10,7 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Loader2, ChevronDown, Settings2, ChevronsUpDown, ClipboardList, Heart, CalendarClock, Plus, Lock, Trash2, TimerOff, CheckCircle2, XCircle, Calculator } from 'lucide-react';
+import { Sparkles, Loader2, ChevronDown, Settings2, ChevronsUpDown, ClipboardList, Heart, CalendarClock, Plus, Minus, Lock, Trash2, TimerOff, CheckCircle2, XCircle, Calculator } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
@@ -575,14 +575,54 @@ export function ConfigPanel({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>{t('aiGenerator.questionCount')}</Label>
-              <Select value={String(questionCount)} onValueChange={v => onQuestionCountChange(Number(v))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 20 }, (_, i) => i + 1).map(n => (
-                    <SelectItem key={n} value={String(n)}>{n}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {purpose === 'survey' ? (
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9 shrink-0"
+                    disabled={questionCount <= 1}
+                    onClick={() => onQuestionCountChange(Math.max(1, questionCount - 1))}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={200}
+                    value={questionCount}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      if (!isNaN(val)) onQuestionCountChange(Math.min(200, Math.max(1, val)));
+                    }}
+                    onBlur={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      if (isNaN(val) || val < 1) onQuestionCountChange(1);
+                    }}
+                    className="h-9 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9 shrink-0"
+                    disabled={questionCount >= 200}
+                    onClick={() => onQuestionCountChange(Math.min(200, questionCount + 1))}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Select value={String(questionCount)} onValueChange={v => onQuestionCountChange(Number(v))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 20 }, (_, i) => i + 1).map(n => (
+                      <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div className="space-y-2">
               <Label>{t('aiGenerator.complexity')}</Label>
