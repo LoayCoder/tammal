@@ -287,24 +287,26 @@ export default function AIQuestionGenerator() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">{t('aiGenerator.title')}</h1>
         <p className="text-muted-foreground">{t('aiGenerator.subtitle')}</p>
       </div>
 
-      <TopControlBar
-        accuracyMode={accuracyMode}
-        onAccuracyModeChange={setAccuracyMode}
-        selectedModel={selectedModel}
-        onModelChange={setSelectedModel}
-        models={models}
-        onSave={handleSaveClick}
-        onExport={handleExport}
-        canSave={canSave}
-        canExport={canExport}
-        isSaving={isSaving || isSavingWellness}
-      />
+      <div className="glass-card border-0 rounded-xl">
+        <TopControlBar
+          accuracyMode={accuracyMode}
+          onAccuracyModeChange={setAccuracyMode}
+          selectedModel={selectedModel}
+          onModelChange={setSelectedModel}
+          models={models}
+          onSave={handleSaveClick}
+          onExport={handleExport}
+          canSave={canSave}
+          canExport={canExport}
+          isSaving={isSaving || isSavingWellness}
+        />
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-5">
         <div className="lg:col-span-2">
@@ -391,36 +393,32 @@ export default function AIQuestionGenerator() {
 
         <div className="lg:col-span-3 space-y-4">
           {isStrict && hasFailures && questions.length > 0 && (
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="glass-card border-0 rounded-xl">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>{t('aiGenerator.strictModeMessage')}</AlertDescription>
             </Alert>
           )}
 
           {(isGenerating && regeneratingIndex === null) ? (
-            <Card>
-              <CardContent className="pt-6 space-y-4">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="space-y-2">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
-                    <Skeleton className="h-1.5 w-full" />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+            <div className="glass-card border-0 rounded-xl p-6 space-y-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
+                  <Skeleton className="h-1.5 w-full" />
+                </div>
+              ))}
+            </div>
           ) : questions.length === 0 ? (
-            <Card>
-              <CardContent className="py-16 text-center">
-                <Sparkles className="h-16 w-16 mx-auto mb-4 text-muted-foreground/30" />
-                <h3 className="text-lg font-semibold text-muted-foreground">{t('aiGenerator.emptyTitle')}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{t('aiGenerator.emptyDescription')}</p>
-              </CardContent>
-            </Card>
+            <div className="glass-card border-0 rounded-xl py-16 text-center">
+              <Sparkles className="h-16 w-16 mx-auto mb-4 text-muted-foreground/30" />
+              <h3 className="text-lg font-semibold text-muted-foreground">{t('aiGenerator.emptyTitle')}</h3>
+              <p className="text-sm text-muted-foreground mt-1">{t('aiGenerator.emptyDescription')}</p>
+            </div>
           ) : (
             <>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">
+              <div className="glass-card border-0 rounded-xl p-3 flex items-center justify-between flex-wrap gap-2">
+                <span className="text-sm text-muted-foreground px-2">
                   {t('aiGenerator.questionsGenerated', { count: questions.length })}
                   {generationMeta && ` • ${generationMeta.duration_ms}ms`}
                 </span>
