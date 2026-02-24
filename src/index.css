@@ -182,17 +182,17 @@ All colors MUST be HSL.
 
   /* ── Sidebar Glass ── */
   .glass-sidebar {
-    background: hsl(0 0% 100% / 0.85) !important;
+    background: hsl(var(--background) / 0.88) !important;
     backdrop-filter: blur(24px) saturate(1.8);
     -webkit-backdrop-filter: blur(24px) saturate(1.8);
-    border-inline-end: 1px solid hsl(0 0% 0% / 0.06) !important;
+    border-inline-end: 1px solid hsl(var(--border) / 0.3) !important;
   }
 
   .dark .glass-sidebar {
     background: hsl(var(--sidebar-background) / 0.75) !important;
     backdrop-filter: blur(24px) saturate(1.8);
     -webkit-backdrop-filter: blur(24px) saturate(1.8);
-    border-inline-end: 1px solid hsl(0 0% 100% / 0.06) !important;
+    border-inline-end: 1px solid hsl(var(--border) / 0.3) !important;
   }
 
   /* ── Stat Card Glass ── */
@@ -248,14 +248,15 @@ All colors MUST be HSL.
 
   /* ── Glass Header ── */
   .glass-header {
-    background: hsl(var(--background) / 0.5) !important;
+    background: hsl(var(--background) / 0.72) !important;
     backdrop-filter: blur(24px) saturate(1.4);
     -webkit-backdrop-filter: blur(24px) saturate(1.4);
-    border-bottom: 1px solid hsl(0 0% 100% / 0.06) !important;
+    border-bottom: 1px solid hsl(var(--border) / 0.3) !important;
   }
 
   .dark .glass-header {
     background: hsl(var(--background) / 0.4) !important;
+    border-bottom: 1px solid hsl(var(--border) / 0.3) !important;
   }
 
   /* ── Glass Tabs ── */
