@@ -223,7 +223,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
   return (
     <Sidebar variant="sidebar" collapsible="icon" side={isRTL ? "right" : "left"}>
       <SidebarHeader className="px-3 pt-3 pb-2">
-        <div className="rounded-lg border border-sidebar-border/50 bg-sidebar-accent/30 px-3 py-3 flex items-center justify-center">
+        <div className="rounded-lg border border-border/20 bg-background/30 px-3 py-3 flex items-center justify-center">
           {isCollapsed ? (
             <ThemeIcon
               iconLightUrl={branding.icon_light_url}
