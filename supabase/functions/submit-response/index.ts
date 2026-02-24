@@ -13,6 +13,20 @@ interface SubmitRequest {
   responseTimeSeconds?: number;
   deviceType?: "web" | "mobile";
   sessionId?: string;
+  isDraft?: boolean;
+  surveySessionId?: string;
+}
+
+interface BulkSubmitRequest {
+  bulk: true;
+  isDraft: boolean;
+  surveySessionId: string;
+  responses: {
+    scheduledQuestionId: string;
+    answerValue: any;
+    answerText?: string;
+  }[];
+  deviceType?: "web" | "mobile";
 }
 
 serve(async (req) => {
@@ -43,99 +57,87 @@ serve(async (req) => {
       });
     }
 
-    const { 
-      scheduledQuestionId, 
-      answerValue, 
-      answerText, 
-      responseTimeSeconds,
-      deviceType = "web",
-      sessionId 
-    }: SubmitRequest = await req.json();
+    const body = await req.json();
 
-    if (!scheduledQuestionId || answerValue === undefined) {
-      return new Response(JSON.stringify({ error: "Missing required fields" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    // --- Bulk survey submission ---
+    if (body.bulk === true) {
+      return await handleBulkSubmit(supabase, userData.user.id, body as BulkSubmitRequest);
     }
 
-    // Get the scheduled question details
-    const { data: scheduledQuestion, error: sqError } = await supabase
-      .from("scheduled_questions")
-      .select(`
-        id,
-        employee_id,
-        question_id,
-        question_source,
-        tenant_id,
-        status,
-        employees!inner(user_id)
-      `)
-      .eq("id", scheduledQuestionId)
-      .single();
+    // --- Single question submission (legacy + survey draft per-question) ---
+    return await handleSingleSubmit(supabase, userData.user.id, body as SubmitRequest);
+  } catch (error: unknown) {
+    console.error("Error in submit-response:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
 
-    if (sqError || !scheduledQuestion) {
-      return new Response(JSON.stringify({ error: "Scheduled question not found" }), {
-        status: 404,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+async function handleSingleSubmit(supabase: any, userId: string, input: SubmitRequest) {
+  const {
+    scheduledQuestionId,
+    answerValue,
+    answerText,
+    responseTimeSeconds,
+    deviceType = "web",
+    sessionId,
+    isDraft = false,
+    surveySessionId,
+  } = input;
 
-    // Verify the user owns this employee record
-    const employeeData = scheduledQuestion.employees as unknown as { user_id: string };
-    if (employeeData.user_id !== userData.user.id) {
-      return new Response(JSON.stringify({ error: "Unauthorized to answer this question" }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+  if (!scheduledQuestionId || answerValue === undefined) {
+    return new Response(JSON.stringify({ error: "Missing required fields" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
-    // Check if already answered
-    if (scheduledQuestion.status === "answered") {
-      return new Response(JSON.stringify({ error: "Question already answered" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+  const { data: scheduledQuestion, error: sqError } = await supabase
+    .from("scheduled_questions")
+    .select(`id, employee_id, question_id, question_source, tenant_id, status, schedule_id, employees!inner(user_id)`)
+    .eq("id", scheduledQuestionId)
+    .single();
 
-    // Get question details for validation based on source
-    const questionSource = scheduledQuestion.question_source || "questions";
-    let questionType = "open_ended";
-    let questionOptions: any[] | null = null;
+  if (sqError || !scheduledQuestion) {
+    return new Response(JSON.stringify({ error: "Scheduled question not found" }), {
+      status: 404,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
-    if (questionSource === "questions") {
-      const { data: question } = await supabase
-        .from("questions")
-        .select("type, options")
-        .eq("id", scheduledQuestion.question_id)
-        .single();
-      if (question) {
-        questionType = question.type;
-        questionOptions = question.options as any[];
-      }
-    } else if (questionSource === "wellness_questions") {
-      const { data: question } = await supabase
-        .from("wellness_questions")
-        .select("question_type, options")
-        .eq("id", scheduledQuestion.question_id)
-        .single();
-      if (question) {
-        questionType = question.question_type;
-        questionOptions = question.options as any[];
-      }
-    } else if (questionSource === "generated_questions") {
-      const { data: question } = await supabase
-        .from("generated_questions")
-        .select("type, options")
-        .eq("id", scheduledQuestion.question_id)
-        .single();
-      if (question) {
-        questionType = question.type;
-        questionOptions = question.options as any[];
-      }
-    }
+  const employeeData = scheduledQuestion.employees as unknown as { user_id: string };
+  if (employeeData.user_id !== userId) {
+    return new Response(JSON.stringify({ error: "Unauthorized to answer this question" }), {
+      status: 403,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
-    // Validate answer based on question type
+  // Check if already answered (final)
+  if (scheduledQuestion.status === "answered" && !isDraft) {
+    return new Response(JSON.stringify({ error: "Question already answered" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  // Time-window validation for survey schedules
+  const timeWindowError = await validateSurveyTimeWindow(supabase, scheduledQuestion.schedule_id);
+  if (timeWindowError) {
+    return new Response(JSON.stringify({ error: timeWindowError }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  // Validate answer
+  const questionSource = scheduledQuestion.question_source || "questions";
+  const { questionType, questionOptions } = await fetchQuestionMeta(supabase, questionSource, scheduledQuestion.question_id);
+
+  if (!isDraft) {
     const validationResult = validateAnswer(questionType, answerValue, questionOptions);
     if (!validationResult.valid) {
       return new Response(JSON.stringify({ error: validationResult.error }), {
@@ -143,9 +145,34 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+  }
 
-    // Insert the response
-    const { data: response, error: insertError } = await supabase
+  // Upsert the response (draft or final)
+  const { data: response, error: upsertError } = await supabase
+    .from("employee_responses")
+    .upsert({
+      scheduled_question_id: scheduledQuestionId,
+      employee_id: scheduledQuestion.employee_id,
+      question_id: scheduledQuestion.question_id,
+      tenant_id: scheduledQuestion.tenant_id,
+      answer_value: answerValue,
+      answer_text: answerText,
+      response_time_seconds: responseTimeSeconds,
+      device_type: deviceType,
+      session_id: sessionId,
+      is_draft: isDraft,
+      survey_session_id: surveySessionId || null,
+    }, {
+      onConflict: 'scheduled_question_id,employee_id',
+      ignoreDuplicates: false,
+    })
+    .select()
+    .single();
+
+  if (upsertError) {
+    console.error("Error upserting response:", upsertError);
+    // Fallback: try insert if upsert fails (no existing row)
+    const { data: insertedResponse, error: insertError } = await supabase
       .from("employee_responses")
       .insert({
         scheduled_question_id: scheduledQuestionId,
@@ -157,46 +184,172 @@ serve(async (req) => {
         response_time_seconds: responseTimeSeconds,
         device_type: deviceType,
         session_id: sessionId,
+        is_draft: isDraft,
+        survey_session_id: surveySessionId || null,
       })
       .select()
       .single();
 
     if (insertError) {
-      console.error("Error inserting response:", insertError);
+      console.error("Fallback insert also failed:", insertError);
       throw insertError;
     }
+  }
 
-    // Update scheduled question status
-    const { error: updateError } = await supabase
+  // Only mark as answered for final submissions
+  if (!isDraft) {
+    await supabase
       .from("scheduled_questions")
       .update({ status: "answered" })
       .eq("id", scheduledQuestionId);
+  }
 
-    if (updateError) {
-      console.error("Error updating scheduled question:", updateError);
-    }
+  return new Response(JSON.stringify({
+    success: true,
+    response: response || null,
+    message: isDraft ? "Draft saved" : "Response submitted successfully",
+  }), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
 
-    return new Response(JSON.stringify({ 
-      success: true, 
-      response,
-      message: "Response submitted successfully"
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  } catch (error: unknown) {
-    console.error("Error in submit-response:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      status: 500,
+async function handleBulkSubmit(supabase: any, userId: string, input: BulkSubmitRequest) {
+  const { isDraft, surveySessionId, responses, deviceType = "web" } = input;
+
+  if (!responses?.length) {
+    return new Response(JSON.stringify({ error: "No responses provided" }), {
+      status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
-});
+
+  // Fetch all scheduled questions in one go
+  const sqIds = responses.map(r => r.scheduledQuestionId);
+  const { data: scheduledQuestions, error: sqError } = await supabase
+    .from("scheduled_questions")
+    .select(`id, employee_id, question_id, question_source, tenant_id, status, schedule_id, employees!inner(user_id)`)
+    .in("id", sqIds);
+
+  if (sqError || !scheduledQuestions?.length) {
+    return new Response(JSON.stringify({ error: "Scheduled questions not found" }), {
+      status: 404,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  // Verify all belong to the same user
+  for (const sq of scheduledQuestions) {
+    const empData = sq.employees as unknown as { user_id: string };
+    if (empData.user_id !== userId) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  // Time-window validation (use the first question's schedule)
+  const scheduleId = scheduledQuestions[0].schedule_id;
+  const timeWindowError = await validateSurveyTimeWindow(supabase, scheduleId);
+  if (timeWindowError) {
+    return new Response(JSON.stringify({ error: timeWindowError }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const sqMap = new Map(scheduledQuestions.map((sq: any) => [sq.id, sq]));
+
+  // Build rows to upsert
+  const rows = responses.map(r => {
+    const sq = sqMap.get(r.scheduledQuestionId)!;
+    return {
+      scheduled_question_id: r.scheduledQuestionId,
+      employee_id: sq.employee_id,
+      question_id: sq.question_id,
+      tenant_id: sq.tenant_id,
+      answer_value: r.answerValue,
+      answer_text: r.answerText || null,
+      device_type: deviceType,
+      is_draft: isDraft,
+      survey_session_id: surveySessionId,
+    };
+  });
+
+  // Delete existing drafts for these scheduled questions, then insert fresh
+  const deleteIds = rows.map(r => r.scheduled_question_id);
+  await supabase
+    .from("employee_responses")
+    .delete()
+    .in("scheduled_question_id", deleteIds)
+    .eq("is_draft", true);
+
+  const { error: insertError } = await supabase
+    .from("employee_responses")
+    .insert(rows);
+
+  if (insertError) {
+    console.error("Error bulk inserting responses:", insertError);
+    throw insertError;
+  }
+
+  // For final submission, mark all scheduled_questions as answered
+  if (!isDraft) {
+    await supabase
+      .from("scheduled_questions")
+      .update({ status: "answered" })
+      .in("id", sqIds);
+  }
+
+  return new Response(JSON.stringify({
+    success: true,
+    saved: rows.length,
+    message: isDraft ? `Saved ${rows.length} drafts` : `Submitted ${rows.length} responses`,
+  }), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+async function validateSurveyTimeWindow(supabase: any, scheduleId: string): Promise<string | null> {
+  const { data: schedule } = await supabase
+    .from("question_schedules")
+    .select("schedule_type, start_date, end_date")
+    .eq("id", scheduleId)
+    .single();
+
+  if (!schedule || schedule.schedule_type !== "survey") return null; // no restriction for non-survey
+
+  const now = new Date();
+  if (schedule.start_date && now < new Date(schedule.start_date)) {
+    return "Survey has not started yet";
+  }
+  if (schedule.end_date && now > new Date(schedule.end_date)) {
+    return "Survey submission window has closed";
+  }
+  return null;
+}
+
+async function fetchQuestionMeta(supabase: any, source: string, questionId: string) {
+  let questionType = "open_ended";
+  let questionOptions: any[] | null = null;
+
+  if (source === "questions") {
+    const { data } = await supabase.from("questions").select("type, options").eq("id", questionId).single();
+    if (data) { questionType = data.type; questionOptions = data.options; }
+  } else if (source === "wellness_questions") {
+    const { data } = await supabase.from("wellness_questions").select("question_type, options").eq("id", questionId).single();
+    if (data) { questionType = data.question_type; questionOptions = data.options; }
+  } else if (source === "generated_questions") {
+    const { data } = await supabase.from("generated_questions").select("type, options").eq("id", questionId).single();
+    if (data) { questionType = data.type; questionOptions = data.options; }
+  }
+
+  return { questionType, questionOptions };
+}
 
 function validateAnswer(type: string, value: any, options?: any[]): { valid: boolean; error?: string } {
   switch (type) {
     case "likert_5":
-      // Accept number 1-5 or string option labels (e.g. "Agree")
       if (typeof value === "number" && (value < 1 || value > 5)) {
         return { valid: false, error: "Likert scale value must be between 1 and 5" };
       }
@@ -222,9 +375,6 @@ function validateAnswer(type: string, value: any, options?: any[]): { valid: boo
       }
       break;
     case "multiple_choice":
-      if (!options || !Array.isArray(options)) {
-        return { valid: true };
-      }
       break;
   }
   return { valid: true };

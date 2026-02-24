@@ -30,6 +30,13 @@ export interface ScheduledQuestion {
   };
 }
 
+export interface SurveyScheduleMeta {
+  schedule_id: string;
+  schedule_name: string;
+  start_date: string | null;
+  end_date: string | null;
+}
+
 export function useScheduledQuestions(employeeId?: string, status?: string) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -60,7 +67,7 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
       if (status) {
         query = query.eq('status', status);
       } else {
-        // Default: fetch both pending and delivered
+        // Default: fetch pending, delivered (not yet answered)
         query = query.in('status', ['pending', 'delivered']);
       }
 
@@ -135,6 +142,44 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
     enabled: !!employeeId,
   });
 
+  // Fetch survey schedule metadata (start/end dates) for time-window enforcement
+  const { data: surveyMeta } = useQuery({
+    queryKey: ['survey-schedule-meta', employeeId],
+    queryFn: async () => {
+      if (!employeeId) return null;
+
+      // Get the survey schedules that have questions assigned to this employee
+      const { data: sqData } = await supabase
+        .from('scheduled_questions')
+        .select('schedule_id')
+        .eq('employee_id', employeeId)
+        .in('status', ['pending', 'delivered']);
+
+      if (!sqData?.length) return null;
+
+      const scheduleIds = [...new Set(sqData.map(s => s.schedule_id))];
+
+      const { data: schedules } = await supabase
+        .from('question_schedules')
+        .select('id, name, start_date, end_date, schedule_type')
+        .in('id', scheduleIds)
+        .eq('schedule_type', 'survey')
+        .is('deleted_at', null);
+
+      if (!schedules?.length) return null;
+
+      // Return the first active survey schedule meta
+      const s = schedules[0];
+      return {
+        schedule_id: s.id,
+        schedule_name: s.name,
+        start_date: s.start_date,
+        end_date: s.end_date,
+      } as SurveyScheduleMeta;
+    },
+    enabled: !!employeeId,
+  });
+
   const pendingQuestions = scheduledQuestions.filter(
     sq => sq.status === 'delivered' || sq.status === 'pending'
   );
@@ -163,6 +208,7 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
   return {
     scheduledQuestions,
     pendingQuestions,
+    surveyMeta,
     isLoading,
     error,
     refetch,
