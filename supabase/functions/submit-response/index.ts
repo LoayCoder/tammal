@@ -276,14 +276,13 @@ async function handleBulkSubmit(supabase: any, userId: string, input: BulkSubmit
     };
   });
 
-  // Soft-delete existing drafts for these scheduled questions, then insert fresh
-  // BUG-12: Using soft delete (deleted_at) instead of hard DELETE per SaaS standards
+  // Soft-delete ALL existing responses (draft or final) for these scheduled questions
+  // so the fresh insert doesn't violate the unique index on (scheduled_question_id, employee_id)
   const deleteIds = rows.map(r => r.scheduled_question_id);
   await supabase
     .from("employee_responses")
     .update({ deleted_at: new Date().toISOString() })
     .in("scheduled_question_id", deleteIds)
-    .eq("is_draft", true)
     .is("deleted_at", null);
 
   const { error: insertError } = await supabase
