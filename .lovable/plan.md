@@ -1,137 +1,101 @@
 
 
-# Check-in & Mood Monitoring Dashboard
+# Fix Check-in Monitor: Full Functionality Audit
 
-## Overview
+## Issues Found
 
-Create a new admin page at `/admin/checkin-monitor` that provides the same level of operational monitoring for the Daily Check-in workflow as the Survey Monitor provides for surveys. This gives admins real-time visibility into employee check-in participation, mood trends, department breakdowns, and individual employee engagement -- all driven by live data from the `mood_entries` table.
+### 1. Console Errors -- Badge Ref Warning
+`CheckinRiskPanel` and `CheckinEmployeeTable` both use the `Badge` component inside contexts that pass refs (Tooltip, Table). The `Badge` component is a plain function component without `React.forwardRef`, causing React warnings. This is a UI framework-level issue.
 
----
+**Fix**: Update `Badge` in `src/components/ui/badge.tsx` to use `React.forwardRef`.
 
-## What the Admin Will See
+### 2. Unnecessary `as any` Type Casts (Type Safety Gap)
+The hook queries `mood_entries` and `mood_definitions` using `as any` casts, even though both tables exist in the generated Supabase types. This hides type errors and removes autocomplete.
 
-### Header Section
-- Page title with icon
-- Date range selector (Today, Last 7 Days, Last 30 Days, Custom)
-- Active daily_checkin schedule indicator (pulled from `question_schedules` where `schedule_type = 'daily_checkin'`)
+**Fix**: Remove all `as any` casts from `useCheckinMonitor.ts` and use proper typed table names.
 
-### Participation Overview Cards (6 cards)
-- **Total Employees** -- All active employees in the tenant (or filtered org unit)
-- **Checked In Today** -- Employees with a `mood_entries` row for today
-- **Not Checked In** -- Active employees without today's entry
-- **Participation Rate** -- Today's check-in percentage
-- **Avg Mood Score** -- Today's average mood_score (with trend arrow vs yesterday)
-- **Avg Streak** -- Average streak_count across today's entries
+### 3. Hardcoded English Strings in Risk Alerts
+Risk alert detail messages like `"No check-ins in selected period"`, `"consecutive low mood entries"`, and `"days since last check-in"` are hardcoded in English inside the hook, breaking Arabic localization.
 
-### Mood Distribution Bar
-- Horizontal stacked bar showing today's mood breakdown by mood_level (e.g., great/good/okay/struggling/need_help), color-coded using mood_definitions
+**Fix**: Move these to the localization files and use interpolation. Add keys to both `en.json` and `ar.json`:
+- `checkinMonitor.risk.noCheckins` 
+- `checkinMonitor.risk.consecutiveLow` (with `{{count}}`)
+- `checkinMonitor.risk.daysSince` (with `{{days}}`)
+- `checkinMonitor.risk.participationPercent` (with `{{rate}}`)
 
-### Department Heatmap
-- Reuses the same visual pattern as the survey monitor's DepartmentHeatmap
-- Shows per-department: "X/Y employees checked in (Z%)"
-- Color-coded by participation rate (green >= 80%, yellow >= 50%, red < 50%)
+Since the hook doesn't have access to `t()`, the risk alert detail will use translation keys that get resolved in the `CheckinRiskPanel` component instead.
 
-### Organization Filter Bar
-- Branch / Division / Department cascading filters (reuse existing `OrgFilterBar` component)
-- All stats, heatmap, employee table, and charts filter accordingly
+### 4. Mood Labels Not Bilingual
+`MoodBreakdownItem.label` always uses `label_en` from `mood_definitions`. Arabic users see English mood labels.
 
-### Employee Check-in Table
-- Columns: Employee Name, Department, Today's Status (Checked In / Not Yet), Mood (emoji + level), Streak, Last Check-in Date
-- Searchable by name, sortable by status/streak/mood
-- Follows the same pattern as the survey monitor's `EmployeeStatusTable`
+**Fix**: In the hook, include both `label_en` and `label_ar` in the breakdown item. In `MoodDistributionBar`, display the correct label based on `i18n.language`.
 
-### Mood Trend Chart
-- Line/area chart showing daily average mood score over the selected date range
-- Secondary line showing daily participation count
-- Uses `recharts` AreaChart, consistent with existing dashboard charts
+### 5. Yesterday's Comparison Ignores Org Filters
+The `yesterdayEntries` query fetches all tenant entries without filtering by the selected branch/division/department, making the mood trend arrow misleading when filters are active.
 
-### Risk & Engagement Panel
-- Employees with 3+ consecutive low moods (score <= 2) -- flagged as "At Risk"
-- Employees who haven't checked in for 3+ consecutive days -- flagged as "Disengaged"
-- Departments with participation below 50% -- flagged as "Low Engagement"
-- All data computed live from `mood_entries`, no new tables needed
+**Fix**: Filter `yesterdayEntries` through the same `filteredEmpIds` set used for today's data.
+
+### 6. Query Row Limit Risk (1000 rows)
+For tenants with many employees over 30 days, the `mood_entries` query could hit the Supabase default 1000-row limit, silently truncating data and showing incorrect stats.
+
+**Fix**: Use pagination or increase the query limit with `.limit(10000)` since mood entries for a single tenant over 30 days should not exceed this. Add a safety check.
+
+### 7. MoodDistributionBar Color Mapping Brittle
+The `colorToBg` map in `MoodDistributionBar` hardcodes a fixed set of Tailwind class translations. If `mood_definitions.color` contains a value not in the map (e.g., a custom tenant color or HSL value), it falls back to `bg-muted` silently.
+
+**Fix**: Use inline `style={{ backgroundColor }}` with the actual color value from mood_definitions, or keep the Tailwind map but make it more robust with a fallback that uses the color directly as a CSS value.
 
 ---
 
-## Technical Details
+## Technical Changes
+
+### File: `src/components/ui/badge.tsx`
+- Wrap `Badge` with `React.forwardRef` to fix the ref warning in both `CheckinRiskPanel` and `CheckinEmployeeTable`
+
+### File: `src/hooks/analytics/useCheckinMonitor.ts`
+- Remove all `as any` casts -- use `'mood_entries'` and `'mood_definitions'` directly (they exist in types)
+- Remove `as any` from data processing (use proper typing from Supabase Row types)
+- Add `.limit(5000)` to the mood_entries query to prevent silent truncation
+- Filter yesterday entries through `filteredEmpIds` for accurate comparison when org filters are active
+- Add `labelAr` field to `MoodBreakdownItem` interface
+- Change risk alert `detail` to use i18n-compatible key+params pattern instead of hardcoded English strings
+- Add `detailKey` and `detailParams` to `RiskAlert` interface for i18n resolution in the component
+
+### File: `src/components/checkin-monitor/MoodDistributionBar.tsx`
+- Use bilingual label display (check `i18n.language` for Arabic vs English)
+- Make color mapping more robust with inline style fallback
+
+### File: `src/components/checkin-monitor/CheckinRiskPanel.tsx`
+- Resolve risk alert detail strings using `t()` with interpolation instead of displaying raw English text
+
+### File: `src/components/checkin-monitor/CheckinEmployeeTable.tsx`
+- No structural changes needed (Badge ref fix handles the console error)
+
+### File: `src/locales/en.json`
+Add under `checkinMonitor.risk`:
+```json
+"noCheckinsDetail": "No check-ins in selected period",
+"consecutiveLowDetail": "{{count}} consecutive low mood entries",
+"daysSinceDetail": "{{days}} days since last check-in",
+"participationDetail": "{{rate}}% participation"
+```
+
+### File: `src/locales/ar.json`
+Add equivalent Arabic translations under `checkinMonitor.risk`.
+
+---
+
+## Summary of Changes
+
+| File | Change |
+|---|---|
+| `badge.tsx` | Add `forwardRef` to fix console warnings |
+| `useCheckinMonitor.ts` | Remove `as any`, add query limit, fix yesterday filter, add bilingual labels, i18n-ready risk details |
+| `MoodDistributionBar.tsx` | Bilingual mood labels, robust color mapping |
+| `CheckinRiskPanel.tsx` | Use `t()` for risk detail strings |
+| `en.json` | Add 4 risk detail i18n keys |
+| `ar.json` | Add 4 risk detail i18n keys (Arabic) |
 
 ### No Database Changes Required
-All data needed is already available:
-- `mood_entries` -- Check-in records with mood_level, mood_score, entry_date, employee_id, streak_count, support_actions
-- `employees` -- Employee names, department_id, branch_id, status
-- `departments` -- Department names (bilingual), division_id, branch_id
-- `question_schedules` -- To show active daily_checkin schedule status
-- `mood_definitions` -- For mood emoji/color mapping
-
-### New Hook: `src/hooks/analytics/useCheckinMonitor.ts`
-
-Parameters: `tenantId`, `dateRange` (today/7d/30d/custom), `orgFilters` (branch/division/department)
-
-Returns:
-- `participationStats` -- Today's check-in counts and rates
-- `moodBreakdown` -- Today's mood distribution by level
-- `departmentStats` -- Per-department participation and avg mood
-- `employeeList` -- Full employee list with check-in status, mood, streak
-- `trendData` -- Daily avg mood and participation count over the date range
-- `riskAlerts` -- Employees with consecutive low moods or missed check-ins
-
-Logic:
-1. Fetch all active employees (filtered by org if needed)
-2. Fetch `mood_entries` for the selected date range
-3. Cross-reference to compute who checked in today vs who didn't
-4. Group by department for heatmap
-5. Compute daily averages for trend chart
-6. Detect risk patterns (3+ low scores, 3+ missed days)
-
-### New Page: `src/pages/admin/CheckinMonitor.tsx`
-
-Layout mirrors the Survey Monitor structure:
-1. Header with date range selector
-2. OrgFilterBar (reused from survey-monitor)
-3. ParticipationOverview cards (new checkin-specific component)
-4. Mood distribution bar (new component)
-5. Two-column: Department Heatmap + Risk Panel
-6. Employee Check-in Table
-7. Mood Trend Chart
-
-### New Components (in `src/components/checkin-monitor/`)
-
-| Component | Purpose |
-|---|---|
-| `CheckinOverview.tsx` | 6 stat cards (employees, checked in, not yet, rate, avg mood, avg streak) |
-| `MoodDistributionBar.tsx` | Horizontal stacked bar for today's mood levels |
-| `CheckinDepartmentHeatmap.tsx` | Department participation heatmap (reuses visual pattern) |
-| `CheckinEmployeeTable.tsx` | Employee table with mood emoji, streak, status |
-| `CheckinTrendChart.tsx` | Dual-axis area chart (avg mood + participation count) |
-| `CheckinRiskPanel.tsx` | At-risk employees and disengaged alerts |
-
-### Route & Sidebar
-
-- Route: `/admin/checkin-monitor` wrapped in `AdminRoute`
-- Sidebar: Add under the "Wellness" group (after the existing wellness items for admin view), with an `Activity` icon and label `t('nav.checkinMonitor')`
-
-### Localization
-
-All new UI strings added to both `en.json` and `ar.json` under a `checkinMonitor` namespace:
-- `title`, `subtitle`, `dateRange.*`, `stats.*`, `employeeTable.*`, `risk.*`, `moodLevels.*`
-
-### RTL Compliance
-
-- All components use logical properties (ms-, me-, ps-, pe-, text-start, text-end)
-- No directional CSS (ml-, mr-, left-, right-)
-- Charts use `hsl(var(...))` CSS variables for colors
-
-### Implementation Order
-
-1. Create `useCheckinMonitor` hook with all data fetching and computation
-2. Create the 6 sub-components in `src/components/checkin-monitor/`
-3. Create `CheckinMonitor.tsx` page assembling everything
-4. Add route to `App.tsx` and sidebar link to `AppSidebar.tsx`
-5. Add all localization keys to `en.json` and `ar.json`
-
-### Reuse from Survey Monitor
-
-- `OrgFilterBar` component -- reused directly (already generic)
-- Visual patterns from `DepartmentHeatmap`, `EmployeeStatusTable`, `RiskPanel` -- adapted for check-in context
-- Same card/chart styling and color conventions
+All fixes are frontend-only code improvements.
 
