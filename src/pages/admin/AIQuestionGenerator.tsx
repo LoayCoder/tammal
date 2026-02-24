@@ -37,7 +37,7 @@ export default function AIQuestionGenerator() {
   const {
     questions, validationReport, generationMeta,
     generate, validate, saveSet, saveWellness, removeQuestion, updateQuestion, clearAll,
-    isGenerating, isValidating, isSaving, isSavingWellness,
+    isGenerating, regeneratingIndex, isValidating, isSaving, isSavingWellness,
   } = useEnhancedAIGeneration();
 
   // Get tenant ID for batch fetching
@@ -397,7 +397,7 @@ export default function AIQuestionGenerator() {
             </Alert>
           )}
 
-          {isGenerating ? (
+          {(isGenerating && regeneratingIndex === null) ? (
             <Card>
               <CardContent className="pt-6 space-y-4">
                 {Array.from({ length: 3 }).map((_, i) => (
@@ -447,7 +447,7 @@ export default function AIQuestionGenerator() {
 
               <div className="space-y-3">
                 {questions.map((q, i) => (
-                  <QuestionCard key={i} question={q} index={i} onRemove={removeQuestion} onUpdate={updateQuestion} onRegenerate={handleRegenerateSingle} selectedModel={selectedModel} purpose={purpose} moodDefinitions={moodDefinitions} />
+                  <QuestionCard key={i} question={q} index={i} onRemove={removeQuestion} onUpdate={updateQuestion} onRegenerate={handleRegenerateSingle} selectedModel={selectedModel} purpose={purpose} moodDefinitions={moodDefinitions} isRegenerating={regeneratingIndex === i} />
                 ))}
               </div>
             </>

@@ -91,6 +91,7 @@ export function useEnhancedAIGeneration() {
   const [questions, setQuestions] = useState<EnhancedGeneratedQuestion[]>([]);
   const [validationReport, setValidationReport] = useState<ValidationReport | null>(null);
   const [generationMeta, setGenerationMeta] = useState<{ model: string; duration_ms: number } | null>(null);
+  const [regeneratingIndex, setRegeneratingIndex] = useState<number | null>(null);
 
   const lastMoodLevelsRef = { current: [] as string[] };
   const replaceAtIndexRef = { current: null as number | null };
@@ -99,6 +100,7 @@ export function useEnhancedAIGeneration() {
     mutationFn: async (input: GenerateInput & { _replaceAtIndex?: number }) => {
       lastMoodLevelsRef.current = input.moodLevels || [];
       replaceAtIndexRef.current = input._replaceAtIndex ?? null;
+      setRegeneratingIndex(input._replaceAtIndex ?? null);
       const { _replaceAtIndex, ...body } = input;
       const { data, error } = await supabase.functions.invoke('generate-questions', {
         body,
@@ -123,6 +125,7 @@ export function useEnhancedAIGeneration() {
         setQuestions(normalized);
       }
       replaceAtIndexRef.current = null;
+      setRegeneratingIndex(null);
 
       setGenerationMeta({ model: data.model, duration_ms: data.duration_ms });
       setValidationReport(null);
@@ -130,6 +133,7 @@ export function useEnhancedAIGeneration() {
     },
     onError: (error: Error) => {
       replaceAtIndexRef.current = null;
+      setRegeneratingIndex(null);
       if (error.message.includes('Rate limit')) {
         toast.error(t('aiGenerator.rateLimitError'));
       } else if (error.message.includes('credits')) {
@@ -468,6 +472,7 @@ export function useEnhancedAIGeneration() {
     updateQuestion,
     clearAll,
     isGenerating: generateMutation.isPending,
+    regeneratingIndex,
     isValidating: validateMutation.isPending,
     isSaving: saveSetMutation.isPending,
     isSavingWellness: saveWellnessMutation.isPending,

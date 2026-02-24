@@ -35,6 +35,7 @@ interface QuestionCardProps {
   selectedModel?: string;
   purpose?: QuestionPurpose;
   moodDefinitions?: MoodDefinition[];
+  isRegenerating?: boolean;
 }
 
 const typeLabels: Record<string, string> = {
@@ -65,7 +66,7 @@ const issueLabels: Record<string, string> = {
   duplicate: 'aiGenerator.issue_duplicate',
 };
 
-export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate, selectedModel, purpose, moodDefinitions }: QuestionCardProps) {
+export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate, selectedModel, purpose, moodDefinitions, isRegenerating }: QuestionCardProps) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(question.question_text);
@@ -129,7 +130,12 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
   const bgClass = hasAlerts ? 'bg-amber-50 dark:bg-amber-950/30' : '';
 
   return (
-    <Card className={`${borderClass} ${bgClass}`} id={`question-card-${index}`}>
+    <Card className={`${borderClass} ${bgClass} relative overflow-hidden`} id={`question-card-${index}`}>
+      {isRegenerating && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-[1px] rounded-lg">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      )}
       <CardContent className="pt-4 space-y-3">
         {/* Header row */}
         <div className="flex items-start justify-between gap-3">
@@ -371,7 +377,7 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
         )}
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-1 pt-1 border-t">
+        <div className={`flex items-center justify-end gap-1 pt-1 border-t ${isRegenerating ? 'pointer-events-none opacity-50' : ''}`}>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleCopy}>
             <Copy className="h-3.5 w-3.5" />
           </Button>
