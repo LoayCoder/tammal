@@ -53,6 +53,7 @@ export default function CheckinMonitor() {
               <SelectItem value="today">{t('checkinMonitor.dateRange.today')}</SelectItem>
               <SelectItem value="7d">{t('checkinMonitor.dateRange.7d')}</SelectItem>
               <SelectItem value="30d">{t('checkinMonitor.dateRange.30d')}</SelectItem>
+              <SelectItem value="ytd">{t('checkinMonitor.dateRange.ytd')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
