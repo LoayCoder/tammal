@@ -335,7 +335,19 @@ function renderAnswerInput(
       );
 
     case 'multiple_choice':
-      if (!question.options || !Array.isArray(question.options)) return null;
+      if (!question.options || !Array.isArray(question.options) || question.options.length === 0) {
+        // Fallback to text input when options are missing/empty
+        return (
+          <Textarea
+            value={String(answer || '')}
+            onChange={(e) => setAnswer(e.target.value)}
+            placeholder={t('survey.typeYourAnswer')}
+            className="min-h-[100px]"
+            dir="auto"
+            disabled={disabled}
+          />
+        );
+      }
       return (
         <RadioGroup
           value={String(answer || '')}
