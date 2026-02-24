@@ -61,6 +61,9 @@ const CheckinMonitor = lazy(() => import("@/pages/admin/CheckinMonitor"));
 const ObjectivesManagement = lazy(() => import("@/pages/admin/ObjectivesManagement"));
 const ObjectiveDetail = lazy(() => import("@/pages/admin/ObjectiveDetail"));
 const PersonalCommandCenter = lazy(() => import("@/pages/employee/PersonalCommandCenter"));
+const WorkloadDashboard = lazy(() => import("@/pages/admin/WorkloadDashboard"));
+const TeamWorkload = lazy(() => import("@/pages/admin/TeamWorkload"));
+const TaskConnectors = lazy(() => import("@/pages/admin/TaskConnectors"));
 const queryClient = new QueryClient();
 
 const PageFallback = () => (
@@ -117,6 +120,9 @@ const App = () => (
               <Route path="/admin/workload/objectives" element={<AdminRoute><ObjectivesManagement /></AdminRoute>} />
               <Route path="/admin/workload/objectives/:id" element={<AdminRoute><ObjectiveDetail /></AdminRoute>} />
               <Route path="/my-workload" element={<PersonalCommandCenter />} />
+              <Route path="/admin/workload/dashboard" element={<AdminRoute><WorkloadDashboard /></AdminRoute>} />
+              <Route path="/admin/workload/team" element={<AdminRoute><TeamWorkload /></AdminRoute>} />
+              <Route path="/admin/workload/connectors" element={<AdminRoute><TaskConnectors /></AdminRoute>} />
               <Route path="/crisis-support" element={<CrisisRequestPage />} />
               <Route path="/my-support" element={<MySupportPage />} />
               <Route path="/first-aider" element={<FirstAiderDashboard />} />

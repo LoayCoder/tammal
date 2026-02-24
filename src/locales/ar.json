@@ -83,7 +83,10 @@
     "checkinMonitor": "مراقبة التسجيل اليومي",
     "workloadIntelligence": "ذكاء أعباء العمل",
     "objectives": "الأهداف الاستراتيجية",
-    "myWorkload": "مهامي"
+    "myWorkload": "مهامي",
+    "workloadDashboard": "لوحة أعباء العمل",
+    "teamWorkload": "أعباء الفريق",
+    "taskConnectors": "موصلات المهام"
   },
   "checkinMonitor": {
     "title": "مراقبة التسجيل اليومي",
@@ -2608,5 +2611,62 @@
     "allTasks": "كل المهام",
     "completedTab": "مكتملة",
     "openExternal": "فتح في المصدر"
+  },
+  "adminWorkload": {
+    "pageTitle": "ذكاء أعباء العمل",
+    "pageDesc": "السعة على مستوى المؤسسة وتقدم الأهداف وتحليل العمل خارج الدوام",
+    "totalEmployees": "إجمالي الموظفين",
+    "avgLoad": "متوسط الحمل",
+    "atRisk": "معرض للخطر",
+    "offHoursWorkers": "عاملون خارج الدوام",
+    "tabs": {
+      "capacity": "السعة",
+      "objectives": "تقدم الأهداف",
+      "offHours": "خارج الدوام"
+    },
+    "topLoadedEmployees": "أكثر الموظفين تحميلاً",
+    "hours": "ساعات",
+    "teamOverview": "نظرة عامة على الفريق",
+    "employee": "الموظف",
+    "activeTasks": "المهام النشطة",
+    "load": "الحمل",
+    "offHours": "خارج الدوام",
+    "overloaded": "محمّل بشكل زائد",
+    "offHoursAnalysis": "تحليل العمل خارج الدوام",
+    "sessions": "الجلسات",
+    "totalOffHours": "إجمالي الساعات الإضافية",
+    "riskLevel": "مستوى الخطر",
+    "highRisk": "عالي",
+    "mediumRisk": "متوسط",
+    "lowRisk": "منخفض",
+    "noOffHours": "لم يتم رصد عمل خارج الدوام"
+  },
+  "teamWorkload": {
+    "pageTitle": "مركز قيادة الفريق",
+    "pageDesc": "مراقبة أعباء الفريق وتنبيهات المخاطر ومواءمة الأهداف",
+    "teamSize": "حجم الفريق",
+    "atRiskMembers": "معرضون للخطر",
+    "objContributing": "الأهداف",
+    "initActive": "المبادرات النشطة",
+    "riskAlerts": "تنبيهات المخاطر",
+    "scheduled": "مجدولة",
+    "burnoutRisk": "خطر الإرهاق",
+    "thrivingUnderPressure": "مزدهر تحت الضغط",
+    "needsAttention": "يحتاج اهتمام",
+    "balanced": "متوازن",
+    "objectiveAlignment": "مواءمة الأهداف"
+  },
+  "connectors": {
+    "pageTitle": "موصلات المهام",
+    "pageDesc": "ربط مصادر المهام الخارجية أو استيراد المهام يدوياً",
+    "connected": "متصل",
+    "available": "متاح",
+    "comingSoon": "قريباً",
+    "importCSV": "استيراد CSV",
+    "importTitle": "استيراد المهام من CSV",
+    "importDesc": "الصق بيانات CSV مع صف عنوان. العمود المطلوب: title. اختياري: description, priority (1-5), estimated_minutes, due_date.",
+    "csvData": "بيانات CSV",
+    "importBtn": "استيراد المهام",
+    "importSuccess": "تم استيراد {{count}} مهمة بنجاح"
   }
 }

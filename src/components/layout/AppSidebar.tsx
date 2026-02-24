@@ -7,7 +7,7 @@ import {
   User, Heart, Settings, Package, Brain, SmilePlus, RefreshCw, Wind,
   BookOpen, Music, CheckSquare, BookMarked, Phone, ClipboardCheck,
   ChevronRight, Shield, HeartHandshake, Inbox, Moon, BookOpenCheck, UtensilsCrossed, CalendarDays,
-  Activity, Target
+  Activity, Target, Gauge, Users2, Plug
 } from 'lucide-react';
 import {
   Sidebar,
@@ -172,6 +172,9 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       items: [
         { title: t('nav.myWorkload'), url: "/my-workload", icon: ClipboardList, access: 'employee' },
         { title: t('nav.objectives'), url: "/admin/workload/objectives", icon: Target, access: 'admin' },
+        { title: t('nav.workloadDashboard'), url: "/admin/workload/dashboard", icon: Gauge, access: 'admin' },
+        { title: t('nav.teamWorkload'), url: "/admin/workload/team", icon: Users2, access: 'admin' },
+        { title: t('nav.taskConnectors'), url: "/admin/workload/connectors", icon: Plug, access: 'all' },
       ]
     },
     {

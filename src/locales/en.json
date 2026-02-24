@@ -83,7 +83,10 @@
     "checkinMonitor": "Check-in Monitor",
     "workloadIntelligence": "Workload Intelligence",
     "objectives": "Strategic Objectives",
-    "myWorkload": "My Workload"
+    "myWorkload": "My Workload",
+    "workloadDashboard": "Workload Dashboard",
+    "teamWorkload": "Team Workload",
+    "taskConnectors": "Task Connectors"
   },
   "checkinMonitor": {
     "title": "Check-in Monitor",
@@ -2708,5 +2711,62 @@
     "allTasks": "All Tasks",
     "completedTab": "Done",
     "openExternal": "Open in Source"
+  },
+  "adminWorkload": {
+    "pageTitle": "Workload Intelligence",
+    "pageDesc": "Organization-wide capacity, OKR progress, and off-hours analysis",
+    "totalEmployees": "Total Employees",
+    "avgLoad": "Avg. Load",
+    "atRisk": "At Risk",
+    "offHoursWorkers": "Off-Hours Workers",
+    "tabs": {
+      "capacity": "Capacity",
+      "objectives": "OKR Progress",
+      "offHours": "Off-Hours"
+    },
+    "topLoadedEmployees": "Top Loaded Employees",
+    "hours": "Hours",
+    "teamOverview": "Team Overview",
+    "employee": "Employee",
+    "activeTasks": "Active Tasks",
+    "load": "Load",
+    "offHours": "Off-Hours",
+    "overloaded": "Overloaded",
+    "offHoursAnalysis": "Off-Hours Analysis",
+    "sessions": "Sessions",
+    "totalOffHours": "Total Off-Hours",
+    "riskLevel": "Risk Level",
+    "highRisk": "High",
+    "mediumRisk": "Medium",
+    "lowRisk": "Low",
+    "noOffHours": "No off-hours work detected"
+  },
+  "teamWorkload": {
+    "pageTitle": "Team Command Center",
+    "pageDesc": "Monitor team workload, risk alerts, and objective alignment",
+    "teamSize": "Team Size",
+    "atRiskMembers": "At Risk",
+    "objContributing": "Objectives",
+    "initActive": "Active Initiatives",
+    "riskAlerts": "Risk Alerts",
+    "scheduled": "scheduled",
+    "burnoutRisk": "Burnout Risk",
+    "thrivingUnderPressure": "Thriving Under Pressure",
+    "needsAttention": "Needs Attention",
+    "balanced": "Balanced",
+    "objectiveAlignment": "Objective Alignment"
+  },
+  "connectors": {
+    "pageTitle": "Task Connectors",
+    "pageDesc": "Connect external task sources or import tasks manually",
+    "connected": "Connected",
+    "available": "Available",
+    "comingSoon": "Coming Soon",
+    "importCSV": "Import CSV",
+    "importTitle": "Import Tasks from CSV",
+    "importDesc": "Paste CSV data with a header row. Required column: title. Optional: description, priority (1-5), estimated_minutes, due_date.",
+    "csvData": "CSV Data",
+    "importBtn": "Import Tasks",
+    "importSuccess": "{{count}} tasks imported successfully"
   }
 }
