@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useCurrentEmployee } from './useCurrentEmployee';
+import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useMemo } from 'react';
 import { format, subDays, startOfMonth } from 'date-fns';
 

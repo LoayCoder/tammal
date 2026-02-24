@@ -4,7 +4,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { subDays, format, eachDayOfInterval, parseISO } from 'date-fns';
 
 // Re-export all types so existing consumers don't break

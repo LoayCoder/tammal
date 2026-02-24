@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useCurrentEmployee } from './useCurrentEmployee';
-import { useMoodDefinitions } from './useMoodDefinitions';
-import { useGamification } from './useGamification';
+import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { useMoodDefinitions } from '@/hooks/wellness/useMoodDefinitions';
+import { useGamification } from '@/hooks/wellness/useGamification';
 import { format, subDays, getDay, startOfMonth } from 'date-fns';
 
 export interface PersonalMoodEntry {
