@@ -78,7 +78,9 @@ export function AppSidebar({ branding }: AppSidebarProps) {
   const { preferences, isEnabled: spiritualEnabled, isPrayerEnabled } = useSpiritualPreferences();
   const location = useLocation();
 
+  const { hasRole: isManager } = useHasRole('manager');
   const isAdmin = isSuperAdmin || isTenantAdmin;
+  const isManagerOrAdmin = isAdmin || isManager;
 
   // Track which mental toolkit sections are open
   const isMentalToolkitActive = location.pathname.startsWith('/mental-toolkit');
@@ -171,7 +173,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       access: 'all',
       items: [
         { title: t('nav.myWorkload'), url: "/my-workload", icon: ClipboardList, access: 'employee' },
-        { title: t('nav.objectives'), url: "/admin/workload/objectives", icon: Target, access: 'admin' },
+        { title: t('nav.objectives'), url: "/admin/workload/objectives", icon: Target, access: 'all' },
         { title: t('nav.workloadDashboard'), url: "/admin/workload/dashboard", icon: Gauge, access: 'admin' },
         { title: t('nav.teamWorkload'), url: "/admin/workload/team", icon: Users2, access: 'admin' },
         { title: t('nav.taskConnectors'), url: "/admin/workload/connectors", icon: Plug, access: 'all' },
@@ -220,7 +222,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       items: group.items.filter(item => {
         const itemAccess = item.access ?? group.access;
         if (itemAccess === 'all') return true;
-        if (itemAccess === 'admin') return isAdmin;
+        if (itemAccess === 'admin') return isManagerOrAdmin;
         if (itemAccess === 'employee') return hasEmployeeProfile;
         return false;
       })

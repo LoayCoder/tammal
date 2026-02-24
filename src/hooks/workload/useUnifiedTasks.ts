@@ -4,6 +4,14 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { useTenantId } from '@/hooks/org/useTenantId';
 
+export interface TaskComment {
+  id: string;
+  employee_id: string;
+  employee_name: string;
+  text: string;
+  created_at: string;
+}
+
 export interface UnifiedTask {
   id: string;
   tenant_id: string;
@@ -25,6 +33,11 @@ export interface UnifiedTask {
   external_url: string | null;
   tags: string[];
   metadata: Record<string, unknown>;
+  is_locked: boolean;
+  locked_by: string | null;
+  locked_at: string | null;
+  comments: TaskComment[];
+  created_by: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -42,6 +55,7 @@ export interface UnifiedTaskInsert {
   priority?: number;
   status?: string;
   tags?: string[];
+  created_by?: string | null;
 }
 
 export interface UnifiedTaskUpdate extends Partial<UnifiedTaskInsert> {
@@ -68,7 +82,7 @@ export function useUnifiedTasks(employeeId?: string) {
       if (employeeId) query = query.eq('employee_id', employeeId);
       const { data, error } = await query;
       if (error) throw error;
-      return data as UnifiedTask[];
+      return (data as any[]).map(d => ({ ...d, comments: d.comments ?? [] })) as UnifiedTask[];
     },
     enabled: !!tenantId,
   });
@@ -111,12 +125,60 @@ export function useUnifiedTasks(employeeId?: string) {
     onError: () => toast.error(t('workload.tasks.deleteError')),
   });
 
+  const lockMutation = useMutation({
+    mutationFn: async ({ id, locked_by }: { id: string; locked_by: string }) => {
+      const { error } = await supabase.from('unified_tasks').update({
+        is_locked: true, locked_by, locked_at: new Date().toISOString(),
+      }).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['unified-tasks'] });
+      toast.success(t('workload.lock.lockSuccess'));
+    },
+    onError: () => toast.error(t('workload.lock.lockError')),
+  });
+
+  const unlockMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('unified_tasks').update({
+        is_locked: false, locked_by: null, locked_at: null,
+      }).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['unified-tasks'] });
+      toast.success(t('workload.lock.unlockSuccess'));
+    },
+    onError: () => toast.error(t('workload.lock.unlockError')),
+  });
+
+  const addCommentMutation = useMutation({
+    mutationFn: async ({ id, comment }: { id: string; comment: TaskComment }) => {
+      // Fetch current comments, append new one
+      const { data: current, error: fetchErr } = await supabase
+        .from('unified_tasks').select('comments').eq('id', id).single();
+      if (fetchErr) throw fetchErr;
+      const comments = [...((current as any)?.comments ?? []), comment];
+      const { error } = await supabase.from('unified_tasks').update({ comments }).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['unified-tasks'] });
+      toast.success(t('workload.comments.addSuccess'));
+    },
+    onError: () => toast.error(t('workload.comments.addError')),
+  });
+
   return {
     tasks: tasksQuery.data ?? [],
     isLoading: tasksQuery.isLoading,
     createTask: createMutation.mutate,
     updateTask: updateMutation.mutate,
     deleteTask: deleteMutation.mutate,
+    lockTask: lockMutation.mutate,
+    unlockTask: unlockMutation.mutate,
+    addComment: addCommentMutation.mutate,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,

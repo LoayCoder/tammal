@@ -2681,6 +2681,26 @@
       "updateError": "Failed to update task",
       "deleteSuccess": "Task deleted successfully",
       "deleteError": "Failed to delete task"
+    },
+    "lock": {
+      "lock": "Lock",
+      "unlock": "Unlock",
+      "locked": "Locked",
+      "lockedBy": "Locked by {{name}}",
+      "lockSuccess": "Locked successfully",
+      "lockError": "Failed to lock",
+      "unlockSuccess": "Unlocked successfully",
+      "unlockError": "Failed to unlock",
+      "updateStatus": "Update Status",
+      "autoCalculated": "Auto-calculated from actions"
+    },
+    "comments": {
+      "title": "Comments",
+      "add": "Comment",
+      "placeholder": "Add a comment...",
+      "empty": "No comments yet",
+      "addSuccess": "Comment added",
+      "addError": "Failed to add comment"
     }
   },
   "commandCenter": {
