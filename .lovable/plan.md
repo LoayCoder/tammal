@@ -1,151 +1,140 @@
 
+# Full Integration Audit: Streaks & Points System
 
-# Employee Recognition & Awards System
+## Audit Summary
 
-## Overview
-A comprehensive recognition platform with award cycles, nominations, peer endorsements, multi-criteria voting, fairness auditing, and a points economy with redemption catalog. This is a large feature that will be implemented in **6 phases**.
-
----
-
-## Phase 1: Database Schema & Storage
-
-Create all core tables adapted to the project's multi-tenant architecture (every table gets `tenant_id` + `deleted_at` for soft deletes + RLS policies).
-
-**Tables to create:**
-- `award_cycles` -- cycle configuration, timeline, fairness config, status workflow
-- `award_themes` -- themes within a cycle, nomination/voting rules, rewards config
-- `judging_criteria` -- weighted criteria per theme with scoring guides
-- `nominations` -- nominee/nominator, justification, AI analysis, endorsement status
-- `nomination_attachments` -- evidence files linked to nominations
-- `peer_endorsements` -- endorser confirmation, relationship type, validation
-- `votes` -- multi-criteria scores, voter weight, justifications for extreme scores
-- `theme_results` -- winners, fairness report, appeal status
-- `nominee_rankings` -- detailed scoring breakdown per nominee
-- `appeals` -- post-result dispute handling
-- `points_transactions` -- points ledger (credits, debits, expiry)
-- `redemption_options` -- catalog of rewards
-- `redemption_requests` -- employee redemption tracking
-
-**Adaptations from the spec:**
-- Replace `REFERENCES users(id)` with `REFERENCES profiles(user_id)` or raw UUID (no FK to auth.users)
-- Replace `CHECK` constraints with validation triggers (per project standards)
-- Add `tenant_id` to every table with RLS using `get_user_tenant_id(auth.uid())`
-- Add `deleted_at` column for soft deletes
-- Create a `recognition-attachments` storage bucket
+After thorough inspection of all hooks, components, pages, edge functions, database schema, and RLS policies, I identified **7 issues** (3 critical, 2 high, 2 medium).
 
 ---
 
-## Phase 2: Core Hooks & Award Cycle Management (Admin)
+## Detected Issues
 
-**Files to create:**
-- `src/hooks/recognition/useAwardCycles.ts` -- CRUD for cycles + status advancement
-- `src/hooks/recognition/useAwardThemes.ts` -- theme management within a cycle
-- `src/hooks/recognition/useJudgingCriteria.ts` -- criteria CRUD per theme
-- `src/pages/admin/RecognitionManagement.tsx` -- admin landing page with cycle list
-- `src/components/recognition/CycleBuilder.tsx` -- multi-step wizard (Basics, Themes, Fairness, Review)
-- `src/components/recognition/ThemeBuilder.tsx` -- theme card editor with rules config
-- `src/components/recognition/CriteriaEditor.tsx` -- weighted criteria with scoring guide
-- `src/components/recognition/CycleStatusBadge.tsx` -- status indicator component
-- `src/components/recognition/CycleTimeline.tsx` -- visual timeline of cycle phases
+### CRITICAL-1: RLS Blocks Regular Users from Earning Points (Voting & Redemption)
+- **Where**: `points_transactions` INSERT policy
+- **Root Cause**: The INSERT policy requires `has_role('tenant_admin')` or `has_role('super_admin')`. Regular employees cannot insert rows.
+- **Impact**: 
+  - Voting participation points (`useVoting.ts` line 255) silently fail for regular users
+  - Redemption debit entries (`useRedemption.ts` line 95) fail, breaking reward redemption entirely
+- **Risk**: HIGH — Core feature is non-functional for all non-admin users
+- **Fix**: Add a new INSERT policy allowing authenticated users to insert their own points: `user_id = auth.uid() AND tenant_id = get_user_tenant_id(auth.uid())`
 
-**Route:** `/admin/recognition` (AdminRoute-protected)
+### CRITICAL-2: Two Separate Points Systems Are Not Connected
+- **Where**: `mood_entries.points_earned` (wellness streaks) vs `points_transactions` (recognition points)
+- **Root Cause**: Daily check-in points are stored in `mood_entries.points_earned` and summed by `useGamification.ts`. They never create entries in `points_transactions`. The `/recognition/points` dashboard only reads from `points_transactions`.
+- **Impact**: Check-in streak points are invisible on the Points Dashboard and cannot be redeemed for rewards
+- **Risk**: HIGH — Users see different point totals on different pages
+- **Fix**: After each check-in, also insert a `points_transactions` row with `source_type: 'daily_checkin'`. Update the validation trigger to accept `'daily_checkin'` as a valid source type.
 
-**Sidebar:** Add "Recognition" item under a new "Recognition & Awards" group in the sidebar.
+### CRITICAL-3: No Server-Side Balance Validation on Redemption
+- **Where**: `useRedemption.ts` redeem mutation (line 84-106)
+- **Root Cause**: Balance check is only done on the frontend (`canAfford` in RedemptionCard). The backend has no constraint preventing negative balances. A user can race two redemption requests simultaneously.
+- **Impact**: Users can redeem more points than they have via concurrent requests
+- **Risk**: HIGH — Financial/reward abuse vector
+- **Fix**: Add a database function or edge function that atomically checks balance before inserting the redemption + debit transaction.
 
----
+### HIGH-1: Streak Calculation Has Timezone Bug
+- **Where**: `useGamification.ts` line 23-36
+- **Root Cause**: `new Date()` uses the browser's local timezone, but `entry_date` is a date string from Postgres (UTC-based). A user who checks in at 11 PM local time may see the streak break the next morning because the date comparison shifts.
+- **Impact**: Streaks may incorrectly reset or inflate depending on the user's timezone offset
+- **Fix**: Normalize both dates to UTC for comparison, or use a consistent timezone strategy.
 
-## Phase 3: Nomination & Endorsement System
+### HIGH-2: Voting Points Awarded Even on Insert Failure
+- **Where**: `useVoting.ts` line 252-262
+- **Root Cause**: Points insertion is in `onSuccess` callback but uses `.then()` which doesn't throw on RLS failure. The insert silently fails (due to CRITICAL-1) but the success toast still shows.
+- **Impact**: Users see "vote submitted" success but points never appear
+- **Fix**: Move points award into the main `mutationFn` (within the same try/catch), and handle errors properly.
 
-**Files to create:**
-- `src/hooks/recognition/useNominations.ts` -- submit, list, filter nominations
-- `src/hooks/recognition/useEndorsements.ts` -- submit/list peer endorsements
-- `src/pages/recognition/NominatePage.tsx` -- employee-facing nomination wizard
-- `src/pages/recognition/MyNominationsPage.tsx` -- view sent/received nominations
-- `src/components/recognition/NominationWizard.tsx` -- 4-step wizard (Select Nominee, Write Justification, Request Endorsements, Review & Submit)
-- `src/components/recognition/EndorsementCard.tsx` -- endorsement request/response UI
-- `src/components/recognition/NominationCard.tsx` -- nomination display with status
-- `src/components/recognition/QuotaIndicator.tsx` -- manager nomination quota display
+### MEDIUM-1: `validate_points_transaction` Trigger Missing 'daily_checkin' Source Type
+- **Where**: Database trigger `validate_points_transaction`
+- **Root Cause**: The allowed `source_type` values don't include `'daily_checkin'`, `'survey_completion'`, or other wellness activities. If we connect the two systems (CRITICAL-2 fix), inserts will be rejected.
+- **Impact**: Blocks the integration fix
+- **Fix**: Add new source types to the validation trigger.
 
-**Key logic:**
-- Manager quota enforcement (max 30% of team for teams 5+)
-- Minimum word count validation on justification (200-10,000 chars)
-- Cross-department evidence capture
-- Endorsement counting toward "sufficient" threshold
-
----
-
-## Phase 4: Voting System
-
-**Files to create:**
-- `src/hooks/recognition/useVoting.ts` -- ballot fetching, vote submission, weight calculation
-- `src/pages/recognition/VotingBoothPage.tsx` -- employee voting interface
-- `src/components/recognition/VotingBooth.tsx` -- sequential nominee scoring
-- `src/components/recognition/CriterionScorer.tsx` -- individual criterion slider/selector
-- `src/components/recognition/JustificationPanel.tsx` -- mandatory justification for scores of 1 or 5
-- `src/components/recognition/VotingProgress.tsx` -- progress bar across nominees
-
-**Key logic:**
-- Voter weight calculation based on relationship, department proximity, and history
-- Extreme score justification enforcement (min 50 chars)
-- One vote per voter per nomination (unique constraint)
-- Participation points awarded on vote submission
+### MEDIUM-2: No `max_per_year` Enforcement on Redemptions
+- **Where**: `RedemptionCard.tsx` and `useRedemption.ts`
+- **Root Cause**: The `max_per_year` field on `redemption_options` is displayed in the UI but never enforced. Users can redeem the same reward unlimited times.
+- **Impact**: Admin-configured limits are cosmetic only
+- **Fix**: Before inserting a redemption request, count existing non-rejected requests for the same option in the current year.
 
 ---
 
-## Phase 5: Results, Fairness & Appeals
+## Fix Plan (Ordered by Priority)
 
-**Files to create:**
-- `src/hooks/recognition/useResults.ts` -- fetch results, rankings, fairness reports
-- `src/hooks/recognition/useAppeals.ts` -- submit/review appeals
-- `supabase/functions/calculate-recognition-results/index.ts` -- edge function for score calculation, bias detection, clique analysis, demographic parity
-- `src/pages/admin/RecognitionResults.tsx` -- admin results & fairness dashboard
-- `src/components/recognition/FairnessReport.tsx` -- demographic parity charts, clique detection cards, anomaly table
-- `src/components/recognition/RankingsTable.tsx` -- detailed nominee rankings with score breakdown
-- `src/components/recognition/AppealForm.tsx` -- appeal submission for employees
-- `src/components/recognition/WinnerAnnouncement.tsx` -- celebration UI for announced results
+### Step 1: Fix RLS on `points_transactions` (CRITICAL-1)
+Add an INSERT policy allowing regular users to insert rows where `user_id = auth.uid()`.
 
-**Edge function logic:**
-- Weighted average score calculation per nomination
-- Clique detection (mutual nomination patterns across cycles)
-- Visibility bias correction for remote workers
-- Vote anomaly detection
-- Confidence interval calculation
+### Step 2: Connect Check-in Points to the Points Ledger (CRITICAL-2)
+- Update `validate_points_transaction` trigger to accept `'daily_checkin'` and `'survey_completion'`
+- In `InlineDailyCheckin.tsx` and `DailyCheckin.tsx`, after inserting the mood entry, also insert a `points_transactions` row with the same amount
+- Invalidate `points-transactions` query key after check-in
 
----
+### Step 3: Move Voting Points into mutationFn (HIGH-2)
+Move the points insert from `onSuccess` into the main `mutationFn` body with proper error handling.
 
-## Phase 6: Points Economy & Redemption
+### Step 4: Add Server-Side Balance Check for Redemptions (CRITICAL-3)
+Create a database function `redeem_points(p_user_id, p_tenant_id, p_option_id, p_points_cost)` that:
+1. Calculates current balance from `points_transactions`
+2. Checks `max_per_year` usage count
+3. Only inserts the redemption request + debit if balance is sufficient
+4. Returns error if insufficient
 
-**Files to create:**
-- `src/hooks/recognition/usePoints.ts` -- balance, transaction history, redemption
-- `src/hooks/recognition/useRedemption.ts` -- catalog browsing, redemption requests
-- `src/pages/recognition/PointsDashboard.tsx` -- employee points balance & history
-- `src/pages/recognition/RedemptionCatalog.tsx` -- browsable reward catalog
-- `src/pages/admin/RedemptionManagement.tsx` -- admin: manage options, approve requests
-- `src/components/recognition/PointsBalanceCard.tsx` -- current balance display
-- `src/components/recognition/TransactionHistory.tsx` -- points ledger table
-- `src/components/recognition/RedemptionCard.tsx` -- individual reward option card
-- `supabase/functions/expire-recognition-points/index.ts` -- cron-triggered point expiry
+Replace the current two-step client insert with a single RPC call.
 
-**Cron job:** Weekly point expiry check via `pg_cron` + `pg_net` calling the edge function.
+### Step 5: Fix Timezone in Streak Calculation (HIGH-1)
+Normalize date comparisons in `useGamification.ts` to use UTC consistently.
+
+### Step 6: Enforce max_per_year (MEDIUM-2)
+Add a count check in the redemption function for requests in the current calendar year.
 
 ---
 
-## Localization
+## Confirmation Report
 
-All phases include adding translation keys to both `src/locales/en.json` and `src/locales/ar.json` under a `recognition` namespace covering cycle management, nominations, voting, results, points, and redemption flows. All UI uses `ms-`/`me-`/`ps-`/`pe-` logical properties per RTL standards.
+| Area | Status | Notes |
+|------|--------|-------|
+| Points schema & RLS | Needs fix | INSERT blocked for regular users |
+| Points balance logic | Correct | Properly sums credited + redeemed |
+| Expiry mechanism | Correct | Weekly cron marks expired, excluded from balance |
+| Transaction history UI | Correct | Shows all statuses with proper formatting |
+| Redemption catalog UI | Correct | Category filtering, RTL support working |
+| Redemption flow | Needs fix | No server-side balance check, no max_per_year enforcement |
+| Check-in streak logic | Needs fix | Timezone inconsistency |
+| Check-in points | Needs fix | Not connected to recognition points ledger |
+| Voting participation points | Needs fix | RLS blocks insert + error handling gap |
+| Points expiry edge function | Correct | Properly marks expired, idempotent |
+| Results calculation | Correct | Awards points correctly (but blocked by RLS) |
+| Leaderboards | Missing | No leaderboard component exists yet |
 
 ---
 
-## Implementation Order
+## Technical Details
 
-| Phase | Scope | Estimated Complexity |
-|-------|-------|---------------------|
-| 1 | Database schema, RLS, storage bucket | High (13 tables + policies) |
-| 2 | Award cycle admin UI + hooks | Medium |
-| 3 | Nomination & endorsement system | Medium-High |
-| 4 | Voting booth & scoring | Medium |
-| 5 | Results calculation, fairness, appeals | High (edge function + AI) |
-| 6 | Points economy & redemption | Medium |
+### New Database Migration (Steps 1, 2, 4, 6)
 
-Each phase will be implemented sequentially. Say **NEXT** after each phase to proceed.
+```sql
+-- Step 1: Allow regular users to insert their own points
+CREATE POLICY "Users can insert own points"
+ON points_transactions FOR INSERT TO authenticated
+WITH CHECK (
+  user_id = auth.uid()
+  AND tenant_id = get_user_tenant_id(auth.uid())
+);
 
+-- Step 2: Update validation trigger to accept new source types
+CREATE OR REPLACE FUNCTION validate_points_transaction() ...
+  -- Add 'daily_checkin', 'survey_completion' to allowed source_types
+
+-- Step 4 & 6: Atomic redemption function
+CREATE OR REPLACE FUNCTION redeem_points(
+  p_user_id uuid, p_tenant_id uuid,
+  p_option_id uuid, p_points_cost int
+) RETURNS uuid ...
+  -- Calculates balance, checks max_per_year, inserts atomically
+```
+
+### Files to Modify
+1. `src/hooks/wellness/useGamification.ts` — UTC normalization
+2. `src/components/checkin/InlineDailyCheckin.tsx` — Add points_transactions insert
+3. `src/pages/employee/DailyCheckin.tsx` — Add points_transactions insert
+4. `src/hooks/recognition/useVoting.ts` — Move points into mutationFn
+5. `src/hooks/recognition/useRedemption.ts` — Replace two-step insert with RPC call
