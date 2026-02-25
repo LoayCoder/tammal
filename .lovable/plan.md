@@ -1,64 +1,76 @@
 
-## Add Editable Risk Level Mapping to Crisis Settings
 
-### Overview
-Currently, the Risk Level Mapping in the Rules tab is **hardcoded** in the component and in a database function (`map_intent_to_risk`). This plan makes it fully dynamic -- admins can **add, edit, and delete** risk mappings from the UI, backed by a new database table.
+## Redirect Unauthenticated Users to Login + PWA Install Prompt
 
-### 1. Database: Create `mh_risk_mappings` Table
+### Problem
+1. **No auth guard**: Users can visit `/` and all protected routes without being logged in. There is no redirect to `/auth`.
+2. **PWA install prompt is passive**: The install prompt only appears on the `/install` page. Users never see a proactive "Install App" banner or popup.
+
+### Plan
+
+#### 1. Create a `ProtectedRoute` wrapper component
+
+**New file: `src/components/auth/ProtectedRoute.tsx`**
+
+- Uses `useAuth()` to check for a logged-in user
+- While `loading` is true, shows a loading skeleton
+- If no `user`, redirects to `/auth` using `<Navigate to="/auth" replace />`
+- If authenticated, renders `<Outlet />`
+
+#### 2. Wrap all authenticated routes with `ProtectedRoute`
+
+**File: `src/App.tsx`**
+
+Nest the `<MainLayout />` route inside `<ProtectedRoute />`:
 
 ```text
-mh_risk_mappings
-  - id (uuid, PK)
-  - tenant_id (uuid, FK to tenants, NOT NULL)
-  - intent (text, NOT NULL) -- e.g. 'self_harm', 'anxiety', custom values
-  - risk_level (text, NOT NULL) -- 'high', 'moderate', 'low'
-  - action_description (text) -- optional custom action text
-  - sort_order (integer, default 0)
-  - is_default (boolean, default false) -- system-seeded rows
-  - created_at, updated_at, deleted_at (timestamps)
+<Route element={<ProtectedRoute />}>        <-- NEW guard
+  <Route element={<MainLayout />}>
+    <Route path="/" element={<Dashboard />} />
+    ... all other protected routes ...
+  </Route>
+</Route>
 ```
 
-- **RLS policy**: tenant isolation via `tenant_id = get_user_tenant_id(auth.uid())`
-- **Seed trigger**: On tenant creation, auto-insert the 7 default mappings (self_harm/high, unsafe/high, overwhelmed/moderate, anxiety/moderate, work_stress/moderate, other/moderate, talk/low)
-- **Update** `map_intent_to_risk` function to query the table instead of using hardcoded CASE statement (with fallback to 'moderate')
+This ensures every route inside MainLayout requires authentication. The `/auth`, `/auth/accept-invite`, and `/install` routes remain public.
 
-### 2. UI: Upgrade `RulesTab.tsx`
+#### 3. Add a PWA Install Banner component
 
-Replace the static table with a dynamic CRUD interface:
+**New file: `src/components/pwa/PWAInstallBanner.tsx`**
 
-- **Table view** with columns: Intent, Risk Level, Action, and an Actions column (Edit / Delete buttons)
-- **"Add Rule" button** at the top-right of the card header
-- **Edit row**: Clicking Edit opens a dialog/sheet with:
-  - Intent field (text input for custom intents, or select from known intents)
-  - Risk Level select (High / Moderate / Low)
-  - Custom Action description (optional textarea)
-- **Delete**: Soft-delete with confirmation dialog. Default/system rules show a warning that deletion may affect crisis routing.
-- **Badge colors**: High = destructive (red), Moderate = secondary (amber), Low = default (green)
-- Keep the existing high-risk warning banner at the bottom
+A small, dismissible banner that appears at the top or bottom of the screen when:
+- The browser fires `beforeinstallprompt` (i.e., `canInstall` is true from `usePWAInstall`)
+- The app is not already installed
+- The user hasn't dismissed it in this session (tracked via `sessionStorage`)
 
-### 3. Hook: `useRiskMappings.ts`
+For iOS users (where `beforeinstallprompt` doesn't fire), show a brief instruction: "Tap Share then Add to Home Screen".
 
-New hook in `src/hooks/crisis/` providing:
-- `useRiskMappings()` -- fetch all active mappings for the tenant
-- `useCreateRiskMapping()` -- insert a new mapping
-- `useUpdateRiskMapping()` -- update intent/risk/action
-- `useDeleteRiskMapping()` -- soft-delete (set `deleted_at`)
+The banner includes:
+- App icon + "Install Tammal for a better experience"
+- An "Install" button (triggers `installApp()`)
+- A dismiss "X" button
 
-All using TanStack Query with proper cache invalidation.
+#### 4. Mount the PWA Install Banner
 
-### 4. Files to Create/Modify
+**File: `src/components/layout/MainLayout.tsx`**
+
+Add `<PWAInstallBanner />` inside the layout, above the `<Header />`, so it's visible on every authenticated page.
+
+Also add it to the **Auth page** (`src/pages/Auth.tsx`) so first-time visitors on mobile see the install prompt even before logging in.
+
+### Files to Create/Modify
 
 | File | Action |
 |------|--------|
-| **Migration SQL** | Create `mh_risk_mappings` table, RLS, seed trigger, update `map_intent_to_risk` function |
-| `src/hooks/crisis/useRiskMappings.ts` | **Create** -- CRUD hook |
-| `src/components/crisis/RulesTab.tsx` | **Rewrite** -- dynamic table with add/edit/delete |
-| `src/components/crisis/RiskMappingDialog.tsx` | **Create** -- form dialog for add/edit |
+| `src/components/auth/ProtectedRoute.tsx` | **Create** -- auth guard wrapper |
+| `src/components/pwa/PWAInstallBanner.tsx` | **Create** -- dismissible install prompt |
+| `src/App.tsx` | **Modify** -- wrap MainLayout routes in ProtectedRoute |
+| `src/components/layout/MainLayout.tsx` | **Modify** -- add PWAInstallBanner |
+| `src/pages/Auth.tsx` | **Modify** -- add PWAInstallBanner |
 
-### 5. Technical Notes
+### Technical Notes
+- Uses logical properties (`ms-`, `me-`, `text-start`) for RTL support
+- `sessionStorage` key `pwa-banner-dismissed` prevents repeated prompts in the same session
+- The ProtectedRoute pattern keeps auth logic centralized and avoids repeating checks in each page
+- No database changes required
 
-- The seed trigger will be added to the existing tenant creation flow (similar to `seed_default_mood_definitions`)
-- Existing tenants will need a one-time seed via migration (INSERT for each existing tenant)
-- The `map_intent_to_risk` DB function will be updated to query the table with a fallback, ensuring crisis case creation still works
-- Soft deletes (`deleted_at IS NULL` filter) follow project conventions
-- All UI uses logical properties (`me-`, `ms-`, `text-start`) for RTL support
