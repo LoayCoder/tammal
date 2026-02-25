@@ -56,3 +56,6 @@ verify_jwt = false
 
 [functions.save-question-batch]
 verify_jwt = false
+
+[functions.match-first-aider]
+verify_jwt = false

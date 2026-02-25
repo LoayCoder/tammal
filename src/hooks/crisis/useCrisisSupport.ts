@@ -308,7 +308,7 @@ export function useCrisisCases(options?: { role?: 'requester' | 'first_aider' | 
   });
 
   const createCase = useMutation({
-    mutationFn: async (data: { tenant_id: string; intent: string; anonymity_mode: string; summary?: string }) => {
+    mutationFn: async (data: { tenant_id: string; intent: string; anonymity_mode: string; summary?: string; urgency_level?: number; preferred_contact_method?: string }) => {
       const risk_level = mapIntentToRisk(data.intent);
       const status = risk_level === 'high' ? 'escalated' : 'pending_assignment';
       
@@ -322,6 +322,8 @@ export function useCrisisCases(options?: { role?: 'requester' | 'first_aider' | 
           status,
           anonymity_mode: data.anonymity_mode,
           summary: data.summary || null,
+          urgency_level: data.urgency_level || 3,
+          preferred_contact_method: data.preferred_contact_method || 'chat',
         } as any)
         .select()
         .single();
