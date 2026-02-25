@@ -86,7 +86,9 @@
     "myWorkload": "My Workload",
     "workloadDashboard": "Workload Dashboard",
     "teamWorkload": "Team Workload",
-    "taskConnectors": "Task Connectors"
+    "taskConnectors": "Task Connectors",
+    "recognitionAwards": "Recognition & Awards",
+    "recognition": "Recognition"
   },
   "checkinMonitor": {
     "title": "Check-in Monitor",
@@ -2856,5 +2858,87 @@
     "csvData": "CSV Data",
     "importBtn": "Import Tasks",
     "importSuccess": "{{count}} tasks imported successfully"
+  },
+  "recognition": {
+    "title": "Recognition & Awards",
+    "subtitle": "Manage award cycles, nominations, voting, and recognition programs",
+    "status": {
+      "configuring": "Configuring",
+      "nominating": "Nominations Open",
+      "voting": "Voting",
+      "calculating": "Calculating",
+      "announced": "Announced",
+      "archived": "Archived"
+    },
+    "cycles": {
+      "create": "New Award Cycle",
+      "name": "Cycle Name",
+      "empty": "No Award Cycles Yet",
+      "emptyDescription": "Create your first award cycle to start recognizing outstanding employees.",
+      "createdAt": "Created {{date}}",
+      "auditDays": "Audit Review Days",
+      "auditDaysLabel": "{{days}} day audit review",
+      "createSuccess": "Award cycle created successfully",
+      "createError": "Failed to create award cycle",
+      "updateSuccess": "Award cycle updated",
+      "updateError": "Failed to update award cycle",
+      "deleteSuccess": "Award cycle deleted",
+      "deleteError": "Failed to delete award cycle",
+      "statusAdvanced": "Cycle status advanced"
+    },
+    "cycleBuilder": {
+      "title": "Create Award Cycle",
+      "subtitle": "Configure your recognition cycle step by step",
+      "basics": "Basics",
+      "themes": "Themes",
+      "fairness": "Fairness",
+      "review": "Review",
+      "createAndContinue": "Create & Continue",
+      "reviewNote": "Your award cycle has been created. You can now close this wizard and manage it from the list."
+    },
+    "themes": {
+      "title": "Award Themes",
+      "add": "Add Theme",
+      "name": "Theme Name",
+      "nameAr": "Theme Name (Arabic)",
+      "description": "Description",
+      "createSuccess": "Theme created",
+      "createError": "Failed to create theme",
+      "updateSuccess": "Theme updated",
+      "updateError": "Failed to update theme",
+      "deleteSuccess": "Theme deleted",
+      "deleteError": "Failed to delete theme"
+    },
+    "criteria": {
+      "title": "Judging Criteria",
+      "add": "Add Criterion",
+      "name": "Criterion Name",
+      "namePlaceholder": "e.g. Innovation, Teamwork, Impact",
+      "description": "Description",
+      "weight": "Weight",
+      "totalWeight": "Total weight",
+      "mustEqual100": "must equal 100%",
+      "createSuccess": "Criterion added",
+      "createError": "Failed to add criterion",
+      "updateSuccess": "Criterion updated",
+      "updateError": "Failed to update criterion",
+      "deleteSuccess": "Criterion removed",
+      "deleteError": "Failed to remove criterion"
+    },
+    "timeline": {
+      "nominationStart": "Nominations Open",
+      "nominationEnd": "Nominations Close",
+      "endorsementEnd": "Endorsement Deadline",
+      "votingStart": "Voting Opens",
+      "votingEnd": "Voting Closes",
+      "announcement": "Announcement"
+    },
+    "fairness": {
+      "cliqueThreshold": "Clique Detection Threshold",
+      "demographicParity": "Demographic Parity Target",
+      "visibilityBias": "Visibility Bias Correction",
+      "publishRawScores": "Publish Raw Scores",
+      "allowAppeals": "Allow Appeals"
+    }
   }
 }
