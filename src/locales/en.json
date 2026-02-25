@@ -2461,6 +2461,13 @@
       "outcomeFollowUp": "Follow-up Needed",
       "ended": "Session ended",
       "info": "Session Info"
+    },
+    "chat": {
+      "voiceNote": "Voice note",
+      "newMessages": "New messages",
+      "recording": "Recording...",
+      "typing": "typing...",
+      "readReceipt": "Read"
     }
   },
   "spiritual": {

@@ -3,18 +3,17 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useCrisisMessages } from '@/hooks/crisis/useCrisisSupport';
 import { useSessionScheduling, useSupportSessions } from '@/hooks/crisis/useSessionScheduling';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import {
-  MessageSquare, Send, Clock, ArrowLeft, AlertTriangle, FileText,
-  Phone, Video, CheckCircle, XCircle, RotateCw
+  Clock, ArrowLeft, AlertTriangle, FileText,
+  Phone, Video, CheckCircle, RotateCw, MessageSquare,
 } from 'lucide-react';
+import EnhancedChatPanel from './EnhancedChatPanel';
 
 interface Props {
   caseId: string;
@@ -27,27 +26,15 @@ interface Props {
 export default function SessionWorkspace({ caseId, sessionId, tenantId, isFirstAider, onBack }: Props) {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { messages, sendMessage } = useCrisisMessages(caseId);
   const { endSession } = useSessionScheduling();
   const { sessions } = useSupportSessions(sessionId ? { firstAiderId: undefined, requesterUserId: undefined } : undefined);
 
-  const [newMessage, setNewMessage] = useState('');
-  const [sending, setSending] = useState(false);
   const [sessionNotes, setSessionNotes] = useState('');
   const [showOutcomeForm, setShowOutcomeForm] = useState(false);
   const [outcome, setOutcome] = useState('resolved');
 
   const currentSession = sessions.find(s => s.id === sessionId);
   const isActive = currentSession?.status === 'active' || currentSession?.status === 'scheduled';
-
-  const handleSend = async () => {
-    if (!newMessage.trim()) return;
-    setSending(true);
-    try {
-      await sendMessage.mutateAsync({ case_id: caseId, tenant_id: tenantId, message: newMessage.trim() });
-      setNewMessage('');
-    } catch { /* handled */ } finally { setSending(false); }
-  };
 
   const handleEndSession = async () => {
     if (!sessionId) return;
@@ -60,7 +47,6 @@ export default function SessionWorkspace({ caseId, sessionId, tenantId, isFirstA
     }
   };
 
-  // Calculate session duration if active
   const sessionDuration = currentSession?.actual_start
     ? Math.round((Date.now() - new Date(currentSession.actual_start).getTime()) / 60000)
     : null;
@@ -94,49 +80,16 @@ export default function SessionWorkspace({ caseId, sessionId, tenantId, isFirstA
             </div>
           </div>
           {isFirstAider && isActive && (
-            <div className="flex gap-1">
-              <Button size="sm" variant="outline" className="text-destructive" onClick={() => setShowOutcomeForm(true)}>
-                <CheckCircle className="h-3 w-3 me-1" />
-                {t('crisisSupport.session.endSession')}
-              </Button>
-            </div>
+            <Button size="sm" variant="outline" className="text-destructive" onClick={() => setShowOutcomeForm(true)}>
+              <CheckCircle className="h-3 w-3 me-1" />
+              {t('crisisSupport.session.endSession')}
+            </Button>
           )}
         </div>
 
-        {/* Messages */}
+        {/* Enhanced Chat */}
         <Card className="glass-card border-0 rounded-xl flex-1 flex flex-col min-h-[300px]">
-          <CardContent className="flex-1 pt-4 space-y-3 max-h-[500px] overflow-y-auto">
-            {messages.length === 0 ? (
-              <p className="text-muted-foreground text-center py-8 text-sm">{t('crisisSupport.mySupport.noMessages')}</p>
-            ) : messages.map(msg => {
-              const isMe = msg.sender_user_id === user?.id;
-              return (
-                <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${isMe ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}>
-                    <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
-                    <p className={`text-[10px] mt-1 ${isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
-                      {format(new Date(msg.created_at), 'h:mm a')}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </CardContent>
-
-          {/* Message input */}
-          <div className="p-3 border-t border-border">
-            <div className="flex gap-2">
-              <Input
-                value={newMessage}
-                onChange={e => setNewMessage(e.target.value)}
-                placeholder={t('crisisSupport.mySupport.messagePlaceholder')}
-                onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
-              />
-              <Button size="icon" onClick={handleSend} disabled={sending || !newMessage.trim()}>
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+          <EnhancedChatPanel caseId={caseId} tenantId={tenantId} />
         </Card>
       </div>
 
