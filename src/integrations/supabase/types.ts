@@ -219,6 +219,63 @@ export type Database = {
         }
         Relationships: []
       }
+      appeals: {
+        Row: {
+          appellant_id: string
+          committee_review: Json | null
+          deleted_at: string | null
+          description: string
+          grounds: string
+          id: string
+          new_evidence_attachment_ids: Json | null
+          resolved_at: string | null
+          submitted_at: string
+          tenant_id: string
+          theme_results_id: string
+        }
+        Insert: {
+          appellant_id: string
+          committee_review?: Json | null
+          deleted_at?: string | null
+          description: string
+          grounds: string
+          id?: string
+          new_evidence_attachment_ids?: Json | null
+          resolved_at?: string | null
+          submitted_at?: string
+          tenant_id: string
+          theme_results_id: string
+        }
+        Update: {
+          appellant_id?: string
+          committee_review?: Json | null
+          deleted_at?: string | null
+          description?: string
+          grounds?: string
+          id?: string
+          new_evidence_attachment_ids?: Json | null
+          resolved_at?: string | null
+          submitted_at?: string
+          tenant_id?: string
+          theme_results_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appeals_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appeals_theme_results_id_fkey"
+            columns: ["theme_results_id"]
+            isOneToOne: false
+            referencedRelation: "theme_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -256,6 +313,146 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "audit_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      award_cycles: {
+        Row: {
+          announcement_date: string
+          audit_review_days: number
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          fairness_config: Json
+          id: string
+          name: string
+          name_ar: string | null
+          nomination_end: string
+          nomination_start: string
+          peer_endorsement_end: string
+          stats: Json | null
+          status: string
+          tenant_id: string
+          updated_at: string
+          voting_end: string
+          voting_start: string
+        }
+        Insert: {
+          announcement_date: string
+          audit_review_days?: number
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          fairness_config?: Json
+          id?: string
+          name: string
+          name_ar?: string | null
+          nomination_end: string
+          nomination_start: string
+          peer_endorsement_end: string
+          stats?: Json | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+          voting_end: string
+          voting_start: string
+        }
+        Update: {
+          announcement_date?: string
+          audit_review_days?: number
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          fairness_config?: Json
+          id?: string
+          name?: string
+          name_ar?: string | null
+          nomination_end?: string
+          nomination_start?: string
+          peer_endorsement_end?: string
+          stats?: Json | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+          voting_end?: string
+          voting_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "award_cycles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      award_themes: {
+        Row: {
+          created_at: string
+          cycle_id: string
+          data_integration: Json | null
+          deleted_at: string | null
+          description: string | null
+          description_ar: string | null
+          id: string
+          image_url: string | null
+          name: string
+          name_ar: string | null
+          nomination_rules: Json
+          rewards: Json
+          sort_order: number | null
+          tenant_id: string
+          voting_rules: Json
+        }
+        Insert: {
+          created_at?: string
+          cycle_id: string
+          data_integration?: Json | null
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          name_ar?: string | null
+          nomination_rules?: Json
+          rewards?: Json
+          sort_order?: number | null
+          tenant_id: string
+          voting_rules?: Json
+        }
+        Update: {
+          created_at?: string
+          cycle_id?: string
+          data_integration?: Json | null
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          name_ar?: string | null
+          nomination_rules?: Json
+          rewards?: Json
+          sort_order?: number | null
+          tenant_id?: string
+          voting_rules?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "award_themes_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "award_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "award_themes_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -1130,6 +1327,66 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      judging_criteria: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          description: string | null
+          description_ar: string | null
+          id: string
+          name: string
+          name_ar: string | null
+          scoring_guide: Json
+          sort_order: number | null
+          tenant_id: string
+          theme_id: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          name: string
+          name_ar?: string | null
+          scoring_guide?: Json
+          sort_order?: number | null
+          tenant_id: string
+          theme_id: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          name?: string
+          name_ar?: string | null
+          scoring_guide?: Json
+          sort_order?: number | null
+          tenant_id?: string
+          theme_id?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "judging_criteria_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "judging_criteria_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "award_themes"
             referencedColumns: ["id"]
           },
         ]
@@ -2154,6 +2411,250 @@ export type Database = {
           },
         ]
       }
+      nomination_attachments: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          filename: string
+          id: string
+          mime_type: string
+          nomination_id: string
+          size_bytes: number
+          storage_path: string
+          tenant_id: string
+          thumbnail_path: string | null
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          filename: string
+          id?: string
+          mime_type: string
+          nomination_id: string
+          size_bytes: number
+          storage_path: string
+          tenant_id: string
+          thumbnail_path?: string | null
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          filename?: string
+          id?: string
+          mime_type?: string
+          nomination_id?: string
+          size_bytes?: number
+          storage_path?: string
+          tenant_id?: string
+          thumbnail_path?: string | null
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nomination_attachments_nomination_id_fkey"
+            columns: ["nomination_id"]
+            isOneToOne: false
+            referencedRelation: "nominations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nomination_attachments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nominations: {
+        Row: {
+          ai_analysis: Json | null
+          created_at: string
+          cross_department_evidence: Json | null
+          cycle_id: string
+          deleted_at: string | null
+          endorsement_status: string
+          headline: string
+          id: string
+          impact_metrics: Json | null
+          justification: string
+          manager_assessment: Json | null
+          nominator_department_id: string | null
+          nominator_id: string
+          nominator_role: string
+          nominee_department_id: string | null
+          nominee_id: string
+          nominee_tenure_months: number | null
+          specific_examples: Json | null
+          status: string
+          submitted_at: string | null
+          tenant_id: string
+          theme_id: string
+          updated_at: string
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          created_at?: string
+          cross_department_evidence?: Json | null
+          cycle_id: string
+          deleted_at?: string | null
+          endorsement_status?: string
+          headline: string
+          id?: string
+          impact_metrics?: Json | null
+          justification: string
+          manager_assessment?: Json | null
+          nominator_department_id?: string | null
+          nominator_id: string
+          nominator_role?: string
+          nominee_department_id?: string | null
+          nominee_id: string
+          nominee_tenure_months?: number | null
+          specific_examples?: Json | null
+          status?: string
+          submitted_at?: string | null
+          tenant_id: string
+          theme_id: string
+          updated_at?: string
+        }
+        Update: {
+          ai_analysis?: Json | null
+          created_at?: string
+          cross_department_evidence?: Json | null
+          cycle_id?: string
+          deleted_at?: string | null
+          endorsement_status?: string
+          headline?: string
+          id?: string
+          impact_metrics?: Json | null
+          justification?: string
+          manager_assessment?: Json | null
+          nominator_department_id?: string | null
+          nominator_id?: string
+          nominator_role?: string
+          nominee_department_id?: string | null
+          nominee_id?: string
+          nominee_tenure_months?: number | null
+          specific_examples?: Json | null
+          status?: string
+          submitted_at?: string | null
+          tenant_id?: string
+          theme_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nominations_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "award_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nominations_nominator_department_id_fkey"
+            columns: ["nominator_department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nominations_nominee_department_id_fkey"
+            columns: ["nominee_department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nominations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nominations_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "award_themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nominee_rankings: {
+        Row: {
+          confidence_interval: Json | null
+          created_at: string
+          criterion_breakdown: Json
+          data_metrics_validation: Json | null
+          deleted_at: string | null
+          id: string
+          nomination_id: string
+          rank: number
+          raw_average_score: number | null
+          tenant_id: string
+          theme_results_id: string
+          total_votes: number | null
+          vote_distribution: Json | null
+          weighted_average_score: number | null
+        }
+        Insert: {
+          confidence_interval?: Json | null
+          created_at?: string
+          criterion_breakdown?: Json
+          data_metrics_validation?: Json | null
+          deleted_at?: string | null
+          id?: string
+          nomination_id: string
+          rank: number
+          raw_average_score?: number | null
+          tenant_id: string
+          theme_results_id: string
+          total_votes?: number | null
+          vote_distribution?: Json | null
+          weighted_average_score?: number | null
+        }
+        Update: {
+          confidence_interval?: Json | null
+          created_at?: string
+          criterion_breakdown?: Json
+          data_metrics_validation?: Json | null
+          deleted_at?: string | null
+          id?: string
+          nomination_id?: string
+          rank?: number
+          raw_average_score?: number | null
+          tenant_id?: string
+          theme_results_id?: string
+          total_votes?: number | null
+          vote_distribution?: Json | null
+          weighted_average_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nominee_rankings_nomination_id_fkey"
+            columns: ["nomination_id"]
+            isOneToOne: false
+            referencedRelation: "nominations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nominee_rankings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nominee_rankings_theme_results_id_fkey"
+            columns: ["theme_results_id"]
+            isOneToOne: false
+            referencedRelation: "theme_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       objective_actions: {
         Row: {
           actual_hours: number | null
@@ -2323,6 +2824,73 @@ export type Database = {
           },
         ]
       }
+      peer_endorsements: {
+        Row: {
+          additional_context: string | null
+          confirmation_statement: string
+          deleted_at: string | null
+          endorser_department_id: string | null
+          endorser_id: string
+          id: string
+          is_valid: boolean | null
+          nomination_id: string
+          relationship: string
+          submitted_at: string
+          tenant_id: string
+          validation_reason: string | null
+        }
+        Insert: {
+          additional_context?: string | null
+          confirmation_statement: string
+          deleted_at?: string | null
+          endorser_department_id?: string | null
+          endorser_id: string
+          id?: string
+          is_valid?: boolean | null
+          nomination_id: string
+          relationship?: string
+          submitted_at?: string
+          tenant_id: string
+          validation_reason?: string | null
+        }
+        Update: {
+          additional_context?: string | null
+          confirmation_statement?: string
+          deleted_at?: string | null
+          endorser_department_id?: string | null
+          endorser_id?: string
+          id?: string
+          is_valid?: boolean | null
+          nomination_id?: string
+          relationship?: string
+          submitted_at?: string
+          tenant_id?: string
+          validation_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "peer_endorsements_endorser_department_id_fkey"
+            columns: ["endorser_department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "peer_endorsements_nomination_id_fkey"
+            columns: ["nomination_id"]
+            isOneToOne: false
+            referencedRelation: "nominations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "peer_endorsements_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permissions: {
         Row: {
           category: string
@@ -2424,6 +2992,62 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      points_transactions: {
+        Row: {
+          amount: number
+          awarded_at: string
+          awarded_by: string | null
+          created_at: string
+          deleted_at: string | null
+          description: string | null
+          expires_at: string | null
+          id: string
+          source_id: string | null
+          source_type: string
+          status: string
+          tenant_id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          awarded_at?: string
+          awarded_by?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          source_id?: string | null
+          source_type: string
+          status?: string
+          tenant_id: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          awarded_at?: string
+          awarded_by?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          source_id?: string | null
+          source_type?: string
+          status?: string
+          tenant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "points_transactions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -2943,6 +3567,125 @@ export type Database = {
           },
           {
             foreignKeyName: "questions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      redemption_options: {
+        Row: {
+          category: string
+          created_at: string
+          deleted_at: string | null
+          description: string | null
+          description_ar: string | null
+          fulfillment_config: Json
+          id: string
+          is_active: boolean | null
+          max_per_year: number | null
+          min_tenure_months: number | null
+          name: string
+          name_ar: string | null
+          points_cost: number
+          tenant_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          fulfillment_config?: Json
+          id?: string
+          is_active?: boolean | null
+          max_per_year?: number | null
+          min_tenure_months?: number | null
+          name: string
+          name_ar?: string | null
+          points_cost: number
+          tenant_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          description_ar?: string | null
+          fulfillment_config?: Json
+          id?: string
+          is_active?: boolean | null
+          max_per_year?: number | null
+          min_tenure_months?: number | null
+          name?: string
+          name_ar?: string | null
+          points_cost?: number
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "redemption_options_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      redemption_requests: {
+        Row: {
+          deleted_at: string | null
+          fulfilled_at: string | null
+          hr_notes: string | null
+          id: string
+          option_id: string
+          points_spent: number
+          rejection_reason: string | null
+          requested_at: string
+          status: string
+          tenant_id: string
+          tracking_number: string | null
+          user_id: string
+        }
+        Insert: {
+          deleted_at?: string | null
+          fulfilled_at?: string | null
+          hr_notes?: string | null
+          id?: string
+          option_id: string
+          points_spent: number
+          rejection_reason?: string | null
+          requested_at?: string
+          status?: string
+          tenant_id: string
+          tracking_number?: string | null
+          user_id: string
+        }
+        Update: {
+          deleted_at?: string | null
+          fulfilled_at?: string | null
+          hr_notes?: string | null
+          id?: string
+          option_id?: string
+          points_spent?: number
+          rejection_reason?: string | null
+          requested_at?: string
+          status?: string
+          tenant_id?: string
+          tracking_number?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "redemption_requests_option_id_fkey"
+            columns: ["option_id"]
+            isOneToOne: false
+            referencedRelation: "redemption_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "redemption_requests_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -3926,6 +4669,94 @@ export type Database = {
           },
         ]
       }
+      theme_results: {
+        Row: {
+          appeal_status: string
+          created_at: string
+          cycle_id: string
+          deleted_at: string | null
+          fairness_report: Json
+          first_place_nomination_id: string | null
+          id: string
+          published_at: string | null
+          second_place_nomination_id: string | null
+          tenant_id: string
+          theme_id: string
+          third_place_nomination_id: string | null
+        }
+        Insert: {
+          appeal_status?: string
+          created_at?: string
+          cycle_id: string
+          deleted_at?: string | null
+          fairness_report?: Json
+          first_place_nomination_id?: string | null
+          id?: string
+          published_at?: string | null
+          second_place_nomination_id?: string | null
+          tenant_id: string
+          theme_id: string
+          third_place_nomination_id?: string | null
+        }
+        Update: {
+          appeal_status?: string
+          created_at?: string
+          cycle_id?: string
+          deleted_at?: string | null
+          fairness_report?: Json
+          first_place_nomination_id?: string | null
+          id?: string
+          published_at?: string | null
+          second_place_nomination_id?: string | null
+          tenant_id?: string
+          theme_id?: string
+          third_place_nomination_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "theme_results_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "award_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "theme_results_first_place_nomination_id_fkey"
+            columns: ["first_place_nomination_id"]
+            isOneToOne: false
+            referencedRelation: "nominations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "theme_results_second_place_nomination_id_fkey"
+            columns: ["second_place_nomination_id"]
+            isOneToOne: false
+            referencedRelation: "nominations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "theme_results_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "theme_results_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "award_themes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "theme_results_third_place_nomination_id_fkey"
+            columns: ["third_place_nomination_id"]
+            isOneToOne: false
+            referencedRelation: "nominations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       thought_reframes: {
         Row: {
           challenge_answers: Json | null
@@ -4216,6 +5047,105 @@ export type Database = {
             columns: ["validation_question_id"]
             isOneToOne: false
             referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      votes: {
+        Row: {
+          applied_weight: number | null
+          calculated_weighted_score: number | null
+          confidence_level: string | null
+          criteria_scores: Json
+          cycle_id: string
+          deleted_at: string | null
+          id: string
+          ip_hash: string | null
+          justifications: Json | null
+          nomination_id: string
+          relationship_to_nominee: Json
+          tenant_id: string
+          theme_id: string
+          time_spent_seconds: number | null
+          voted_at: string
+          voter_department_id: string | null
+          voter_id: string
+          voter_role: string | null
+        }
+        Insert: {
+          applied_weight?: number | null
+          calculated_weighted_score?: number | null
+          confidence_level?: string | null
+          criteria_scores?: Json
+          cycle_id: string
+          deleted_at?: string | null
+          id?: string
+          ip_hash?: string | null
+          justifications?: Json | null
+          nomination_id: string
+          relationship_to_nominee?: Json
+          tenant_id: string
+          theme_id: string
+          time_spent_seconds?: number | null
+          voted_at?: string
+          voter_department_id?: string | null
+          voter_id: string
+          voter_role?: string | null
+        }
+        Update: {
+          applied_weight?: number | null
+          calculated_weighted_score?: number | null
+          confidence_level?: string | null
+          criteria_scores?: Json
+          cycle_id?: string
+          deleted_at?: string | null
+          id?: string
+          ip_hash?: string | null
+          justifications?: Json | null
+          nomination_id?: string
+          relationship_to_nominee?: Json
+          tenant_id?: string
+          theme_id?: string
+          time_spent_seconds?: number | null
+          voted_at?: string
+          voter_department_id?: string | null
+          voter_id?: string
+          voter_role?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "votes_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "award_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "votes_nomination_id_fkey"
+            columns: ["nomination_id"]
+            isOneToOne: false
+            referencedRelation: "nominations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "votes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "votes_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "award_themes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "votes_voter_department_id_fkey"
+            columns: ["voter_department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
             referencedColumns: ["id"]
           },
         ]
