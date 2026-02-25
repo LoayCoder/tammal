@@ -17,18 +17,18 @@ export function useGamification(employeeId: string | null) {
       if (error) throw error;
       if (!entries || entries.length === 0) return { streak: 0, totalPoints: 0 };
 
-      // Calculate streak
+      // Calculate streak using UTC-only dates to avoid timezone bugs
       let streak = 0;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const now = new Date();
+      const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
 
       for (let i = 0; i < entries.length; i++) {
-        const entryDate = new Date(entries[i].entry_date);
-        entryDate.setHours(0, 0, 0, 0);
-        const expected = new Date(today);
-        expected.setDate(expected.getDate() - i);
+        // entry_date is a 'YYYY-MM-DD' string — parse as UTC
+        const [y, m, d] = entries[i].entry_date.split('-').map(Number);
+        const entryUTC = Date.UTC(y, m - 1, d);
+        const expectedUTC = todayUTC - i * 86400000; // i days ago
 
-        if (entryDate.getTime() === expected.getTime()) {
+        if (entryUTC === expectedUTC) {
           streak++;
         } else {
           break;

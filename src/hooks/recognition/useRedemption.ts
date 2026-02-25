@@ -83,27 +83,15 @@ export function useRedemptionRequests() {
   const redeem = useMutation({
     mutationFn: async ({ optionId, pointsCost }: { optionId: string; pointsCost: number }) => {
       if (!tenantId || !user?.id) throw new Error('Missing context');
-      // Create redemption request
-      const { data: req, error: reqErr } = await supabase
-        .from('redemption_requests')
-        .insert({ option_id: optionId, points_spent: pointsCost, user_id: user.id, tenant_id: tenantId })
-        .select()
-        .single();
-      if (reqErr) throw reqErr;
-      // Debit points
-      const { error: ptErr } = await supabase
-        .from('points_transactions')
-        .insert({
-          user_id: user.id,
-          tenant_id: tenantId,
-          amount: -pointsCost,
-          source_type: 'redemption',
-          source_id: req.id,
-          status: 'redeemed',
-          description: `Redeemed points for reward`,
-        });
-      if (ptErr) throw ptErr;
-      return req;
+      // Use atomic server-side function for balance check + max_per_year + insert
+      const { data, error } = await supabase.rpc('redeem_points', {
+        p_user_id: user.id,
+        p_tenant_id: tenantId,
+        p_option_id: optionId,
+        p_points_cost: pointsCost,
+      });
+      if (error) throw error;
+      return data; // returns the new request id
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['redemption-requests'] });

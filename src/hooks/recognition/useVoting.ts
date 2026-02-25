@@ -247,20 +247,22 @@ export function useVoting(cycleId?: string) {
         .select()
         .single();
       if (error) throw error;
+
+      // Award participation points for voting (inside mutationFn for proper error handling)
+      const { error: ptErr } = await supabase.from('points_transactions').insert({
+        user_id: user!.id,
+        tenant_id: tenantId,
+        amount: 5,
+        source_type: 'voter_participation',
+        status: 'credited',
+        description: 'Points earned for voting participation',
+      });
+      if (ptErr) console.warn('Voting points insert failed:', ptErr.message);
+
       return data;
     },
-    onSuccess: async () => {
-      // Award participation points for voting
-      if (tenantId && user?.id) {
-        await supabase.from('points_transactions').insert({
-          user_id: user.id,
-          tenant_id: tenantId,
-          amount: 5,
-          source_type: 'voter_participation',
-          status: 'credited',
-          description: 'Points earned for voting participation',
-        }).then(() => qc.invalidateQueries({ queryKey: ['points-transactions'] }));
-      }
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['points-transactions'] });
       qc.invalidateQueries({ queryKey: ['voting-ballots'] });
       qc.invalidateQueries({ queryKey: ['my-votes'] });
       toast.success(t('recognition.voting.submitSuccess'));

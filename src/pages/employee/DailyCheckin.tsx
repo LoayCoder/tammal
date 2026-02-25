@@ -104,8 +104,22 @@ export default function DailyCheckin() {
         });
       if (moodError) throw moodError;
 
+      // Bridge check-in points into the recognition points ledger
+      const { error: ptError } = await supabase
+        .from('points_transactions')
+        .insert({
+          user_id: employee.user_id!,
+          tenant_id: employee.tenant_id,
+          amount: points,
+          source_type: 'daily_checkin',
+          status: 'credited',
+          description: `Daily check-in streak reward`,
+        });
+      if (ptError) console.warn('Points ledger insert failed:', ptError.message);
+
       queryClient.invalidateQueries({ queryKey: ['gamification'] });
       queryClient.invalidateQueries({ queryKey: ['mood-entry-today'] });
+      queryClient.invalidateQueries({ queryKey: ['points-transactions'] });
 
       setAiTip(tip);
       setSubmitted(true);

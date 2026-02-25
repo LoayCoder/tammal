@@ -5441,6 +5441,15 @@ export type Database = {
       is_first_aider: { Args: { _user_id: string }; Returns: boolean }
       is_manager: { Args: { _user_id: string }; Returns: boolean }
       map_intent_to_risk: { Args: { p_intent: string }; Returns: string }
+      redeem_points: {
+        Args: {
+          p_option_id: string
+          p_points_cost: number
+          p_tenant_id: string
+          p_user_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "super_admin" | "tenant_admin" | "manager" | "user"
