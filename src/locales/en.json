@@ -2939,6 +2939,98 @@
       "visibilityBias": "Visibility Bias Correction",
       "publishRawScores": "Publish Raw Scores",
       "allowAppeals": "Allow Appeals"
+    },
+    "nominations": {
+      "nominate": "Nominate",
+      "nominateDesc": "Submit a nomination for an outstanding colleague",
+      "myNominations": "My Nominations",
+      "myNominationsDesc": "Track nominations you've sent and received",
+      "selectNominee": "Select Nominee",
+      "selectNomineeDesc": "Choose the employee you'd like to nominate and your relationship",
+      "selectEmployee": "Select an employee...",
+      "writeJustification": "Write Justification",
+      "justificationDesc": "Provide a detailed justification with evidence and impact",
+      "headline": "Headline",
+      "headlinePlaceholder": "A brief, compelling title for this nomination",
+      "justification": "Justification",
+      "justificationPlaceholder": "Describe why this person deserves recognition. Include specific examples, impact, and evidence...",
+      "charRange": "{{min}}-{{max}} characters required",
+      "examples": "Specific Examples",
+      "examplesPlaceholder": "One example per line",
+      "impactMetrics": "Impact Metrics",
+      "impactPlaceholder": "Quantifiable outcomes, one per line",
+      "review": "Review & Submit",
+      "submitNomination": "Submit Nomination",
+      "submitted": "Nomination submitted successfully!",
+      "submitSuccess": "Nomination submitted",
+      "submitError": "Failed to submit nomination",
+      "deleteSuccess": "Nomination withdrawn",
+      "deleteError": "Failed to withdraw nomination",
+      "yourRole": "Your Role",
+      "nominee": "Nominee",
+      "nominatedBy": "Nominated by",
+      "quota": "Manager Quota",
+      "quotaExhausted": "You've reached your nomination limit for this theme",
+      "quotaNote": "Managers can nominate up to {{percent}}% of their team ({{teamSize}} members)",
+      "noActiveCycles": "No active nomination cycles available right now",
+      "selectCycleTheme": "Select Cycle & Theme",
+      "selectCycleThemeDesc": "Choose which award cycle and theme to nominate for",
+      "cycle": "Award Cycle",
+      "selectCycle": "Select a cycle...",
+      "theme": "Award Theme",
+      "selectTheme": "Select a theme...",
+      "sent": "Sent",
+      "received": "Received",
+      "noSent": "You haven't submitted any nominations yet",
+      "noReceived": "No nominations received",
+      "skipForNow": "Skip for Now",
+      "steps": {
+        "select_nominee": "Nominee",
+        "justification": "Justification",
+        "endorsements": "Endorsements",
+        "review": "Review"
+      },
+      "status": {
+        "draft": "Draft",
+        "submitted": "Submitted",
+        "endorsed": "Endorsed",
+        "shortlisted": "Shortlisted",
+        "rejected": "Rejected"
+      },
+      "role": {
+        "manager": "Manager",
+        "peer": "Peer",
+        "self": "Self"
+      }
+    },
+    "endorsements": {
+      "title": "Peer Endorsements",
+      "desc": "Request endorsements from colleagues to strengthen the nomination",
+      "requestNote": "Endorsements can be requested after submission. Colleagues will be able to endorse from the nomination details page.",
+      "submitEndorsement": "Submit Endorsement",
+      "relationship": "Your Relationship",
+      "selectRelationship": "Select relationship...",
+      "confirmation": "Confirmation Statement",
+      "confirmationPlaceholder": "Confirm your support for this nomination with specific observations...",
+      "additionalContext": "Additional Context",
+      "contextPlaceholder": "Any additional information to support this endorsement...",
+      "submit": "Submit Endorsement",
+      "submitSuccess": "Endorsement submitted",
+      "submitError": "Failed to submit endorsement",
+      "invalid": "Invalid",
+      "relationships": {
+        "directColleague": "Direct Colleague",
+        "crossFunctional": "Cross-Functional",
+        "client": "Client",
+        "reportsTo": "Reports To",
+        "direct_colleague": "Direct Colleague",
+        "cross_functional": "Cross-Functional"
+      },
+      "status": {
+        "pending": "Pending",
+        "sufficient": "Sufficient",
+        "insufficient": "Insufficient"
+      }
     }
   }
 }
