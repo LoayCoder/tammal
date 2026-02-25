@@ -226,6 +226,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         { title: t('nav.usageBilling'), url: "/settings/usage", icon: BarChart3, access: 'admin' },
         { title: t('nav.brandManagement'), url: "/admin/branding", icon: Palette, access: 'admin' },
         { title: t('nav.documentSettings'), url: "/admin/docs", icon: FileText, access: 'admin' },
+        { title: t('crisisSupport.admin.title'), url: "/admin/crisis-settings", icon: Shield, access: 'admin' },
         { title: t('nav.auditLogs'), url: "/admin/audit-logs", icon: History, access: 'admin' },
       ]
     },
