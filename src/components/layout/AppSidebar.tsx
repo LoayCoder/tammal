@@ -168,9 +168,17 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       icon: Heart,
       items: [
         { title: t('nav.dailyCheckin'), url: "/", icon: Heart, access: 'employee' },
+      ]
+    },
+    {
+      label: t('crisisSupport.nav.firstAider'),
+      access: 'employee',
+      icon: HeartHandshake,
+      items: [
         { title: t('crisisSupport.nav.crisisSupport'), url: "/crisis-support", icon: Phone, access: 'employee' },
         { title: t('crisisSupport.nav.mySupport'), url: "/my-support", icon: Inbox, access: 'employee' },
         { title: t('crisisSupport.nav.firstAider'), url: "/first-aider", icon: HeartHandshake, access: 'employee' },
+        { title: t('crisisSupport.admin.title'), url: "/admin/crisis-settings", icon: Shield, access: 'admin' },
       ]
     },
     {
@@ -217,7 +225,6 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         { title: t('nav.userProfile'), url: "/settings/profile", icon: User },
         { title: t('nav.usageBilling'), url: "/settings/usage", icon: BarChart3, access: 'admin' },
         { title: t('nav.brandManagement'), url: "/admin/branding", icon: Palette, access: 'admin' },
-        { title: t('crisisSupport.admin.title'), url: "/admin/crisis-settings", icon: Shield, access: 'admin' },
         { title: t('nav.documentSettings'), url: "/admin/docs", icon: FileText, access: 'admin' },
         { title: t('nav.auditLogs'), url: "/admin/audit-logs", icon: History, access: 'admin' },
       ]
