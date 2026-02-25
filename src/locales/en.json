@@ -3031,6 +3031,26 @@
         "sufficient": "Sufficient",
         "insufficient": "Insufficient"
       }
+    },
+    "voting": {
+      "title": "Voting Booth",
+      "subtitle": "Score nominated candidates across judging criteria",
+      "noVotingCycles": "No award cycles are currently in the voting phase",
+      "progress": "Nominee {{current}} of {{total}}",
+      "submitVote": "Submit Vote",
+      "submitSuccess": "Vote submitted successfully",
+      "submitError": "Failed to submit vote",
+      "skip": "Skip",
+      "allDone": "All Votes Submitted!",
+      "allDoneDesc": "You've voted on all available nominations. Thank you for participating!",
+      "confidence": "Confidence Level",
+      "confidenceHigh": "High — I know this person's work well",
+      "confidenceMedium": "Medium — I have some familiarity",
+      "confidenceLow": "Low — Limited direct knowledge",
+      "extremeScoreRequired": "Justification required for extreme scores (1 or 5)",
+      "extremeScoreJustification": "Scores of 1 or 5 require at least 50 characters of justification",
+      "justificationPlaceholder": "Explain why you gave this extreme score...",
+      "charsMin": "characters minimum"
     }
   }
 }
