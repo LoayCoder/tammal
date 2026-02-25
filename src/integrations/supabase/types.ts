@@ -1260,13 +1260,17 @@ export type Database = {
           first_response_at: string | null
           id: string
           intent: string
+          matched_at: string | null
+          preferred_contact_method: string | null
           requester_user_id: string
           reroute_count: number
           resolved_at: string | null
           risk_level: string
+          scheduled_session_id: string | null
           status: string
           summary: string | null
           tenant_id: string
+          urgency_level: number | null
         }
         Insert: {
           accepted_at?: string | null
@@ -1277,13 +1281,17 @@ export type Database = {
           first_response_at?: string | null
           id?: string
           intent: string
+          matched_at?: string | null
+          preferred_contact_method?: string | null
           requester_user_id: string
           reroute_count?: number
           resolved_at?: string | null
           risk_level?: string
+          scheduled_session_id?: string | null
           status?: string
           summary?: string | null
           tenant_id: string
+          urgency_level?: number | null
         }
         Update: {
           accepted_at?: string | null
@@ -1294,13 +1302,17 @@ export type Database = {
           first_response_at?: string | null
           id?: string
           intent?: string
+          matched_at?: string | null
+          preferred_contact_method?: string | null
           requester_user_id?: string
           reroute_count?: number
           resolved_at?: string | null
           risk_level?: string
+          scheduled_session_id?: string | null
           status?: string
           summary?: string | null
           tenant_id?: string
+          urgency_level?: number | null
         }
         Relationships: [
           {
@@ -1308,6 +1320,13 @@ export type Database = {
             columns: ["assigned_first_aider_id"]
             isOneToOne: false
             referencedRelation: "mh_first_aiders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mh_crisis_cases_scheduled_session_id_fkey"
+            columns: ["scheduled_session_id"]
+            isOneToOne: false
+            referencedRelation: "mh_support_sessions"
             referencedColumns: ["id"]
           },
           {
@@ -1371,6 +1390,10 @@ export type Database = {
           created_at: string
           id: string
           message: string
+          message_type: string | null
+          reactions: Json | null
+          read_at: string | null
+          reply_to_id: string | null
           sender_user_id: string
           tenant_id: string
         }
@@ -1380,6 +1403,10 @@ export type Database = {
           created_at?: string
           id?: string
           message: string
+          message_type?: string | null
+          reactions?: Json | null
+          read_at?: string | null
+          reply_to_id?: string | null
           sender_user_id: string
           tenant_id: string
         }
@@ -1389,6 +1416,10 @@ export type Database = {
           created_at?: string
           id?: string
           message?: string
+          message_type?: string | null
+          reactions?: Json | null
+          read_at?: string | null
+          reply_to_id?: string | null
           sender_user_id?: string
           tenant_id?: string
         }
@@ -1398,6 +1429,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "mh_crisis_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mh_crisis_messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "mh_crisis_messages"
             referencedColumns: ["id"]
           },
           {
@@ -1513,6 +1551,57 @@ export type Database = {
           },
         ]
       }
+      mh_first_aider_availability: {
+        Row: {
+          created_at: string
+          date: string
+          deleted_at: string | null
+          external_busy_times: Json | null
+          first_aider_id: string
+          id: string
+          tenant_id: string
+          time_slots: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          deleted_at?: string | null
+          external_busy_times?: Json | null
+          first_aider_id: string
+          id?: string
+          tenant_id: string
+          time_slots?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          deleted_at?: string | null
+          external_busy_times?: Json | null
+          first_aider_id?: string
+          id?: string
+          tenant_id?: string
+          time_slots?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mh_first_aider_availability_first_aider_id_fkey"
+            columns: ["first_aider_id"]
+            isOneToOne: false
+            referencedRelation: "mh_first_aiders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mh_first_aider_availability_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mh_first_aider_schedule: {
         Row: {
           created_at: string
@@ -1570,7 +1659,9 @@ export type Database = {
       mh_first_aiders: {
         Row: {
           allow_anonymous_requests: boolean
+          availability_config: Json | null
           bio: string | null
+          calendar_integrations: Json | null
           contact_modes: Json | null
           created_at: string
           deleted_at: string | null
@@ -1580,14 +1671,20 @@ export type Database = {
           is_active: boolean
           languages: string[] | null
           max_active_cases: number
+          max_concurrent_sessions: number | null
+          rating: number | null
+          response_time_avg: number | null
           role_title: string | null
+          specializations: string[] | null
           tenant_id: string
           updated_at: string
           user_id: string
         }
         Insert: {
           allow_anonymous_requests?: boolean
+          availability_config?: Json | null
           bio?: string | null
+          calendar_integrations?: Json | null
           contact_modes?: Json | null
           created_at?: string
           deleted_at?: string | null
@@ -1597,14 +1694,20 @@ export type Database = {
           is_active?: boolean
           languages?: string[] | null
           max_active_cases?: number
+          max_concurrent_sessions?: number | null
+          rating?: number | null
+          response_time_avg?: number | null
           role_title?: string | null
+          specializations?: string[] | null
           tenant_id: string
           updated_at?: string
           user_id: string
         }
         Update: {
           allow_anonymous_requests?: boolean
+          availability_config?: Json | null
           bio?: string | null
+          calendar_integrations?: Json | null
           contact_modes?: Json | null
           created_at?: string
           deleted_at?: string | null
@@ -1614,7 +1717,11 @@ export type Database = {
           is_active?: boolean
           languages?: string[] | null
           max_active_cases?: number
+          max_concurrent_sessions?: number | null
+          rating?: number | null
+          response_time_avg?: number | null
           role_title?: string | null
+          specializations?: string[] | null
           tenant_id?: string
           updated_at?: string
           user_id?: string
@@ -1622,6 +1729,207 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "mh_first_aiders_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mh_secure_attachments: {
+        Row: {
+          access_log: Json | null
+          context: string
+          context_id: string | null
+          created_at: string
+          deleted_at: string | null
+          expires_at: string
+          filename: string
+          id: string
+          mime_type: string
+          size_bytes: number
+          storage_path: string
+          tenant_id: string
+          uploader_user_id: string
+          watermark_text: string | null
+        }
+        Insert: {
+          access_log?: Json | null
+          context?: string
+          context_id?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          expires_at: string
+          filename: string
+          id?: string
+          mime_type: string
+          size_bytes?: number
+          storage_path: string
+          tenant_id: string
+          uploader_user_id: string
+          watermark_text?: string | null
+        }
+        Update: {
+          access_log?: Json | null
+          context?: string
+          context_id?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          expires_at?: string
+          filename?: string
+          id?: string
+          mime_type?: string
+          size_bytes?: number
+          storage_path?: string
+          tenant_id?: string
+          uploader_user_id?: string
+          watermark_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mh_secure_attachments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mh_session_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          deleted_at: string | null
+          id: string
+          rater_user_id: string
+          rating: number
+          session_id: string
+          tenant_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          rater_user_id: string
+          rating: number
+          session_id: string
+          tenant_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          rater_user_id?: string
+          rating?: number
+          session_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mh_session_ratings_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "mh_support_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mh_session_ratings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mh_support_sessions: {
+        Row: {
+          actual_end: string | null
+          actual_start: string | null
+          calendar_event_id: string | null
+          call_record: Json | null
+          case_id: string | null
+          channel: string | null
+          chat_room_id: string | null
+          created_at: string
+          data_retention_until: string | null
+          deleted_at: string | null
+          first_aider_id: string
+          id: string
+          outcome: string | null
+          requester_user_id: string
+          scheduled_end: string | null
+          scheduled_start: string | null
+          session_notes: string | null
+          shared_resources: Json | null
+          status: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          actual_end?: string | null
+          actual_start?: string | null
+          calendar_event_id?: string | null
+          call_record?: Json | null
+          case_id?: string | null
+          channel?: string | null
+          chat_room_id?: string | null
+          created_at?: string
+          data_retention_until?: string | null
+          deleted_at?: string | null
+          first_aider_id: string
+          id?: string
+          outcome?: string | null
+          requester_user_id: string
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          session_notes?: string | null
+          shared_resources?: Json | null
+          status?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          actual_end?: string | null
+          actual_start?: string | null
+          calendar_event_id?: string | null
+          call_record?: Json | null
+          case_id?: string | null
+          channel?: string | null
+          chat_room_id?: string | null
+          created_at?: string
+          data_retention_until?: string | null
+          deleted_at?: string | null
+          first_aider_id?: string
+          id?: string
+          outcome?: string | null
+          requester_user_id?: string
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          session_notes?: string | null
+          shared_resources?: Json | null
+          status?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mh_support_sessions_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "mh_crisis_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mh_support_sessions_first_aider_id_fkey"
+            columns: ["first_aider_id"]
+            isOneToOne: false
+            referencedRelation: "mh_first_aiders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mh_support_sessions_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
