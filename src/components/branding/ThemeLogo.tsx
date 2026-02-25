@@ -15,14 +15,14 @@ export function ThemeLogo({
   logoDarkUrl,
   className = '',
   alt = 'Logo',
-  fallback,
+  fallback
 }: ThemeLogoProps) {
   const { theme } = useTheme();
 
   // Select logo based on current theme
-  const selectedLogo = theme === 'dark' 
-    ? (logoDarkUrl || logoUrl) 
-    : (logoLightUrl || logoUrl);
+  const selectedLogo = theme === 'dark' ?
+  logoDarkUrl || logoUrl :
+  logoLightUrl || logoUrl;
 
   if (!selectedLogo) {
     return fallback ? <>{fallback}</> : null;
@@ -31,8 +31,8 @@ export function ThemeLogo({
   return (
     <img
       src={selectedLogo}
-      alt={alt}
-      className={className}
-    />
-  );
+      alt={alt} className="object-contain" />);
+
+
+
 }
