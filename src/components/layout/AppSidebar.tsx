@@ -298,17 +298,21 @@ export function AppSidebar({ branding }: AppSidebarProps) {
             <React.Fragment key={group.label}>
             <SidebarGroup>
               <Collapsible defaultOpen={isGroupActive || isCollapsed} className="group/collapsible-group">
-                <SidebarGroupLabel asChild>
-                  <CollapsibleTrigger className="flex w-full items-center justify-between">
-                    <span className="flex items-center gap-1.5">
-                      <group.icon className="h-3.5 w-3.5" />
-                      {group.label}
-                    </span>
-                    {!isCollapsed && (
+                {isCollapsed ? (
+                  <div className="flex justify-center py-1">
+                    <group.icon className="h-4 w-4 text-sidebar-foreground/50" />
+                  </div>
+                ) : (
+                  <SidebarGroupLabel asChild>
+                    <CollapsibleTrigger className="flex w-full items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <group.icon className="h-3.5 w-3.5" />
+                        {group.label}
+                      </span>
                       <ChevronRight className="h-3 w-3 transition-transform duration-200 group-data-[state=open]/collapsible-group:rotate-90 rtl:-scale-x-100" />
-                    )}
-                  </CollapsibleTrigger>
-                </SidebarGroupLabel>
+                    </CollapsibleTrigger>
+                  </SidebarGroupLabel>
+                )}
                 <CollapsibleContent>
                   <SidebarGroupContent>
                     <SidebarMenu>
@@ -400,17 +404,21 @@ export function AppSidebar({ branding }: AppSidebarProps) {
             {isWellnessGroup && spiritualEnabled && (
               <SidebarGroup>
                 <Collapsible defaultOpen={location.pathname.startsWith('/spiritual') || isCollapsed} className="group/collapsible-group">
-                  <SidebarGroupLabel asChild>
-                    <CollapsibleTrigger className="flex w-full items-center justify-between">
-                      <span className="flex items-center gap-1.5">
-                        <Moon className="h-3.5 w-3.5" />
-                        {t('spiritual.nav.title')}
-                      </span>
-                      {!isCollapsed && (
+                  {isCollapsed ? (
+                    <div className="flex justify-center py-1">
+                      <Moon className="h-4 w-4 text-sidebar-foreground/50" />
+                    </div>
+                  ) : (
+                    <SidebarGroupLabel asChild>
+                      <CollapsibleTrigger className="flex w-full items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          <Moon className="h-3.5 w-3.5" />
+                          {t('spiritual.nav.title')}
+                        </span>
                         <ChevronRight className="h-3 w-3 transition-transform duration-200 group-data-[state=open]/collapsible-group:rotate-90 rtl:-scale-x-100" />
-                      )}
-                    </CollapsibleTrigger>
-                  </SidebarGroupLabel>
+                      </CollapsibleTrigger>
+                    </SidebarGroupLabel>
+                  )}
                   <CollapsibleContent>
                     <SidebarGroupContent>
                       <SidebarMenu>
