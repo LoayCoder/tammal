@@ -2821,6 +2821,98 @@
       "visibilityBias": "تصحيح تحيز الظهور",
       "publishRawScores": "نشر الدرجات الخام",
       "allowAppeals": "السماح بالطعون"
+    },
+    "nominations": {
+      "nominate": "ترشيح",
+      "nominateDesc": "قدّم ترشيحاً لزميل متميز",
+      "myNominations": "ترشيحاتي",
+      "myNominationsDesc": "تتبع الترشيحات المرسلة والمستلمة",
+      "selectNominee": "اختيار المرشح",
+      "selectNomineeDesc": "اختر الموظف الذي تود ترشيحه وعلاقتك به",
+      "selectEmployee": "اختر موظفاً...",
+      "writeJustification": "كتابة المبررات",
+      "justificationDesc": "قدّم مبررات مفصلة مع أدلة وتأثير",
+      "headline": "العنوان",
+      "headlinePlaceholder": "عنوان موجز ومقنع للترشيح",
+      "justification": "المبررات",
+      "justificationPlaceholder": "اشرح لماذا يستحق هذا الشخص التقدير. اذكر أمثلة محددة وتأثيراً وأدلة...",
+      "charRange": "مطلوب {{min}}-{{max}} حرف",
+      "examples": "أمثلة محددة",
+      "examplesPlaceholder": "مثال واحد لكل سطر",
+      "impactMetrics": "مقاييس التأثير",
+      "impactPlaceholder": "نتائج قابلة للقياس، واحدة لكل سطر",
+      "review": "مراجعة وإرسال",
+      "submitNomination": "إرسال الترشيح",
+      "submitted": "تم إرسال الترشيح بنجاح!",
+      "submitSuccess": "تم إرسال الترشيح",
+      "submitError": "فشل إرسال الترشيح",
+      "deleteSuccess": "تم سحب الترشيح",
+      "deleteError": "فشل سحب الترشيح",
+      "yourRole": "دورك",
+      "nominee": "المرشح",
+      "nominatedBy": "رشّحه",
+      "quota": "حصة المدير",
+      "quotaExhausted": "لقد وصلت إلى حد الترشيحات لهذا الموضوع",
+      "quotaNote": "يمكن للمديرين ترشيح حتى {{percent}}% من فريقهم ({{teamSize}} عضو)",
+      "noActiveCycles": "لا توجد دورات ترشيح نشطة حالياً",
+      "selectCycleTheme": "اختيار الدورة والموضوع",
+      "selectCycleThemeDesc": "اختر دورة الجائزة والموضوع للترشيح",
+      "cycle": "دورة الجائزة",
+      "selectCycle": "اختر دورة...",
+      "theme": "موضوع الجائزة",
+      "selectTheme": "اختر موضوعاً...",
+      "sent": "المرسلة",
+      "received": "المستلمة",
+      "noSent": "لم تقدّم أي ترشيحات بعد",
+      "noReceived": "لا توجد ترشيحات مستلمة",
+      "skipForNow": "تخطّي الآن",
+      "steps": {
+        "select_nominee": "المرشح",
+        "justification": "المبررات",
+        "endorsements": "التزكيات",
+        "review": "مراجعة"
+      },
+      "status": {
+        "draft": "مسودة",
+        "submitted": "مُرسل",
+        "endorsed": "مُزكّى",
+        "shortlisted": "قائمة قصيرة",
+        "rejected": "مرفوض"
+      },
+      "role": {
+        "manager": "مدير",
+        "peer": "زميل",
+        "self": "ذاتي"
+      }
+    },
+    "endorsements": {
+      "title": "تزكيات الزملاء",
+      "desc": "اطلب تزكيات من الزملاء لتقوية الترشيح",
+      "requestNote": "يمكن طلب التزكيات بعد الإرسال. سيتمكن الزملاء من التزكية من صفحة تفاصيل الترشيح.",
+      "submitEndorsement": "إرسال تزكية",
+      "relationship": "علاقتك",
+      "selectRelationship": "اختر العلاقة...",
+      "confirmation": "بيان التأكيد",
+      "confirmationPlaceholder": "أكّد دعمك لهذا الترشيح بملاحظات محددة...",
+      "additionalContext": "سياق إضافي",
+      "contextPlaceholder": "أي معلومات إضافية لدعم هذه التزكية...",
+      "submit": "إرسال التزكية",
+      "submitSuccess": "تم إرسال التزكية",
+      "submitError": "فشل إرسال التزكية",
+      "invalid": "غير صالح",
+      "relationships": {
+        "directColleague": "زميل مباشر",
+        "crossFunctional": "عبر الأقسام",
+        "client": "عميل",
+        "reportsTo": "يتبع لـ",
+        "direct_colleague": "زميل مباشر",
+        "cross_functional": "عبر الأقسام"
+      },
+      "status": {
+        "pending": "قيد الانتظار",
+        "sufficient": "كافية",
+        "insufficient": "غير كافية"
+      }
     }
   }
 }
