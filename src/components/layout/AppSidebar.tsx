@@ -250,7 +250,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
   return (
     <Sidebar variant="sidebar" collapsible="icon" side={isRTL ? "right" : "left"}>
       <SidebarHeader className="px-3 pt-4 pb-3">
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-end">
           {isCollapsed ? (
             <ThemeIcon
               iconLightUrl={branding.icon_light_url}
@@ -264,7 +264,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
               logoUrl={branding.logo_url}
               logoLightUrl={branding.logo_light_url}
               logoDarkUrl={branding.logo_dark_url}
-              className="h-14 max-w-[200px] object-contain"
+              className="h-10 max-w-[200px] object-contain"
               alt={t('branding.themeLogo')}
               fallback={
                 <div className="flex items-center gap-2">
