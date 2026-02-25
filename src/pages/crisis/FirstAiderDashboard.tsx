@@ -3,16 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { useCrisisCases, useCrisisMessages, useIsFirstAider, useFirstAiderSchedule } from '@/hooks/useCrisisSupport';
+import { useCrisisCases, useIsFirstAider, useFirstAiderSchedule } from '@/hooks/useCrisisSupport';
+import { useSupportSessions } from '@/hooks/crisis/useSessionScheduling';
 import { useAuth } from '@/hooks/useAuth';
-import { MessageSquare, Clock, Send, ArrowLeft, Check, X, AlertTriangle, Activity, Shield } from 'lucide-react';
-import { format } from 'date-fns';
-import { supabase } from '@/integrations/supabase/client';
+import { MessageSquare, Clock, Check, X, AlertTriangle, Shield, Star, Calendar, Timer, CircleDot } from 'lucide-react';
+import { format, isToday } from 'date-fns';
 import { toast } from 'sonner';
+import SessionWorkspace from '@/components/crisis/SessionWorkspace';
+
+type AiderStatus = 'available' | 'busy' | 'offline';
 
 export default function FirstAiderDashboard() {
   const { t } = useTranslation();
@@ -20,8 +20,10 @@ export default function FirstAiderDashboard() {
   const { isFirstAider, firstAiderId } = useIsFirstAider();
   const { cases, isLoading, updateCaseStatus } = useCrisisCases({ role: 'first_aider' });
   const { schedule, upsertSchedule } = useFirstAiderSchedule(firstAiderId || undefined);
+  const { sessions } = useSupportSessions(firstAiderId ? { firstAiderId } : undefined);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('pending');
+  const [aiderStatus, setAiderStatus] = useState<AiderStatus>('available');
 
   if (!isFirstAider) {
     return (
@@ -41,19 +43,42 @@ export default function FirstAiderDashboard() {
   const activeCases = myCases.filter(c => ['active', 'awaiting_user', 'awaiting_first_aider'].includes(c.status));
   const resolvedCases = myCases.filter(c => ['resolved', 'closed'].includes(c.status));
 
+  // Today's sessions
+  const todaySessions = sessions.filter(s => {
+    if (!s.scheduled_start) return false;
+    return isToday(new Date(s.scheduled_start)) && s.status !== 'cancelled';
+  });
+
+  // Calculate stats
+  const totalSessions = sessions.filter(s => s.status === 'completed').length;
+  const avgResponseMin = myCases.length > 0
+    ? Math.round(myCases.filter(c => c.first_response_at && c.created_at).reduce((sum, c) => {
+        const diff = new Date(c.first_response_at!).getTime() - new Date(c.created_at).getTime();
+        return sum + diff / 60000;
+      }, 0) / Math.max(myCases.filter(c => c.first_response_at).length, 1))
+    : 0;
+
   const selectedCase = myCases.find(c => c.id === selectedCaseId);
 
   if (selectedCase) {
-    return <FirstAiderCaseThread caseData={selectedCase} onBack={() => setSelectedCaseId(null)} />;
+    return (
+      <SessionWorkspace
+        caseId={selectedCase.id}
+        tenantId={selectedCase.tenant_id}
+        isFirstAider={true}
+        onBack={() => setSelectedCaseId(null)}
+      />
+    );
   }
 
-  const handleToggleUnavailable = async () => {
+  const handleStatusChange = async (newStatus: AiderStatus) => {
+    setAiderStatus(newStatus);
     if (!schedule || !firstAiderId) return;
     try {
       await upsertSchedule.mutateAsync({
         first_aider_id: firstAiderId,
         tenant_id: schedule.tenant_id,
-        temp_unavailable: !schedule.temp_unavailable,
+        temp_unavailable: newStatus === 'offline',
       });
       toast.success(t('common.success'));
     } catch {
@@ -61,9 +86,16 @@ export default function FirstAiderDashboard() {
     }
   };
 
+  const statusColors: Record<AiderStatus, string> = {
+    available: 'bg-chart-2 text-chart-2',
+    busy: 'bg-chart-3 text-chart-3',
+    offline: 'bg-muted-foreground text-muted-foreground',
+  };
+
   return (
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
+      {/* Header with 3-state status toggle */}
+      <div className="glass-card border-0 rounded-xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="bg-primary/10 rounded-lg p-2"><Shield className="h-6 w-6 text-primary" /></div>
           <div>
@@ -71,43 +103,104 @@ export default function FirstAiderDashboard() {
             <p className="text-muted-foreground">{t('crisisSupport.firstAider.subtitle')}</p>
           </div>
         </div>
-        {schedule && (
-          <div className="flex items-center gap-2">
-            <Label className="text-sm">{t('crisisSupport.firstAider.tempUnavailable')}</Label>
-            <Switch checked={schedule.temp_unavailable} onCheckedChange={handleToggleUnavailable} />
-          </div>
-        )}
+        <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
+          {(['available', 'busy', 'offline'] as AiderStatus[]).map(s => (
+            <button
+              key={s}
+              onClick={() => handleStatusChange(s)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                aiderStatus === s ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <CircleDot className={`h-3 w-3 ${statusColors[s]}`} />
+              {t(`crisisSupport.firstAider.status_${s}`)}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* Professional Stats Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Card className="glass-stat border-0 rounded-xl">
           <CardContent className="pt-6 text-center">
-            <p className="text-3xl font-bold">{activeCases.length}</p>
-            <p className="text-sm text-muted-foreground">{t('crisisSupport.firstAider.activeCases')}</p>
+            <div className="mx-auto w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
+              <MessageSquare className="h-5 w-5 text-primary" />
+            </div>
+            <p className="text-2xl font-bold">{activeCases.length}</p>
+            <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.activeCases')}</p>
           </CardContent>
         </Card>
         <Card className="glass-stat border-0 rounded-xl">
           <CardContent className="pt-6 text-center">
-            <p className="text-3xl font-bold">{pendingCases.length}</p>
-            <p className="text-sm text-muted-foreground">{t('crisisSupport.firstAider.pendingRequests')}</p>
+            <div className="mx-auto w-10 h-10 rounded-xl bg-chart-2/10 flex items-center justify-center mb-2">
+              <Check className="h-5 w-5 text-chart-2" />
+            </div>
+            <p className="text-2xl font-bold">{totalSessions}</p>
+            <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.totalSessions')}</p>
           </CardContent>
         </Card>
         <Card className="glass-stat border-0 rounded-xl">
           <CardContent className="pt-6 text-center">
-            <p className="text-3xl font-bold">{resolvedCases.length}</p>
-            <p className="text-sm text-muted-foreground">{t('crisisSupport.firstAider.resolvedCases')}</p>
+            <div className="mx-auto w-10 h-10 rounded-xl bg-chart-3/10 flex items-center justify-center mb-2">
+              <Timer className="h-5 w-5 text-chart-3" />
+            </div>
+            <p className="text-2xl font-bold">{avgResponseMin}<span className="text-sm font-normal text-muted-foreground">m</span></p>
+            <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.avgResponse')}</p>
+          </CardContent>
+        </Card>
+        <Card className="glass-stat border-0 rounded-xl">
+          <CardContent className="pt-6 text-center">
+            <div className="mx-auto w-10 h-10 rounded-xl bg-chart-4/10 flex items-center justify-center mb-2">
+              <Calendar className="h-5 w-5 text-chart-4" />
+            </div>
+            <p className="text-2xl font-bold">{todaySessions.length}</p>
+            <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.todaySessions')}</p>
           </CardContent>
         </Card>
       </div>
 
+      {/* Today's Schedule */}
+      {todaySessions.length > 0 && (
+        <Card className="glass-card border-0 rounded-xl">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-primary" />
+              {t('crisisSupport.firstAider.todaySchedule')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {todaySessions.map(session => (
+              <div key={session.id} className="flex items-center justify-between p-3 rounded-xl border border-border bg-background">
+                <div className="flex items-center gap-3">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">
+                      {session.scheduled_start ? format(new Date(session.scheduled_start), 'h:mm a') : '—'}
+                      {session.scheduled_end ? ` – ${format(new Date(session.scheduled_end), 'h:mm a')}` : ''}
+                    </p>
+                    <p className="text-xs text-muted-foreground capitalize">{session.channel} · {session.status}</p>
+                  </div>
+                </div>
+                {session.status === 'scheduled' && (
+                  <Button size="sm" className="rounded-xl">{t('crisisSupport.firstAider.joinSession')}</Button>
+                )}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Case Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="glass-tabs">
           <TabsTrigger value="pending" className="rounded-xl">
             {t('crisisSupport.firstAider.pending')}
             {pendingCases.length > 0 && <Badge variant="destructive" className="ms-1.5 text-xs">{pendingCases.length}</Badge>}
           </TabsTrigger>
-          <TabsTrigger value="active" className="rounded-xl">{t('crisisSupport.firstAider.active')}</TabsTrigger>
+          <TabsTrigger value="active" className="rounded-xl">
+            {t('crisisSupport.firstAider.active')}
+            {activeCases.length > 0 && <Badge variant="secondary" className="ms-1.5 text-xs">{activeCases.length}</Badge>}
+          </TabsTrigger>
           <TabsTrigger value="resolved" className="rounded-xl">{t('crisisSupport.firstAider.resolved')}</TabsTrigger>
         </TabsList>
 
@@ -139,16 +232,23 @@ export default function FirstAiderDashboard() {
   );
 }
 
+// ─── Case List ─────────────────────────────────────────────────────
 function CaseList({ cases, isLoading, onSelect, actions }: { cases: any[]; isLoading: boolean; onSelect: (id: string) => void; actions?: (c: any) => React.ReactNode }) {
   const { t } = useTranslation();
 
   if (isLoading) return <p className="text-muted-foreground py-8 text-center">{t('common.loading')}</p>;
   if (cases.length === 0) return <p className="text-muted-foreground py-8 text-center">{t('common.noData')}</p>;
 
+  const riskIndicator = (risk: string) => {
+    if (risk === 'high') return 'border-s-4 border-s-destructive';
+    if (risk === 'moderate') return 'border-s-4 border-s-chart-3';
+    return 'border-s-4 border-s-chart-2';
+  };
+
   return (
     <div className="space-y-3 mt-4">
       {cases.map(c => (
-        <Card key={c.id} className="glass-card border-0 rounded-xl cursor-pointer hover:bg-white/5 transition-colors" onClick={() => onSelect(c.id)}>
+        <Card key={c.id} className={`glass-card border-0 rounded-xl cursor-pointer hover:bg-white/5 transition-colors ${riskIndicator(c.risk_level)}`} onClick={() => onSelect(c.id)}>
           <CardContent className="py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -161,8 +261,11 @@ function CaseList({ cases, isLoading, onSelect, actions }: { cases: any[]; isLoa
                     <Badge variant={c.risk_level === 'high' ? 'destructive' : c.risk_level === 'moderate' ? 'secondary' : 'outline'} className="text-[10px]">
                       {c.risk_level}
                     </Badge>
+                    {c.urgency_level && (
+                      <Badge variant="outline" className="text-[10px]">U{c.urgency_level}</Badge>
+                    )}
                     <span className="text-xs text-muted-foreground">{format(new Date(c.created_at), 'MMM d, h:mm a')}</span>
-                    {c.anonymity_mode === 'anonymous' && <Badge variant="outline" className="text-[10px]">Anonymous</Badge>}
+                    {c.anonymity_mode === 'anonymous' && <Badge variant="outline" className="text-[10px]">{t('crisisSupport.request.anonymous')}</Badge>}
                   </div>
                 </div>
               </div>
@@ -171,92 +274,6 @@ function CaseList({ cases, isLoading, onSelect, actions }: { cases: any[]; isLoa
           </CardContent>
         </Card>
       ))}
-    </div>
-  );
-}
-
-function FirstAiderCaseThread({ caseData, onBack }: { caseData: any; onBack: () => void }) {
-  const { t } = useTranslation();
-  const { user } = useAuth();
-  const { messages, isLoading, sendMessage } = useCrisisMessages(caseData.id);
-  const { updateCaseStatus } = useCrisisCases();
-  const [newMessage, setNewMessage] = useState('');
-  const [sending, setSending] = useState(false);
-
-  const handleSend = async () => {
-    if (!newMessage.trim()) return;
-    setSending(true);
-    try {
-      await sendMessage.mutateAsync({
-        case_id: caseData.id,
-        tenant_id: caseData.tenant_id,
-        message: newMessage.trim(),
-      });
-      setNewMessage('');
-    } catch { /* handled */ } finally { setSending(false); }
-  };
-
-  const isActive = ['active', 'awaiting_user', 'awaiting_first_aider'].includes(caseData.status);
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={onBack}>
-          <ArrowLeft className="h-5 w-5 rtl:-scale-x-100" />
-        </Button>
-        <div className="flex-1">
-          <h2 className="font-semibold">{t(`crisisSupport.intents.${caseData.intent}`)}</h2>
-          <p className="text-xs text-muted-foreground">{caseData.anonymity_mode === 'anonymous' ? 'Anonymous' : ''} · {format(new Date(caseData.created_at), 'MMM d, yyyy')}</p>
-        </div>
-        {isActive && (
-          <Button size="sm" variant="outline" onClick={() => updateCaseStatus.mutateAsync({ id: caseData.id, status: 'resolved' })}>
-            <Check className="h-3 w-3 me-1" />{t('crisisSupport.firstAider.resolve')}
-          </Button>
-        )}
-      </div>
-
-      {caseData.summary && (
-        <Card className="glass-card border-0 rounded-xl">
-          <CardContent className="pt-4">
-            <p className="text-sm text-muted-foreground">{caseData.summary}</p>
-          </CardContent>
-        </Card>
-      )}
-
-      <Card className="glass-card border-0 rounded-xl min-h-[300px] flex flex-col">
-        <CardContent className="flex-1 pt-4 space-y-3 max-h-[400px] overflow-y-auto">
-          {messages.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8 text-sm">{t('crisisSupport.mySupport.noMessages')}</p>
-          ) : messages.map(msg => {
-            const isMe = msg.sender_user_id === user?.id;
-            return (
-              <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${isMe ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}>
-                  <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
-                  <p className={`text-[10px] mt-1 ${isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
-                    {format(new Date(msg.created_at), 'h:mm a')}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </CardContent>
-        {isActive && (
-          <div className="p-3 border-t border-border">
-            <div className="flex gap-2">
-              <Input
-                value={newMessage}
-                onChange={e => setNewMessage(e.target.value)}
-                placeholder={t('crisisSupport.mySupport.messagePlaceholder')}
-                onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
-              />
-              <Button size="icon" onClick={handleSend} disabled={sending || !newMessage.trim()}>
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        )}
-      </Card>
     </div>
   );
 }
