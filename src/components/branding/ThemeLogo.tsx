@@ -31,7 +31,7 @@ export function ThemeLogo({
   return (
     <img
       src={selectedLogo}
-      alt={alt} className="object-contain border-8" />);
+      alt={alt} className="object-contain border-0" />);
 
 
 
