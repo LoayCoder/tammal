@@ -38,9 +38,8 @@ export function usePoints() {
     enabled: !!tenantId && !!user?.id,
   });
 
-  // Balance = sum of all amounts (credits are positive, debits/redemptions are negative)
-  // Only count 'credited' and 'redeemed' status - expired originals are already 
-  // marked 'expired' and have corresponding negative debit records
+  // Balance = credits (positive, status='credited') + redemptions (negative, status='redeemed')
+  // Expired transactions are excluded since their status changes from 'credited' to 'expired'
   const balance = transactions
     .filter(t => t.status === 'credited' || t.status === 'redeemed')
     .reduce((sum, t) => sum + t.amount, 0);

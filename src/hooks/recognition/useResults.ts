@@ -55,11 +55,10 @@ export function useResults(cycleId?: string) {
     enabled: !!tenantId && !!cycleId,
   });
 
+  const resultIds = results.map(r => r.id);
   const { data: rankings = [], isLoading: rankingsLoading } = useQuery({
-    queryKey: ['nominee-rankings', tenantId, cycleId],
+    queryKey: ['nominee-rankings', tenantId, cycleId, resultIds],
     queryFn: async () => {
-      if (!cycleId) return [];
-      const resultIds = results.map(r => r.id);
       if (!resultIds.length) return [];
       const { data, error } = await supabase
         .from('nominee_rankings')
@@ -70,7 +69,7 @@ export function useResults(cycleId?: string) {
       if (error) throw error;
       return (data || []) as unknown as NomineeRanking[];
     },
-    enabled: !!tenantId && !!cycleId && results.length > 0,
+    enabled: !!tenantId && !!cycleId && resultIds.length > 0,
   });
 
   const calculateResults = useMutation({
