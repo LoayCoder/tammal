@@ -1,303 +1,151 @@
 
 
-# First Aider System Upgrade -- Implementation Plan
+# Employee Recognition & Awards System
 
 ## Overview
-
-This plan transforms the existing basic crisis support system into a professional-grade support platform across 6 phases. Given the scope, we'll implement incrementally, with each phase delivering usable value.
-
----
-
-## Phase 1: Database Schema Upgrades
-
-Add new columns and tables to support smart matching, scheduling, sessions, and secure attachments.
-
-### Migration SQL
-
-**Enhance `mh_first_aiders`** -- add specializations, languages (already exists as column), rating, response time average, calendar integration config, and availability config.
-
-**New table: `mh_support_sessions`** -- tracks scheduled and live sessions between employees and first aiders, including scheduling times, communication channel, session notes, outcome, and data retention policy.
-
-**New table: `mh_secure_attachments`** -- encrypted file metadata with expiry, access logs, watermark text, and storage path in a private bucket.
-
-**New table: `mh_session_ratings`** -- post-session employee feedback (1-5 rating + optional comment).
-
-**New table: `mh_first_aider_availability`** -- daily time-slot availability merged from built-in rules and external calendar busy times.
-
-**Enhance `mh_crisis_cases`** -- add `urgency_level` (1-5), `preferred_contact_method`, `matched_at`, `scheduled_session_id`.
-
-**New storage bucket**: `support-attachments` (private) for secure file uploads.
-
-All tables include `tenant_id`, `deleted_at` (soft delete), and appropriate RLS policies following existing patterns.
+A comprehensive recognition platform with award cycles, nominations, peer endorsements, multi-criteria voting, fairness auditing, and a points economy with redemption catalog. This is a large feature that will be implemented in **6 phases**.
 
 ---
 
-## Phase 2: Smart Matching Engine
+## Phase 1: Database Schema & Storage
 
-### Edge Function: `match-first-aider`
+Create all core tables adapted to the project's multi-tenant architecture (every table gets `tenant_id` + `deleted_at` for soft deletes + RLS policies).
 
-An AI-powered matching function that scores available first aiders using multiple factors:
+**Tables to create:**
+- `award_cycles` -- cycle configuration, timeline, fairness config, status workflow
+- `award_themes` -- themes within a cycle, nomination/voting rules, rewards config
+- `judging_criteria` -- weighted criteria per theme with scoring guides
+- `nominations` -- nominee/nominator, justification, AI analysis, endorsement status
+- `nomination_attachments` -- evidence files linked to nominations
+- `peer_endorsements` -- endorser confirmation, relationship type, validation
+- `votes` -- multi-criteria scores, voter weight, justifications for extreme scores
+- `theme_results` -- winners, fairness report, appeal status
+- `nominee_rankings` -- detailed scoring breakdown per nominee
+- `appeals` -- post-result dispute handling
+- `points_transactions` -- points ledger (credits, debits, expiry)
+- `redemption_options` -- catalog of rewards
+- `redemption_requests` -- employee redemption tracking
 
-```text
-Score = (Specialization match x 30%) 
-      + (Language match x 20%) 
-      + (Current load inverse x 20%) 
-      + (Response time history x 15%) 
-      + (Rating x 15%)
-```
-
-Uses Lovable AI (`google/gemini-3-flash-preview`) to analyze the employee's intent/summary and match against first aider specializations when simple keyword matching is insufficient.
-
-### Hook: `useSmartMatching`
-
-- Replaces the current `auto_assign_crisis_case` RPC for non-urgent cases
-- Provides `matchFirstAider(caseId)` mutation
-- Returns ranked list of matches with scores for transparency
-
-### UI Updates
-
-- **`CrisisRequestPage.tsx`**: Add urgency selector (1-5 scale with clear labels), preferred contact method (chat/voice/video), and preference fields (language, gender preference)
-- Show matched first aider profile with rating, specializations, languages before confirmation
-
----
-
-## Phase 3: Professional Scheduling System
-
-### New Components
-
-**`FirstAiderAvailabilityManager.tsx`**
-- Visual weekly grid editor (drag to set available hours)
-- Max daily sessions limit
-- Advance booking window configuration (e.g., 2 weeks)
-- Minimum notice rules (e.g., 4 hours for non-urgent)
-- Emergency override toggle
-- External calendar sync status indicator
-
-**`EmployeeBookingWidget.tsx`**
-- Visual calendar showing available slots for the matched first aider
-- One-click booking with instant confirmation
-- Timezone auto-detection using `Intl.DateTimeFormat`
-- Buffer time (15 min between sessions) automatically applied
-- Reschedule / Cancel with notification to both parties
-
-**`SessionWorkspace.tsx`**
-- Unified view for the active session (chat panel + session info)
-- Quick-access guidance protocols sidebar
-- Secure note-taking area (first aider only)
-- One-click escalation tools
-- Post-session outcome logging (resolved / escalated / follow-up needed)
-- Session timer display
-
-### Calendar Integration (External)
-
-**Edge Function: `calendar-sync`**
-- Google Calendar connector via Lovable connector system
-- Fetches free/busy data only (privacy-preserving -- no meeting titles)
-- Writes booked sessions back as calendar events
-- Webhook endpoint for real-time updates
-
-### Hook: `useSessionScheduling`
-- `getAvailableSlots(firstAiderId, dateRange)` -- merges built-in availability with external busy times
-- `bookSession(firstAiderId, slot)` -- creates session + calendar event
-- `rescheduleSession(sessionId, newSlot)` -- updates with notifications
-- `cancelSession(sessionId)` -- with reason tracking
+**Adaptations from the spec:**
+- Replace `REFERENCES users(id)` with `REFERENCES profiles(user_id)` or raw UUID (no FK to auth.users)
+- Replace `CHECK` constraints with validation triggers (per project standards)
+- Add `tenant_id` to every table with RLS using `get_user_tenant_id(auth.uid())`
+- Add `deleted_at` column for soft deletes
+- Create a `recognition-attachments` storage bucket
 
 ---
 
-## Phase 4: Enhanced Communication Platform
+## Phase 2: Core Hooks & Award Cycle Management (Admin)
 
-### Real-time Chat Upgrade
+**Files to create:**
+- `src/hooks/recognition/useAwardCycles.ts` -- CRUD for cycles + status advancement
+- `src/hooks/recognition/useAwardThemes.ts` -- theme management within a cycle
+- `src/hooks/recognition/useJudgingCriteria.ts` -- criteria CRUD per theme
+- `src/pages/admin/RecognitionManagement.tsx` -- admin landing page with cycle list
+- `src/components/recognition/CycleBuilder.tsx` -- multi-step wizard (Basics, Themes, Fairness, Review)
+- `src/components/recognition/ThemeBuilder.tsx` -- theme card editor with rules config
+- `src/components/recognition/CriteriaEditor.tsx` -- weighted criteria with scoring guide
+- `src/components/recognition/CycleStatusBadge.tsx` -- status indicator component
+- `src/components/recognition/CycleTimeline.tsx` -- visual timeline of cycle phases
 
-**Database changes:**
-- Enable Supabase Realtime on `mh_crisis_messages` (replace 5s polling)
-- Add columns: `message_type` (text/voice_note/image/system), `read_at`, `reactions` (jsonb), `reply_to_id`
+**Route:** `/admin/recognition` (AdminRoute-protected)
 
-**New Components:**
-
-**`EnhancedChatPanel.tsx`**
-- Real-time message streaming via Supabase Realtime subscriptions
-- Typing indicators (presence channel)
-- Read receipts (blue checkmarks)
-- Message reactions (emoji picker)
-- Reply-to-message threading
-- Voice note recording (MediaRecorder API + upload to `support-attachments` bucket)
-- Inline image/attachment preview with secure upload
-- Auto-scroll with "new messages" indicator
-- Message grouping by time
-
-**`VoiceCallPanel.tsx`** (WebRTC)
-- Peer-to-peer audio using WebRTC
-- Signaling via Supabase Realtime broadcast channel
-- STUN servers (free Google STUN)
-- Call UI: mute, speaker, end call, duration timer
-- Push notification for incoming calls
-
-**`VideoCallPanel.tsx`** (WebRTC)
-- Extends voice with video streams
-- Camera toggle, background blur (using Canvas API)
-- Screen sharing via `getDisplayMedia()`
-- Picture-in-picture mode
-- Virtual waiting room before join
-
-### Edge Function: `signaling-relay`
-- WebRTC offer/answer/ICE candidate exchange
-- Session recording consent management
-- Call metadata logging (duration, type)
-
-### Push Notifications
-- Leverage existing `usePushNotifications` hook
-- Add notification types: incoming_call, session_reminder (15 min before), new_message_urgent
+**Sidebar:** Add "Recognition" item under a new "Recognition & Awards" group in the sidebar.
 
 ---
 
-## Phase 5: Secure Data Sharing
+## Phase 3: Nomination & Endorsement System
 
-### Storage Setup
-- Private `support-attachments` bucket with RLS
-- Max file size: 10MB
-- Allowed types: images, PDFs, audio (voice notes)
+**Files to create:**
+- `src/hooks/recognition/useNominations.ts` -- submit, list, filter nominations
+- `src/hooks/recognition/useEndorsements.ts` -- submit/list peer endorsements
+- `src/pages/recognition/NominatePage.tsx` -- employee-facing nomination wizard
+- `src/pages/recognition/MyNominationsPage.tsx` -- view sent/received nominations
+- `src/components/recognition/NominationWizard.tsx` -- 4-step wizard (Select Nominee, Write Justification, Request Endorsements, Review & Submit)
+- `src/components/recognition/EndorsementCard.tsx` -- endorsement request/response UI
+- `src/components/recognition/NominationCard.tsx` -- nomination display with status
+- `src/components/recognition/QuotaIndicator.tsx` -- manager nomination quota display
 
-### Edge Function: `secure-upload`
-- Server-side upload with metadata recording
-- Auto-expiry date calculation (30 days default, configurable)
-- Access log entry on every view
-- Watermark text generation (viewer identifier)
-
-### New Components
-
-**`SecureAttachmentUploader.tsx`**
-- Drag-drop upload with progress bar
-- File type validation (client + server)
-- Encryption indicator badge
-- Auto-expiry countdown display
-
-**`SecureAttachmentViewer.tsx`**
-- Browser-only render (no download button)
-- Watermarked image display
-- Access log viewing (for first aiders/admins)
-- "Encrypted - Auto-deleted in X days" indicator
-- Revoke access button
+**Key logic:**
+- Manager quota enforcement (max 30% of team for teams 5+)
+- Minimum word count validation on justification (200-10,000 chars)
+- Cross-department evidence capture
+- Endorsement counting toward "sufficient" threshold
 
 ---
 
-## Phase 6: Professional Dashboard UI
+## Phase 4: Voting System
 
-### Employee Experience
+**Files to create:**
+- `src/hooks/recognition/useVoting.ts` -- ballot fetching, vote submission, weight calculation
+- `src/pages/recognition/VotingBoothPage.tsx` -- employee voting interface
+- `src/components/recognition/VotingBooth.tsx` -- sequential nominee scoring
+- `src/components/recognition/CriterionScorer.tsx` -- individual criterion slider/selector
+- `src/components/recognition/JustificationPanel.tsx` -- mandatory justification for scores of 1 or 5
+- `src/components/recognition/VotingProgress.tsx` -- progress bar across nominees
 
-**Upgrade `CrisisRequestPage.tsx`**
-- Visual category selector with icons (Physical Injury, Mental Health, Work Safety, Personal Crisis)
-- Urgency indicator with clear time expectations per level
-- First aider profile cards: photo, rating (stars), languages, specializations, availability status
-- "Chat Now" vs "Schedule Later" split action
-- Inline secure attachment upload
-
-**New: `MySupportSessions.tsx`**
-- Session history with continuity (grouped by case)
-- Follow-up scheduling from resolved sessions
-- Shared session notes (read-only for employee)
-- Resource library access (links shared during sessions)
-
-### First Aider Experience
-
-**Upgrade `FirstAiderDashboard.tsx`**
-- Professional stats cards: Total sessions, Average rating, Average response time, This week's sessions
-- Today's schedule with "Join" buttons for upcoming sessions
-- Active chats with priority indicators (high risk = red, moderate = amber)
-- Quick status toggle: Available / Busy / Offline (3-state)
-- Calendar sync status with last-synced timestamp
-- Session workspace launcher
-
-**New: `SessionWorkspace.tsx`**
-- Split-panel: chat/call on left, tools on right
-- Quick-access guidance protocol cards
-- Secure note-taking with auto-save
-- One-click escalation to emergency contacts
-- Post-session outcome form (resolved/escalated/follow-up)
-- Rating request trigger
-
-### Admin Experience
-
-**Upgrade `CrisisSettings.tsx`** -- new "Sessions" tab
-- Session analytics: average duration, resolution rate, satisfaction scores
-- First aider performance leaderboard
-- Matching algorithm tuning (weight sliders)
-- Data retention policy configuration
-- Attachment audit log viewer
+**Key logic:**
+- Voter weight calculation based on relationship, department proximity, and history
+- Extreme score justification enforcement (min 50 chars)
+- One vote per voter per nomination (unique constraint)
+- Participation points awarded on vote submission
 
 ---
 
-## Translation Keys
+## Phase 5: Results, Fairness & Appeals
 
-Approximately 80-100 new keys added to both `en.json` and `ar.json` covering:
-- Smart matching UI labels
-- Scheduling/booking flow
-- Communication features (typing, read receipts, call UI)
-- Secure attachments
-- Session workspace
-- Professional dashboard stats
-- New settings/admin labels
+**Files to create:**
+- `src/hooks/recognition/useResults.ts` -- fetch results, rankings, fairness reports
+- `src/hooks/recognition/useAppeals.ts` -- submit/review appeals
+- `supabase/functions/calculate-recognition-results/index.ts` -- edge function for score calculation, bias detection, clique analysis, demographic parity
+- `src/pages/admin/RecognitionResults.tsx` -- admin results & fairness dashboard
+- `src/components/recognition/FairnessReport.tsx` -- demographic parity charts, clique detection cards, anomaly table
+- `src/components/recognition/RankingsTable.tsx` -- detailed nominee rankings with score breakdown
+- `src/components/recognition/AppealForm.tsx` -- appeal submission for employees
+- `src/components/recognition/WinnerAnnouncement.tsx` -- celebration UI for announced results
+
+**Edge function logic:**
+- Weighted average score calculation per nomination
+- Clique detection (mutual nomination patterns across cycles)
+- Visibility bias correction for remote workers
+- Vote anomaly detection
+- Confidence interval calculation
 
 ---
 
-## File Summary
+## Phase 6: Points Economy & Redemption
 
-### New Files (~15)
-- `supabase/migrations/[timestamp]_first_aider_upgrade.sql`
-- `supabase/functions/match-first-aider/index.ts`
-- `supabase/functions/calendar-sync/index.ts`
-- `supabase/functions/secure-upload/index.ts`
-- `supabase/functions/signaling-relay/index.ts`
-- `src/hooks/crisis/useSmartMatching.ts`
-- `src/hooks/crisis/useSessionScheduling.ts`
-- `src/hooks/crisis/useEnhancedChat.ts`
-- `src/hooks/crisis/useWebRTC.ts`
-- `src/hooks/crisis/useSecureAttachments.ts`
-- `src/components/crisis/EnhancedChatPanel.tsx`
-- `src/components/crisis/VoiceCallPanel.tsx`
-- `src/components/crisis/VideoCallPanel.tsx`
-- `src/components/crisis/SecureAttachmentUploader.tsx`
-- `src/components/crisis/SecureAttachmentViewer.tsx`
-- `src/components/crisis/FirstAiderAvailabilityManager.tsx`
-- `src/components/crisis/EmployeeBookingWidget.tsx`
-- `src/components/crisis/SessionWorkspace.tsx`
-- `src/pages/crisis/MySupportSessions.tsx`
+**Files to create:**
+- `src/hooks/recognition/usePoints.ts` -- balance, transaction history, redemption
+- `src/hooks/recognition/useRedemption.ts` -- catalog browsing, redemption requests
+- `src/pages/recognition/PointsDashboard.tsx` -- employee points balance & history
+- `src/pages/recognition/RedemptionCatalog.tsx` -- browsable reward catalog
+- `src/pages/admin/RedemptionManagement.tsx` -- admin: manage options, approve requests
+- `src/components/recognition/PointsBalanceCard.tsx` -- current balance display
+- `src/components/recognition/TransactionHistory.tsx` -- points ledger table
+- `src/components/recognition/RedemptionCard.tsx` -- individual reward option card
+- `supabase/functions/expire-recognition-points/index.ts` -- cron-triggered point expiry
 
-### Modified Files (~10)
-- `src/pages/crisis/CrisisRequestPage.tsx`
-- `src/pages/crisis/FirstAiderDashboard.tsx`
-- `src/pages/crisis/MySupportPage.tsx`
-- `src/pages/admin/CrisisSettings.tsx`
-- `src/hooks/crisis/useCrisisSupport.ts`
-- `src/components/crisis/FirstAidersTab.tsx`
-- `src/components/crisis/SchedulesTab.tsx`
-- `src/App.tsx` (new routes)
-- `src/components/layout/AppSidebar.tsx` (new nav items)
-- `src/locales/en.json` and `src/locales/ar.json`
+**Cron job:** Weekly point expiry check via `pg_cron` + `pg_net` calling the edge function.
+
+---
+
+## Localization
+
+All phases include adding translation keys to both `src/locales/en.json` and `src/locales/ar.json` under a `recognition` namespace covering cycle management, nominations, voting, results, points, and redemption flows. All UI uses `ms-`/`me-`/`ps-`/`pe-` logical properties per RTL standards.
 
 ---
 
 ## Implementation Order
 
-Due to the size, implementation will proceed in this order:
+| Phase | Scope | Estimated Complexity |
+|-------|-------|---------------------|
+| 1 | Database schema, RLS, storage bucket | High (13 tables + policies) |
+| 2 | Award cycle admin UI + hooks | Medium |
+| 3 | Nomination & endorsement system | Medium-High |
+| 4 | Voting booth & scoring | Medium |
+| 5 | Results calculation, fairness, appeals | High (edge function + AI) |
+| 6 | Points economy & redemption | Medium |
 
-1. **Database migration** (all new tables/columns at once)
-2. **Smart matching** (edge function + hook + request page upgrade)
-3. **Scheduling** (availability manager + booking widget + sessions)
-4. **Enhanced chat** (realtime + typing + reactions + voice notes)
-5. **WebRTC calls** (voice + video panels + signaling)
-6. **Secure attachments** (upload + viewer + expiry)
-7. **Professional dashboards** (first aider + employee + admin)
-8. **Translations** (all new keys)
-
----
-
-## External Dependencies
-
-| Feature | Requirement | Status |
-|---------|------------|--------|
-| AI Matching | Lovable AI (gemini-3-flash-preview) | Ready (LOVABLE_API_KEY exists) |
-| Google Calendar | Google connector via Lovable | Needs user to connect |
-| WebRTC STUN | Google public STUN servers | Free, no setup |
-| WebRTC TURN | Needed for restrictive networks | Optional, can add later |
-| Push Notifications | Existing PWA service worker | Already implemented |
+Each phase will be implemented sequentially. Say **NEXT** after each phase to proceed.
 
