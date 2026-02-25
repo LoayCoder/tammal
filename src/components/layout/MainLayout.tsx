@@ -8,6 +8,7 @@ import { useBrandingColors } from "@/hooks/branding/useBrandingColors";
 import { useDynamicFavicon } from "@/hooks/branding/useDynamicFavicon";
 import { useDynamicPWA } from "@/hooks/branding/useDynamicPWA";
 import { useTenantId } from "@/hooks/org/useTenantId";
+import { PWAInstallBanner } from "@/components/pwa/PWAInstallBanner";
 
 export function MainLayout() {
   const { tenantId } = useTenantId();
@@ -22,6 +23,7 @@ export function MainLayout() {
       <div className="flex min-h-screen w-full overflow-hidden">
         <AppSidebar branding={branding} />
         <div className="flex flex-1 flex-col min-w-0">
+          <PWAInstallBanner />
           <Header />
           <main className="relative flex-1 overflow-x-hidden p-4 md:p-6">
             {/* Decorative gradient blobs for glass depth */}

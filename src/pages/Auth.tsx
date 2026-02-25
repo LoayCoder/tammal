@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageSelector } from '@/components/LanguageSelector';
+import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner';
 
 export default function Auth() {
   const { t } = useTranslation();
@@ -105,6 +106,7 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <PWAInstallBanner />
       <div className="flex justify-end gap-2 p-4">
         <LanguageSelector />
         <ThemeToggle />
