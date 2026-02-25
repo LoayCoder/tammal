@@ -53,11 +53,16 @@ export function Header() {
   };
 
   const breadcrumbs = getBreadcrumbs();
+  const currentPageTitle = breadcrumbs[breadcrumbs.length - 1]?.label;
 
   return (
     <header className="glass-header sticky top-0 z-50 flex h-14 items-center gap-4 px-4">
-      <SidebarTrigger className="-ms-2" />
+      <SidebarTrigger className="-ms-2 min-w-[44px] min-h-[44px]" />
       
+      {/* Mobile: simple page title */}
+      <span className="md:hidden text-sm font-semibold truncate">{currentPageTitle}</span>
+
+      {/* Desktop: breadcrumbs */}
       <Breadcrumb className="hidden md:flex">
         <BreadcrumbList>
           {breadcrumbs.map((crumb, index) => (
@@ -77,7 +82,7 @@ export function Header() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="ms-auto flex items-center gap-2">
+      <div className="ms-auto flex items-center gap-1 md:gap-2">
         <NotificationBell />
         <LanguageSelector />
         <ThemeToggle />

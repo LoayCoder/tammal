@@ -278,8 +278,23 @@ All colors MUST be HSL.
 @supports (padding: env(safe-area-inset-top)) {
   body {
     padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
+    padding-inline-start: env(safe-area-inset-left);
+    padding-inline-end: env(safe-area-inset-right);
+  }
+}
+
+/* PWA standalone mode enhancements */
+@media (display-mode: standalone) {
+  body {
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Touch-friendly tap targets */
+@layer utilities {
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
   }
 }

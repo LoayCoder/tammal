@@ -9,6 +9,7 @@ import { useDynamicFavicon } from "@/hooks/branding/useDynamicFavicon";
 import { useDynamicPWA } from "@/hooks/branding/useDynamicPWA";
 import { useTenantId } from "@/hooks/org/useTenantId";
 import { PWAInstallBanner } from "@/components/pwa/PWAInstallBanner";
+import { MobileBottomNav } from "./MobileBottomNav";
 
 export function MainLayout() {
   const { tenantId } = useTenantId();
@@ -25,7 +26,7 @@ export function MainLayout() {
         <div className="flex flex-1 flex-col min-w-0">
           <PWAInstallBanner />
           <Header />
-          <main className="relative flex-1 overflow-x-hidden p-4 md:p-6">
+          <main className="relative flex-1 overflow-x-hidden p-4 md:p-6 pb-20 md:pb-6">
             {/* Decorative gradient blobs for glass depth */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
               <div className="absolute -top-24 -start-24 h-[500px] w-[500px] rounded-full bg-primary/15 blur-[120px]" />
@@ -37,6 +38,7 @@ export function MainLayout() {
               <Outlet />
             </div>
           </main>
+          <MobileBottomNav />
         </div>
       </div>
     </SidebarProvider>

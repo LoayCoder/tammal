@@ -20,6 +20,8 @@ import {
 import { MoreHorizontal, Shield, UserCog, Pencil, UserX, Ban, UserCheck, Trash2 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import type { UserWithRoles } from '@/hooks/useUsers';
+import { useIsMobile } from '@/hooks/ui/use-mobile';
+import { UserMobileCard } from './UserMobileCard';
 
 interface UserTableProps {
   users: UserWithRoles[];
@@ -46,6 +48,7 @@ export function UserTable({
 }: UserTableProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
+  const isMobile = useIsMobile();
 
   const getInitials = (name: string | null) => {
     if (!name) return '?';
@@ -73,26 +76,18 @@ export function UserTable({
 
   const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
     switch (status) {
-      case 'active':
-        return 'default';
-      case 'inactive':
-        return 'secondary';
-      case 'suspended':
-        return 'destructive';
-      default:
-        return 'outline';
+      case 'active': return 'default';
+      case 'inactive': return 'secondary';
+      case 'suspended': return 'destructive';
+      default: return 'outline';
     }
   };
 
   const getRoleBadges = (user: UserWithRoles) => {
-    const roles = user.user_roles
-      ?.filter(ur => ur.roles)
-      .map(ur => ur.roles!);
-
+    const roles = user.user_roles?.filter(ur => ur.roles).map(ur => ur.roles!);
     if (!roles || roles.length === 0) {
       return <Badge variant="outline" className="text-muted-foreground">{t('users.noRoles')}</Badge>;
     }
-
     return roles.map(role => (
       <Badge
         key={role.id}
@@ -123,6 +118,28 @@ export function UserTable({
     );
   }
 
+  // Mobile: card layout
+  if (isMobile) {
+    return (
+      <div className="space-y-3">
+        {users.map((user) => (
+          <UserMobileCard
+            key={user.id}
+            user={user}
+            onEditRoles={onEditRoles}
+            onViewDetails={onViewDetails}
+            onEdit={onEdit}
+            onDeactivate={onDeactivate}
+            onSuspend={onSuspend}
+            onReactivate={onReactivate}
+            onDelete={onDelete}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  // Desktop: table layout
   return (
     <Table>
       <TableHeader>
@@ -156,9 +173,7 @@ export function UserTable({
               </Badge>
             </TableCell>
             <TableCell>
-              <div className="flex flex-wrap gap-1">
-                {getRoleBadges(user)}
-              </div>
+              <div className="flex flex-wrap gap-1">{getRoleBadges(user)}</div>
             </TableCell>
             <TableCell>
               {user.user_roles?.map(ur => (
@@ -179,40 +194,34 @@ export function UserTable({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onViewDetails(user); }}>
-                    <UserCog className="me-2 h-4 w-4" />
-                    {t('users.viewDetails')}
+                    <UserCog className="me-2 h-4 w-4" />{t('users.viewDetails')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEditRoles(user); }}>
-                    <Shield className="me-2 h-4 w-4" />
-                    {t('users.manageRoles')}
+                    <Shield className="me-2 h-4 w-4" />{t('users.manageRoles')}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   {onEdit && (
                     <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(user); }}>
-                      <Pencil className="me-2 h-4 w-4" />
-                      {t('users.editUser')}
+                      <Pencil className="me-2 h-4 w-4" />{t('users.editUser')}
                     </DropdownMenuItem>
                   )}
                   {user.status === 'active' ? (
                     <>
                       {onDeactivate && (
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDeactivate(user); }}>
-                          <UserX className="me-2 h-4 w-4" />
-                          {t('users.deactivateUser')}
+                          <UserX className="me-2 h-4 w-4" />{t('users.deactivateUser')}
                         </DropdownMenuItem>
                       )}
                       {onSuspend && (
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onSuspend(user); }}>
-                          <Ban className="me-2 h-4 w-4" />
-                          {t('users.suspendUser')}
+                          <Ban className="me-2 h-4 w-4" />{t('users.suspendUser')}
                         </DropdownMenuItem>
                       )}
                     </>
                   ) : (
                     onReactivate && (
                       <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onReactivate(user); }}>
-                        <UserCheck className="me-2 h-4 w-4" />
-                        {t('users.reactivateUser')}
+                        <UserCheck className="me-2 h-4 w-4" />{t('users.reactivateUser')}
                       </DropdownMenuItem>
                     )
                   )}
@@ -223,8 +232,7 @@ export function UserTable({
                         onClick={(e) => { e.stopPropagation(); onDelete(user); }}
                         className="text-destructive focus:text-destructive"
                       >
-                        <Trash2 className="me-2 h-4 w-4" />
-                        {t('users.deleteUser')}
+                        <Trash2 className="me-2 h-4 w-4" />{t('users.deleteUser')}
                       </DropdownMenuItem>
                     </>
                   )}

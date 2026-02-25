@@ -105,14 +105,14 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       <PWAInstallBanner />
       <div className="flex justify-end gap-2 p-4">
         <LanguageSelector />
         <ThemeToggle />
       </div>
       
-      <div className="flex-1 flex items-center justify-center px-4">
+      <div className="flex-1 flex items-center justify-center px-3 md:px-4">
         <Card className="glass-card border-0 rounded-xl w-full max-w-md shadow-2xl">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">
