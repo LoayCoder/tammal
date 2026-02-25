@@ -59,3 +59,6 @@ verify_jwt = false
 
 [functions.match-first-aider]
 verify_jwt = false
+
+[functions.secure-upload]
+verify_jwt = false

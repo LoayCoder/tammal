@@ -2468,6 +2468,21 @@
       "recording": "Recording...",
       "typing": "typing...",
       "readReceipt": "Read"
+    },
+    "attachments": {
+      "dropzone": "Drop file here or click to upload",
+      "maxSize": "Max 10MB — Images, PDFs, Audio",
+      "invalidType": "This file type is not allowed",
+      "tooLarge": "File is too large (max 10MB)",
+      "uploaded": "File uploaded securely",
+      "encrypted": "End-to-end encrypted",
+      "autoDelete": "Auto-deleted in {{days}} days",
+      "secure": "Secure",
+      "expiresIn": "Expires in {{time}}",
+      "expired": "Expired",
+      "viewError": "Could not load attachment",
+      "revoked": "Attachment access revoked",
+      "accessLog": "{{count}} access events"
     }
   },
   "spiritual": {
