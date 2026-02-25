@@ -2913,6 +2913,26 @@
         "sufficient": "كافية",
         "insufficient": "غير كافية"
       }
+    },
+    "voting": {
+      "title": "غرفة التصويت",
+      "subtitle": "قيّم المرشحين وفق معايير التحكيم",
+      "noVotingCycles": "لا توجد دورات جوائز في مرحلة التصويت حالياً",
+      "progress": "المرشح {{current}} من {{total}}",
+      "submitVote": "إرسال التصويت",
+      "submitSuccess": "تم إرسال التصويت بنجاح",
+      "submitError": "فشل إرسال التصويت",
+      "skip": "تخطّي",
+      "allDone": "تم إرسال جميع الأصوات!",
+      "allDoneDesc": "لقد صوّتت على جميع الترشيحات المتاحة. شكراً لمشاركتك!",
+      "confidence": "مستوى الثقة",
+      "confidenceHigh": "عالي — أعرف عمل هذا الشخص جيداً",
+      "confidenceMedium": "متوسط — لدي بعض المعرفة",
+      "confidenceLow": "منخفض — معرفة مباشرة محدودة",
+      "extremeScoreRequired": "التبرير مطلوب للدرجات القصوى (1 أو 5)",
+      "extremeScoreJustification": "الدرجات 1 أو 5 تتطلب 50 حرفاً على الأقل من التبرير",
+      "justificationPlaceholder": "اشرح سبب منحك هذه الدرجة القصوى...",
+      "charsMin": "حرف كحد أدنى"
     }
   }
 }

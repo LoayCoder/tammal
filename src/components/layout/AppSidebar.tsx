@@ -7,7 +7,7 @@ import {
   User, Heart, Settings, Package, Brain, SmilePlus, RefreshCw, Wind,
   BookOpen, Music, CheckSquare, BookMarked, Phone, ClipboardCheck,
   ChevronRight, Shield, HeartHandshake, Inbox, Moon, BookOpenCheck, UtensilsCrossed, CalendarDays,
-  Activity, Target, Gauge, Users2, Plug, Trophy, Award, Star
+  Activity, Target, Gauge, Users2, Plug, Trophy, Award, Star, Vote
 } from 'lucide-react';
 import {
   Sidebar,
@@ -186,6 +186,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         { title: t('nav.recognition'), url: "/admin/recognition", icon: Trophy, access: 'admin' },
         { title: t('recognition.nominations.nominate'), url: "/recognition/nominate", icon: Award, access: 'employee' },
         { title: t('recognition.nominations.myNominations'), url: "/recognition/my-nominations", icon: Star, access: 'employee' },
+        { title: t('recognition.voting.title'), url: "/recognition/vote", icon: Vote, access: 'employee' },
       ]
     },
     {
