@@ -49,6 +49,7 @@ interface MenuItem {
 interface MenuGroup {
   label: string;
   access: MenuAccess;
+  icon: React.ComponentType<{ className?: string }>;
   items: MenuItem[];
 }
 
@@ -130,6 +131,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     {
       label: t('nav.dashboard'),
       access: 'all',
+      icon: LayoutDashboard,
       items: [
         { title: t('nav.overview'), url: "/", icon: LayoutDashboard },
       ]
@@ -137,6 +139,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     {
       label: t('nav.saasManagement'),
       access: 'admin',
+      icon: Building2,
       items: [
         { title: t('nav.tenantManagement'), url: "/admin/tenants", icon: Building2 },
         { title: t('nav.planManagement'), url: "/admin/plans", icon: Layers },
@@ -146,6 +149,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     {
       label: t('nav.surveySystem'),
       access: 'admin',
+      icon: ClipboardList,
       items: [
         { title: t('nav.questions'), url: "/admin/questions", icon: MessageSquare },
         { title: t('nav.aiGenerator'), url: "/admin/questions/generate", icon: Sparkles },
@@ -161,6 +165,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     {
       label: t('nav.wellness'),
       access: 'all',
+      icon: Heart,
       items: [
         { title: t('nav.dailyCheckin'), url: "/", icon: Heart, access: 'employee' },
         { title: t('crisisSupport.nav.crisisSupport'), url: "/crisis-support", icon: Phone, access: 'employee' },
@@ -171,6 +176,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     {
       label: t('nav.workloadIntelligence'),
       access: 'all',
+      icon: Target,
       items: [
         { title: t('nav.myWorkload'), url: "/my-workload", icon: ClipboardList, access: 'employee' },
         { title: t('nav.objectives'), url: "/admin/workload/objectives", icon: Target, access: 'all' },
@@ -182,6 +188,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     {
       label: t('nav.recognitionAwards'),
       access: 'all',
+      icon: Trophy,
       items: [
         { title: t('nav.recognition'), url: "/admin/recognition", icon: Trophy, access: 'admin' },
         { title: t('recognition.results.navTitle'), url: "/admin/recognition/results", icon: BarChart3, access: 'admin' },
@@ -196,6 +203,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     {
       label: t('nav.operations'),
       access: 'admin',
+      icon: Network,
       items: [
         { title: t('nav.userManagement'), url: "/admin/user-management", icon: Users },
         { title: t('nav.orgStructure'), url: "/admin/org", icon: Network },
@@ -204,6 +212,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     {
       label: t('nav.settings'),
       access: 'all',
+      icon: Settings,
       items: [
         { title: t('nav.userProfile'), url: "/settings/profile", icon: User },
         { title: t('nav.usageBilling'), url: "/settings/usage", icon: BarChart3, access: 'admin' },
@@ -216,6 +225,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     {
       label: t('nav.help'),
       access: 'all',
+      icon: HelpCircle,
       items: [
         { title: t('nav.support'), url: "/support", icon: HelpCircle },
         { title: t('nav.installApp'), url: "/install", icon: Download },
@@ -290,7 +300,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
               <Collapsible defaultOpen={isGroupActive || isCollapsed} className="group/collapsible-group">
                 <SidebarGroupLabel asChild>
                   <CollapsibleTrigger className="flex w-full items-center justify-between">
-                    {group.label}
+                    <span className="flex items-center gap-1.5">
+                      <group.icon className="h-3.5 w-3.5" />
+                      {group.label}
+                    </span>
                     {!isCollapsed && (
                       <ChevronRight className="h-3 w-3 transition-transform duration-200 group-data-[state=open]/collapsible-group:rotate-90 rtl:-scale-x-100" />
                     )}
@@ -389,7 +402,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                 <Collapsible defaultOpen={location.pathname.startsWith('/spiritual') || isCollapsed} className="group/collapsible-group">
                   <SidebarGroupLabel asChild>
                     <CollapsibleTrigger className="flex w-full items-center justify-between">
-                      {t('spiritual.nav.title')}
+                      <span className="flex items-center gap-1.5">
+                        <Moon className="h-3.5 w-3.5" />
+                        {t('spiritual.nav.title')}
+                      </span>
                       {!isCollapsed && (
                         <ChevronRight className="h-3 w-3 transition-transform duration-200 group-data-[state=open]/collapsible-group:rotate-90 rtl:-scale-x-100" />
                       )}
