@@ -69,6 +69,7 @@ const RecognitionManagement = lazy(() => import("@/pages/admin/RecognitionManage
 const NominatePage = lazy(() => import("@/pages/recognition/NominatePage"));
 const MyNominationsPage = lazy(() => import("@/pages/recognition/MyNominationsPage"));
 const VotingBoothPage = lazy(() => import("@/pages/recognition/VotingBoothPage"));
+const RecognitionResults = lazy(() => import("@/pages/admin/RecognitionResults"));
 const queryClient = new QueryClient();
 
 const PageFallback = () => (
@@ -132,6 +133,7 @@ const App = () => (
               <Route path="/recognition/nominate" element={<NominatePage />} />
               <Route path="/recognition/my-nominations" element={<MyNominationsPage />} />
               <Route path="/recognition/vote" element={<VotingBoothPage />} />
+              <Route path="/admin/recognition/results" element={<AdminRoute><RecognitionResults /></AdminRoute>} />
               <Route path="/crisis-support" element={<CrisisRequestPage />} />
               <Route path="/my-support" element={<MySupportPage />} />
               <Route path="/first-aider" element={<FirstAiderDashboard />} />

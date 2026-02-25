@@ -184,6 +184,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       access: 'all',
       items: [
         { title: t('nav.recognition'), url: "/admin/recognition", icon: Trophy, access: 'admin' },
+        { title: t('recognition.results.navTitle'), url: "/admin/recognition/results", icon: BarChart3, access: 'admin' },
         { title: t('recognition.nominations.nominate'), url: "/recognition/nominate", icon: Award, access: 'employee' },
         { title: t('recognition.nominations.myNominations'), url: "/recognition/my-nominations", icon: Star, access: 'employee' },
         { title: t('recognition.voting.title'), url: "/recognition/vote", icon: Vote, access: 'employee' },
