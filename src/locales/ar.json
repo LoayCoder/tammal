@@ -2461,6 +2461,13 @@
       "outcomeFollowUp": "متابعة مطلوبة",
       "ended": "انتهت الجلسة",
       "info": "معلومات الجلسة"
+    },
+    "chat": {
+      "voiceNote": "رسالة صوتية",
+      "newMessages": "رسائل جديدة",
+      "recording": "جاري التسجيل...",
+      "typing": "يكتب...",
+      "readReceipt": "مقروءة"
     }
   },
   "spiritual": {
