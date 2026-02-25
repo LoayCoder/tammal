@@ -156,6 +156,16 @@ export function useVoting(cycleId?: string) {
     mutationFn: async (input: SubmitVoteInput) => {
       if (!tenantId || !user?.id) throw new Error('Missing context');
 
+      // Prevent duplicate vote
+      const { count: existingCount } = await supabase
+        .from('votes')
+        .select('id', { count: 'exact', head: true })
+        .eq('voter_id', user.id)
+        .eq('nomination_id', input.nomination_id);
+      if ((existingCount ?? 0) > 0) {
+        throw new Error(t('recognition.voting.alreadyVoted', 'You have already voted for this nomination'));
+      }
+
       // Validate extreme scores have justification
       for (const [criterionId, score] of Object.entries(input.criteria_scores)) {
         if ((score === 1 || score === 5) && (!input.justifications[criterionId] || input.justifications[criterionId].length < 50)) {

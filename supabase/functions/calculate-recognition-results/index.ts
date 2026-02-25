@@ -22,14 +22,14 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
 
-    // Verify caller
+    // Verify caller via getUser
     const anonClient = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_ANON_KEY')!,
       { global: { headers: { Authorization: authHeader } } }
     );
-    const { data: claims, error: authErr } = await anonClient.auth.getClaims(authHeader.replace('Bearer ', ''));
-    if (authErr || !claims?.claims?.sub) {
+    const { data: { user: caller }, error: authErr } = await anonClient.auth.getUser();
+    if (authErr || !caller) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders });
     }
 
@@ -208,22 +208,26 @@ Deno.serve(async (req) => {
         fairnessReport.visibility_correction = { applied: true, method: 'remote_worker_boost' };
       }
 
-      // 7. Delete old results for this theme+cycle to ensure idempotency
-      await supabase
-        .from('nominee_rankings')
-        .delete()
-        .in('theme_results_id', (await supabase
-          .from('theme_results')
-          .select('id')
-          .eq('theme_id', theme.id)
-          .eq('cycle_id', cycle_id)
-        ).data?.map(r => r.id) || []);
-
-      await supabase
+      // 7. Soft-delete old results for this theme+cycle to ensure idempotency
+      const { data: oldResults } = await supabase
         .from('theme_results')
-        .delete()
+        .select('id')
         .eq('theme_id', theme.id)
-        .eq('cycle_id', cycle_id);
+        .eq('cycle_id', cycle_id)
+        .is('deleted_at', null);
+
+      const oldResultIds = oldResults?.map(r => r.id) || [];
+      if (oldResultIds.length > 0) {
+        await supabase
+          .from('nominee_rankings')
+          .update({ deleted_at: new Date().toISOString() })
+          .in('theme_results_id', oldResultIds);
+
+        await supabase
+          .from('theme_results')
+          .update({ deleted_at: new Date().toISOString() })
+          .in('id', oldResultIds);
+      }
 
       // Insert fresh results
       const { data: themeResult, error: trErr } = await supabase
