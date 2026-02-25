@@ -7,7 +7,7 @@ import {
   User, Heart, Settings, Package, Brain, SmilePlus, RefreshCw, Wind,
   BookOpen, Music, CheckSquare, BookMarked, Phone, ClipboardCheck,
   ChevronRight, Shield, HeartHandshake, Inbox, Moon, BookOpenCheck, UtensilsCrossed, CalendarDays,
-  Activity, Target, Gauge, Users2, Plug, Trophy, Award, Star, Vote
+  Activity, Target, Gauge, Users2, Plug, Trophy, Award, Star, Vote, Coins, Gift
 } from 'lucide-react';
 import {
   Sidebar,
@@ -185,9 +185,12 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       items: [
         { title: t('nav.recognition'), url: "/admin/recognition", icon: Trophy, access: 'admin' },
         { title: t('recognition.results.navTitle'), url: "/admin/recognition/results", icon: BarChart3, access: 'admin' },
+        { title: t('recognition.points.managementNav'), url: "/admin/recognition/redemption", icon: Gift, access: 'admin' },
         { title: t('recognition.nominations.nominate'), url: "/recognition/nominate", icon: Award, access: 'employee' },
         { title: t('recognition.nominations.myNominations'), url: "/recognition/my-nominations", icon: Star, access: 'employee' },
         { title: t('recognition.voting.title'), url: "/recognition/vote", icon: Vote, access: 'employee' },
+        { title: t('recognition.points.myPoints'), url: "/recognition/points", icon: Coins, access: 'employee' },
+        { title: t('recognition.points.rewards'), url: "/recognition/rewards", icon: Gift, access: 'employee' },
       ]
     },
     {

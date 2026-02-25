@@ -65,3 +65,6 @@ verify_jwt = false
 
 [functions.calculate-recognition-results]
 verify_jwt = false
+
+[functions.expire-recognition-points]
+verify_jwt = false
