@@ -1993,6 +1993,53 @@ export type Database = {
           },
         ]
       }
+      mh_risk_mappings: {
+        Row: {
+          action_description: string | null
+          created_at: string
+          deleted_at: string | null
+          id: string
+          intent: string
+          is_default: boolean | null
+          risk_level: string
+          sort_order: number | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          action_description?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          intent: string
+          is_default?: boolean | null
+          risk_level: string
+          sort_order?: number | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          action_description?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          intent?: string
+          is_default?: boolean | null
+          risk_level?: string
+          sort_order?: number | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mh_risk_mappings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mh_secure_attachments: {
         Row: {
           access_log: Json | null
