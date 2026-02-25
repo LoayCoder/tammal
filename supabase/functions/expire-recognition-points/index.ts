@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 Deno.serve(async (req) => {
@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
 
     const now = new Date().toISOString();
 
-    // Find credited points that have expired
+    // Find credited points that have expired (not already processed)
     const { data: expiredTxns, error: fetchErr } = await supabase
       .from('points_transactions')
       .select('id, user_id, tenant_id, amount')
@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Mark them as expired
+    // Mark originals as expired
     const ids = expiredTxns.map(t => t.id);
     const { error: updateErr } = await supabase
       .from('points_transactions')
@@ -43,27 +43,14 @@ Deno.serve(async (req) => {
 
     if (updateErr) throw updateErr;
 
-    // Insert expiry debit records
-    const expiryRecords = expiredTxns.map(t => ({
-      user_id: t.user_id,
-      tenant_id: t.tenant_id,
-      amount: -t.amount,
-      source_type: 'expiry' as const,
-      source_id: t.id,
-      status: 'expired' as const,
-      description: 'Points expired',
-    }));
-
-    const { error: insertErr } = await supabase
-      .from('points_transactions')
-      .insert(expiryRecords);
-
-    if (insertErr) throw insertErr;
+    // No need to insert separate debit records - the original transaction
+    // status change to 'expired' is sufficient. The balance calculation
+    // only sums 'credited' and 'redeemed' status transactions.
 
     return new Response(JSON.stringify({ expired: expiredTxns.length }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (error) {
+  } catch (error: any) {
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
