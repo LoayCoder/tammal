@@ -86,7 +86,9 @@
     "myWorkload": "مهامي",
     "workloadDashboard": "لوحة أعباء العمل",
     "teamWorkload": "أعباء الفريق",
-    "taskConnectors": "موصلات المهام"
+    "taskConnectors": "موصلات المهام",
+    "recognitionAwards": "التقدير والجوائز",
+    "recognition": "التقدير"
   },
   "checkinMonitor": {
     "title": "مراقبة التسجيل اليومي",
@@ -2738,5 +2740,87 @@
     "csvData": "بيانات CSV",
     "importBtn": "استيراد المهام",
     "importSuccess": "تم استيراد {{count}} مهمة بنجاح"
+  },
+  "recognition": {
+    "title": "التقدير والجوائز",
+    "subtitle": "إدارة دورات الجوائز والترشيحات والتصويت وبرامج التقدير",
+    "status": {
+      "configuring": "قيد الإعداد",
+      "nominating": "الترشيحات مفتوحة",
+      "voting": "التصويت",
+      "calculating": "قيد الحساب",
+      "announced": "تم الإعلان",
+      "archived": "مؤرشف"
+    },
+    "cycles": {
+      "create": "دورة جوائز جديدة",
+      "name": "اسم الدورة",
+      "empty": "لا توجد دورات جوائز بعد",
+      "emptyDescription": "أنشئ أول دورة جوائز لبدء تقدير الموظفين المتميزين.",
+      "createdAt": "أُنشئت في {{date}}",
+      "auditDays": "أيام مراجعة التدقيق",
+      "auditDaysLabel": "مراجعة تدقيق {{days}} يوم",
+      "createSuccess": "تم إنشاء دورة الجوائز بنجاح",
+      "createError": "فشل إنشاء دورة الجوائز",
+      "updateSuccess": "تم تحديث دورة الجوائز",
+      "updateError": "فشل تحديث دورة الجوائز",
+      "deleteSuccess": "تم حذف دورة الجوائز",
+      "deleteError": "فشل حذف دورة الجوائز",
+      "statusAdvanced": "تم تقدم حالة الدورة"
+    },
+    "cycleBuilder": {
+      "title": "إنشاء دورة جوائز",
+      "subtitle": "قم بتهيئة دورة التقدير خطوة بخطوة",
+      "basics": "الأساسيات",
+      "themes": "المحاور",
+      "fairness": "العدالة",
+      "review": "المراجعة",
+      "createAndContinue": "إنشاء ومتابعة",
+      "reviewNote": "تم إنشاء دورة الجوائز. يمكنك الآن إغلاق هذا المعالج وإدارتها من القائمة."
+    },
+    "themes": {
+      "title": "محاور الجوائز",
+      "add": "إضافة محور",
+      "name": "اسم المحور",
+      "nameAr": "اسم المحور (عربي)",
+      "description": "الوصف",
+      "createSuccess": "تم إنشاء المحور",
+      "createError": "فشل إنشاء المحور",
+      "updateSuccess": "تم تحديث المحور",
+      "updateError": "فشل تحديث المحور",
+      "deleteSuccess": "تم حذف المحور",
+      "deleteError": "فشل حذف المحور"
+    },
+    "criteria": {
+      "title": "معايير التحكيم",
+      "add": "إضافة معيار",
+      "name": "اسم المعيار",
+      "namePlaceholder": "مثال: الابتكار، العمل الجماعي، التأثير",
+      "description": "الوصف",
+      "weight": "الوزن",
+      "totalWeight": "الوزن الإجمالي",
+      "mustEqual100": "يجب أن يساوي 100%",
+      "createSuccess": "تمت إضافة المعيار",
+      "createError": "فشل إضافة المعيار",
+      "updateSuccess": "تم تحديث المعيار",
+      "updateError": "فشل تحديث المعيار",
+      "deleteSuccess": "تم حذف المعيار",
+      "deleteError": "فشل حذف المعيار"
+    },
+    "timeline": {
+      "nominationStart": "فتح الترشيحات",
+      "nominationEnd": "إغلاق الترشيحات",
+      "endorsementEnd": "موعد التزكية",
+      "votingStart": "فتح التصويت",
+      "votingEnd": "إغلاق التصويت",
+      "announcement": "الإعلان"
+    },
+    "fairness": {
+      "cliqueThreshold": "حد كشف التكتلات",
+      "demographicParity": "هدف التكافؤ الديموغرافي",
+      "visibilityBias": "تصحيح تحيز الظهور",
+      "publishRawScores": "نشر الدرجات الخام",
+      "allowAppeals": "السماح بالطعون"
+    }
   }
 }
