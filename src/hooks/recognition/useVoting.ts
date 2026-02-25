@@ -181,9 +181,42 @@ export function useVoting(cycleId?: string) {
         .select('*', { count: 'exact', head: true })
         .eq('voter_id', user.id);
 
+      // Check if voter is in same department as nominee
+      const { data: nomination } = await supabase
+        .from('nominations')
+        .select('nominee_id')
+        .eq('id', input.nomination_id)
+        .single();
+      
+      const voterDeptId = await supabase
+        .from('employees')
+        .select('department_id')
+        .eq('user_id', user.id)
+        .is('deleted_at', null)
+        .maybeSingle();
+
+      const nomineeDeptId = nomination?.nominee_id ? await supabase
+        .from('employees')
+        .select('department_id')
+        .eq('user_id', nomination.nominee_id)
+        .is('deleted_at', null)
+        .maybeSingle() : null;
+
+      const isSameDept = !!(voterDeptId?.data?.department_id && 
+        nomineeDeptId?.data?.department_id && 
+        voterDeptId.data.department_id === nomineeDeptId.data.department_id);
+
+      // Check if voter has manager role
+      const { data: managerRole } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'manager')
+        .maybeSingle();
+
       const voterWeight = calculateVoterWeight({
-        isSameDepartment: false,
-        isManager: false,
+        isSameDepartment: isSameDept,
+        isManager: !!managerRole,
         totalPastVotes: pastVotes || 0,
       });
 
@@ -206,7 +239,18 @@ export function useVoting(cycleId?: string) {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Award participation points for voting
+      if (tenantId && user?.id) {
+        await supabase.from('points_transactions').insert({
+          user_id: user.id,
+          tenant_id: tenantId,
+          amount: 5,
+          source_type: 'voter_participation',
+          status: 'credited',
+          description: 'Points earned for voting participation',
+        }).then(() => qc.invalidateQueries({ queryKey: ['points-transactions'] }));
+      }
       qc.invalidateQueries({ queryKey: ['voting-ballots'] });
       qc.invalidateQueries({ queryKey: ['my-votes'] });
       toast.success(t('recognition.voting.submitSuccess'));

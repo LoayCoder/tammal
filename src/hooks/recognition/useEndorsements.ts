@@ -48,14 +48,33 @@ export function useEndorsements(nominationId?: string) {
     enabled: !!nominationId && !!tenantId,
   });
 
-  // Endorsements where I am the endorser (pending requests)
+  // Nominations that need my endorsement (submitted, not yet endorsed by me)
   const { data: myEndorsementRequests = [], isLoading: requestsLoading } = useQuery({
     queryKey: ['my-endorsement-requests', user?.id, tenantId],
     queryFn: async () => {
-      // Get nominations where I'm the nominee and endorsement_status is pending
-      // In a real system we'd have an endorsement_requests table, but for now
-      // we show nominations that are "submitted" and need endorsements
-      return [];
+      if (!user?.id || !tenantId) return [];
+      // Find submitted nominations where I haven't endorsed yet
+      const { data: nominations, error: nomErr } = await supabase
+        .from('nominations')
+        .select('id, nominee_id, theme_id, headline, justification, cycle_id')
+        .eq('endorsement_status', 'pending')
+        .in('status', ['submitted', 'endorsed'])
+        .is('deleted_at', null);
+      if (nomErr) throw nomErr;
+      if (!nominations?.length) return [];
+
+      // Filter out nominations where I'm the nominee (can't endorse yourself)
+      // and where I've already endorsed
+      const { data: myEndorsements } = await supabase
+        .from('peer_endorsements')
+        .select('nomination_id')
+        .eq('endorser_id', user.id)
+        .is('deleted_at', null);
+      const endorsedSet = new Set(myEndorsements?.map(e => e.nomination_id) || []);
+
+      return nominations.filter(n => 
+        n.nominee_id !== user.id && !endorsedSet.has(n.id)
+      );
     },
     enabled: !!user?.id && !!tenantId,
   });
@@ -76,11 +95,12 @@ export function useEndorsements(nominationId?: string) {
       if (error) throw error;
 
       // Check if nomination now has sufficient endorsements
+      // Count endorsements that are not explicitly invalid (null = pending review = counted)
       const { count } = await supabase
         .from('peer_endorsements')
         .select('id', { count: 'exact', head: true })
         .eq('nomination_id', input.nomination_id)
-        .eq('is_valid', true)
+        .neq('is_valid', false)
         .is('deleted_at', null);
 
       if ((count ?? 0) >= 2) {

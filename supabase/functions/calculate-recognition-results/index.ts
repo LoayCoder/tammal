@@ -11,21 +11,40 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Validate auth
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders });
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
 
+    // Verify caller
+    const anonClient = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: claims, error: authErr } = await anonClient.auth.getClaims(authHeader.replace('Bearer ', ''));
+    if (authErr || !claims?.claims?.sub) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders });
+    }
+
     const { cycle_id } = await req.json();
     if (!cycle_id) throw new Error('cycle_id required');
 
-    // 1. Get cycle
+    // 1. Get cycle & set status to 'calculating'
     const { data: cycle, error: cycleErr } = await supabase
       .from('award_cycles')
       .select('*')
       .eq('id', cycle_id)
       .single();
     if (cycleErr) throw cycleErr;
+
+    await supabase.from('award_cycles').update({ status: 'calculating' }).eq('id', cycle_id);
 
     const fairnessConfig = (cycle.fairness_config || {}) as Record<string, any>;
 
@@ -42,7 +61,7 @@ Deno.serve(async (req) => {
     // 3. Get all nominations
     const { data: nominations } = await supabase
       .from('nominations')
-      .select('id, theme_id, nominee_id')
+      .select('id, theme_id, nominee_id, nominator_id')
       .in('theme_id', themeIds)
       .in('status', ['endorsed', 'shortlisted'])
       .is('deleted_at', null);
@@ -67,7 +86,6 @@ Deno.serve(async (req) => {
       const themeCriteria = (criteria || []).filter(c => c.theme_id === theme.id);
       const totalWeight = themeCriteria.reduce((s, c) => s + c.weight, 0) || 100;
 
-      // Calculate scores per nomination
       const nomineeScores: {
         nomination_id: string;
         raw_avg: number;
@@ -82,12 +100,8 @@ Deno.serve(async (req) => {
         const nomVotes = (votes || []).filter(v => v.nomination_id === nom.id);
         if (!nomVotes.length) {
           nomineeScores.push({
-            nomination_id: nom.id,
-            raw_avg: 0,
-            weighted_avg: 0,
-            total_votes: 0,
-            criterion_breakdown: {},
-            vote_distribution: {},
+            nomination_id: nom.id, raw_avg: 0, weighted_avg: 0, total_votes: 0,
+            criterion_breakdown: {}, vote_distribution: {},
             confidence_interval: { lower: 0, upper: 0 },
           });
           continue;
@@ -97,16 +111,12 @@ Deno.serve(async (req) => {
         const criterionBreakdown: Record<string, { avg: number; count: number }> = {};
         for (const c of themeCriteria) {
           const scores = nomVotes
-            .map(v => {
-              const cs = v.criteria_scores as Record<string, number>;
-              return cs?.[c.id];
-            })
+            .map(v => { const cs = v.criteria_scores as Record<string, number>; return cs?.[c.id]; })
             .filter((s): s is number => s != null);
           const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
           criterionBreakdown[c.id] = { avg: Math.round(avg * 100) / 100, count: scores.length };
         }
 
-        // Raw average (unweighted)
         const rawScores = nomVotes.map(v => {
           const cs = v.criteria_scores as Record<string, number>;
           const vals = Object.values(cs || {});
@@ -114,13 +124,11 @@ Deno.serve(async (req) => {
         });
         const rawAvg = rawScores.reduce((a, b) => a + b, 0) / rawScores.length;
 
-        // Weighted average
         const weightedAvg = themeCriteria.reduce((sum, c) => {
           const cb = criterionBreakdown[c.id];
           return sum + (cb ? cb.avg * c.weight / totalWeight : 0);
         }, 0);
 
-        // Vote distribution
         const distribution: Record<string, number> = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
         nomVotes.forEach(v => {
           const cs = v.criteria_scores as Record<string, number>;
@@ -130,7 +138,6 @@ Deno.serve(async (req) => {
           });
         });
 
-        // Confidence interval (simple z=1.96)
         const n = nomVotes.length;
         const stdDev = Math.sqrt(
           rawScores.reduce((sum, s) => sum + Math.pow(s - rawAvg, 2), 0) / Math.max(n - 1, 1)
@@ -151,34 +158,36 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Sort by weighted average descending
       nomineeScores.sort((a, b) => b.weighted_avg - a.weighted_avg);
 
       // --- Fairness Analysis ---
       const fairnessReport: Record<string, any> = {};
 
-      // Clique detection: mutual nomination patterns
+      // Clique detection: check if nominator nominated someone who also nominated them
       const cliqueThreshold = fairnessConfig.clique_threshold || 3;
-      const nominatorPairs: Record<string, Set<string>> = {};
+      const cliqueWarnings: any[] = [];
       for (const nom of themeNominations) {
-        // Check if nominee also nominated the nominator in any theme
+        // Find reverse nominations: where this nominee nominated the original nominator
         const reverseNoms = nominations.filter(
-          n => n.nominee_id === nom.nominee_id && themeNominations.some(tn => tn.nominee_id === n.nominee_id)
+          n => n.nominator_id === nom.nominee_id && n.nominee_id === nom.nominator_id
         );
-        if (reverseNoms.length >= cliqueThreshold) {
-          if (!fairnessReport.clique_warnings) fairnessReport.clique_warnings = [];
-          fairnessReport.clique_warnings.push({
+        if (reverseNoms.length > 0) {
+          cliqueWarnings.push({
             nomination_id: nom.id,
+            nominator_id: nom.nominator_id,
+            nominee_id: nom.nominee_id,
             mutual_count: reverseNoms.length,
           });
         }
+      }
+      if (cliqueWarnings.length >= cliqueThreshold) {
+        fairnessReport.clique_warnings = cliqueWarnings;
       }
 
       // Vote anomaly detection
       const anomalies: any[] = [];
       for (const nom of themeNominations) {
         const nomVotes = (votes || []).filter(v => v.nomination_id === nom.id);
-        // Detect voters who consistently give extreme scores
         const extremeVoters = nomVotes.filter(v => {
           const cs = v.criteria_scores as Record<string, number>;
           const vals = Object.values(cs || {});
@@ -193,19 +202,33 @@ Deno.serve(async (req) => {
         }
       }
       fairnessReport.anomalies = anomalies;
-
-      // Demographic parity placeholder
       fairnessReport.demographic_parity = { status: 'not_evaluated', note: 'Requires department/demographic data integration' };
 
-      // Visibility bias
       if (fairnessConfig.visibility_bias) {
         fairnessReport.visibility_correction = { applied: true, method: 'remote_worker_boost' };
       }
 
-      // 7. Upsert theme_results
+      // 7. Delete old results for this theme+cycle to ensure idempotency
+      await supabase
+        .from('nominee_rankings')
+        .delete()
+        .in('theme_results_id', (await supabase
+          .from('theme_results')
+          .select('id')
+          .eq('theme_id', theme.id)
+          .eq('cycle_id', cycle_id)
+        ).data?.map(r => r.id) || []);
+
+      await supabase
+        .from('theme_results')
+        .delete()
+        .eq('theme_id', theme.id)
+        .eq('cycle_id', cycle_id);
+
+      // Insert fresh results
       const { data: themeResult, error: trErr } = await supabase
         .from('theme_results')
-        .upsert({
+        .insert({
           tenant_id: cycle.tenant_id,
           theme_id: theme.id,
           cycle_id: cycle_id,
@@ -214,12 +237,12 @@ Deno.serve(async (req) => {
           third_place_nomination_id: nomineeScores[2]?.nomination_id || null,
           fairness_report: fairnessReport,
           appeal_status: 'closed',
-        }, { onConflict: 'id' })
+        })
         .select()
         .single();
       if (trErr) throw trErr;
 
-      // 8. Upsert nominee_rankings
+      // 8. Insert nominee_rankings
       for (let i = 0; i < nomineeScores.length; i++) {
         const ns = nomineeScores[i];
         await supabase.from('nominee_rankings').insert({

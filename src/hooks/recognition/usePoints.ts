@@ -38,12 +38,12 @@ export function usePoints() {
     enabled: !!tenantId && !!user?.id,
   });
 
+  // Balance = sum of all amounts (credits are positive, debits/redemptions are negative)
+  // Only count 'credited' and 'redeemed' status - expired originals are already 
+  // marked 'expired' and have corresponding negative debit records
   const balance = transactions
-    .filter(t => t.status === 'credited')
-    .reduce((sum, t) => sum + t.amount, 0)
-    - transactions
-      .filter(t => t.status === 'redeemed' || t.status === 'expired')
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    .filter(t => t.status === 'credited' || t.status === 'redeemed')
+    .reduce((sum, t) => sum + t.amount, 0);
 
   const expiringWithin30Days = transactions.filter(t => {
     if (t.status !== 'credited' || !t.expires_at) return false;
