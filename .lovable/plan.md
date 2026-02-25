@@ -1,24 +1,45 @@
 
 
-## Fix: Logo Size and Alignment in Sidebar
+## Fix: Reduce Sidebar Group Gaps and Add Group Icons
 
-### Issues Found
-
-1. **ThemeLogo ignores `className` prop** -- The component receives a `className` prop but never uses it. The `<img>` tag hardcodes `className="object-contain border-0"`, so the `h-14 max-w-[200px]` passed from the sidebar has no effect, making the logo render at its natural (large) size.
-
-2. **Logo is centered instead of end-aligned** -- The sidebar header uses `justify-center`, but you want it aligned to the end (right in LTR).
+### Problem
+1. The spacing between each sidebar group section is too large -- caused by `p-2` on each `SidebarGroup` plus `gap-2` on `SidebarContent`, stacking up to excessive vertical gaps.
+2. Group labels (Dashboard, SaaS Management, etc.) have no icons, making them harder to scan visually.
 
 ### Fix Plan
 
-**File 1: `src/components/branding/ThemeLogo.tsx`** (line 34)
-- Apply the `className` prop to the `<img>` element so size constraints from parent components actually take effect.
-- Change: `className="object-contain border-0"` to use the passed `className` merged with defaults.
+#### 1. Reduce gaps between groups
 
-**File 2: `src/components/layout/AppSidebar.tsx`** (lines 253, 267)
-- Change the wrapper from `justify-center` to `justify-end` so the logo aligns to the end (right side in LTR, left in RTL -- using logical alignment).
-- Reduce logo height from `h-14` to `h-10` for a more appropriate size.
+**File: `src/components/ui/sidebar.tsx`**
+- Change `SidebarGroup` padding from `p-2` to `px-2 py-0.5` to tighten vertical spacing.
+- Optionally reduce `SidebarContent` gap from `gap-2` to `gap-1`.
 
-### Result
-- The logo will render at a controlled, smaller size (`h-10`, max-width 200px).
-- It will be aligned to the end of the sidebar header (right side in LTR).
+#### 2. Add icons to each group label
 
+**File: `src/components/layout/AppSidebar.tsx`**
+
+Add an `icon` property to the `MenuGroup` interface and assign an icon to each group:
+
+| Group | Icon |
+|-------|------|
+| Dashboard | `LayoutDashboard` |
+| SaaS Management | `Building2` |
+| Survey System | `ClipboardList` |
+| Wellness | `Heart` |
+| Workload Intelligence | `Target` |
+| Recognition & Awards | `Trophy` |
+| Operations | `Network` |
+| Settings | `Settings` |
+| Help | `HelpCircle` |
+
+Then render the icon inside the `CollapsibleTrigger` next to the group label text:
+
+```text
+[icon] GROUP LABEL                    [chevron]
+```
+
+The icon will be rendered as a small (h-3.5 w-3.5) element with `me-1.5` spacing, using logical properties for RTL support.
+
+### Files to Modify
+1. `src/components/ui/sidebar.tsx` -- reduce SidebarGroup padding and SidebarContent gap
+2. `src/components/layout/AppSidebar.tsx` -- add `icon` to MenuGroup interface and each group definition, render icon in group label trigger
