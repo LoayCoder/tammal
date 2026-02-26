@@ -1,69 +1,89 @@
 
 
-## Redesign Employee Home to Match Balady-Style Grid Layout
+## Make the App Fully Mobile-Responsive as a PWA
 
-### Design Analysis (from screenshot)
-The Balady app uses:
-- A **hero banner card** at the top with a call-to-action
-- A **horizontally scrollable row** of icon cards ("Most Used") with rounded icon containers and Arabic labels below
-- **2-column grid of category cards** -- each card shows 4 icon slots (2x2) with a "+N" count badge and a category label below
-- Clean white/light gray background, rounded corners, minimal borders
-- Bottom navigation bar (already implemented)
+### Overview
+The app has good PWA infrastructure (service worker, manifest, install banner, caching) but several UI areas are not optimized for mobile touch interaction. This plan addresses the key gaps to make the app feel native on phones.
 
-### Translation to Tammal Employee Home
+### 1. Mobile Bottom Navigation Bar
 
-**Section 1 -- Hero Banner**: The daily check-in card (or completed status) becomes a full-width gradient banner similar to Balady's top card.
+Create a persistent bottom navigation bar for mobile users (visible below `md` breakpoint) with quick-access icons for the most-used sections: Dashboard, Wellness, Support, Profile, and More (opens sidebar).
 
-**Section 2 -- "Quick Access" Scrollable Row**: Gamification badges + quick stats become horizontally scrollable icon cards (Check-in, Survey, Mood, Streak, Crisis Support, First Aider) with rounded icon containers and labels below.
+**New file: `src/components/layout/MobileBottomNav.tsx`**
 
-**Section 3 -- "Services" 2-Column Grid**: Group features into category cards (Wellness Tools, Support Services) using the Balady 2x2 icon grid pattern with a count badge.
+- Fixed to the bottom of the viewport with `safe-area-inset-bottom` padding
+- Glass styling consistent with the header
+- Active state indicator matching `glass-active`
+- Hidden on desktop (`md:hidden`)
+- Uses logical properties for RTL
 
-**Section 4 -- Mood Chart & Burnout**: Keep these as full-width cards below the grid, maintaining existing functionality.
+**Mount in `MainLayout.tsx`** after the `</main>` tag.
 
-### Files to Modify
+### 2. Mobile Card View for Data Tables
+
+The `UserTable` (and similar admin tables) renders a full `<table>` which is unusable on small screens. Create a responsive wrapper pattern.
+
+**New file: `src/components/ui/responsive-table.tsx`**
+
+A wrapper component that:
+- On desktop (`md+`): renders children (the table) as-is
+- On mobile (`<md`): renders each row as a stacked card with key-value pairs
+
+**Update `src/components/users/UserTable.tsx`**:
+- On mobile: render user cards (avatar, name, email, status badge, role badges, action menu) in a vertical stack
+- On desktop: keep the existing table layout
+- Use `useIsMobile()` hook to switch between views
+
+### 3. Touch-Friendly Sizing & Spacing
+
+**Update `src/index.css`** with mobile-specific utilities:
+
+- Add a `.touch-target` utility class ensuring minimum 44x44px tap targets (Apple HIG)
+- Increase padding on interactive elements at small breakpoints
+- Add `overscroll-behavior: contain` on the main scroll area to prevent pull-to-refresh interference in standalone PWA mode
+
+### 4. PWA Standalone Mode Enhancements
+
+**Update `src/index.css`**:
+- Add `@media (display-mode: standalone)` styles to hide browser-specific UI hints
+- Ensure the bottom nav accounts for the home indicator on notched devices
+- Add smooth momentum scrolling (`-webkit-overflow-scrolling: touch`)
+
+**Update `src/components/layout/MainLayout.tsx`**:
+- Add `pb-16 md:pb-0` to the main content area to prevent the bottom nav from covering content on mobile
+- Add `overscroll-behavior-y: contain` on the root layout div
+
+### 5. Header Adjustments for Mobile
+
+**Update `src/components/layout/Header.tsx`**:
+- On mobile, hide the breadcrumb (already done with `hidden md:flex`)
+- Ensure all header action buttons meet 44px touch targets
+- Add the page title as a simple text element on mobile (replacing the breadcrumb)
+
+### 6. Auth Page Mobile Polish
+
+**Update `src/pages/Auth.tsx`**:
+- Add safe-area padding for standalone PWA mode
+- Ensure the form fills the viewport nicely on small screens
+- Make the card full-width on mobile with minimal horizontal padding
+
+### Files to Create/Modify
 
 | File | Action |
 |------|--------|
-| `src/pages/EmployeeHome.tsx` | **Major rewrite** -- restructure layout to Balady-style sections |
-
-### Detailed Layout Structure
-
-```text
-+---------------------------------------+
-|  Hero Banner (Check-in CTA / Done)    |
-+---------------------------------------+
-|  "Quick Access"  (horizontal scroll)  |
-|  [Icon] [Icon] [Icon] [Icon] -->      |
-+---------------------------------------+
-|  "My Services"                        |
-|  +----------------+ +----------------+|
-|  | [ic] [ic]      | | [ic] [ic]      ||
-|  | 4+   [ic]      | | 2+   [ic]      ||
-|  | Wellness Tools | | Support        ||
-|  +----------------+ +----------------+|
-+---------------------------------------+
-|  Mood History Chart (full width)      |
-+---------------------------------------+
-|  Burnout Indicator (full width)       |
-+---------------------------------------+
-```
-
-### Implementation Details
-
-1. **Hero Banner**: Replace greeting text + inline check-in with a gradient card (primary gradient) containing greeting, subtitle, and a prominent CTA button for check-in (or a success state if already done).
-
-2. **Quick Access Row**: A horizontal scroll container (`overflow-x-auto flex gap-4`) with touch-friendly cards (80x80px icon area + label). Items: Daily Check-in, Survey, Mood Trend, Streak, Crisis Support, First Aider.
-
-3. **Category Cards**: 2-column grid with glass cards. Each card has a 2x2 mini-icon grid, a "+N" services count, and a label. Clicking navigates to the relevant section.
-
-4. **Existing Charts**: Mood History and Burnout Indicator remain as full-width glass cards at the bottom, unchanged.
-
-5. **RTL Compliance**: All spacing uses logical properties (`ms-`, `me-`, `ps-`, `pe-`). Horizontal scroll direction is automatic with `dir="rtl"`.
+| `src/components/layout/MobileBottomNav.tsx` | **Create** -- bottom navigation bar |
+| `src/components/ui/responsive-table.tsx` | **Create** -- mobile card / desktop table wrapper |
+| `src/components/users/UserTable.tsx` | **Modify** -- add mobile card view |
+| `src/components/layout/MainLayout.tsx` | **Modify** -- mount bottom nav, add bottom padding |
+| `src/components/layout/Header.tsx` | **Modify** -- mobile page title, touch targets |
+| `src/index.css` | **Modify** -- PWA standalone styles, touch utilities |
+| `src/pages/Auth.tsx` | **Modify** -- mobile safe-area polish |
 
 ### Technical Notes
-- No new dependencies required
-- Uses existing Lucide icons for the grid items
-- Existing hooks (`useCurrentEmployee`, `useGamification`, `useMoodHistory`, `useScheduledQuestions`) remain unchanged
-- All translations will use existing i18n keys where possible; new keys added for section headers
-- Glass styling classes (`glass-card`, `glass-stat`) maintained for consistency
+
+- All components use logical properties (`ms-`, `me-`, `ps-`, `pe-`, `text-start`, `text-end`) -- no `ml-`/`mr-`
+- `useIsMobile()` hook (already exists at 768px breakpoint) is used for conditional rendering
+- The bottom nav uses `env(safe-area-inset-bottom)` for notched devices in standalone PWA mode
+- No database changes required
+- The responsive table pattern can be reused across all admin tables in future iterations
 

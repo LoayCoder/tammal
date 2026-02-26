@@ -2347,7 +2347,17 @@
     "atRisk": "At Risk",
     "monthlyCheckins": "This Month",
     "avgMood": "Avg. Mood",
-    "currentStreak": "Streak"
+    "currentStreak": "Streak",
+    "quickAccess": "Quick Access",
+    "myServices": "My Services",
+    "wellnessTools": "Wellness Tools",
+    "supportServices": "Support Services",
+    "moodTrend": "Mood Trend",
+    "breathe": "Breathe",
+    "services": "services",
+    "heroCheckinCta": "How are you feeling today?",
+    "heroDoneTitle": "You're all set! 🎉",
+    "heroDoneSubtitle": "Check-in complete for today"
   },
   "moodPathway": {
     "title": "Mood Follow-up",
