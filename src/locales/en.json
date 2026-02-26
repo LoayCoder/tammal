@@ -2357,7 +2357,12 @@
     "services": "services",
     "heroCheckinCta": "How are you feeling today?",
     "heroDoneTitle": "You're all set! 🎉",
-    "heroDoneSubtitle": "Check-in complete for today"
+    "heroDoneSubtitle": "Check-in complete for today",
+    "resumeSurvey": "Resume",
+    "startSurvey": "Start",
+    "moodTrendSlide": "Mood Trend",
+    "streakSlide": "Day Streak",
+    "capacitySlide": "Wellness Capacity"
   },
   "moodPathway": {
     "title": "Mood Follow-up",

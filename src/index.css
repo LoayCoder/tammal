@@ -298,3 +298,38 @@ All colors MUST be HSL.
     min-height: 44px;
   }
 }
+
+/* ── Zen Night Staggered Fade-in ── */
+@keyframes zen-fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.zen-stagger-1 { animation: zen-fade-in 400ms ease-out 0ms both; }
+.zen-stagger-2 { animation: zen-fade-in 400ms ease-out 100ms both; }
+.zen-stagger-3 { animation: zen-fade-in 400ms ease-out 200ms both; }
+.zen-stagger-4 { animation: zen-fade-in 400ms ease-out 300ms both; }
+
+@keyframes zen-collapse {
+  to { opacity: 0; transform: scale(0.95); max-height: 0; padding: 0; margin: 0; overflow: hidden; }
+}
+.zen-collapse-out {
+  animation: zen-collapse 500ms ease-in forwards;
+}
+
+/* Cross-fade for insight carousel */
+.zen-slide {
+  transition: opacity 800ms ease-in-out;
+}
+
+/* Zen Night card styling */
+.zen-card {
+  background: hsl(217 33% 17% / 0.85);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid hsl(215 20% 65% / 0.1);
+  border-radius: 1.5rem;
+}
+.dark .zen-card {
+  background: hsl(217 33% 17% / 0.7);
+  border: 1px solid hsl(215 20% 65% / 0.08);
+}
