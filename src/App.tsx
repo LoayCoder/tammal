@@ -107,6 +107,7 @@ const App = () => (
             <Route element={<MainLayout />}>
               <Route path="/employee/survey" element={<EmployeeSurvey />} />
               <Route path="/employee/wellness" element={<DailyCheckin />} />
+              <Route path="/employee/home" element={<Dashboard />} />
               <Route path="/" element={<Dashboard />} />
               <Route path="/admin/tenants" element={<AdminRoute><TenantManagement /></AdminRoute>} />
               <Route path="/admin/tenants/:id" element={<AdminRoute><TenantDashboard /></AdminRoute>} />
