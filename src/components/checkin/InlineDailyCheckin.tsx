@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useGamification } from '@/hooks/wellness/useGamification';
-import { Flame, Star, Loader2, Send, RefreshCw } from 'lucide-react';
+import { Loader2, Send, RefreshCw } from 'lucide-react';
 import { MoodStep } from '@/components/checkin/MoodStep';
 import { useMoodDefinitions } from '@/hooks/wellness/useMoodDefinitions';
 import { AchievementOverlay } from '@/components/checkin/AchievementOverlay';
