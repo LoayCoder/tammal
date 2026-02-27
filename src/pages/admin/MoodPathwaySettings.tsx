@@ -11,7 +11,9 @@ import { Brain, Save, RotateCcw, Link2, Plus, X, Info, Edit2, ChevronUp, Chevron
 import { useMoodQuestionConfig, type MoodQuestionConfig } from '@/hooks/useMoodQuestionConfig';
 import { useMoodDefinitions, type MoodDefinition } from '@/hooks/useMoodDefinitions';
 import { useQuestions } from '@/hooks/useQuestions';
-import { supabase } from '@/integrations/supabase/client';
+import { useMoodTagging } from '@/hooks/admin/useMoodTagging';
+import { useTenantIdQuery } from '@/hooks/admin/useTenantIdQuery';
+import { useAuth } from '@/hooks/useAuth';
 import { MoodQuestionPickerDialog } from '@/components/checkin/MoodQuestionPickerDialog';
 import { MoodDefinitionDialog } from '@/components/mood/MoodDefinitionDialog';
 import { useQueryClient } from '@tanstack/react-query';
@@ -26,29 +28,15 @@ export default function MoodPathwaySettings() {
   const isRTL = i18n.language === 'ar';
   const queryClient = useQueryClient();
 
-  const [tenantId, setTenantId] = useState<string | null>(null);
+  const { user } = useAuth();
+  const { data: tenantId } = useTenantIdQuery(user?.id);
+
   const [localConfigs, setLocalConfigs] = useState<Record<string, MoodQuestionConfig>>({});
   const [savingMood, setSavingMood] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState<string | null>(null);
-  const [savingTags, setSavingTags] = useState(false);
   const [moodDialogOpen, setMoodDialogOpen] = useState(false);
   const [editingMood, setEditingMood] = useState<MoodDefinition | null>(null);
   const [deletingMood, setDeletingMood] = useState<MoodDefinition | null>(null);
-
-  // Fetch tenant id
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) return;
-      supabase
-        .from('profiles')
-        .select('tenant_id')
-        .eq('user_id', data.user.id)
-        .maybeSingle()
-        .then(({ data: profile }) => {
-          if (profile?.tenant_id) setTenantId(profile.tenant_id);
-        });
-    });
-  }, []);
 
   const { configs, isLoading: configsLoading, upsertConfig } = useMoodQuestionConfig(tenantId);
   const { moods, isLoading: moodsLoading, upsertMood, deleteMood, toggleMood, reorderMoods } = useMoodDefinitions(tenantId);
