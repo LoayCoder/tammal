@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { QuestionTypeSelector } from "./QuestionTypeSelector";
 import { Question, QuestionType, CreateQuestionInput } from "@/hooks/useQuestions";
 import { QuestionCategory } from "@/hooks/useQuestionCategories";
+import { DEFAULT_MOOD_META } from '@/config/moods';
 import { Plus, X } from "lucide-react";
 
 interface QuestionDialogProps {
@@ -42,13 +43,11 @@ export function QuestionDialog({
   const [isActive, setIsActive] = useState(true);
   const [isGlobal, setIsGlobal] = useState(false);
 
-  const MOOD_LEVELS = [
-    { value: 'great', label: '😄 Great', label_ar: '😄 ممتاز' },
-    { value: 'good', label: '🙂 Good', label_ar: '🙂 جيد' },
-    { value: 'okay', label: '😐 Okay', label_ar: '😐 عادي' },
-    { value: 'struggling', label: '😟 Struggling', label_ar: '😟 أعاني' },
-    { value: 'need_help', label: '😢 Need Help', label_ar: '😢 بحاجة للمساعدة' },
-  ];
+  const MOOD_LEVELS = DEFAULT_MOOD_META.map(m => ({
+    value: m.key,
+    label: `${m.emoji} ${m.key.charAt(0).toUpperCase() + m.key.slice(1).replace('_', ' ')}`,
+    label_ar: `${m.emoji} ${m.labelAr}`,
+  }));
 
   useEffect(() => {
     if (question) {

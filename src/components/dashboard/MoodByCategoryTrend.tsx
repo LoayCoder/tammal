@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import type { CategoryScore } from '@/hooks/analytics/useOrgAnalytics';
+import { MOOD_CHART_COLORS } from '@/config/moods';
 
 interface MoodByCategoryData {
   date: string;
@@ -21,14 +22,6 @@ interface Props {
   moodByCategoryData: Map<string, MoodByCategoryData[]>;
   isLoading: boolean;
 }
-
-const MOOD_COLORS: Record<string, string> = {
-  great: 'hsl(var(--chart-1))',
-  good: 'hsl(var(--chart-2))',
-  okay: 'hsl(var(--chart-4))',
-  struggling: 'hsl(var(--destructive) / 0.7)',
-  need_help: 'hsl(var(--destructive))',
-};
 
 export function MoodByCategoryTrend({ categories, moodByCategoryData, isLoading }: Props) {
   const { t, i18n } = useTranslation();
@@ -75,7 +68,7 @@ export function MoodByCategoryTrend({ categories, moodByCategoryData, isLoading 
               <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={24} />
               <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '12px', fontSize: 12, boxShadow: '0 8px 32px hsl(var(--primary) / 0.1)' }} />
               <Legend wrapperStyle={{ fontSize: 10 }} />
-              {Object.entries(MOOD_COLORS).map(([key, color]) => (
+              {Object.entries(MOOD_CHART_COLORS).map(([key, color]) => (
                 <Area key={key} type="monotone" dataKey={key} stackId="1" stroke={color} fill={color}
                   name={t(`orgDashboard.moods.${key}`)} fillOpacity={0.6} />
               ))}

@@ -17,14 +17,7 @@ import { toast } from 'sonner';
 import { useQuestionRewrite } from '@/hooks/admin/useQuestionRewrite';
 import type { QuestionPurpose } from '@/components/ai-generator/ConfigPanel';
 import type { MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';
-
-const DEFAULT_MOOD_META: { key: string; emoji: string; labelKey: string }[] = [
-  { key: 'great', emoji: '😄', labelKey: 'checkin.moodGreat' },
-  { key: 'good', emoji: '🙂', labelKey: 'checkin.moodGood' },
-  { key: 'okay', emoji: '😐', labelKey: 'checkin.moodOkay' },
-  { key: 'struggling', emoji: '😟', labelKey: 'checkin.moodStruggling' },
-  { key: 'need_help', emoji: '😞', labelKey: 'checkin.moodNeedHelp' },
-];
+import { DEFAULT_MOOD_META } from '@/config/moods';
 
 interface QuestionCardProps {
   question: EnhancedGeneratedQuestion;

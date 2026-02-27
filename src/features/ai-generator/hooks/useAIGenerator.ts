@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { DEFAULT_AI_MODEL, DEFAULT_ACCURACY_MODE, DEFAULT_AI_SETTINGS } from '@/config/ai';
 import { useEnhancedAIGeneration, type AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
 import { useMoodDefinitions } from '@/hooks/useMoodDefinitions';
 import { useAIModels } from '@/hooks/useAIModels';
@@ -49,19 +50,19 @@ export function useAIGenerator(): AIGeneratorState {
   } = useGenerationPeriods(tenantId || null);
 
   // ─── Local state ─────────────────────────────────────
-  const [accuracyMode, setAccuracyMode] = useState('standard');
-  const [selectedModel, setSelectedModel] = useState('google/gemini-3-flash-preview');
+  const [accuracyMode, setAccuracyMode] = useState(DEFAULT_ACCURACY_MODE);
+  const [selectedModel, setSelectedModel] = useState(DEFAULT_AI_MODEL);
   const [questionTypes, setQuestionTypes] = useState<string[]>([]);
-  const [questionCount, setQuestionCount] = useState(5);
-  const [complexity, setComplexity] = useState('moderate');
-  const [tone, setTone] = useState('neutral');
+  const [questionCount, setQuestionCount] = useState(DEFAULT_AI_SETTINGS.questionCount);
+  const [complexity, setComplexity] = useState(DEFAULT_AI_SETTINGS.complexity);
+  const [tone, setTone] = useState(DEFAULT_AI_SETTINGS.tone);
   const [advancedSettings, setAdvancedSettings] = useState<AdvancedSettings>({
-    requireExplanation: true,
-    enableBiasDetection: true,
-    enableAmbiguityDetection: true,
-    enableDuplicateDetection: true,
-    enableCriticPass: false,
-    minWordLength: 5,
+    requireExplanation: DEFAULT_AI_SETTINGS.requireExplanation,
+    enableBiasDetection: DEFAULT_AI_SETTINGS.enableBiasDetection,
+    enableAmbiguityDetection: DEFAULT_AI_SETTINGS.enableAmbiguityDetection,
+    enableDuplicateDetection: DEFAULT_AI_SETTINGS.enableDuplicateDetection,
+    enableCriticPass: DEFAULT_AI_SETTINGS.enableCriticPass,
+    minWordLength: DEFAULT_AI_SETTINGS.minWordLength,
   });
   const [customPrompt, setCustomPrompt] = useState('');
   const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([]);

@@ -3,13 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { CategoryMoodCell } from '@/lib/wellnessAnalytics';
+import { MOOD_KEYS } from '@/config/moods';
 
 interface Props {
   data: CategoryMoodCell[];
   isLoading: boolean;
 }
-
-const MOOD_LEVELS = ['great', 'good', 'okay', 'struggling', 'need_help'];
 
 function getIntensityColor(count: number, maxCount: number): string {
   if (count === 0) return 'hsl(var(--muted))';
