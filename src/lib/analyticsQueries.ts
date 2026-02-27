@@ -2,6 +2,7 @@
 // Extracted from the monolithic useOrgAnalytics hook.
 
 import { supabase } from '@/integrations/supabase/client';
+import { computeStreak, calculatePoints } from '@/services/gamificationService';
 import type { OrgFilter, MoodEntry, OrgComparison, OrgUnitComparison, TopEngager } from './analyticsTypes';
 
 // ── Org filter helpers ──
@@ -236,22 +237,7 @@ export async function computeTopEngagers(
 
   const streaks: { employeeId: string; streak: number }[] = [];
   Object.entries(empMap).forEach(([empId, dates]) => {
-    const sorted = [...new Set(dates)].sort().reverse();
-    let streak = 1;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const latest = new Date(sorted[0]);
-    latest.setHours(0, 0, 0, 0);
-    const diffFromToday = (today.getTime() - latest.getTime()) / 86400000;
-    if (diffFromToday > 1) {
-      streaks.push({ employeeId: empId, streak: 0 });
-      return;
-    }
-    for (let i = 1; i < sorted.length; i++) {
-      const diff = (new Date(sorted[i - 1]).getTime() - new Date(sorted[i]).getTime()) / 86400000;
-      if (diff === 1) streak++;
-      else break;
-    }
+    const streak = computeStreak(dates.map(d => ({ entry_date: d })));
     streaks.push({ employeeId: empId, streak });
   });
 
@@ -272,11 +258,19 @@ export async function computeTopEngagers(
     respCounts[r.employee_id] = (respCounts[r.employee_id] ?? 0) + 1;
   });
 
-  const merged = streaks.map(s => ({
-    ...s,
-    responseCount: respCounts[s.employeeId] ?? 0,
-    totalPoints: (entries.filter(e => e.employee_id === s.employeeId).length * 10) + (s.streak * 5),
-  }));
+  const merged = streaks.map(s => {
+    const empEntries = entries.filter(e => e.employee_id === s.employeeId);
+    // Accumulate points per entry using canonical formula
+    let totalPoints = 0;
+    for (let i = 0; i < empEntries.length; i++) {
+      totalPoints += calculatePoints(i); // streak before this entry = index
+    }
+    return {
+      ...s,
+      responseCount: respCounts[s.employeeId] ?? 0,
+      totalPoints,
+    };
+  });
   merged.sort((a, b) => b.streak - a.streak || b.responseCount - a.responseCount);
   const top10 = merged.slice(0, 10);
 

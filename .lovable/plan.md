@@ -1,4 +1,21 @@
 
+## Phase 1: Architecture Refactor — STATUS: ✅ COMPLETE
+
+### Completed Items
+
+1. **Database Migration** ✅ — Added unique constraints for idempotency guards on `mood_entries` and `points_transactions`
+2. **Service Layer** ✅ — Created 8 services: `gamificationService`, `checkinService`, `inviteService`, `aiService`, `tenantService`, `accountService`, `moodTaggingService`, `scheduleService`
+3. **Hook Layer** ✅ — Created 11 thin wrapper hooks: `useCheckinSubmit`, `useTodayEntry`, `useAcceptInvite`, `useDeleteAccount`, `usePromptRewrite`, `useQuestionRewrite`, `useMoodTagging`, `useScheduleData`, `useScheduleActions`, `useTenantIdQuery`
+4. **Refactored useGamification** ✅ — Delegates to `gamificationService`
+5. **Unified Analytics** ✅ — `analyticsQueries.ts` now uses `gamificationService.computeStreak()` and `calculatePoints()`
+6. **Refactored 9 P1 Offender Files** ✅ — Removed direct Supabase calls from `DailyCheckin`, `InlineDailyCheckin`, `MoodStep`, `AIQuestionGenerator`, `MoodPathwaySettings`, `AcceptInvite`, `ScheduleManagement`, `DeleteAccountDialog`, `QuestionCard`
+7. **MoodStep tenantId prop threading** ✅ — Accepts `tenantId` via props, no internal fetch
+
+### Deferred Items
+
+- **70 Hook Shim Deletion**: 400+ import references across 61 files. Shims are harmless tree-shakeable re-exports. Can be done incrementally per-module in future PRs.
+
+---
 
 ## Make the App Fully Mobile-Responsive as a PWA
 
@@ -86,4 +103,3 @@ A wrapper component that:
 - The bottom nav uses `env(safe-area-inset-bottom)` for notched devices in standalone PWA mode
 - No database changes required
 - The responsive table pattern can be reused across all admin tables in future iterations
-
