@@ -1,264 +1,25 @@
-import { useState } from 'react';
+/**
+ * AI Question Generator — thin page orchestrator.
+ * All state and business logic lives in useAIGenerator.
+ * This file only composes UI components.
+ */
+
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Sparkles, RefreshCw, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { TopControlBar } from '@/components/ai-generator/TopControlBar';
-import { ConfigPanel, type QuestionPurpose } from '@/components/ai-generator/ConfigPanel';
+import { ConfigPanel } from '@/components/ai-generator/ConfigPanel';
 import { QuestionCard } from '@/components/ai-generator/QuestionCard';
 import { ValidationReport } from '@/components/ai-generator/ValidationReport';
 import { BatchSaveDialog } from '@/components/ai-generator/BatchSaveDialog';
 import { WellnessSavePreviewDialog } from '@/components/ai-generator/WellnessSavePreviewDialog';
-import { useEnhancedAIGeneration, AdvancedSettings } from '@/hooks/useEnhancedAIGeneration';
-import { useMoodDefinitions } from '@/hooks/useMoodDefinitions';
-import { useAIModels } from '@/hooks/useAIModels';
-import { useAIKnowledge } from '@/hooks/useAIKnowledge';
-import { useReferenceFrameworks } from '@/hooks/useReferenceFrameworks';
-import { useQuestionBatches } from '@/hooks/useQuestionBatches';
-import { useGenerationPeriods } from '@/hooks/useGenerationPeriods';
-import { useAuth } from '@/hooks/useAuth';
-import { useTenantIdQuery } from '@/hooks/admin/useTenantIdQuery';
-import { usePromptRewrite } from '@/hooks/admin/usePromptRewrite';
-import { toast } from 'sonner';
+import { useAIGenerator } from '@/features/ai-generator';
 
 export default function AIQuestionGenerator() {
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const { models } = useAIModels();
-  const {
-    documents, uploadDocument, toggleDocument, deleteDocument, deleteAllDocuments, isUploading,
-  } = useAIKnowledge();
-  const {
-    frameworks: referenceFrameworks, isLoading: frameworksLoading,
-    addFramework, updateFramework, deleteFramework,
-  } = useReferenceFrameworks();
-  const {
-    questions, validationReport, generationMeta,
-    generate, validate, saveSet, saveWellness, removeQuestion, updateQuestion, clearAll,
-    isGenerating, regeneratingIndex, isValidating, isSaving, isSavingWellness,
-  } = useEnhancedAIGeneration();
-
-  // Get tenant ID for batch fetching
-  const { data: tenantId } = useTenantIdQuery(user?.id);
-  const { rewritePrompt: rewritePromptFn, isRewriting } = usePromptRewrite();
-
-  const { availableBatches, availableWellnessBatches, MAX_BATCH_SIZE } = useQuestionBatches(tenantId || null);
-  const { moods: moodDefinitions } = useMoodDefinitions(tenantId || null);
-  const { periods, createPeriod, createPeriodAsync, isCreating: isCreatingPeriod, getActivePeriodForPurpose, expirePeriod, softDeletePeriod } = useGenerationPeriods(tenantId || null);
-
-  const [accuracyMode, setAccuracyMode] = useState('standard');
-  const [selectedModel, setSelectedModel] = useState('google/gemini-3-flash-preview');
-  const [questionTypes, setQuestionTypes] = useState<string[]>([]);
-  const [questionCount, setQuestionCount] = useState(5);
-  const [complexity, setComplexity] = useState('moderate');
-  const [tone, setTone] = useState('neutral');
-  const [advancedSettings, setAdvancedSettings] = useState<AdvancedSettings>({
-    requireExplanation: true,
-    enableBiasDetection: true,
-    enableAmbiguityDetection: true,
-    enableDuplicateDetection: true,
-    enableCriticPass: false,
-    minWordLength: 5,
-  });
-  const [customPrompt, setCustomPrompt] = useState('');
-  // isRewriting comes from usePromptRewrite hook above
-  const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([]);
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
-  const [selectedSubcategoryIds, setSelectedSubcategoryIds] = useState<string[]>([]);
-  const [selectedMoodLevels, setSelectedMoodLevels] = useState<string[]>([]);
-  const [batchDialogOpen, setBatchDialogOpen] = useState(false);
-  const [wellnessPreviewOpen, setWellnessPreviewOpen] = useState(false);
-  const [selectedPeriodId, setSelectedPeriodId] = useState<string | null>(null);
-  const [purpose, setPurpose] = useState<QuestionPurpose>('survey');
-  const [questionsPerDay, setQuestionsPerDay] = useState(1);
-
-  const isStrict = accuracyMode === 'strict';
-  const hasFailures = validationReport?.overall_result === 'failed';
-  const canSave = questions.length > 0 && !(isStrict && hasFailures);
-  const canExport = canSave;
-
-  const handleGenerate = async () => {
-    if (selectedCategoryIds.length === 0) {
-      toast.error(t('aiGenerator.selectAtLeastOneCategory'));
-      return;
-    }
-    if (!selectedModel) {
-      toast.error(t('aiGenerator.selectModel'));
-      return;
-    }
-    const activeDocIds = documents.filter(d => d.is_active).map(d => d.id);
-    const resolvedType = questionTypes.length === 0 ? 'mixed' : questionTypes.join(', ');
-    generate({
-      questionCount, complexity, tone, questionType: resolvedType,
-      model: selectedModel, accuracyMode, advancedSettings, language: 'both',
-      useExpertKnowledge: selectedFrameworkIds.length > 0,
-      knowledgeDocumentIds: activeDocIds,
-      customPrompt: customPrompt.trim() || undefined,
-      selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
-      categoryIds: selectedCategoryIds,
-      subcategoryIds: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
-      moodLevels: purpose === 'wellness' ? selectedMoodLevels : undefined,
-      periodId: selectedPeriodId || undefined,
-    });
-  };
-
-  const handleRewritePrompt = async () => {
-    if (customPrompt.trim().length < 10) return;
-    const activeDocs = documents.filter(d => d.is_active && d.content_text);
-    const documentSummaries = activeDocs
-      .map(d => `[${d.file_name}]: ${(d.content_text || '').substring(0, 400)}`)
-      .join('\n')
-      .substring(0, 2000);
-
-    const result = await rewritePromptFn({
-      prompt: customPrompt,
-      model: selectedModel,
-      useExpertKnowledge: selectedFrameworkIds.length > 0,
-      selectedFrameworkIds: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
-      documentSummaries: documentSummaries || undefined,
-    });
-
-    if (result) {
-      setCustomPrompt(result);
-    }
-  };
-
-  const handleValidate = () => {
-    const activeDocIds = documents.filter(d => d.is_active).map(d => d.id);
-    validate({
-      questions, accuracyMode,
-      model: selectedModel,
-      enableCriticPass: advancedSettings.enableCriticPass,
-      minWordLength: advancedSettings.minWordLength,
-      selectedFrameworkIds: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
-      knowledgeDocumentIds: activeDocIds.length > 0 ? activeDocIds : undefined,
-      hasDocuments: documents.length > 0,
-      periodId: selectedPeriodId || undefined,
-    });
-  };
-
-  const handleSaveClick = () => {
-    if (purpose === 'wellness') {
-      setWellnessPreviewOpen(true);
-    } else {
-      setBatchDialogOpen(true);
-    }
-  };
-
-  const handleWellnessConfirm = (targetBatchId?: string) => {
-    saveWellness({ questions, targetBatchId }, {
-      onSuccess: () => {
-        setWellnessPreviewOpen(false);
-        clearAll();
-        if (documents.length > 0) deleteAllDocuments();
-      },
-    });
-  };
-
-  const handleBatchConfirm = (targetBatchId?: string) => {
-    saveSet({
-      questions, model: selectedModel, accuracyMode,
-      settings: {
-        questionCount, complexity, tone, questionTypes, advancedSettings,
-        selected_framework_ids: selectedFrameworkIds,
-        custom_prompt: customPrompt,
-        categoryIds: selectedCategoryIds,
-        subcategoryIds: selectedSubcategoryIds,
-      },
-      validationReport,
-      targetBatchId,
-    }, {
-      onSuccess: () => {
-        setBatchDialogOpen(false);
-        clearAll();
-        if (documents.length > 0) deleteAllDocuments();
-      },
-    });
-  };
-
-  const handleExport = (format: 'json' | 'pdf') => {
-    const exportData = {
-      metadata: {
-        model: selectedModel, accuracyMode, generatedAt: new Date().toISOString(),
-        settings: { questionCount, complexity, tone, questionTypes, selectedFrameworkIds, selectedCategoryIds, selectedSubcategoryIds },
-        validation: validationReport ? { overall: validationReport.overall_result, avgConfidence: validationReport.avg_confidence } : null,
-      },
-      questions: questions.map(q => ({
-        question_text: q.question_text, question_text_ar: q.question_text_ar,
-        type: q.type, complexity: q.complexity, tone: q.tone,
-        confidence_score: q.confidence_score, explanation: q.explanation,
-        framework_reference: q.framework_reference,
-        category_id: q.category_id || null,
-        subcategory_id: q.subcategory_id || null,
-        category_name: q.category_name || null,
-        subcategory_name: q.subcategory_name || null,
-        mood_score: q.mood_score || null,
-        affective_state: q.affective_state || null,
-        generation_period_id: q.generation_period_id || null,
-      })),
-    };
-
-    if (format === 'json') {
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `question-set-${new Date().toISOString().split('T')[0]}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success(t('aiGenerator.exportSuccess'));
-    } else {
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        const html = `<html><head><title>Question Set</title><style>body{font-family:sans-serif;padding:2rem;} .q{margin:1rem 0;padding:1rem;border:1px solid #ddd;border-radius:8px;} .badge{display:inline-block;padding:2px 8px;border-radius:4px;background:#f0f0f0;font-size:12px;margin-inline-end:4px;} .ar{direction:rtl;color:#666;margin-top:4px;}</style></head><body>
-          <h1>${t('aiGenerator.title')}</h1>
-          <p>Model: ${selectedModel} | Accuracy: ${accuracyMode} | ${new Date().toLocaleDateString()}</p>
-          ${questions.map((q, i) => `<div class="q"><span class="badge">${q.type}</span><span class="badge">${q.complexity}</span><span class="badge">${q.confidence_score}%</span>${q.framework_reference ? `<span class="badge">${q.framework_reference}</span>` : ''}<p><strong>${i + 1}. ${q.question_text}</strong></p><p class="ar">${q.question_text_ar}</p>${q.explanation ? `<p style="font-size:12px;color:#888;">${q.explanation}</p>` : ''}</div>`).join('')}
-        </body></html>`;
-        printWindow.document.write(html);
-        printWindow.document.close();
-        printWindow.print();
-      }
-    }
-  };
-
-  const handleRegenerateFailedOnly = () => {
-    const failedCount = questions.filter(q => q.validation_status === 'failed').length;
-    if (failedCount === 0) return;
-    const activeDocIds = documents.filter(d => d.is_active).map(d => d.id);
-    const resolvedType = questionTypes.length === 0 ? 'mixed' : questionTypes.join(', ');
-    generate({
-      questionCount: failedCount, complexity, tone, questionType: resolvedType,
-      model: selectedModel, accuracyMode, advancedSettings, language: 'both',
-      useExpertKnowledge: selectedFrameworkIds.length > 0,
-      knowledgeDocumentIds: activeDocIds.length > 0 ? activeDocIds : undefined,
-      selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
-      categoryIds: selectedCategoryIds,
-      subcategoryIds: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
-      moodLevels: purpose === 'wellness' ? selectedMoodLevels : undefined,
-      periodId: selectedPeriodId || undefined,
-    });
-  };
-
-  const handleRegenerateSingle = (index: number) => {
-    const activeDocIds = documents.filter(d => d.is_active).map(d => d.id);
-    const q = questions[index];
-    const singleType = q.type || (questionTypes.length === 0 ? 'mixed' : questionTypes.join(', '));
-    generate({
-      questionCount: 1, complexity: q.complexity || complexity, tone: q.tone || tone, questionType: singleType,
-      model: selectedModel, accuracyMode, advancedSettings, language: 'both',
-      useExpertKnowledge: selectedFrameworkIds.length > 0,
-      knowledgeDocumentIds: activeDocIds.length > 0 ? activeDocIds : undefined,
-      selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
-      categoryIds: selectedCategoryIds,
-      subcategoryIds: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
-      moodLevels: purpose === 'wellness' ? (q.mood_levels?.length ? q.mood_levels : selectedMoodLevels) : undefined,
-      periodId: selectedPeriodId || undefined,
-      _replaceAtIndex: index,
-    } as any);
-  };
+  const g = useAIGenerator();
 
   return (
     <div className="space-y-6">
@@ -269,111 +30,81 @@ export default function AIQuestionGenerator() {
 
       <div className="glass-card border-0 rounded-xl">
         <TopControlBar
-          accuracyMode={accuracyMode}
-          onAccuracyModeChange={setAccuracyMode}
-          selectedModel={selectedModel}
-          onModelChange={setSelectedModel}
-          models={models}
-          onSave={handleSaveClick}
-          onExport={handleExport}
-          canSave={canSave}
-          canExport={canExport}
-          isSaving={isSaving || isSavingWellness}
+          accuracyMode={g.accuracyMode}
+          onAccuracyModeChange={g.setAccuracyMode}
+          selectedModel={g.selectedModel}
+          onModelChange={g.setSelectedModel}
+          models={g.models}
+          onSave={g.handleSaveClick}
+          onExport={g.handleExport}
+          canSave={g.canSave}
+          canExport={g.canExport}
+          isSaving={g.isSaving || g.isSavingWellness}
         />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5">
         <div className="lg:col-span-2">
           <ConfigPanel
-            purpose={purpose}
-            onPurposeChange={setPurpose}
-            questionTypes={questionTypes}
-            onQuestionTypesChange={setQuestionTypes}
-            questionCount={questionCount}
-            onQuestionCountChange={setQuestionCount}
-            complexity={complexity}
-            onComplexityChange={setComplexity}
-            tone={tone}
-            onToneChange={setTone}
-            advancedSettings={advancedSettings}
-            onAdvancedSettingsChange={setAdvancedSettings}
-            onGenerate={handleGenerate}
-            isGenerating={isGenerating}
-            documents={documents}
-            onUploadDocument={uploadDocument}
-            onToggleDocument={toggleDocument}
-            onDeleteDocument={deleteDocument}
-            isUploading={isUploading}
-            customPrompt={customPrompt}
-            onCustomPromptChange={setCustomPrompt}
-            onRewritePrompt={handleRewritePrompt}
-            isRewriting={isRewriting}
-            referenceFrameworks={referenceFrameworks}
-            selectedFrameworkIds={selectedFrameworkIds}
-            onSelectedFrameworkIdsChange={setSelectedFrameworkIds}
-            onAddFramework={addFramework}
-            onUpdateFramework={updateFramework}
-            onDeleteFramework={deleteFramework}
-            frameworksLoading={frameworksLoading}
-            currentUserId={user?.id}
-            selectedCategoryIds={selectedCategoryIds}
-            onSelectedCategoryIdsChange={setSelectedCategoryIds}
-            selectedSubcategoryIds={selectedSubcategoryIds}
-            onSelectedSubcategoryIdsChange={setSelectedSubcategoryIds}
-            selectedMoodLevels={selectedMoodLevels}
-            onSelectedMoodLevelsChange={setSelectedMoodLevels}
-            periods={periods}
-            selectedPeriodId={selectedPeriodId}
-            onSelectedPeriodIdChange={setSelectedPeriodId}
-            onCreatePeriod={async (params: any) => {
-              if (tenantId) {
-                try {
-                  const newPeriod = await createPeriodAsync({
-                    tenantId,
-                    periodType: params.periodType,
-                    startDate: params.startDate,
-                    endDate: params.endDate,
-                    lockedCategoryIds: params.lockedCategoryIds,
-                    lockedSubcategoryIds: params.lockedSubcategoryIds,
-                    purpose: params.purpose || purpose,
-                    createdBy: user?.id,
-                  });
-                  if (newPeriod?.id) {
-                    setSelectedPeriodId(newPeriod.id);
-                    const catIds = (newPeriod.locked_category_ids as string[]) || [];
-                    const subIds = (newPeriod.locked_subcategory_ids as string[]) || [];
-                    setSelectedCategoryIds(catIds);
-                    setSelectedSubcategoryIds(subIds);
-                  }
-                } catch {
-                  // Error already handled by mutation onError
-                }
-              }
-            }}
-            isCreatingPeriod={isCreatingPeriod}
-            activePeriodForPurpose={getActivePeriodForPurpose(purpose)}
-            onExpirePeriod={(periodId) => {
-              expirePeriod(periodId);
-              if (selectedPeriodId === periodId) setSelectedPeriodId(null);
-            }}
-            onDeletePeriod={(periodId) => {
-              softDeletePeriod(periodId);
-              if (selectedPeriodId === periodId) setSelectedPeriodId(null);
-            }}
-            questionsPerDay={questionsPerDay}
-            onQuestionsPerDayChange={setQuestionsPerDay}
+            purpose={g.purpose}
+            onPurposeChange={g.setPurpose}
+            questionTypes={g.questionTypes}
+            onQuestionTypesChange={g.setQuestionTypes}
+            questionCount={g.questionCount}
+            onQuestionCountChange={g.setQuestionCount}
+            complexity={g.complexity}
+            onComplexityChange={g.setComplexity}
+            tone={g.tone}
+            onToneChange={g.setTone}
+            advancedSettings={g.advancedSettings}
+            onAdvancedSettingsChange={g.setAdvancedSettings}
+            onGenerate={g.handleGenerate}
+            isGenerating={g.isGenerating}
+            documents={g.documents}
+            onUploadDocument={g.uploadDocument}
+            onToggleDocument={g.toggleDocument}
+            onDeleteDocument={g.deleteDocument}
+            isUploading={g.isUploading}
+            customPrompt={g.customPrompt}
+            onCustomPromptChange={g.setCustomPrompt}
+            onRewritePrompt={g.handleRewritePrompt}
+            isRewriting={g.isRewriting}
+            referenceFrameworks={g.referenceFrameworks}
+            selectedFrameworkIds={g.selectedFrameworkIds}
+            onSelectedFrameworkIdsChange={g.setSelectedFrameworkIds}
+            onAddFramework={g.addFramework}
+            onUpdateFramework={g.updateFramework}
+            onDeleteFramework={g.deleteFramework}
+            frameworksLoading={g.frameworksLoading}
+            currentUserId={g.currentUserId}
+            selectedCategoryIds={g.selectedCategoryIds}
+            onSelectedCategoryIdsChange={g.setSelectedCategoryIds}
+            selectedSubcategoryIds={g.selectedSubcategoryIds}
+            onSelectedSubcategoryIdsChange={g.setSelectedSubcategoryIds}
+            selectedMoodLevels={g.selectedMoodLevels}
+            onSelectedMoodLevelsChange={g.setSelectedMoodLevels}
+            periods={g.periods}
+            selectedPeriodId={g.selectedPeriodId}
+            onSelectedPeriodIdChange={g.setSelectedPeriodId}
+            onCreatePeriod={g.handleCreatePeriod}
+            isCreatingPeriod={g.isCreatingPeriod}
+            activePeriodForPurpose={g.activePeriodForPurpose}
+            onExpirePeriod={g.handleExpirePeriod}
+            onDeletePeriod={g.handleDeletePeriod}
+            questionsPerDay={g.questionsPerDay}
+            onQuestionsPerDayChange={g.setQuestionsPerDay}
           />
         </div>
 
         <div className="lg:col-span-3 space-y-4">
-          {isStrict && hasFailures && questions.length > 0 && (
+          {g.isStrict && g.hasFailures && g.questions.length > 0 && (
             <Alert variant="destructive" className="glass-card border-0 rounded-xl">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>{t('aiGenerator.strictModeMessage')}</AlertDescription>
             </Alert>
           )}
 
-          {(isGenerating && regeneratingIndex === null) ? (
+          {(g.isGenerating && g.regeneratingIndex === null) ? (
             <div className="glass-card border-0 rounded-xl p-6 space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="space-y-2">
@@ -383,7 +114,7 @@ export default function AIQuestionGenerator() {
                 </div>
               ))}
             </div>
-          ) : questions.length === 0 ? (
+          ) : g.questions.length === 0 ? (
             <div className="glass-card border-0 rounded-xl py-16 text-center">
               <Sparkles className="h-16 w-16 mx-auto mb-4 text-muted-foreground/30" />
               <h3 className="text-lg font-semibold text-muted-foreground">{t('aiGenerator.emptyTitle')}</h3>
@@ -393,33 +124,33 @@ export default function AIQuestionGenerator() {
             <>
               <div className="glass-card border-0 rounded-xl p-3 flex items-center justify-between flex-wrap gap-2">
                 <span className="text-sm text-muted-foreground px-2">
-                  {t('aiGenerator.questionsGenerated', { count: questions.length })}
-                  {generationMeta && ` • ${generationMeta.duration_ms}ms`}
+                  {t('aiGenerator.questionsGenerated', { count: g.questions.length })}
+                  {g.generationMeta && ` • ${g.generationMeta.duration_ms}ms`}
                 </span>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={handleValidate} disabled={isValidating}>
-                    {isValidating ? <RefreshCw className="h-4 w-4 animate-spin me-1" /> : <ShieldCheck className="h-4 w-4 me-1" />}
+                  <Button variant="outline" size="sm" onClick={g.handleValidate} disabled={g.isValidating}>
+                    {g.isValidating ? <RefreshCw className="h-4 w-4 animate-spin me-1" /> : <ShieldCheck className="h-4 w-4 me-1" />}
                     {t('aiGenerator.runValidation')}
                   </Button>
-                  {isStrict && hasFailures && (
-                    <Button variant="outline" size="sm" onClick={handleRegenerateFailedOnly}>
+                  {g.isStrict && g.hasFailures && (
+                    <Button variant="outline" size="sm" onClick={g.handleRegenerateFailedOnly}>
                       <RefreshCw className="h-4 w-4 me-1" />
                       {t('aiGenerator.regenerateFailed')}
                     </Button>
                   )}
-                  <Button variant="ghost" size="sm" onClick={() => { clearAll(); if (documents.length > 0) deleteAllDocuments(); }}>
+                  <Button variant="ghost" size="sm" onClick={g.handleClearAll}>
                     {t('aiGenerator.clearAll')}
                   </Button>
                 </div>
               </div>
 
-              {validationReport && (
-                <ValidationReport report={validationReport} isStrictMode={isStrict} />
+              {g.validationReport && (
+                <ValidationReport report={g.validationReport} isStrictMode={g.isStrict} />
               )}
 
               <div className="space-y-3">
-                {questions.map((q, i) => (
-                  <QuestionCard key={i} question={q} index={i} onRemove={removeQuestion} onUpdate={updateQuestion} onRegenerate={handleRegenerateSingle} selectedModel={selectedModel} purpose={purpose} moodDefinitions={moodDefinitions} isRegenerating={regeneratingIndex === i} />
+                {g.questions.map((q, i) => (
+                  <QuestionCard key={i} question={q} index={i} onRemove={g.removeQuestion} onUpdate={g.updateQuestion} onRegenerate={g.handleRegenerateSingle} selectedModel={g.selectedModel} purpose={g.purpose} moodDefinitions={g.moodDefinitions} isRegenerating={g.regeneratingIndex === i} />
                 ))}
               </div>
             </>
@@ -428,23 +159,23 @@ export default function AIQuestionGenerator() {
       </div>
 
       <BatchSaveDialog
-        open={batchDialogOpen}
-        onOpenChange={setBatchDialogOpen}
-        availableBatches={availableBatches}
-        questionCount={questions.length}
-        maxBatchSize={MAX_BATCH_SIZE}
-        onConfirm={handleBatchConfirm}
-        isSaving={isSaving}
+        open={g.batchDialogOpen}
+        onOpenChange={g.setBatchDialogOpen}
+        availableBatches={g.availableBatches}
+        questionCount={g.questions.length}
+        maxBatchSize={g.MAX_BATCH_SIZE}
+        onConfirm={g.handleBatchConfirm}
+        isSaving={g.isSaving}
       />
 
       <WellnessSavePreviewDialog
-        open={wellnessPreviewOpen}
-        onOpenChange={setWellnessPreviewOpen}
-        questions={questions}
-        onConfirm={handleWellnessConfirm}
-        isSaving={isSavingWellness}
-        availableBatches={availableWellnessBatches}
-        maxBatchSize={MAX_BATCH_SIZE}
+        open={g.wellnessPreviewOpen}
+        onOpenChange={g.setWellnessPreviewOpen}
+        questions={g.questions}
+        onConfirm={g.handleWellnessConfirm}
+        isSaving={g.isSavingWellness}
+        availableBatches={g.availableWellnessBatches}
+        maxBatchSize={g.MAX_BATCH_SIZE}
       />
     </div>
   );
