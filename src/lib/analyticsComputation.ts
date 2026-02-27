@@ -1,5 +1,6 @@
 // ── Pure computation functions for analytics ───────────────
 // Extracted from useOrgAnalytics — no Supabase calls here.
+// Streak logic delegates to gamificationService for UTC consistency.
 
 import { format, getDay } from 'date-fns';
 import type {
