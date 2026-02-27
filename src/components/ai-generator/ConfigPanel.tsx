@@ -21,12 +21,10 @@ import { KnowledgeBasePanel } from './KnowledgeBasePanel';
 import { FrameworkSelector } from './FrameworkSelector';
 import { CreatePeriodDialog } from './CreatePeriodDialog';
 import { DistributionPreview } from './DistributionPreview';
-import { KnowledgeDocument } from '@/hooks/questions/useAIKnowledge';
-import { ReferenceFramework } from '@/hooks/questions/useReferenceFrameworks';
-import { GenerationPeriod } from '@/hooks/questions/useGenerationPeriods';
 import { useQuestionCategories } from '@/hooks/questions/useQuestionCategories';
 import { useQuestionSubcategories } from '@/hooks/questions/useQuestionSubcategories';
 import { useState } from 'react';
+import { useGeneratorContext } from '@/features/ai-generator';
 
 export type QuestionPurpose = 'survey' | 'wellness';
 
@@ -38,131 +36,31 @@ const MOOD_LEVELS_META = [
   { value: 'need_help', label: '😢 Need Help', label_ar: '😢 بحاجة للمساعدة' },
 ];
 
-interface ConfigPanelProps {
-  purpose: QuestionPurpose;
-  onPurposeChange: (purpose: QuestionPurpose) => void;
-  questionTypes: string[];
-  onQuestionTypesChange: (types: string[]) => void;
-  questionCount: number;
-  onQuestionCountChange: (count: number) => void;
-  complexity: string;
-  onComplexityChange: (complexity: string) => void;
-  tone: string;
-  onToneChange: (tone: string) => void;
-  advancedSettings: AdvancedSettings;
-  onAdvancedSettingsChange: (settings: AdvancedSettings) => void;
-  onGenerate: () => void;
-  isGenerating: boolean;
-  // Knowledge base props
-  documents: KnowledgeDocument[];
-  onUploadDocument: (file: File) => void;
-  onToggleDocument: (params: { id: string; isActive: boolean }) => void;
-  onDeleteDocument: (id: string) => void;
-  isUploading: boolean;
-  customPrompt: string;
-  onCustomPromptChange: (value: string) => void;
-  onRewritePrompt: () => void;
-  isRewriting: boolean;
-  // Reference frameworks
-  referenceFrameworks: ReferenceFramework[];
-  selectedFrameworkIds: string[];
-  onSelectedFrameworkIdsChange: (ids: string[]) => void;
-  onAddFramework: (data: any) => void;
-  onUpdateFramework: (data: any) => void;
-  onDeleteFramework: (id: string) => void;
-  frameworksLoading: boolean;
-  currentUserId?: string;
-  // Multi-select categories & subcategories
-  selectedCategoryIds: string[];
-  onSelectedCategoryIdsChange: (ids: string[]) => void;
-  selectedSubcategoryIds: string[];
-  onSelectedSubcategoryIdsChange: (ids: string[]) => void;
-  // Mood level tags (wellness purpose only)
-  selectedMoodLevels: string[];
-  onSelectedMoodLevelsChange: (levels: string[]) => void;
-  // Generation periods
-  periods: GenerationPeriod[];
-  selectedPeriodId: string | null;
-  onSelectedPeriodIdChange: (id: string | null) => void;
-  onCreatePeriod: (params: any) => void;
-  isCreatingPeriod: boolean;
-  activePeriodForPurpose: GenerationPeriod | null;
-  onExpirePeriod: (periodId: string) => void;
-  onDeletePeriod: (periodId: string) => void;
-  questionsPerDay: number;
-  onQuestionsPerDayChange: (perDay: number) => void;
-}
-
-export function ConfigPanel({
-  purpose,
-  onPurposeChange,
-  questionTypes,
-  onQuestionTypesChange,
-  questionCount,
-  onQuestionCountChange,
-  complexity,
-  onComplexityChange,
-  tone,
-  onToneChange,
-  advancedSettings,
-  onAdvancedSettingsChange,
-  onGenerate,
-  isGenerating,
-  documents,
-  onUploadDocument,
-  onToggleDocument,
-  onDeleteDocument,
-  isUploading,
-  customPrompt,
-  onCustomPromptChange,
-  onRewritePrompt,
-  isRewriting,
-  referenceFrameworks,
-  selectedFrameworkIds,
-  onSelectedFrameworkIdsChange,
-  onAddFramework,
-  onUpdateFramework,
-  onDeleteFramework,
-  frameworksLoading,
-  currentUserId,
-  selectedCategoryIds,
-  onSelectedCategoryIdsChange,
-  selectedSubcategoryIds,
-  onSelectedSubcategoryIdsChange,
-  selectedMoodLevels,
-  onSelectedMoodLevelsChange,
-  periods,
-  selectedPeriodId,
-  onSelectedPeriodIdChange,
-  onCreatePeriod,
-  isCreatingPeriod,
-  activePeriodForPurpose,
-  onExpirePeriod,
-  onDeletePeriod,
-  questionsPerDay,
-  onQuestionsPerDayChange,
-}: ConfigPanelProps) {
+export function ConfigPanel() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [createPeriodOpen, setCreatePeriodOpen] = useState(false);
   const [categorySearch, setCategorySearch] = useState('');
   const [subcategorySearch, setSubcategorySearch] = useState('');
+
+  const g = useGeneratorContext();
+
   const { categories = [] } = useQuestionCategories();
   const { subcategories: allSubcategories = [] } = useQuestionSubcategories();
   const activeCategories = (categories || []).filter(c => c.is_active);
 
   // When a period is selected, lock to its categories/subcategories
-  const selectedPeriod = periods.find(p => p.id === selectedPeriodId) || null;
+  const selectedPeriod = g.periods.find(p => p.id === g.selectedPeriodId) || null;
   const isPeriodLocked = !!selectedPeriod;
-  const isGenerationLocked = !!activePeriodForPurpose && activePeriodForPurpose.id !== selectedPeriodId;
+  const isGenerationLocked = !!g.activePeriodForPurpose && g.activePeriodForPurpose.id !== g.selectedPeriodId;
 
   // Filter periods by current purpose
-  const purposePeriods = periods.filter(p => p.purpose === purpose);
+  const purposePeriods = g.periods.filter(p => p.purpose === g.purpose);
 
   // Filter subcategories by selected categories
-  const effectiveCategoryIds = isPeriodLocked ? (selectedPeriod.locked_category_ids || []) as string[] : selectedCategoryIds;
-  const effectiveSubcategoryIds = isPeriodLocked ? (selectedPeriod.locked_subcategory_ids || []) as string[] : selectedSubcategoryIds;
+  const effectiveCategoryIds = isPeriodLocked ? (selectedPeriod.locked_category_ids || []) as string[] : g.selectedCategoryIds;
+  const effectiveSubcategoryIds = isPeriodLocked ? (selectedPeriod.locked_subcategory_ids || []) as string[] : g.selectedSubcategoryIds;
   const filteredSubcategories = allSubcategories.filter(
     s => s.is_active && effectiveCategoryIds.includes(s.category_id)
   );
@@ -176,11 +74,11 @@ export function ConfigPanel({
   const periodDays = selectedPeriod
     ? Math.max(1, differenceInDays(parseISO(selectedPeriod.end_date), parseISO(selectedPeriod.start_date)))
     : 0;
-  const autoQuestionCount = selectedPeriod ? periodDays * questionsPerDay : 0;
+  const autoQuestionCount = selectedPeriod ? periodDays * g.questionsPerDay : 0;
 
   // Sync auto-calculated count to parent when period is selected
-  if (selectedPeriod && autoQuestionCount !== questionCount) {
-    onQuestionCountChange(autoQuestionCount);
+  if (selectedPeriod && autoQuestionCount !== g.questionCount) {
+    g.setQuestionCount(autoQuestionCount);
   }
 
   // Search filtering
@@ -197,35 +95,34 @@ export function ConfigPanel({
   });
 
   const toggleCategory = (categoryId: string) => {
-    const isSelected = selectedCategoryIds.includes(categoryId);
+    const isSelected = g.selectedCategoryIds.includes(categoryId);
     let nextIds: string[];
     if (isSelected) {
-      nextIds = selectedCategoryIds.filter(id => id !== categoryId);
-      // Remove orphaned subcategory selections
+      nextIds = g.selectedCategoryIds.filter(id => id !== categoryId);
       const orphanedSubIds = allSubcategories
         .filter(s => s.category_id === categoryId)
         .map(s => s.id);
       if (orphanedSubIds.length > 0) {
-        onSelectedSubcategoryIdsChange(
-          selectedSubcategoryIds.filter(sid => !orphanedSubIds.includes(sid))
+        g.setSelectedSubcategoryIds(
+          g.selectedSubcategoryIds.filter(sid => !orphanedSubIds.includes(sid))
         );
       }
     } else {
-      nextIds = [...selectedCategoryIds, categoryId];
+      nextIds = [...g.selectedCategoryIds, categoryId];
     }
-    onSelectedCategoryIdsChange(nextIds);
+    g.setSelectedCategoryIds(nextIds);
   };
 
   const toggleSubcategory = (subcategoryId: string) => {
-    if (selectedSubcategoryIds.includes(subcategoryId)) {
-      onSelectedSubcategoryIdsChange(selectedSubcategoryIds.filter(id => id !== subcategoryId));
+    if (g.selectedSubcategoryIds.includes(subcategoryId)) {
+      g.setSelectedSubcategoryIds(g.selectedSubcategoryIds.filter(id => id !== subcategoryId));
     } else {
-      onSelectedSubcategoryIdsChange([...selectedSubcategoryIds, subcategoryId]);
+      g.setSelectedSubcategoryIds([...g.selectedSubcategoryIds, subcategoryId]);
     }
   };
 
   const updateAdvanced = (key: keyof AdvancedSettings, value: any) => {
-    onAdvancedSettingsChange({ ...advancedSettings, [key]: value });
+    g.setAdvancedSettings({ ...g.advancedSettings, [key]: value });
   };
 
   const getCategoryLabel = (c: any) => isRTL && c.name_ar ? c.name_ar : c.name;
@@ -248,8 +145,8 @@ export function ConfigPanel({
             <p className="text-xs text-muted-foreground">{t('aiGenerator.purposeDescription')}</p>
             <ToggleGroup
               type="single"
-              value={purpose}
-              onValueChange={(v) => { if (v) onPurposeChange(v as QuestionPurpose); }}
+              value={g.purpose}
+              onValueChange={(v) => { if (v) g.setPurpose(v as QuestionPurpose); }}
               className="grid grid-cols-2 gap-2"
               variant="outline"
             >
@@ -271,7 +168,7 @@ export function ConfigPanel({
           </div>
 
           {/* Mood Level Tags — only shown when purpose is wellness */}
-          {purpose === 'wellness' && (
+          {g.purpose === 'wellness' && (
             <div className="space-y-2">
               <Label className="text-sm font-medium">{t('aiGenerator.moodLevelTags')}</Label>
               <p className="text-xs text-muted-foreground">{t('aiGenerator.moodLevelTagsDesc')}</p>
@@ -279,12 +176,12 @@ export function ConfigPanel({
                 {MOOD_LEVELS_META.map(mood => (
                   <label key={mood.value} className="flex items-center gap-2 cursor-pointer">
                     <Checkbox
-                      checked={selectedMoodLevels.includes(mood.value)}
+                      checked={g.selectedMoodLevels.includes(mood.value)}
                       onCheckedChange={(checked) => {
                         if (checked) {
-                          onSelectedMoodLevelsChange([...selectedMoodLevels, mood.value]);
+                          g.setSelectedMoodLevels([...g.selectedMoodLevels, mood.value]);
                         } else {
-                          onSelectedMoodLevelsChange(selectedMoodLevels.filter(l => l !== mood.value));
+                          g.setSelectedMoodLevels(g.selectedMoodLevels.filter(l => l !== mood.value));
                         }
                       }}
                     />
@@ -303,16 +200,16 @@ export function ConfigPanel({
             </Label>
             <div className="flex gap-2">
               <Select
-                value={selectedPeriodId || '__freeform__'}
+                value={g.selectedPeriodId || '__freeform__'}
                 onValueChange={(v) => {
                   if (v === '__freeform__') {
-                    onSelectedPeriodIdChange(null);
+                    g.setSelectedPeriodId(null);
                   } else {
-                    onSelectedPeriodIdChange(v);
-                    const period = periods.find(p => p.id === v);
+                    g.setSelectedPeriodId(v);
+                    const period = g.periods.find(p => p.id === v);
                     if (period) {
-                      onSelectedCategoryIdsChange((period.locked_category_ids || []) as string[]);
-                      onSelectedSubcategoryIdsChange((period.locked_subcategory_ids || []) as string[]);
+                      g.setSelectedCategoryIds((period.locked_category_ids || []) as string[]);
+                      g.setSelectedSubcategoryIds((period.locked_subcategory_ids || []) as string[]);
                     }
                   }
                 }}
@@ -338,22 +235,22 @@ export function ConfigPanel({
               </p>
             )}
             {/* Active period management */}
-            {activePeriodForPurpose && (
+            {g.activePeriodForPurpose && (
               <Alert className="py-2">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription className="flex items-center justify-between">
                   <span className="text-xs">
                     {t('aiGenerator.periodActiveInfo', {
-                      start: activePeriodForPurpose.start_date,
-                      end: activePeriodForPurpose.end_date,
+                      start: g.activePeriodForPurpose.start_date,
+                      end: g.activePeriodForPurpose.end_date,
                     })}
                   </span>
                   <div className="flex gap-1 ms-2">
-                    <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => onExpirePeriod(activePeriodForPurpose.id)}>
+                    <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => g.handleExpirePeriod(g.activePeriodForPurpose.id)}>
                       <TimerOff className="h-3 w-3 me-1" />
                       {t('aiGenerator.periodExpire')}
                     </Button>
-                    <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-destructive" onClick={() => onDeletePeriod(activePeriodForPurpose.id)}>
+                    <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-destructive" onClick={() => g.handleDeletePeriod(g.activePeriodForPurpose.id)}>
                       <Trash2 className="h-3 w-3 me-1" />
                       {t('aiGenerator.periodDelete')}
                     </Button>
@@ -395,7 +292,7 @@ export function ConfigPanel({
                         className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent"
                       >
                         <Checkbox
-                          checked={selectedCategoryIds.includes(c.id)}
+                          checked={g.selectedCategoryIds.includes(c.id)}
                           onCheckedChange={() => toggleCategory(c.id)}
                         />
                         <span
@@ -451,7 +348,7 @@ export function ConfigPanel({
                           className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent"
                         >
                           <Checkbox
-                            checked={selectedSubcategoryIds.includes(s.id)}
+                            checked={g.selectedSubcategoryIds.includes(s.id)}
                             onCheckedChange={() => toggleSubcategory(s.id)}
                           />
                           <span
@@ -480,7 +377,7 @@ export function ConfigPanel({
 
           {/* Distribution Preview */}
           {selectedSubsForPreview.length > 0 && (
-            <DistributionPreview subcategories={selectedSubsForPreview} questionCount={questionCount} />
+            <DistributionPreview subcategories={selectedSubsForPreview} questionCount={g.questionCount} />
           )}
 
           {/* Question Type Multi-Select */}
@@ -490,16 +387,16 @@ export function ConfigPanel({
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full justify-between font-normal">
                   <span className="truncate">
-                    {questionTypes.length === 0
+                    {g.questionTypes.length === 0
                       ? t('aiGenerator.typeMixed')
-                      : t('aiGenerator.typesSelected', { count: questionTypes.length })}
+                      : t('aiGenerator.typesSelected', { count: g.questionTypes.length })}
                   </span>
                   <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[260px] p-0" align="start">
                 <ScrollArea className="max-h-[240px] px-2 py-2">
-                  {(purpose === 'wellness'
+                  {(g.purpose === 'wellness'
                     ? [
                         { value: 'likert_5', emoji: '📊', label: t('aiGenerator.typeScale') },
                         { value: 'multiple_choice', emoji: '☑️', label: t('aiGenerator.typeMCQ') },
@@ -524,12 +421,12 @@ export function ConfigPanel({
                       className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent"
                     >
                       <Checkbox
-                        checked={questionTypes.includes(opt.value)}
+                        checked={g.questionTypes.includes(opt.value)}
                         onCheckedChange={() => {
-                          if (questionTypes.includes(opt.value)) {
-                            onQuestionTypesChange(questionTypes.filter(v => v !== opt.value));
+                          if (g.questionTypes.includes(opt.value)) {
+                            g.setQuestionTypes(g.questionTypes.filter(v => v !== opt.value));
                           } else {
-                            onQuestionTypesChange([...questionTypes, opt.value]);
+                            g.setQuestionTypes([...g.questionTypes, opt.value]);
                           }
                         }}
                       />
@@ -553,8 +450,8 @@ export function ConfigPanel({
                 <p className="text-xs text-muted-foreground">{t('aiGenerator.questionsPerDayDesc')}</p>
                 <ToggleGroup
                   type="single"
-                  value={String(questionsPerDay)}
-                  onValueChange={(v) => { if (v) onQuestionsPerDayChange(Number(v)); }}
+                  value={String(g.questionsPerDay)}
+                  onValueChange={(v) => { if (v) g.setQuestionsPerDay(Number(v)); }}
                   className="justify-start"
                 >
                   {[1, 2, 3].map(n => (
@@ -567,7 +464,7 @@ export function ConfigPanel({
               <div className="bg-muted/50 rounded-lg p-3 text-sm">
                 <p className="font-medium">{t('aiGenerator.questionCount')}: {autoQuestionCount}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {t('aiGenerator.totalQuestionsCalc', { days: periodDays, perDay: questionsPerDay, total: autoQuestionCount })}
+                  {t('aiGenerator.totalQuestionsCalc', { days: periodDays, perDay: g.questionsPerDay, total: autoQuestionCount })}
                 </p>
               </div>
             </div>
@@ -575,15 +472,15 @@ export function ConfigPanel({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>{t('aiGenerator.questionCount')}</Label>
-              {purpose === 'survey' ? (
+              {g.purpose === 'survey' ? (
                 <div className="flex items-center gap-1">
                   <Button
                     type="button"
                     variant="outline"
                     size="icon"
                     className="h-9 w-9 shrink-0"
-                    disabled={questionCount <= 1}
-                    onClick={() => onQuestionCountChange(Math.max(1, questionCount - 1))}
+                    disabled={g.questionCount <= 1}
+                    onClick={() => g.setQuestionCount(Math.max(1, g.questionCount - 1))}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
@@ -591,14 +488,14 @@ export function ConfigPanel({
                     type="number"
                     min={1}
                     max={200}
-                    value={questionCount}
+                    value={g.questionCount}
                     onChange={(e) => {
                       const val = parseInt(e.target.value, 10);
-                      if (!isNaN(val)) onQuestionCountChange(Math.min(200, Math.max(1, val)));
+                      if (!isNaN(val)) g.setQuestionCount(Math.min(200, Math.max(1, val)));
                     }}
                     onBlur={(e) => {
                       const val = parseInt(e.target.value, 10);
-                      if (isNaN(val) || val < 1) onQuestionCountChange(1);
+                      if (isNaN(val) || val < 1) g.setQuestionCount(1);
                     }}
                     className="h-9 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
@@ -607,14 +504,14 @@ export function ConfigPanel({
                     variant="outline"
                     size="icon"
                     className="h-9 w-9 shrink-0"
-                    disabled={questionCount >= 200}
-                    onClick={() => onQuestionCountChange(Math.min(200, questionCount + 1))}
+                    disabled={g.questionCount >= 200}
+                    onClick={() => g.setQuestionCount(Math.min(200, g.questionCount + 1))}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
               ) : (
-                <Select value={String(questionCount)} onValueChange={v => onQuestionCountChange(Number(v))}>
+                <Select value={String(g.questionCount)} onValueChange={v => g.setQuestionCount(Number(v))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {Array.from({ length: 20 }, (_, i) => i + 1).map(n => (
@@ -626,7 +523,7 @@ export function ConfigPanel({
             </div>
             <div className="space-y-2">
               <Label>{t('aiGenerator.complexity')}</Label>
-              <Select value={complexity} onValueChange={onComplexityChange}>
+              <Select value={g.complexity} onValueChange={g.setComplexity}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="simple">{t('aiGenerator.simple')}</SelectItem>
@@ -642,7 +539,7 @@ export function ConfigPanel({
           {selectedPeriod && (
             <div className="space-y-2">
               <Label>{t('aiGenerator.complexity')}</Label>
-              <Select value={complexity} onValueChange={onComplexityChange}>
+              <Select value={g.complexity} onValueChange={g.setComplexity}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="simple">{t('aiGenerator.simple')}</SelectItem>
@@ -655,7 +552,7 @@ export function ConfigPanel({
 
           <div className="space-y-2">
             <Label>{t('aiGenerator.tone')}</Label>
-            <Select value={tone} onValueChange={onToneChange}>
+            <Select value={g.tone} onValueChange={g.setTone}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="neutral">{t('aiGenerator.neutral')}</SelectItem>
@@ -681,29 +578,29 @@ export function ConfigPanel({
             <CollapsibleContent className="space-y-4 pt-3">
               <div className="flex items-center justify-between">
                 <Label className="text-sm">{t('aiGenerator.requireExplanation')}</Label>
-                <Switch checked={advancedSettings.requireExplanation} onCheckedChange={v => updateAdvanced('requireExplanation', v)} />
+                <Switch checked={g.advancedSettings.requireExplanation} onCheckedChange={v => updateAdvanced('requireExplanation', v)} />
               </div>
               <div className="flex items-center justify-between">
                 <Label className="text-sm">{t('aiGenerator.biasDetection')}</Label>
-                <Switch checked={advancedSettings.enableBiasDetection} onCheckedChange={v => updateAdvanced('enableBiasDetection', v)} />
+                <Switch checked={g.advancedSettings.enableBiasDetection} onCheckedChange={v => updateAdvanced('enableBiasDetection', v)} />
               </div>
               <div className="flex items-center justify-between">
                 <Label className="text-sm">{t('aiGenerator.ambiguityDetection')}</Label>
-                <Switch checked={advancedSettings.enableAmbiguityDetection} onCheckedChange={v => updateAdvanced('enableAmbiguityDetection', v)} />
+                <Switch checked={g.advancedSettings.enableAmbiguityDetection} onCheckedChange={v => updateAdvanced('enableAmbiguityDetection', v)} />
               </div>
               <div className="flex items-center justify-between">
                 <Label className="text-sm">{t('aiGenerator.duplicateDetection')}</Label>
-                <Switch checked={advancedSettings.enableDuplicateDetection} onCheckedChange={v => updateAdvanced('enableDuplicateDetection', v)} />
+                <Switch checked={g.advancedSettings.enableDuplicateDetection} onCheckedChange={v => updateAdvanced('enableDuplicateDetection', v)} />
               </div>
               <div className="flex items-center justify-between">
                 <Label className="text-sm">{t('aiGenerator.criticPass')}</Label>
-                <Switch checked={advancedSettings.enableCriticPass} onCheckedChange={v => updateAdvanced('enableCriticPass', v)} />
+                <Switch checked={g.advancedSettings.enableCriticPass} onCheckedChange={v => updateAdvanced('enableCriticPass', v)} />
               </div>
               <div className="space-y-1">
                 <Label className="text-sm">{t('aiGenerator.minWordLength')}</Label>
                 <Input
                   type="number" min={1} max={50}
-                  value={advancedSettings.minWordLength}
+                  value={g.advancedSettings.minWordLength}
                   onChange={e => updateAdvanced('minWordLength', parseInt(e.target.value) || 5)}
                   className="w-24"
                 />
@@ -733,12 +630,12 @@ export function ConfigPanel({
               <TooltipTrigger asChild>
                 <span className="w-full">
                   <Button
-                    onClick={onGenerate}
-                    disabled={isGenerating || !hasCategorySelected || isGenerationLocked || !prerequisitesMet}
+                    onClick={g.handleGenerate}
+                    disabled={g.isGenerating || !hasCategorySelected || isGenerationLocked || !prerequisitesMet}
                     className="w-full"
                     size="lg"
                   >
-                    {isGenerating ? (
+                    {g.isGenerating ? (
                       <>
                         <Loader2 className="h-5 w-5 animate-spin me-2" />
                         {t('aiGenerator.generating')}
@@ -769,27 +666,27 @@ export function ConfigPanel({
 
       {/* Reference Frameworks (separate card) */}
       <FrameworkSelector
-        frameworks={referenceFrameworks}
-        selectedFrameworkIds={selectedFrameworkIds}
-        onSelectedChange={onSelectedFrameworkIdsChange}
-        onAdd={onAddFramework}
-        onUpdate={onUpdateFramework}
-        onDelete={onDeleteFramework}
-        isLoading={frameworksLoading}
-        currentUserId={currentUserId}
+        frameworks={g.referenceFrameworks}
+        selectedFrameworkIds={g.selectedFrameworkIds}
+        onSelectedChange={g.setSelectedFrameworkIds}
+        onAdd={g.addFramework}
+        onUpdate={g.updateFramework}
+        onDelete={g.deleteFramework}
+        isLoading={g.frameworksLoading}
+        currentUserId={g.currentUserId}
       />
 
       {/* Knowledge Base (custom prompt + documents) */}
       <KnowledgeBasePanel
-        documents={documents}
-        onUpload={onUploadDocument}
-        onToggleDocument={onToggleDocument}
-        onDeleteDocument={onDeleteDocument}
-        isUploading={isUploading}
-        customPrompt={customPrompt}
-        onCustomPromptChange={onCustomPromptChange}
-        onRewritePrompt={onRewritePrompt}
-        isRewriting={isRewriting}
+        documents={g.documents}
+        onUpload={g.uploadDocument}
+        onToggleDocument={g.toggleDocument}
+        onDeleteDocument={g.deleteDocument}
+        isUploading={g.isUploading}
+        customPrompt={g.customPrompt}
+        onCustomPromptChange={g.setCustomPrompt}
+        onRewritePrompt={g.handleRewritePrompt}
+        isRewriting={g.isRewriting}
       />
 
       {/* Create Period Dialog */}
@@ -799,12 +696,12 @@ export function ConfigPanel({
         categories={activeCategories}
         subcategories={allSubcategories.filter(s => s.is_active)}
         onConfirm={(params) => {
-          onCreatePeriod(params);
+          g.handleCreatePeriod(params);
           setCreatePeriodOpen(false);
         }}
-        isCreating={isCreatingPeriod}
-        purpose={purpose}
-        activePeriodForPurpose={activePeriodForPurpose}
+        isCreating={g.isCreatingPeriod}
+        purpose={g.purpose}
+        activePeriodForPurpose={g.activePeriodForPurpose}
       />
     </div>
   );
