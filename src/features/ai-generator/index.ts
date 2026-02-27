@@ -4,5 +4,6 @@
  */
 
 export { useAIGenerator } from './hooks/useAIGenerator';
+export { GeneratorProvider, useGeneratorContext } from './context/QuestionGeneratorContext';
 export type { AIGeneratorState } from './types';
 export * from './types';
