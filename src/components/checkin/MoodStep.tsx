@@ -1,8 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useMoodDefinitions, type MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import React from 'react';
 
 // Tailwind color mapping for dynamic mood colors
 const COLOR_STYLES: Record<string, { bgFrom: string; bgTo: string; border: string; activeBorder: string; ring: string; text: string }> = {
@@ -34,29 +33,14 @@ function getMoodStyle(color: string) {
 interface MoodStepProps {
   selectedMood: string | null;
   onSelect: (mood: string) => void;
+  tenantId?: string | null;
 }
 
-export const MoodStep = React.forwardRef<HTMLDivElement, MoodStepProps>(function MoodStep({ selectedMood, onSelect }, ref) {
+export const MoodStep = React.forwardRef<HTMLDivElement, MoodStepProps>(function MoodStep({ selectedMood, onSelect, tenantId }, ref) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
-  const [tenantId, setTenantId] = useState<string | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) return;
-      supabase
-        .from('profiles')
-        .select('tenant_id')
-        .eq('user_id', data.user.id)
-        .maybeSingle()
-        .then(({ data: profile }) => {
-          if (profile?.tenant_id) setTenantId(profile.tenant_id);
-        });
-    });
-  }, []);
-
-  const { activeMoods, isLoading } = useMoodDefinitions(tenantId);
+  const { activeMoods, isLoading } = useMoodDefinitions(tenantId ?? null);
 
   // Use dynamic moods if loaded, fallback to static
   const displayMoods = activeMoods.length > 0
@@ -85,8 +69,6 @@ export const MoodStep = React.forwardRef<HTMLDivElement, MoodStepProps>(function
       </div>
     );
   }
-
-  
 
   return (
     <div ref={ref} className="space-y-3">
