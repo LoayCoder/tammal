@@ -1107,7 +1107,7 @@ export default function ScheduleManagement() {
       {/* Preview Scheduled Questions Dialog */}
       <SchedulePreviewDialog
         open={!!previewId}
-        onOpenChange={(open) => { if (!open) { setPreviewId(null); setPreviewQuestions([]); } }}
+        onOpenChange={(open) => { if (!open) closePreview(); }}
         previewQuestions={previewQuestions}
         previewLoading={previewLoading}
       />
