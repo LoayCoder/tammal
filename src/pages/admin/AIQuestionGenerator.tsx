@@ -19,8 +19,8 @@ import { useReferenceFrameworks } from '@/hooks/useReferenceFrameworks';
 import { useQuestionBatches } from '@/hooks/useQuestionBatches';
 import { useGenerationPeriods } from '@/hooks/useGenerationPeriods';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
+import { useTenantIdQuery } from '@/hooks/admin/useTenantIdQuery';
+import { usePromptRewrite } from '@/hooks/admin/usePromptRewrite';
 import { toast } from 'sonner';
 
 export default function AIQuestionGenerator() {
@@ -41,15 +41,8 @@ export default function AIQuestionGenerator() {
   } = useEnhancedAIGeneration();
 
   // Get tenant ID for batch fetching
-  const { data: tenantId } = useQuery({
-    queryKey: ['user-tenant-id', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return null;
-      const { data } = await supabase.rpc('get_user_tenant_id', { _user_id: user.id });
-      return data as string | null;
-    },
-    enabled: !!user?.id,
-  });
+  const { data: tenantId } = useTenantIdQuery(user?.id);
+  const { rewritePrompt: rewritePromptFn, isRewriting } = usePromptRewrite();
 
   const { availableBatches, availableWellnessBatches, MAX_BATCH_SIZE } = useQuestionBatches(tenantId || null);
   const { moods: moodDefinitions } = useMoodDefinitions(tenantId || null);
