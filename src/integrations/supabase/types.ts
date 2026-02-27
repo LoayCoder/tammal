@@ -5469,6 +5469,7 @@ export type Database = {
         Returns: string
       }
       count_active_cases: { Args: { _first_aider_id: string }; Returns: number }
+      date_trunc_utc: { Args: { ts: string }; Returns: string }
       get_first_aider_id: { Args: { _user_id: string }; Returns: string }
       get_profile_email: { Args: { _user_id: string }; Returns: string }
       get_user_department_id: { Args: { _user_id: string }; Returns: string }
