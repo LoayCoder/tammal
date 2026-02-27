@@ -161,7 +161,9 @@ export function computeStreakDistribution(employeeEntryMap: Record<string, strin
     const sorted = [...new Set(dates)].sort();
     let maxStreak = 1, currentStr = 1;
     for (let i = 1; i < sorted.length; i++) {
-      const diff = (new Date(sorted[i]).getTime() - new Date(sorted[i - 1]).getTime()) / 86400000;
+      const [y1, m1, d1] = sorted[i - 1].split('-').map(Number);
+      const [y2, m2, d2] = sorted[i].split('-').map(Number);
+      const diff = (Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 86400000;
       if (diff === 1) { currentStr++; maxStreak = Math.max(maxStreak, currentStr); }
       else { currentStr = 1; }
     }
