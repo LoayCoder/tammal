@@ -50,12 +50,12 @@ export function useAIGenerator(): AIGeneratorState {
   } = useGenerationPeriods(tenantId || null);
 
   // ─── Local state ─────────────────────────────────────
-  const [accuracyMode, setAccuracyMode] = useState(DEFAULT_ACCURACY_MODE);
-  const [selectedModel, setSelectedModel] = useState(DEFAULT_AI_MODEL);
+  const [accuracyMode, setAccuracyMode] = useState<string>(DEFAULT_ACCURACY_MODE);
+  const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_AI_MODEL);
   const [questionTypes, setQuestionTypes] = useState<string[]>([]);
-  const [questionCount, setQuestionCount] = useState(DEFAULT_AI_SETTINGS.questionCount);
-  const [complexity, setComplexity] = useState(DEFAULT_AI_SETTINGS.complexity);
-  const [tone, setTone] = useState(DEFAULT_AI_SETTINGS.tone);
+  const [questionCount, setQuestionCount] = useState<number>(DEFAULT_AI_SETTINGS.questionCount);
+  const [complexity, setComplexity] = useState<string>(DEFAULT_AI_SETTINGS.complexity);
+  const [tone, setTone] = useState<string>(DEFAULT_AI_SETTINGS.tone);
   const [advancedSettings, setAdvancedSettings] = useState<AdvancedSettings>({
     requireExplanation: DEFAULT_AI_SETTINGS.requireExplanation,
     enableBiasDetection: DEFAULT_AI_SETTINGS.enableBiasDetection,

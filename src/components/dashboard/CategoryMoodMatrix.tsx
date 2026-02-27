@@ -64,7 +64,7 @@ export function CategoryMoodMatrix({ data, isLoading }: Props) {
             <thead>
               <tr>
                 <th className="text-start p-2 font-medium text-muted-foreground">{t('orgDashboard.categoryHealth')}</th>
-                {MOOD_LEVELS.map(mood => (
+                {MOOD_KEYS.map(mood => (
                   <th key={mood} className="p-2 text-center font-medium text-muted-foreground">
                     {t(`orgDashboard.moods.${mood}`)}
                   </th>
@@ -78,7 +78,7 @@ export function CategoryMoodMatrix({ data, isLoading }: Props) {
                     <td className="p-2 font-medium text-sm truncate max-w-[140px]">
                       {isRTL && cat.nameAr ? cat.nameAr : cat.name}
                     </td>
-                    {MOOD_LEVELS.map(mood => {
+                    {MOOD_KEYS.map(mood => {
                       const cell = cat.cells.get(mood);
                       const count = cell?.count ?? 0;
                       return (
