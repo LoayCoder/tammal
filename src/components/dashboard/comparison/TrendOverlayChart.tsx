@@ -6,11 +6,9 @@ import {
 } from 'recharts';
 import { format, parseISO } from 'date-fns';
 
-export interface TrendOverlayPoint {
-  date: string;
-  checkinAvg: number;
-  surveyAvg: number;
-}
+// Re-export from canonical location for backward compat
+export type { TrendOverlayPoint } from '@/lib/analytics/types';
+import type { TrendOverlayPoint } from '@/lib/analytics/types';
 
 interface Props {
   data: TrendOverlayPoint[];
