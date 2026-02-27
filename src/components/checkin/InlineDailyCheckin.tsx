@@ -1,13 +1,15 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useGamification } from '@/hooks/wellness/useGamification';
-import { Loader2, Send, RefreshCw } from 'lucide-react';
+import { Flame, Star, Loader2, Send, RefreshCw } from 'lucide-react';
 import { MoodStep } from '@/components/checkin/MoodStep';
 import { useMoodDefinitions } from '@/hooks/wellness/useMoodDefinitions';
 import { AchievementOverlay } from '@/components/checkin/AchievementOverlay';
@@ -135,7 +137,20 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
         />
       )}
 
-      <div className="space-y-4">
+      <Card className="border-2 border-primary/20 overflow-hidden">
+        <CardContent className="p-4 sm:p-5 space-y-4">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-base">{t('nav.dailyCheckin')}</h3>
+            <div className="flex gap-1.5">
+              <Badge variant="outline" className="gap-1 px-2 py-0.5 rounded-full text-xs">
+                <Flame className="h-3 w-3 text-chart-4" /> {streak}
+              </Badge>
+              <Badge variant="outline" className="gap-1 px-2 py-0.5 rounded-full text-xs">
+                <Star className="h-3 w-3 text-chart-1" /> {totalPoints}
+              </Badge>
+            </div>
+          </div>
 
           {/* 1. Mood Selection — always visible */}
           <MoodStep selectedMood={selectedMood} onSelect={setSelectedMood} />
@@ -178,8 +193,7 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
           {/* Submit button */}
           {selectedMood && (
             <Button
-              className="w-full rounded-3xl h-11 text-sm gap-2 font-semibold animate-in fade-in slide-in-from-bottom-2 duration-300"
-              style={{ background: 'hsl(259 67% 67%)', color: 'hsl(210 40% 98%)' }}
+              className="w-full rounded-xl h-11 text-sm gap-2 font-semibold animate-in fade-in slide-in-from-bottom-2 duration-300"
               onClick={handleSubmit}
               disabled={submitting}
             >
@@ -187,7 +201,8 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
               {t('wellness.submitCheckin')}
             </Button>
           )}
-        </div>
+        </CardContent>
+      </Card>
     </>
   );
 }

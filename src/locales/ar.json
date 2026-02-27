@@ -2347,22 +2347,7 @@
     "atRisk": "معرض للخطر",
     "monthlyCheckins": "هذا الشهر",
     "avgMood": "متوسط المزاج",
-    "currentStreak": "التتابع",
-    "quickAccess": "الوصول السريع",
-    "myServices": "خدماتي",
-    "wellnessTools": "أدوات الرفاهية",
-    "supportServices": "خدمات الدعم",
-    "moodTrend": "اتجاه المزاج",
-    "breathe": "تنفس",
-    "services": "خدمات",
-    "heroCheckinCta": "كيف تشعر اليوم؟",
-    "heroDoneTitle": "كل شيء جاهز! 🎉",
-    "heroDoneSubtitle": "تم التسجيل لهذا اليوم",
-    "resumeSurvey": "استئناف",
-    "startSurvey": "بدء",
-    "moodTrendSlide": "اتجاه المزاج",
-    "streakSlide": "أيام متتالية",
-    "capacitySlide": "سعة الرفاهية"
+    "currentStreak": "التتابع"
   },
   "moodPathway": {
     "title": "متابعة المزاج",
