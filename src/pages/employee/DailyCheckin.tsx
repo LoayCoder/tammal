@@ -1,17 +1,16 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useGamification } from '@/hooks/useGamification';
+import { useGamification } from '@/hooks/wellness/useGamification';
 import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
-import { supabase } from '@/integrations/supabase/client';
+import { useTodayEntry } from '@/hooks/checkin/useTodayEntry';
+import { useCheckinSubmit } from '@/hooks/checkin/useCheckinSubmit';
+import { useMoodDefinitions } from '@/hooks/useMoodDefinitions';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
 import { Flame, Star, Loader2, ArrowRight, ArrowLeft, Send, AlertCircle, RefreshCw, UserX } from 'lucide-react';
 import { MoodStep } from '@/components/checkin/MoodStep';
-import { useMoodDefinitions } from '@/hooks/useMoodDefinitions';
 import { SupportStep } from '@/components/checkin/SupportStep';
 import { CheckinSuccess } from '@/components/checkin/CheckinSuccess';
 
@@ -20,29 +19,15 @@ type Step = 'mood' | 'support';
 export default function DailyCheckin() {
   const { t } = useTranslation();
   
-  const queryClient = useQueryClient();
   const { employee, isLoading: employeeLoading } = useCurrentEmployee();
   const tenantId = employee?.tenant_id || null;
   const { streak, totalPoints, calculatePoints } = useGamification(employee?.id || null);
-
   const { moods: moodDefinitions } = useMoodDefinitions(tenantId);
 
-  // --- Guard: check if already checked in today ---
   const today = new Date().toISOString().split('T')[0];
-  const { data: todayEntry, isLoading: entryLoading } = useQuery({
-    queryKey: ['mood-entry-today', employee?.id, today],
-    queryFn: async () => {
-      if (!employee?.id) return null;
-      const { data } = await supabase
-        .from('mood_entries')
-        .select('*')
-        .eq('employee_id', employee.id)
-        .eq('entry_date', today)
-        .maybeSingle();
-      return data;
-    },
-    enabled: !!employee?.id,
-  });
+  const { data: todayEntry, isLoading: entryLoading } = useTodayEntry(employee?.id || null, today);
+
+  const { submitCheckin, isSubmitting: submitting, error: submitError } = useCheckinSubmit();
 
   const [step, setStep] = useState<Step>('mood');
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
@@ -50,8 +35,6 @@ export default function DailyCheckin() {
   const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [aiTip, setAiTip] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const moodDef = moodDefinitions?.find(m => m.key === selectedMood);
   const moodObj = moodDef ? { level: moodDef.key, score: moodDef.score } : null;
@@ -69,66 +52,32 @@ export default function DailyCheckin() {
   };
 
   const advanceFromMood = () => setStep('support');
-
-  const goBack = () => {
-    if (step === 'support') setStep('mood');
-  };
-
+  const goBack = () => { if (step === 'support') setStep('mood'); };
   const toggleSupportAction = (key: string) => {
     setSupportActions(prev => prev.includes(key) ? prev.filter(a => a !== key) : [...prev, key]);
   };
 
   const handleSubmit = async () => {
     if (!selectedMood || !employee || !moodObj) return;
-    setSubmitting(true);
-    setSubmitError(null);
 
-    try {
-      let tip = '';
-      try {
-        const { data } = await supabase.functions.invoke('generate-daily-tip', {
-          body: { moodLevel: selectedMood, pathwayAnswers: [], language: document.documentElement.lang || 'en' },
-        });
-        tip = data?.tip || '';
-      } catch { /* tip is optional */ }
+    const result = await submitCheckin({
+      tenantId: employee.tenant_id,
+      employeeId: employee.id,
+      userId: employee.user_id!,
+      moodLevel: selectedMood,
+      moodScore: moodObj.score,
+      comment: comment || null,
+      supportActions,
+      answerValue: null,
+      currentStreak: streak,
+      entryDate: today,
+      language: document.documentElement.lang || 'en',
+    });
 
-      const points = calculatePoints(streak);
-
-      const { error: moodError } = await supabase
-        .from('mood_entries' as any)
-        .insert({
-          tenant_id: employee.tenant_id, employee_id: employee.id, mood_level: selectedMood, mood_score: moodObj.score,
-          answer_value: null, answer_text: comment || null,
-          ai_tip: tip || null, support_actions: supportActions, points_earned: points, streak_count: streak + 1,
-          entry_date: today,
-        });
-      if (moodError) throw moodError;
-
-      // Bridge check-in points into the recognition points ledger
-      const { error: ptError } = await supabase
-        .from('points_transactions')
-        .insert({
-          user_id: employee.user_id!,
-          tenant_id: employee.tenant_id,
-          amount: points,
-          source_type: 'daily_checkin',
-          status: 'credited',
-          description: `Daily check-in streak reward`,
-        });
-      if (ptError) console.warn('Points ledger insert failed:', ptError.message);
-
-      queryClient.invalidateQueries({ queryKey: ['gamification'] });
-      queryClient.invalidateQueries({ queryKey: ['mood-entry-today'] });
-      queryClient.invalidateQueries({ queryKey: ['points-transactions'] });
-
-      setAiTip(tip);
+    if (result && !result.alreadySubmitted) {
+      setAiTip(result.tip);
       setSubmitted(true);
-      toast.success(`🎉 +${points} ${t('wellness.points')}!`);
-    } catch (err: any) {
-      setSubmitError(err.message || t('common.error'));
-      toast.error(err.message || t('common.error'));
-    } finally {
-      setSubmitting(false);
+      toast.success(`🎉 +${result.pointsEarned} ${t('wellness.points')}!`);
     }
   };
 
@@ -216,7 +165,7 @@ export default function DailyCheckin() {
       <div className="transition-all duration-300 ease-in-out">
         {step === 'mood' && (
           <div className="glass-card border-0 rounded-xl p-6 space-y-6 animate-in fade-in slide-in-from-end-4 duration-300">
-            <MoodStep selectedMood={selectedMood} onSelect={handleMoodSelected} />
+            <MoodStep selectedMood={selectedMood} onSelect={handleMoodSelected} tenantId={tenantId} />
             {selectedMood && (
               <Button className="w-full rounded-xl h-12 text-base gap-2" onClick={advanceFromMood}>
                 {t('common.next')} <ArrowRight className="h-4 w-4 rtl:rotate-180" />

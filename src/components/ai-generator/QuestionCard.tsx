@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { EnhancedGeneratedQuestion } from '@/hooks/questions/useEnhancedAIGeneration';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { useQuestionRewrite } from '@/hooks/admin/useQuestionRewrite';
 import type { QuestionPurpose } from '@/components/ai-generator/ConfigPanel';
 import type { MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';
 
@@ -68,13 +68,13 @@ const issueLabels: Record<string, string> = {
 
 export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate, selectedModel, purpose, moodDefinitions, isRegenerating }: QuestionCardProps) {
   const { t } = useTranslation();
+  const { rewriteQuestion, isRewriting } = useQuestionRewrite();
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(question.question_text);
   const [editTextAr, setEditTextAr] = useState(question.question_text_ar);
   const [explanationOpen, setExplanationOpen] = useState(false);
   const [rewriteOpen, setRewriteOpen] = useState(false);
   const [rewritePrompt, setRewritePrompt] = useState('');
-  const [isRewriting, setIsRewriting] = useState(false);
 
   const handleSaveEdit = () => {
     onUpdate(index, { question_text: editText, question_text_ar: editTextAr });
@@ -88,33 +88,21 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
 
   const handleRewrite = async () => {
     if (!rewritePrompt.trim()) return;
-    setIsRewriting(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('rewrite-question', {
-        body: {
-          question_text: question.question_text,
-          question_text_ar: question.question_text_ar,
-          type: question.type,
-          prompt: rewritePrompt.trim(),
-          model: selectedModel,
-        },
-      });
+    const result = await rewriteQuestion({
+      question_text: question.question_text,
+      question_text_ar: question.question_text_ar,
+      type: question.type,
+      prompt: rewritePrompt.trim(),
+      model: selectedModel,
+    });
 
-      if (error) throw error;
-      if (!data?.success) throw new Error(data?.error || 'Unknown error');
-
+    if (result) {
       onUpdate(index, {
-        question_text: data.question_text,
-        question_text_ar: data.question_text_ar,
+        question_text: result.question_text,
+        question_text_ar: result.question_text_ar,
       });
       setRewritePrompt('');
       setRewriteOpen(false);
-      toast.success(t('aiGenerator.rewriteSuccess'));
-    } catch (err: any) {
-      console.error('Rewrite error:', err);
-      toast.error(t('aiGenerator.rewriteError'));
-    } finally {
-      setIsRewriting(false);
     }
   };
 

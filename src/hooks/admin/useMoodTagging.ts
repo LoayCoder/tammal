@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { updateMoodTags, unlinkQuestionFromMood } from '@/services/moodTaggingService';
 
-export function useMoodTagging(questions: { id: string; mood_levels?: string[] }[]) {
+export function useMoodTagging(questions: { id: string; mood_levels?: string[]; [key: string]: any }[]) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);

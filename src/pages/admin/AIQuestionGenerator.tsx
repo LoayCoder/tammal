@@ -19,8 +19,8 @@ import { useReferenceFrameworks } from '@/hooks/useReferenceFrameworks';
 import { useQuestionBatches } from '@/hooks/useQuestionBatches';
 import { useGenerationPeriods } from '@/hooks/useGenerationPeriods';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
+import { useTenantIdQuery } from '@/hooks/admin/useTenantIdQuery';
+import { usePromptRewrite } from '@/hooks/admin/usePromptRewrite';
 import { toast } from 'sonner';
 
 export default function AIQuestionGenerator() {
@@ -41,15 +41,8 @@ export default function AIQuestionGenerator() {
   } = useEnhancedAIGeneration();
 
   // Get tenant ID for batch fetching
-  const { data: tenantId } = useQuery({
-    queryKey: ['user-tenant-id', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return null;
-      const { data } = await supabase.rpc('get_user_tenant_id', { _user_id: user.id });
-      return data as string | null;
-    },
-    enabled: !!user?.id,
-  });
+  const { data: tenantId } = useTenantIdQuery(user?.id);
+  const { rewritePrompt: rewritePromptFn, isRewriting } = usePromptRewrite();
 
   const { availableBatches, availableWellnessBatches, MAX_BATCH_SIZE } = useQuestionBatches(tenantId || null);
   const { moods: moodDefinitions } = useMoodDefinitions(tenantId || null);
@@ -70,7 +63,7 @@ export default function AIQuestionGenerator() {
     minWordLength: 5,
   });
   const [customPrompt, setCustomPrompt] = useState('');
-  const [isRewriting, setIsRewriting] = useState(false);
+  // isRewriting comes from usePromptRewrite hook above
   const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([]);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [selectedSubcategoryIds, setSelectedSubcategoryIds] = useState<string[]>([]);
@@ -113,41 +106,22 @@ export default function AIQuestionGenerator() {
 
   const handleRewritePrompt = async () => {
     if (customPrompt.trim().length < 10) return;
-    setIsRewriting(true);
-    try {
-      const activeDocs = documents.filter(d => d.is_active && d.content_text);
-      const documentSummaries = activeDocs
-        .map(d => `[${d.file_name}]: ${(d.content_text || '').substring(0, 400)}`)
-        .join('\n')
-        .substring(0, 2000);
-      const { data, error } = await supabase.functions.invoke('rewrite-prompt', {
-        body: {
-          prompt: customPrompt,
-          model: selectedModel,
-          useExpertKnowledge: selectedFrameworkIds.length > 0,
-          selectedFrameworkIds: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
-          documentSummaries: documentSummaries || undefined,
-        },
-      });
-      if (error) throw error;
-      if (data?.error) {
-        if (data.error.includes('Rate limit')) {
-          toast.error(t('aiGenerator.rateLimitError'));
-        } else if (data.error.includes('Payment required') || data.error.includes('credits')) {
-          toast.error(t('aiGenerator.creditsError'));
-        } else {
-          throw new Error(data.error);
-        }
-        return;
-      }
-      if (data?.rewrittenPrompt) {
-        setCustomPrompt(data.rewrittenPrompt);
-        toast.success(t('aiGenerator.rewriteSuccess'));
-      }
-    } catch (err: any) {
-      toast.error(err.message || t('aiGenerator.rewriteError'));
-    } finally {
-      setIsRewriting(false);
+    const activeDocs = documents.filter(d => d.is_active && d.content_text);
+    const documentSummaries = activeDocs
+      .map(d => `[${d.file_name}]: ${(d.content_text || '').substring(0, 400)}`)
+      .join('\n')
+      .substring(0, 2000);
+
+    const result = await rewritePromptFn({
+      prompt: customPrompt,
+      model: selectedModel,
+      useExpertKnowledge: selectedFrameworkIds.length > 0,
+      selectedFrameworkIds: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
+      documentSummaries: documentSummaries || undefined,
+    });
+
+    if (result) {
+      setCustomPrompt(result);
     }
   };
 

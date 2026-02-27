@@ -26,9 +26,9 @@ import { useProfile } from '@/hooks/useProfile';
 import { useGenerationPeriods } from '@/hooks/useGenerationPeriods';
 import { useMoodQuestionConfig } from '@/hooks/useMoodQuestionConfig';
 import { useMoodDefinitions } from '@/hooks/useMoodDefinitions';
-import { supabase } from '@/integrations/supabase/client';
+import { useScheduleData } from '@/hooks/admin/useScheduleData';
+import { useScheduleActions } from '@/hooks/admin/useScheduleActions';
 import { toast } from 'sonner';
-import { CalendarClock } from 'lucide-react';
 
 // --- Audience Resolution Utility ---
 interface Employee {
@@ -86,14 +86,11 @@ export default function ScheduleManagement() {
   const { configs: moodConfigs, batchUpsertConfigs } = useMoodQuestionConfig(tenantId || null);
   const { activeMoods } = useMoodDefinitions(tenantId || null);
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingSchedule, setEditingSchedule] = useState<QuestionSchedule | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [runningId, setRunningId] = useState<string | null>(null);
-  const [previewId, setPreviewId] = useState<string | null>(null);
-  const [previewQuestions, setPreviewQuestions] = useState<any[]>([]);
-  const [previewLoading, setPreviewLoading] = useState(false);
-  const [audienceViewSchedule, setAudienceViewSchedule] = useState<QuestionSchedule | null>(null);
+  const { availableDepartments, availableEmployees } = useScheduleData(tenantId);
+  const {
+    runningId, previewId, previewQuestions, previewLoading,
+    handleRunNow, handlePreview, closePreview,
+  } = useScheduleActions();
   const [audienceSearch, setAudienceSearch] = useState('');
 
   // Form state

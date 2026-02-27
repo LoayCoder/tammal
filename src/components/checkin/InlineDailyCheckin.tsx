@@ -1,12 +1,10 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useGamification } from '@/hooks/wellness/useGamification';
 import { Flame, Star, Loader2, Send, RefreshCw } from 'lucide-react';
@@ -14,6 +12,8 @@ import { MoodStep } from '@/components/checkin/MoodStep';
 import { useMoodDefinitions } from '@/hooks/wellness/useMoodDefinitions';
 import { AchievementOverlay } from '@/components/checkin/AchievementOverlay';
 import { MoodPathwayQuestions, type PathwayAnswer } from '@/components/checkin/MoodPathwayQuestions';
+import { useTodayEntry } from '@/hooks/checkin/useTodayEntry';
+import { useCheckinSubmit } from '@/hooks/checkin/useCheckinSubmit';
 
 interface InlineDailyCheckinProps {
   employeeId: string;
@@ -24,33 +24,20 @@ interface InlineDailyCheckinProps {
 export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDailyCheckinProps) {
   const { t, i18n } = useTranslation();
   
-  const queryClient = useQueryClient();
-  const { streak, totalPoints, calculatePoints } = useGamification(employeeId);
+  const { streak, totalPoints } = useGamification(employeeId);
+  const { moods: moodDefinitions } = useMoodDefinitions(tenantId);
 
   const today = new Date().toISOString().split('T')[0];
-  const { data: todayEntry, isLoading: entryLoading } = useQuery({
-    queryKey: ['mood-entry-today', employeeId, today],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('mood_entries')
-        .select('*')
-        .eq('employee_id', employeeId)
-        .eq('entry_date', today)
-        .maybeSingle();
-      return data;
-    },
-    enabled: !!employeeId,
-  });
+  const { data: todayEntry, isLoading: entryLoading } = useTodayEntry(employeeId, today);
+
+  const { submitCheckin, isSubmitting: submitting, error: submitError } = useCheckinSubmit();
 
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [pathwayAnswers, setPathwayAnswers] = useState<PathwayAnswer[]>([]);
   const [comment, setComment] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const [showAchievement, setShowAchievement] = useState(false);
   const [achievementData, setAchievementData] = useState<{ streak: number; points: number; tip: string | null }>({ streak: 0, points: 0, tip: null });
 
-  const { moods: moodDefinitions } = useMoodDefinitions(tenantId);
   const moodDef = moodDefinitions?.find(m => m.key === selectedMood);
   const moodObj = moodDef ? { level: moodDef.key, score: moodDef.score } : null;
 
@@ -60,66 +47,31 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
 
   const handleSubmit = async () => {
     if (!selectedMood || !moodObj) return;
-    setSubmitting(true);
-    setSubmitError(null);
 
-    try {
-      let tip = '';
-      try {
-        const { data } = await supabase.functions.invoke('generate-daily-tip', {
-          body: {
-            moodLevel: selectedMood,
-            pathwayAnswers,
-            language: document.documentElement.lang || 'en',
-          },
-        });
-        tip = data?.tip || '';
-      } catch { /* tip is optional */ }
+    const answerValue = {
+      pathway: pathwayAnswers.map(a => ({ theme: a.theme, answer: a.selectedOption, freeText: a.freeText })),
+    };
 
-      const points = calculatePoints(streak);
-      const answerValue = {
-        pathway: pathwayAnswers.map(a => ({ theme: a.theme, answer: a.selectedOption, freeText: a.freeText })),
-      };
+    const result = await submitCheckin({
+      tenantId,
+      employeeId,
+      userId,
+      moodLevel: selectedMood,
+      moodScore: moodObj.score,
+      comment: comment || null,
+      supportActions: [],
+      answerValue,
+      currentStreak: streak,
+      entryDate: today,
+      language: document.documentElement.lang || 'en',
+      pathwayAnswers: pathwayAnswers.map(a => ({ theme: a.theme, selectedOption: a.selectedOption, freeText: a.freeText })),
+    });
 
-      const { error: moodError } = await supabase
-        .from('mood_entries' as any)
-        .insert({
-          tenant_id: tenantId, employee_id: employeeId, mood_level: selectedMood, mood_score: moodObj.score,
-          answer_value: answerValue, answer_text: comment || null,
-          ai_tip: tip || null, support_actions: [], points_earned: points, streak_count: streak + 1,
-          entry_date: today,
-        });
-      if (moodError) throw moodError;
-
-      // Bridge check-in points into the recognition points ledger
-      const { error: ptError } = await supabase
-        .from('points_transactions')
-        .insert({
-          user_id: userId,
-          tenant_id: tenantId,
-          amount: points,
-          source_type: 'daily_checkin',
-          status: 'credited',
-          description: `Daily check-in streak reward`,
-        });
-      if (ptError) console.warn('Points ledger insert failed:', ptError.message);
-
-      queryClient.invalidateQueries({ queryKey: ['gamification'] });
-      queryClient.invalidateQueries({ queryKey: ['mood-entry-today'] });
-      queryClient.invalidateQueries({ queryKey: ['mood-history'] });
-      queryClient.invalidateQueries({ queryKey: ['points-transactions'] });
-
-      setAchievementData({ streak: streak + 1, points, tip });
+    if (result && !result.alreadySubmitted) {
+      setAchievementData({ streak: result.newStreak, points: result.pointsEarned, tip: result.tip });
       setShowAchievement(true);
-
-      // Reset
       setSelectedMood(null);
       setComment('');
-    } catch (err: any) {
-      setSubmitError(err.message || t('common.error'));
-      toast.error(err.message || t('common.error'));
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -153,7 +105,7 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
           </div>
 
           {/* 1. Mood Selection — always visible */}
-          <MoodStep selectedMood={selectedMood} onSelect={setSelectedMood} />
+          <MoodStep selectedMood={selectedMood} onSelect={setSelectedMood} tenantId={tenantId} />
 
           {/* 2. Mood Pathway Questions — the single source of follow-up questions */}
           {selectedMood && moodObj && (
