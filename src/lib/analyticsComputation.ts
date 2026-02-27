@@ -28,6 +28,10 @@ export function computeKPIs(entries: MoodEntry[], totalActive: number) {
 
 // ── Streak computation ──
 
+/**
+ * Compute max streak per employee using UTC-safe date parsing.
+ * Consistent with gamificationService.computeStreak() normalization.
+ */
 export function computeStreaks(entries: MoodEntry[]) {
   const employeeEntryMap: Record<string, string[]> = {};
   entries.forEach(e => {
@@ -40,7 +44,9 @@ export function computeStreaks(entries: MoodEntry[]) {
     const sorted = [...new Set(dates)].sort();
     let maxStreak = 1, currentStreak = 1;
     for (let i = 1; i < sorted.length; i++) {
-      const diff = (new Date(sorted[i]).getTime() - new Date(sorted[i - 1]).getTime()) / 86400000;
+      const [y1, m1, d1] = sorted[i - 1].split('-').map(Number);
+      const [y2, m2, d2] = sorted[i].split('-').map(Number);
+      const diff = (Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 86400000;
       if (diff === 1) { currentStreak++; maxStreak = Math.max(maxStreak, currentStreak); }
       else { currentStreak = 1; }
     }
