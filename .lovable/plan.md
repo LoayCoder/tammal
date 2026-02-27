@@ -1,250 +1,89 @@
 
 
-## Phase 1: Architecture Refactor -- Updated Plan
+## Make the App Fully Mobile-Responsive as a PWA
 
 ### Overview
-Zero-UI-change refactor: remove 70 re-export shims, extract direct database calls into a service layer, unify streak/points logic, and add data integrity safeguards. All user feedback has been incorporated.
+The app has good PWA infrastructure (service worker, manifest, install banner, caching) but several UI areas are not optimized for mobile touch interaction. This plan addresses the key gaps to make the app feel native on phones.
 
----
+### 1. Mobile Bottom Navigation Bar
 
-### 0. Database Migration (New -- Integrity Guards)
+Create a persistent bottom navigation bar for mobile users (visible below `md` breakpoint) with quick-access icons for the most-used sections: Dashboard, Wellness, Support, Profile, and More (opens sidebar).
 
-**Add unique constraints** to prevent double-submit and duplicate data:
+**New file: `src/components/layout/MobileBottomNav.tsx`**
 
-```sql
--- Prevent duplicate daily check-ins
-CREATE UNIQUE INDEX IF NOT EXISTS idx_mood_entries_employee_date
-  ON public.mood_entries (employee_id, entry_date)
-  WHERE deleted_at IS NULL;
+- Fixed to the bottom of the viewport with `safe-area-inset-bottom` padding
+- Glass styling consistent with the header
+- Active state indicator matching `glass-active`
+- Hidden on desktop (`md:hidden`)
+- Uses logical properties for RTL
 
--- Prevent duplicate daily_checkin points for same day
-CREATE UNIQUE INDEX IF NOT EXISTS idx_points_tx_checkin_unique
-  ON public.points_transactions (user_id, source_type, created_at::date)
-  WHERE source_type = 'daily_checkin' AND deleted_at IS NULL;
-```
+**Mount in `MainLayout.tsx`** after the `</main>` tag.
 
-These act as a database-level idempotency guard. The service layer will catch unique-violation errors and treat them as "already submitted" rather than failures.
+### 2. Mobile Card View for Data Tables
 
----
+The `UserTable` (and similar admin tables) renders a full `<table>` which is unusable on small screens. Create a responsive wrapper pattern.
 
-### 1. Service Layer Creation
+**New file: `src/components/ui/responsive-table.tsx`**
 
-#### `src/services/gamificationService.ts` -- Single Source of Truth
+A wrapper component that:
+- On desktop (`md+`): renders children (the table) as-is
+- On mobile (`<md`): renders each row as a stacked card with key-value pairs
 
-Canonical decisions documented in the file:
-- **Source table**: `mood_entries.entry_date` (DATE column, not `created_at`)
-- **UTC normalization**: Parse `entry_date` as `YYYY-MM-DD` in UTC; compare using `Date.UTC()`
-- **Streak semantics**: Streak counts consecutive days ending at today. If today has no entry, the chain starts from yesterday
-- **Points formula**: `calculatePoints(streakBeforeToday)` -- points are based on the streak BEFORE today's entry is recorded. This matches the current behavior where `calculatePoints(streak)` is called before the insert. The decision is: "your reward for today = base 10 + bonus for how many days you already had in a row"
+**Update `src/components/users/UserTable.tsx`**:
+- On mobile: render user cards (avatar, name, email, status badge, role badges, action menu) in a vertical stack
+- On desktop: keep the existing table layout
+- Use `useIsMobile()` hook to switch between views
 
-```text
-Exports:
-  calculatePoints(streakBeforeToday: number): number
-  computeStreak(entries: { entry_date: string }[]): number
-  computeTotalPoints(entries: { points_earned: number | null }[]): number
-  fetchGamificationData(employeeId: string): Promise<{ streak: number; totalPoints: number }>
-```
+### 3. Touch-Friendly Sizing & Spacing
 
-Pure async functions, no React imports, no supabase import at the top level -- supabase client is passed as a parameter or imported from `@/integrations/supabase/client` (since services are not React but can import the configured client).
+**Update `src/index.css`** with mobile-specific utilities:
 
-#### `src/services/checkinService.ts`
+- Add a `.touch-target` utility class ensuring minimum 44x44px tap targets (Apple HIG)
+- Increase padding on interactive elements at small breakpoints
+- Add `overscroll-behavior: contain` on the main scroll area to prevent pull-to-refresh interference in standalone PWA mode
 
-```text
-Exports:
-  fetchTodayEntry(employeeId: string, date: string): Promise<MoodEntry | null>
-  submitMoodEntry(params: CheckinParams): Promise<CheckinResult>
-  generateDailyTip(moodLevel: string, pathwayAnswers: PathwayAnswer[], language: string): Promise<string>
-```
+### 4. PWA Standalone Mode Enhancements
 
-`submitMoodEntry` flow:
-1. Call `generateDailyTip()` (catch errors -- tip is optional)
-2. Call `gamificationService.calculatePoints(currentStreak)` -- streak BEFORE today
-3. Insert into `mood_entries` with `streak_count = currentStreak + 1`
-4. Insert into `points_transactions` (amount = calculated points)
-5. If insert fails with unique violation (23505), return `{ alreadySubmitted: true }` instead of throwing
-6. Return `{ tip, pointsEarned, newStreak, alreadySubmitted: false }`
+**Update `src/index.css`**:
+- Add `@media (display-mode: standalone)` styles to hide browser-specific UI hints
+- Ensure the bottom nav accounts for the home indicator on notched devices
+- Add smooth momentum scrolling (`-webkit-overflow-scrolling: touch`)
 
-No React Query cache invalidation inside the service -- that stays in the hook.
+**Update `src/components/layout/MainLayout.tsx`**:
+- Add `pb-16 md:pb-0` to the main content area to prevent the bottom nav from covering content on mobile
+- Add `overscroll-behavior-y: contain` on the root layout div
 
-#### `src/services/inviteService.ts`
+### 5. Header Adjustments for Mobile
 
-```text
-Exports:
-  verifyInviteCode(code: string): Promise<Invitation | null>
-  acceptInvite(params: AcceptInviteParams): Promise<void>
-```
+**Update `src/components/layout/Header.tsx`**:
+- On mobile, hide the breadcrumb (already done with `hidden md:flex`)
+- Ensure all header action buttons meet 44px touch targets
+- Add the page title as a simple text element on mobile (replacing the breadcrumb)
 
-#### `src/services/aiService.ts`
+### 6. Auth Page Mobile Polish
 
-```text
-Exports:
-  rewritePrompt(params): Promise<RewriteResult>
-  rewriteQuestion(params): Promise<RewriteResult>
-```
+**Update `src/pages/Auth.tsx`**:
+- Add safe-area padding for standalone PWA mode
+- Ensure the form fills the viewport nicely on small screens
+- Make the card full-width on mobile with minimal horizontal padding
 
-Wraps `supabase.functions.invoke('rewrite-prompt')` and `supabase.functions.invoke('rewrite-question')`.
+### Files to Create/Modify
 
-#### `src/services/tenantService.ts`
-
-```text
-Exports:
-  getTenantIdForUser(userId: string): Promise<string | null>  // wraps supabase.rpc('get_user_tenant_id')
-```
-
----
-
-### 2. Hook Layer (Thin Wrappers)
-
-#### `src/hooks/checkin/useCheckinSubmit.ts` (New)
-
-```text
-Exposes: { submitCheckin, isSubmitting, error }
-
-submitCheckin(params) =>
-  1. Calls checkinService.submitMoodEntry()
-  2. If alreadySubmitted, shows info toast, returns
-  3. On success: invalidates React Query caches (gamification, mood-entry-today, mood-history, points-transactions)
-  4. Returns { tip, pointsEarned, newStreak }
-```
-
-Both `DailyCheckin.tsx` and `InlineDailyCheckin.tsx` use this hook. They only:
-- Collect UI inputs (mood, pathway answers, comment)
-- Call `submitCheckin(data)`
-- Show success animation / error messages
-
-#### `src/hooks/checkin/useTodayEntry.ts` (New)
-
-Wraps `checkinService.fetchTodayEntry()` with React Query. Currently duplicated in both `DailyCheckin.tsx` and `InlineDailyCheckin.tsx`.
-
-#### `src/hooks/wellness/useGamification.ts` (Refactor)
-
-Becomes a thin wrapper:
-- `queryFn` calls `gamificationService.fetchGamificationData(employeeId)`
-- `calculatePoints` delegates to `gamificationService.calculatePoints()`
-- No streak computation logic inside the hook
-
-#### `src/hooks/admin/usePromptRewrite.ts` (New)
-Wraps `aiService.rewritePrompt()`.
-
-#### `src/hooks/admin/useQuestionRewrite.ts` (New)
-Wraps `aiService.rewriteQuestion()`.
-
-#### `src/hooks/admin/useMoodTagging.ts` (New)
-Handles tag/untag operations for `MoodPathwaySettings.tsx`.
-
-#### `src/hooks/auth/useAcceptInvite.ts` (New)
-Calls `inviteService.verifyInviteCode()` and `inviteService.acceptInvite()`.
-
-#### `src/hooks/auth/useDeleteAccount.ts` (New)
-Wraps the profile deletion currently inline in `DeleteAccountDialog.tsx`.
-
-#### `src/hooks/admin/useScheduleData.ts` (New)
-Department/employee queries for `ScheduleManagement.tsx`.
-
-#### `src/hooks/admin/useScheduleActions.ts` (New)
-Edge function calls (run-now, preview) for `ScheduleManagement.tsx`.
-
----
-
-### 3. Refactor P1 Offender Files
-
-| File | Change |
+| File | Action |
 |------|--------|
-| `DailyCheckin.tsx` | Remove all `supabase.*` calls. Use `useCheckinSubmit` + `useTodayEntry` |
-| `InlineDailyCheckin.tsx` | Same as above |
-| `MoodStep.tsx` | Remove inline `supabase.auth.getUser()` + profile query. Accept `tenantId` as prop (parent always has it) |
-| `AIQuestionGenerator.tsx` | Use `usePromptRewrite` hook (calls `aiService`) + use existing `useTenantId` from `@/hooks/org/useTenantId` |
-| `MoodPathwaySettings.tsx` | Use `useMoodTagging` hook + existing `useTenantId` |
-| `AcceptInvite.tsx` | Use `useAcceptInvite` hook (calls `inviteService`) |
-| `ScheduleManagement.tsx` | Use `useScheduleData` + `useScheduleActions` hooks |
-| `DeleteAccountDialog.tsx` | Use `useDeleteAccount` hook |
-| `QuestionCard.tsx` | Use `useQuestionRewrite` hook (calls `aiService`) |
+| `src/components/layout/MobileBottomNav.tsx` | **Create** -- bottom navigation bar |
+| `src/components/ui/responsive-table.tsx` | **Create** -- mobile card / desktop table wrapper |
+| `src/components/users/UserTable.tsx` | **Modify** -- add mobile card view |
+| `src/components/layout/MainLayout.tsx` | **Modify** -- mount bottom nav, add bottom padding |
+| `src/components/layout/Header.tsx` | **Modify** -- mobile page title, touch targets |
+| `src/index.css` | **Modify** -- PWA standalone styles, touch utilities |
+| `src/pages/Auth.tsx` | **Modify** -- mobile safe-area polish |
 
----
+### Technical Notes
 
-### 4. Unify Streak Logic -- 3 Implementations Consolidated
-
-| Location | Current | After |
-|----------|---------|-------|
-| `useGamification.ts` | UTC streak loop inline | Calls `gamificationService.computeStreak()` |
-| `DailyCheckin.tsx` / `InlineDailyCheckin.tsx` | Uses `streak` from hook, calculates points inline | Calls `useCheckinSubmit` which calls `gamificationService` |
-| `analyticsQueries.ts` (admin leaderboard) | Local-time streak calculation with `setHours(0,0,0,0)` | Calls `gamificationService.computeStreak()` -- fixes a timezone bug where admin and employee streaks could disagree |
-
-The `analyticsQueries.ts` leaderboard function also has a divergent points formula: `(entries.length * 10) + (streak * 5)` which differs from the per-entry formula `10 + min(streak*5, 50)`. This will be updated to use `gamificationService.calculatePoints()` accumulated over entries for consistency.
-
----
-
-### 5. Hook Re-export Shim Removal
-
-**Execution order (safe approach)**:
-1. First, update ALL imports across the codebase to point to canonical paths
-2. Then, in the same pass, delete the 70 shim files
-3. This is done atomically -- no intermediate broken state
-
-All 70 files at `src/hooks/*.ts` that are single-line `export * from './subfolder/...'` will be deleted. Examples:
-- `useAuth.ts` -> consumers import from `@/hooks/auth/useAuth`
-- `useGamification.ts` -> consumers import from `@/hooks/wellness/useGamification`
-- `useTenantId.ts` -> consumers import from `@/hooks/org/useTenantId`
-- `useMoodDefinitions.ts` -> consumers import from `@/hooks/wellness/useMoodDefinitions`
-- (and ~66 more)
-
----
-
-### 6. MoodStep.tsx tenantId Prop Threading
-
-Currently `MoodStep.tsx` fetches `tenantId` by calling `supabase.auth.getUser()` + profile query internally. After refactor:
-- `MoodStep` accepts `tenantId` as a required prop
-- Both parents (`DailyCheckin.tsx` and `InlineDailyCheckin.tsx`) already have `tenantId` available
-- No internal fetch needed, eliminates redundant network call and re-renders
-
----
-
-### Execution Order
-
-1. **Database migration**: Add unique constraints (idempotency guards)
-2. **Create services**: `gamificationService`, `checkinService`, `inviteService`, `aiService`, `tenantService`
-3. **Create new hooks**: `useCheckinSubmit`, `useTodayEntry`, `useAcceptInvite`, `useDeleteAccount`, `usePromptRewrite`, `useQuestionRewrite`, `useMoodTagging`, `useScheduleData`, `useScheduleActions`
-4. **Refactor `useGamification`**: delegate to `gamificationService`
-5. **Refactor `analyticsQueries.ts`**: delegate streak/points to `gamificationService`
-6. **Update 9 P1 offender files**: remove direct supabase calls, use new hooks
-7. **Update all imports + delete 70 shims**: single atomic pass
-
----
-
-### Dependency Map (Post-Refactor)
-
-```text
-Pages/Components              Hooks                          Services
------------------              -----                          --------
-DailyCheckin.tsx          -->  useCheckinSubmit           -->  checkinService
-                          -->  useTodayEntry              -->  checkinService
-InlineDailyCheckin.tsx    -->  useCheckinSubmit           -->  checkinService
-                          -->  useTodayEntry              -->  checkinService
-EmployeeHome.tsx          -->  useGamification            -->  gamificationService
-MoodTrackerPage.tsx       -->  useGamification            -->  gamificationService
-AcceptInvite.tsx          -->  useAcceptInvite            -->  inviteService
-AIQuestionGenerator.tsx   -->  usePromptRewrite           -->  aiService
-                          -->  useTenantId                -->  tenantService
-MoodPathwaySettings.tsx   -->  useMoodTagging             -->  (supabase update via service)
-                          -->  useTenantId                -->  tenantService
-ScheduleManagement.tsx    -->  useScheduleData            -->  (supabase queries via service)
-                          -->  useScheduleActions         -->  (edge function via service)
-MoodStep.tsx              -->  (tenantId via props)        --  no service needed
-DeleteAccountDialog.tsx   -->  useDeleteAccount           -->  (supabase delete via service)
-QuestionCard.tsx          -->  useQuestionRewrite         -->  aiService
-analyticsQueries.ts       -->  (direct import)            -->  gamificationService
-```
-
-Zero supabase imports remain in any page or component after this refactor.
-
----
-
-### File Changelog
-
-| Action | Count | Details |
-|--------|-------|---------|
-| **DB Migration** | 1 | Unique constraints on `mood_entries` and `points_transactions` |
-| **Create** | ~14 | 5 services + ~9 new hooks |
-| **Delete** | 70 | All `src/hooks/*.ts` re-export shims |
-| **Modify** | ~80+ | Import path updates + 9 P1 offender refactors + `useGamification` + `analyticsQueries.ts` |
+- All components use logical properties (`ms-`, `me-`, `ps-`, `pe-`, `text-start`, `text-end`) -- no `ml-`/`mr-`
+- `useIsMobile()` hook (already exists at 768px breakpoint) is used for conditional rendering
+- The bottom nav uses `env(safe-area-inset-bottom)` for notched devices in standalone PWA mode
+- No database changes required
+- The responsive table pattern can be reused across all admin tables in future iterations
 
