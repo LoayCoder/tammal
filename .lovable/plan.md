@@ -1,105 +1,276 @@
 
-## Phase 1: Architecture Refactor — STATUS: ✅ COMPLETE
 
-### Completed Items
+## Phase 2: Analytics Architecture Consolidation
 
-1. **Database Migration** ✅ — Added unique constraints for idempotency guards on `mood_entries` and `points_transactions`
-2. **Service Layer** ✅ — Created 8 services: `gamificationService`, `checkinService`, `inviteService`, `aiService`, `tenantService`, `accountService`, `moodTaggingService`, `scheduleService`
-3. **Hook Layer** ✅ — Created 11 thin wrapper hooks: `useCheckinSubmit`, `useTodayEntry`, `useAcceptInvite`, `useDeleteAccount`, `usePromptRewrite`, `useQuestionRewrite`, `useMoodTagging`, `useScheduleData`, `useScheduleActions`, `useTenantIdQuery`
-4. **Refactored useGamification** ✅ — Delegates to `gamificationService`
-5. **Unified Analytics** ✅ — `analyticsQueries.ts` now uses `gamificationService.computeStreak()` and `calculatePoints()`
-6. **Refactored 9 P1 Offender Files** ✅ — Removed direct Supabase calls from `DailyCheckin`, `InlineDailyCheckin`, `MoodStep`, `AIQuestionGenerator`, `MoodPathwaySettings`, `AcceptInvite`, `ScheduleManagement`, `DeleteAccountDialog`, `QuestionCard`
-7. **MoodStep tenantId prop threading** ✅ — Accepts `tenantId` via props, no internal fetch
-
-### Deferred Items
-
-- **70 Hook Shim Deletion**: 400+ import references across 61 files. Shims are harmless tree-shakeable re-exports. Can be done incrementally per-module in future PRs.
+### Objective
+Reorganize the fragmented analytics system from 5 scattered files into a clean `src/lib/analytics/` module with feature-isolated submodules. Zero UI/API contract changes.
 
 ---
 
-## Make the App Fully Mobile-Responsive as a PWA
+### Current State (6 files, 3 import patterns)
 
-### Overview
-The app has good PWA infrastructure (service worker, manifest, install banner, caching) but several UI areas are not optimized for mobile touch interaction. This plan addresses the key gaps to make the app feel native on phones.
+```text
+src/lib/analyticsTypes.ts        -- types + emptyResult()
+src/lib/analyticsComputation.ts  -- pure computations (KPIs, streaks, mood trends)
+src/lib/analyticsQueries.ts      -- Supabase queries (mood entries, org comparison, top engagers)
+src/lib/wellnessAnalytics.ts     -- risk scoring, early warnings, health score, period comparison
+src/lib/synthesisEngine.ts       -- BAI synthesis, checkin pulse, survey structural
+src/hooks/analytics/useOrgAnalytics.ts -- 384-line orchestrator with inline Supabase calls
+```
 
-### 1. Mobile Bottom Navigation Bar
+Problems:
+- `wellnessAnalytics.ts` imports types from `@/hooks/useOrgAnalytics` (circular-risk)
+- `analyticsTypes.ts` imports `TrendOverlayPoint` from a UI component
+- `useOrgAnalytics.ts` still has ~100 lines of inline Supabase queries (category/subcategory analysis, period comparison)
+- Streak logic in `analyticsComputation.ts` is reimplemented (not delegating to `gamificationService`)
 
-Create a persistent bottom navigation bar for mobile users (visible below `md` breakpoint) with quick-access icons for the most-used sections: Dashboard, Wellness, Support, Profile, and More (opens sidebar).
+---
 
-**New file: `src/components/layout/MobileBottomNav.tsx`**
+### Target Structure
 
-- Fixed to the bottom of the viewport with `safe-area-inset-bottom` padding
-- Glass styling consistent with the header
-- Active state indicator matching `glass-active`
-- Hidden on desktop (`md:hidden`)
-- Uses logical properties for RTL
+```text
+src/lib/analytics/
+    index.ts                    -- barrel re-exports for backward compat
+    types.ts                    -- ALL analytics types consolidated
+    queries.ts                  -- ALL Supabase query logic
+    synthesis.ts                -- synthesis engine (BAI, checkin pulse, survey structural)
+    computations/
+        index.ts                -- barrel
+        kpis.ts                 -- computeKPIs, computeMoodDistribution
+        streak.ts               -- delegates to gamificationService.computeStreak()
+        moodTrends.ts           -- daily trend, checkin mood over time, support actions
+        riskScore.ts            -- risk scoring, early warnings, health score, period comparison
+        engagement.ts           -- day-of-week activity, org-unit breakdown
+```
 
-**Mount in `MainLayout.tsx`** after the `</main>` tag.
+---
 
-### 2. Mobile Card View for Data Tables
+### Step-by-step Changes
 
-The `UserTable` (and similar admin tables) renders a full `<table>` which is unusable on small screens. Create a responsive wrapper pattern.
+#### 1. Create `src/lib/analytics/types.ts`
 
-**New file: `src/components/ui/responsive-table.tsx`**
+Consolidate ALL types from:
+- `analyticsTypes.ts` (TimeRange, OrgFilter, CategoryScore, SubcategoryScore, AffectiveDistribution, DayOfWeekActivity, RiskTrendPoint, OrgUnitComparison, OrgComparison, TopEngager, CheckinMoodOverTimePoint, SupportActionCount, StreakBucket, CheckinByOrgUnitItem, MoodEntry, OrgAnalyticsData, emptyResult)
+- `wellnessAnalytics.ts` (CategoryRiskScore, CategoryTrendPoint, CategoryMoodCell, EarlyWarning, PeriodComparison)
+- `synthesisEngine.ts` (CheckinPulseMetrics, SurveyStructuralMetrics, DivergenceAlert, DepartmentBAIItem, SynthesisResult)
+- `TrendOverlayPoint` (currently defined in a UI component -- will be defined here, re-exported from the component file for backward compat)
 
-A wrapper component that:
-- On desktop (`md+`): renders children (the table) as-is
-- On mobile (`<md`): renders each row as a stacked card with key-value pairs
+This file has ZERO imports from hooks or components. Self-contained.
 
-**Update `src/components/users/UserTable.tsx`**:
-- On mobile: render user cards (avatar, name, email, status badge, role badges, action menu) in a vertical stack
-- On desktop: keep the existing table layout
-- Use `useIsMobile()` hook to switch between views
+#### 2. Create `src/lib/analytics/computations/kpis.ts`
 
-### 3. Touch-Friendly Sizing & Spacing
+Move from `analyticsComputation.ts`:
+- `computeKPIs()`
+- `computeMoodDistribution()`
 
-**Update `src/index.css`** with mobile-specific utilities:
+Pure functions, import types from `../types`.
 
-- Add a `.touch-target` utility class ensuring minimum 44x44px tap targets (Apple HIG)
-- Increase padding on interactive elements at small breakpoints
-- Add `overscroll-behavior: contain` on the main scroll area to prevent pull-to-refresh interference in standalone PWA mode
+#### 3. Create `src/lib/analytics/computations/streak.ts`
 
-### 4. PWA Standalone Mode Enhancements
+Move from `analyticsComputation.ts`:
+- `computeStreaks()` -- delegates internally to `gamificationService.computeStreak()` per employee
+- `computeStreakDistribution()` -- delegates similarly
 
-**Update `src/index.css`**:
-- Add `@media (display-mode: standalone)` styles to hide browser-specific UI hints
-- Ensure the bottom nav accounts for the home indicator on notched devices
-- Add smooth momentum scrolling (`-webkit-overflow-scrolling: touch`)
+This eliminates the duplicated UTC date-diff logic. The functions call `computeStreak()` from `@/services/gamificationService` for each employee's date array.
 
-**Update `src/components/layout/MainLayout.tsx`**:
-- Add `pb-16 md:pb-0` to the main content area to prevent the bottom nav from covering content on mobile
-- Add `overscroll-behavior-y: contain` on the root layout div
+#### 4. Create `src/lib/analytics/computations/moodTrends.ts`
 
-### 5. Header Adjustments for Mobile
+Move from `analyticsComputation.ts`:
+- `computeDailyTrend()`
+- `computeCheckinMoodOverTime()`
+- `computeSupportActions()`
 
-**Update `src/components/layout/Header.tsx`**:
-- On mobile, hide the breadcrumb (already done with `hidden md:flex`)
-- Ensure all header action buttons meet 44px touch targets
-- Add the page title as a simple text element on mobile (replacing the breadcrumb)
+#### 5. Create `src/lib/analytics/computations/riskScore.ts`
 
-### 6. Auth Page Mobile Polish
+Move from `wellnessAnalytics.ts`:
+- `computeRiskScore()`
+- `riskStatus()`
+- `computeCategoryRiskScores()`
+- `computeDeclineRate()` (currently private -- stays private)
+- `detectEarlyWarnings()`
+- `computeHealthScore()`
+- `computePeriodComparison()`
 
-**Update `src/pages/Auth.tsx`**:
-- Add safe-area padding for standalone PWA mode
-- Ensure the form fills the viewport nicely on small screens
-- Make the card full-width on mobile with minimal horizontal padding
+#### 6. Create `src/lib/analytics/computations/engagement.ts`
 
-### Files to Create/Modify
+Move from `analyticsComputation.ts`:
+- `computeDayOfWeekActivity()`
+- `computeCheckinByOrgUnit()`
 
-| File | Action |
-|------|--------|
-| `src/components/layout/MobileBottomNav.tsx` | **Create** -- bottom navigation bar |
-| `src/components/ui/responsive-table.tsx` | **Create** -- mobile card / desktop table wrapper |
-| `src/components/users/UserTable.tsx` | **Modify** -- add mobile card view |
-| `src/components/layout/MainLayout.tsx` | **Modify** -- mount bottom nav, add bottom padding |
-| `src/components/layout/Header.tsx` | **Modify** -- mobile page title, touch targets |
-| `src/index.css` | **Modify** -- PWA standalone styles, touch utilities |
-| `src/pages/Auth.tsx` | **Modify** -- mobile safe-area polish |
+#### 7. Create `src/lib/analytics/computations/index.ts`
 
-### Technical Notes
+Barrel file re-exporting all computation submodules.
 
-- All components use logical properties (`ms-`, `me-`, `ps-`, `pe-`, `text-start`, `text-end`) -- no `ml-`/`mr-`
-- `useIsMobile()` hook (already exists at 768px breakpoint) is used for conditional rendering
-- The bottom nav uses `env(safe-area-inset-bottom)` for notched devices in standalone PWA mode
-- No database changes required
-- The responsive table pattern can be reused across all admin tables in future iterations
+#### 8. Create `src/lib/analytics/synthesis.ts`
+
+Move ALL logic from `synthesisEngine.ts`:
+- `computeCheckinPulse()`
+- `computeSurveyStructural()`
+- `computeBAI()`
+- `computeConfidence()`
+- `detectDivergencePatterns()`
+- `getRecommendedActionKey()`
+- `computeSynthesis()`
+- Helper functions (stddev, coefficientOfVariation, normalize1to5, classifyBAI, divergenceLevel)
+
+Imports types from `./types`.
+
+#### 9. Create `src/lib/analytics/queries.ts`
+
+Move ALL logic from `analyticsQueries.ts`:
+- `hasOrgFilter()`
+- `resolveFilteredEmployeeIds()`
+- `batchedQuery()`
+- `fetchMoodEntries()`
+- `fetchActiveEmployeeCount()`
+- `fetchSurveyResponseRate()`
+- `computeOrgComparison()`
+- `computeTopEngagers()`
+- `parseAnswerValue()`
+
+ALSO extract from `useOrgAnalytics.ts` into this file:
+- Category/subcategory/affective response fetching and aggregation (lines 112-204)
+- Category trend + risk matrix computation (lines 206-302)
+- Period comparison data fetching (lines 308-326)
+- Trend overlay computation (lines 357-366)
+
+These become new exported functions:
+- `fetchCategoryAnalysis()` -- returns { categoryScores, subcategoryScores, affectiveDistribution }
+- `computeCategoryTrendsAndMatrix()` -- returns { categoryTrends, categoryMoodMatrix, moodByCategoryData, catNegMap }
+- `fetchPeriodComparison()` -- returns PeriodComparison | null
+- `computeTrendOverlay()` -- returns TrendOverlayPoint[]
+
+#### 10. Create `src/lib/analytics/index.ts`
+
+Barrel file that re-exports:
+- Everything from `./types`
+- Everything from `./computations`
+- Everything from `./queries`
+- Everything from `./synthesis`
+
+#### 11. Rewrite `src/hooks/analytics/useOrgAnalytics.ts`
+
+Becomes a thin orchestrator (~80 lines):
+- Imports from `@/lib/analytics` only
+- `useQuery` wraps a clean sequence: date range setup -> parallel fetches -> computations -> synthesis -> return
+- Zero inline Supabase calls
+- Zero business logic
+- Re-exports types from `@/lib/analytics/types` for backward compatibility
+
+#### 12. Update old file re-exports (backward compat shims)
+
+Replace file contents with re-exports:
+- `src/lib/analyticsTypes.ts` -> `export * from './analytics/types'`
+- `src/lib/analyticsComputation.ts` -> `export * from './analytics/computations'`
+- `src/lib/analyticsQueries.ts` -> `export * from './analytics/queries'`
+- `src/lib/wellnessAnalytics.ts` -> `export * from './analytics/computations/riskScore'; export type/re-export relevant types from './analytics/types'`
+- `src/lib/synthesisEngine.ts` -> `export * from './analytics/synthesis'`
+- `src/hooks/useOrgAnalytics.ts` -> unchanged (already `export * from './analytics/useOrgAnalytics'`)
+
+This ensures all 16+ consumer components continue to work without import changes.
+
+#### 13. Move `TrendOverlayPoint` type definition
+
+Define `TrendOverlayPoint` in `src/lib/analytics/types.ts`. Update `TrendOverlayChart.tsx` to import from `@/lib/analytics/types` and re-export it for any consumers that import from the component.
+
+---
+
+### Consumer Impact (Zero Breaking Changes)
+
+| Current Import Path | Change Needed |
+|---|---|
+| `@/hooks/analytics/useOrgAnalytics` (16 components) | None -- re-exports preserved |
+| `@/hooks/useOrgAnalytics` (1 file: wellnessAnalytics.ts) | None -- shim preserved |
+| `@/lib/wellnessAnalytics` (4 components) | None -- shim re-exports |
+| `@/lib/synthesisEngine` (5 components) | None -- shim re-exports |
+| `@/lib/analyticsTypes` (1 file: useOrgAnalytics.ts) | None -- shim re-exports |
+| `@/lib/analyticsComputation` (1 file: useOrgAnalytics.ts) | None -- shim re-exports |
+| `@/lib/analyticsQueries` (1 file: useOrgAnalytics.ts) | None -- shim re-exports |
+
+---
+
+### Streak Deduplication Detail
+
+Current: `analyticsComputation.ts` has its own UTC date-diff loop in both `computeStreaks()` and `computeStreakDistribution()`.
+
+After: Both functions call `gamificationService.computeStreak()` per employee:
+
+```text
+computeStreaks(entries):
+  group entries by employee_id
+  for each employee:
+    streak = gamificationService.computeStreak(employeeDates)
+  return { avgStreak, employeeEntryMap }
+
+computeStreakDistribution(employeeEntryMap):
+  for each employee:
+    streak = gamificationService.computeStreak(employeeDates)
+  bucket into distribution
+```
+
+---
+
+### File Changelog
+
+| Action | File | Details |
+|--------|------|---------|
+| Create | `src/lib/analytics/types.ts` | All 25+ interfaces and types consolidated |
+| Create | `src/lib/analytics/computations/kpis.ts` | KPI + mood distribution |
+| Create | `src/lib/analytics/computations/streak.ts` | Streak via gamificationService |
+| Create | `src/lib/analytics/computations/moodTrends.ts` | Daily trend, checkin mood, support actions |
+| Create | `src/lib/analytics/computations/riskScore.ts` | Risk, warnings, health, period comparison |
+| Create | `src/lib/analytics/computations/engagement.ts` | Day-of-week, org-unit breakdown |
+| Create | `src/lib/analytics/computations/index.ts` | Barrel |
+| Create | `src/lib/analytics/synthesis.ts` | Full synthesis engine |
+| Create | `src/lib/analytics/queries.ts` | All DB queries + extracted inline queries |
+| Create | `src/lib/analytics/index.ts` | Barrel |
+| Modify | `src/hooks/analytics/useOrgAnalytics.ts` | Thin orchestrator, no inline Supabase |
+| Modify | `src/lib/analyticsTypes.ts` | Becomes re-export shim |
+| Modify | `src/lib/analyticsComputation.ts` | Becomes re-export shim |
+| Modify | `src/lib/analyticsQueries.ts` | Becomes re-export shim |
+| Modify | `src/lib/wellnessAnalytics.ts` | Becomes re-export shim |
+| Modify | `src/lib/synthesisEngine.ts` | Becomes re-export shim |
+| Modify | `src/components/dashboard/comparison/TrendOverlayChart.tsx` | Import TrendOverlayPoint from analytics/types |
+
+**Total: 10 new files, 7 modified files, 0 deleted files**
+
+---
+
+### Post-Refactor Dependency Map
+
+```text
+Components (16+)
+  |
+  +--> useOrgAnalytics (hook -- React Query only)
+  |       |
+  |       +--> analytics/queries.ts (all Supabase calls)
+  |       |       +--> gamificationService (computeStreak, calculatePoints)
+  |       |
+  |       +--> analytics/computations/* (pure functions)
+  |       |       +--> gamificationService (streak only)
+  |       |
+  |       +--> analytics/synthesis.ts (pure functions)
+  |
+  +--> analytics/types.ts (direct type imports by components)
+```
+
+No circular dependencies. No reverse flows.
+
+---
+
+### Verification Criteria
+
+1. No duplicate `computeStreak` logic -- all delegate to `gamificationService`
+2. No duplicate `calculatePoints` logic -- only in `gamificationService`
+3. Zero React imports in `src/lib/analytics/**`
+4. Zero `supabase.*` calls in `computations/` or `synthesis.ts`
+5. `useOrgAnalytics` return shape unchanged
+6. All 16+ consumer imports resolve without changes
+7. TypeScript builds without errors
+
+### Risk Assessment: **Low**
+- Pure structural move with re-export shims for backward compatibility
+- No business logic changes
+- No UI changes
+- No API contract changes
+
