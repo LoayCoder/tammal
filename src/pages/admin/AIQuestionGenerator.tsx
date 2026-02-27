@@ -63,7 +63,7 @@ export default function AIQuestionGenerator() {
     minWordLength: 5,
   });
   const [customPrompt, setCustomPrompt] = useState('');
-  const [isRewriting, setIsRewriting] = useState(false);
+  // isRewriting comes from usePromptRewrite hook above
   const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([]);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [selectedSubcategoryIds, setSelectedSubcategoryIds] = useState<string[]>([]);
@@ -106,41 +106,22 @@ export default function AIQuestionGenerator() {
 
   const handleRewritePrompt = async () => {
     if (customPrompt.trim().length < 10) return;
-    setIsRewriting(true);
-    try {
-      const activeDocs = documents.filter(d => d.is_active && d.content_text);
-      const documentSummaries = activeDocs
-        .map(d => `[${d.file_name}]: ${(d.content_text || '').substring(0, 400)}`)
-        .join('\n')
-        .substring(0, 2000);
-      const { data, error } = await supabase.functions.invoke('rewrite-prompt', {
-        body: {
-          prompt: customPrompt,
-          model: selectedModel,
-          useExpertKnowledge: selectedFrameworkIds.length > 0,
-          selectedFrameworkIds: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
-          documentSummaries: documentSummaries || undefined,
-        },
-      });
-      if (error) throw error;
-      if (data?.error) {
-        if (data.error.includes('Rate limit')) {
-          toast.error(t('aiGenerator.rateLimitError'));
-        } else if (data.error.includes('Payment required') || data.error.includes('credits')) {
-          toast.error(t('aiGenerator.creditsError'));
-        } else {
-          throw new Error(data.error);
-        }
-        return;
-      }
-      if (data?.rewrittenPrompt) {
-        setCustomPrompt(data.rewrittenPrompt);
-        toast.success(t('aiGenerator.rewriteSuccess'));
-      }
-    } catch (err: any) {
-      toast.error(err.message || t('aiGenerator.rewriteError'));
-    } finally {
-      setIsRewriting(false);
+    const activeDocs = documents.filter(d => d.is_active && d.content_text);
+    const documentSummaries = activeDocs
+      .map(d => `[${d.file_name}]: ${(d.content_text || '').substring(0, 400)}`)
+      .join('\n')
+      .substring(0, 2000);
+
+    const result = await rewritePromptFn({
+      prompt: customPrompt,
+      model: selectedModel,
+      useExpertKnowledge: selectedFrameworkIds.length > 0,
+      selectedFrameworkIds: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
+      documentSummaries: documentSummaries || undefined,
+    });
+
+    if (result) {
+      setCustomPrompt(result);
     }
   };
 
