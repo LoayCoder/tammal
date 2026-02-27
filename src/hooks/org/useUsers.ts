@@ -332,6 +332,11 @@ export function useUserRoles(userId?: string) {
   };
 }
 
+/**
+ * @deprecated Use `useUserPermissions().hasPermission(code)` from
+ * `@/hooks/auth/useUserPermissions` instead. This hook makes a redundant
+ * RPC call and will be removed in a future release.
+ */
 export function useHasPermission(permissionCode: string) {
   const { data: user } = useQuery({
     queryKey: ['current-user'],
