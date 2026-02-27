@@ -3,13 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { CategoryMoodCell } from '@/lib/wellnessAnalytics';
+import { MOOD_KEYS } from '@/config/moods';
 
 interface Props {
   data: CategoryMoodCell[];
   isLoading: boolean;
 }
-
-const MOOD_LEVELS = ['great', 'good', 'okay', 'struggling', 'need_help'];
 
 function getIntensityColor(count: number, maxCount: number): string {
   if (count === 0) return 'hsl(var(--muted))';
@@ -65,7 +64,7 @@ export function CategoryMoodMatrix({ data, isLoading }: Props) {
             <thead>
               <tr>
                 <th className="text-start p-2 font-medium text-muted-foreground">{t('orgDashboard.categoryHealth')}</th>
-                {MOOD_LEVELS.map(mood => (
+                {MOOD_KEYS.map(mood => (
                   <th key={mood} className="p-2 text-center font-medium text-muted-foreground">
                     {t(`orgDashboard.moods.${mood}`)}
                   </th>
@@ -79,7 +78,7 @@ export function CategoryMoodMatrix({ data, isLoading }: Props) {
                     <td className="p-2 font-medium text-sm truncate max-w-[140px]">
                       {isRTL && cat.nameAr ? cat.nameAr : cat.name}
                     </td>
-                    {MOOD_LEVELS.map(mood => {
+                    {MOOD_KEYS.map(mood => {
                       const cell = cat.cells.get(mood);
                       const count = cell?.count ?? 0;
                       return (

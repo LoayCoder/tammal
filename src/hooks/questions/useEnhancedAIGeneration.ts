@@ -70,7 +70,8 @@ export interface GenerateInput {
 
 
 
-const VALID_TYPES = ['likert_5', 'numeric_scale', 'yes_no', 'open_ended', 'multiple_choice'];
+import { VALID_QUESTION_TYPES } from '@/config/constants';
+const VALID_TYPES = VALID_QUESTION_TYPES as readonly string[];
 
 function normalizeQuestionType(t: string): string {
   if (VALID_TYPES.includes(t)) return t;
