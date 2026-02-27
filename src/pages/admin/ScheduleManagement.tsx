@@ -18,7 +18,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
-import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Package, Building2, UserCheck, Search, Check, X, ChevronDown, ChevronUp, Settings2 } from 'lucide-react';
+import { Plus, Calendar, CalendarClock, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Package, Building2, UserCheck, Search, Check, X, ChevronDown, ChevronUp, Settings2 } from 'lucide-react';
 import SchedulePreviewDialog from '@/components/schedules/SchedulePreviewDialog';
 import { useQuestionSchedules, QuestionSchedule } from '@/hooks/useQuestionSchedules';
 import { useQuestionBatches } from '@/hooks/useQuestionBatches';
@@ -92,6 +92,10 @@ export default function ScheduleManagement() {
     handleRunNow, handlePreview, closePreview,
   } = useScheduleActions();
   const [audienceSearch, setAudienceSearch] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingSchedule, setEditingSchedule] = useState<QuestionSchedule | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [audienceViewSchedule, setAudienceViewSchedule] = useState<QuestionSchedule | null>(null);
 
   // Form state
   const [name, setName] = useState('');
@@ -116,39 +120,7 @@ export default function ScheduleManagement() {
   // Resolve linked period
   const linkedPeriod = linkedPeriodId ? periods.find(p => p.id === linkedPeriodId) : null;
 
-  // Fetch departments and employees for audience selection
-  const { data: availableDepartments = [] } = useQuery({
-    queryKey: ['schedule-departments', tenantId],
-    queryFn: async () => {
-      if (!tenantId) return [];
-      const { data, error } = await supabase
-        .from('employees')
-        .select('department')
-        .eq('tenant_id', tenantId)
-        .is('deleted_at', null)
-        .not('department', 'is', null);
-      if (error) throw error;
-      return [...new Set(data.map(d => d.department).filter(Boolean))] as string[];
-    },
-    enabled: !!tenantId,
-  });
-
-  const { data: availableEmployees = [] } = useQuery({
-    queryKey: ['schedule-employees', tenantId],
-    queryFn: async () => {
-      if (!tenantId) return [];
-      const { data, error } = await supabase
-        .from('employees')
-        .select('id, full_name, email, department')
-        .eq('tenant_id', tenantId)
-        .is('deleted_at', null)
-        .eq('status', 'active')
-        .order('full_name');
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!tenantId,
-  });
+  // Departments and employees come from useScheduleData hook (line 89)
 
   // --- Compute dialog audience summary in real-time ---
   const dialogAudienceSummary = useMemo(() => {
@@ -312,96 +284,16 @@ export default function ScheduleManagement() {
     }
   };
 
-  const handleRunNow = async (scheduleId: string) => {
-    setRunningId(scheduleId);
-    try {
-      const { data, error } = await supabase.functions.invoke('schedule-engine', {
-        body: { scheduleId, generateForDays: 7 },
-      });
-      if (error) throw error;
-      toast.success(data?.message || t('schedules.runSuccess'));
-    } catch (err: any) {
-      toast.error(err.message || t('schedules.runError'));
-    } finally {
-      setRunningId(null);
-    }
-  };
-
-  const handlePreview = async (scheduleId: string) => {
-    setPreviewId(scheduleId);
-    setPreviewLoading(true);
-    try {
-      // Fetch scheduled questions with employee info (no FK join for question since it's polymorphic)
-      const { data: sqData, error: sqError } = await supabase
-        .from('scheduled_questions')
-        .select(`
-          id, status, scheduled_delivery, actual_delivery, question_id, question_source,
-          employee:employees(id, full_name, email, department, department_id, branch_id, section_id,
-            branch:branches!employees_branch_id_fkey(id, name, name_ar),
-            dept:departments!employees_department_id_fkey(id, name, name_ar),
-            section:sites!employees_section_id_fkey(id, name, name_ar)
-          )
-        `)
-        .eq('schedule_id', scheduleId)
-        .order('scheduled_delivery', { ascending: false })
-        .limit(500);
-      if (sqError) throw sqError;
-
-      const rows = sqData || [];
-      
-      // Group question IDs by source table
-      const idsBySource: Record<string, string[]> = {};
-      for (const row of rows) {
-        const src = row.question_source || 'questions';
-        if (!idsBySource[src]) idsBySource[src] = [];
-        idsBySource[src].push(row.question_id);
-      }
-
-      // Fetch question texts from each source
-      const questionMap: Record<string, { id: string; text: string; text_ar?: string | null; type?: string }> = {};
-
-      const fetches: Promise<void>[] = [];
-
-      if (idsBySource['questions']?.length) {
-        fetches.push(
-          Promise.resolve(supabase.from('questions').select('id, text, text_ar, type').in('id', idsBySource['questions']))
-            .then(({ data }) => { (data || []).forEach(q => { questionMap[q.id] = q; }); })
-        );
-      }
-      if (idsBySource['wellness_questions']?.length) {
-        fetches.push(
-          Promise.resolve(supabase.from('wellness_questions').select('id, question_text_en, question_text_ar, question_type').in('id', idsBySource['wellness_questions']))
-            .then(({ data }) => { (data || []).forEach(q => { questionMap[q.id] = { id: q.id, text: q.question_text_en, text_ar: q.question_text_ar, type: q.question_type }; }); })
-        );
-      }
-      if (idsBySource['generated_questions']?.length) {
-        fetches.push(
-          Promise.resolve(supabase.from('generated_questions').select('id, question_text, question_text_ar, type').in('id', idsBySource['generated_questions']))
-            .then(({ data }) => { (data || []).forEach(q => { questionMap[q.id] = { id: q.id, text: q.question_text, text_ar: q.question_text_ar, type: q.type }; }); })
-        );
-      }
-
-      await Promise.all(fetches);
-
-      // Merge question data into rows
-      const merged = rows.map(row => ({
-        ...row,
-        question: questionMap[row.question_id] || null,
-      }));
-
-      setPreviewQuestions(merged);
-    } catch {
-      toast.error(t('common.error'));
-      setPreviewQuestions([]);
-    } finally {
-      setPreviewLoading(false);
-    }
-  };
+  // handleRunNow and handlePreview come from useScheduleActions hook (line 90-93)
 
   const handleDelete = () => {
     if (deleteId) {
       deleteSchedule.mutate(deleteId, { onSuccess: () => setDeleteId(null) });
     }
+  };
+
+  const handleClosePreview = () => {
+    closePreview();
   };
 
   const getStatusBadge = (status: string) => {
