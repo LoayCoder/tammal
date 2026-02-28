@@ -73,8 +73,8 @@ export function useTenantUsage(tenantId?: string) {
   return {
     usage: usageQuery.data,
     history: usageHistoryQuery.data ?? [],
-    isLoading: usageQuery.isLoading,
-    isLoadingHistory: usageHistoryQuery.isLoading,
+    isPending: usageQuery.isPending && usageQuery.isFetching,
+    isPendingHistory: usageHistoryQuery.isPending && usageHistoryQuery.isFetching,
     error: usageQuery.error,
   };
 }

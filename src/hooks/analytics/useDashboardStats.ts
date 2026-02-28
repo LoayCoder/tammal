@@ -107,7 +107,7 @@ export function useDashboardStats() {
 
   return {
     stats: statsQuery.data,
-    isLoading: statsQuery.isLoading,
+    isPending: statsQuery.isPending,
     error: statsQuery.error,
     refetch: statsQuery.refetch,
   };

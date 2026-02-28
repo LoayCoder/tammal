@@ -12,7 +12,7 @@ interface PlatformSettings {
 export function usePlatformSettings() {
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ['platform-settings'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -43,7 +43,7 @@ export function usePlatformSettings() {
   return {
     allowSignup: data?.allow_public_signup ?? false,
     showInvitation: data?.show_invitation_link ?? true,
-    isLoading,
+    isPending,
     settings: data,
     updateSettings,
   };

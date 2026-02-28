@@ -23,7 +23,7 @@ export function usePoints() {
   const { user } = useAuth();
   const { tenantId } = useTenantId();
 
-  const { data: transactions = [], isLoading } = useQuery({
+  const { data: transactions = [], isPending, isFetching } = useQuery({
     queryKey: ['points-transactions', tenantId, user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -52,5 +52,5 @@ export function usePoints() {
     return diffDays > 0 && diffDays <= 30;
   }).reduce((sum, t) => sum + t.amount, 0);
 
-  return { transactions, balance, expiringWithin30Days, isLoading };
+  return { transactions, balance, expiringWithin30Days, isPending: isPending && isFetching };
 }

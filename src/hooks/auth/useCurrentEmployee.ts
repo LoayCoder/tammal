@@ -16,7 +16,7 @@ export interface CurrentEmployee {
 export function useCurrentEmployee() {
   const { user } = useAuth();
 
-  const { data: employee, isLoading, error } = useQuery({
+  const { data: employee, isPending, isFetching, error } = useQuery({
     queryKey: ['current-employee', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
@@ -36,7 +36,7 @@ export function useCurrentEmployee() {
 
   return {
     employee,
-    isLoading,
+    isPending: isPending && isFetching,
     error,
     hasEmployeeProfile: !!employee,
   };

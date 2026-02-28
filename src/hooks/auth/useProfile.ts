@@ -139,7 +139,7 @@ export function useProfile() {
 
   return {
     profile: profileQuery.data,
-    isLoading: profileQuery.isLoading,
+    isPending: profileQuery.isPending && profileQuery.isFetching,
     updateProfile: updateProfileMutation.mutateAsync,
     uploadAvatar: uploadAvatarMutation.mutateAsync,
     removeAvatar: removeAvatarMutation.mutateAsync,

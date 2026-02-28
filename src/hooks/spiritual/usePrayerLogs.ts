@@ -20,7 +20,7 @@ export function usePrayerLogs(dateRange?: { from: string; to: string }) {
   const from = dateRange?.from ?? today;
   const to = dateRange?.to ?? today;
 
-  const { data: logs = [], isLoading } = useQuery({
+  const { data: logs = [], isPending, isFetching } = useQuery({
     queryKey: ['prayer-logs', user?.id, from, to],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -65,5 +65,5 @@ export function usePrayerLogs(dateRange?: { from: string; to: string }) {
       return acc;
     }, {} as Record<string, PrayerLog>);
 
-  return { logs, isLoading, logPrayer, todayLogs };
+  return { logs, isPending: isPending && isFetching, logPrayer, todayLogs };
 }

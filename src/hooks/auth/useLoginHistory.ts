@@ -109,7 +109,7 @@ export function useLoginHistory() {
 
   return {
     loginHistory: loginHistoryQuery.data || [],
-    isLoading: loginHistoryQuery.isLoading,
+    isPending: loginHistoryQuery.isPending && loginHistoryQuery.isFetching,
     recordLogin: recordLoginMutation.mutateAsync,
     isRecording: recordLoginMutation.isPending,
   };

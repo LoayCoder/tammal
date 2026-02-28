@@ -26,7 +26,7 @@ export function useSpiritualPreferences() {
   const queryClient = useQueryClient();
   
 
-  const { data: preferences, isLoading } = useQuery({
+  const { data: preferences, isPending, isFetching } = useQuery({
     queryKey: ['spiritual-preferences', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
@@ -74,7 +74,7 @@ export function useSpiritualPreferences() {
 
   return {
     preferences,
-    isLoading,
+    isPending: isPending && isFetching,
     upsertPreferences,
     isEnabled: preferences?.enabled ?? false,
     isPrayerEnabled: preferences?.enabled && preferences?.prayer_enabled,

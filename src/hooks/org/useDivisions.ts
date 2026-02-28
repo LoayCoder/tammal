@@ -32,7 +32,7 @@ export function useDivisions() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: divisions = [], isLoading } = useQuery({
+  const { data: divisions = [], isPending } = useQuery({
     queryKey: ['divisions'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -95,5 +95,5 @@ export function useDivisions() {
     onError: () => toast.error(t('divisions.deleteError')),
   });
 
-  return { divisions, isLoading, createDivision, updateDivision, deleteDivision };
+  return { divisions, isPending, createDivision, updateDivision, deleteDivision };
 }

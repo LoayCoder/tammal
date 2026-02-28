@@ -133,7 +133,7 @@ export function usePlansManagement() {
 
   return {
     plans: plansQuery.data ?? [],
-    isLoading: plansQuery.isLoading,
+    isPending: plansQuery.isPending,
     error: plansQuery.error,
     createPlan: createMutation.mutate,
     updatePlan: updateMutation.mutate,

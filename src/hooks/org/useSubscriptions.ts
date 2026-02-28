@@ -161,7 +161,7 @@ export function useSubscriptions() {
 
   return {
     subscriptions: subscriptionsQuery.data ?? [],
-    isLoading: subscriptionsQuery.isLoading,
+    isPending: subscriptionsQuery.isPending,
     error: subscriptionsQuery.error,
     createSubscription: createMutation.mutate,
     updateSubscription: updateMutation.mutate,

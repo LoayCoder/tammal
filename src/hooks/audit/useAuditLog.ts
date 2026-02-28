@@ -84,7 +84,7 @@ export function useAuditLog(options?: { tenantId?: string; limit?: number }) {
 
   return {
     logs: logsQuery.data ?? [],
-    isLoading: logsQuery.isLoading,
+    isPending: logsQuery.isPending,
     error: logsQuery.error,
     logEvent,
     isLogging: logEventMutation.isPending,

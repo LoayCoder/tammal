@@ -25,7 +25,7 @@ export function useSpiritualReports() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: reports = [], isLoading } = useQuery({
+  const { data: reports = [], isPending, isFetching } = useQuery({
     queryKey: ['spiritual-reports', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -61,5 +61,5 @@ export function useSpiritualReports() {
   const latestWeekly = reports.find(r => r.report_type === 'weekly');
   const latestMonthly = reports.find(r => r.report_type === 'monthly');
 
-  return { reports, isLoading, generateReport, latestWeekly, latestMonthly };
+  return { reports, isPending: isPending && isFetching, generateReport, latestWeekly, latestMonthly };
 }

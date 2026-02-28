@@ -32,7 +32,7 @@ export function useBranches() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: branches = [], isLoading } = useQuery({
+  const { data: branches = [], isPending } = useQuery({
     queryKey: ['branches'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -95,5 +95,5 @@ export function useBranches() {
     onError: () => toast.error(t('branches.deleteError')),
   });
 
-  return { branches, isLoading, createBranch, updateBranch, deleteBranch };
+  return { branches, isPending, createBranch, updateBranch, deleteBranch };
 }

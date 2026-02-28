@@ -36,7 +36,7 @@ export function useSites() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: sites = [], isLoading } = useQuery({
+  const { data: sites = [], isPending } = useQuery({
     queryKey: ['sites'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -99,5 +99,5 @@ export function useSites() {
     onError: () => toast.error(t('sections.deleteError')),
   });
 
-  return { sites, isLoading, createSite, updateSite, deleteSite };
+  return { sites, isPending, createSite, updateSite, deleteSite };
 }

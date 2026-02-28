@@ -383,7 +383,7 @@ export function useCheckinMonitor(
 
   return {
     ...computed,
-    isLoading: coreQuery.isLoading,
+    isPending: coreQuery.isPending && coreQuery.isFetching,
     refetch: coreQuery.refetch,
   };
 }
