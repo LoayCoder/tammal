@@ -85,8 +85,8 @@ export function useAIGenerator(): AIGeneratorState {
   const activeDocIds = useMemo(() => documents.filter(d => d.is_active).map(d => d.id), [documents]);
   const resolvedType = useMemo(() => questionTypes.length === 0 ? 'mixed' : questionTypes.join(', '), [questionTypes]);
 
-  // ─── Actions ─────────────────────────────────────────
-  const handleGenerate = () => {
+  // ─── Actions (stabilized with useCallback) ──────────
+  const handleGenerate = useCallback(() => {
     if (selectedCategoryIds.length === 0) {
       toast.error(t('aiGenerator.selectAtLeastOneCategory'));
       return;
@@ -96,10 +96,10 @@ export function useAIGenerator(): AIGeneratorState {
       return;
     }
     generate({
-      questionCount, complexity, tone, questionType: getResolvedType(),
+      questionCount, complexity, tone, questionType: resolvedType,
       model: selectedModel, accuracyMode, advancedSettings, language: 'both',
       useExpertKnowledge: selectedFrameworkIds.length > 0,
-      knowledgeDocumentIds: getActiveDocIds(),
+      knowledgeDocumentIds: activeDocIds,
       customPrompt: customPrompt.trim() || undefined,
       selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
       categoryIds: selectedCategoryIds,
@@ -107,9 +107,9 @@ export function useAIGenerator(): AIGeneratorState {
       moodLevels: purpose === 'wellness' ? selectedMoodLevels : undefined,
       periodId: selectedPeriodId || undefined,
     });
-  };
+  }, [selectedCategoryIds, selectedModel, generate, questionCount, complexity, tone, resolvedType, accuracyMode, advancedSettings, activeDocIds, customPrompt, selectedFrameworkIds, selectedSubcategoryIds, purpose, selectedMoodLevels, selectedPeriodId, t]);
 
-  const handleRewritePrompt = async () => {
+  const handleRewritePrompt = useCallback(async () => {
     if (customPrompt.trim().length < 10) return;
     const activeDocs = documents.filter(d => d.is_active && d.content_text);
     const documentSummaries = activeDocs
@@ -124,10 +124,9 @@ export function useAIGenerator(): AIGeneratorState {
       documentSummaries: documentSummaries || undefined,
     });
     if (result) setCustomPrompt(result);
-  };
+  }, [customPrompt, documents, selectedModel, selectedFrameworkIds, rewritePromptFn]);
 
-  const handleValidate = () => {
-    const activeDocIds = getActiveDocIds();
+  const handleValidate = useCallback(() => {
     validate({
       questions, accuracyMode,
       model: selectedModel,
@@ -138,17 +137,17 @@ export function useAIGenerator(): AIGeneratorState {
       hasDocuments: documents.length > 0,
       periodId: selectedPeriodId || undefined,
     });
-  };
+  }, [validate, questions, accuracyMode, selectedModel, advancedSettings, selectedFrameworkIds, activeDocIds, documents, selectedPeriodId]);
 
-  const handleSaveClick = () => {
+  const handleSaveClick = useCallback(() => {
     if (purpose === 'wellness') {
       setWellnessPreviewOpen(true);
     } else {
       setBatchDialogOpen(true);
     }
-  };
+  }, [purpose]);
 
-  const handleWellnessConfirm = (targetBatchId?: string) => {
+  const handleWellnessConfirm = useCallback((targetBatchId?: string) => {
     saveWellness({ questions, targetBatchId }, {
       onSuccess: () => {
         setWellnessPreviewOpen(false);
@@ -156,9 +155,9 @@ export function useAIGenerator(): AIGeneratorState {
         if (documents.length > 0) deleteAllDocuments();
       },
     });
-  };
+  }, [saveWellness, questions, clearAll, documents, deleteAllDocuments]);
 
-  const handleBatchConfirm = (targetBatchId?: string) => {
+  const handleBatchConfirm = useCallback((targetBatchId?: string) => {
     saveSet({
       questions, model: selectedModel, accuracyMode,
       settings: {
@@ -177,9 +176,9 @@ export function useAIGenerator(): AIGeneratorState {
         if (documents.length > 0) deleteAllDocuments();
       },
     });
-  };
+  }, [saveSet, questions, selectedModel, accuracyMode, questionCount, complexity, tone, questionTypes, advancedSettings, selectedFrameworkIds, customPrompt, selectedCategoryIds, selectedSubcategoryIds, validationReport, clearAll, documents, deleteAllDocuments]);
 
-  const handleExport = (format: 'json' | 'pdf') => {
+  const handleExport = useCallback((format: 'json' | 'pdf') => {
     const exportData = {
       metadata: {
         model: selectedModel, accuracyMode, generatedAt: new Date().toISOString(),
@@ -223,32 +222,32 @@ export function useAIGenerator(): AIGeneratorState {
         printWindow.print();
       }
     }
-  };
+  }, [selectedModel, accuracyMode, questionCount, complexity, tone, questionTypes, selectedFrameworkIds, selectedCategoryIds, selectedSubcategoryIds, validationReport, questions, t]);
 
-  const handleRegenerateFailedOnly = () => {
+  const handleRegenerateFailedOnly = useCallback(() => {
     const failedCount = questions.filter(q => q.validation_status === 'failed').length;
     if (failedCount === 0) return;
     generate({
-      questionCount: failedCount, complexity, tone, questionType: getResolvedType(),
+      questionCount: failedCount, complexity, tone, questionType: resolvedType,
       model: selectedModel, accuracyMode, advancedSettings, language: 'both',
       useExpertKnowledge: selectedFrameworkIds.length > 0,
-      knowledgeDocumentIds: getActiveDocIds().length > 0 ? getActiveDocIds() : undefined,
+      knowledgeDocumentIds: activeDocIds.length > 0 ? activeDocIds : undefined,
       selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
       categoryIds: selectedCategoryIds,
       subcategoryIds: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
       moodLevels: purpose === 'wellness' ? selectedMoodLevels : undefined,
       periodId: selectedPeriodId || undefined,
     });
-  };
+  }, [questions, generate, complexity, tone, resolvedType, selectedModel, accuracyMode, advancedSettings, selectedFrameworkIds, activeDocIds, selectedCategoryIds, selectedSubcategoryIds, purpose, selectedMoodLevels, selectedPeriodId]);
 
-  const handleRegenerateSingle = (index: number) => {
+  const handleRegenerateSingle = useCallback((index: number) => {
     const q = questions[index];
-    const singleType = q.type || getResolvedType();
+    const singleType = q.type || resolvedType;
     generate({
       questionCount: 1, complexity: q.complexity || complexity, tone: q.tone || tone, questionType: singleType,
       model: selectedModel, accuracyMode, advancedSettings, language: 'both',
       useExpertKnowledge: selectedFrameworkIds.length > 0,
-      knowledgeDocumentIds: getActiveDocIds().length > 0 ? getActiveDocIds() : undefined,
+      knowledgeDocumentIds: activeDocIds.length > 0 ? activeDocIds : undefined,
       selectedFrameworks: selectedFrameworkIds.length > 0 ? selectedFrameworkIds : undefined,
       categoryIds: selectedCategoryIds,
       subcategoryIds: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
@@ -256,7 +255,7 @@ export function useAIGenerator(): AIGeneratorState {
       periodId: selectedPeriodId || undefined,
       _replaceAtIndex: index,
     } as any);
-  };
+  }, [questions, generate, resolvedType, complexity, tone, selectedModel, accuracyMode, advancedSettings, selectedFrameworkIds, activeDocIds, selectedCategoryIds, selectedSubcategoryIds, purpose, selectedMoodLevels, selectedPeriodId]);
 
   const handleClearAll = () => {
     clearAll();
