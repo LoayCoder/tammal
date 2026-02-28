@@ -4,6 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { InviteInvalidError, ServiceUnavailableError } from './errors';
 
 export interface InvitationData {
   id: string;
@@ -75,25 +76,28 @@ export async function acceptInvite(params: AcceptInviteParams): Promise<void> {
     },
   });
 
-  if (signUpError) throw signUpError;
-  if (!signUpData.user) throw new Error('User creation failed');
+  if (signUpError) throw new ServiceUnavailableError(signUpError.message);
+  if (!signUpData.user) throw new ServiceUnavailableError('User creation failed');
 
   const userId = signUpData.user.id;
 
   // 2. Update profile with tenant_id
-  await supabase
+  const { error: profileErr } = await supabase
     .from('profiles')
     .update({ tenant_id: invitation.tenant_id, full_name: fullName })
     .eq('user_id', userId);
 
+  if (profileErr) throw new ServiceUnavailableError(profileErr.message);
+
   // 3. Link or create employee record
   if (invitation.employee_id) {
-    await supabase
+    const { error: empErr } = await supabase
       .from('employees')
       .update({ user_id: userId })
       .eq('id', invitation.employee_id);
+    if (empErr) throw new ServiceUnavailableError(empErr.message);
   } else {
-    const { data: newEmp } = await supabase
+    const { data: newEmp, error: empErr } = await supabase
       .from('employees')
       .insert({
         tenant_id: invitation.tenant_id,
@@ -104,6 +108,8 @@ export async function acceptInvite(params: AcceptInviteParams): Promise<void> {
       })
       .select('id')
       .single();
+
+    if (empErr) throw new ServiceUnavailableError(empErr.message);
 
     if (newEmp) {
       await supabase

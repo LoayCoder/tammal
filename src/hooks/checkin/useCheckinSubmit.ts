@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { submitMoodEntry, type CheckinParams, type CheckinResult } from '@/services/checkinService';
+import { DuplicateCheckinError } from '@/services/errors';
 
 export function useCheckinSubmit() {
   const { t } = useTranslation();
@@ -17,11 +18,6 @@ export function useCheckinSubmit() {
     try {
       const result = await submitMoodEntry(params);
 
-      if (result.alreadySubmitted) {
-        toast.info(t('wellness.alreadyCheckedIn', 'Already checked in today'));
-        return result;
-      }
-
       // Invalidate relevant caches
       queryClient.invalidateQueries({ queryKey: ['gamification'] });
       queryClient.invalidateQueries({ queryKey: ['mood-entry-today'] });
@@ -29,6 +25,10 @@ export function useCheckinSubmit() {
 
       return result;
     } catch (err: unknown) {
+      if (err instanceof DuplicateCheckinError) {
+        toast.info(t('wellness.alreadyCheckedIn', 'Already checked in today'));
+        return null;
+      }
       const message = err instanceof Error ? err.message : t('common.error');
       setError(message);
       toast.error(message);
