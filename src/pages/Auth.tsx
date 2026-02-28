@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { usePlatformSettings } from '@/hooks/usePlatformSettings';
+import { usePlatformSettings } from '@/hooks/org/usePlatformSettings';
 import { z } from 'zod';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner';

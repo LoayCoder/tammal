@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { usePWAInstall } from "@/hooks/usePWAInstall";
+import { usePWAInstall } from "@/hooks/ui/usePWAInstall";
 import { Button } from "@/components/ui/button";
 import { Download, X, Share } from "lucide-react";
 

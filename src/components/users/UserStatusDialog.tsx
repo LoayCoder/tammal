@@ -10,7 +10,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { UserX, Ban, Trash2, UserCheck } from 'lucide-react';
-import type { UserWithRoles } from '@/hooks/useUsers';
+import type { UserWithRoles } from '@/hooks/org/useUsers';
 
 export type StatusAction = 'deactivate' | 'suspend' | 'reactivate' | 'delete';
 

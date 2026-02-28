@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Users, HardDrive, Activity, TrendingUp, TrendingDown } from 'lucide-react';
-import type { Tenant } from '@/hooks/useTenants';
-import type { Plan } from '@/hooks/usePlans';
+import type { Tenant } from '@/hooks/org/useTenants';
+import type { Plan } from '@/hooks/org/usePlans';
 
 interface UsageStatsCardsProps {
   usage: {

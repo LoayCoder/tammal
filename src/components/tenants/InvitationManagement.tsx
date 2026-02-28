@@ -32,7 +32,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useTenantInvitations, type Invitation, type CreateInvitationInput } from '@/hooks/useTenantInvitations';
+import { useTenantInvitations, type Invitation, type CreateInvitationInput } from '@/hooks/org/useTenantInvitations';
 import { toast } from 'sonner';
 
 const getExpiryOptions = (t: (key: string) => string) => [

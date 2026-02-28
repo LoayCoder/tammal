@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency } from '@/lib/utils';
 import { DataTable } from '@/shared/data-table/DataTable';
 import type { ColumnDef } from '@/shared/data-table/types';
-import type { Plan } from '@/hooks/usePlans';
+import type { Plan } from '@/hooks/org/usePlans';
 
 interface PlanTableProps {
   plans: Plan[];

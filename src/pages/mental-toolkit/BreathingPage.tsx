@@ -5,9 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import BreathingGroundingTool from "@/components/mental-toolkit/tools/BreathingGroundingTool";
-import { useBreathingSessions, type BreathingSession } from "@/hooks/useBreathingSessions";
-import { useMoodDefinitions } from "@/hooks/useMoodDefinitions";
-import { useCurrentEmployee } from "@/hooks/useCurrentEmployee";
+import { useBreathingSessions, type BreathingSession } from "@/hooks/wellness/useBreathingSessions";
+import { useMoodDefinitions } from "@/hooks/wellness/useMoodDefinitions";
+import { useCurrentEmployee } from "@/hooks/auth/useCurrentEmployee";
 import { format } from "date-fns";
 
 type Technique = "box" | "sigh" | "grounding";

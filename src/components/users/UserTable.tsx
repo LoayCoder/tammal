@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Shield, UserCog, Pencil, UserX, Ban, UserCheck, Trash2 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
-import type { UserWithRoles } from '@/hooks/useUsers';
+import type { UserWithRoles } from '@/hooks/org/useUsers';
 import { useIsMobile } from '@/hooks/ui/use-mobile';
 import { UserMobileCard } from './UserMobileCard';
 

@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { HSLColorPicker, type HSLColor } from '@/components/branding/HSLColorPicker';
 import { ImageUploader } from '@/components/branding/ImageUploader';
 import { BrandingPreview } from '@/components/branding/BrandingPreview';
-import { useBranding } from '@/hooks/useBranding';
+import { useBranding } from '@/hooks/branding/useBranding';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function AdminBranding() {

@@ -21,8 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useTenants, type Tenant } from '@/hooks/useTenants';
-import { useTenantInvitations } from '@/hooks/useTenantInvitations';
+import { useTenants, type Tenant } from '@/hooks/org/useTenants';
+import { useTenantInvitations } from '@/hooks/org/useTenantInvitations';
 import { TenantTable } from '@/components/tenants/TenantTable';
 import { TenantSheet } from '@/components/tenants/TenantSheet';
 import { TenantDetailDialog } from '@/components/tenants/TenantDetailDialog';

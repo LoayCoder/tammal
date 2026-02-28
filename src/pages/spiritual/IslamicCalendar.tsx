@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Star, UtensilsCrossed } from 'lucide-react';
-import { useHijriCalendar, useHijriToday, ISLAMIC_EVENTS, isWhiteDay, isSunnahFastingDay } from '@/hooks/useHijriCalendar';
-import { useSpiritualPreferences } from '@/hooks/useSpiritualPreferences';
+import { useHijriCalendar, useHijriToday, ISLAMIC_EVENTS, isWhiteDay, isSunnahFastingDay } from '@/hooks/spiritual/useHijriCalendar';
+import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { useNavigate } from 'react-router-dom';
 
 const WEEKDAYS_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];

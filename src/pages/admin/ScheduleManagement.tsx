@@ -19,12 +19,12 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Progress } from '@/components/ui/progress';
 import { Plus, Calendar, CalendarClock, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Package, Building2, UserCheck, Search, Check, X, ChevronDown, ChevronUp, Settings2 } from 'lucide-react';
 import SchedulePreviewDialog from '@/components/schedules/SchedulePreviewDialog';
-import { useQuestionSchedules, QuestionSchedule } from '@/hooks/useQuestionSchedules';
-import { useQuestionBatches } from '@/hooks/useQuestionBatches';
-import { useProfile } from '@/hooks/useProfile';
-import { useGenerationPeriods } from '@/hooks/useGenerationPeriods';
-import { useMoodQuestionConfig } from '@/hooks/useMoodQuestionConfig';
-import { useMoodDefinitions } from '@/hooks/useMoodDefinitions';
+import { useQuestionSchedules, QuestionSchedule } from '@/hooks/questions/useQuestionSchedules';
+import { useQuestionBatches } from '@/hooks/questions/useQuestionBatches';
+import { useProfile } from '@/hooks/auth/useProfile';
+import { useGenerationPeriods } from '@/hooks/questions/useGenerationPeriods';
+import { useMoodQuestionConfig } from '@/hooks/wellness/useMoodQuestionConfig';
+import { useMoodDefinitions } from '@/hooks/wellness/useMoodDefinitions';
 import { useScheduleData } from '@/hooks/admin/useScheduleData';
 import { useScheduleActions } from '@/hooks/admin/useScheduleActions';
 import { toast } from 'sonner';

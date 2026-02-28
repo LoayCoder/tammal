@@ -30,7 +30,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
-import type { Role, CreateRoleInput, UpdateRoleInput } from '@/hooks/useRoles';
+import type { Role, CreateRoleInput, UpdateRoleInput } from '@/hooks/auth/useRoles';
 
 const createRoleSchema = (t: (key: string) => string) => z.object({
   name: z.string().min(1, t('validation.roleNameRequired')),

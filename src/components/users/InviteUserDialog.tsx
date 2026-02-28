@@ -19,8 +19,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useTenantInvitations } from '@/hooks/useTenantInvitations';
-import { useRoles } from '@/hooks/useRoles';
+import { useTenantInvitations } from '@/hooks/org/useTenantInvitations';
+import { useRoles } from '@/hooks/auth/useRoles';
 import { Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 

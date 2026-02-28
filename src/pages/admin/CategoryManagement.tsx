@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { CategoryDialog } from "@/components/questions/CategoryDialog";
-import { useQuestionCategories, QuestionCategory, CreateCategoryInput } from "@/hooks/useQuestionCategories";
+import { useQuestionCategories, QuestionCategory, CreateCategoryInput } from "@/hooks/questions/useQuestionCategories";
 import { Plus, MoreHorizontal, Edit2, Trash2, ToggleLeft, ToggleRight, Tags } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";

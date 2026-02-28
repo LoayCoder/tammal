@@ -7,7 +7,7 @@ import { SubscriptionDialog } from '@/components/subscriptions/SubscriptionDialo
 import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
 import { useFormDialog } from '@/shared/dialogs/useFormDialog';
 import { useConfirmDelete } from '@/shared/dialogs/useConfirmDelete';
-import { useSubscriptions, type Subscription } from '@/hooks/useSubscriptions';
+import { useSubscriptions, type Subscription } from '@/hooks/org/useSubscriptions';
 import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 
 export default function SubscriptionManagement() {

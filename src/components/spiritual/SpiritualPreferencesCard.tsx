@@ -8,8 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Moon, MapPin } from 'lucide-react';
-import { useSpiritualPreferences } from '@/hooks/useSpiritualPreferences';
-import { CALCULATION_METHODS } from '@/hooks/usePrayerTimes';
+import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
+import { CALCULATION_METHODS } from '@/hooks/spiritual/usePrayerTimes';
 import { COUNTRIES, getCitiesForCountry } from '@/data/countryCities';
 
 export function SpiritualPreferencesCard() {

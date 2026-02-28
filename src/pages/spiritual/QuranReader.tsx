@@ -10,8 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BookOpenCheck, Clock, TrendingUp, Plus, BookOpen } from 'lucide-react';
-import { useSpiritualPreferences } from '@/hooks/useSpiritualPreferences';
-import { useQuranSessions } from '@/hooks/useQuranSessions';
+import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
+import { useQuranSessions } from '@/hooks/spiritual/useQuranSessions';
 import { useNavigate } from 'react-router-dom';
 
 const SURAHS = [

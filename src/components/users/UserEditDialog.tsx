@@ -48,7 +48,7 @@ import { Camera, Trash2, KeyRound, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { readFile } from '@/lib/cropImage';
-import type { UserWithRoles } from '@/hooks/useUsers';
+import type { UserWithRoles } from '@/hooks/org/useUsers';
 
 const formSchema = z.object({
   full_name: z.string().optional(),

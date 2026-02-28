@@ -16,7 +16,7 @@ import { TenantSecurityControl, type SecuritySettings, DEFAULT_SECURITY_SETTINGS
 import { InvitationManagement } from './InvitationManagement';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building2, Calendar, Users, Globe, Mail, Phone, FileText } from 'lucide-react';
-import type { Tenant } from '@/hooks/useTenants';
+import type { Tenant } from '@/hooks/org/useTenants';
 
 interface TenantDetailDialogProps {
   open: boolean;
