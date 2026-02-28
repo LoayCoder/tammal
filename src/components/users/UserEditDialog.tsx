@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { logger } from '@/lib/logger';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -162,7 +163,7 @@ export function UserEditDialog({
       setImageToCrop(imageDataUrl);
       setIsCropperOpen(true);
     } catch (error) {
-      console.error('Error reading file:', error);
+      logger.error('UserEditDialog', 'Error reading file', error);
       toast.error(t('profile.avatarUpdateError'));
     }
 
@@ -194,7 +195,7 @@ export function UserEditDialog({
       setAvatarUrl(publicUrl);
       toast.success(t('profile.avatarUpdated'));
     } catch (error) {
-      console.error('Error uploading avatar:', error);
+      logger.error('UserEditDialog', 'Error uploading avatar', error);
       toast.error(t('profile.avatarUpdateError'));
     } finally {
       setIsUploading(false);

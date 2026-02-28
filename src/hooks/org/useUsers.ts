@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import type { Tables } from '@/integrations/supabase/types';
+import { logger } from '@/lib/logger';
 
 export type Profile = Tables<'profiles'>;
 export type UserRole = Tables<'user_roles'>;
@@ -76,7 +77,7 @@ export function useUsers(filters?: UserFilters) {
         .in('user_id', userIds);
 
       if (rolesError) {
-        console.error('Error fetching user roles:', rolesError);
+        logger.error('useUsers', 'Error fetching user roles', rolesError);
       }
 
       // Map roles to users
@@ -139,7 +140,7 @@ export function useUsers(filters?: UserFilters) {
     },
     onError: (error) => {
       toast.error(t('users.updateError'));
-      console.error('Update profile error:', error);
+      logger.error('useUsers', 'Update profile failed', error);
     },
   });
 
@@ -173,7 +174,7 @@ export function useUsers(filters?: UserFilters) {
     },
     onError: (error) => {
       toast.error(t('users.passwordResetError'));
-      console.error('Password reset error:', error);
+      logger.error('useUsers', 'Password reset failed', error);
     },
   });
 
@@ -201,7 +202,7 @@ export function useUsers(filters?: UserFilters) {
     },
     onError: (error) => {
       toast.error(t('users.statusChangeError'));
-      console.error('Change status error:', error);
+      logger.error('useUsers', 'Status change failed', error);
     },
   });
 
@@ -269,7 +270,7 @@ export function useUserRoles(userId?: string) {
     },
     onError: (error) => {
       toast.error(t('users.roleAssignError'));
-      console.error('Assign role error:', error);
+      logger.error('useUsers', 'Assign role failed', error);
     },
   });
 
@@ -289,7 +290,7 @@ export function useUserRoles(userId?: string) {
     },
     onError: (error) => {
       toast.error(t('users.roleRemoveError'));
-      console.error('Remove role error:', error);
+      logger.error('useUsers', 'Remove role failed', error);
     },
   });
 
@@ -318,7 +319,7 @@ export function useUserRoles(userId?: string) {
     },
     onError: (error) => {
       toast.error(t('users.roleUpdateError'));
-      console.error('Update user role error:', error);
+      logger.error('useUsers', 'Update user role failed', error);
     },
   });
 
@@ -355,7 +356,7 @@ export function useHasPermission(permissionCode: string) {
         .rpc('has_permission', { _user_id: user.id, _permission_code: permissionCode });
       
       if (error) {
-        console.error('Permission check error:', error);
+        logger.error('useUsers', 'Permission check error', error);
         return false;
       }
       return data as boolean;

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog,
@@ -77,7 +78,7 @@ export function PermissionMatrix({ open, onOpenChange, role }: PermissionMatrixP
       });
       onOpenChange(false);
     } catch (error) {
-      console.error('Error saving permissions:', error);
+      logger.error('PermissionMatrix', 'Error saving permissions', error);
     } finally {
       setIsSaving(false);
     }
