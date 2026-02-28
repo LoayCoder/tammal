@@ -7,7 +7,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
+import { SkeletonTable } from '@/shared/loading/Skeletons';
+import { EmptyState } from '@/shared/empty/EmptyState';
 import { useTranslation } from 'react-i18next';
 import type { DataTableProps } from './types';
 
@@ -25,26 +26,16 @@ function DataTableInner<T>({
   const { t } = useTranslation();
 
   if (isLoading) {
-    return (
-      <div className="space-y-3">
-        {Array.from({ length: loadingRows }).map((_, i) => (
-          <Skeleton key={i} className="h-12 w-full" />
-        ))}
-      </div>
-    );
+    return <SkeletonTable rows={loadingRows} />;
   }
 
   if (data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-10 text-center">
-        {emptyIcon && <div className="mb-4">{emptyIcon}</div>}
-        <p className="text-muted-foreground">
-          {emptyMessage ?? t('common.noData')}
-        </p>
-        {emptyDescription && (
-          <p className="text-muted-foreground text-sm mt-1">{emptyDescription}</p>
-        )}
-      </div>
+      <EmptyState
+        title={emptyMessage ?? t('common.noData')}
+        description={emptyDescription}
+        icon={emptyIcon}
+      />
     );
   }
 
