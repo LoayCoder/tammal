@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { logger } from '@/lib/logger';
 import { useTranslation } from 'react-i18next';
 import Cropper from 'react-easy-crop';
 import type { Area, Point } from 'react-easy-crop';
@@ -66,7 +67,7 @@ export function AvatarCropperDialog({
         return url;
       });
     } catch (error) {
-      console.error('Failed to generate preview:', error);
+      logger.error('AvatarCropper', 'Failed to generate preview', error);
     }
   };
 
@@ -79,7 +80,7 @@ export function AvatarCropperDialog({
       onCropComplete(croppedBlob);
       handleClose();
     } catch (error) {
-      console.error('Failed to crop image:', error);
+      logger.error('AvatarCropper', 'Failed to crop image', error);
     } finally {
       setIsProcessing(false);
     }

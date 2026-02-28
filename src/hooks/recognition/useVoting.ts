@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { logger } from '@/lib/logger';
 
 export interface Vote {
   id: string;
@@ -257,7 +258,7 @@ export function useVoting(cycleId?: string) {
         status: 'credited',
         description: 'Points earned for voting participation',
       });
-      if (ptErr) console.warn('Voting points insert failed:', ptErr.message);
+      if (ptErr) logger.warn('useVoting', 'Voting points insert failed:', ptErr.message);
 
       return data;
     },

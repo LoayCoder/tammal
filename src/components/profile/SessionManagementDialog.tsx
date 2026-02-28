@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { logger } from '@/lib/logger';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog,
@@ -94,7 +95,7 @@ export function SessionManagementDialog({ open, onOpenChange }: SessionManagemen
       toast.success(t('profile.allSessionsRevoked'));
       onOpenChange(false);
     } catch (error) {
-      console.error('Failed to sign out from all devices:', error);
+      logger.error('SessionManagement', 'Failed to sign out all devices', error);
       toast.error(t('profile.revokeSessionError'));
     } finally {
       setIsRevokingAll(false);
@@ -110,7 +111,7 @@ export function SessionManagementDialog({ open, onOpenChange }: SessionManagemen
 
       toast.success(t('profile.otherSessionsRevoked'));
     } catch (error) {
-      console.error('Failed to sign out from other devices:', error);
+      logger.error('SessionManagement', 'Failed to sign out other devices', error);
       toast.error(t('profile.revokeSessionError'));
     } finally {
       setIsRevokingAll(false);

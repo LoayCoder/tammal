@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { tenantAssetsService } from '@/services/tenantAssets';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { logger } from '@/lib/logger';
 import type { HSLColor } from '@/components/branding/HSLColorPicker';
 
 export type AssetType = 'logo' | 'logo_light' | 'logo_dark' | 'favicon' | 'icon_light' | 'icon_dark' | 'pwa_icon' | 'pwa_icon_light' | 'pwa_icon_dark';
@@ -103,7 +104,7 @@ export function useBranding(tenantId?: string) {
       setBranding(newConfig);
 
     } catch (error) {
-      console.error('Error fetching branding:', error);
+      logger.error('useBranding', 'Error fetching branding', error);
     } finally {
       setIsLoading(false);
     }

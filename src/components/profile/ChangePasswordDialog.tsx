@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { logger } from '@/lib/logger';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -80,7 +81,7 @@ export function ChangePasswordDialog({
       setPasswordChanged(true);
       toast.success(t('profile.passwordChangeSuccess'));
     } catch (error) {
-      console.error('Failed to update password:', error);
+      logger.error('ChangePassword', 'Failed to update password', error);
       toast.error(t('profile.passwordChangeError'));
     } finally {
       setIsLoading(false);

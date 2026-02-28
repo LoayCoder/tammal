@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 import type { Plan } from './usePlans';
 import { useAuditLog } from '@/hooks/audit/useAuditLog';
+import { logger } from '@/lib/logger';
 import { addDays } from 'date-fns';
 import type { SecuritySettings } from '@/components/tenants/TenantSecurityControl';
 
@@ -76,7 +77,7 @@ export function useTenants() {
     },
     onError: (error) => {
       toast.error(t('tenants.createError'));
-      console.error('Create tenant error:', error);
+      logger.error('useTenants', 'Create failed', error);
     },
   });
 
@@ -121,7 +122,7 @@ export function useTenants() {
     },
     onError: (error) => {
       toast.error(t('tenants.updateError'));
-      console.error('Update tenant error:', error);
+      logger.error('useTenants', 'Update failed', error);
     },
   });
 
@@ -158,7 +159,7 @@ export function useTenants() {
     },
     onError: (error) => {
       toast.error(t('tenants.deleteError'));
-      console.error('Delete tenant error:', error);
+      logger.error('useTenants', 'Delete failed', error);
     },
   });
 
@@ -188,7 +189,7 @@ export function useTenants() {
     },
     onError: (error) => {
       toast.error(t('tenants.updateError'));
-      console.error('Start trial error:', error);
+      logger.error('useTenants', 'Start trial failed', error);
     },
   });
 
@@ -228,7 +229,7 @@ export function useTenants() {
     },
     onError: (error) => {
       toast.error(t('tenants.updateError'));
-      console.error('Extend trial error:', error);
+      logger.error('useTenants', 'Extend trial failed', error);
     },
   });
 
@@ -252,7 +253,7 @@ export function useTenants() {
     },
     onError: (error) => {
       toast.error(t('tenants.updateError'));
-      console.error('End trial error:', error);
+      logger.error('useTenants', 'End trial failed', error);
     },
   });
 
@@ -275,7 +276,7 @@ export function useTenants() {
     },
     onError: (error) => {
       toast.error(t('tenants.updateError'));
-      console.error('Update security error:', error);
+      logger.error('useTenants', 'Update security failed', error);
     },
   });
 
