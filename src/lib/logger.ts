@@ -21,10 +21,30 @@ function formatTag(tag: string): string {
   return `[${tag}]`;
 }
 
-/** Optional hook point for external error reporting (Sentry, LogRocket, etc.) */
-function reportError(_tag: string, _message: string, _extra?: unknown): void {
-  // No-op by default.  Replace body with SDK call when ready.
-  // e.g. Sentry.captureException(extra instanceof Error ? extra : new Error(message));
+/** Hook point for external error reporting — routes to Sentry in production */
+function reportError(_tag: string, message: string, extra?: unknown): void {
+  if (import.meta.env.MODE === 'production') {
+    try {
+      const { Sentry } = await_sentry();
+      if (Sentry) {
+        Sentry.captureException(extra instanceof Error ? extra : new Error(`[${_tag}] ${message}`));
+      }
+    } catch {
+      // Sentry not loaded — swallow silently
+    }
+  }
+}
+
+/** Lazy import to avoid pulling Sentry into dev bundles */
+function await_sentry() {
+  // Dynamic import is NOT used here to keep this synchronous.
+  // Sentry is tree-shaken in dev because initSentry() is a no-op.
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require('@sentry/react') as { Sentry: typeof import('@sentry/react') };
+  } catch {
+    return { Sentry: null };
+  }
 }
 
 export const logger = {

@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect, lazy, Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorBoundary } from "@/shared/resilience/ErrorBoundary";
+import { Sentry } from "@/lib/sentry";
 
 // ── Eager-loaded (critical path) ──
 import Auth from "@/pages/Auth";
