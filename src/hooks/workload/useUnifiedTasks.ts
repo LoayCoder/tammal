@@ -159,8 +159,9 @@ export function useUnifiedTasks(employeeId?: string) {
       const { data: current, error: fetchErr } = await supabase
         .from('unified_tasks').select('comments').eq('id', id).single();
       if (fetchErr) throw fetchErr;
-      const comments = [...((current?.comments as TaskComment[]) ?? []), comment];
-      const { error } = await supabase.from('unified_tasks').update({ comments }).eq('id', id);
+      const existing = (current?.comments as unknown as TaskComment[]) ?? [];
+      const comments = [...existing, comment] as unknown as Record<string, unknown>[];
+      const { error } = await supabase.from('unified_tasks').update({ comments: comments as any }).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
