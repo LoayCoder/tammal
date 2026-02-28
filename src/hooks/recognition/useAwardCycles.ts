@@ -55,7 +55,7 @@ export function useAwardCycles() {
   const { tenantId } = useTenantId();
   const qc = useQueryClient();
 
-  const { data: cycles = [], isLoading } = useQuery({
+  const { data: cycles = [], isPending } = useQuery({
     queryKey: ['award-cycles', tenantId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -141,5 +141,5 @@ export function useAwardCycles() {
     onError: () => toast.error(t('recognition.cycles.deleteError')),
   });
 
-  return { cycles, isLoading, createCycle, updateCycle, advanceStatus, deleteCycle };
+  return { cycles, isPending, createCycle, updateCycle, advanceStatus, deleteCycle };
 }

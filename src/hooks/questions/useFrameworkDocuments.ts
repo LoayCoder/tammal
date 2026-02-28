@@ -16,7 +16,7 @@ export function useFrameworkDocuments(frameworkId?: string) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: documents = [], isLoading } = useQuery({
+  const { data: documents = [], isPending } = useQuery({
     queryKey: ['framework-documents', frameworkId],
     enabled: !!frameworkId,
     queryFn: async () => {
@@ -96,7 +96,7 @@ export function useFrameworkDocuments(frameworkId?: string) {
 
   return {
     documents,
-    isLoading,
+    isPending,
     uploadDocument: uploadDocument.mutate,
     deleteDocument: deleteDocument.mutate,
     isUploading: uploadDocument.isPending,

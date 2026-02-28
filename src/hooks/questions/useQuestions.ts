@@ -47,7 +47,7 @@ export function useQuestions(categoryId?: string) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: questions = [], isLoading, error } = useQuery({
+  const { data: questions = [], isPending, error } = useQuery({
     queryKey: ['questions', categoryId],
     queryFn: async () => {
       let query = supabase
@@ -158,7 +158,7 @@ export function useQuestions(categoryId?: string) {
 
   return {
     questions,
-    isLoading,
+    isPending,
     error,
     createQuestion,
     updateQuestion,

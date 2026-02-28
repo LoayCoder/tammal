@@ -50,7 +50,7 @@ export function useNominations(cycleId?: string, themeId?: string) {
   const { tenantId } = useTenantId();
   const qc = useQueryClient();
 
-  const { data: nominations = [], isLoading } = useQuery({
+  const { data: nominations = [], isPending } = useQuery({
     queryKey: ['nominations', tenantId, cycleId, themeId],
     queryFn: async () => {
       let query = supabase
@@ -70,7 +70,7 @@ export function useNominations(cycleId?: string, themeId?: string) {
   });
 
   // Nominations sent by current user
-  const { data: myNominations = [], isLoading: myLoading } = useQuery({
+  const { data: myNominations = [], isPending: myPending } = useQuery({
     queryKey: ['my-nominations', user?.id, tenantId],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -87,7 +87,7 @@ export function useNominations(cycleId?: string, themeId?: string) {
   });
 
   // Nominations where current user is nominee
-  const { data: receivedNominations = [], isLoading: receivedLoading } = useQuery({
+  const { data: receivedNominations = [], isPending: receivedPending } = useQuery({
     queryKey: ['received-nominations', user?.id, tenantId],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -150,9 +150,9 @@ export function useNominations(cycleId?: string, themeId?: string) {
     nominations,
     myNominations,
     receivedNominations,
-    isLoading,
-    myLoading,
-    receivedLoading,
+    isPending,
+    myPending,
+    receivedPending,
     createNomination,
     softDelete,
   };
