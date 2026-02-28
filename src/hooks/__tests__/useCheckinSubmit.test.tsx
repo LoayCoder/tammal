@@ -71,7 +71,7 @@ describe('useCheckinSubmit', () => {
   // ── Success flow ──
 
   it('returns result and invalidates correct caches on success', async () => {
-    const result = { tip: 'Stay hydrated', pointsEarned: 20, newStreak: 3, alreadySubmitted: false };
+    const result = { tip: 'Stay hydrated', pointsEarned: 20, newStreak: 3 };
     mockSubmitMoodEntry.mockResolvedValue(result);
     const { wrapper, invalidateSpy } = createWrapper();
 
@@ -93,14 +93,14 @@ describe('useCheckinSubmit', () => {
     expect(invalidatedKeys).toContain('gamification');
     expect(invalidatedKeys).toContain('mood-entry-today');
     expect(invalidatedKeys).toContain('points-transactions');
-    // Exactly 3 invalidations — no global blast
     expect(invalidateSpy).toHaveBeenCalledTimes(3);
   });
 
-  // ── Idempotency ──
+  // ── Idempotency — DuplicateCheckinError ──
 
-  it('shows info toast and skips invalidation when alreadySubmitted', async () => {
-    mockSubmitMoodEntry.mockResolvedValue({ alreadySubmitted: true, tip: '', pointsEarned: 0, newStreak: 2 });
+  it('shows info toast and skips invalidation when DuplicateCheckinError thrown', async () => {
+    const { DuplicateCheckinError } = await import('@/services/errors');
+    mockSubmitMoodEntry.mockRejectedValue(new DuplicateCheckinError());
     const { wrapper, invalidateSpy } = createWrapper();
 
     const { result: hook } = renderHook(() => useCheckinSubmit(), { wrapper });
@@ -110,7 +110,7 @@ describe('useCheckinSubmit', () => {
     });
 
     expect(mockToastInfo).toHaveBeenCalledTimes(1);
-    // No cache invalidation when already submitted
+    // No cache invalidation when duplicate
     expect(invalidateSpy).not.toHaveBeenCalled();
   });
 
@@ -166,7 +166,7 @@ describe('useCheckinSubmit', () => {
     await waitFor(() => expect(hook.current.isSubmitting).toBe(true));
 
     await act(async () => {
-      resolve!({ tip: '', pointsEarned: 10, newStreak: 1, alreadySubmitted: false });
+      resolve!({ tip: '', pointsEarned: 10, newStreak: 1 });
       await promise!;
     });
 
