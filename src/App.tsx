@@ -2,7 +2,7 @@ import "@/lib/i18n";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminRoute } from "@/components/auth/AdminRoute";
@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect, lazy, Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorBoundary } from "@/shared/resilience/ErrorBoundary";
+import { PageErrorBoundary } from "@/components/errors/PageErrorBoundary";
 import { Sentry } from "@/lib/sentry";
 
 // ── Eager-loaded (critical path) ──
@@ -119,65 +120,90 @@ const App = () => (
             <Route element={<ProtectedRoute />}>
             <Route element={<MainLayout />}>
               {/* ... keep existing code (all route definitions) */}
-              <Route path="/employee/survey" element={<EmployeeSurvey />} />
-              <Route path="/employee/wellness" element={<DailyCheckin />} />
+              {/* ── Employee routes ── */}
+              <Route element={<PageErrorBoundary routeGroup="employee"><Outlet /></PageErrorBoundary>}>
+                <Route path="/employee/survey" element={<EmployeeSurvey />} />
+                <Route path="/employee/wellness" element={<DailyCheckin />} />
+              </Route>
+
               <Route path="/" element={<Dashboard />} />
-              <Route path="/admin/tenants" element={<AdminRoute><TenantManagement /></AdminRoute>} />
-              <Route path="/admin/tenants/:id" element={<AdminRoute><TenantDashboard /></AdminRoute>} />
-              <Route path="/admin/audit-logs" element={<AdminRoute><AuditLogs /></AdminRoute>} />
-              <Route path="/admin/questions" element={<AdminRoute><QuestionManagement /></AdminRoute>} />
-              <Route path="/admin/questions/generate" element={<AdminRoute><AIQuestionGenerator /></AdminRoute>} />
-              <Route path="/admin/question-categories" element={<AdminRoute><CategoryManagement /></AdminRoute>} />
-              <Route path="/admin/question-subcategories" element={<AdminRoute><SubcategoryManagement /></AdminRoute>} />
-              <Route path="/admin/employees" element={<Navigate to="/admin/user-management" replace />} />
-              <Route path="/admin/schedules" element={<AdminRoute><ScheduleManagement /></AdminRoute>} />
-              <Route path="/admin/plans" element={<AdminRoute><PlanManagement /></AdminRoute>} />
-              <Route path="/admin/subscriptions" element={<AdminRoute><SubscriptionManagement /></AdminRoute>} />
-              <Route path="/admin/users" element={<Navigate to="/admin/user-management" replace />} />
-              <Route path="/admin/user-management" element={<AdminRoute><UnifiedUserManagement /></AdminRoute>} />
-              <Route path="/admin/org" element={<AdminRoute><OrgStructure /></AdminRoute>} />
-              <Route path="/admin/branding" element={<AdminRoute><AdminBranding /></AdminRoute>} />
-              <Route path="/admin/docs" element={<AdminRoute><DocumentSettings /></AdminRoute>} />
-              <Route path="/admin/mood-pathways" element={<AdminRoute><MoodPathwaySettings /></AdminRoute>} />
-              <Route path="/admin/crisis-settings" element={<AdminRoute><CrisisSettings /></AdminRoute>} />
-              <Route path="/admin/survey-monitor" element={<AdminRoute><SurveyMonitor /></AdminRoute>} />
-              <Route path="/admin/checkin-monitor" element={<AdminRoute><CheckinMonitor /></AdminRoute>} />
-              <Route path="/admin/workload/objectives" element={<ManagerOrAdminRoute><ObjectivesManagement /></ManagerOrAdminRoute>} />
-              <Route path="/admin/workload/objectives/:id" element={<ManagerOrAdminRoute><ObjectiveDetail /></ManagerOrAdminRoute>} />
+
+              {/* ── Admin routes ── */}
+              <Route element={<PageErrorBoundary routeGroup="admin"><Outlet /></PageErrorBoundary>}>
+                <Route path="/admin/tenants" element={<AdminRoute><TenantManagement /></AdminRoute>} />
+                <Route path="/admin/tenants/:id" element={<AdminRoute><TenantDashboard /></AdminRoute>} />
+                <Route path="/admin/audit-logs" element={<AdminRoute><AuditLogs /></AdminRoute>} />
+                <Route path="/admin/questions" element={<AdminRoute><QuestionManagement /></AdminRoute>} />
+                <Route path="/admin/questions/generate" element={<AdminRoute><AIQuestionGenerator /></AdminRoute>} />
+                <Route path="/admin/question-categories" element={<AdminRoute><CategoryManagement /></AdminRoute>} />
+                <Route path="/admin/question-subcategories" element={<AdminRoute><SubcategoryManagement /></AdminRoute>} />
+                <Route path="/admin/employees" element={<Navigate to="/admin/user-management" replace />} />
+                <Route path="/admin/schedules" element={<AdminRoute><ScheduleManagement /></AdminRoute>} />
+                <Route path="/admin/plans" element={<AdminRoute><PlanManagement /></AdminRoute>} />
+                <Route path="/admin/subscriptions" element={<AdminRoute><SubscriptionManagement /></AdminRoute>} />
+                <Route path="/admin/users" element={<Navigate to="/admin/user-management" replace />} />
+                <Route path="/admin/user-management" element={<AdminRoute><UnifiedUserManagement /></AdminRoute>} />
+                <Route path="/admin/org" element={<AdminRoute><OrgStructure /></AdminRoute>} />
+                <Route path="/admin/branding" element={<AdminRoute><AdminBranding /></AdminRoute>} />
+                <Route path="/admin/docs" element={<AdminRoute><DocumentSettings /></AdminRoute>} />
+                <Route path="/admin/mood-pathways" element={<AdminRoute><MoodPathwaySettings /></AdminRoute>} />
+                <Route path="/admin/crisis-settings" element={<AdminRoute><CrisisSettings /></AdminRoute>} />
+                <Route path="/admin/survey-monitor" element={<AdminRoute><SurveyMonitor /></AdminRoute>} />
+                <Route path="/admin/checkin-monitor" element={<AdminRoute><CheckinMonitor /></AdminRoute>} />
+                <Route path="/admin/workload/objectives" element={<ManagerOrAdminRoute><ObjectivesManagement /></ManagerOrAdminRoute>} />
+                <Route path="/admin/workload/objectives/:id" element={<ManagerOrAdminRoute><ObjectiveDetail /></ManagerOrAdminRoute>} />
+                <Route path="/admin/workload/dashboard" element={<AdminRoute><WorkloadDashboard /></AdminRoute>} />
+                <Route path="/admin/workload/team" element={<AdminRoute><TeamWorkload /></AdminRoute>} />
+                <Route path="/admin/workload/connectors" element={<AdminRoute><TaskConnectors /></AdminRoute>} />
+                <Route path="/admin/recognition" element={<AdminRoute><RecognitionManagement /></AdminRoute>} />
+                <Route path="/admin/recognition/results" element={<AdminRoute><RecognitionResults /></AdminRoute>} />
+                <Route path="/admin/recognition/redemption" element={<AdminRoute><RedemptionManagement /></AdminRoute>} />
+              </Route>
+
+              {/* ── Workload (employee-facing) ── */}
               <Route path="/my-workload" element={<PersonalCommandCenter />} />
-              <Route path="/admin/workload/dashboard" element={<AdminRoute><WorkloadDashboard /></AdminRoute>} />
-              <Route path="/admin/workload/team" element={<AdminRoute><TeamWorkload /></AdminRoute>} />
-              <Route path="/admin/workload/connectors" element={<AdminRoute><TaskConnectors /></AdminRoute>} />
-              <Route path="/admin/recognition" element={<AdminRoute><RecognitionManagement /></AdminRoute>} />
-              <Route path="/recognition/nominate" element={<NominatePage />} />
-              <Route path="/recognition/my-nominations" element={<MyNominationsPage />} />
-              <Route path="/recognition/vote" element={<VotingBoothPage />} />
-              <Route path="/admin/recognition/results" element={<AdminRoute><RecognitionResults /></AdminRoute>} />
-              <Route path="/admin/recognition/redemption" element={<AdminRoute><RedemptionManagement /></AdminRoute>} />
-              <Route path="/recognition/points" element={<PointsDashboard />} />
-              <Route path="/recognition/rewards" element={<RedemptionCatalog />} />
-              <Route path="/crisis-support" element={<CrisisRequestPage />} />
-              <Route path="/my-support" element={<MySupportPage />} />
-              <Route path="/first-aider" element={<FirstAiderDashboard />} />
+
+              {/* ── Recognition (employee-facing) ── */}
+              <Route element={<PageErrorBoundary routeGroup="recognition"><Outlet /></PageErrorBoundary>}>
+                <Route path="/recognition/nominate" element={<NominatePage />} />
+                <Route path="/recognition/my-nominations" element={<MyNominationsPage />} />
+                <Route path="/recognition/vote" element={<VotingBoothPage />} />
+                <Route path="/recognition/points" element={<PointsDashboard />} />
+                <Route path="/recognition/rewards" element={<RedemptionCatalog />} />
+              </Route>
+
+              {/* ── Crisis routes ── */}
+              <Route element={<PageErrorBoundary routeGroup="crisis"><Outlet /></PageErrorBoundary>}>
+                <Route path="/crisis-support" element={<CrisisRequestPage />} />
+                <Route path="/my-support" element={<MySupportPage />} />
+                <Route path="/first-aider" element={<FirstAiderDashboard />} />
+              </Route>
               
               <Route path="/settings/usage" element={<UsageBilling />} />
               <Route path="/settings/profile" element={<UserProfile />} />
               <Route path="/support" element={<Support />} />
-              <Route path="/mental-toolkit" element={<MentalToolkit />} />
-              <Route path="/mental-toolkit/mood-tracker" element={<MoodTrackerPage />} />
-              <Route path="/mental-toolkit/thought-reframer" element={<ThoughtReframerPage />} />
-              <Route path="/mental-toolkit/breathing" element={<BreathingPage />} />
-              <Route path="/mental-toolkit/journaling" element={<JournalingPage />} />
-              <Route path="/mental-toolkit/meditation" element={<MeditationPage />} />
-              <Route path="/mental-toolkit/habits" element={<HabitsPage />} />
-              <Route path="/mental-toolkit/articles" element={<ArticlesPage />} />
-              
-              <Route path="/mental-toolkit/assessment" element={<AssessmentPage />} />
-              <Route path="/spiritual/prayer" element={<PrayerTracker />} />
-              <Route path="/spiritual/quran" element={<QuranReader />} />
-              <Route path="/spiritual/fasting" element={<SunnahFasting />} />
-              <Route path="/spiritual/insights" element={<SpiritualInsights />} />
-              <Route path="/spiritual/calendar" element={<IslamicCalendar />} />
+
+              {/* ── Mental Toolkit routes ── */}
+              <Route element={<PageErrorBoundary routeGroup="toolkit"><Outlet /></PageErrorBoundary>}>
+                <Route path="/mental-toolkit" element={<MentalToolkit />} />
+                <Route path="/mental-toolkit/mood-tracker" element={<MoodTrackerPage />} />
+                <Route path="/mental-toolkit/thought-reframer" element={<ThoughtReframerPage />} />
+                <Route path="/mental-toolkit/breathing" element={<BreathingPage />} />
+                <Route path="/mental-toolkit/journaling" element={<JournalingPage />} />
+                <Route path="/mental-toolkit/meditation" element={<MeditationPage />} />
+                <Route path="/mental-toolkit/habits" element={<HabitsPage />} />
+                <Route path="/mental-toolkit/articles" element={<ArticlesPage />} />
+                <Route path="/mental-toolkit/assessment" element={<AssessmentPage />} />
+              </Route>
+
+              {/* ── Spiritual routes ── */}
+              <Route element={<PageErrorBoundary routeGroup="spiritual"><Outlet /></PageErrorBoundary>}>
+                <Route path="/spiritual/prayer" element={<PrayerTracker />} />
+                <Route path="/spiritual/quran" element={<QuranReader />} />
+                <Route path="/spiritual/fasting" element={<SunnahFasting />} />
+                <Route path="/spiritual/insights" element={<SpiritualInsights />} />
+                <Route path="/spiritual/calendar" element={<IslamicCalendar />} />
+              </Route>
             </Route>
             </Route>
             <Route path="*" element={<NotFound />} />
