@@ -16,6 +16,7 @@ import { ValidationReport } from '@/components/ai-generator/ValidationReport';
 import { BatchSaveDialog } from '@/components/ai-generator/BatchSaveDialog';
 import { WellnessSavePreviewDialog } from '@/components/ai-generator/WellnessSavePreviewDialog';
 import { useAIGenerator, GeneratorProvider } from '@/features/ai-generator';
+import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 
 export default function AIQuestionGenerator() {
   const { t } = useTranslation();
