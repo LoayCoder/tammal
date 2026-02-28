@@ -39,22 +39,34 @@ describe('PageErrorBoundary', () => {
     expect(screen.queryByText('Healthy content')).not.toBeInTheDocument();
   });
 
-  it('resets and re-renders children on Retry click', () => {
-    let shouldThrow = true;
-    const Wrapper = () => (
+  it('resets state on Retry click', () => {
+    // We verify the boundary resets internal hasError state.
+    // After reset, if child no longer throws, healthy content renders.
+    const throwRef = { current: true };
+
+    const ConditionalThrower = () => {
+      if (throwRef.current) throw new Error('boom');
+      return <div>Healthy content</div>;
+    };
+
+    const { rerender } = render(
       <PageErrorBoundary routeGroup="admin">
-        <ThrowingComponent shouldThrow={shouldThrow} />
+        <ConditionalThrower />
       </PageErrorBoundary>
     );
+    // Fallback is showing
+    expect(screen.getAllByRole('button').length).toBeGreaterThanOrEqual(2);
 
-    const { rerender } = render(<Wrapper />);
-    const buttons = screen.getAllByRole('button');
-    expect(buttons.length).toBeGreaterThanOrEqual(2);
+    // Stop throwing, then click Retry
+    throwRef.current = false;
+    fireEvent.click(screen.getAllByRole('button')[0]);
 
-    // "Fix" the child before retrying — first button is Retry
-    shouldThrow = false;
-    fireEvent.click(buttons[0]);
-    rerender(<Wrapper />);
+    // Force React to re-render with the boundary now reset
+    rerender(
+      <PageErrorBoundary routeGroup="admin">
+        <ConditionalThrower />
+      </PageErrorBoundary>
+    );
 
     expect(screen.getByText('Healthy content')).toBeInTheDocument();
   });
