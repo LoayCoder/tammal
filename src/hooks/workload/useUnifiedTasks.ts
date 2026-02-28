@@ -82,7 +82,7 @@ export function useUnifiedTasks(employeeId?: string) {
       if (employeeId) query = query.eq('employee_id', employeeId);
       const { data, error } = await query;
       if (error) throw error;
-      return (data as any[]).map(d => ({ ...d, comments: d.comments ?? [] })) as UnifiedTask[];
+      return (data ?? []).map((d: Record<string, unknown>) => ({ ...d, comments: (d.comments as TaskComment[]) ?? [] })) as UnifiedTask[];
     },
     enabled: !!tenantId,
   });
