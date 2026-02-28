@@ -67,7 +67,7 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
       pathwayAnswers: pathwayAnswers.map(a => ({ theme: a.theme, selectedOption: a.selectedOption, freeText: a.freeText })),
     });
 
-    if (result && !result.alreadySubmitted) {
+    if (result) {
       setAchievementData({ streak: result.newStreak, points: result.pointsEarned, tip: result.tip });
       setShowAchievement(true);
       setSelectedMood(null);

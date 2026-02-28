@@ -74,7 +74,7 @@ export default function DailyCheckin() {
       language: document.documentElement.lang || 'en',
     });
 
-    if (result && !result.alreadySubmitted) {
+    if (result) {
       setAiTip(result.tip);
       setSubmitted(true);
       toast.success(t('common.pointsEarned', { points: result.pointsEarned, label: t('wellness.points') }));

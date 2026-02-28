@@ -9,6 +9,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { ServiceUnavailableError } from './errors';
 
 // ── Pure computation (no DB) ──
 
@@ -68,7 +69,7 @@ export async function fetchGamificationData(
     .order('entry_date', { ascending: false })
     .limit(60);
 
-  if (error) throw error;
+  if (error) throw new ServiceUnavailableError(error.message);
   if (!entries || entries.length === 0) return { streak: 0, totalPoints: 0 };
 
   const streak = computeStreak(entries);

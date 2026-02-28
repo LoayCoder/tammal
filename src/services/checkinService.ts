@@ -6,6 +6,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { calculatePoints } from './gamificationService';
 import { logger } from '@/lib/logger';
+import { DuplicateCheckinError, ServiceUnavailableError } from './errors';
 
 export interface CheckinParams {
   tenantId: string;
@@ -26,7 +27,6 @@ export interface CheckinResult {
   tip: string;
   pointsEarned: number;
   newStreak: number;
-  alreadySubmitted: boolean;
 }
 
 /**
@@ -98,11 +98,10 @@ export async function submitMoodEntry(params: CheckinParams): Promise<CheckinRes
     });
 
   if (moodError) {
-    // Check for unique violation (23505) — already submitted
     if (moodError.code === '23505') {
-      return { tip: '', pointsEarned: 0, newStreak: currentStreak, alreadySubmitted: true };
+      throw new DuplicateCheckinError();
     }
-    throw moodError;
+    throw new ServiceUnavailableError(moodError.message || 'Failed to save mood entry');
   }
 
   // 4. Insert into points ledger
@@ -122,5 +121,5 @@ export async function submitMoodEntry(params: CheckinParams): Promise<CheckinRes
     logger.warn('checkinService', 'Points ledger insert failed:', ptError.message);
   }
 
-  return { tip, pointsEarned: points, newStreak, alreadySubmitted: false };
+  return { tip, pointsEarned: points, newStreak };
 }
