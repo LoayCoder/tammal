@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { logger } from '@/lib/logger';
 
 export function useUserPermissions() {
   const { user, loading: authLoading } = useAuth();
@@ -101,7 +102,7 @@ export function useHasRole(role: 'super_admin' | 'tenant_admin' | 'manager' | 'u
         .maybeSingle();
 
       if (error) {
-        console.error('Error checking role:', error);
+        logger.error('useHasRole', 'Error checking role', error);
         return false;
       }
 

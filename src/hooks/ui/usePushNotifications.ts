@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { logger } from '@/lib/logger';
 
 export function usePushNotifications() {
   const [permission, setPermission] = useState<NotificationPermission>('default');
@@ -21,7 +22,7 @@ export function usePushNotifications() {
       setPermission(result);
       return result === 'granted';
     } catch (error) {
-      console.error('Error requesting notification permission:', error);
+      logger.error('usePushNotifications', 'Permission request failed', error);
       return false;
     }
   }, [isSupported]);
@@ -39,7 +40,7 @@ export function usePushNotifications() {
 
         return notification;
       } catch (error) {
-        console.error('Error sending notification:', error);
+        logger.error('usePushNotifications', 'Send notification failed', error);
         return null;
       }
     },
@@ -59,7 +60,7 @@ export function usePushNotifications() {
         });
         return true;
       } catch (error) {
-        console.error('Error sending SW notification:', error);
+        logger.error('usePushNotifications', 'SW notification failed', error);
         return false;
       }
     },

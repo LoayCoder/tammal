@@ -83,7 +83,7 @@ export function ChangeEmailDialog({
       setVerificationSent(true);
       toast.success(t('profile.emailVerificationSent'));
     } catch (error) {
-      console.error('Failed to update email:', error);
+      logger.error('ChangeEmailDialog', 'Failed to update email', error);
       toast.error(t('profile.emailChangeError'));
     } finally {
       setIsLoading(false);

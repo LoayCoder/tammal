@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 import { useAuditLog } from '@/hooks/audit/useAuditLog';
+import { logger } from '@/lib/logger';
 
 export type Plan = Tables<'plans'>;
 export type PlanInsert = TablesInsert<'plans'>;
@@ -53,7 +54,7 @@ export function usePlansManagement() {
     },
     onError: (error) => {
       toast.error(t('plans.createError'));
-      console.error('Create plan error:', error);
+      logger.error('usePlans', 'Create failed', error);
     },
   });
 
@@ -89,7 +90,7 @@ export function usePlansManagement() {
     },
     onError: (error) => {
       toast.error(t('plans.updateError'));
-      console.error('Update plan error:', error);
+      logger.error('usePlans', 'Update failed', error);
     },
   });
 
@@ -126,7 +127,7 @@ export function usePlansManagement() {
     },
     onError: (error) => {
       toast.error(t('plans.deleteError'));
-      console.error('Delete plan error:', error);
+      logger.error('usePlans', 'Delete failed', error);
     },
   });
 

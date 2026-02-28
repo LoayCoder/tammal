@@ -73,7 +73,7 @@ export function usePersonalMoodDashboard() {
         .limit(10000);
       if (error) {
         // RLS will block non-admins – return empty gracefully
-        console.warn('Org average unavailable (RLS):', error.message);
+        logger.warn('usePersonalMoodDashboard', 'Org average unavailable (RLS):', error.message);
         return {};
       }
       if (!data || data.length === 0) return {};
