@@ -1,20 +1,12 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { SubscriptionTable } from '@/components/subscriptions/SubscriptionTable';
 import { SubscriptionDialog } from '@/components/subscriptions/SubscriptionDialog';
+import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
+import { useFormDialog } from '@/shared/dialogs/useFormDialog';
+import { useConfirmDelete } from '@/shared/dialogs/useConfirmDelete';
 import { useSubscriptions, type Subscription } from '@/hooks/useSubscriptions';
 
 export default function SubscriptionManagement() {
@@ -29,41 +21,16 @@ export default function SubscriptionManagement() {
     isUpdating,
   } = useSubscriptions();
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [subscriptionToDelete, setSubscriptionToDelete] = useState<string | null>(null);
-
-  const handleCreate = () => {
-    setSelectedSubscription(null);
-    setDialogOpen(true);
-  };
-
-  const handleEdit = (subscription: Subscription) => {
-    setSelectedSubscription(subscription);
-    setDialogOpen(true);
-  };
-
-  const handleDelete = (id: string) => {
-    setSubscriptionToDelete(id);
-    setDeleteDialogOpen(true);
-  };
-
-  const confirmDelete = () => {
-    if (subscriptionToDelete) {
-      deleteSubscription(subscriptionToDelete);
-      setDeleteDialogOpen(false);
-      setSubscriptionToDelete(null);
-    }
-  };
+  const formDialog = useFormDialog<Subscription>();
+  const confirmDelete = useConfirmDelete();
 
   const handleSubmit = (data: any) => {
-    if (selectedSubscription) {
-      updateSubscription({ id: selectedSubscription.id, ...data });
+    if (formDialog.selected) {
+      updateSubscription({ id: formDialog.selected.id, ...data });
     } else {
       createSubscription(data);
     }
-    setDialogOpen(false);
+    formDialog.close();
   };
 
   return (
@@ -73,7 +40,7 @@ export default function SubscriptionManagement() {
           <div className="bg-primary/10 rounded-lg p-2"><CreditCard className="h-6 w-6 text-primary" /></div>
           <h1 className="text-3xl font-bold tracking-tight">{t('subscriptions.title')}</h1>
         </div>
-        <Button onClick={handleCreate}>
+        <Button onClick={formDialog.openCreate}>
           <Plus className="h-4 w-4 me-2" />
           {t('subscriptions.addSubscription')}
         </Button>
@@ -87,36 +54,27 @@ export default function SubscriptionManagement() {
           <SubscriptionTable
             subscriptions={subscriptions}
             isLoading={isLoading}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
+            onEdit={formDialog.openEdit}
+            onDelete={confirmDelete.requestDelete}
           />
         </CardContent>
       </Card>
 
       <SubscriptionDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        subscription={selectedSubscription}
+        open={formDialog.isOpen}
+        onOpenChange={formDialog.setOpen}
+        subscription={formDialog.selected}
         onSubmit={handleSubmit}
         isSubmitting={isCreating || isUpdating}
       />
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('subscriptions.deleteSubscription')}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('subscriptions.confirmDelete')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>
-              {t('common.delete')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={confirmDelete.isOpen}
+        onOpenChange={confirmDelete.setOpen}
+        title={t('subscriptions.deleteSubscription')}
+        description={t('subscriptions.confirmDelete')}
+        onConfirm={() => confirmDelete.confirm(deleteSubscription)}
+      />
     </div>
   );
 }
