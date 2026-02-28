@@ -19,6 +19,7 @@ vi.mock('@/integrations/supabase/client', () => ({
 }));
 
 import { submitMoodEntry, type CheckinParams } from '../checkinService';
+import { DuplicateCheckinError, ServiceUnavailableError } from '../errors';
 
 function makeParams(overrides: Partial<CheckinParams> = {}): CheckinParams {
   return {
@@ -44,7 +45,6 @@ describe('submitMoodEntry', () => {
   it('returns correct structure on success (streak=0)', async () => {
     const result = await submitMoodEntry(makeParams({ currentStreak: 0 }));
 
-    expect(result.alreadySubmitted).toBe(false);
     expect(result.pointsEarned).toBe(10);
     expect(result.newStreak).toBe(1);
     expect(result.tip).toBe('Stay positive!');
@@ -57,22 +57,16 @@ describe('submitMoodEntry', () => {
     expect(result.newStreak).toBe(6);
   });
 
-  it('handles idempotency — unique violation returns alreadySubmitted', async () => {
+  it('throws DuplicateCheckinError on unique violation', async () => {
     mockInsert.mockResolvedValueOnce({ error: { code: '23505', message: 'duplicate' } });
 
-    const result = await submitMoodEntry(makeParams());
-
-    expect(result.alreadySubmitted).toBe(true);
-    expect(result.pointsEarned).toBe(0);
-    expect(result.newStreak).toBe(0);
+    await expect(submitMoodEntry(makeParams())).rejects.toBeInstanceOf(DuplicateCheckinError);
   });
 
-  it('throws on non-unique DB error during mood insert', async () => {
+  it('throws ServiceUnavailableError on non-unique DB error', async () => {
     mockInsert.mockResolvedValueOnce({ error: { code: '42000', message: 'some DB error' } });
 
-    await expect(submitMoodEntry(makeParams())).rejects.toEqual(
-      expect.objectContaining({ code: '42000' })
-    );
+    await expect(submitMoodEntry(makeParams())).rejects.toBeInstanceOf(ServiceUnavailableError);
   });
 
   it('does not throw if points ledger insert fails (logs warning)', async () => {
@@ -84,7 +78,6 @@ describe('submitMoodEntry', () => {
 
     const result = await submitMoodEntry(makeParams());
 
-    expect(result.alreadySubmitted).toBe(false);
     expect(result.pointsEarned).toBe(10);
     expect(consoleSpy).toHaveBeenCalledWith('[checkinService]', 'Points ledger insert failed:', 'points fail');
 
@@ -97,6 +90,5 @@ describe('submitMoodEntry', () => {
     const result = await submitMoodEntry(makeParams());
 
     expect(result.tip).toBe('');
-    expect(result.alreadySubmitted).toBe(false);
   });
 });
