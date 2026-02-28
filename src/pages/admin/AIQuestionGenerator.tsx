@@ -24,7 +24,7 @@ export default function AIQuestionGenerator() {
   const g = useAIGenerator();
 
     return (
-      <ErrorBoundary title="AI Generator Error" description="The generator encountered an error. Try refreshing.">
+      <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}>
       <GeneratorProvider state={g}>
         <div className="space-y-6">
         <div>

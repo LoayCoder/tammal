@@ -44,7 +44,13 @@
     "noMatchingQuestions": "No matching questions",
     "selected": "selected",
     "unassigned": "Unassigned",
-    "none": "None"
+    "none": "None",
+    "tryAgain": "Try again",
+    "somethingWentWrong": "Something went wrong",
+    "sectionError": "Section error",
+    "sectionErrorDescription": "An unexpected error occurred in this section. Other parts of the page should still work.",
+    "habitRemoved": "Habit removed",
+    "pointsEarned": "🎉 +{{points}} {{label}}!"
   },
   "nav": {
     "dashboard": "Dashboard",

@@ -2,6 +2,7 @@ import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import i18n from 'i18next';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -56,16 +57,15 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           </div>
           <div className="space-y-1">
             <h3 className="text-lg font-semibold">
-              {this.props.title ?? 'Something went wrong'}
+              {this.props.title ?? i18n.t('common.somethingWentWrong')}
             </h3>
             <p className="text-sm text-muted-foreground max-w-md">
-              {this.props.description ??
-                'An unexpected error occurred in this section. Other parts of the page should still work.'}
+              {this.props.description ?? i18n.t('common.sectionErrorDescription')}
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={this.handleReset}>
             <RefreshCw className="h-4 w-4 me-2" />
-            Try again
+            {i18n.t('common.tryAgain')}
           </Button>
         </CardContent>
       </Card>
