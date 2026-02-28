@@ -6,6 +6,103 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// ── Provider fallback map (mirrors src/config/ai.ts) ────────────
+const MODEL_FALLBACK_MAP: Record<string, string> = {
+  'google/gemini-3-flash-preview': 'openai/gpt-5-mini',
+  'google/gemini-3-pro-preview':   'openai/gpt-5',
+  'google/gemini-2.5-flash':       'openai/gpt-5-mini',
+  'google/gemini-2.5-flash-lite':  'openai/gpt-5-nano',
+  'google/gemini-2.5-pro':         'openai/gpt-5',
+  'openai/gpt-5':                  'google/gemini-2.5-pro',
+  'openai/gpt-5-mini':             'google/gemini-2.5-flash',
+  'openai/gpt-5-nano':             'google/gemini-2.5-flash-lite',
+};
+
+function getProviderName(modelKey: string): string {
+  return modelKey.startsWith('openai/') ? 'openai' : 'gemini';
+}
+
+// ── AI gateway call with timeout ────────────────────────────────
+const AI_TIMEOUT_MS = 120_000;
+
+interface AICallResult {
+  response: Response;
+  model: string;
+  provider: string;
+}
+
+async function callAIGateway(
+  apiKey: string,
+  model: string,
+  messages: { role: string; content: string }[],
+  temperature: number,
+  tools: unknown[],
+  toolChoice: unknown,
+): Promise<AICallResult> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
+
+  try {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ model, messages, temperature, tools, tool_choice: toolChoice }),
+      signal: controller.signal,
+    });
+    return { response, model, provider: getProviderName(model) };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
+ * Attempt primary model, then fallback if it fails.
+ * Returns the successful Response + metadata.
+ * NEVER logs request/response bodies — only status codes and model names.
+ */
+async function callWithFallback(
+  apiKey: string,
+  primaryModel: string,
+  messages: { role: string; content: string }[],
+  temperature: number,
+  tools: unknown[],
+  toolChoice: unknown,
+): Promise<AICallResult & { usedFallback: boolean }> {
+  // ── Primary attempt ──
+  try {
+    const result = await callAIGateway(apiKey, primaryModel, messages, temperature, tools, toolChoice);
+    if (result.response.ok) {
+      return { ...result, usedFallback: false };
+    }
+
+    const status = result.response.status;
+    // Rate limit / payment errors are not retryable with a different model
+    if (status === 429 || status === 402) {
+      return { ...result, usedFallback: false };
+    }
+
+    console.warn(`Primary model ${primaryModel} failed with status ${status}, attempting fallback`);
+    await result.response.text(); // consume body
+  } catch (err) {
+    const errName = err instanceof Error ? err.name : 'Unknown';
+    console.warn(`Primary model ${primaryModel} threw ${errName}, attempting fallback`);
+  }
+
+  // ── Fallback attempt ──
+  const fallbackModel = MODEL_FALLBACK_MAP[primaryModel];
+  if (!fallbackModel) {
+    throw new Error(`No fallback model configured for ${primaryModel}`);
+  }
+
+  console.log(`Fallback: switching from ${primaryModel} (${getProviderName(primaryModel)}) to ${fallbackModel} (${getProviderName(fallbackModel)})`);
+
+  const fallbackResult = await callAIGateway(apiKey, fallbackModel, messages, temperature, tools, toolChoice);
+  return { ...fallbackResult, usedFallback: true };
+}
+
 interface GenerateRequest {
   questionCount: number;
   complexity: "simple" | "moderate" | "advanced";
@@ -426,25 +523,26 @@ Ensure variety in question types and assign a confidence score (0-100) based on 
 ${advancedSettings.enableBiasDetection ? "Flag any questions with potential bias issues." : ""}
 ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous wording." : ""}`;
 
-    console.log(`Generating ${questionCount} questions with model: ${selectedModel}, accuracy: ${accuracyMode}, frameworks: ${frameworkNames.length}, categories: ${categoryIds.length}, subcategories: ${subcategoryIds.length}, period: ${generationPeriodId || 'freeform'}`);
+    console.log(`Generating ${questionCount} questions with model: ${selectedModel} (${getProviderName(selectedModel)}), accuracy: ${accuracyMode}, frameworks: ${frameworkNames.length}, categories: ${categoryIds.length}, subcategories: ${subcategoryIds.length}, period: ${generationPeriodId || 'freeform'}`);
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: selectedModel,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        temperature,
-        tools: [toolDefinition],
-        tool_choice: { type: "function", function: { name: "return_questions" } },
-      }),
-    });
+    const messages = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ];
+    const tools = [toolDefinition];
+    const toolChoice = { type: "function", function: { name: "return_questions" } };
+
+    // ── Provider-agnostic call with automatic fallback ──
+    const aiCall = await callWithFallback(
+      LOVABLE_API_KEY,
+      selectedModel,
+      messages,
+      temperature,
+      tools,
+      toolChoice,
+    );
+
+    const response = aiCall.response;
 
     if (!response.ok) {
       const errorStatus = response.status;
@@ -459,10 +557,14 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
         });
       }
       const errorText = await response.text();
-      console.error("AI gateway error:", errorStatus, errorText);
+      console.error("AI gateway error:", errorStatus);
       return new Response(JSON.stringify({ error: "AI generation failed" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    if (aiCall.usedFallback) {
+      console.log(`Fallback successful: used ${aiCall.model} (${aiCall.provider}) instead of ${selectedModel}`);
     }
 
     const aiResponse = await response.json();
@@ -506,23 +608,18 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       console.log(`AI returned ${questions.length}/${questionCount} questions. Requesting ${questionCount - questions.length} more.`);
       const deficit = questionCount - questions.length;
       try {
-        const retryResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: selectedModel,
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: `Generate EXACTLY ${deficit} more unique survey questions for employee wellbeing assessment. You MUST return exactly ${deficit} questions. These must be DIFFERENT from these existing questions:\n${questions.map((q: any, i: number) => `${i+1}. ${q.question_text}`).join('\n')}\n\nProvide both English and Arabic versions.${frameworkAlignment}` },
-            ],
-            temperature,
-            tools: [toolDefinition],
-            tool_choice: { type: "function", function: { name: "return_questions" } },
-          }),
-        });
+        const retryCall = await callAIGateway(
+          LOVABLE_API_KEY,
+          aiCall.model, // use whichever model succeeded (may be fallback)
+          [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Generate EXACTLY ${deficit} more unique survey questions for employee wellbeing assessment. You MUST return exactly ${deficit} questions. These must be DIFFERENT from these existing questions:\n${questions.map((q: any, i: number) => `${i+1}. ${q.question_text}`).join('\n')}\n\nProvide both English and Arabic versions.${frameworkAlignment}` },
+          ],
+          temperature,
+          [toolDefinition],
+          { type: "function", function: { name: "return_questions" } },
+        );
+        const retryResponse = retryCall.response;
 
         if (retryResponse.ok) {
           const retryData = await retryResponse.json();
@@ -678,7 +775,14 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       });
     }
 
-    return new Response(JSON.stringify({ questions, success: true, model: selectedModel, duration_ms: durationMs }), {
+    return new Response(JSON.stringify({
+      questions,
+      success: true,
+      model: aiCall.model,
+      duration_ms: durationMs,
+      provider: aiCall.provider,
+      used_fallback: aiCall.usedFallback,
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error: unknown) {

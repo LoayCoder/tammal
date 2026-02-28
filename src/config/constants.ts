@@ -24,5 +24,18 @@ export type ToneOption = (typeof TONE_OPTIONS)[number];
 
 // Re-export domain configs
 export { MAX_BATCH_SIZE } from './pagination';
-export { DEFAULT_AI_MODEL, AI_ACCURACY_MODES, DEFAULT_ACCURACY_MODE, DEFAULT_AI_SETTINGS } from './ai';
+export {
+  DEFAULT_AI_MODEL,
+  AI_ACCURACY_MODES,
+  DEFAULT_ACCURACY_MODE,
+  DEFAULT_AI_SETTINGS,
+  DEFAULT_PROVIDER,
+  FALLBACK_PROVIDER,
+  MODEL_FALLBACK_MAP,
+  FEATURE_MODEL_MAP,
+  AI_TIMEOUT_MS,
+  AI_MAX_RETRIES,
+  getProviderFromModel,
+} from './ai';
+export type { ProviderName, AIAccuracyMode } from './ai';
 export { MOOD_KEYS, DEFAULT_MOOD_META, MOOD_CHART_COLORS, FALLBACK_MOODS, getMoodStyle, MOOD_COLOR_STYLES, DEFAULT_MOOD_COLOR_STYLE } from './moods';

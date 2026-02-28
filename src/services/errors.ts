@@ -46,3 +46,19 @@ export class ServiceUnavailableError extends DomainError {
     this.name = 'ServiceUnavailableError';
   }
 }
+
+/** Thrown when the AI response fails Zod output-schema validation. */
+export class AIResponseInvalidError extends DomainError {
+  constructor(message = 'AI response did not match expected schema') {
+    super(message);
+    this.name = 'AIResponseInvalidError';
+  }
+}
+
+/** Thrown when both primary and fallback AI providers time out. */
+export class AIProviderTimeoutError extends DomainError {
+  constructor(message = 'AI provider timed out') {
+    super(message);
+    this.name = 'AIProviderTimeoutError';
+  }
+}
