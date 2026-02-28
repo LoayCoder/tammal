@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useDashboardView } from '@/hooks/useDashboardView';
+import { useDashboardView, type DashboardView } from '@/hooks/useDashboardView';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { DashboardOverviewTab } from '@/components/dashboard/DashboardOverviewTab';
 import { OrgDashboard } from '@/components/dashboard/OrgDashboard';
@@ -31,7 +31,7 @@ export default function Dashboard() {
   }
 
   return (
-    <Tabs value={view} onValueChange={(v) => setView(v as any)} className="space-y-6">
+    <Tabs value={view} onValueChange={(v) => setView(v as DashboardView)} className="space-y-6">
       <TabsList className="glass-tabs border-0 h-auto">
         <TabsTrigger value="overview" className="gap-2 rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">
           <Building2 className="h-4 w-4" />

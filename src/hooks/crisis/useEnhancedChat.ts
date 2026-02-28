@@ -3,21 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { createCrisisNotification } from './useCrisisNotifications';
+import type { TableRow, TableInsert, TableUpdate } from '@/lib/supabase-types';
+import type { Json } from '@/integrations/supabase/types';
 
 // ─── Types ───────────────────────────────────────────────────────────
-export interface EnhancedMessage {
-  id: string;
-  case_id: string;
-  tenant_id: string;
-  sender_user_id: string;
-  message: string;
-  message_type: string | null;
-  attachments: any;
-  reactions: Record<string, string[]> | null;
-  read_at: string | null;
-  reply_to_id: string | null;
-  created_at: string;
-}
+export type EnhancedMessage = TableRow<'mh_crisis_messages'>;
 
 export interface TypingState {
   userId: string;
@@ -43,7 +33,7 @@ export function useEnhancedChat(caseId?: string) {
         .eq('case_id', caseId!)
         .order('created_at', { ascending: true });
       if (error) throw error;
-      return (data || []) as EnhancedMessage[];
+      return data ?? [];
     },
     enabled: !!caseId && !!user?.id,
   });
@@ -126,9 +116,9 @@ export function useEnhancedChat(caseId?: string) {
       message: string;
       message_type?: string;
       reply_to_id?: string;
-      attachments?: any;
+      attachments?: Json;
     }) => {
-      const { error } = await supabase.from('mh_crisis_messages').insert({
+      const insert: TableInsert<'mh_crisis_messages'> = {
         case_id: data.case_id,
         tenant_id: data.tenant_id,
         sender_user_id: user!.id,
@@ -136,7 +126,8 @@ export function useEnhancedChat(caseId?: string) {
         message_type: data.message_type || 'text',
         reply_to_id: data.reply_to_id || null,
         attachments: data.attachments || null,
-      } as any);
+      };
+      const { error } = await supabase.from('mh_crisis_messages').insert(insert);
       if (error) throw error;
 
       // Notify the other party
@@ -174,9 +165,10 @@ export function useEnhancedChat(caseId?: string) {
 
         // Update first_response_at if first aider sends first message
         if (!isRequester) {
+          const update: TableUpdate<'mh_crisis_cases'> = { first_response_at: new Date().toISOString() };
           await supabase
             .from('mh_crisis_cases')
-            .update({ first_response_at: new Date().toISOString() } as any)
+            .update(update)
             .eq('id', data.case_id)
             .is('first_response_at', null);
         }
@@ -190,9 +182,10 @@ export function useEnhancedChat(caseId?: string) {
   // ── Mark messages as read ──────────────────────────────────────────
   const markAsRead = useCallback(async () => {
     if (!caseId || !user?.id) return;
+    const update: TableUpdate<'mh_crisis_messages'> = { read_at: new Date().toISOString() };
     await supabase
       .from('mh_crisis_messages')
-      .update({ read_at: new Date().toISOString() } as any)
+      .update(update)
       .eq('case_id', caseId)
       .neq('sender_user_id', user.id)
       .is('read_at', null);
@@ -204,7 +197,7 @@ export function useEnhancedChat(caseId?: string) {
       const msg = messages.find(m => m.id === messageId);
       if (!msg) return;
 
-      const reactions: Record<string, string[]> = (msg.reactions as any) || {};
+      const reactions: Record<string, string[]> = (msg.reactions as Record<string, string[]>) || {};
       const users = reactions[emoji] || [];
       const userId = user!.id;
 
@@ -215,9 +208,10 @@ export function useEnhancedChat(caseId?: string) {
         reactions[emoji] = [...users, userId];
       }
 
+      const update: TableUpdate<'mh_crisis_messages'> = { reactions: reactions as unknown as Json };
       const { error } = await supabase
         .from('mh_crisis_messages')
-        .update({ reactions } as any)
+        .update(update)
         .eq('id', messageId);
       if (error) throw error;
     },

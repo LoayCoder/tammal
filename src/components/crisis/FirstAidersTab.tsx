@@ -151,8 +151,8 @@ export default function FirstAidersTab() {
                   <TableCell className="font-medium">{fa.display_name}</TableCell>
                   <TableCell>{fa.department || '—'}</TableCell>
                   <TableCell>
-                    <Badge variant={fa.status === 'online' ? 'default' : 'secondary'} className="text-xs">
-                      {fa.status === 'online' ? '🟢 ' + t('crisisSupport.status.online') : '⚫ ' + t('crisisSupport.status.offline')}
+                    <Badge variant={fa.statusLabel === 'available' ? 'default' : 'secondary'} className="text-xs">
+                      {fa.statusLabel === 'available' ? '🟢 ' + t('crisisSupport.status.online') : '⚫ ' + t('crisisSupport.status.offline')}
                     </Badge>
                   </TableCell>
                   <TableCell>{fa.max_active_cases}</TableCell>
