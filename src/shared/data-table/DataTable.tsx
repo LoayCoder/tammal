@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import type { DataTableProps } from './types';
 
-export function DataTable<T>({
+function DataTableInner<T>({
   columns,
   data,
   rowKey,
@@ -79,3 +79,6 @@ export function DataTable<T>({
 
   return tableContent;
 }
+
+// React.memo for generic components requires a type-cast
+export const DataTable = React.memo(DataTableInner) as typeof DataTableInner;

@@ -3,7 +3,7 @@
  * Owns all state, delegates to existing service hooks. Zero Supabase calls.
  */
 
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { DEFAULT_AI_MODEL, DEFAULT_ACCURACY_MODE, DEFAULT_AI_SETTINGS } from '@/config/ai';
