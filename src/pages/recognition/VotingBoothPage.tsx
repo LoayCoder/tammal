@@ -37,7 +37,7 @@ export default function VotingBoothPage() {
       </div>
 
       {/* Cycle selector */}
-      {cyclesLoading ? (
+      {cyclesPending ? (
         <Skeleton className="h-10 w-64" />
       ) : votingCycles.length === 0 ? (
         <Card>

@@ -99,7 +99,7 @@ export default function RecognitionResults() {
             <p className="text-muted-foreground">{t('recognition.results.selectCyclePrompt')}</p>
           </CardContent>
         </Card>
-      ) : resultsLoading || cyclesLoading ? (
+      ) : resultsLoading || cyclesPending ? (
         <div className="space-y-4">
           {[1, 2].map(i => <Skeleton key={i} className="h-48" />)}
         </div>
