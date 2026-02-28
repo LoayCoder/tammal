@@ -4,6 +4,8 @@
 import { supabase } from '@/integrations/supabase/client';
 import { computeStreak, calculatePoints } from '@/services/gamificationService';
 import { format } from 'date-fns';
+import { logger } from '@/lib/logger';
+import { ServiceUnavailableError } from '@/services/errors';
 import type {
   OrgFilter, MoodEntry, OrgComparison, OrgUnitComparison,
   TopEngager, CategoryScore, SubcategoryScore, AffectiveDistribution,
