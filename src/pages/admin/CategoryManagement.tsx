@@ -18,7 +18,7 @@ export default function CategoryManagement() {
   const [editingCategory, setEditingCategory] = useState<QuestionCategory | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const { categories, isLoading, createCategory, updateCategory, deleteCategory } = useQuestionCategories();
+  const { categories, isPending: isLoading, createCategory, updateCategory, deleteCategory } = useQuestionCategories();
   const MAX_CATEGORIES = 5;
   const canAddCategory = categories.length < MAX_CATEGORIES;
 

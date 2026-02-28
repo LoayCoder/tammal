@@ -15,7 +15,7 @@ interface CriteriaEditorProps {
 
 export function CriteriaEditor({ themeId }: CriteriaEditorProps) {
   const { t } = useTranslation();
-  const { criteria, isLoading, createCriterion, updateCriterion, deleteCriterion } = useJudgingCriteria(themeId);
+  const { criteria, isPending: isLoading, createCriterion, updateCriterion, deleteCriterion } = useJudgingCriteria(themeId);
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState('');
   const [newWeight, setNewWeight] = useState(0.25);

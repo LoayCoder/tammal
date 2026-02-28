@@ -69,7 +69,7 @@ function MicButton({
 export default function ThoughtReframerPage() {
   const { t, i18n } = useTranslation();
   const { employee } = useCurrentEmployee();
-  const { reframes, isLoading, stats, saveReframe, isSaving, deleteReframe, isDeleting } = useThoughtReframes();
+  const { reframes, isPending: isLoading, stats, saveReframe, isSaving, deleteReframe, isDeleting } = useThoughtReframes();
 
   const [step, setStep] = useState(0);
   const [negativeThought, setNegativeThought] = useState("");
