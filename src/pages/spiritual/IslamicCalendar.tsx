@@ -17,7 +17,7 @@ export default function IslamicCalendar() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
   const navigate = useNavigate();
-  const { isEnabled, isLoading: prefsLoading } = useSpiritualPreferences();
+  const { isEnabled, isPending: prefsLoading } = useSpiritualPreferences();
 
   const now = new Date();
   const [viewMonth, setViewMonth] = useState(now.getMonth() + 1);

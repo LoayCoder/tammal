@@ -14,7 +14,7 @@ export function useGamification(employeeId: string | null) {
   return {
     streak: query.data?.streak ?? 0,
     totalPoints: query.data?.totalPoints ?? 0,
-    isLoading: query.isLoading,
+    isPending: query.isPending,
     calculatePoints,
   };
 }

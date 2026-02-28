@@ -12,7 +12,7 @@ export function useMoodDefinitions(tenantId: string | null) {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
-  const { data: moods = [], isLoading } = useQuery({
+  const { data: moods = [], isPending } = useQuery({
     queryKey: ['mood-definitions', tenantId],
     queryFn: async () => {
       if (!tenantId) return [];
@@ -94,7 +94,7 @@ export function useMoodDefinitions(tenantId: string | null) {
   return {
     moods,
     activeMoods: moods.filter(m => m.is_active),
-    isLoading,
+    isPending,
     upsertMood,
     deleteMood,
     toggleMood,

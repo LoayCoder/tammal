@@ -34,7 +34,7 @@ export function useFastingLogs(dateRange?: { from: string; to: string }) {
   const from = dateRange?.from ?? new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0];
   const to = dateRange?.to ?? today;
 
-  const { data: logs = [], isLoading } = useQuery({
+  const { data: logs = [], isPending } = useQuery({
     queryKey: ['fasting-logs', user?.id, from, to],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -90,5 +90,5 @@ export function useFastingLogs(dateRange?: { from: string; to: string }) {
   const todayLog = logs.find(l => l.fast_date === today);
   const completedCount = logs.filter(l => l.completed).length;
 
-  return { logs, isLoading, logFast, todayLog, completedCount };
+  return { logs, isPending, logFast, todayLog, completedCount };
 }

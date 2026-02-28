@@ -36,7 +36,7 @@ const SURAHS = [
 export default function QuranReader() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { preferences, isLoading: prefsLoading } = useSpiritualPreferences();
+  const { preferences, isPending: prefsLoading } = useSpiritualPreferences();
 
   const isActive = preferences?.enabled && preferences?.quran_enabled;
 
@@ -47,7 +47,7 @@ export default function QuranReader() {
   }, []);
   const today = new Date().toISOString().split('T')[0];
 
-  const { sessions, isLoading, logSession, totalMinutes, totalSessions } = useQuranSessions({ from: weekAgo, to: today });
+  const { sessions, isPending: isLoading, logSession, totalMinutes, totalSessions } = useQuranSessions({ from: weekAgo, to: today });
 
   // Form state
   const [duration, setDuration] = useState('15');

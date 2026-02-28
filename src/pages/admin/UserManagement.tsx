@@ -32,9 +32,9 @@ export default function UserManagement() {
   const isRTL = i18n.language === 'ar';
   
   // Get profile for tenant_id and check if user is super_admin
-  const { profile, isLoading: profileLoading } = useProfile();
+  const { profile, isPending: profileLoading } = useProfile();
   const { hasRole: isSuperAdmin } = useHasRole('super_admin');
-  const { tenants, isLoading: tenantsLoading } = useTenants();
+  const { tenants, isPending: tenantsLoading } = useTenants();
   
   // State for tenant selection (super_admin only)
   const [selectedTenantId, setSelectedTenantId] = useState<string | undefined>(undefined);
@@ -63,11 +63,11 @@ export default function UserManagement() {
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [isPermissionMatrixOpen, setIsPermissionMatrixOpen] = useState(false);
   
-  const { users, isLoading: usersLoading, updateProfile, changeUserStatus, sendPasswordReset } = useUsers({ 
+  const { users, isPending: usersLoading, updateProfile, changeUserStatus, sendPasswordReset } = useUsers({ 
     tenantId: effectiveTenantId, 
     search: userSearch 
   });
-  const { roles, isLoading: rolesLoading, createRole, updateRole, deleteRole } = useRoles(effectiveTenantId);
+  const { roles, isPending: rolesLoading, createRole, updateRole, deleteRole } = useRoles(effectiveTenantId);
 
   const handleEditUserRoles = (user: UserWithRoles) => {
     setSelectedUser(user);

@@ -41,7 +41,7 @@ export interface RedemptionRequest {
 export function useRedemptionCatalog() {
   const { tenantId } = useTenantId();
 
-  const { data: options = [], isLoading } = useQuery({
+  const { data: options = [], isPending } = useQuery({
     queryKey: ['redemption-options', tenantId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -56,7 +56,7 @@ export function useRedemptionCatalog() {
     enabled: !!tenantId,
   });
 
-  return { options, isLoading };
+  return { options, isPending };
 }
 
 export function useRedemptionRequests() {
@@ -65,7 +65,7 @@ export function useRedemptionRequests() {
   const { tenantId } = useTenantId();
   const qc = useQueryClient();
 
-  const { data: requests = [], isLoading } = useQuery({
+  const { data: requests = [], isPending } = useQuery({
     queryKey: ['redemption-requests', tenantId, user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -101,7 +101,7 @@ export function useRedemptionRequests() {
     onError: () => toast.error(t('recognition.points.redeemError')),
   });
 
-  return { requests, isLoading, redeem };
+  return { requests, isPending, redeem };
 }
 
 // Admin hooks
@@ -110,7 +110,7 @@ export function useAdminRedemptionOptions() {
   const { tenantId } = useTenantId();
   const qc = useQueryClient();
 
-  const { data: options = [], isLoading } = useQuery({
+  const { data: options = [], isPending } = useQuery({
     queryKey: ['admin-redemption-options', tenantId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -157,7 +157,7 @@ export function useAdminRedemptionOptions() {
     onError: () => toast.error(t('recognition.points.optionDeleteError')),
   });
 
-  return { options, isLoading, createOption, deleteOption };
+  return { options, isPending, createOption, deleteOption };
 }
 
 export function useAdminRedemptionRequests() {
@@ -165,7 +165,7 @@ export function useAdminRedemptionRequests() {
   const { tenantId } = useTenantId();
   const qc = useQueryClient();
 
-  const { data: requests = [], isLoading } = useQuery({
+  const { data: requests = [], isPending } = useQuery({
     queryKey: ['admin-redemption-requests', tenantId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -201,5 +201,5 @@ export function useAdminRedemptionRequests() {
     onError: () => toast.error(t('recognition.points.requestUpdateError')),
   });
 
-  return { requests, isLoading, updateRequest };
+  return { requests, isPending, updateRequest };
 }

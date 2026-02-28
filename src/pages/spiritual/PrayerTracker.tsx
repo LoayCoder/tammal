@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 export default function PrayerTracker() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { preferences, isLoading: prefsLoading } = useSpiritualPreferences();
+  const { preferences, isPending: prefsLoading } = useSpiritualPreferences();
 
   // Redirect if not enabled
   const isActive = preferences?.enabled && preferences?.prayer_enabled;
@@ -33,7 +33,7 @@ export default function PrayerTracker() {
     return d.toISOString().split('T')[0];
   }, []);
 
-  const { logs, todayLogs, logPrayer, isLoading: logsLoading } = usePrayerLogs({ from: weekAgo, to: today });
+  const { logs, todayLogs, logPrayer, isPending: logsLoading } = usePrayerLogs({ from: weekAgo, to: today });
 
   // Weekly stats
   const weeklyStats = useMemo(() => {

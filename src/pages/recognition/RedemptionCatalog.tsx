@@ -11,8 +11,8 @@ const CATEGORIES = ['all', 'time_off', 'cash_equivalent', 'experience', 'charity
 
 export default function RedemptionCatalog() {
   const { t } = useTranslation();
-  const { options, isLoading: catLoading } = useRedemptionCatalog();
-  const { balance, expiringWithin30Days, isLoading: ptsLoading } = usePoints();
+  const { options, isPending: catLoading } = useRedemptionCatalog();
+  const { balance, expiringWithin30Days, isPending: ptsLoading } = usePoints();
   const { redeem } = useRedemptionRequests();
   const [activeCategory, setActiveCategory] = useState<string>('all');
 

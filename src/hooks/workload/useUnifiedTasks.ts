@@ -173,7 +173,7 @@ export function useUnifiedTasks(employeeId?: string) {
 
   return {
     tasks: tasksQuery.data ?? [],
-    isLoading: tasksQuery.isLoading,
+    isPending: tasksQuery.isPending,
     createTask: createMutation.mutate,
     updateTask: updateMutation.mutate,
     deleteTask: deleteMutation.mutate,

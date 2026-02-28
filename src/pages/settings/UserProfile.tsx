@@ -24,8 +24,8 @@ import { SpiritualPreferencesCard } from '@/components/spiritual/SpiritualPrefer
 export default function UserProfile() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
-  const { permissions, isLoading: permissionsLoading, isSuperAdmin } = useUserPermissions();
-  const { userRoles, isLoading: rolesLoading } = useUserRoles(user?.id);
+  const { permissions, isPending: permissionsLoading, isSuperAdmin } = useUserPermissions();
+  const { userRoles, isPending: rolesLoading } = useUserRoles(user?.id);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);

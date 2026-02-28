@@ -43,7 +43,7 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: scheduledQuestions = [], isLoading, error, refetch } = useQuery({
+  const { data: scheduledQuestions = [], isPending, error, refetch } = useQuery({
     queryKey: ['scheduled-questions', employeeId, status],
     queryFn: async () => {
       // 1. Get only survey-type schedule IDs to keep this hook scoped to the survey page
@@ -234,7 +234,7 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
     scheduledQuestions,
     pendingQuestions,
     surveyMeta,
-    isLoading,
+    isPending,
     error,
     refetch,
     skipQuestion,
@@ -242,7 +242,7 @@ export function useScheduledQuestions(employeeId?: string, status?: string) {
 }
 
 export function useAnsweredSurveyCheck(employeeId?: string) {
-  const { data: hasAnswered = false, isLoading } = useQuery({
+  const { data: hasAnswered = false, isPending } = useQuery({
     queryKey: ['answered-survey-check', employeeId],
     queryFn: async () => {
       if (!employeeId) return false;
@@ -280,5 +280,5 @@ export function useAnsweredSurveyCheck(employeeId?: string) {
     enabled: !!employeeId,
   });
 
-  return { hasAnswered, isLoading };
+  return { hasAnswered, isPending };
 }

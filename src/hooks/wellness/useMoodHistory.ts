@@ -62,6 +62,6 @@ export function useMoodHistory(employeeId: string | null) {
     burnoutZone,
     monthlyCheckins,
     todayEntry,
-    isLoading: query.isLoading,
+    isPending: query.isPending,
   };
 }
