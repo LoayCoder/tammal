@@ -9,8 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { QuestionTypeSelector } from "./QuestionTypeSelector";
-import { Question, QuestionType, CreateQuestionInput } from "@/hooks/useQuestions";
-import { QuestionCategory } from "@/hooks/useQuestionCategories";
+import { Question, QuestionType, CreateQuestionInput } from "@/hooks/questions/useQuestions";
+import { QuestionCategory } from "@/hooks/questions/useQuestionCategories";
 import { DEFAULT_MOOD_META } from '@/config/moods';
 import { Plus, X } from "lucide-react";
 

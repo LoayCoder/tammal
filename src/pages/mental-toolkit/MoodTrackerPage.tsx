@@ -3,7 +3,7 @@ import { SmilePlus, Flame, TrendingUp, CalendarCheck, Activity, BarChart3, PieCh
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { usePersonalMoodDashboard } from "@/hooks/usePersonalMoodDashboard";
+import { usePersonalMoodDashboard } from "@/hooks/analytics/usePersonalMoodDashboard";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
   ReferenceLine, PieChart as RechartsPie, Pie, Cell, Legend,

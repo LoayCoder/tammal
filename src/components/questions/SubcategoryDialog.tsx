@@ -9,8 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useQuestionCategories } from "@/hooks/useQuestionCategories";
-import { QuestionSubcategory, CreateSubcategoryInput } from "@/hooks/useQuestionSubcategories";
+import { useQuestionCategories } from "@/hooks/questions/useQuestionCategories";
+import { QuestionSubcategory, CreateSubcategoryInput } from "@/hooks/questions/useQuestionSubcategories";
 
 interface SubcategoryDialogProps {
   open: boolean;

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { QuestionCategory, CreateCategoryInput } from "@/hooks/useQuestionCategories";
+import { QuestionCategory, CreateCategoryInput } from "@/hooks/questions/useQuestionCategories";
 import { AlertCircle } from "lucide-react";
 
 const PRESET_COLORS = [

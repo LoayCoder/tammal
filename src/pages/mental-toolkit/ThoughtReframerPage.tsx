@@ -14,9 +14,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { useThoughtReframes } from "@/hooks/useThoughtReframes";
-import { useCurrentEmployee } from "@/hooks/useCurrentEmployee";
-import { useSpeechToText } from "@/hooks/useSpeechToText";
+import { useThoughtReframes } from "@/hooks/wellness/useThoughtReframes";
+import { useCurrentEmployee } from "@/hooks/auth/useCurrentEmployee";
+import { useSpeechToText } from "@/hooks/ui/useSpeechToText";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 

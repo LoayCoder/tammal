@@ -10,8 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useQuestionBatches, type BatchQuestion } from "@/hooks/useQuestionBatches";
-import { useAuth } from "@/hooks/useAuth";
+import { useQuestionBatches, type BatchQuestion } from "@/hooks/questions/useQuestionBatches";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Trash2, Package, Calendar, User, Hash, ClipboardList, Heart, Send, Ban, CheckCircle, Pencil, Check, X } from "lucide-react";

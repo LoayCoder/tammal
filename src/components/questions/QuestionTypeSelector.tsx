@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ListOrdered, ToggleLeft, MessageSquare, CheckSquare, Scale } from "lucide-react";
-import { QuestionType } from "@/hooks/useQuestions";
+import { QuestionType } from "@/hooks/questions/useQuestions";
 
 interface QuestionTypeSelectorProps {
   value: QuestionType;
