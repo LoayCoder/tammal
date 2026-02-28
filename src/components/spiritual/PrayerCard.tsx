@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Home, Building2, Briefcase, Clock } from 'lucide-react';
-import type { PrayerLog } from '@/hooks/usePrayerLogs';
+import type { PrayerLog } from '@/hooks/spiritual/usePrayerLogs';
 import { PrayerStatusBadge } from './PrayerStatusBadge';
 
 interface PrayerCardProps {

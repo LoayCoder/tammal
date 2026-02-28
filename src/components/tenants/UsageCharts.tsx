@@ -6,7 +6,7 @@ import {
   CartesianGrid, Tooltip, ResponsiveContainer, Legend 
 } from 'recharts';
 import { format } from 'date-fns';
-import type { TenantUsage } from '@/hooks/useTenantUsage';
+import type { TenantUsage } from '@/hooks/org/useTenantUsage';
 
 interface UsageChartsProps {
   history: TenantUsage[];

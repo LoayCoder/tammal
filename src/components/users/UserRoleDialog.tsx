@@ -15,11 +15,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { useRoles, Role } from '@/hooks/useRoles';
-import { useUserRoles } from '@/hooks/useUsers';
-import { useHasRole } from '@/hooks/useUserPermissions';
-import { useAuth } from '@/hooks/useAuth';
-import type { UserWithRoles } from '@/hooks/useUsers';
+import { useRoles, Role } from '@/hooks/auth/useRoles';
+import { useUserRoles } from '@/hooks/org/useUsers';
+import { useHasRole } from '@/hooks/auth/useUserPermissions';
+import { useAuth } from '@/hooks/auth/useAuth';
+import type { UserWithRoles } from '@/hooks/org/useUsers';
 import { Shield, Loader2, AlertTriangle } from 'lucide-react';
 
 interface UserRoleDialogProps {

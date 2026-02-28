@@ -8,7 +8,7 @@ import type { Site } from '@/hooks/org/useSites';
 import type { Branch } from '@/hooks/org/useBranches';
 import type { Department } from '@/hooks/org/useDepartments';
 import type { Division } from '@/hooks/org/useDivisions';
-import type { Employee } from '@/hooks/useEmployees';
+import type { Employee } from '@/hooks/org/useEmployees';
 
 interface SiteTableProps {
   sites: Site[];

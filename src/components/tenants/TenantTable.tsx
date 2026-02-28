@@ -21,8 +21,8 @@ import { MoreHorizontal, Trash2, Settings2, BarChart3, Eye } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton';
 import { TenantStatusBadge } from './TenantStatusBadge';
 import { formatDate } from '@/lib/utils';
-import type { Tenant } from '@/hooks/useTenants';
-import type { Plan } from '@/hooks/usePlans';
+import type { Tenant } from '@/hooks/org/useTenants';
+import type { Plan } from '@/hooks/org/usePlans';
 
 type TenantWithPlan = Tenant & {
   plan?: Plan | null;

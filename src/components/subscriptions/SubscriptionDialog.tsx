@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { useTenants, usePlans, type Subscription } from '@/hooks/useSubscriptions';
+import { useTenants, usePlans, type Subscription } from '@/hooks/org/useSubscriptions';
 
 const subscriptionSchema = z.object({
   tenant_id: z.string().min(1, 'Tenant is required'),

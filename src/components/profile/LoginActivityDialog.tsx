@@ -23,7 +23,7 @@ import {
   LogOut,
   History
 } from 'lucide-react';
-import { useLoginHistory } from '@/hooks/useLoginHistory';
+import { useLoginHistory } from '@/hooks/auth/useLoginHistory';
 import { formatDistanceToNow } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 

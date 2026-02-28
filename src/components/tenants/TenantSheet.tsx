@@ -33,8 +33,8 @@ import { TenantBrandingTab } from './TenantBrandingTab';
 import { TenantModuleControl, DEFAULT_SETTINGS, type TenantSettings } from './TenantModuleControl';
 import { TenantContactTab } from './TenantContactTab';
 import { TenantSecurityControl, DEFAULT_SECURITY_SETTINGS, type SecuritySettings } from './TenantSecurityControl';
-import { usePlansManagement } from '@/hooks/usePlans';
-import type { Tenant } from '@/hooks/useTenants';
+import { usePlansManagement } from '@/hooks/org/usePlans';
+import type { Tenant } from '@/hooks/org/useTenants';
 
 const TENANT_STATUSES = ['active', 'trial', 'suspended', 'inactive'] as const;
 

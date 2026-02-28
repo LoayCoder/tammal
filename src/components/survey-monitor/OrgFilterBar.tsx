@@ -2,9 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
-import { useBranches } from '@/hooks/useBranches';
-import { useDivisions } from '@/hooks/useDivisions';
-import { useDepartments } from '@/hooks/useDepartments';
+import { useBranches } from '@/hooks/org/useBranches';
+import { useDivisions } from '@/hooks/org/useDivisions';
+import { useDepartments } from '@/hooks/org/useDepartments';
 import type { OrgFilters } from '@/hooks/analytics/useSurveyMonitor';
 
 interface Props {

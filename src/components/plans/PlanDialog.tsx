@@ -31,7 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { Plan } from '@/hooks/usePlans';
+import type { Plan } from '@/hooks/org/usePlans';
 
 const planSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),

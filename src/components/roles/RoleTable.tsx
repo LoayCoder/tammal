@@ -13,7 +13,7 @@ import { formatDate } from '@/lib/utils';
 import { DataTable } from '@/shared/data-table/DataTable';
 import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
 import type { ColumnDef } from '@/shared/data-table/types';
-import type { Role } from '@/hooks/useRoles';
+import type { Role } from '@/hooks/auth/useRoles';
 import { useState } from 'react';
 
 interface RoleTableProps {
