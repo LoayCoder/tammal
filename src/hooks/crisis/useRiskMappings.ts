@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantId } from '@/hooks/useTenantId';
+import { useTenantId } from '@/hooks/org/useTenantId';
 import { toast } from 'sonner';
 
 export interface RiskMapping {
