@@ -58,7 +58,7 @@ function batchIn(ids: string[], batchSize = 500): string[][] {
 }
 
 export async function batchedQuery<T>(
-  baseBuilder: () => { in: (column: string, values: string[]) => PromiseLike<{ data: T[] | null; error: unknown }> },
+  baseBuilder: () => { in: (column: string, values: string[]) => PromiseLike<{ data: unknown[] | null; error: unknown }> },
   column: string,
   ids: string[],
 ): Promise<T[]> {
