@@ -36,7 +36,7 @@ export interface BatchQuestion {
   created_at: string | null;
 }
 
-import { MAX_BATCH_SIZE } from '@/lib/constants';
+import { MAX_BATCH_SIZE } from '@/config/constants';
 
 export function useQuestionBatches(tenantId: string | null) {
   const queryClient = useQueryClient();
