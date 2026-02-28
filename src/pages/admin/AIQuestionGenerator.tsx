@@ -6,7 +6,8 @@
 
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { SkeletonList } from '@/shared/loading/Skeletons';
+import { EmptyState } from '@/shared/empty/EmptyState';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Sparkles, RefreshCw, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { TopControlBar } from '@/components/ai-generator/TopControlBar';
@@ -16,14 +17,16 @@ import { ValidationReport } from '@/components/ai-generator/ValidationReport';
 import { BatchSaveDialog } from '@/components/ai-generator/BatchSaveDialog';
 import { WellnessSavePreviewDialog } from '@/components/ai-generator/WellnessSavePreviewDialog';
 import { useAIGenerator, GeneratorProvider } from '@/features/ai-generator';
+import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 
 export default function AIQuestionGenerator() {
   const { t } = useTranslation();
   const g = useAIGenerator();
 
-  return (
-    <GeneratorProvider state={g}>
-      <div className="space-y-6">
+    return (
+      <ErrorBoundary title="AI Generator Error" description="The generator encountered an error. Try refreshing.">
+      <GeneratorProvider state={g}>
+        <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{t('aiGenerator.title')}</h1>
           <p className="text-muted-foreground">{t('aiGenerator.subtitle')}</p>
@@ -58,20 +61,16 @@ export default function AIQuestionGenerator() {
             )}
 
             {(g.isGenerating && g.regeneratingIndex === null) ? (
-              <div className="glass-card border-0 rounded-xl p-6 space-y-4">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="space-y-2">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
-                    <Skeleton className="h-1.5 w-full" />
-                  </div>
-                ))}
+              <div className="glass-card border-0 rounded-xl p-6">
+                <SkeletonList rows={3} />
               </div>
             ) : g.questions.length === 0 ? (
-              <div className="glass-card border-0 rounded-xl py-16 text-center">
-                <Sparkles className="h-16 w-16 mx-auto mb-4 text-muted-foreground/30" />
-                <h3 className="text-lg font-semibold text-muted-foreground">{t('aiGenerator.emptyTitle')}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{t('aiGenerator.emptyDescription')}</p>
+              <div className="glass-card border-0 rounded-xl py-4">
+                <EmptyState
+                  icon={<Sparkles className="h-16 w-16 text-muted-foreground/30" />}
+                  title={t('aiGenerator.emptyTitle')}
+                  description={t('aiGenerator.emptyDescription')}
+                />
               </div>
             ) : (
               <>
@@ -132,5 +131,6 @@ export default function AIQuestionGenerator() {
         />
       </div>
     </GeneratorProvider>
+      </ErrorBoundary>
   );
 }

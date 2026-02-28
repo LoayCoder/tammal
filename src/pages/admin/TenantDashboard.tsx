@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Settings, CreditCard, History } from 'lucide-react';
+import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 import { useTenants } from '@/hooks/useTenants';
 import { useTenantUsage } from '@/hooks/useTenantUsage';
 import { useAuditLog } from '@/hooks/useAuditLog';
@@ -55,6 +56,7 @@ export default function TenantDashboard() {
   }
 
   return (
+    <ErrorBoundary>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -191,5 +193,6 @@ export default function TenantDashboard() {
         </CardContent>
       </Card>
     </div>
+    </ErrorBoundary>
   );
 }

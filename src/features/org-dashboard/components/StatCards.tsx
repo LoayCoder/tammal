@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { SkeletonCards } from '@/shared/loading/Skeletons';
 import type { StatCard } from '../types';
 
 interface Props {
@@ -9,6 +9,10 @@ interface Props {
 }
 
 export const StatCards = React.memo(function StatCards({ cards, isLoading }: Props) {
+  if (isLoading) {
+    return <SkeletonCards count={cards.length || 6} columns="grid-cols-2 md:grid-cols-3 lg:grid-cols-6" />;
+  }
+
   return (
     <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
       {cards.map((stat) => (
@@ -20,7 +24,7 @@ export const StatCards = React.memo(function StatCards({ cards, isLoading }: Pro
             </div>
           </CardHeader>
           <CardContent>
-            {isLoading ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-bold">{stat.value}</div>}
+            <div className="text-2xl font-bold">{stat.value}</div>
           </CardContent>
         </Card>
       ))}

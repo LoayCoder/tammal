@@ -8,6 +8,7 @@ import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
 import { useFormDialog } from '@/shared/dialogs/useFormDialog';
 import { useConfirmDelete } from '@/shared/dialogs/useConfirmDelete';
 import { useSubscriptions, type Subscription } from '@/hooks/useSubscriptions';
+import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 
 export default function SubscriptionManagement() {
   const { t } = useTranslation();
@@ -34,6 +35,7 @@ export default function SubscriptionManagement() {
   };
 
   return (
+    <ErrorBoundary>
     <div className="space-y-6">
       <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -76,5 +78,6 @@ export default function SubscriptionManagement() {
         onConfirm={() => confirmDelete.confirm(deleteSubscription)}
       />
     </div>
+    </ErrorBoundary>
   );
 }

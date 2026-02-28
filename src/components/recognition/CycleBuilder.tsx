@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 import {
   useCycleBuilder,
   TabsNav,
@@ -27,6 +28,7 @@ export function CycleBuilder({ onClose }: CycleBuilderProps) {
   } = useCycleBuilder(onClose);
 
   return (
+    <ErrorBoundary title={t('common.sectionError', 'Section error')}>
     <Card className="max-w-3xl mx-auto">
       <CardHeader>
         <CardTitle>{t('recognition.cycleBuilder.title')}</CardTitle>
@@ -64,5 +66,6 @@ export function CycleBuilder({ onClose }: CycleBuilderProps) {
         </Tabs>
       </CardContent>
     </Card>
+    </ErrorBoundary>
   );
 }
