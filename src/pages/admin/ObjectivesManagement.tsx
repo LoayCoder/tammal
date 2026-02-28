@@ -26,7 +26,7 @@ export default function ObjectivesManagement() {
   const navigate = useNavigate();
   const { tenantId } = useTenantId();
   const {
-    objectives, isLoading, createObjective, updateObjective, deleteObjective,
+    objectives, isPending, createObjective, updateObjective, deleteObjective,
     isCreating, isUpdating, isDeleting,
   } = useObjectives();
 
