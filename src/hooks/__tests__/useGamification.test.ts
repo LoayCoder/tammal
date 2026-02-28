@@ -19,8 +19,8 @@ const mockFetchGamificationData = vi.fn();
 const mockCalculatePoints = vi.fn((s: number) => 10 + Math.min(s * 5, 50));
 
 vi.mock('@/services/gamificationService', () => ({
-  fetchGamificationData: (...args: unknown[]) => mockFetchGamificationData(...args),
-  calculatePoints: (...args: unknown[]) => mockCalculatePoints(...args),
+  fetchGamificationData: (id: string) => mockFetchGamificationData(id),
+  calculatePoints: (s: number) => mockCalculatePoints(s),
 }));
 
 import { useGamification } from '@/hooks/wellness/useGamification';
