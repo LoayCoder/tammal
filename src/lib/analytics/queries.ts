@@ -4,6 +4,8 @@
 import { supabase } from '@/integrations/supabase/client';
 import { computeStreak, calculatePoints } from '@/services/gamificationService';
 import { format } from 'date-fns';
+import { logger } from '@/lib/logger';
+import { ServiceUnavailableError } from '@/services/errors';
 import type {
   OrgFilter, MoodEntry, OrgComparison, OrgUnitComparison,
   TopEngager, CategoryScore, SubcategoryScore, AffectiveDistribution,
@@ -56,19 +58,34 @@ function batchIn(ids: string[], batchSize = 500): string[][] {
 }
 
 export async function batchedQuery<T>(
-  baseBuilder: () => any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase query builders are deeply generic; narrowing triggers TS2589
+  baseBuilder: () => { in: (column: string, values: string[]) => PromiseLike<{ data: any; error: any }> },
   column: string,
   ids: string[],
 ): Promise<T[]> {
   if (ids.length <= 500) {
-    const { data } = await baseBuilder().in(column, ids);
-    return (data ?? []) as T[];
+    try {
+      const { data, error } = await baseBuilder().in(column, ids);
+      if (error) throw error;
+      return (data as T[]) ?? [];
+    } catch (err) {
+      if (err instanceof ServiceUnavailableError) throw err;
+      logger.error('batchedQuery', 'Analytics batch failed', err);
+      throw new ServiceUnavailableError('Analytics batch failed');
+    }
   }
   const batches = batchIn(ids);
   const results: T[] = [];
   for (const batch of batches) {
-    const { data } = await baseBuilder().in(column, batch);
-    results.push(...((data ?? []) as T[]));
+    try {
+      const { data, error } = await baseBuilder().in(column, batch);
+      if (error) throw error;
+      results.push(...((data as T[]) ?? []));
+    } catch (err) {
+      if (err instanceof ServiceUnavailableError) throw err;
+      logger.error('batchedQuery', 'Analytics batch failed', err);
+      throw new ServiceUnavailableError('Analytics batch failed');
+    }
   }
   return results;
 }
@@ -84,7 +101,7 @@ export async function fetchMoodEntries(
     return batchedQuery<MoodEntry>(
       () => supabase.from('mood_entries')
         .select('mood_score, mood_level, entry_date, employee_id, support_actions, streak_count, created_at')
-        .gte('entry_date', startDate).lte('entry_date', endDate).limit(10000),
+        .gte('entry_date', startDate).lte('entry_date', endDate).limit(10000) as any,
       'employee_id', filteredIds,
     );
   }
