@@ -86,7 +86,7 @@ export interface EmergencyContact {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────
-function mapIntentToRisk(intent: string): string {
+export function mapIntentToRisk(intent: string): string {
   const high = ['self_harm', 'unsafe'];
   const low = ['talk'];
   if (high.includes(intent)) return 'high';
