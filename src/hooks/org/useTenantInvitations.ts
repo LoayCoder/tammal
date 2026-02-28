@@ -162,21 +162,20 @@ export function useTenantInvitations(tenantId?: string) {
       const { data: tenant } = await supabase
         .from('tenants')
         .select('name')
-        .eq('id', (data as any).tenant_id)
+        .eq('id', data.tenant_id)
         .single();
 
       // Trigger edge function to send email
       try {
         await supabase.functions.invoke('send-invitation-email', {
           body: {
-            email: (data as any).email,
-            code: (data as any).code,
+            email: data.email,
+            code: data.code,
             tenantName: tenant?.name || 'Tammal',
-            fullName: (data as any).full_name,
-            expiresAt: (data as any).expires_at,
-            inviteUrl: `${window.location.origin}/auth/accept-invite?code=${(data as any).code}`,
-            // We ideally store language preference in invitation metadata or default to en
-            language: (data as any).metadata?.language || 'en'
+            fullName: data.full_name,
+            expiresAt: data.expires_at,
+            inviteUrl: `${window.location.origin}/auth/accept-invite?code=${data.code}`,
+            language: (data.metadata as Record<string, unknown>)?.language || 'en'
           },
         });
       } catch (emailError) {

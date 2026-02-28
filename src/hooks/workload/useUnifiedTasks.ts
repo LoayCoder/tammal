@@ -159,7 +159,7 @@ export function useUnifiedTasks(employeeId?: string) {
       const { data: current, error: fetchErr } = await supabase
         .from('unified_tasks').select('comments').eq('id', id).single();
       if (fetchErr) throw fetchErr;
-      const comments = [...((current as any)?.comments ?? []), comment];
+      const comments = [...((current?.comments as TaskComment[]) ?? []), comment];
       const { error } = await supabase.from('unified_tasks').update({ comments }).eq('id', id);
       if (error) throw error;
     },
