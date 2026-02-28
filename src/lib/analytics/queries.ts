@@ -58,7 +58,8 @@ function batchIn(ids: string[], batchSize = 500): string[][] {
 }
 
 export async function batchedQuery<T>(
-  baseBuilder: () => { in: (column: string, values: string[]) => PromiseLike<{ data: unknown[] | null; error: unknown }> },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase query builders are deeply generic; narrowing triggers TS2589
+  baseBuilder: () => { in: (column: string, values: string[]) => PromiseLike<{ data: any; error: any }> },
   column: string,
   ids: string[],
 ): Promise<T[]> {
@@ -66,8 +67,9 @@ export async function batchedQuery<T>(
     try {
       const { data, error } = await baseBuilder().in(column, ids);
       if (error) throw error;
-      return data ?? [];
+      return (data as T[]) ?? [];
     } catch (err) {
+      if (err instanceof ServiceUnavailableError) throw err;
       logger.error('batchedQuery', 'Analytics batch failed', err);
       throw new ServiceUnavailableError('Analytics batch failed');
     }
@@ -78,8 +80,9 @@ export async function batchedQuery<T>(
     try {
       const { data, error } = await baseBuilder().in(column, batch);
       if (error) throw error;
-      results.push(...(data ?? []));
+      results.push(...((data as T[]) ?? []));
     } catch (err) {
+      if (err instanceof ServiceUnavailableError) throw err;
       logger.error('batchedQuery', 'Analytics batch failed', err);
       throw new ServiceUnavailableError('Analytics batch failed');
     }
