@@ -35,7 +35,7 @@ export function useJudgingCriteria(themeId?: string) {
   const { tenantId } = useTenantId();
   const qc = useQueryClient();
 
-  const { data: criteria = [], isLoading } = useQuery({
+  const { data: criteria = [], isPending } = useQuery({
     queryKey: ['judging-criteria', themeId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -101,5 +101,5 @@ export function useJudgingCriteria(themeId?: string) {
     onError: () => toast.error(t('recognition.criteria.deleteError')),
   });
 
-  return { criteria, isLoading, createCriterion, updateCriterion, deleteCriterion };
+  return { criteria, isPending, createCriterion, updateCriterion, deleteCriterion };
 }

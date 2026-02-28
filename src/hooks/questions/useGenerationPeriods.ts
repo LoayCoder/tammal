@@ -24,7 +24,7 @@ export function useGenerationPeriods(tenantId: string | null) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: periods = [], isLoading } = useQuery({
+  const { data: periods = [], isPending } = useQuery({
     queryKey: ['generation-periods', tenantId],
     queryFn: async () => {
       if (!tenantId) return [];
@@ -172,7 +172,7 @@ export function useGenerationPeriods(tenantId: string | null) {
   return {
     periods,
     activePeriods,
-    isLoading,
+    isPending,
     getActivePeriodForPurpose,
     createPeriod: createPeriod.mutate,
     createPeriodAsync: createPeriod.mutateAsync,

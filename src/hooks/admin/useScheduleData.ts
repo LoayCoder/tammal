@@ -17,8 +17,8 @@ export function useScheduleData(tenantId: string | undefined) {
   return {
     availableDepartments: departments.data || [],
     availableEmployees: employees.data || [],
-    isLoadingDepartments: departments.isLoading,
-    isLoadingEmployees: employees.isLoading,
+    isLoadingDepartments: departments.isPending,
+    isLoadingEmployees: employees.isPending,
   };
 }
 

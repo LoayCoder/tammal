@@ -28,7 +28,7 @@ export function useThoughtReframes() {
 
   const queryKey = ['thought-reframes', employeeId];
 
-  const { data: reframes = [], isLoading } = useQuery({
+  const { data: reframes = [], isPending } = useQuery({
     queryKey,
     queryFn: async () => {
       if (!employeeId) return [];
@@ -112,7 +112,7 @@ export function useThoughtReframes() {
 
   return {
     reframes,
-    isLoading,
+    isPending,
     stats,
     saveReframe: saveMutation.mutateAsync,
     isSaving: saveMutation.isPending,

@@ -39,7 +39,7 @@ export function useAwardThemes(cycleId?: string) {
   const { tenantId } = useTenantId();
   const qc = useQueryClient();
 
-  const { data: themes = [], isLoading } = useQuery({
+  const { data: themes = [], isPending } = useQuery({
     queryKey: ['award-themes', cycleId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -105,5 +105,5 @@ export function useAwardThemes(cycleId?: string) {
     onError: () => toast.error(t('recognition.themes.deleteError')),
   });
 
-  return { themes, isLoading, createTheme, updateTheme, deleteTheme };
+  return { themes, isPending, createTheme, updateTheme, deleteTheme };
 }

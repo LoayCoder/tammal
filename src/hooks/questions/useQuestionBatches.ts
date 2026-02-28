@@ -435,7 +435,7 @@ export function useQuestionBatches(tenantId: string | null) {
 
   return {
     batches: batchesQuery.data || [],
-    isLoading: batchesQuery.isLoading,
+    isPending: batchesQuery.isPending,
     availableBatches,
     availableWellnessBatches,
     fetchBatchQuestions,

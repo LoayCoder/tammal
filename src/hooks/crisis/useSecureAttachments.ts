@@ -23,7 +23,7 @@ export function useSecureAttachments(caseId?: string) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: attachments = [], isLoading } = useQuery({
+  const { data: attachments = [], isPending } = useQuery({
     queryKey: ['mh-secure-attachments', caseId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -94,7 +94,7 @@ export function useSecureAttachments(caseId?: string) {
 
   return {
     attachments,
-    isLoading,
+    isPending,
     uploadAttachment,
     viewAttachment,
     revokeAttachment,

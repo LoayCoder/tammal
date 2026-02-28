@@ -10,7 +10,7 @@ export function useCrisisNotifications() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: notifications = [], isLoading } = useQuery({
+  const { data: notifications = [], isPending } = useQuery({
     queryKey: ['mh-crisis-notifications', user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -77,7 +77,7 @@ export function useCrisisNotifications() {
     };
   }, [user?.id, queryClient]);
 
-  return { notifications, unreadCount, isLoading, markAsRead, markAllAsRead };
+  return { notifications, unreadCount, isPending, markAsRead, markAllAsRead };
 }
 
 // Helper to create a notification (used in hooks/pages after mutations)

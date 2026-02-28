@@ -40,7 +40,7 @@ export function useResults(cycleId?: string) {
   const { tenantId } = useTenantId();
   const qc = useQueryClient();
 
-  const { data: results = [], isLoading: resultsLoading } = useQuery({
+  const { data: results = [], isPending: resultsLoading } = useQuery({
     queryKey: ['theme-results', tenantId, cycleId],
     queryFn: async () => {
       if (!cycleId) return [];
@@ -56,7 +56,7 @@ export function useResults(cycleId?: string) {
   });
 
   const resultIds = results.map(r => r.id);
-  const { data: rankings = [], isLoading: rankingsLoading } = useQuery({
+  const { data: rankings = [], isPending: rankingsLoading } = useQuery({
     queryKey: ['nominee-rankings', tenantId, cycleId, resultIds],
     queryFn: async () => {
       if (!resultIds.length) return [];

@@ -30,7 +30,7 @@ export function useMoodQuestionConfig(tenantId: string | null) {
   
   const { t } = useTranslation();
 
-  const { data: configs, isLoading } = useQuery({
+  const { data: configs, isPending } = useQuery({
     queryKey: ['mood-question-configs', tenantId],
     queryFn: async () => {
       if (!tenantId) return [];
@@ -112,5 +112,5 @@ export function useMoodQuestionConfig(tenantId: string | null) {
     },
   });
 
-  return { configs: configs || [], isLoading, upsertConfig, batchUpsertConfigs };
+  return { configs: configs || [], isPending, upsertConfig, batchUpsertConfigs };
 }

@@ -23,7 +23,7 @@ export function useReferenceFrameworks() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: frameworks = [], isLoading } = useQuery({
+  const { data: frameworks = [], isPending } = useQuery({
     queryKey: ['reference-frameworks'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -87,7 +87,7 @@ export function useReferenceFrameworks() {
 
   return {
     frameworks,
-    isLoading,
+    isPending,
     addFramework: addFramework.mutate,
     updateFramework: updateFramework.mutate,
     deleteFramework: deleteFramework.mutate,

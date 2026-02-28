@@ -27,6 +27,6 @@ export function useAIModels() {
 
   return {
     models: modelsQuery.data ?? [],
-    isLoading: modelsQuery.isLoading,
+    isPending: modelsQuery.isPending,
   };
 }

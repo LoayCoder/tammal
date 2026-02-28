@@ -145,7 +145,7 @@ export function useInitiatives(objectiveId?: string) {
 
   return {
     initiatives: initiativesQuery.data ?? [],
-    isLoading: initiativesQuery.isLoading,
+    isPending: initiativesQuery.isPending,
     createInitiative: createMutation.mutate,
     updateInitiative: updateMutation.mutate,
     deleteInitiative: deleteMutation.mutate,
