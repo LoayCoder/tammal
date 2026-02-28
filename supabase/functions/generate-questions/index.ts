@@ -6,6 +6,103 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// ── Provider fallback map (mirrors src/config/ai.ts) ────────────
+const MODEL_FALLBACK_MAP: Record<string, string> = {
+  'google/gemini-3-flash-preview': 'openai/gpt-5-mini',
+  'google/gemini-3-pro-preview':   'openai/gpt-5',
+  'google/gemini-2.5-flash':       'openai/gpt-5-mini',
+  'google/gemini-2.5-flash-lite':  'openai/gpt-5-nano',
+  'google/gemini-2.5-pro':         'openai/gpt-5',
+  'openai/gpt-5':                  'google/gemini-2.5-pro',
+  'openai/gpt-5-mini':             'google/gemini-2.5-flash',
+  'openai/gpt-5-nano':             'google/gemini-2.5-flash-lite',
+};
+
+function getProviderName(modelKey: string): string {
+  return modelKey.startsWith('openai/') ? 'openai' : 'gemini';
+}
+
+// ── AI gateway call with timeout ────────────────────────────────
+const AI_TIMEOUT_MS = 120_000;
+
+interface AICallResult {
+  response: Response;
+  model: string;
+  provider: string;
+}
+
+async function callAIGateway(
+  apiKey: string,
+  model: string,
+  messages: { role: string; content: string }[],
+  temperature: number,
+  tools: unknown[],
+  toolChoice: unknown,
+): Promise<AICallResult> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
+
+  try {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ model, messages, temperature, tools, tool_choice: toolChoice }),
+      signal: controller.signal,
+    });
+    return { response, model, provider: getProviderName(model) };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
+ * Attempt primary model, then fallback if it fails.
+ * Returns the successful Response + metadata.
+ * NEVER logs request/response bodies — only status codes and model names.
+ */
+async function callWithFallback(
+  apiKey: string,
+  primaryModel: string,
+  messages: { role: string; content: string }[],
+  temperature: number,
+  tools: unknown[],
+  toolChoice: unknown,
+): Promise<AICallResult & { usedFallback: boolean }> {
+  // ── Primary attempt ──
+  try {
+    const result = await callAIGateway(apiKey, primaryModel, messages, temperature, tools, toolChoice);
+    if (result.response.ok) {
+      return { ...result, usedFallback: false };
+    }
+
+    const status = result.response.status;
+    // Rate limit / payment errors are not retryable with a different model
+    if (status === 429 || status === 402) {
+      return { ...result, usedFallback: false };
+    }
+
+    console.warn(`Primary model ${primaryModel} failed with status ${status}, attempting fallback`);
+    await result.response.text(); // consume body
+  } catch (err) {
+    const errName = err instanceof Error ? err.name : 'Unknown';
+    console.warn(`Primary model ${primaryModel} threw ${errName}, attempting fallback`);
+  }
+
+  // ── Fallback attempt ──
+  const fallbackModel = MODEL_FALLBACK_MAP[primaryModel];
+  if (!fallbackModel) {
+    throw new Error(`No fallback model configured for ${primaryModel}`);
+  }
+
+  console.log(`Fallback: switching from ${primaryModel} (${getProviderName(primaryModel)}) to ${fallbackModel} (${getProviderName(fallbackModel)})`);
+
+  const fallbackResult = await callAIGateway(apiKey, fallbackModel, messages, temperature, tools, toolChoice);
+  return { ...fallbackResult, usedFallback: true };
+}
+
 interface GenerateRequest {
   questionCount: number;
   complexity: "simple" | "moderate" | "advanced";
