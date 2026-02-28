@@ -101,23 +101,23 @@ export default function SurveyMonitor() {
           <ParticipationOverview
             employeeStats={employeeStats}
             questionStats={questionStats}
-            isPending={isPending}
+            isLoading={isPending}
           />
 
           {/* Two-column: Heatmap + Risk */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <DepartmentHeatmap
               departments={departmentStats}
-              isPending={isPending}
+              isLoading={isPending}
             />
             <RiskPanel departments={departmentStats} />
           </div>
 
           {/* Employee Status Table */}
-          <EmployeeStatusTable employees={employeeList} isPending={isPending} />
+          <EmployeeStatusTable employees={employeeList} isLoading={isPending} />
 
           {/* Trend Chart */}
-          <ParticipationTrend trendData={trendData} isPending={isPending} />
+          <ParticipationTrend trendData={trendData} isLoading={isPending} />
         </div>
       )}
     </div>
