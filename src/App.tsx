@@ -94,7 +94,12 @@ const I18nDirection = () => {
   return null;
 };
 
+const SentryErrorFallback = () => (
+  <ErrorBoundary />
+);
+
 const App = () => (
+  <Sentry.ErrorBoundary fallback={<SentryErrorFallback />}>
   <ErrorBoundary>
   <QueryClientProvider client={queryClient}>
     <I18nDirection />
@@ -108,6 +113,7 @@ const App = () => (
             <Route path="/install" element={<InstallApp />} />
             <Route element={<ProtectedRoute />}>
             <Route element={<MainLayout />}>
+              {/* ... keep existing code (all route definitions) */}
               <Route path="/employee/survey" element={<EmployeeSurvey />} />
               <Route path="/employee/wellness" element={<DailyCheckin />} />
               <Route path="/" element={<Dashboard />} />
@@ -176,6 +182,7 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
   </ErrorBoundary>
+  </Sentry.ErrorBoundary>
 );
 
 export default App;
