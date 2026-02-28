@@ -608,23 +608,18 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       console.log(`AI returned ${questions.length}/${questionCount} questions. Requesting ${questionCount - questions.length} more.`);
       const deficit = questionCount - questions.length;
       try {
-        const retryResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: selectedModel,
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: `Generate EXACTLY ${deficit} more unique survey questions for employee wellbeing assessment. You MUST return exactly ${deficit} questions. These must be DIFFERENT from these existing questions:\n${questions.map((q: any, i: number) => `${i+1}. ${q.question_text}`).join('\n')}\n\nProvide both English and Arabic versions.${frameworkAlignment}` },
-            ],
-            temperature,
-            tools: [toolDefinition],
-            tool_choice: { type: "function", function: { name: "return_questions" } },
-          }),
-        });
+        const retryCall = await callAIGateway(
+          LOVABLE_API_KEY,
+          aiCall.model, // use whichever model succeeded (may be fallback)
+          [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Generate EXACTLY ${deficit} more unique survey questions for employee wellbeing assessment. You MUST return exactly ${deficit} questions. These must be DIFFERENT from these existing questions:\n${questions.map((q: any, i: number) => `${i+1}. ${q.question_text}`).join('\n')}\n\nProvide both English and Arabic versions.${frameworkAlignment}` },
+          ],
+          temperature,
+          [toolDefinition],
+          { type: "function", function: { name: "return_questions" } },
+        );
+        const retryResponse = retryCall.response;
 
         if (retryResponse.ok) {
           const retryData = await retryResponse.json();
@@ -780,7 +775,14 @@ ${advancedSettings.enableAmbiguityDetection ? "Flag any questions with ambiguous
       });
     }
 
-    return new Response(JSON.stringify({ questions, success: true, model: selectedModel, duration_ms: durationMs }), {
+    return new Response(JSON.stringify({
+      questions,
+      success: true,
+      model: aiCall.model,
+      duration_ms: durationMs,
+      provider: aiCall.provider,
+      used_fallback: aiCall.usedFallback,
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error: unknown) {
