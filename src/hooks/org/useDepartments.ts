@@ -40,7 +40,7 @@ export function useDepartments() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: departments = [], isLoading } = useQuery({
+  const { data: departments = [], isPending } = useQuery({
     queryKey: ['departments'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -103,5 +103,5 @@ export function useDepartments() {
     onError: () => toast.error(t('organization.deleteError')),
   });
 
-  return { departments, isLoading, createDepartment, updateDepartment, deleteDepartment };
+  return { departments, isPending, createDepartment, updateDepartment, deleteDepartment };
 }

@@ -14,7 +14,7 @@ export default function PlanManagement() {
   const { t } = useTranslation();
   const {
     plans,
-    isLoading,
+    isPending: isLoading,
     createPlan,
     updatePlan,
     deletePlan,

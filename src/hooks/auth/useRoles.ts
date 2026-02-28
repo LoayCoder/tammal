@@ -184,7 +184,7 @@ export function useRoles(tenantId?: string) {
 
   return {
     roles: rolesQuery.data ?? [],
-    isLoading: rolesQuery.isLoading,
+    isPending: rolesQuery.isPending,
     error: rolesQuery.error,
     createRole,
     updateRole,

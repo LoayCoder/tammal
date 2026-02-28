@@ -53,7 +53,7 @@ export function InvitationManagement({ tenantId }: InvitationManagementProps) {
   const expiryOptions = getExpiryOptions(t);
   const {
     invitations,
-    isLoading,
+    isPending: isLoading,
     createInvitation,
     resendInvitation,
     revokeInvitation,

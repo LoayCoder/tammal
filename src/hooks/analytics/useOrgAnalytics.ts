@@ -44,7 +44,7 @@ export function useOrgAnalytics(
 ) {
   const { user } = useAuth();
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending, isFetching } = useQuery({
     queryKey: ['org-analytics', user?.id, timeRange, customStart, customEnd,
       orgFilter?.branchId, orgFilter?.divisionId, orgFilter?.departmentId, orgFilter?.sectionId],
     queryFn: async (): Promise<OrgAnalyticsData> => {
@@ -155,5 +155,5 @@ export function useOrgAnalytics(
     staleTime: 5 * 60 * 1000,
   });
 
-  return { data, isLoading };
+  return { data, isPending: isPending && isFetching };
 }

@@ -9,8 +9,8 @@ interface AdminRouteProps {
 
 export function AdminRoute({ children }: AdminRouteProps) {
   const { loading: authLoading } = useAuth();
-  const { isSuperAdmin, isLoading: permLoading } = useUserPermissions();
-  const { hasRole: isTenantAdmin, isLoading: roleLoading } = useHasRole('tenant_admin');
+  const { isSuperAdmin, isPending: permLoading } = useUserPermissions();
+  const { hasRole: isTenantAdmin, isPending: roleLoading } = useHasRole('tenant_admin');
 
   // CRITICAL: Block ALL routing decisions until auth AND all permission
   // queries are fully resolved. authLoading covers the initial auth state

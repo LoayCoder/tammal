@@ -24,7 +24,7 @@ export default function Auth() {
   
   const { user, signIn, signUp, loading } = useAuth();
   
-  const { allowSignup, showInvitation, isLoading: settingsLoading } = usePlatformSettings();
+  const { allowSignup, showInvitation, isPending: settingsLoading } = usePlatformSettings();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

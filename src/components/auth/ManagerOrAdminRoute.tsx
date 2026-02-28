@@ -9,9 +9,9 @@ interface ManagerOrAdminRouteProps {
 
 export function ManagerOrAdminRoute({ children }: ManagerOrAdminRouteProps) {
   const { loading: authLoading } = useAuth();
-  const { isSuperAdmin, isLoading: permLoading } = useUserPermissions();
-  const { hasRole: isTenantAdmin, isLoading: taLoading } = useHasRole('tenant_admin');
-  const { hasRole: isManager, isLoading: mgrLoading } = useHasRole('manager');
+  const { isSuperAdmin, isPending: permLoading } = useUserPermissions();
+  const { hasRole: isTenantAdmin, isPending: taLoading } = useHasRole('tenant_admin');
+  const { hasRole: isManager, isPending: mgrLoading } = useHasRole('manager');
 
   if (authLoading || permLoading || taLoading || mgrLoading) {
     return (

@@ -282,7 +282,7 @@ export function useTenants() {
 
   return {
     tenants: tenantsQuery.data ?? [],
-    isLoading: tenantsQuery.isLoading,
+    isPending: tenantsQuery.isPending,
     error: tenantsQuery.error,
     createTenant: createMutation.mutate,
     updateTenant: updateMutation.mutate,

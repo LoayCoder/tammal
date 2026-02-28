@@ -32,7 +32,7 @@ export function useWorkSites() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: workSites = [], isLoading } = useQuery({
+  const { data: workSites = [], isPending } = useQuery({
     queryKey: ['work_sites'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -95,5 +95,5 @@ export function useWorkSites() {
     onError: () => toast.error(t('workSites.deleteError')),
   });
 
-  return { workSites, isLoading, createWorkSite, updateWorkSite, deleteWorkSite };
+  return { workSites, isPending, createWorkSite, updateWorkSite, deleteWorkSite };
 }

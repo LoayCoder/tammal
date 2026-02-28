@@ -26,7 +26,7 @@ export function PermissionGate({
   showLoading = false,
   children,
 }: PermissionGateProps) {
-  const { hasPermission, hasAnyPermission, hasAllPermissions, isLoading } = useUserPermissions();
+  const { hasPermission, hasAnyPermission, hasAllPermissions, isPending: isLoading } = useUserPermissions();
 
   if (isLoading && showLoading) {
     return (

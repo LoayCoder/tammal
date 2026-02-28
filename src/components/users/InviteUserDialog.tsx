@@ -41,7 +41,7 @@ export function InviteUserDialog({ open, onOpenChange, tenantId }: InviteUserDia
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
   const { createInvitation, isCreating } = useTenantInvitations(tenantId);
-  const { roles, isLoading: rolesLoading } = useRoles(tenantId);
+  const { roles, isPending: rolesLoading } = useRoles(tenantId);
 
   const handleRoleToggle = (roleId: string, checked: boolean) => {
     setSelectedRoles(prev =>

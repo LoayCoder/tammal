@@ -61,7 +61,7 @@ export function usePermissions() {
   return {
     permissions: permissionsQuery.data ?? [],
     permissionsByCategory,
-    isLoading: permissionsQuery.isLoading,
+    isPending: permissionsQuery.isPending,
     error: permissionsQuery.error,
   };
 }
@@ -191,7 +191,7 @@ export function useRolePermissions(roleId?: string) {
   return {
     rolePermissions: rolePermissionsQuery.data ?? [],
     permissionIds,
-    isLoading: rolePermissionsQuery.isLoading,
+    isPending: rolePermissionsQuery.isPending && rolePermissionsQuery.isFetching,
     error: rolePermissionsQuery.error,
     assignPermission,
     removePermission,

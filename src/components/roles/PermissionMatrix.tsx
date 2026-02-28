@@ -39,8 +39,8 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 export function PermissionMatrix({ open, onOpenChange, role }: PermissionMatrixProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
-  const { permissionsByCategory, isLoading: permissionsLoading } = usePermissions();
-  const { permissionIds, updateRolePermissions, isLoading: rolePermissionsLoading } = useRolePermissions(role?.id);
+  const { permissionsByCategory, isPending: permissionsLoading } = usePermissions();
+  const { permissionIds, updateRolePermissions, isPending: rolePermissionsLoading } = useRolePermissions(role?.id);
   
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);

@@ -21,7 +21,7 @@ export interface OrgTree {
   divisions: Division[];
   departments: Department[];
   sites: Site[];
-  isLoading: boolean;
+  isPending: boolean;
 
   // Derived selectors — memoised on the arrays
   getBranch: (id: string) => Branch | undefined;
@@ -142,11 +142,11 @@ export function useOrgTree(): OrgTree {
     divisions,
     departments,
     sites,
-    isLoading:
-      branchesQuery.isLoading ||
-      divisionsQuery.isLoading ||
-      departmentsQuery.isLoading ||
-      sitesQuery.isLoading,
+    isPending:
+      branchesQuery.isPending ||
+      divisionsQuery.isPending ||
+      departmentsQuery.isPending ||
+      sitesQuery.isPending,
     getBranch,
     getDivision,
     getDepartment,

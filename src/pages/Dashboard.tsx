@@ -13,7 +13,7 @@ import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 export default function Dashboard() {
   const { t } = useTranslation();
   const { loading: authLoading } = useAuth();
-  const { view, setView, canSwitch, isAdmin, isLoading: viewLoading } = useDashboardView();
+  const { view, setView, canSwitch, isAdmin, isPending: viewLoading } = useDashboardView();
   const { isSuperAdmin } = useUserPermissions();
 
   if (authLoading || viewLoading) {

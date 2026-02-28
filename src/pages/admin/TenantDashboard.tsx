@@ -21,10 +21,10 @@ export default function TenantDashboard() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  const { tenants, isLoading: isLoadingTenants } = useTenants();
-  const { usage, history, isLoading: isLoadingUsage, isLoadingHistory } = useTenantUsage(id);
-  const { logs, isLoading: isLoadingLogs } = useAuditLog({ tenantId: id, limit: 10 });
-  const { subscriptions, isLoading: isLoadingSubscriptions } = useSubscriptions();
+  const { tenants, isPending: isLoadingTenants } = useTenants();
+  const { usage, history, isPending: isLoadingUsage, isPendingHistory: isLoadingHistory } = useTenantUsage(id);
+  const { logs, isPending: isLoadingLogs } = useAuditLog({ tenantId: id, limit: 10 });
+  const { subscriptions, isPending: isLoadingSubscriptions } = useSubscriptions();
 
   const tenant = tenants.find(t => t.id === id);
   const plan = tenant?.plan || null;

@@ -34,7 +34,7 @@ export default function TenantManagement() {
   const { t } = useTranslation();
   const {
     tenants,
-    isLoading,
+    isPending: isLoading,
     createTenant,
     updateTenant,
     deleteTenant,

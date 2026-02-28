@@ -57,7 +57,7 @@ export function useEmployees(filters?: EmployeeFilters) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: employees = [], isLoading, error } = useQuery({
+  const { data: employees = [], isPending, error } = useQuery({
     queryKey: ['employees', filters],
     queryFn: async () => {
       let query = supabase
@@ -234,7 +234,7 @@ export function useEmployees(filters?: EmployeeFilters) {
   return {
     employees,
     departments,
-    isLoading,
+    isPending,
     error,
     createEmployee,
     updateEmployee,

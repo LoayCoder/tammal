@@ -9,7 +9,7 @@ export function useTenantAssets(tenantId?: string) {
     const queryClient = useQueryClient();
 
     // Fetch assets
-    const { data: assets, isLoading } = useQuery({
+    const { data: assets, isPending: assetsPending, isFetching: assetsFetching } = useQuery({
         queryKey: ['tenant-assets', tenantId],
         queryFn: () => tenantAssetsService.getTenantAssets(),
         enabled: !!tenantId,
@@ -61,7 +61,7 @@ export function useTenantAssets(tenantId?: string) {
 
     return {
         assets,
-        isLoading,
+        isPending: assetsPending && assetsFetching,
         updateAssets: updateMutation.mutate,
         uploadAsset: uploadMutation.mutateAsync,
         isUpdating: updateMutation.isPending,

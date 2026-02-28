@@ -23,7 +23,7 @@ export function useQuranSessions(dateRange?: { from: string; to: string }) {
   const from = dateRange?.from ?? today;
   const to = dateRange?.to ?? today;
 
-  const { data: sessions = [], isLoading } = useQuery({
+  const { data: sessions = [], isPending, isFetching } = useQuery({
     queryKey: ['quran-sessions', user?.id, from, to],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -77,5 +77,5 @@ export function useQuranSessions(dateRange?: { from: string; to: string }) {
   const totalMinutes = sessions.reduce((sum, s) => sum + s.duration_minutes, 0);
   const totalSessions = sessions.length;
 
-  return { sessions, isLoading, logSession, totalMinutes, totalSessions };
+  return { sessions, isPending: isPending && isFetching, logSession, totalMinutes, totalSessions };
 }

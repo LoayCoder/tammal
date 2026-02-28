@@ -20,7 +20,7 @@ export default function AuditLogs() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const { tenants } = useTenants();
-  const { logs, isLoading } = useAuditLog({ 
+  const { logs, isPending: isLoading } = useAuditLog({ 
     tenantId: selectedTenant === 'all' ? undefined : selectedTenant,
     limit: 200 
   });

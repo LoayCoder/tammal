@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/auth/useAuth';
 export function useTenantId() {
   const { user } = useAuth();
 
-  const { data: tenantId, isLoading } = useQuery({
+  const { data: tenantId, isPending, isFetching } = useQuery({
     queryKey: ['tenant-id', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
@@ -25,5 +25,5 @@ export function useTenantId() {
     staleTime: 1000 * 60 * 10, // 10 minutes
   });
 
-  return { tenantId: tenantId ?? null, isLoading };
+  return { tenantId: tenantId ?? null, isPending: isPending && isFetching };
 }

@@ -81,7 +81,7 @@ export function useUserPermissions() {
     // CRITICAL: isLoading must be true while auth is initializing OR while the
     // query is pending. TanStack Query v5 isPending captures the "idle" state
     // (when enabled=false) unlike isLoading which returns false when idle.
-    isLoading: authLoading || permissionsQuery.isPending,
+    isPending: authLoading || permissionsQuery.isPending,
     isSuperAdmin: permissions.includes('*'),
   };
 }
@@ -114,6 +114,6 @@ export function useHasRole(role: 'super_admin' | 'tenant_admin' | 'manager' | 'u
   return {
     hasRole,
     // CRITICAL: must stay true while auth is loading OR query is pending (idle)
-    isLoading: authLoading || isPending,
+    isPending: authLoading || isPending,
   };
 }

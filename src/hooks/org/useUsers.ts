@@ -208,7 +208,7 @@ export function useUsers(filters?: UserFilters) {
 
   return {
     users: usersQuery.data ?? [],
-    isLoading: usersQuery.isLoading,
+    isPending: usersQuery.isPending && usersQuery.isFetching,
     error: usersQuery.error,
     refetch: usersQuery.refetch,
     updateProfile,
@@ -325,7 +325,7 @@ export function useUserRoles(userId?: string) {
 
   return {
     userRoles: userRolesQuery.data ?? [],
-    isLoading: userRolesQuery.isLoading,
+    isPending: userRolesQuery.isPending && userRolesQuery.isFetching,
     error: userRolesQuery.error,
     assignRole,
     removeRole,

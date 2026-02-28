@@ -50,7 +50,7 @@ function getGreeting(t: (key: string) => string) {
 export default function EmployeeHome() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { employee, isLoading: empLoading } = useCurrentEmployee();
+  const { employee, isPending: empLoading } = useCurrentEmployee();
   const { streak, totalPoints, isLoading: gamLoading } = useGamification(employee?.id ?? null);
   const { moodData, avgMood7d, burnoutZone, monthlyCheckins, todayEntry, isLoading: moodLoading } =
     useMoodHistory(employee?.id ?? null);

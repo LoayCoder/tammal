@@ -249,7 +249,7 @@ export function useTenantInvitations(tenantId?: string) {
 
   return {
     invitations: invitationsQuery.data ?? [],
-    isLoading: invitationsQuery.isLoading,
+    isPending: invitationsQuery.isPending && invitationsQuery.isFetching,
     error: invitationsQuery.error,
     createInvitation: createMutation.mutate,
     resendInvitation: resendMutation.mutate,

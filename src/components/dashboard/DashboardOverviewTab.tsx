@@ -10,7 +10,7 @@ interface DashboardOverviewTabProps {
 
 export function DashboardOverviewTab({ isSuperAdmin }: DashboardOverviewTabProps) {
   const { t } = useTranslation();
-  const { logs, isLoading: logsLoading } = useAuditLog({ limit: 5 });
+  const { logs, isPending: logsLoading } = useAuditLog({ limit: 5 });
 
   return (
     <div className="space-y-6">

@@ -23,7 +23,7 @@ export function useOrgDashboard() {
   }, []);
 
   // ── Data ──
-  const { data: stats, isLoading } = useOrgAnalytics(timeRange, customStart, customEnd, orgFilter);
+  const { data: stats, isPending: isLoading } = useOrgAnalytics(timeRange, customStart, customEnd, orgFilter);
 
   // ── Memoized derived data ──
   const statCards = useMemo(() => buildStatCards(stats, t), [stats, t]);
