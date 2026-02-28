@@ -116,7 +116,8 @@ describe('AcceptInvite — E2E Smoke', () => {
     };
 
     render(React.createElement(AcceptInvite));
-    expect(screen.getByText('acceptInvite.createAccount')).toBeTruthy();
+    // Title + submit button both show this text
+    expect(screen.getAllByText('acceptInvite.createAccount').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByDisplayValue('user@acme.com')).toBeTruthy();
     expect(screen.getByDisplayValue('John')).toBeTruthy();
   });
