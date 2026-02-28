@@ -26,7 +26,7 @@ export default function CheckinMonitor() {
     employeeList,
     trendData,
     riskAlerts,
-    isLoading,
+    isPending: isLoading,
   } = useCheckinMonitor(tenantId ?? undefined, dateRange, orgFilters);
 
   return (

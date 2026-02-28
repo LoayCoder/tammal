@@ -28,7 +28,7 @@ export default function EmployeeManagement() {
   const { tenants } = useTenants();
   const tenantId = tenants[0]?.id || '';
   
-  const { employees, departments, isLoading, createEmployee, updateEmployee, deleteEmployee, bulkImport } = useEmployees({
+  const { employees, departments, isPending: isLoading, createEmployee, updateEmployee, deleteEmployee, bulkImport } = useEmployees({
     department: departmentFilter,
     status: statusFilter,
     search,

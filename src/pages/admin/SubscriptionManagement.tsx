@@ -14,7 +14,7 @@ export default function SubscriptionManagement() {
   const { t } = useTranslation();
   const {
     subscriptions,
-    isLoading,
+    isPending: isLoading,
     createSubscription,
     updateSubscription,
     deleteSubscription,

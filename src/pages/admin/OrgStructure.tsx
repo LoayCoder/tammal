@@ -28,11 +28,11 @@ export default function OrgStructure() {
   const { profile } = useProfile();
   const tenantId = profile?.tenant_id || '';
 
-  const { departments, isLoading: deptsLoading, createDepartment, updateDepartment, deleteDepartment } = useDepartments();
-  const { branches, isLoading: branchesLoading, createBranch, updateBranch, deleteBranch } = useBranches();
-  const { sites, isLoading: sitesLoading, createSite, updateSite, deleteSite } = useSites();
-  const { divisions, isLoading: divisionsLoading, createDivision, updateDivision, deleteDivision } = useDivisions();
-  const { workSites, isLoading: workSitesLoading, createWorkSite, updateWorkSite, deleteWorkSite } = useWorkSites();
+  const { departments, isPending: deptsLoading, createDepartment, updateDepartment, deleteDepartment } = useDepartments();
+  const { branches, isPending: branchesLoading, createBranch, updateBranch, deleteBranch } = useBranches();
+  const { sites, isPending: sitesLoading, createSite, updateSite, deleteSite } = useSites();
+  const { divisions, isPending: divisionsLoading, createDivision, updateDivision, deleteDivision } = useDivisions();
+  const { workSites, isPending: workSitesLoading, createWorkSite, updateWorkSite, deleteWorkSite } = useWorkSites();
   const { employees } = useEmployees();
 
   // Branch state

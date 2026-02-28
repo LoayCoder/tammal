@@ -29,7 +29,7 @@ export interface SurveyStats {
 }
 
 export function usePersonalMoodDashboard() {
-  const { employee, isLoading: empLoading } = useCurrentEmployee();
+  const { employee, isPending: empLoading } = useCurrentEmployee();
   const employeeId = employee?.id ?? null;
   const tenantId = employee?.tenant_id ?? null;
 

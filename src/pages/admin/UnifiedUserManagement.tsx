@@ -40,9 +40,9 @@ export default function UnifiedUserManagement() {
   const { t, i18n } = useTranslation();
 
   // Profile & tenant
-  const { profile, isLoading: profileLoading } = useProfile();
+  const { profile, isPending: profileLoading } = useProfile();
   const { hasRole: isSuperAdmin } = useHasRole('super_admin');
-  const { tenants, isLoading: tenantsLoading } = useTenants();
+  const { tenants, isPending: tenantsLoading } = useTenants();
   const [selectedTenantId, setSelectedTenantId] = useState<string | undefined>(undefined);
 
   const effectiveTenantId = isSuperAdmin
@@ -83,7 +83,7 @@ export default function UnifiedUserManagement() {
   const {
     unifiedEmployees,
     departments,
-    isLoading: employeesLoading,
+    isPending: employeesLoading,
     createEmployee,
     updateEmployee,
     deleteEmployee,
@@ -98,12 +98,12 @@ export default function UnifiedUserManagement() {
 
   const { createInvitation, isCreating: isCreatingInvitation } = useTenantInvitations(effectiveTenantId || '');
 
-  const { users, isLoading: usersLoading, updateProfile, changeUserStatus, sendPasswordReset } = useUsers({
+  const { users, isPending: usersLoading, updateProfile, changeUserStatus, sendPasswordReset } = useUsers({
     tenantId: effectiveTenantId,
     search: userSearch,
   });
 
-  const { roles, isLoading: rolesLoading, createRole, updateRole, deleteRole } = useRoles(effectiveTenantId);
+  const { roles, isPending: rolesLoading, createRole, updateRole, deleteRole } = useRoles(effectiveTenantId);
 
   const selectedTenant = tenants?.find(t => t.id === effectiveTenantId);
 

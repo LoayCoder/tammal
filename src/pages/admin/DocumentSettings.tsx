@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 export default function DocumentSettings() {
   const { t } = useTranslation();
   
-  const { allowSignup, showInvitation, isLoading, updateSettings } = usePlatformSettings();
+  const { allowSignup, showInvitation, isPending: isLoading, updateSettings } = usePlatformSettings();
 
   const handleToggle = async (field: 'allow_public_signup' | 'show_invitation_link', value: boolean) => {
     try {
