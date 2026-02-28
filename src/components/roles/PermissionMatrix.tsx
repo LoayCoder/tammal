@@ -15,8 +15,8 @@ import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { usePermissions, useRolePermissions } from '@/hooks/usePermissions';
-import type { Role } from '@/hooks/useRoles';
+import { usePermissions, useRolePermissions } from '@/hooks/auth/usePermissions';
+import type { Role } from '@/hooks/auth/useRoles';
 import { Key, Loader2, Shield, Users, FileText, Settings, BarChart3, Calendar, ClipboardList } from 'lucide-react';
 
 interface PermissionMatrixProps {

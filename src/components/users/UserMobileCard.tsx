@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Shield, UserCog, Pencil, UserX, Ban, UserCheck, Trash2 } from 'lucide-react';
-import type { UserWithRoles } from '@/hooks/useUsers';
+import type { UserWithRoles } from '@/hooks/org/useUsers';
 
 interface UserMobileCardProps {
   user: UserWithRoles;
