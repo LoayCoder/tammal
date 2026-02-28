@@ -19,8 +19,8 @@ const CATEGORIES = ['time_off', 'cash_equivalent', 'experience', 'charity', 'mer
 
 export default function RedemptionManagement() {
   const { t } = useTranslation();
-  const { options, isLoading: optLoading, createOption, deleteOption } = useAdminRedemptionOptions();
-  const { requests, isLoading: reqLoading, updateRequest } = useAdminRedemptionRequests();
+  const { options, isPending: optLoading, createOption, deleteOption } = useAdminRedemptionOptions();
+  const { requests, isPending: reqLoading, updateRequest } = useAdminRedemptionRequests();
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ name: '', name_ar: '', description: '', description_ar: '', category: 'merchandise', points_cost: 100, is_active: true, max_per_year: null as number | null, min_tenure_months: null as number | null, fulfillment_config: {} });
 

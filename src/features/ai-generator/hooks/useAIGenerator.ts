@@ -30,7 +30,7 @@ export function useAIGenerator(): AIGeneratorState {
     documents, uploadDocument, toggleDocument, deleteDocument, deleteAllDocuments, isUploading,
   } = useAIKnowledge();
   const {
-    frameworks: referenceFrameworks, isLoading: frameworksLoading,
+    frameworks: referenceFrameworks, isPending: frameworksLoading,
     addFramework, updateFramework, deleteFramework,
   } = useReferenceFrameworks();
   const {

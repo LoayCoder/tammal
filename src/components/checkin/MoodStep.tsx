@@ -17,7 +17,7 @@ export const MoodStep = React.forwardRef<HTMLDivElement, MoodStepProps>(function
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
-  const { activeMoods, isLoading } = useMoodDefinitions(tenantId ?? null);
+  const { activeMoods, isPending: isLoading } = useMoodDefinitions(tenantId ?? null);
 
   // Use dynamic moods if loaded, fallback to static
   const displayMoods = activeMoods.length > 0

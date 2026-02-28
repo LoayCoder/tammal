@@ -38,8 +38,8 @@ export default function MoodPathwaySettings() {
   const [editingMood, setEditingMood] = useState<MoodDefinition | null>(null);
   const [deletingMood, setDeletingMood] = useState<MoodDefinition | null>(null);
 
-  const { configs, isLoading: configsLoading, upsertConfig } = useMoodQuestionConfig(tenantId);
-  const { moods, isLoading: moodsLoading, upsertMood, deleteMood, toggleMood, reorderMoods } = useMoodDefinitions(tenantId);
+  const { configs, isPending: configsLoading, upsertConfig } = useMoodQuestionConfig(tenantId);
+  const { moods, isPending: moodsLoading, upsertMood, deleteMood, toggleMood, reorderMoods } = useMoodDefinitions(tenantId);
   const { questions } = useQuestions();
   const { getTaggedQuestions, saveTags, unlinkQuestion, isSaving: savingTags } = useMoodTagging(questions);
   const isLoading = configsLoading || moodsLoading;

@@ -30,7 +30,7 @@ function formatFileSize(bytes: number) {
 
 export default function SecureAttachmentViewer({ caseId, isFirstAider }: Props) {
   const { t } = useTranslation();
-  const { attachments, isLoading, viewAttachment, revokeAttachment } = useSecureAttachments(caseId);
+  const { attachments, isPending: isLoading, viewAttachment, revokeAttachment } = useSecureAttachments(caseId);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [viewData, setViewData] = useState<{ url: string; watermark: string; file_type: string } | null>(null);
   const [expandedLogs, setExpandedLogs] = useState<string | null>(null);

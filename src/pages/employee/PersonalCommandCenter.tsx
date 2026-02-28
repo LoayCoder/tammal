@@ -18,8 +18,8 @@ import {
 
 export default function PersonalCommandCenter() {
   const { t } = useTranslation();
-  const { employee, isLoading: empLoading } = useCurrentEmployee();
-  const { tasks, isLoading: tasksLoading, createTask, updateTask, deleteTask, addComment, isCreating, isUpdating } = useUnifiedTasks(employee?.id);
+  const { employee, isPending: empLoading } = useCurrentEmployee();
+  const { tasks, isPending: tasksLoading, createTask, updateTask, deleteTask, addComment, isCreating, isUpdating } = useUnifiedTasks(employee?.id);
   const { streak, totalPoints } = useGamification(employee?.id ?? null);
   const { avgMood7d } = useMoodHistory(employee?.id ?? null);
 

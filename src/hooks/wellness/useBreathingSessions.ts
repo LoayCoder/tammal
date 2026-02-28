@@ -38,7 +38,7 @@ export function useBreathingSessions() {
 
   const queryKey = ['breathing-sessions', employeeId];
 
-  const { data: sessions = [], isLoading } = useQuery({
+  const { data: sessions = [], isPending } = useQuery({
     queryKey,
     queryFn: async () => {
       if (!employeeId) return [];
@@ -171,7 +171,7 @@ export function useBreathingSessions() {
 
   return {
     sessions,
-    isLoading,
+    isPending,
     stats,
     startSession: startSessionMutation.mutateAsync,
     completeSession: completeSessionMutation.mutateAsync,

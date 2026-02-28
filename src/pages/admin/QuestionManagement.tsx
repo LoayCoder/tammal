@@ -56,7 +56,7 @@ export default function QuestionManagement() {
   const [editingName, setEditingName] = useState('');
 
   const {
-    batches, isLoading, fetchBatchQuestions, expandedBatchQuestions, deleteBatch, publishBatch, deactivateBatch, deactivateQuestions, activateBatch, activateQuestions, renameBatch, MAX_BATCH_SIZE,
+    batches, isPending: isLoading, fetchBatchQuestions, expandedBatchQuestions, deleteBatch, publishBatch, deactivateBatch, deactivateQuestions, activateBatch, activateQuestions, renameBatch, MAX_BATCH_SIZE,
   } = useQuestionBatches(tenantId || null);
 
   const handleAccordionChange = (values: string[]) => {

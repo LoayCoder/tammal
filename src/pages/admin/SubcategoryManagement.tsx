@@ -23,7 +23,7 @@ export default function SubcategoryManagement() {
   const [filterCategoryId, setFilterCategoryId] = useState<string>('all');
 
   const { categories } = useQuestionCategories();
-  const { subcategories: allSubcategories, isLoading, createSubcategory, updateSubcategory, deleteSubcategory } = useQuestionSubcategories();
+  const { subcategories: allSubcategories, isPending: isLoading, createSubcategory, updateSubcategory, deleteSubcategory } = useQuestionSubcategories();
   const MAX_SUBCATEGORIES_PER_CATEGORY = 5;
 
   // Filter for display

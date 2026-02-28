@@ -144,7 +144,7 @@ export function useObjectives() {
 
   return {
     objectives: objectivesQuery.data ?? [],
-    isLoading: objectivesQuery.isLoading,
+    isPending: objectivesQuery.isPending,
     createObjective: createMutation.mutate,
     updateObjective: updateMutation.mutate,
     deleteObjective: deleteMutation.mutate,

@@ -52,7 +52,7 @@ export function useSupportSessions(options?: { firstAiderId?: string; requesterU
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: sessions = [], isLoading } = useQuery({
+  const { data: sessions = [], isPending } = useQuery({
     queryKey: ['mh-support-sessions', options?.firstAiderId, options?.requesterUserId],
     queryFn: async () => {
       let query = supabase
@@ -71,7 +71,7 @@ export function useSupportSessions(options?: { firstAiderId?: string; requesterU
     enabled: !!user?.id,
   });
 
-  return { sessions, isLoading };
+  return { sessions, isPending };
 }
 
 // ─── Hook: Session Scheduling ────────────────────────────────────────

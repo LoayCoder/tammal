@@ -16,7 +16,7 @@ interface ThemeBuilderProps {
 
 export function ThemeBuilder({ cycleId }: ThemeBuilderProps) {
   const { t } = useTranslation();
-  const { themes, isLoading, createTheme, deleteTheme } = useAwardThemes(cycleId);
+  const { themes, isPending: isLoading, createTheme, deleteTheme } = useAwardThemes(cycleId);
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState('');
   const [nameAr, setNameAr] = useState('');

@@ -47,7 +47,7 @@ export function useEmployeeResponses(employeeId?: string) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: responses = [], isLoading, error } = useQuery({
+  const { data: responses = [], isPending, error } = useQuery({
     queryKey: ['employee-responses', employeeId],
     queryFn: async () => {
       if (!employeeId) return [];
@@ -127,7 +127,7 @@ export function useEmployeeResponses(employeeId?: string) {
 
   return {
     responses,
-    isLoading,
+    isPending,
     error,
     submitResponse,
     saveDraft,

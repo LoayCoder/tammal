@@ -41,9 +41,9 @@ export default function ObjectiveDetail() {
   const navigate = useNavigate();
   const { tenantId } = useTenantId();
   const { user } = useAuth();
-  const { objectives, isLoading: objLoading, lockObjective, unlockObjective } = useObjectives();
+  const { objectives, isPending: objLoading, lockObjective, unlockObjective } = useObjectives();
   const {
-    initiatives, isLoading: initLoading, createInitiative, updateInitiative, deleteInitiative,
+    initiatives, isPending: initLoading, createInitiative, updateInitiative, deleteInitiative,
     lockInitiative, unlockInitiative,
     isCreating: initCreating, isUpdating: initUpdating, isDeleting: initDeleting,
   } = useInitiatives(id);

@@ -17,16 +17,16 @@ export default function EmployeeSurvey() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
 
-  const { employee, isLoading: loadingEmployee } = useCurrentEmployee();
+  const { employee, isPending: loadingEmployee } = useCurrentEmployee();
   const { profile } = useProfile();
-  const { pendingQuestions, surveyMeta, isLoading: loadingQuestions } = useScheduledQuestions(employee?.id);
-  const { hasAnswered, isLoading: loadingAnswered } = useAnsweredSurveyCheck(employee?.id);
+  const { pendingQuestions, surveyMeta, isPending: loadingQuestions } = useScheduledQuestions(employee?.id);
+  const { hasAnswered, isPending: loadingAnswered } = useAnsweredSurveyCheck(employee?.id);
   const { saveDraft, submitSurvey } = useEmployeeResponses(employee?.id);
 
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   // Draft responses for pre-population
-  const { data: draftResponses = [], isLoading: loadingDrafts } = useDraftResponses(employee?.id, surveyMeta?.schedule_id);
+  const { data: draftResponses = [], isPending: loadingDrafts } = useDraftResponses(employee?.id, surveyMeta?.schedule_id);
 
   // Answers map: scheduledQuestionId -> answerValue
   const [answers, setAnswers] = useState<Record<string, unknown>>({});

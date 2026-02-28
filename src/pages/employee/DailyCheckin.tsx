@@ -19,13 +19,13 @@ type Step = 'mood' | 'support';
 export default function DailyCheckin() {
   const { t } = useTranslation();
   
-  const { employee, isLoading: employeeLoading } = useCurrentEmployee();
+  const { employee, isPending: employeeLoading } = useCurrentEmployee();
   const tenantId = employee?.tenant_id || null;
   const { streak, totalPoints, calculatePoints } = useGamification(employee?.id || null);
   const { moods: moodDefinitions } = useMoodDefinitions(tenantId);
 
   const today = new Date().toISOString().split('T')[0];
-  const { data: todayEntry, isLoading: entryLoading } = useTodayEntry(employee?.id || null, today);
+  const { data: todayEntry, isPending: entryLoading } = useTodayEntry(employee?.id || null, today);
 
   const { submitCheckin, isSubmitting: submitting, error: submitError } = useCheckinSubmit();
 

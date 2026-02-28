@@ -11,8 +11,8 @@ import { format } from 'date-fns';
 
 export default function PointsDashboard() {
   const { t } = useTranslation();
-  const { transactions, balance, expiringWithin30Days, isLoading: ptsLoading } = usePoints();
-  const { requests, isLoading: reqLoading } = useRedemptionRequests();
+  const { transactions, balance, expiringWithin30Days, isPending: ptsLoading } = usePoints();
+  const { requests, isPending: reqLoading } = useRedemptionRequests();
 
   if (ptsLoading || reqLoading) {
     return <div className="space-y-4 p-6"><Skeleton className="h-32 w-full" /><Skeleton className="h-64 w-full" /></div>;

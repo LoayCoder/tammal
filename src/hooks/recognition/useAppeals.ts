@@ -33,7 +33,7 @@ export function useAppeals(cycleId?: string) {
   const { tenantId } = useTenantId();
   const qc = useQueryClient();
 
-  const { data: appeals = [], isLoading } = useQuery({
+  const { data: appeals = [], isPending } = useQuery({
     queryKey: ['appeals', tenantId, cycleId],
     queryFn: async () => {
       if (!cycleId) return [];
@@ -98,5 +98,5 @@ export function useAppeals(cycleId?: string) {
     onError: () => toast.error(t('recognition.appeals.resolveError')),
   });
 
-  return { appeals, isLoading, submitAppeal, resolveAppeal };
+  return { appeals, isPending, submitAppeal, resolveAppeal };
 }

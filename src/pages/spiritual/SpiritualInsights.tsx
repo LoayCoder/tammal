@@ -153,9 +153,9 @@ export default function SpiritualInsights() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   
-  const { preferences, isLoading: prefsLoading, isEnabled } = useSpiritualPreferences();
+  const { preferences, isPending: prefsLoading, isEnabled } = useSpiritualPreferences();
   const { employee } = useCurrentEmployee();
-  const { reports, isLoading: reportsLoading, generateReport } = useSpiritualReports();
+  const { reports, isPending: reportsLoading, generateReport } = useSpiritualReports();
 
   const thirtyDaysAgo = useMemo(() => {
     const d = new Date();

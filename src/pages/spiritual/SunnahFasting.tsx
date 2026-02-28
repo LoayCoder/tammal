@@ -18,7 +18,7 @@ export default function SunnahFasting() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
   const navigate = useNavigate();
-  const { preferences, isLoading: prefsLoading } = useSpiritualPreferences();
+  const { preferences, isPending: prefsLoading } = useSpiritualPreferences();
 
   const isActive = preferences?.enabled && preferences?.fasting_enabled;
 
@@ -29,7 +29,7 @@ export default function SunnahFasting() {
     return d.toISOString().split('T')[0];
   }, []);
 
-  const { logs, isLoading, logFast, todayLog, completedCount } = useFastingLogs({ from: thirtyDaysAgo, to: today });
+  const { logs, isPending: isLoading, logFast, todayLog, completedCount } = useFastingLogs({ from: thirtyDaysAgo, to: today });
 
   // Check-in form state
   const [fastType, setFastType] = useState('voluntary');

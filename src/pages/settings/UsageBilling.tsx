@@ -13,8 +13,8 @@ export default function UsageBilling() {
   const { profile } = useProfile();
   const tenantId = profile?.tenant_id ?? undefined;
 
-  const { usage, isLoading } = useTenantUsage(tenantId);
-  const { subscriptions, isLoading: subLoading } = useSubscriptions();
+  const { usage, isPending: isLoading } = useTenantUsage(tenantId);
+  const { subscriptions, isPending: subLoading } = useSubscriptions();
   const tenantSubscriptions = tenantId ? subscriptions.filter(s => s.tenant_id === tenantId) : [];
 
   const activeSubscription = tenantSubscriptions.find(s => s.status === 'active' && !s.deleted_at);
