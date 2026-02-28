@@ -6,7 +6,6 @@
 
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { SkeletonList } from '@/shared/loading/Skeletons';
 import { EmptyState } from '@/shared/empty/EmptyState';
 import { Alert, AlertDescription } from '@/components/ui/alert';
