@@ -67,7 +67,7 @@ export function useVoting(cycleId?: string) {
   const { tenantId } = useTenantId();
   const qc = useQueryClient();
 
-  const { data: ballots = [], isLoading: ballotsLoading } = useQuery({
+  const { data: ballots = [], isPending: ballotsPending } = useQuery({
     queryKey: ['voting-ballots', tenantId, cycleId],
     queryFn: async () => {
       if (!cycleId) return [];
@@ -138,7 +138,7 @@ export function useVoting(cycleId?: string) {
     enabled: !!tenantId && !!cycleId && !!user?.id,
   });
 
-  const { data: myVotes = [], isLoading: votesLoading } = useQuery({
+  const { data: myVotes = [], isPending: votesPending } = useQuery({
     queryKey: ['my-votes', tenantId, cycleId],
     queryFn: async () => {
       if (!cycleId) return [];
@@ -280,8 +280,8 @@ export function useVoting(cycleId?: string) {
     completedCount,
     totalCount: ballots.length,
     myVotes,
-    ballotsLoading,
-    votesLoading,
+    ballotsPending,
+    votesPending,
     submitVote,
   };
 }

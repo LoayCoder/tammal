@@ -44,7 +44,8 @@ describe('useGamification', () => {
 
   it('does not fetch when employeeId is null', () => {
     const { result } = renderHook(() => useGamification(null), { wrapper: createWrapper() });
-    expect(result.current.isPending).toBe(false);
+    // isPending is true for disabled queries in TanStack Query v5 (no data yet)
+    expect(result.current.isPending).toBe(true);
     expect(mockFetchGamificationData).not.toHaveBeenCalled();
   });
 

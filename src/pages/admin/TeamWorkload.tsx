@@ -13,7 +13,7 @@ import {
 
 export default function TeamWorkload() {
   const { t } = useTranslation();
-  const { teamLoad, isLoading, atRiskCount } = useWorkloadAnalytics();
+  const { teamLoad, isPending, atRiskCount } = useWorkloadAnalytics();
   const { objectives } = useObjectives();
   const { initiatives } = useInitiatives();
 
@@ -58,7 +58,7 @@ export default function TeamWorkload() {
               </div>
             </CardHeader>
             <CardContent>
-              {isLoading ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-bold">{stat.value}</div>}
+              {isPending ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-bold">{stat.value}</div>}
             </CardContent>
           </Card>
         ))}
@@ -107,7 +107,7 @@ export default function TeamWorkload() {
               </div>
             </CardHeader>
             <CardContent>
-              {isLoading ? <Skeleton className="h-16" /> : q.members.length > 0 ? (
+              {isPending ? <Skeleton className="h-16" /> : q.members.length > 0 ? (
                 <div className="space-y-1">
                   {q.members.slice(0, 5).map(m => (
                     <div key={m.employeeId} className="flex items-center justify-between text-sm py-1">
@@ -131,7 +131,7 @@ export default function TeamWorkload() {
           <CardTitle className="text-base">{t('teamWorkload.objectiveAlignment')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {isLoading ? <Skeleton className="h-20" /> : objectives.length > 0 ? objectives.slice(0, 5).map(obj => (
+          {isPending ? <Skeleton className="h-20" /> : objectives.length > 0 ? objectives.slice(0, 5).map(obj => (
             <div key={obj.id} className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium truncate">{obj.title}</span>

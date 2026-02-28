@@ -46,7 +46,7 @@ export default function AdminBranding() {
   const {
     branding,
     setBranding,
-    isLoading,
+    isPending,
     isSaving,
     saveBranding,
     resetBranding,
@@ -128,7 +128,7 @@ export default function AdminBranding() {
     setLogoPreview(null);
   };
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="space-y-6">
         <div>

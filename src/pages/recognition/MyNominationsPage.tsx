@@ -12,7 +12,7 @@ import { Trophy, Plus, Send, Inbox } from 'lucide-react';
 export default function MyNominationsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { myNominations, receivedNominations, myLoading, receivedLoading } = useNominations();
+  const { myNominations, receivedNominations, myPending, receivedPending } = useNominations();
   const [tab, setTab] = useState('sent');
 
   return (
@@ -44,7 +44,7 @@ export default function MyNominationsPage() {
         </TabsList>
 
         <TabsContent value="sent" className="mt-4">
-          {myLoading ? (
+          {myPending ? (
             <div className="space-y-3">
               {[1, 2].map(i => <Skeleton key={i} className="h-32 w-full" />)}
             </div>
@@ -68,7 +68,7 @@ export default function MyNominationsPage() {
         </TabsContent>
 
         <TabsContent value="received" className="mt-4">
-          {receivedLoading ? (
+          {receivedPending ? (
             <div className="space-y-3">
               {[1, 2].map(i => <Skeleton key={i} className="h-32 w-full" />)}
             </div>

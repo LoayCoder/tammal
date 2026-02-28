@@ -27,7 +27,7 @@ export default function SurveyMonitor() {
     departmentStats,
     employeeList,
     trendData,
-    isLoading,
+    isPending,
   } = useSurveyMonitor(selectedScheduleId || undefined, tenantId ?? undefined, orgFilters);
 
   const selectedSchedule = schedules.find(s => s.id === selectedScheduleId);
@@ -101,23 +101,23 @@ export default function SurveyMonitor() {
           <ParticipationOverview
             employeeStats={employeeStats}
             questionStats={questionStats}
-            isLoading={isLoading}
+            isLoading={isPending}
           />
 
           {/* Two-column: Heatmap + Risk */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <DepartmentHeatmap
               departments={departmentStats}
-              isLoading={isLoading}
+              isLoading={isPending}
             />
             <RiskPanel departments={departmentStats} />
           </div>
 
           {/* Employee Status Table */}
-          <EmployeeStatusTable employees={employeeList} isLoading={isLoading} />
+          <EmployeeStatusTable employees={employeeList} isLoading={isPending} />
 
           {/* Trend Chart */}
-          <ParticipationTrend trendData={trendData} isLoading={isLoading} />
+          <ParticipationTrend trendData={trendData} isLoading={isPending} />
         </div>
       )}
     </div>

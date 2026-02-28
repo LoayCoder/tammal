@@ -21,7 +21,7 @@ export function useAIKnowledge() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: documents = [], isLoading } = useQuery({
+  const { data: documents = [], isPending } = useQuery({
     queryKey: ['ai-knowledge-documents'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -130,7 +130,7 @@ export function useAIKnowledge() {
 
   return {
     documents,
-    isLoading,
+    isPending,
     uploadDocument: uploadMutation.mutate,
     isUploading: uploadMutation.isPending,
     toggleDocument: toggleMutation.mutate,

@@ -32,7 +32,7 @@ export default function MoodTrackerPage() {
   const isRTL = i18n.dir() === "rtl";
   const dashboard = usePersonalMoodDashboard();
 
-  if (dashboard.isLoading) {
+  if (dashboard.isPending) {
     return (
       <div className="min-h-screen bg-background">
         <div className="bg-card border-b border-border px-4 py-5 sm:px-6">

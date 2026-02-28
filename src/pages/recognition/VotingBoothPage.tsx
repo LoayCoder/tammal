@@ -11,7 +11,7 @@ import { Vote } from 'lucide-react';
 
 export default function VotingBoothPage() {
   const { t } = useTranslation();
-  const { cycles, isLoading: cyclesLoading } = useAwardCycles();
+  const { cycles, isPending: cyclesPending } = useAwardCycles();
   const votingCycles = cycles.filter(c => c.status === 'voting');
   const [selectedCycleId, setSelectedCycleId] = useState<string>('');
 
@@ -22,7 +22,7 @@ export default function VotingBoothPage() {
     pendingBallots,
     completedCount,
     totalCount,
-    ballotsLoading,
+    ballotsPending,
     submitVote,
   } = useVoting(effectiveCycleId);
 
@@ -37,7 +37,7 @@ export default function VotingBoothPage() {
       </div>
 
       {/* Cycle selector */}
-      {cyclesLoading ? (
+      {cyclesPending ? (
         <Skeleton className="h-10 w-64" />
       ) : votingCycles.length === 0 ? (
         <Card>
@@ -64,7 +64,7 @@ export default function VotingBoothPage() {
           )}
 
           {effectiveCycleId && (
-            ballotsLoading ? (
+            ballotsPending ? (
               <div className="space-y-3">
                 <Skeleton className="h-6 w-48" />
                 <Skeleton className="h-64 w-full" />

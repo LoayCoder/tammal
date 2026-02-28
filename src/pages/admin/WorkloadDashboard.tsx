@@ -30,7 +30,7 @@ function getLoadColor(mins: number) {
 export default function WorkloadDashboard() {
   const { t } = useTranslation();
   const {
-    teamLoad, objProgress, isLoading,
+    teamLoad, objProgress, isPending,
     totalEmployees, avgLoadMinutes, atRiskCount, offHoursWorkers,
   } = useWorkloadAnalytics();
 
@@ -66,7 +66,7 @@ export default function WorkloadDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              {isLoading ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-bold">{stat.value}</div>}
+              {isPending ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-bold">{stat.value}</div>}
             </CardContent>
           </Card>
         ))}
@@ -92,7 +92,7 @@ export default function WorkloadDashboard() {
               <CardTitle className="text-base">{t('adminWorkload.topLoadedEmployees')}</CardTitle>
             </CardHeader>
             <CardContent>
-              {isLoading ? <Skeleton className="h-[280px] w-full" /> : chartData.length > 0 ? (
+              {isPending ? <Skeleton className="h-[280px] w-full" /> : chartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={chartData} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
@@ -118,7 +118,7 @@ export default function WorkloadDashboard() {
               <CardTitle className="text-base">{t('adminWorkload.teamOverview')}</CardTitle>
             </CardHeader>
             <CardContent>
-              {isLoading ? <Skeleton className="h-40" /> : (
+              {isPending ? <Skeleton className="h-40" /> : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
@@ -163,7 +163,7 @@ export default function WorkloadDashboard() {
 
         {/* Objectives Tab */}
         <TabsContent value="objectives" className="space-y-4">
-          {isLoading ? <Skeleton className="h-40" /> : objProgress.length > 0 ? (
+          {isPending ? <Skeleton className="h-40" /> : objProgress.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2">
               {objProgress.map(obj => (
                 <Card key={obj.id} className="glass-card border-0">
@@ -201,7 +201,7 @@ export default function WorkloadDashboard() {
               <CardTitle className="text-base">{t('adminWorkload.offHoursAnalysis')}</CardTitle>
             </CardHeader>
             <CardContent>
-              {isLoading ? <Skeleton className="h-40" /> : (
+              {isPending ? <Skeleton className="h-40" /> : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>

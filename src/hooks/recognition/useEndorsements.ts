@@ -32,7 +32,7 @@ export function useEndorsements(nominationId?: string) {
   const { tenantId } = useTenantId();
   const qc = useQueryClient();
 
-  const { data: endorsements = [], isLoading } = useQuery({
+  const { data: endorsements = [], isPending } = useQuery({
     queryKey: ['endorsements', nominationId],
     queryFn: async () => {
       if (!nominationId) return [];
@@ -49,7 +49,7 @@ export function useEndorsements(nominationId?: string) {
   });
 
   // Nominations that need my endorsement (submitted, not yet endorsed by me)
-  const { data: myEndorsementRequests = [], isLoading: requestsLoading } = useQuery({
+  const { data: myEndorsementRequests = [], isPending: requestsPending } = useQuery({
     queryKey: ['my-endorsement-requests', user?.id, tenantId],
     queryFn: async () => {
       if (!user?.id || !tenantId) return [];
@@ -125,8 +125,8 @@ export function useEndorsements(nominationId?: string) {
   return {
     endorsements,
     myEndorsementRequests,
-    isLoading,
-    requestsLoading,
+    isPending,
+    requestsPending,
     submitEndorsement,
     validCount: endorsements.filter(e => e.is_valid !== false).length,
   };

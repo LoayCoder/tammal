@@ -60,7 +60,7 @@ export function useQuestionSchedules(tenantId?: string) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { data: schedules = [], isLoading, error } = useQuery({
+  const { data: schedules = [], isPending, error } = useQuery({
     queryKey: ['question-schedules', tenantId],
     queryFn: async () => {
       let query = supabase
@@ -218,7 +218,7 @@ export function useQuestionSchedules(tenantId?: string) {
 
   return {
     schedules,
-    isLoading,
+    isPending,
     error,
     createSchedule,
     updateSchedule,

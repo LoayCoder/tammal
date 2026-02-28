@@ -26,7 +26,7 @@ export interface CheckinScheduledQuestion {
 export function useCheckinScheduledQuestions(employeeId?: string, excludeQuestionId?: string) {
   const today = new Date().toISOString().split('T')[0];
 
-  const { data: questions = [], isLoading, error, refetch } = useQuery({
+  const { data: questions = [], isPending, error, refetch } = useQuery({
     queryKey: ['checkin-scheduled-questions', employeeId, today, excludeQuestionId],
     queryFn: async () => {
       if (!employeeId) return [];
@@ -137,5 +137,5 @@ export function useCheckinScheduledQuestions(employeeId?: string, excludeQuestio
     enabled: !!employeeId,
   });
 
-  return { questions, isLoading, error, refetch };
+  return { questions, isPending, error, refetch };
 }

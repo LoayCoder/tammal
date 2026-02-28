@@ -36,7 +36,7 @@ export default function ScheduleManagement() {
   const { t } = useTranslation();
   const { profile } = useProfile();
   const tenantId = profile?.tenant_id || undefined;
-  const { schedules, isLoading, createSchedule, updateSchedule, toggleStatus, deleteSchedule } = useQuestionSchedules(tenantId);
+  const { schedules, isPending, createSchedule, updateSchedule, toggleStatus, deleteSchedule } = useQuestionSchedules(tenantId);
   const { batches } = useQuestionBatches(tenantId || null);
   const { periods } = useGenerationPeriods(tenantId || null);
   const { configs: moodConfigs, batchUpsertConfigs } = useMoodQuestionConfig(tenantId || null);
@@ -258,7 +258,7 @@ export default function ScheduleManagement() {
           <CardDescription>{t('schedules.manageDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
+          {isPending ? (
             <div className="flex justify-center py-8">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>

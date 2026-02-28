@@ -21,7 +21,7 @@ import { format } from 'date-fns';
 
 export default function RecognitionResults() {
   const { t } = useTranslation();
-  const { cycles, isLoading: cyclesLoading } = useAwardCycles();
+  const { cycles, isPending: cyclesPending } = useAwardCycles();
   const [selectedCycleId, setSelectedCycleId] = useState<string>('');
   const [showAppealForm, setShowAppealForm] = useState<string | null>(null);
 
@@ -99,7 +99,7 @@ export default function RecognitionResults() {
             <p className="text-muted-foreground">{t('recognition.results.selectCyclePrompt')}</p>
           </CardContent>
         </Card>
-      ) : resultsLoading || cyclesLoading ? (
+      ) : resultsLoading || cyclesPending ? (
         <div className="space-y-4">
           {[1, 2].map(i => <Skeleton key={i} className="h-48" />)}
         </div>

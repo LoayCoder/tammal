@@ -12,7 +12,7 @@ interface FrameworkDocumentsProps {
 export function FrameworkDocuments({ frameworkId }: FrameworkDocumentsProps) {
   const { t } = useTranslation();
   const fileRef = useRef<HTMLInputElement>(null);
-  const { documents, isLoading, uploadDocument, deleteDocument, isUploading } = useFrameworkDocuments(frameworkId);
+  const { documents, isPending, uploadDocument, deleteDocument, isUploading } = useFrameworkDocuments(frameworkId);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -55,7 +55,7 @@ export function FrameworkDocuments({ frameworkId }: FrameworkDocumentsProps) {
         />
       </div>
 
-      {isLoading ? (
+      {isPending ? (
         <p className="text-xs text-muted-foreground">{t('common.loading')}</p>
       ) : documents.length === 0 ? (
         <p className="text-xs text-muted-foreground italic">{t('aiGenerator.noFrameworkDocs')}</p>

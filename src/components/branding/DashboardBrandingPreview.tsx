@@ -13,9 +13,9 @@ interface DashboardBrandingPreviewProps {
 
 export function DashboardBrandingPreview({ tenantId }: DashboardBrandingPreviewProps) {
   const { t } = useTranslation();
-  const { branding, isLoading } = useBranding(tenantId);
+  const { branding, isPending } = useBranding(tenantId);
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <Card>
         <CardHeader>

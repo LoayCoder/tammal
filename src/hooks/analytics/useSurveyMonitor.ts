@@ -322,13 +322,13 @@ export function useSurveyMonitor(
 
   return {
     schedules: schedulesQuery.data ?? [],
-    schedulesLoading: schedulesQuery.isLoading,
+    schedulesLoading: schedulesQuery.isPending,
     employeeStats: computed.employeeStats,
     questionStats: computed.questionStats,
     departmentStats: computed.departmentStats,
     employeeList: computed.employeeList,
     trendData: computed.trendData,
-    isLoading: coreQuery.isLoading,
+    isPending: coreQuery.isPending,
     refetch: coreQuery.refetch,
   };
 }

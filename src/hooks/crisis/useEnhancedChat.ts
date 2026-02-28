@@ -24,7 +24,7 @@ export function useEnhancedChat(caseId?: string) {
   const presenceChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   // ── Fetch messages ─────────────────────────────────────────────────
-  const { data: messages = [], isLoading } = useQuery({
+  const { data: messages = [], isPending } = useQuery({
     queryKey: ['mh-enhanced-messages', caseId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -222,7 +222,7 @@ export function useEnhancedChat(caseId?: string) {
 
   return {
     messages,
-    isLoading,
+    isPending,
     sendMessage,
     markAsRead,
     toggleReaction,

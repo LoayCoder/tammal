@@ -137,7 +137,7 @@ export function useWorkloadAnalytics() {
   return {
     teamLoad,
     objProgress: objProgressQuery.data ?? [],
-    isLoading: teamLoadQuery.isLoading || objProgressQuery.isLoading,
+    isPending: teamLoadQuery.isPending || objProgressQuery.isPending,
     totalEmployees,
     avgLoadMinutes: avgLoad,
     atRiskCount,

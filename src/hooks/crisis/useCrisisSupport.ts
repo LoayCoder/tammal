@@ -118,7 +118,7 @@ export function useFirstAiders(tenantId?: string) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: firstAiders = [], isLoading } = useQuery({
+  const { data: firstAiders = [], isPending } = useQuery({
     queryKey: ['mh-first-aiders', tenantId],
     queryFn: async () => {
       let query = supabase.from('mh_first_aiders').select('*').is('deleted_at', null).order('display_name');
@@ -176,14 +176,14 @@ export function useFirstAiders(tenantId?: string) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mh-first-aiders'] }),
   });
 
-  return { firstAiders: firstAidersWithStatus, schedules, isLoading, createFirstAider, updateFirstAider, deleteFirstAider };
+  return { firstAiders: firstAidersWithStatus, schedules, isPending, createFirstAider, updateFirstAider, deleteFirstAider };
 }
 
 // ─── Hook: Schedules ─────────────────────────────────────────────────
 export function useFirstAiderSchedule(firstAiderId?: string) {
   const queryClient = useQueryClient();
 
-  const { data: schedule, isLoading } = useQuery({
+  const { data: schedule, isPending } = useQuery({
     queryKey: ['mh-schedule', firstAiderId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -221,7 +221,7 @@ export function useFirstAiderSchedule(firstAiderId?: string) {
     },
   });
 
-  return { schedule, isLoading, upsertSchedule };
+  return { schedule, isPending, upsertSchedule };
 }
 
 // ─── Hook: Emergency Contacts ────────────────────────────────────────
@@ -229,7 +229,7 @@ export function useEmergencyContacts(tenantId?: string) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: contacts = [], isLoading } = useQuery({
+  const { data: contacts = [], isPending } = useQuery({
     queryKey: ['mh-emergency-contacts', tenantId],
     queryFn: async () => {
       let query = supabase.from('mh_emergency_contacts').select('*').is('deleted_at', null).order('sort_order');
@@ -268,7 +268,7 @@ export function useEmergencyContacts(tenantId?: string) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mh-emergency-contacts'] }),
   });
 
-  return { contacts, isLoading, createContact, updateContact, deleteContact };
+  return { contacts, isPending, createContact, updateContact, deleteContact };
 }
 
 // ─── Hook: Crisis Cases ──────────────────────────────────────────────
@@ -276,7 +276,7 @@ export function useCrisisCases(options?: { role?: 'requester' | 'first_aider' | 
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: cases = [], isLoading } = useQuery({
+  const { data: cases = [], isPending } = useQuery({
     queryKey: ['mh-crisis-cases', user?.id, options?.role],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -434,7 +434,7 @@ export function useCrisisCases(options?: { role?: 'requester' | 'first_aider' | 
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mh-crisis-cases'] }),
   });
 
-  return { cases, isLoading, createCase, updateCaseStatus };
+  return { cases, isPending, createCase, updateCaseStatus };
 }
 
 // ─── Hook: Crisis Messages ───────────────────────────────────────────
@@ -442,7 +442,7 @@ export function useCrisisMessages(caseId?: string) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: messages = [], isLoading } = useQuery({
+  const { data: messages = [], isPending } = useQuery({
     queryKey: ['mh-crisis-messages', caseId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -505,14 +505,14 @@ export function useCrisisMessages(caseId?: string) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mh-crisis-messages', caseId] }),
   });
 
-  return { messages, isLoading, sendMessage };
+  return { messages, isPending, sendMessage };
 }
 
 // ─── Hook: Is current user a first aider? ────────────────────────────
 export function useIsFirstAider() {
   const { user } = useAuth();
 
-  const { data: firstAiderId, isLoading } = useQuery({
+  const { data: firstAiderId, isPending } = useQuery({
     queryKey: ['is-first-aider', user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -528,5 +528,5 @@ export function useIsFirstAider() {
     enabled: !!user?.id,
   });
 
-  return { isFirstAider: !!firstAiderId, firstAiderId, isLoading };
+  return { isFirstAider: !!firstAiderId, firstAiderId, isPending };
 }
