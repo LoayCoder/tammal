@@ -228,7 +228,7 @@ export function useBranding(tenantId?: string) {
   return {
     branding,
     setBranding,
-    isLoading,
+    isPending,
     isSaving,
     saveBranding,
     resetBranding,
