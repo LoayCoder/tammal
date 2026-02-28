@@ -58,19 +58,31 @@ function batchIn(ids: string[], batchSize = 500): string[][] {
 }
 
 export async function batchedQuery<T>(
-  baseBuilder: () => any,
+  baseBuilder: () => { in: (column: string, values: string[]) => PromiseLike<{ data: T[] | null; error: unknown }> },
   column: string,
   ids: string[],
 ): Promise<T[]> {
   if (ids.length <= 500) {
-    const { data } = await baseBuilder().in(column, ids);
-    return (data ?? []) as T[];
+    try {
+      const { data, error } = await baseBuilder().in(column, ids);
+      if (error) throw error;
+      return data ?? [];
+    } catch (err) {
+      logger.error('batchedQuery', 'Analytics batch failed', err);
+      throw new ServiceUnavailableError('Analytics batch failed');
+    }
   }
   const batches = batchIn(ids);
   const results: T[] = [];
   for (const batch of batches) {
-    const { data } = await baseBuilder().in(column, batch);
-    results.push(...((data ?? []) as T[]));
+    try {
+      const { data, error } = await baseBuilder().in(column, batch);
+      if (error) throw error;
+      results.push(...(data ?? []));
+    } catch (err) {
+      logger.error('batchedQuery', 'Analytics batch failed', err);
+      throw new ServiceUnavailableError('Analytics batch failed');
+    }
   }
   return results;
 }
