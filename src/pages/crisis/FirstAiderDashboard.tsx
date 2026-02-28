@@ -18,7 +18,7 @@ export default function FirstAiderDashboard() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { isFirstAider, firstAiderId } = useIsFirstAider();
-  const { cases, isLoading, updateCaseStatus } = useCrisisCases({ role: 'first_aider' });
+  const { cases, isPending, updateCaseStatus } = useCrisisCases({ role: 'first_aider' });
   const { schedule, upsertSchedule } = useFirstAiderSchedule(firstAiderId || undefined);
   const { sessions } = useSupportSessions(firstAiderId ? { firstAiderId } : undefined);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
@@ -207,7 +207,7 @@ export default function FirstAiderDashboard() {
         <TabsContent value="pending">
           <CaseList
             cases={pendingCases}
-            isLoading={isLoading}
+            isPending={isPending}
             onSelect={setSelectedCaseId}
             actions={(c) => (
               <div className="flex gap-1">
@@ -222,10 +222,10 @@ export default function FirstAiderDashboard() {
           />
         </TabsContent>
         <TabsContent value="active">
-          <CaseList cases={activeCases} isLoading={isLoading} onSelect={setSelectedCaseId} />
+          <CaseList cases={activeCases} isPending={isPending} onSelect={setSelectedCaseId} />
         </TabsContent>
         <TabsContent value="resolved">
-          <CaseList cases={resolvedCases} isLoading={isLoading} onSelect={setSelectedCaseId} />
+          <CaseList cases={resolvedCases} isPending={isPending} onSelect={setSelectedCaseId} />
         </TabsContent>
       </Tabs>
     </div>
@@ -233,10 +233,10 @@ export default function FirstAiderDashboard() {
 }
 
 // ─── Case List ─────────────────────────────────────────────────────
-function CaseList({ cases, isLoading, onSelect, actions }: { cases: any[]; isLoading: boolean; onSelect: (id: string) => void; actions?: (c: any) => React.ReactNode }) {
+function CaseList({ cases, isPending, onSelect, actions }: { cases: any[]; isPending: boolean; onSelect: (id: string) => void; actions?: (c: any) => React.ReactNode }) {
   const { t } = useTranslation();
 
-  if (isLoading) return <p className="text-muted-foreground py-8 text-center">{t('common.loading')}</p>;
+  if (isPending) return <p className="text-muted-foreground py-8 text-center">{t('common.loading')}</p>;
   if (cases.length === 0) return <p className="text-muted-foreground py-8 text-center">{t('common.noData')}</p>;
 
   const riskIndicator = (risk: string) => {

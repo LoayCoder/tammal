@@ -12,7 +12,7 @@ import { format } from 'date-fns';
 
 export default function RecognitionManagement() {
   const { t } = useTranslation();
-  const { cycles, isLoading } = useAwardCycles();
+  const { cycles, isPending } = useAwardCycles();
   const [showBuilder, setShowBuilder] = useState(false);
 
   if (showBuilder) {
@@ -39,7 +39,7 @@ export default function RecognitionManagement() {
         </Button>
       </div>
 
-      {isLoading ? (
+      {isPending ? (
         <div className="grid gap-4 md:grid-cols-2">
           {[1, 2].map(i => <Skeleton key={i} className="h-48" />)}
         </div>

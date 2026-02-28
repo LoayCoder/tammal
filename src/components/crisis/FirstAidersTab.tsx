@@ -20,7 +20,7 @@ export default function FirstAidersTab() {
   const { t } = useTranslation();
   const { profile } = useProfile();
   const tenantId = profile?.tenant_id;
-  const { firstAiders, isLoading, createFirstAider, updateFirstAider, deleteFirstAider } = useFirstAiders();
+  const { firstAiders, isPending, createFirstAider, updateFirstAider, deleteFirstAider } = useFirstAiders();
   const { employees } = useEmployees({ status: 'active' });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingFA, setEditingFA] = useState<FirstAider | null>(null);
@@ -130,7 +130,7 @@ export default function FirstAidersTab() {
         </Button>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {isPending ? (
           <p className="text-muted-foreground">{t('common.loading')}</p>
         ) : firstAiders.length === 0 ? (
           <p className="text-muted-foreground text-center py-8">{t('crisisSupport.admin.noFirstAiders')}</p>

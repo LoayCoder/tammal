@@ -18,7 +18,7 @@ export default function EmergencyContactsTab() {
   const { t } = useTranslation();
   const { profile } = useProfile();
   const tenantId = profile?.tenant_id;
-  const { contacts, isLoading, createContact, updateContact, deleteContact } = useEmergencyContacts();
+  const { contacts, isPending, createContact, updateContact, deleteContact } = useEmergencyContacts();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<EmergencyContact | null>(null);
   const [form, setForm] = useState({ title: '', phone: '', description: '', available_24_7: false, country: 'SA' });
@@ -71,7 +71,7 @@ export default function EmergencyContactsTab() {
         </Button>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {isPending ? (
           <p className="text-muted-foreground">{t('common.loading')}</p>
         ) : contacts.length === 0 ? (
           <p className="text-muted-foreground text-center py-8">{t('crisisSupport.admin.noContacts')}</p>

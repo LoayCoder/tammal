@@ -28,7 +28,7 @@ export default function MySupportPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { cases, isLoading, updateCaseStatus } = useCrisisCases({ role: 'requester' });
+  const { cases, isPending, updateCaseStatus } = useCrisisCases({ role: 'requester' });
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('active');
 
@@ -57,7 +57,7 @@ export default function MySupportPage() {
         </Button>
       </div>
 
-      {isLoading ? (
+      {isPending ? (
         <p className="text-muted-foreground">{t('common.loading')}</p>
       ) : myCases.length === 0 ? (
         <Card className="glass-card border-0 rounded-xl">

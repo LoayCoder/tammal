@@ -21,7 +21,7 @@ import { format } from 'date-fns';
 
 export default function RecognitionResults() {
   const { t } = useTranslation();
-  const { cycles, isLoading: cyclesLoading } = useAwardCycles();
+  const { cycles, isPending: cyclesPending } = useAwardCycles();
   const [selectedCycleId, setSelectedCycleId] = useState<string>('');
   const [showAppealForm, setShowAppealForm] = useState<string | null>(null);
 

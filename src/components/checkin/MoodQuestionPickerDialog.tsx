@@ -41,7 +41,7 @@ export function MoodQuestionPickerDialog({
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
 
-  const { questions, isLoading } = useQuestions();
+  const { questions, isPending } = useQuestions();
   const { categories } = useQuestionCategories();
 
   const moodMeta = MOOD_META[moodLevel];
@@ -136,7 +136,7 @@ export function MoodQuestionPickerDialog({
 
         {/* Question list */}
         <ScrollArea className="flex-1 p-4 min-h-[300px] max-h-[420px]">
-          {isLoading ? (
+          {isPending ? (
             <div className="space-y-3">
               {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}
             </div>
