@@ -26,6 +26,7 @@ export function usePlansManagement() {
       if (error) throw error;
       return data;
     },
+    staleTime: 2 * 60 * 1000,
   });
 
   const createMutation = useMutation({
@@ -42,7 +43,6 @@ export function usePlansManagement() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['plans-full'] });
       queryClient.invalidateQueries({ queryKey: ['plans'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success(t('plans.createSuccess'));
       logEvent({
         entity_type: 'plan',
@@ -79,7 +79,6 @@ export function usePlansManagement() {
     onSuccess: ({ data, before }) => {
       queryClient.invalidateQueries({ queryKey: ['plans-full'] });
       queryClient.invalidateQueries({ queryKey: ['plans'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success(t('plans.updateSuccess'));
       logEvent({
         entity_type: 'plan',
@@ -115,7 +114,6 @@ export function usePlansManagement() {
     onSuccess: (before) => {
       queryClient.invalidateQueries({ queryKey: ['plans-full'] });
       queryClient.invalidateQueries({ queryKey: ['plans'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success(t('plans.deleteSuccess'));
       if (before) {
         logEvent({

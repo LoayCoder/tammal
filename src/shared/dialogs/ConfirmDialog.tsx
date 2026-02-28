@@ -1,3 +1,4 @@
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AlertDialog,
@@ -22,7 +23,7 @@ export interface ConfirmDialogProps {
   destructive?: boolean;
 }
 
-export function ConfirmDialog({
+export const ConfirmDialog = React.memo(function ConfirmDialog({
   open,
   onOpenChange,
   title,
@@ -59,4 +60,4 @@ export function ConfirmDialog({
       </AlertDialogContent>
     </AlertDialog>
   );
-}
+});
