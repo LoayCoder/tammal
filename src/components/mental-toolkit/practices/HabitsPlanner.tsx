@@ -85,7 +85,7 @@ export default function HabitsPlanner() {
 
   const deleteHabit = (id: string) => {
     update(habits.filter((h) => h.id !== id));
-    toast.success("Habit removed");
+    toast.success(t("common.habitRemoved"));
   };
 
   return (
