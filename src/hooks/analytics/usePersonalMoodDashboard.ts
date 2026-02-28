@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { logger } from '@/lib/logger';
 import { supabase } from '@/integrations/supabase/client';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useMoodDefinitions } from '@/hooks/wellness/useMoodDefinitions';
@@ -73,7 +74,7 @@ export function usePersonalMoodDashboard() {
         .limit(10000);
       if (error) {
         // RLS will block non-admins – return empty gracefully
-        console.warn('Org average unavailable (RLS):', error.message);
+        logger.warn('usePersonalMoodDashboard', 'Org average unavailable (RLS):', error.message);
         return {};
       }
       if (!data || data.length === 0) return {};

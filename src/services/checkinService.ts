@@ -5,6 +5,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { calculatePoints } from './gamificationService';
+import { logger } from '@/lib/logger';
 
 export interface CheckinParams {
   tenantId: string;
@@ -118,7 +119,7 @@ export async function submitMoodEntry(params: CheckinParams): Promise<CheckinRes
 
   if (ptError) {
     // Log but don't throw — mood entry already succeeded
-    console.warn('Points ledger insert failed:', ptError.message);
+    logger.warn('checkinService', 'Points ledger insert failed:', ptError.message);
   }
 
   return { tip, pointsEarned: points, newStreak, alreadySubmitted: false };

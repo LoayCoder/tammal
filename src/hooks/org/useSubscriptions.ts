@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 import { useAuditLog } from '@/hooks/audit/useAuditLog';
+import { logger } from '@/lib/logger';
 
 export type Subscription = Tables<'subscriptions'>;
 export type SubscriptionInsert = TablesInsert<'subscriptions'>;
@@ -57,7 +58,7 @@ export function useSubscriptions() {
     },
     onError: (error) => {
       toast.error(t('subscriptions.createError'));
-      console.error('Create subscription error:', error);
+      logger.error('useSubscriptions', 'Create failed', error);
     },
   });
 
@@ -93,7 +94,7 @@ export function useSubscriptions() {
     },
     onError: (error) => {
       toast.error(t('subscriptions.updateError'));
-      console.error('Update subscription error:', error);
+      logger.error('useSubscriptions', 'Update failed', error);
     },
   });
 
@@ -130,7 +131,7 @@ export function useSubscriptions() {
     },
     onError: (error) => {
       toast.error(t('subscriptions.deleteError'));
-      console.error('Delete subscription error:', error);
+      logger.error('useSubscriptions', 'Delete failed', error);
     },
   });
 
@@ -146,7 +147,7 @@ export function useSubscriptions() {
           table: 'subscriptions',
         },
         (payload) => {
-          console.log('Subscription realtime update:', payload);
+          logger.debug('useSubscriptions', 'Realtime update received');
           queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
           queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
         }

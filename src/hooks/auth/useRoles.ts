@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { useAuditLog } from '@/hooks/audit/useAuditLog';
+import { logger } from '@/lib/logger';
 
 export interface Role {
   id: string;
@@ -98,7 +99,7 @@ export function useRoles(tenantId?: string) {
     },
     onError: (error) => {
       toast.error(t('roles.createError'));
-      console.error('Create role error:', error);
+      logger.error('useRoles', 'Create failed', error);
     },
   });
 
@@ -141,7 +142,7 @@ export function useRoles(tenantId?: string) {
     },
     onError: (error) => {
       toast.error(t('roles.updateError'));
-      console.error('Update role error:', error);
+      logger.error('useRoles', 'Update failed', error);
     },
   });
 
@@ -177,7 +178,7 @@ export function useRoles(tenantId?: string) {
     },
     onError: (error) => {
       toast.error(t('roles.deleteError'));
-      console.error('Delete role error:', error);
+      logger.error('useRoles', 'Delete failed', error);
     },
   });
 

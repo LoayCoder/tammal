@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { parseUserAgent, getLocationInfo } from '@/lib/deviceInfo';
+import { logger } from '@/lib/logger';
 
 // Record login event (fire-and-forget, never blocks auth)
 async function recordLoginEvent(userId: string, success: boolean, failureReason?: string) {
@@ -31,7 +32,7 @@ async function recordLoginEvent(userId: string, success: boolean, failureReason?
       failure_reason: failureReason || null,
     });
   } catch (error) {
-    console.error('Failed to record login event:', error);
+    logger.error('useAuth', 'Failed to record login event', error);
   }
 }
 
@@ -99,7 +100,7 @@ export function useAuth() {
           success: true,
         });
       } catch (error) {
-        console.error('Failed to record logout event:', error);
+        logger.error('useAuth', 'Failed to record logout event', error);
       }
     }
 

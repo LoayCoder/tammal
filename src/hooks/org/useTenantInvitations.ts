@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { useAuditLog } from '@/hooks/audit/useAuditLog';
+import { logger } from '@/lib/logger';
 
 export interface Invitation {
   id: string;
@@ -116,7 +117,7 @@ export function useTenantInvitations(tenantId?: string) {
           },
         });
       } catch (emailError) {
-        console.error('Failed to send invitation email:', emailError);
+        logger.error('useTenantInvitations', 'Failed to send invitation email', emailError);
         // We don't throw here to avoid rolling back the invitation creation
         toast.error(t('invitations.emailSendError'));
       }
@@ -138,7 +139,7 @@ export function useTenantInvitations(tenantId?: string) {
     },
     onError: (error) => {
       toast.error(t('invitations.createError'));
-      console.error('Create invitation error:', error);
+      logger.error('useTenantInvitations', 'Create failed', error);
     },
   });
 
@@ -179,7 +180,7 @@ export function useTenantInvitations(tenantId?: string) {
           },
         });
       } catch (emailError) {
-        console.error('Failed to resend invitation email:', emailError);
+        logger.error('useTenantInvitations', 'Failed to resend invitation email', emailError);
         throw emailError;
       }
 
@@ -191,7 +192,7 @@ export function useTenantInvitations(tenantId?: string) {
     },
     onError: (error) => {
       toast.error(t('invitations.resendError'));
-      console.error('Resend invitation error:', error);
+      logger.error('useTenantInvitations', 'Resend failed', error);
     },
   });
 
@@ -226,7 +227,7 @@ export function useTenantInvitations(tenantId?: string) {
     },
     onError: (error) => {
       toast.error(t('invitations.revokeError'));
-      console.error('Revoke invitation error:', error);
+      logger.error('useTenantInvitations', 'Revoke failed', error);
     },
   });
 

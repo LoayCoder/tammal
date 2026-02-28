@@ -86,7 +86,7 @@ describe('submitMoodEntry', () => {
 
     expect(result.alreadySubmitted).toBe(false);
     expect(result.pointsEarned).toBe(10);
-    expect(consoleSpy).toHaveBeenCalledWith('Points ledger insert failed:', 'points fail');
+    expect(consoleSpy).toHaveBeenCalledWith('[checkinService]', 'Points ledger insert failed:', 'points fail');
 
     consoleSpy.mockRestore();
   });
