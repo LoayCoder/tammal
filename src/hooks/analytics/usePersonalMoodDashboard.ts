@@ -60,7 +60,7 @@ export function usePersonalMoodDashboard() {
   });
 
   // ── Org average (only for admins/managers – RLS restricts employees) ──
-  const { data: orgAvgMap = {}, isLoading: orgLoading } = useQuery({
+  const { data: orgAvgMap = {}, isPending: orgPending } = useQuery({
     queryKey: ['org-mood-avg-14', tenantId],
     queryFn: async () => {
       if (!tenantId) return {};
@@ -96,7 +96,7 @@ export function usePersonalMoodDashboard() {
   });
 
   // ── Survey stats ──
-  const { data: surveyStats, isLoading: surveyLoading } = useQuery({
+  const { data: surveyStats, isPending: surveyPending } = useQuery({
     queryKey: ['personal-survey-stats', employeeId],
     queryFn: async (): Promise<SurveyStats> => {
       if (!employeeId) return { totalAnswered: 0, avgScore: 0, completionRate: 0 };
@@ -179,7 +179,7 @@ export function usePersonalMoodDashboard() {
   });
 
   // ── Reframe stats ──
-  const { data: reframeStats, isLoading: reframeLoading } = useQuery({
+  const { data: reframeStats, isPending: reframePending } = useQuery({
     queryKey: ['reframe-stats', employeeId],
     queryFn: async () => {
       if (!employeeId) return { total: 0, thisMonth: 0, streak: 0 };
@@ -211,7 +211,7 @@ export function usePersonalMoodDashboard() {
   });
 
   // ── Breathing stats ──
-  const { data: breathingStats, isLoading: breathingLoading } = useQuery({
+  const { data: breathingStats, isPending: breathingPending } = useQuery({
     queryKey: ['breathing-stats', employeeId],
     queryFn: async () => {
       if (!employeeId) return { totalSessions: 0, totalMinutes: 0, currentStreak: 0, avgMoodImprovement: 0, thisMonth: 0, favoriteExercise: null as string | null };
@@ -305,11 +305,11 @@ export function usePersonalMoodDashboard() {
 
   const hasOrgData = Object.keys(orgAvgMap).length > 0;
 
-  const isLoading = empLoading || defsLoading || streakLoading || histLoading || orgLoading || surveyLoading || reframeLoading || breathingLoading;
+  const isPending = empLoading || defsLoading || streakLoading || histLoading || orgPending || surveyPending || reframePending || breathingPending;
 
   return {
     employee,
-    isLoading,
+    isPending,
     moodDefs,
     streak,
     moodHistory,

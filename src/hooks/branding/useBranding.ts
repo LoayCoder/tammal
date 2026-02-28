@@ -47,13 +47,13 @@ export function useBranding(tenantId?: string) {
   const { t } = useTranslation();
   
   const [branding, setBranding] = useState<BrandingConfig>(DEFAULT_BRANDING);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isPending, setIsPending] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   // Fetch branding config
   const fetchBranding = useCallback(async () => {
     if (!tenantId) {
-      setIsLoading(false);
+      setIsPending(false);
       return;
     }
 
@@ -106,7 +106,7 @@ export function useBranding(tenantId?: string) {
     } catch (error) {
       logger.error('useBranding', 'Error fetching branding', error);
     } finally {
-      setIsLoading(false);
+      setIsPending(false);
     }
   }, [tenantId]);
 

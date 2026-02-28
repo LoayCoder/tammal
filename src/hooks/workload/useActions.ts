@@ -174,7 +174,7 @@ export function useActions(initiativeId?: string) {
 
   return {
     actions: actionsQuery.data ?? [],
-    isLoading: actionsQuery.isLoading,
+    isPending: actionsQuery.isPending,
     createAction: createMutation.mutate,
     updateAction: updateMutation.mutate,
     deleteAction: deleteMutation.mutate,
