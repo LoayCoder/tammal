@@ -61,6 +61,7 @@ export function useRoles(tenantId?: string) {
       if (error) throw error;
       return data as Role[];
     },
+    staleTime: 2 * 60 * 1000,
   });
 
   const createRole = useMutation({

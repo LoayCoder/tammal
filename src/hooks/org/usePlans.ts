@@ -26,6 +26,7 @@ export function usePlansManagement() {
       if (error) throw error;
       return data;
     },
+    staleTime: 2 * 60 * 1000,
   });
 
   const createMutation = useMutation({
