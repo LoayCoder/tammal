@@ -51,10 +51,10 @@ export default function EmployeeHome() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { employee, isPending: empLoading } = useCurrentEmployee();
-  const { streak, totalPoints, isLoading: gamLoading } = useGamification(employee?.id ?? null);
-  const { moodData, avgMood7d, burnoutZone, monthlyCheckins, todayEntry, isLoading: moodLoading } =
+  const { streak, totalPoints, isPending: gamLoading } = useGamification(employee?.id ?? null);
+  const { moodData, avgMood7d, burnoutZone, monthlyCheckins, todayEntry, isPending: moodLoading } =
     useMoodHistory(employee?.id ?? null);
-  const { pendingQuestions, isLoading: sqLoading } = useScheduledQuestions(
+  const { pendingQuestions, isPending: sqLoading } = useScheduledQuestions(
     employee?.id,
     undefined
   );

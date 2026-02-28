@@ -33,11 +33,11 @@ export function usePersonalMoodDashboard() {
   const employeeId = employee?.id ?? null;
   const tenantId = employee?.tenant_id ?? null;
 
-  const { moods: moodDefs, isLoading: defsLoading } = useMoodDefinitions(tenantId);
-  const { streak, isLoading: streakLoading } = useGamification(employeeId);
+  const { moods: moodDefs, isPending: defsLoading } = useMoodDefinitions(tenantId);
+  const { streak, isPending: streakLoading } = useGamification(employeeId);
 
   // ── Extended mood history (90 days) ──
-  const { data: moodHistory = [], isLoading: histLoading } = useQuery({
+  const { data: moodHistory = [], isPending: histLoading } = useQuery({
     queryKey: ['personal-mood-history-90', employeeId],
     queryFn: async () => {
       if (!employeeId) return [];

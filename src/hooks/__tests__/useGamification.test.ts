@@ -44,7 +44,7 @@ describe('useGamification', () => {
 
   it('does not fetch when employeeId is null', () => {
     const { result } = renderHook(() => useGamification(null), { wrapper: createWrapper() });
-    expect(result.current.isLoading).toBe(false);
+    expect(result.current.isPending).toBe(false);
     expect(mockFetchGamificationData).not.toHaveBeenCalled();
   });
 
@@ -53,7 +53,7 @@ describe('useGamification', () => {
 
     const { result } = renderHook(() => useGamification('emp-123'), { wrapper: createWrapper() });
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.isPending).toBe(false));
     expect(mockFetchGamificationData).toHaveBeenCalledWith('emp-123');
   });
 
@@ -64,7 +64,7 @@ describe('useGamification', () => {
 
     const { result } = renderHook(() => useGamification('emp-1'), { wrapper: createWrapper() });
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.isPending).toBe(false));
     expect(result.current.streak).toBe(5);
     expect(result.current.totalPoints).toBe(200);
   });
@@ -82,7 +82,7 @@ describe('useGamification', () => {
 
     const { result } = renderHook(() => useGamification('emp-err'), { wrapper: createWrapper() });
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.isPending).toBe(false));
     // Defaults preserved
     expect(result.current.streak).toBe(0);
     expect(result.current.totalPoints).toBe(0);

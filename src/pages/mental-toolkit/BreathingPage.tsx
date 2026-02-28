@@ -27,7 +27,7 @@ export default function BreathingPage() {
   const isRTL = i18n.dir() === "rtl";
   const { employee } = useCurrentEmployee();
   const { moods: moodDefs } = useMoodDefinitions(employee?.tenant_id ?? null);
-  const { sessions, stats, isLoading, startSession, completeSession } = useBreathingSessions();
+  const { sessions, stats, isPending: isLoading, startSession, completeSession } = useBreathingSessions();
 
   const [pageState, setPageState] = useState<PageState>("setup");
   const [technique, setTechnique] = useState<Technique>("box");
