@@ -1,31 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// ── Mock Supabase before importing service ──
-const mockInsert = vi.fn();
-const mockSelect = vi.fn();
-const mockEq = vi.fn();
-const mockMaybeSingle = vi.fn();
-const mockInvoke = vi.fn();
+// ── Hoisted mocks (vi.mock factories are hoisted above imports) ──
+const { mockInsert, mockInvoke } = vi.hoisted(() => ({
+  mockInsert: vi.fn(),
+  mockInvoke: vi.fn(),
+}));
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    from: vi.fn((table: string) => {
-      if (table === 'mood_entries') {
-        return {
-          insert: mockInsert,
-          select: () => ({ eq: mockEq }),
-        };
-      }
-      if (table === 'points_transactions') {
-        return { insert: mockInsert };
-      }
-      return { insert: mockInsert, select: mockSelect };
-    }),
+    from: vi.fn(() => ({
+      insert: mockInsert,
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn(),
+    })),
     functions: { invoke: mockInvoke },
   },
 }));
 
-import { submitMoodEntry, fetchTodayEntry, type CheckinParams } from '../checkinService';
+import { submitMoodEntry, type CheckinParams } from '../checkinService';
 
 function makeParams(overrides: Partial<CheckinParams> = {}): CheckinParams {
   return {
@@ -43,9 +36,7 @@ function makeParams(overrides: Partial<CheckinParams> = {}): CheckinParams {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  // Default: tip generation returns a tip
   mockInvoke.mockResolvedValue({ data: { tip: 'Stay positive!' } });
-  // Default: mood insert succeeds
   mockInsert.mockResolvedValue({ error: null });
 });
 
@@ -54,7 +45,7 @@ describe('submitMoodEntry', () => {
     const result = await submitMoodEntry(makeParams({ currentStreak: 0 }));
 
     expect(result.alreadySubmitted).toBe(false);
-    expect(result.pointsEarned).toBe(10); // 10 + min(0*5, 50)
+    expect(result.pointsEarned).toBe(10);
     expect(result.newStreak).toBe(1);
     expect(result.tip).toBe('Stay positive!');
   });
@@ -62,19 +53,18 @@ describe('submitMoodEntry', () => {
   it('calculates points correctly for streak=5', async () => {
     const result = await submitMoodEntry(makeParams({ currentStreak: 5 }));
 
-    expect(result.pointsEarned).toBe(35); // 10 + min(25, 50)
+    expect(result.pointsEarned).toBe(35);
     expect(result.newStreak).toBe(6);
   });
 
   it('handles idempotency — unique violation returns alreadySubmitted', async () => {
-    // First insert (mood_entries) returns unique violation
     mockInsert.mockResolvedValueOnce({ error: { code: '23505', message: 'duplicate' } });
 
     const result = await submitMoodEntry(makeParams());
 
     expect(result.alreadySubmitted).toBe(true);
     expect(result.pointsEarned).toBe(0);
-    expect(result.newStreak).toBe(0); // stays at currentStreak
+    expect(result.newStreak).toBe(0);
   });
 
   it('throws on non-unique DB error during mood insert', async () => {
@@ -86,7 +76,6 @@ describe('submitMoodEntry', () => {
   });
 
   it('does not throw if points ledger insert fails (logs warning)', async () => {
-    // First call (mood_entries) succeeds, second (points_transactions) fails
     mockInsert
       .mockResolvedValueOnce({ error: null })
       .mockResolvedValueOnce({ error: { code: '42000', message: 'points fail' } });
@@ -97,10 +86,7 @@ describe('submitMoodEntry', () => {
 
     expect(result.alreadySubmitted).toBe(false);
     expect(result.pointsEarned).toBe(10);
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Points ledger insert failed:',
-      'points fail'
-    );
+    expect(consoleSpy).toHaveBeenCalledWith('Points ledger insert failed:', 'points fail');
 
     consoleSpy.mockRestore();
   });
