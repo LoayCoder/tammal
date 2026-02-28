@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { OrgFilterBar } from './OrgFilterBar';
+import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 import {
   useOrgDashboard,
   DashboardHeader,
@@ -44,19 +45,19 @@ export function OrgDashboard() {
         </TabsList>
 
         <TabsContent value="overview">
-          <OverviewTab stats={stats} trendData={trendData} isLoading={isLoading} />
+          <ErrorBoundary><OverviewTab stats={stats} trendData={trendData} isLoading={isLoading} /></ErrorBoundary>
         </TabsContent>
 
         <TabsContent value="deep">
-          <DeepAnalysisTab stats={stats} isLoading={isLoading} />
+          <ErrorBoundary><DeepAnalysisTab stats={stats} isLoading={isLoading} /></ErrorBoundary>
         </TabsContent>
 
         <TabsContent value="alerts">
-          <AlertsTab warnings={stats?.earlyWarnings ?? []} aiPayload={aiPayload} isLoading={isLoading} />
+          <ErrorBoundary><AlertsTab warnings={stats?.earlyWarnings ?? []} aiPayload={aiPayload} isLoading={isLoading} /></ErrorBoundary>
         </TabsContent>
 
         <TabsContent value="comparison">
-          <ComparisonTab stats={stats} distributionData={distributionData} isLoading={isLoading} />
+          <ErrorBoundary><ComparisonTab stats={stats} distributionData={distributionData} isLoading={isLoading} /></ErrorBoundary>
         </TabsContent>
       </Tabs>
     </div>

@@ -8,6 +8,7 @@ import { PlanDialog } from '@/components/plans/PlanDialog';
 import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
 import { useFormDialog } from '@/shared/dialogs/useFormDialog';
 import { useConfirmDelete } from '@/shared/dialogs/useConfirmDelete';
+import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 
 export default function PlanManagement() {
   const { t } = useTranslation();
@@ -35,6 +36,7 @@ export default function PlanManagement() {
   };
 
   return (
+    <ErrorBoundary>
     <div className="space-y-6">
       <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -78,5 +80,6 @@ export default function PlanManagement() {
         loading={isDeleting}
       />
     </div>
+    </ErrorBoundary>
   );
 }

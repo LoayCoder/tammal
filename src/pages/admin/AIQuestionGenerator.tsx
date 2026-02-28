@@ -21,9 +21,10 @@ export default function AIQuestionGenerator() {
   const { t } = useTranslation();
   const g = useAIGenerator();
 
-  return (
-    <GeneratorProvider state={g}>
-      <div className="space-y-6">
+    return (
+      <ErrorBoundary title="AI Generator Error" description="The generator encountered an error. Try refreshing.">
+      <GeneratorProvider state={g}>
+        <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{t('aiGenerator.title')}</h1>
           <p className="text-muted-foreground">{t('aiGenerator.subtitle')}</p>
@@ -132,5 +133,6 @@ export default function AIQuestionGenerator() {
         />
       </div>
     </GeneratorProvider>
+      </ErrorBoundary>
   );
 }

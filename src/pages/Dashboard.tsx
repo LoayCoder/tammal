@@ -8,6 +8,7 @@ import { DashboardOverviewTab } from '@/components/dashboard/DashboardOverviewTa
 import { OrgDashboard } from '@/components/dashboard/OrgDashboard';
 import { Building2, Heart, User } from 'lucide-react';
 import EmployeeHome from './EmployeeHome';
+import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 
 export default function Dashboard() {
   const { t } = useTranslation();
@@ -50,16 +51,22 @@ export default function Dashboard() {
       </TabsList>
 
       <TabsContent value="overview">
-        <DashboardOverviewTab isSuperAdmin={isSuperAdmin} />
+        <ErrorBoundary title={t('common.sectionError', 'Section error')} description={t('common.sectionErrorDescription', 'This section encountered an error. Other tabs still work.')}>
+          <DashboardOverviewTab isSuperAdmin={isSuperAdmin} />
+        </ErrorBoundary>
       </TabsContent>
 
       <TabsContent value="wellness">
-        <OrgDashboard />
+        <ErrorBoundary title={t('common.sectionError', 'Section error')}>
+          <OrgDashboard />
+        </ErrorBoundary>
       </TabsContent>
 
       {canSwitch && (
         <TabsContent value="personal">
-          <EmployeeHome />
+          <ErrorBoundary title={t('common.sectionError', 'Section error')}>
+            <EmployeeHome />
+          </ErrorBoundary>
         </TabsContent>
       )}
     </Tabs>
