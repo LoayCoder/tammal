@@ -34,7 +34,7 @@ interface LoginActivityDialogProps {
 
 export function LoginActivityDialog({ open, onOpenChange }: LoginActivityDialogProps) {
   const { t, i18n } = useTranslation();
-  const { loginHistory, isLoading } = useLoginHistory();
+  const { loginHistory, isPending: isLoading } = useLoginHistory();
   const isRTL = i18n.language === 'ar';
 
   const getDeviceIcon = (deviceType: string | null) => {

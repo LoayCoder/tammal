@@ -5,9 +5,9 @@ import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 export type DashboardView = 'overview' | 'wellness' | 'personal';
 
 export function useDashboardView() {
-  const { isSuperAdmin, isLoading: permLoading } = useUserPermissions();
-  const { hasRole: isTenantAdmin, isLoading: roleLoading } = useHasRole('tenant_admin');
-  const { hasEmployeeProfile, isLoading: empLoading } = useCurrentEmployee();
+  const { isSuperAdmin, isPending: permLoading } = useUserPermissions();
+  const { hasRole: isTenantAdmin, isPending: roleLoading } = useHasRole('tenant_admin');
+  const { hasEmployeeProfile, isPending: empLoading } = useCurrentEmployee();
 
   const isAdmin = isSuperAdmin || isTenantAdmin;
 
@@ -31,6 +31,6 @@ export function useDashboardView() {
     setView,
     canSwitch,
     isAdmin,
-    isLoading: permLoading || roleLoading || empLoading,
+    isPending: permLoading || roleLoading || empLoading,
   };
 }

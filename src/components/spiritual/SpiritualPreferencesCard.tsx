@@ -15,7 +15,7 @@ import { COUNTRIES, getCitiesForCountry } from '@/data/countryCities';
 export function SpiritualPreferencesCard() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
-  const { preferences, isLoading, upsertPreferences } = useSpiritualPreferences();
+  const { preferences, isPending: isLoading, upsertPreferences } = useSpiritualPreferences();
 
   const selectedCountry = preferences?.country ?? '';
   const cities = useMemo(() => getCitiesForCountry(selectedCountry), [selectedCountry]);

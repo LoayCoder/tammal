@@ -42,7 +42,7 @@ const SYSTEM_ROLE_COLORS: Record<SystemRole, string> = {
 export function UserRoleDialog({ open, onOpenChange, user, tenantId }: UserRoleDialogProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
-  const { roles, isLoading: rolesLoading } = useRoles(tenantId);
+  const { roles, isPending: rolesLoading } = useRoles(tenantId);
   const { userRoles, assignRole, removeRole, updateUserRole } = useUserRoles(user?.user_id);
   const { hasRole: isSuperAdmin } = useHasRole('super_admin');
   const { user: currentUser } = useAuth();

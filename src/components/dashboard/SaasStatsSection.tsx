@@ -21,7 +21,7 @@ const GLASS_TOOLTIP_STYLE = {
 
 export function SaasStatsSection() {
   const { t, i18n } = useTranslation();
-  const { stats, isLoading } = useDashboardStats();
+  const { stats, isPending: isLoading } = useDashboardStats();
 
   const statCards = [
     { title: t('dashboard.totalTenants'), value: isLoading ? null : stats?.totalTenants ?? 0, icon: Building2 },
