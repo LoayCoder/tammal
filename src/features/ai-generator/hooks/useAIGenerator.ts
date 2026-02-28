@@ -257,12 +257,12 @@ export function useAIGenerator(): AIGeneratorState {
     } as any);
   }, [questions, generate, resolvedType, complexity, tone, selectedModel, accuracyMode, advancedSettings, selectedFrameworkIds, activeDocIds, selectedCategoryIds, selectedSubcategoryIds, purpose, selectedMoodLevels, selectedPeriodId]);
 
-  const handleClearAll = () => {
+  const handleClearAll = useCallback(() => {
     clearAll();
     if (documents.length > 0) deleteAllDocuments();
-  };
+  }, [clearAll, documents, deleteAllDocuments]);
 
-  const handleCreatePeriod = async (params: any) => {
+  const handleCreatePeriod = useCallback(async (params: any) => {
     if (!tenantId) return;
     try {
       const newPeriod = await createPeriodAsync({
@@ -285,17 +285,17 @@ export function useAIGenerator(): AIGeneratorState {
     } catch {
       // Error already handled by mutation onError
     }
-  };
+  }, [tenantId, createPeriodAsync, purpose, user?.id]);
 
-  const handleExpirePeriod = (periodId: string) => {
+  const handleExpirePeriod = useCallback((periodId: string) => {
     expirePeriod(periodId);
     if (selectedPeriodId === periodId) setSelectedPeriodId(null);
-  };
+  }, [expirePeriod, selectedPeriodId]);
 
-  const handleDeletePeriod = (periodId: string) => {
+  const handleDeletePeriod = useCallback((periodId: string) => {
     softDeletePeriod(periodId);
     if (selectedPeriodId === periodId) setSelectedPeriodId(null);
-  };
+  }, [softDeletePeriod, selectedPeriodId]);
 
   return {
     // Config state

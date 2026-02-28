@@ -63,7 +63,6 @@ export function useTenants() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['tenants-full'] });
       queryClient.invalidateQueries({ queryKey: ['tenants'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success(t('tenants.createSuccess'));
       
       // Log audit event
@@ -103,7 +102,6 @@ export function useTenants() {
     onSuccess: ({ data, before }) => {
       queryClient.invalidateQueries({ queryKey: ['tenants-full'] });
       queryClient.invalidateQueries({ queryKey: ['tenants'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success(t('tenants.updateSuccess'));
       
       // Determine action type
@@ -148,7 +146,6 @@ export function useTenants() {
     onSuccess: ({ id, before }) => {
       queryClient.invalidateQueries({ queryKey: ['tenants-full'] });
       queryClient.invalidateQueries({ queryKey: ['tenants'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success(t('tenants.deleteSuccess'));
       
       logEvent({
