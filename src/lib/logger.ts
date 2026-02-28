@@ -12,19 +12,20 @@
  *   logger.debug('MyComponent', 'mounting with id', id);
  *   logger.warn('MyHook', 'RLS blocked query');
  *   logger.error('MyService', 'insert failed', error);
- *
- * Future: swap console calls for an external reporter by editing
- * the `reportError` function below — no other file changes needed.
  */
+import * as Sentry from '@sentry/react';
 
 function formatTag(tag: string): string {
   return `[${tag}]`;
 }
 
-/** Optional hook point for external error reporting (Sentry, LogRocket, etc.) */
-function reportError(_tag: string, _message: string, _extra?: unknown): void {
-  // No-op by default.  Replace body with SDK call when ready.
-  // e.g. Sentry.captureException(extra instanceof Error ? extra : new Error(message));
+/** Routes errors to Sentry in production; no-op otherwise */
+function reportError(tag: string, message: string, extra?: unknown): void {
+  if (import.meta.env.MODE === 'production') {
+    Sentry.captureException(
+      extra instanceof Error ? extra : new Error(`[${tag}] ${message}`)
+    );
+  }
 }
 
 export const logger = {

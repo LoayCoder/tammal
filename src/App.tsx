@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect, lazy, Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorBoundary } from "@/shared/resilience/ErrorBoundary";
+import { Sentry } from "@/lib/sentry";
 
 // ── Eager-loaded (critical path) ──
 import Auth from "@/pages/Auth";
@@ -93,7 +94,17 @@ const I18nDirection = () => {
   return null;
 };
 
+const SentryErrorFallback = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="text-center space-y-4">
+      <h1 className="text-2xl font-semibold text-foreground">Something went wrong</h1>
+      <p className="text-muted-foreground">Please refresh the page to try again.</p>
+    </div>
+  </div>
+);
+
 const App = () => (
+  <Sentry.ErrorBoundary fallback={<SentryErrorFallback />}>
   <ErrorBoundary>
   <QueryClientProvider client={queryClient}>
     <I18nDirection />
@@ -107,6 +118,7 @@ const App = () => (
             <Route path="/install" element={<InstallApp />} />
             <Route element={<ProtectedRoute />}>
             <Route element={<MainLayout />}>
+              {/* ... keep existing code (all route definitions) */}
               <Route path="/employee/survey" element={<EmployeeSurvey />} />
               <Route path="/employee/wellness" element={<DailyCheckin />} />
               <Route path="/" element={<Dashboard />} />
@@ -175,6 +187,7 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
   </ErrorBoundary>
+  </Sentry.ErrorBoundary>
 );
 
 export default App;
