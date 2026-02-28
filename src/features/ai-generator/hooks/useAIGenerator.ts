@@ -75,15 +75,15 @@ export function useAIGenerator(): AIGeneratorState {
   const [purpose, setPurpose] = useState<QuestionPurpose>('survey');
   const [questionsPerDay, setQuestionsPerDay] = useState(1);
 
-  // ─── Derived ─────────────────────────────────────────
+  // ─── Derived (memoized) ──────────────────────────────
   const isStrict = accuracyMode === 'strict';
   const hasFailures = validationReport?.overall_result === 'failed';
   const canSave = questions.length > 0 && !(isStrict && hasFailures);
   const canExport = canSave;
 
-  // ─── Helpers ─────────────────────────────────────────
-  const getActiveDocIds = () => documents.filter(d => d.is_active).map(d => d.id);
-  const getResolvedType = () => questionTypes.length === 0 ? 'mixed' : questionTypes.join(', ');
+  // ─── Helpers (memoized) ─────────────────────────────
+  const activeDocIds = useMemo(() => documents.filter(d => d.is_active).map(d => d.id), [documents]);
+  const resolvedType = useMemo(() => questionTypes.length === 0 ? 'mixed' : questionTypes.join(', '), [questionTypes]);
 
   // ─── Actions ─────────────────────────────────────────
   const handleGenerate = () => {
