@@ -17,9 +17,9 @@ import {
   BellRing,
   BellOff
 } from 'lucide-react';
-import { usePWAInstall } from '@/hooks/usePWAInstall';
-import { usePushNotifications } from '@/hooks/usePushNotifications';
-import { useBranding } from '@/hooks/useBranding';
+import { usePWAInstall } from '@/hooks/ui/usePWAInstall';
+import { usePushNotifications } from '@/hooks/ui/usePushNotifications';
+import { useBranding } from '@/hooks/branding/useBranding';
 import { ThemeLogo } from '@/components/branding/ThemeLogo';
 
 export default function InstallApp() {

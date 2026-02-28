@@ -12,13 +12,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus, Search, Users, Shield, UserPlus, Building2, Upload, Download, FolderOpen, Mail } from 'lucide-react';
-import { useUnifiedUsers } from '@/hooks/useUnifiedUsers';
-import { useUsers, type UserWithRoles } from '@/hooks/useUsers';
-import { useRoles, type Role, type CreateRoleInput, type UpdateRoleInput } from '@/hooks/useRoles';
-import { useProfile } from '@/hooks/useProfile';
-import { useTenants } from '@/hooks/useTenants';
-import { useTenantInvitations } from '@/hooks/useTenantInvitations';
-import { useHasRole } from '@/hooks/useUserPermissions';
+import { useUnifiedUsers } from '@/hooks/org/useUnifiedUsers';
+import { useUsers, type UserWithRoles } from '@/hooks/org/useUsers';
+import { useRoles, type Role, type CreateRoleInput, type UpdateRoleInput } from '@/hooks/auth/useRoles';
+import { useProfile } from '@/hooks/auth/useProfile';
+import { useTenants } from '@/hooks/org/useTenants';
+import { useTenantInvitations } from '@/hooks/org/useTenantInvitations';
+import { useHasRole } from '@/hooks/auth/useUserPermissions';
 import { EmployeeTable } from '@/components/employees/EmployeeTable';
 import { EmployeeSheet } from '@/components/employees/EmployeeSheet';
 import { EmployeeImport } from '@/components/employees/EmployeeImport';
@@ -32,7 +32,7 @@ import { RoleDialog } from '@/components/roles/RoleDialog';
 import { PermissionMatrix } from '@/components/roles/PermissionMatrix';
 import { InvitationManagement } from '@/components/tenants/InvitationManagement';
 import { Skeleton } from '@/components/ui/skeleton';
-import { type CreateEmployeeInput, type Employee, type EmployeeStatus } from '@/hooks/useEmployees';
+import { type CreateEmployeeInput, type Employee, type EmployeeStatus } from '@/hooks/org/useEmployees';
 import { type AccountStatus } from '@/components/employees/AccountStatusBadge';
 import { toast } from 'sonner';
 

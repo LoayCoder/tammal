@@ -7,10 +7,10 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { CheckCircle2, Loader2, Save, Send, Clock, AlertCircle, Lock, PartyPopper, Sparkles } from 'lucide-react';
-import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
-import { useScheduledQuestions, useAnsweredSurveyCheck } from '@/hooks/useScheduledQuestions';
-import { useEmployeeResponses, useDraftResponses } from '@/hooks/useEmployeeResponses';
-import { useProfile } from '@/hooks/useProfile';
+import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { useScheduledQuestions, useAnsweredSurveyCheck } from '@/hooks/questions/useScheduledQuestions';
+import { useEmployeeResponses, useDraftResponses } from '@/hooks/wellness/useEmployeeResponses';
+import { useProfile } from '@/hooks/auth/useProfile';
 import { AnswerInput } from '@/components/survey/AnswerInput';
 
 export default function EmployeeSurvey() {
