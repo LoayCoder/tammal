@@ -26,7 +26,7 @@ export default function ObjectivesManagement() {
   const navigate = useNavigate();
   const { tenantId } = useTenantId();
   const {
-    objectives, isLoading, createObjective, updateObjective, deleteObjective,
+    objectives, isPending, createObjective, updateObjective, deleteObjective,
     isCreating, isUpdating, isDeleting,
   } = useObjectives();
 
@@ -62,7 +62,7 @@ export default function ObjectivesManagement() {
         <Button onClick={handleCreate}><Plus className="me-2 h-4 w-4" />{t('workload.objectives.add')}</Button>
       </div>
 
-      {isLoading ? (
+      {isPending ? (
         <div className="grid gap-4 md:grid-cols-2">{[1,2,3,4].map(i => <Card key={i} className="glass-card border-0 animate-pulse h-40" />)}</div>
       ) : objectives.length === 0 ? (
         <Card className="glass-card border-0 rounded-xl">
