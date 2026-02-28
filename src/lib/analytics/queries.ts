@@ -101,7 +101,7 @@ export async function fetchMoodEntries(
     return batchedQuery<MoodEntry>(
       () => supabase.from('mood_entries')
         .select('mood_score, mood_level, entry_date, employee_id, support_actions, streak_count, created_at')
-        .gte('entry_date', startDate).lte('entry_date', endDate).limit(10000),
+        .gte('entry_date', startDate).lte('entry_date', endDate).limit(10000) as any,
       'employee_id', filteredIds,
     );
   }
