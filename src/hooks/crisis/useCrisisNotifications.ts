@@ -2,18 +2,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useEffect } from 'react';
+import type { TableRow, TableInsert, TableUpdate } from '@/lib/supabase-types';
 
-export interface CrisisNotification {
-  id: string;
-  tenant_id: string;
-  user_id: string;
-  case_id: string | null;
-  type: string;
-  title: string;
-  body: string | null;
-  is_read: boolean;
-  created_at: string;
-}
+export type CrisisNotification = TableRow<'mh_crisis_notifications'>;
 
 export function useCrisisNotifications() {
   const { user } = useAuth();
@@ -29,7 +20,7 @@ export function useCrisisNotifications() {
         .order('created_at', { ascending: false })
         .limit(50);
       if (error) throw error;
-      return (data || []) as CrisisNotification[];
+      return data ?? [];
     },
     enabled: !!user?.id,
   });
@@ -38,9 +29,10 @@ export function useCrisisNotifications() {
 
   const markAsRead = useMutation({
     mutationFn: async (id: string) => {
+      const update: TableUpdate<'mh_crisis_notifications'> = { is_read: true };
       const { error } = await supabase
         .from('mh_crisis_notifications')
-        .update({ is_read: true } as any)
+        .update(update)
         .eq('id', id);
       if (error) throw error;
     },
@@ -49,9 +41,10 @@ export function useCrisisNotifications() {
 
   const markAllAsRead = useMutation({
     mutationFn: async () => {
+      const update: TableUpdate<'mh_crisis_notifications'> = { is_read: true };
       const { error } = await supabase
         .from('mh_crisis_notifications')
-        .update({ is_read: true } as any)
+        .update(update)
         .eq('user_id', user!.id)
         .eq('is_read', false);
       if (error) throw error;
@@ -96,12 +89,13 @@ export async function createCrisisNotification(data: {
   title: string;
   body?: string;
 }) {
-  await supabase.from('mh_crisis_notifications').insert({
+  const insert: TableInsert<'mh_crisis_notifications'> = {
     tenant_id: data.tenant_id,
     user_id: data.user_id,
     case_id: data.case_id || null,
     type: data.type,
     title: data.title,
     body: data.body || null,
-  } as any);
+  };
+  await supabase.from('mh_crisis_notifications').insert(insert);
 }

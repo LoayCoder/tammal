@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { createCrisisNotification } from './useCrisisNotifications';
+import type { TableRow, TableInsert, TableUpdate } from '@/lib/supabase-types';
+import type { Json } from '@/integrations/supabase/types';
 
 // ─── Types ───────────────────────────────────────────────────────────
 export interface FirstAider {
@@ -52,27 +54,30 @@ export interface CrisisCase {
   first_response_at: string | null;
   resolved_at: string | null;
   closed_at: string | null;
-  first_aider?: FirstAider;
+  matched_at: string | null;
+  urgency_level: number | null;
+  preferred_contact_method: string | null;
+  scheduled_session_id: string | null;
 }
 
 export interface CrisisMessage {
   id: string;
-  tenant_id: string;
   case_id: string;
+  tenant_id: string;
   sender_user_id: string;
   message: string;
-  attachments: any;
   created_at: string;
+  read_at: string | null;
 }
 
 export interface EmergencyContact {
   id: string;
   tenant_id: string;
   title: string;
-  phone: string | null;
   description: string | null;
-  available_24_7: boolean;
+  phone: string | null;
   country: string;
+  available_24_7: boolean;
   is_active: boolean;
   sort_order: number;
   created_at: string;
@@ -80,58 +85,32 @@ export interface EmergencyContact {
   deleted_at: string | null;
 }
 
-// ─── Risk mapping ────────────────────────────────────────────────────
-export function mapIntentToRisk(intent: string): string {
-  if (intent === 'self_harm' || intent === 'unsafe') return 'high';
-  if (intent === 'talk') return 'low';
-  return 'moderate'; // overwhelmed, anxiety, work_stress, other
+// ─── Helpers ─────────────────────────────────────────────────────────
+function mapIntentToRisk(intent: string): string {
+  const high = ['self_harm', 'unsafe'];
+  const low = ['talk'];
+  if (high.includes(intent)) return 'high';
+  if (low.includes(intent)) return 'low';
+  return 'moderate';
 }
 
-// ─── Online status computation ───────────────────────────────────────
-const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
-
-export function computeFirstAiderStatus(schedule: FirstAiderSchedule | null) {
-  if (!schedule || !schedule.is_enabled || schedule.temp_unavailable) {
-    return { status: 'offline' as const, nextAvailableAt: null, slaMinutes: schedule?.response_sla_minutes ?? 60 };
-  }
+function computeFirstAiderStatus(schedule: FirstAiderSchedule | null): { statusLabel: string; isAvailable: boolean } {
+  if (!schedule || !schedule.is_enabled) return { statusLabel: 'offline', isAvailable: false };
+  if (schedule.temp_unavailable) return { statusLabel: 'temporarily_unavailable', isAvailable: false };
 
   const now = new Date();
-  // Simple timezone offset: we use the browser's time for simplicity
-  const dayIdx = now.getDay(); // 0=sun
-  const dayKey = DAY_KEYS[dayIdx];
-  const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const dayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
+  const rules = schedule.weekly_rules?.[dayName] || [];
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
-  const todaySlots = (schedule.weekly_rules?.[dayKey] || []) as { from: string; to: string }[];
-  const isOnlineNow = todaySlots.some(slot => currentTime >= slot.from && currentTime < slot.to);
-
-  if (isOnlineNow) {
-    return { status: 'online' as const, nextAvailableAt: null, slaMinutes: schedule.response_sla_minutes };
-  }
-
-  // Find next available slot
-  for (let offset = 0; offset < 7; offset++) {
-    const checkDayIdx = (dayIdx + offset) % 7;
-    const checkKey = DAY_KEYS[checkDayIdx];
-    const slots = (schedule.weekly_rules?.[checkKey] || []) as { from: string; to: string }[];
-    for (const slot of slots) {
-      if (offset === 0 && slot.from > currentTime) {
-        // Later today
-        const nextDate = new Date(now);
-        const [h, m] = slot.from.split(':').map(Number);
-        nextDate.setHours(h, m, 0, 0);
-        return { status: 'offline' as const, nextAvailableAt: nextDate.toISOString(), slaMinutes: schedule.response_sla_minutes };
-      }
-      if (offset > 0 && slots.length > 0) {
-        const nextDate = new Date(now);
-        nextDate.setDate(nextDate.getDate() + offset);
-        const [h, m] = slots[0].from.split(':').map(Number);
-        nextDate.setHours(h, m, 0, 0);
-        return { status: 'offline' as const, nextAvailableAt: nextDate.toISOString(), slaMinutes: schedule.response_sla_minutes };
-      }
+  for (const slot of rules) {
+    const [fh, fm] = slot.from.split(':').map(Number);
+    const [th, tm] = slot.to.split(':').map(Number);
+    if (nowMinutes >= fh * 60 + fm && nowMinutes <= th * 60 + tm) {
+      return { statusLabel: 'available', isAvailable: true };
     }
   }
-
-  return { status: 'offline' as const, nextAvailableAt: null, slaMinutes: schedule.response_sla_minutes };
+  return { statusLabel: 'outside_hours', isAvailable: false };
 }
 
 // ─── Hook: First Aiders ──────────────────────────────────────────────
@@ -142,11 +121,7 @@ export function useFirstAiders(tenantId?: string) {
   const { data: firstAiders = [], isLoading } = useQuery({
     queryKey: ['mh-first-aiders', tenantId],
     queryFn: async () => {
-      let query = supabase
-        .from('mh_first_aiders')
-        .select('*')
-        .is('deleted_at', null)
-        .order('display_name');
+      let query = supabase.from('mh_first_aiders').select('*').is('deleted_at', null).order('display_name');
       if (tenantId) query = query.eq('tenant_id', tenantId);
       const { data, error } = await query;
       if (error) throw error;
@@ -175,7 +150,8 @@ export function useFirstAiders(tenantId?: string) {
 
   const createFirstAider = useMutation({
     mutationFn: async (data: Partial<FirstAider>) => {
-      const { data: result, error } = await supabase.from('mh_first_aiders').insert(data as any).select().single();
+      const insert = data as TableInsert<'mh_first_aiders'>;
+      const { data: result, error } = await supabase.from('mh_first_aiders').insert(insert).select().single();
       if (error) throw error;
       return result;
     },
@@ -184,7 +160,8 @@ export function useFirstAiders(tenantId?: string) {
 
   const updateFirstAider = useMutation({
     mutationFn: async ({ id, ...data }: Partial<FirstAider> & { id: string }) => {
-      const { error } = await supabase.from('mh_first_aiders').update(data as any).eq('id', id);
+      const update = data as TableUpdate<'mh_first_aiders'>;
+      const { error } = await supabase.from('mh_first_aiders').update(update).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mh-first-aiders'] }),
@@ -192,7 +169,8 @@ export function useFirstAiders(tenantId?: string) {
 
   const deleteFirstAider = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('mh_first_aiders').update({ deleted_at: new Date().toISOString() } as any).eq('id', id);
+      const update: TableUpdate<'mh_first_aiders'> = { deleted_at: new Date().toISOString() };
+      const { error } = await supabase.from('mh_first_aiders').update(update).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mh-first-aiders'] }),
@@ -228,10 +206,12 @@ export function useFirstAiderSchedule(firstAiderId?: string) {
         .maybeSingle();
 
       if (existing) {
-        const { error } = await supabase.from('mh_first_aider_schedule').update(data as any).eq('id', existing.id);
+        const update = data as TableUpdate<'mh_first_aider_schedule'>;
+        const { error } = await supabase.from('mh_first_aider_schedule').update(update).eq('id', existing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('mh_first_aider_schedule').insert(data as any);
+        const insert = data as TableInsert<'mh_first_aider_schedule'>;
+        const { error } = await supabase.from('mh_first_aider_schedule').insert(insert);
         if (error) throw error;
       }
     },
@@ -263,7 +243,8 @@ export function useEmergencyContacts(tenantId?: string) {
 
   const createContact = useMutation({
     mutationFn: async (data: Partial<EmergencyContact>) => {
-      const { error } = await supabase.from('mh_emergency_contacts').insert(data as any);
+      const insert = data as TableInsert<'mh_emergency_contacts'>;
+      const { error } = await supabase.from('mh_emergency_contacts').insert(insert);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mh-emergency-contacts'] }),
@@ -271,7 +252,8 @@ export function useEmergencyContacts(tenantId?: string) {
 
   const updateContact = useMutation({
     mutationFn: async ({ id, ...data }: Partial<EmergencyContact> & { id: string }) => {
-      const { error } = await supabase.from('mh_emergency_contacts').update(data as any).eq('id', id);
+      const update = data as TableUpdate<'mh_emergency_contacts'>;
+      const { error } = await supabase.from('mh_emergency_contacts').update(update).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mh-emergency-contacts'] }),
@@ -279,7 +261,8 @@ export function useEmergencyContacts(tenantId?: string) {
 
   const deleteContact = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('mh_emergency_contacts').update({ deleted_at: new Date().toISOString() } as any).eq('id', id);
+      const update: TableUpdate<'mh_emergency_contacts'> = { deleted_at: new Date().toISOString() };
+      const { error } = await supabase.from('mh_emergency_contacts').update(update).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mh-emergency-contacts'] }),
@@ -311,33 +294,35 @@ export function useCrisisCases(options?: { role?: 'requester' | 'first_aider' | 
     mutationFn: async (data: { tenant_id: string; intent: string; anonymity_mode: string; summary?: string; urgency_level?: number; preferred_contact_method?: string }) => {
       const risk_level = mapIntentToRisk(data.intent);
       const status = risk_level === 'high' ? 'escalated' : 'pending_assignment';
-      
+
+      const insert: TableInsert<'mh_crisis_cases'> = {
+        tenant_id: data.tenant_id,
+        requester_user_id: user!.id,
+        intent: data.intent,
+        risk_level,
+        status,
+        anonymity_mode: data.anonymity_mode,
+        summary: data.summary || null,
+        urgency_level: data.urgency_level || 3,
+        preferred_contact_method: data.preferred_contact_method || 'chat',
+      };
       const { data: result, error } = await supabase
         .from('mh_crisis_cases')
-        .insert({
-          tenant_id: data.tenant_id,
-          requester_user_id: user!.id,
-          intent: data.intent,
-          risk_level,
-          status,
-          anonymity_mode: data.anonymity_mode,
-          summary: data.summary || null,
-          urgency_level: data.urgency_level || 3,
-          preferred_contact_method: data.preferred_contact_method || 'chat',
-        } as any)
+        .insert(insert)
         .select()
         .single();
       if (error) throw error;
 
       // If high risk, create escalation record
       if (risk_level === 'high') {
-        await supabase.from('mh_crisis_escalations').insert({
+        const escInsert: TableInsert<'mh_crisis_escalations'> = {
           tenant_id: data.tenant_id,
           case_id: result.id,
           escalation_type: 'emergency_contacts_shown',
           triggered_by: 'system',
           notes: `High-risk intent: ${data.intent}`,
-        } as any);
+        };
+        await supabase.from('mh_crisis_escalations').insert(escInsert);
       } else {
         // Auto-assign to best available first aider
         const { data: assignedId } = await supabase.rpc('auto_assign_crisis_case', {
@@ -370,9 +355,16 @@ export function useCrisisCases(options?: { role?: 'requester' | 'first_aider' | 
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mh-crisis-cases'] }),
   });
 
+  interface CaseStatusUpdate {
+    id: string;
+    status: string;
+    assigned_first_aider_id?: string | null;
+    [key: string]: unknown;
+  }
+
   const updateCaseStatus = useMutation({
-    mutationFn: async ({ id, status, ...extra }: { id: string; status: string; [key: string]: any }) => {
-      const updateData: any = { status, ...extra };
+    mutationFn: async ({ id, status, ...extra }: CaseStatusUpdate) => {
+      const updateData: TableUpdate<'mh_crisis_cases'> = { status, ...extra };
       if (status === 'active') updateData.accepted_at = new Date().toISOString();
       if (status === 'resolved') updateData.resolved_at = new Date().toISOString();
       if (status === 'closed') updateData.closed_at = new Date().toISOString();
@@ -386,7 +378,6 @@ export function useCrisisCases(options?: { role?: 'requester' | 'first_aider' | 
 
       // Send notification based on status change
       if (status === 'active') {
-        // Notify requester that case was accepted
         await createCrisisNotification({
           tenant_id: caseData.tenant_id,
           user_id: caseData.requester_user_id,
@@ -411,16 +402,18 @@ export function useCrisisCases(options?: { role?: 'requester' | 'first_aider' | 
           p_tenant_id: caseData.tenant_id,
         });
         // Increment reroute count
-        await supabase.from('mh_crisis_cases').update({ reroute_count: (caseData.reroute_count || 0) + 1 } as any).eq('id', id);
+        const rerouteUpdate: TableUpdate<'mh_crisis_cases'> = { reroute_count: (caseData.reroute_count || 0) + 1 };
+        await supabase.from('mh_crisis_cases').update(rerouteUpdate).eq('id', id);
 
         // Log decline as escalation
-        await supabase.from('mh_crisis_escalations').insert({
+        const escInsert: TableInsert<'mh_crisis_escalations'> = {
           tenant_id: caseData.tenant_id,
           case_id: id,
           escalation_type: 'declined',
           triggered_by: 'first_aider',
           notes: 'First aider declined the case',
-        } as any);
+        };
+        await supabase.from('mh_crisis_escalations').insert(escInsert);
 
         // Notify new aider
         if (newAiderId) {
@@ -461,17 +454,18 @@ export function useCrisisMessages(caseId?: string) {
       return (data || []) as CrisisMessage[];
     },
     enabled: !!caseId && !!user?.id,
-    refetchInterval: 5000, // Poll every 5 seconds for new messages
+    refetchInterval: 5000,
   });
 
   const sendMessage = useMutation({
     mutationFn: async (data: { case_id: string; tenant_id: string; message: string }) => {
-      const { error } = await supabase.from('mh_crisis_messages').insert({
+      const insert: TableInsert<'mh_crisis_messages'> = {
         case_id: data.case_id,
         tenant_id: data.tenant_id,
         sender_user_id: user!.id,
         message: data.message,
-      } as any);
+      };
+      const { error } = await supabase.from('mh_crisis_messages').insert(insert);
       if (error) throw error;
 
       // Notify the other party
@@ -500,8 +494,9 @@ export function useCrisisMessages(caseId?: string) {
 
         // Update first_response_at if first aider sends first message
         if (!isRequester) {
+          const update: TableUpdate<'mh_crisis_cases'> = { first_response_at: new Date().toISOString() };
           await supabase.from('mh_crisis_cases')
-            .update({ first_response_at: new Date().toISOString() } as any)
+            .update(update)
             .eq('id', data.case_id)
             .is('first_response_at', null);
         }
@@ -509,9 +504,6 @@ export function useCrisisMessages(caseId?: string) {
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mh-crisis-messages', caseId] }),
   });
-
-  // Subscribe to realtime updates
-  // The polling above handles this for now
 
   return { messages, isLoading, sendMessage };
 }

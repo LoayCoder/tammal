@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import type { TableInsert, TableUpdate } from '@/lib/supabase-types';
 
 export interface GenerationPeriod {
   id: string;
@@ -34,7 +35,7 @@ export function useGenerationPeriods(tenantId: string | null) {
         .is('deleted_at', null)
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return (data || []) as unknown as GenerationPeriod[];
+      return (data ?? []) as unknown as GenerationPeriod[];
     },
     enabled: !!tenantId,
   });
@@ -62,19 +63,20 @@ export function useGenerationPeriods(tenantId: string | null) {
         throw new Error(t('aiGenerator.periodAlreadyActive'));
       }
 
+      const insert: TableInsert<'generation_periods'> = {
+        tenant_id: params.tenantId,
+        period_type: params.periodType,
+        start_date: params.startDate,
+        end_date: params.endDate,
+        locked_category_ids: params.lockedCategoryIds,
+        locked_subcategory_ids: params.lockedSubcategoryIds,
+        purpose: params.purpose,
+        created_by: params.createdBy || null,
+        status: 'active',
+      };
       const { data, error } = await supabase
         .from('generation_periods')
-        .insert({
-          tenant_id: params.tenantId,
-          period_type: params.periodType,
-          start_date: params.startDate,
-          end_date: params.endDate,
-          locked_category_ids: params.lockedCategoryIds,
-          locked_subcategory_ids: params.lockedSubcategoryIds,
-          purpose: params.purpose,
-          created_by: params.createdBy || null,
-          status: 'active',
-        } as any)
+        .insert(insert)
         .select()
         .single();
       if (error) throw error;
@@ -91,9 +93,10 @@ export function useGenerationPeriods(tenantId: string | null) {
 
   const expirePeriod = useMutation({
     mutationFn: async (periodId: string) => {
+      const statusUpdate: TableUpdate<'generation_periods'> = { status: 'expired' };
       const { error } = await supabase
         .from('generation_periods')
-        .update({ status: 'expired' } as any)
+        .update(statusUpdate)
         .eq('id', periodId);
       if (error) throw error;
 
@@ -104,9 +107,10 @@ export function useGenerationPeriods(tenantId: string | null) {
         .eq('generation_period_id', periodId);
 
       // Cascade: deactivate linked question_generation_batches
+      const batchUpdate: TableUpdate<'question_generation_batches'> = { status: 'inactive' };
       await supabase
         .from('question_generation_batches')
-        .update({ status: 'inactive' } as any)
+        .update(batchUpdate)
         .eq('generation_period_id', periodId);
 
       // Cascade: deactivate wellness_questions linked to batches under this period
@@ -116,7 +120,7 @@ export function useGenerationPeriods(tenantId: string | null) {
         .eq('generation_period_id', periodId);
 
       if (batches && batches.length > 0) {
-        const batchIds = batches.map((b: any) => b.id);
+        const batchIds = batches.map(b => b.id);
         await supabase
           .from('wellness_questions')
           .update({ status: 'inactive' })
@@ -124,9 +128,10 @@ export function useGenerationPeriods(tenantId: string | null) {
       }
 
       // Cascade: deactivate generated_questions linked to this period
+      const gqUpdate: TableUpdate<'generated_questions'> = { validation_status: 'inactive' };
       await supabase
         .from('generated_questions')
-        .update({ validation_status: 'inactive' } as any)
+        .update(gqUpdate)
         .eq('generation_period_id', periodId);
 
       // Cascade: pause linked question_schedules
@@ -148,9 +153,10 @@ export function useGenerationPeriods(tenantId: string | null) {
 
   const softDeletePeriod = useMutation({
     mutationFn: async (periodId: string) => {
+      const update: TableUpdate<'generation_periods'> = { deleted_at: new Date().toISOString() };
       const { error } = await supabase
         .from('generation_periods')
-        .update({ deleted_at: new Date().toISOString() } as any)
+        .update(update)
         .eq('id', periodId);
       if (error) throw error;
     },
