@@ -8,9 +8,9 @@ import { EmployeeTable } from "@/components/employees/EmployeeTable";
 import { EmployeeSheet } from "@/components/employees/EmployeeSheet";
 import { EmployeeImport } from "@/components/employees/EmployeeImport";
 import { EmployeeInviteDialog } from "@/components/employees/EmployeeInviteDialog";
-import { useEmployees, CreateEmployeeInput, Employee, EmployeeStatus } from "@/hooks/useEmployees";
-import { useTenants } from "@/hooks/useTenants";
-import { useTenantInvitations } from "@/hooks/useTenantInvitations";
+import { useEmployees, CreateEmployeeInput, Employee, EmployeeStatus } from "@/hooks/org/useEmployees";
+import { useTenants } from "@/hooks/org/useTenants";
+import { useTenantInvitations } from "@/hooks/org/useTenantInvitations";
 import { Plus, Search, Upload, Download, Users } from "lucide-react";
 import { toast } from "sonner";
 

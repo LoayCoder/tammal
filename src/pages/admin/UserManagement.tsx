@@ -12,11 +12,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus, Search, Users, Shield, UserPlus, Building2 } from 'lucide-react';
-import { useUsers, type UserWithRoles } from '@/hooks/useUsers';
-import { useRoles, type Role, type CreateRoleInput, type UpdateRoleInput } from '@/hooks/useRoles';
-import { useProfile } from '@/hooks/useProfile';
-import { useTenants } from '@/hooks/useTenants';
-import { useHasRole } from '@/hooks/useUserPermissions';
+import { useUsers, type UserWithRoles } from '@/hooks/org/useUsers';
+import { useRoles, type Role, type CreateRoleInput, type UpdateRoleInput } from '@/hooks/auth/useRoles';
+import { useProfile } from '@/hooks/auth/useProfile';
+import { useTenants } from '@/hooks/org/useTenants';
+import { useHasRole } from '@/hooks/auth/useUserPermissions';
 import { UserTable } from '@/components/users/UserTable';
 import { UserRoleDialog } from '@/components/users/UserRoleDialog';
 import { UserEditDialog } from '@/components/users/UserEditDialog';

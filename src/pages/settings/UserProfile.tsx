@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '@/hooks/useAuth';
-import { useUserPermissions } from '@/hooks/useUserPermissions';
-import { useUserRoles } from '@/hooks/useUsers';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
+import { useUserRoles } from '@/hooks/org/useUsers';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

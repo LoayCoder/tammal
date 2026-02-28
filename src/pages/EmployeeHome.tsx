@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useCurrentEmployee } from '@/hooks/useCurrentEmployee';
-import { useGamification } from '@/hooks/useGamification';
-import { useMoodHistory } from '@/hooks/useMoodHistory';
-import { useScheduledQuestions } from '@/hooks/useScheduledQuestions';
+import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { useGamification } from '@/hooks/wellness/useGamification';
+import { useMoodHistory } from '@/hooks/wellness/useMoodHistory';
+import { useScheduledQuestions } from '@/hooks/questions/useScheduledQuestions';
 import { InlineDailyCheckin } from '@/components/checkin/InlineDailyCheckin';
 import {
   Flame,

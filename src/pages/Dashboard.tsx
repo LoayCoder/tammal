@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useDashboardView, type DashboardView } from '@/hooks/useDashboardView';
-import { useUserPermissions } from '@/hooks/useUserPermissions';
+import { useDashboardView, type DashboardView } from '@/hooks/analytics/useDashboardView';
+import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
 import { DashboardOverviewTab } from '@/components/dashboard/DashboardOverviewTab';
 import { OrgDashboard } from '@/components/dashboard/OrgDashboard';
 import { Building2, Heart, User } from 'lucide-react';

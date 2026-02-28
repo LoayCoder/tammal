@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { useTenantUsage } from '@/hooks/useTenantUsage';
-import { useProfile } from '@/hooks/useProfile';
-import { useSubscriptions } from '@/hooks/useSubscriptions';
+import { useTenantUsage } from '@/hooks/org/useTenantUsage';
+import { useProfile } from '@/hooks/auth/useProfile';
+import { useSubscriptions } from '@/hooks/org/useSubscriptions';
 import { Users, HardDrive, Activity, TrendingUp, TrendingDown, CreditCard } from 'lucide-react';
 
 export default function UsageBilling() {
