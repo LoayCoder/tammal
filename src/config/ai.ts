@@ -51,6 +51,19 @@ export const FEATURE_MODEL_MAP: Record<string, { gemini: string; openai: string 
 /** Timeout for a single AI gateway call (ms) */
 export const AI_TIMEOUT_MS = 120_000;
 
+// ── Token / context budgeting ───────────────────────────────────
+/** Hard cap on total system prompt characters (≈50k tokens) */
+export const MAX_CONTEXT_CHARS = 200_000;
+
+/** Max characters for a single custom user directive */
+export const MAX_CUSTOM_PROMPT_CHARS = 2_000;
+
+/** Max characters for all document context combined */
+export const MAX_DOCUMENT_CONTEXT_CHARS = 32_000;
+
+/** Max characters for all framework context combined */
+export const MAX_FRAMEWORK_CONTEXT_CHARS = 32_000;
+
 /** Maximum retries (including the one fallback attempt) */
 export const AI_MAX_RETRIES = 1;
 
