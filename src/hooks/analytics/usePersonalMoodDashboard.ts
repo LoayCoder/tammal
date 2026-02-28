@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { logger } from '@/lib/logger';
 import { supabase } from '@/integrations/supabase/client';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useMoodDefinitions } from '@/hooks/wellness/useMoodDefinitions';
