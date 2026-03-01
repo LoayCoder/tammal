@@ -94,7 +94,9 @@
     "teamWorkload": "Team Workload",
     "taskConnectors": "Task Connectors",
     "recognitionAwards": "Recognition & Awards",
-    "recognition": "Recognition"
+    "recognition": "Recognition",
+    "aiPlatform": "AI Platform",
+    "aiGovernance": "AI Governance"
   },
   "checkinMonitor": {
     "title": "Check-in Monitor",
