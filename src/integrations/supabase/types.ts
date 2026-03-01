@@ -257,6 +257,56 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_pending_requests: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          feature: string
+          id: string
+          request_payload: Json
+          request_payload_hash: string
+          risk_reasons: Json
+          status: string
+          tenant_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          feature: string
+          id?: string
+          request_payload?: Json
+          request_payload_hash: string
+          risk_reasons?: Json
+          status?: string
+          tenant_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          feature?: string
+          id?: string
+          request_payload?: Json
+          request_payload_hash?: string
+          risk_reasons?: Json
+          status?: string
+          tenant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_pending_requests_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_plan_limits: {
         Row: {
           created_at: string
