@@ -255,10 +255,9 @@ describe('modeSeparation', () => {
     expect(result.success).toBe(true);
   });
 
-  it('survey prompt def has distinct id from wellness', () => {
-    // Import the defs
-    const { surveyPromptDef } = require('@/ai/prompts/questionGenerator.survey');
-    const { wellnessPromptDef } = require('@/ai/prompts/questionGenerator.wellness');
+  it('survey prompt def has distinct id from wellness', async () => {
+    const { surveyPromptDef } = await import('@/ai/prompts/questionGenerator.survey');
+    const { wellnessPromptDef } = await import('@/ai/prompts/questionGenerator.wellness');
     expect(surveyPromptDef.id).not.toBe(wellnessPromptDef.id);
     expect(surveyPromptDef.feature).toBe(wellnessPromptDef.feature); // same feature
   });
