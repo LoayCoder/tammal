@@ -70,3 +70,11 @@ export class CostLimitExceededError extends DomainError {
     this.name = 'CostLimitExceededError';
   }
 }
+
+/** Thrown when a user or tenant exceeds the AI request rate limit. */
+export class RateLimitExceededError extends DomainError {
+  constructor(scope: 'user' | 'tenant', windowKey: string) {
+    super(`Rate limit exceeded (${scope}) for window ${windowKey}`);
+    this.name = 'RateLimitExceededError';
+  }
+}

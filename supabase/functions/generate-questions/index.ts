@@ -14,6 +14,11 @@ import {
   CostLimitExceededError,
   type CostCheckResult,
 } from "./costGuard.ts";
+import {
+  checkRateLimit,
+  RateLimitExceededError,
+  type RateLimitResult,
+} from "./rateLimiter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -688,12 +693,41 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
     const tools = [toolDefinition];
     const toolChoice = { type: "function", function: { name: "return_questions" } };
 
+    // ── Early auth resolution (needed for rate limit + cost guard) ──
+    const token = authHeader.replace("Bearer ", "");
+    const { data: authUserData } = await supabase.auth.getUser(token);
+    const resolvedTenantId = authUserData?.user
+      ? await supabase.rpc("get_user_tenant_id", { _user_id: authUserData.user.id }).then(r => r.data)
+      : null;
+
+    // ── Rate Limit Guard ──
+    let rateLimitCheck: RateLimitResult | null = null;
+    if (resolvedTenantId && authUserData?.user) {
+      try {
+        rateLimitCheck = await checkRateLimit({
+          tenantId: resolvedTenantId,
+          userId: authUserData.user.id,
+          feature: 'question-generator',
+          supabase,
+        });
+      } catch (rlErr) {
+        if (rlErr instanceof RateLimitExceededError) {
+          console.warn(`RateLimit: blocked scope=${rlErr.scope} window=${rlErr.windowKey} tenant=${resolvedTenantId.substring(0, 8)}…`);
+          return new Response(JSON.stringify({ error: rlErr.message }), {
+            status: 429,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        console.warn("RateLimit: check failed (graceful degradation)", rlErr instanceof Error ? rlErr.message : "unknown");
+      }
+    }
+
     // ── Provider-agnostic call with orchestrated fallback ──
     const orchCtx: OrchestratorContext = {
       feature: 'question-generator',
       purpose,
       strictMode: accuracyMode === 'strict',
-      tenant_id: null, // resolved later
+      tenant_id: resolvedTenantId,
       retry_count: 0,
     };
 
@@ -907,11 +941,7 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
     };
 
     // ========== SEMANTIC DEDUP ==========
-    const token = authHeader.replace("Bearer ", "");
-    const { data: authUserData } = await supabase.auth.getUser(token);
-    const resolvedTenantId = authUserData?.user
-      ? await supabase.rpc("get_user_tenant_id", { _user_id: authUserData.user.id }).then(r => r.data)
-      : null;
+    // (auth resolved earlier for rate limit guard)
 
     // ========== COST GUARD v2 ==========
     let costCheck: CostCheckResult | null = null;
@@ -1252,6 +1282,11 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           ai_costguard_blocked: costCheck?.blocked || false,
           ai_limits_source: costCheck?.limits_source ?? 'none',
           ai_plan_key: costCheck?.plan_key ?? null,
+          // Rate limit telemetry (no PII)
+          ai_rl_user_exceeded: rateLimitCheck?.userExceeded || false,
+          ai_rl_tenant_exceeded: rateLimitCheck?.tenantExceeded || false,
+          ai_rl_window_key: rateLimitCheck?.windowKey ?? null,
+          ai_feature: 'question-generator',
         },
         success: true,
       });
