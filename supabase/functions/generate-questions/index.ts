@@ -208,6 +208,8 @@ interface GenerateRequest {
   periodId?: string;
   /** Purpose-based mode: 'survey' or 'wellness' */
   purpose?: "survey" | "wellness";
+  /** If retrying after admin approval, pass the pending request ID */
+  pendingRequestId?: string;
 }
 
 const MOOD_SCORE_MAP: Record<string, number> = {
