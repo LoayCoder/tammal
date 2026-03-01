@@ -997,7 +997,13 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
           category_regen: needsCategoryRegen,
           category_invalid_count: categoryInvalidCount,
           custom_prompt_sanitized: customPrompt ? sanitizeCustomPrompt(customPrompt).wasModified : false,
-          // No prompt body logged
+          // Orchestrator telemetry (no PII)
+          orch_primary: pickRankedProviders(orchCtx)[0],
+          orch_selected: aiCall.provider,
+          orch_used_fallback: aiCall.usedFallback,
+          orch_attempts: aiCall.orchAttempts,
+          orch_reason: aiCall.orchReason || null,
+          orch_scores: getScoreSummary(),
         },
         success: true,
       });
