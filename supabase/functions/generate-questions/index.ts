@@ -589,10 +589,15 @@ All sources work together: a question should satisfy the category requirement wh
     }
 
     // ── Final budget check ──
+    const preTrimLength = systemPrompt.length;
     if (systemPrompt.length > MAX_CONTEXT_CHARS) {
       console.warn(`System prompt exceeds budget: ${systemPrompt.length}/${MAX_CONTEXT_CHARS}. Hard-trimming.`);
       systemPrompt = systemPrompt.substring(0, MAX_CONTEXT_CHARS);
     }
+    // Compute context trim percent for approval gate
+    const contextTrimPercent = trimLog.length > 0
+      ? trimLog.reduce((sum, t) => sum + (t.original - t.trimmed), 0) / Math.max(preTrimLength, 1)
+      : (preTrimLength > MAX_CONTEXT_CHARS ? (preTrimLength - MAX_CONTEXT_CHARS) / preTrimLength : 0);
 
     // Log trim telemetry (no content)
     if (trimLog.length > 0) {
