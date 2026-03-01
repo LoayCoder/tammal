@@ -1461,6 +1461,16 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           ai_routing_selected_model: routingResult?.selected.model ?? null,
           ai_routing_scores_top: routingResult?.scores ?? null,
           ai_routing_tenant_fp_samples: routingResult?.tenantFpSamples ?? null,
+          // Cost-Aware routing telemetry (PR-AI-INT-02, no PII)
+          ai_routing_mode_v2: costAwareResult?.routingMode ?? null,
+          ai_cost_weight: costAwareResult?.costWeight ?? null,
+          ai_final_score_breakdown: costAwareResult?.scoreBreakdown ?? null,
+          ai_penalty_applied: costAwareResult?.penaltyApplied ?? false,
+          ai_decay_applied: costAwareResult?.decayApplied ?? false,
+          ai_confidence_score: costAwareResult?.scoreBreakdown?.[0]?.confidenceScore ?? null,
+          ai_cost_score: costAwareResult?.scoreBreakdown?.[0]?.costScore ?? null,
+          ai_diversity_triggered: costAwareResult?.diversityTriggered ?? false,
+          ai_budget_state: costAwareResult?.budgetState ?? 'no_config',
           // Quality telemetry (no question text)
           quality_avg: batchQuality.averageScore,
           quality_flagged: batchQuality.flaggedCount,
