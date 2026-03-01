@@ -941,11 +941,7 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
     };
 
     // ========== SEMANTIC DEDUP ==========
-    const token = authHeader.replace("Bearer ", "");
-    const { data: authUserData } = await supabase.auth.getUser(token);
-    const resolvedTenantId = authUserData?.user
-      ? await supabase.rpc("get_user_tenant_id", { _user_id: authUserData.user.id }).then(r => r.data)
-      : null;
+    // (auth resolved earlier for rate limit guard)
 
     // ========== COST GUARD v2 ==========
     let costCheck: CostCheckResult | null = null;
