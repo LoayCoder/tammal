@@ -295,6 +295,50 @@ export type Database = {
           },
         ]
       }
+      ai_usage_alerts: {
+        Row: {
+          acknowledged: boolean
+          created_at: string
+          current_percent: number
+          feature: string
+          id: string
+          limit_type: string
+          month_key: string
+          tenant_id: string
+          threshold_percent: number
+        }
+        Insert: {
+          acknowledged?: boolean
+          created_at?: string
+          current_percent: number
+          feature: string
+          id?: string
+          limit_type: string
+          month_key: string
+          tenant_id: string
+          threshold_percent: number
+        }
+        Update: {
+          acknowledged?: boolean
+          created_at?: string
+          current_percent?: number
+          feature?: string
+          id?: string
+          limit_type?: string
+          month_key?: string
+          tenant_id?: string
+          threshold_percent?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_alerts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appeals: {
         Row: {
           appellant_id: string
