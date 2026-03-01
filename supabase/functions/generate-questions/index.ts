@@ -723,7 +723,7 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
     }
 
     if (aiCall.usedFallback) {
-      console.log(`Fallback successful: used ${aiCall.model} (${aiCall.provider}) instead of ${selectedModel}`);
+      console.log(`Orchestrator: fallback used=${aiCall.model} (${aiCall.provider}), attempts=${aiCall.orchAttempts}, reason=${aiCall.orchReason || 'provider_error'}`);
     }
 
     const aiResponse = await response.json();
