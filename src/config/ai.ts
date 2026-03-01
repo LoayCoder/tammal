@@ -67,6 +67,16 @@ export const MAX_FRAMEWORK_CONTEXT_CHARS = 32_000;
 /** Maximum retries (including the one fallback attempt) */
 export const AI_MAX_RETRIES = 1;
 
+// ── Rate limiting ───────────────────────────────────────────────
+/** Per-user request limit within one rate-limit window */
+export const RATE_LIMIT_PER_USER = 30;
+
+/** Per-tenant request limit within one rate-limit window */
+export const RATE_LIMIT_PER_TENANT = 200;
+
+/** Rate limit window size in minutes */
+export const RATE_LIMIT_WINDOW_MINUTES = 10;
+
 /** Accuracy modes */
 export const AI_ACCURACY_MODES = ['standard', 'strict'] as const;
 export type AIAccuracyMode = (typeof AI_ACCURACY_MODES)[number];
