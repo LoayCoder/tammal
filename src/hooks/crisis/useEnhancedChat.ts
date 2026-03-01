@@ -19,7 +19,7 @@ export function useEnhancedChat(caseId?: string) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
-  const typingTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
+  const typingTimeoutRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const presenceChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
