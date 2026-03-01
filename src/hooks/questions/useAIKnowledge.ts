@@ -13,8 +13,31 @@ export interface KnowledgeDocument {
   file_size: number;
   content_text: string | null;
   is_active: boolean;
+  document_scope: 'private' | 'tenant';
   created_at: string;
   deleted_at: string | null;
+}
+
+/** Log a document audit event (fire-and-forget, never blocks UI). */
+async function logDocumentAudit(
+  action: 'upload' | 'delete' | 'activate' | 'deactivate',
+  docId: string,
+  tenantId: string | null,
+) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from('audit_logs').insert({
+      tenant_id: tenantId,
+      user_id: user?.id ?? null,
+      entity_type: 'ai_knowledge_document',
+      entity_id: docId,
+      action,
+      changes: {},
+      metadata: {},
+    });
+  } catch {
+    // Audit logging must never break the main flow
+  }
 }
 
 export function useAIKnowledge() {
@@ -43,7 +66,7 @@ export function useAIKnowledge() {
       const tenantId = tenantResult.data;
       if (!tenantId) throw new Error(t('aiGenerator.noTenantError'));
 
-      // Upload to storage
+      // Upload to storage (tenant-scoped folder)
       const filePath = `${tenantId}/${Date.now()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from('ai-knowledge')
@@ -60,10 +83,14 @@ export function useAIKnowledge() {
           file_path: filePath,
           file_size: file.size,
           is_active: true,
+          document_scope: 'private',
         })
         .select()
         .single();
       if (insertError) throw insertError;
+
+      // Audit: upload
+      logDocumentAudit('upload', doc.id, tenantId);
 
       // Trigger parsing
       const { error: parseError } = await supabase.functions.invoke('parse-document', {
@@ -71,7 +98,6 @@ export function useAIKnowledge() {
       });
       if (parseError) {
         console.error('Parse error:', parseError);
-        // Don't fail the upload, just warn
         toast.warning(t('aiGenerator.parseError'));
       }
 
@@ -93,6 +119,10 @@ export function useAIKnowledge() {
         .update({ is_active: isActive })
         .eq('id', id);
       if (error) throw error;
+
+      // Audit: activate/deactivate
+      const doc = documents.find(d => d.id === id);
+      logDocumentAudit(isActive ? 'activate' : 'deactivate', id, doc?.tenant_id ?? null);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ai-knowledge-documents'] });
@@ -112,6 +142,9 @@ export function useAIKnowledge() {
         .delete()
         .eq('id', id);
       if (error) throw error;
+
+      // Audit: delete
+      logDocumentAudit('delete', id, doc?.tenant_id ?? null);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ai-knowledge-documents'] });
@@ -124,6 +157,7 @@ export function useAIKnowledge() {
         await supabase.storage.from('ai-knowledge').remove([doc.file_path]);
       }
       await supabase.from('ai_knowledge_documents').delete().eq('id', doc.id);
+      logDocumentAudit('delete', doc.id, doc.tenant_id);
     }
     queryClient.invalidateQueries({ queryKey: ['ai-knowledge-documents'] });
   };

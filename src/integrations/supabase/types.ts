@@ -185,6 +185,7 @@ export type Database = {
           content_text: string | null
           created_at: string
           deleted_at: string | null
+          document_scope: string
           file_name: string
           file_path: string
           file_size: number
@@ -197,6 +198,7 @@ export type Database = {
           content_text?: string | null
           created_at?: string
           deleted_at?: string | null
+          document_scope?: string
           file_name: string
           file_path: string
           file_size?: number
@@ -209,6 +211,7 @@ export type Database = {
           content_text?: string | null
           created_at?: string
           deleted_at?: string | null
+          document_scope?: string
           file_name?: string
           file_path?: string
           file_size?: number
