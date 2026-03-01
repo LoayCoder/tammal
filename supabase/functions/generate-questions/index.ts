@@ -9,6 +9,11 @@ import {
   type OrchestratorContext,
   type OutcomeType,
 } from "./orchestrator.ts";
+import {
+  checkBeforeExecution,
+  CostLimitExceededError,
+  type CostCheckResult,
+} from "./costGuard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
