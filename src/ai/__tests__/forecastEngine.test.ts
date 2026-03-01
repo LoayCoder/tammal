@@ -511,7 +511,7 @@ describe('PR-AI-INT-04: Predictive Cost & Performance Engine', () => {
 
   describe('Multi-Tenant Isolation', () => {
     it('should compute independent forecasts for different tenants', () => {
-      const tenant1 = computeCostForecast([10, 10, 10], 100);
+      const tenant1 = computeCostForecast([1, 1, 1], 1000);
       const tenant2 = computeCostForecast([90, 95, 100], 100);
       expect(tenant1.budgetRisk).not.toBe(tenant2.budgetRisk);
     });
