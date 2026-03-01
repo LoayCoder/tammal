@@ -1550,7 +1550,17 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           ai_confidence_score: costAwareResult?.scoreBreakdown?.[0]?.confidenceScore ?? null,
           ai_cost_score: costAwareResult?.scoreBreakdown?.[0]?.costScore ?? null,
           ai_diversity_triggered: costAwareResult?.diversityTriggered ?? false,
-          ai_budget_state: costAwareResult?.budgetState ?? 'no_config',
+          ai_budget_state: costAwareResult?.budgetState ?? thompsonResult?.budgetState ?? 'no_config',
+          // Thompson Sampling telemetry (PR-AI-INT-03, no PII)
+          ai_routing_strategy: activeRoutingStrategy,
+          ai_ts_alpha: thompsonResult?.scoreBreakdown?.[0]?.tsAlpha ?? null,
+          ai_ts_beta: thompsonResult?.scoreBreakdown?.[0]?.tsBeta ?? null,
+          ai_ts_quality_sample: thompsonResult?.scoreBreakdown?.[0]?.qualitySample ?? null,
+          ai_ts_latency_sample: thompsonResult?.scoreBreakdown?.[0]?.latencySample ?? null,
+          ai_ts_cost_sample: thompsonResult?.scoreBreakdown?.[0]?.costSample ?? null,
+          ai_ts_composite_score: thompsonResult?.scoreBreakdown?.[0]?.finalScore ?? null,
+          ai_ts_posterior_updated: activeRoutingStrategy === 'thompson',
+          ai_ts_fallback_triggered: thompsonResult?.fallbackTriggered ?? false,
           // Quality telemetry (no question text)
           quality_avg: batchQuality.averageScore,
           quality_flagged: batchQuality.flaggedCount,
@@ -1607,6 +1617,15 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
     updateProviderMetricsV2(supabase, { ...metricsBase, scope: 'global', tenantId: null }).catch(() => {});
     if (resolvedTenantId) {
       updateProviderMetricsV2(supabase, { ...metricsBase, scope: 'tenant', tenantId: resolvedTenantId }).catch(() => {});
+    }
+
+    // Thompson posterior updates (fire-and-forget)
+    if (activeRoutingStrategy === 'thompson') {
+      const tsBase = { feature: 'question-generator', purpose, provider: usedProvider, model: usedModel, success: callSuccess, latencyMs: durationMs, costPer1k: estimatedCostPer1k };
+      updateThompsonPosteriors(supabase, { ...tsBase, scope: 'global', tenantId: null }).catch(() => {});
+      if (resolvedTenantId) {
+        updateThompsonPosteriors(supabase, { ...tsBase, scope: 'tenant', tenantId: resolvedTenantId }).catch(() => {});
+      }
     }
 
     // Update 24h usage tracking
