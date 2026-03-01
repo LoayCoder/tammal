@@ -25,6 +25,7 @@ import {
   type FeatureGateResult,
   type AIFeatureKey,
 } from "./featureGate.ts";
+import { scanForPii } from "./piiScanner.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -1290,6 +1291,13 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           category_regen: needsCategoryRegen,
           category_invalid_count: categoryInvalidCount,
           custom_prompt_sanitized: customPrompt ? sanitizeCustomPrompt(customPrompt).wasModified : false,
+          // PII scan telemetry (types only, never values)
+          pii_custom_prompt: customPrompt ? scanForPii(customPrompt) : null,
+          pii_document_block_detected: documentBlock ? scanForPii(documentBlock).hasPii : false,
+          // Safe logging: only lengths, never content
+          custom_prompt_length: customPrompt ? customPrompt.length : 0,
+          system_prompt_length: systemPrompt.length,
+          document_block_length: documentBlock ? documentBlock.length : 0,
           // Orchestrator telemetry (no PII)
           orch_primary: pickRankedProviders(orchCtx)[0],
           orch_selected: aiCall.provider,
