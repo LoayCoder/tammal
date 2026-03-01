@@ -1,5 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import {
+  pickRankedProviders,
+  resolveModelForProvider,
+  updateScores,
+  getScoreSummary,
+  type ProviderName,
+  type OrchestratorContext,
+  type OutcomeType,
+} from "./orchestrator.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -104,32 +113,51 @@ async function callWithFallback(
   temperature: number,
   tools: unknown[],
   toolChoice: unknown,
-): Promise<AICallResult & { usedFallback: boolean }> {
-  try {
-    const result = await callAIGateway(apiKey, primaryModel, messages, temperature, tools, toolChoice);
-    if (result.response.ok) {
-      return { ...result, usedFallback: false };
+  orchCtx: OrchestratorContext,
+): Promise<AICallResult & { usedFallback: boolean; orchAttempts: number; orchReason?: string }> {
+  const rankedProviders = pickRankedProviders(orchCtx);
+  const scoreSummary = getScoreSummary();
+  console.log(`Orchestrator: ranked=${rankedProviders.join(',')}, scores=${JSON.stringify(scoreSummary)}`);
+
+  let lastError: string | undefined;
+
+  for (let attempt = 0; attempt < rankedProviders.length; attempt++) {
+    const provider = rankedProviders[attempt];
+    const model = resolveModelForProvider(provider, primaryModel);
+    const attemptStart = performance.now();
+
+    try {
+      const result = await callAIGateway(apiKey, model, messages, temperature, tools, toolChoice);
+      const latencyMs = Math.round(performance.now() - attemptStart);
+
+      if (result.response.ok) {
+        updateScores({ provider, outcome: 'success', latencyMs });
+        return { ...result, usedFallback: attempt > 0, orchAttempts: attempt + 1 };
+      }
+
+      const status = result.response.status;
+      // Rate limit / payment — don't fallback, surface immediately
+      if (status === 429 || status === 402) {
+        updateScores({ provider, outcome: 'provider_error', latencyMs });
+        return { ...result, usedFallback: attempt > 0, orchAttempts: attempt + 1 };
+      }
+
+      await result.response.text(); // consume body
+      updateScores({ provider, outcome: 'provider_error', latencyMs });
+      lastError = `provider_error(${status})`;
+      console.warn(`Orchestrator: ${provider}/${model} failed status=${status}, attempt=${attempt + 1}`);
+    } catch (err) {
+      const latencyMs = Math.round(performance.now() - attemptStart);
+      const isTimeout = err instanceof Error && err.name === 'AbortError';
+      const outcome: OutcomeType = isTimeout ? 'timeout' : 'provider_error';
+      updateScores({ provider, outcome, latencyMs });
+      lastError = isTimeout ? 'timeout' : 'provider_error';
+      console.warn(`Orchestrator: ${provider}/${model} threw ${lastError}, attempt=${attempt + 1}`);
     }
-    const status = result.response.status;
-    if (status === 429 || status === 402) {
-      return { ...result, usedFallback: false };
-    }
-    console.warn(`Primary model ${primaryModel} failed with status ${status}, attempting fallback`);
-    await result.response.text();
-  } catch (err) {
-    const errName = err instanceof Error ? err.name : 'Unknown';
-    console.warn(`Primary model ${primaryModel} threw ${errName}, attempting fallback`);
   }
 
-  const fallbackModel = MODEL_FALLBACK_MAP[primaryModel];
-  if (!fallbackModel) {
-    throw new Error(`No fallback model configured for ${primaryModel}`);
-  }
-
-  console.log(`Fallback: switching from ${primaryModel} (${getProviderName(primaryModel)}) to ${fallbackModel} (${getProviderName(fallbackModel)})`);
-
-  const fallbackResult = await callAIGateway(apiKey, fallbackModel, messages, temperature, tools, toolChoice);
-  return { ...fallbackResult, usedFallback: true };
+  // All providers failed
+  throw new Error(`All providers failed. Last reason: ${lastError || 'unknown'}`);
 }
 
 interface GenerateRequest {
@@ -655,7 +683,15 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
     const tools = [toolDefinition];
     const toolChoice = { type: "function", function: { name: "return_questions" } };
 
-    // ── Provider-agnostic call with automatic fallback ──
+    // ── Provider-agnostic call with orchestrated fallback ──
+    const orchCtx: OrchestratorContext = {
+      feature: 'question-generator',
+      purpose,
+      strictMode: accuracyMode === 'strict',
+      tenant_id: null, // resolved later
+      retry_count: 0,
+    };
+
     const aiCall = await callWithFallback(
       LOVABLE_API_KEY,
       selectedModel,
@@ -663,6 +699,7 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
       temperature,
       tools,
       toolChoice,
+      orchCtx,
     );
 
     const response = aiCall.response;
@@ -686,7 +723,7 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
     }
 
     if (aiCall.usedFallback) {
-      console.log(`Fallback successful: used ${aiCall.model} (${aiCall.provider}) instead of ${selectedModel}`);
+      console.log(`Orchestrator: fallback used=${aiCall.model} (${aiCall.provider}), attempts=${aiCall.orchAttempts}, reason=${aiCall.orchReason || 'provider_error'}`);
     }
 
     const aiResponse = await response.json();
@@ -960,7 +997,13 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
           category_regen: needsCategoryRegen,
           category_invalid_count: categoryInvalidCount,
           custom_prompt_sanitized: customPrompt ? sanitizeCustomPrompt(customPrompt).wasModified : false,
-          // No prompt body logged
+          // Orchestrator telemetry (no PII)
+          orch_primary: pickRankedProviders(orchCtx)[0],
+          orch_selected: aiCall.provider,
+          orch_used_fallback: aiCall.usedFallback,
+          orch_attempts: aiCall.orchAttempts,
+          orch_reason: aiCall.orchReason || null,
+          orch_scores: getScoreSummary(),
         },
         success: true,
       });
