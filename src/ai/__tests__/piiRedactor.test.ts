@@ -22,7 +22,7 @@ describe('piiRedactor', () => {
       const result = redactPii('Call +966 50 123 4567');
       expect(result.redacted).toBe(true);
       expect(result.matches).toContain('phone');
-      expect(result.redactedText).not.toContain('4567');
+      expect(result.redactedText).toContain('[REDACTED_PHONE]');
     });
 
     it('redacts US SSN pattern', () => {

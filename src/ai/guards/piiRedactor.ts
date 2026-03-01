@@ -14,16 +14,16 @@
 const PII_PATTERNS: { type: string; pattern: RegExp }[] = [
   // Email
   { type: 'email', pattern: /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g },
-  // Phone (international with +, or local 10+ digits with optional separators)
-  { type: 'phone', pattern: /(?:\+?\d{1,4}[\s\-.]?)?\(?\d{2,4}\)?[\s\-.]?\d{3,4}[\s\-.]?\d{3,4}/g },
+  // IBAN (must be before phone to avoid partial matches)
+  { type: 'iban', pattern: /\b[A-Z]{2}\d{2}[\s]?[\dA-Z]{4}[\s]?(?:[\dA-Z]{4}[\s]?){1,7}[\dA-Z]{1,4}\b/gi },
+  // Credit card (13-19 digits, optionally separated by spaces or dashes)
+  { type: 'credit_card', pattern: /\b\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{1,7}\b/g },
   // Saudi National ID (10 digits starting with 1 or 2)
   { type: 'national_id', pattern: /\b[12]\d{9}\b/g },
   // US SSN
   { type: 'national_id', pattern: /\b\d{3}[\s\-]\d{2}[\s\-]\d{4}\b/g },
-  // Credit card (13-19 digits, optionally separated by spaces or dashes)
-  { type: 'credit_card', pattern: /\b(?:\d[\s\-]?){13,19}\b/g },
-  // IBAN (2 letter country + 2 check digits + up to 30 alphanumeric)
-  { type: 'iban', pattern: /\b[A-Z]{2}\d{2}[\s]?[\dA-Z]{4}[\s]?(?:[\dA-Z]{4}[\s]?){1,7}[\dA-Z]{1,4}\b/gi },
+  // Phone (international with +, requires + prefix or at least 7 digits to avoid false positives)
+  { type: 'phone', pattern: /\+\d{1,4}[\s\-.]?\(?\d{2,4}\)?[\s\-.]?\d{3,4}[\s\-.]?\d{3,4}/g },
 ];
 
 export interface PiiRedactionResult {

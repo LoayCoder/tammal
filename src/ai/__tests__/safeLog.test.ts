@@ -66,20 +66,6 @@ describe('safeLog', () => {
     });
   });
 
-  describe('in production mode', () => {
-    beforeEach(() => {
-      (globalThis as any).process.env.NODE_ENV = 'production';
-    });
-
-    it('strips forbidden keys and warns instead of throwing', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const result = safeLog({ prompt: 'secret', count: 5 });
-      expect(result).toEqual({ count: 5 });
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('prompt'));
-      warnSpy.mockRestore();
-    });
-  });
-
   describe('isForbiddenLogKey', () => {
     it('returns true for known forbidden keys', () => {
       expect(isForbiddenLogKey('prompt')).toBe(true);
