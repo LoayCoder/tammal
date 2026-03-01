@@ -693,12 +693,41 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
     const tools = [toolDefinition];
     const toolChoice = { type: "function", function: { name: "return_questions" } };
 
+    // ── Early auth resolution (needed for rate limit + cost guard) ──
+    const token = authHeader.replace("Bearer ", "");
+    const { data: authUserData } = await supabase.auth.getUser(token);
+    const resolvedTenantId = authUserData?.user
+      ? await supabase.rpc("get_user_tenant_id", { _user_id: authUserData.user.id }).then(r => r.data)
+      : null;
+
+    // ── Rate Limit Guard ──
+    let rateLimitCheck: RateLimitResult | null = null;
+    if (resolvedTenantId && authUserData?.user) {
+      try {
+        rateLimitCheck = await checkRateLimit({
+          tenantId: resolvedTenantId,
+          userId: authUserData.user.id,
+          feature: 'question-generator',
+          supabase,
+        });
+      } catch (rlErr) {
+        if (rlErr instanceof RateLimitExceededError) {
+          console.warn(`RateLimit: blocked scope=${rlErr.scope} window=${rlErr.windowKey} tenant=${resolvedTenantId.substring(0, 8)}…`);
+          return new Response(JSON.stringify({ error: rlErr.message }), {
+            status: 429,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        console.warn("RateLimit: check failed (graceful degradation)", rlErr instanceof Error ? rlErr.message : "unknown");
+      }
+    }
+
     // ── Provider-agnostic call with orchestrated fallback ──
     const orchCtx: OrchestratorContext = {
       feature: 'question-generator',
       purpose,
       strictMode: accuracyMode === 'strict',
-      tenant_id: null, // resolved later
+      tenant_id: resolvedTenantId,
       retry_count: 0,
     };
 
