@@ -913,6 +913,30 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
       ? await supabase.rpc("get_user_tenant_id", { _user_id: authUserData.user.id }).then(r => r.data)
       : null;
 
+    // ========== COST GUARD v2 ==========
+    let costCheck: CostCheckResult | null = null;
+    if (resolvedTenantId) {
+      try {
+        costCheck = await checkBeforeExecution({
+          tenantId: resolvedTenantId,
+          feature: 'question-generator',
+          supabase,
+        });
+        if (costCheck.warningTriggered) {
+          console.log(`CostGuard: warning tenant=${resolvedTenantId.substring(0, 8)}… type=${costCheck.warningLimitType} tokenPct=${costCheck.tokenPercent.toFixed(1)} costPct=${costCheck.costPercent.toFixed(1)}`);
+        }
+      } catch (costErr) {
+        if (costErr instanceof CostLimitExceededError) {
+          return new Response(JSON.stringify({ error: costErr.message }), {
+            status: 429,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        // Non-cost errors: log and continue (never block on guard failure)
+        console.warn("CostGuard: check failed (graceful degradation)", costErr instanceof Error ? costErr.message : "unknown");
+      }
+    }
+
     let existingHashes = new Set<string>();
     if (generationPeriodId && resolvedTenantId) {
       const { data: existingQuestions } = await supabase
