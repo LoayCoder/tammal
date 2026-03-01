@@ -820,7 +820,7 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
       }
     }
 
-    // ── Hybrid Provider Routing (PR-AI-INT-01C) ──
+    // ── Cost-Aware Provider Routing (PR-AI-INT-02, fallback to INT-01C) ──
     const routingCandidates: ProviderCandidate[] = [
       { provider: 'gemini', model: selectedModel.startsWith('google/') ? selectedModel : 'google/gemini-3-flash-preview' },
       { provider: 'openai', model: selectedModel.startsWith('openai/') ? selectedModel : 'openai/gpt-5-mini' },
@@ -828,17 +828,46 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
     ];
 
     let routingResult: RoutingResult | null = null;
+    let costAwareResult: CostAwareRoutingResult | null = null;
     try {
-      routingResult = await rankProvidersHybrid(supabase, {
+      costAwareResult = await rankProvidersCostAware(supabase, {
         tenantId: resolvedTenantId,
         feature: 'question-generator',
         purpose,
         candidates: routingCandidates,
       });
-      console.log(`HybridRouter: selected=${routingResult.selected.provider}/${routingResult.selected.model} mode=${routingResult.mode} alpha=${routingResult.alpha} beta=${routingResult.beta} eps=${routingResult.epsilon} tenantSamples=${routingResult.tenantFpSamples}`);
-    } catch (routeErr) {
-      // Fail open — fall back to existing orchestrator
-      console.warn('HybridRouter: ranking failed (graceful degradation)', routeErr instanceof Error ? routeErr.message : 'unknown');
+      // Adapt to RoutingResult interface for downstream compatibility
+      routingResult = {
+        ranked: costAwareResult.ranked,
+        selected: costAwareResult.selected,
+        mode: costAwareResult.mode,
+        alpha: costAwareResult.alpha,
+        beta: costAwareResult.beta,
+        epsilon: costAwareResult.epsilon,
+        tenantFpSamples: costAwareResult.tenantFpSamples,
+        scores: costAwareResult.scoreBreakdown.map(s => ({
+          provider: s.provider,
+          model: s.model,
+          finalScore: s.finalScore,
+          globalScore: s.qualityScore,
+          tenantScore: s.costScore,
+        })),
+      };
+      console.log(`CostAwareRouter: selected=${costAwareResult.selected.provider}/${costAwareResult.selected.model} mode=${costAwareResult.mode} routingMode=${costAwareResult.routingMode} budget=${costAwareResult.budgetState} costW=${costAwareResult.costWeight.toFixed(3)} penalty=${costAwareResult.penaltyApplied} decay=${costAwareResult.decayApplied} diversity=${costAwareResult.diversityTriggered}`);
+    } catch (costErr) {
+      // Fallback to INT-01C hybrid router
+      console.warn('CostAwareRouter: failed, falling back to HybridRouter', costErr instanceof Error ? costErr.message : 'unknown');
+      try {
+        routingResult = await rankProvidersHybrid(supabase, {
+          tenantId: resolvedTenantId,
+          feature: 'question-generator',
+          purpose,
+          candidates: routingCandidates,
+        });
+        console.log(`HybridRouter(fallback): selected=${routingResult.selected.provider}/${routingResult.selected.model}`);
+      } catch (hybridErr) {
+        console.warn('HybridRouter: also failed (graceful degradation)', hybridErr instanceof Error ? hybridErr.message : 'unknown');
+      }
     }
 
     // ── Provider-agnostic call with orchestrated fallback ──
