@@ -19,6 +19,12 @@ import {
   RateLimitExceededError,
   type RateLimitResult,
 } from "./rateLimiter.ts";
+import {
+  checkFeatureGate,
+  FeaturePermissionDeniedError,
+  type FeatureGateResult,
+  type AIFeatureKey,
+} from "./featureGate.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
