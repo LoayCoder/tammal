@@ -1379,6 +1379,11 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           ai_feature_gate_allowed: featureGateResult?.allowed ?? true,
           ai_feature_gate_role: featureGateResult?.userRole ?? null,
           ai_feature_key: aiFeatureKey,
+          // Approval gate telemetry (no PII)
+          ai_approval_gate_triggered: approvalGateResult ? approvalGateResult.reasons.length > 0 : false,
+          ai_approval_gate_reasons: approvalGateResult?.reasons ?? [],
+          ai_approval_gate_pending_id: pendingRequestId ?? null,
+          ai_context_trim_percent: Math.round(contextTrimPercent * 100),
         },
         success: true,
       });
