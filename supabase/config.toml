@@ -68,3 +68,6 @@ verify_jwt = false
 
 [functions.expire-recognition-points]
 verify_jwt = false
+
+[functions.ai-governance]
+verify_jwt = false
