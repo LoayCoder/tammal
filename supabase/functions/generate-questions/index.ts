@@ -45,6 +45,12 @@ import {
   updateUsage24h,
   type CostAwareRoutingResult,
 } from "./costAwareRouter.ts";
+import {
+  rankProvidersThompson,
+  updateThompsonPosteriors,
+  type ThompsonRoutingResult,
+  type RoutingStrategy,
+} from "./thompsonRouter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
