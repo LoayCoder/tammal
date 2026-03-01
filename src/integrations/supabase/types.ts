@@ -257,6 +257,36 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_plan_limits: {
+        Row: {
+          created_at: string
+          id: string
+          monthly_cost_limit: number | null
+          monthly_token_limit: number | null
+          plan_key: string
+          updated_at: string
+          warning_threshold_percent: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          monthly_cost_limit?: number | null
+          monthly_token_limit?: number | null
+          plan_key: string
+          updated_at?: string
+          warning_threshold_percent?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          monthly_cost_limit?: number | null
+          monthly_token_limit?: number | null
+          plan_key?: string
+          updated_at?: string
+          warning_threshold_percent?: number | null
+        }
+        Relationships: []
+      }
       ai_tenant_limits: {
         Row: {
           created_at: string
@@ -288,6 +318,45 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "ai_tenant_limits_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_tenant_plan: {
+        Row: {
+          created_at: string
+          effective_from: string
+          plan_key: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          effective_from?: string
+          plan_key: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          effective_from?: string
+          plan_key?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_tenant_plan_plan_key_fkey"
+            columns: ["plan_key"]
+            isOneToOne: false
+            referencedRelation: "ai_plan_limits"
+            referencedColumns: ["plan_key"]
+          },
+          {
+            foreignKeyName: "ai_tenant_plan_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: true
             referencedRelation: "tenants"
