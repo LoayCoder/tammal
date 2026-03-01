@@ -766,6 +766,43 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
       }
     }
 
+    // ── Admin Approval Gate (high-risk requests) ──
+    let approvalGateResult: ApprovalGateResult | null = null;
+    if (resolvedTenantId && authUserData?.user) {
+      try {
+        const userRole = featureGateResult?.userRole || 'user';
+        approvalGateResult = await checkApprovalGate(supabase, {
+          tenantId: resolvedTenantId,
+          userId: authUserData.user.id,
+          userRole,
+          feature: aiFeatureKey,
+          questionCount,
+          enableCriticPass: advancedSettings.enableCriticPass === true,
+          contextTrimPercent,
+          pendingRequestId,
+          requestPayload: {
+            questionCount, complexity, tone, questionType,
+            model, accuracyMode, purpose,
+            enableCriticPass: advancedSettings.enableCriticPass || false,
+          },
+        });
+
+        if (!approvalGateResult.allowed) {
+          return new Response(JSON.stringify({
+            pending_request_id: approvalGateResult.pendingRequestId,
+            status: 'pending',
+            reasons: approvalGateResult.reasons,
+          }), {
+            status: 202,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      } catch (gateErr) {
+        // Fail open — don't block generation on approval gate infra failure
+        console.warn("ApprovalGate: check failed (graceful degradation)", gateErr instanceof Error ? gateErr.message : "unknown");
+      }
+    }
+
     // ── Provider-agnostic call with orchestrated fallback ──
     const orchCtx: OrchestratorContext = {
       feature: 'question-generator',
