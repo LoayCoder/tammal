@@ -826,7 +826,7 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
       }
     }
 
-    // ── Cost-Aware Provider Routing (PR-AI-INT-02, fallback to INT-01C) ──
+    // ── Provider Routing: Thompson → CostAware → Hybrid (PR-AI-INT-03) ──
     const routingCandidates: ProviderCandidate[] = [
       { provider: 'gemini', model: selectedModel.startsWith('google/') ? selectedModel : 'google/gemini-3-flash-preview' },
       { provider: 'openai', model: selectedModel.startsWith('openai/') ? selectedModel : 'openai/gpt-5-mini' },
@@ -835,44 +835,118 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
 
     let routingResult: RoutingResult | null = null;
     let costAwareResult: CostAwareRoutingResult | null = null;
+    let thompsonResult: ThompsonRoutingResult | null = null;
+    let activeRoutingStrategy: RoutingStrategy = 'cost_aware';
+
+    // Determine routing strategy: check tenant config first
     try {
-      costAwareResult = await rankProvidersCostAware(supabase, {
-        tenantId: resolvedTenantId,
-        feature: 'question-generator',
-        purpose,
-        candidates: routingCandidates,
-      });
-      // Adapt to RoutingResult interface for downstream compatibility
-      routingResult = {
-        ranked: costAwareResult.ranked,
-        selected: costAwareResult.selected,
-        mode: costAwareResult.mode,
-        alpha: costAwareResult.alpha,
-        beta: costAwareResult.beta,
-        epsilon: costAwareResult.epsilon,
-        tenantFpSamples: costAwareResult.tenantFpSamples,
-        scores: costAwareResult.scoreBreakdown.map(s => ({
-          provider: s.provider,
-          model: s.model,
-          finalScore: s.finalScore,
-          globalScore: s.qualityScore,
-          tenantScore: s.costScore,
-        })),
-      };
-      console.log(`CostAwareRouter: selected=${costAwareResult.selected.provider}/${costAwareResult.selected.model} mode=${costAwareResult.mode} routingMode=${costAwareResult.routingMode} budget=${costAwareResult.budgetState} costW=${costAwareResult.costWeight.toFixed(3)} penalty=${costAwareResult.penaltyApplied} decay=${costAwareResult.decayApplied} diversity=${costAwareResult.diversityTriggered}`);
-    } catch (costErr) {
-      // Fallback to INT-01C hybrid router
-      console.warn('CostAwareRouter: failed, falling back to HybridRouter', costErr instanceof Error ? costErr.message : 'unknown');
-      try {
+      if (resolvedTenantId) {
+        const { data: strategyConfig } = await supabase
+          .from('tenant_ai_budget_config')
+          .select('routing_strategy')
+          .eq('tenant_id', resolvedTenantId)
+          .maybeSingle();
+        if (strategyConfig?.routing_strategy) {
+          activeRoutingStrategy = strategyConfig.routing_strategy as RoutingStrategy;
+        }
+      }
+    } catch { /* default to cost_aware */ }
+
+    // Execute routing based on strategy
+    try {
+      if (activeRoutingStrategy === 'thompson') {
+        thompsonResult = await rankProvidersThompson(supabase, {
+          tenantId: resolvedTenantId,
+          feature: 'question-generator',
+          purpose,
+          candidates: routingCandidates,
+        });
+        routingResult = {
+          ranked: thompsonResult.ranked,
+          selected: thompsonResult.selected,
+          mode: 'exploit', // Thompson naturally balances
+          alpha: thompsonResult.alpha,
+          beta: thompsonResult.beta,
+          epsilon: 0,
+          tenantFpSamples: thompsonResult.tenantFpSamples,
+          scores: thompsonResult.scoreBreakdown.map(s => ({
+            provider: s.provider,
+            model: s.model,
+            finalScore: s.finalScore,
+            globalScore: s.qualitySample,
+            tenantScore: s.costSample,
+          })),
+        };
+        console.log(`ThompsonRouter: selected=${thompsonResult.selected.provider}/${thompsonResult.selected.model} routingMode=${thompsonResult.routingMode} budget=${thompsonResult.budgetState} penalty=${thompsonResult.penaltyApplied} decay=${thompsonResult.decayApplied} diversity=${thompsonResult.diversityTriggered}`);
+      } else if (activeRoutingStrategy === 'cost_aware') {
+        costAwareResult = await rankProvidersCostAware(supabase, {
+          tenantId: resolvedTenantId,
+          feature: 'question-generator',
+          purpose,
+          candidates: routingCandidates,
+        });
+        routingResult = {
+          ranked: costAwareResult.ranked,
+          selected: costAwareResult.selected,
+          mode: costAwareResult.mode,
+          alpha: costAwareResult.alpha,
+          beta: costAwareResult.beta,
+          epsilon: costAwareResult.epsilon,
+          tenantFpSamples: costAwareResult.tenantFpSamples,
+          scores: costAwareResult.scoreBreakdown.map(s => ({
+            provider: s.provider,
+            model: s.model,
+            finalScore: s.finalScore,
+            globalScore: s.qualityScore,
+            tenantScore: s.costScore,
+          })),
+        };
+        console.log(`CostAwareRouter: selected=${costAwareResult.selected.provider}/${costAwareResult.selected.model} mode=${costAwareResult.mode} routingMode=${costAwareResult.routingMode} budget=${costAwareResult.budgetState}`);
+      } else {
+        // hybrid strategy
         routingResult = await rankProvidersHybrid(supabase, {
           tenantId: resolvedTenantId,
           feature: 'question-generator',
           purpose,
           candidates: routingCandidates,
         });
-        console.log(`HybridRouter(fallback): selected=${routingResult.selected.provider}/${routingResult.selected.model}`);
-      } catch (hybridErr) {
-        console.warn('HybridRouter: also failed (graceful degradation)', hybridErr instanceof Error ? hybridErr.message : 'unknown');
+        console.log(`HybridRouter: selected=${routingResult.selected.provider}/${routingResult.selected.model}`);
+      }
+    } catch (routingErr) {
+      // Fallback chain: thompson → cost_aware → hybrid
+      console.warn(`${activeRoutingStrategy}Router: failed, falling back`, routingErr instanceof Error ? routingErr.message : 'unknown');
+      try {
+        if (activeRoutingStrategy === 'thompson') {
+          costAwareResult = await rankProvidersCostAware(supabase, {
+            tenantId: resolvedTenantId,
+            feature: 'question-generator',
+            purpose,
+            candidates: routingCandidates,
+          });
+          routingResult = {
+            ranked: costAwareResult.ranked,
+            selected: costAwareResult.selected,
+            mode: costAwareResult.mode,
+            alpha: costAwareResult.alpha,
+            beta: costAwareResult.beta,
+            epsilon: costAwareResult.epsilon,
+            tenantFpSamples: costAwareResult.tenantFpSamples,
+            scores: costAwareResult.scoreBreakdown.map(s => ({
+              provider: s.provider, model: s.model, finalScore: s.finalScore, globalScore: s.qualityScore, tenantScore: s.costScore,
+            })),
+          };
+          console.log(`CostAwareRouter(fallback): selected=${costAwareResult.selected.provider}/${costAwareResult.selected.model}`);
+        } else {
+          routingResult = await rankProvidersHybrid(supabase, {
+            tenantId: resolvedTenantId,
+            feature: 'question-generator',
+            purpose,
+            candidates: routingCandidates,
+          });
+          console.log(`HybridRouter(fallback): selected=${routingResult.selected.provider}/${routingResult.selected.model}`);
+        }
+      } catch (fallbackErr) {
+        console.warn('All routers failed (graceful degradation)', fallbackErr instanceof Error ? fallbackErr.message : 'unknown');
       }
     }
 
