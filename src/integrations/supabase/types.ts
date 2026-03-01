@@ -71,6 +71,44 @@ export type Database = {
           },
         ]
       }
+      ai_cost_alerts: {
+        Row: {
+          alert_month: string
+          created_at: string
+          feature: string
+          id: string
+          limit_type: string
+          percent_used: number
+          tenant_id: string
+        }
+        Insert: {
+          alert_month: string
+          created_at?: string
+          feature?: string
+          id?: string
+          limit_type: string
+          percent_used: number
+          tenant_id: string
+        }
+        Update: {
+          alert_month?: string
+          created_at?: string
+          feature?: string
+          id?: string
+          limit_type?: string
+          percent_used?: number
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_cost_alerts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_generation_logs: {
         Row: {
           accuracy_mode: string | null
@@ -218,6 +256,44 @@ export type Database = {
           model_key?: string
         }
         Relationships: []
+      }
+      ai_tenant_limits: {
+        Row: {
+          created_at: string
+          id: string
+          monthly_cost_limit: number
+          monthly_token_limit: number
+          tenant_id: string
+          updated_at: string
+          warning_threshold_percent: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          monthly_cost_limit?: number
+          monthly_token_limit?: number
+          tenant_id: string
+          updated_at?: string
+          warning_threshold_percent?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          monthly_cost_limit?: number
+          monthly_token_limit?: number
+          tenant_id?: string
+          updated_at?: string
+          warning_threshold_percent?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_tenant_limits_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       appeals: {
         Row: {
