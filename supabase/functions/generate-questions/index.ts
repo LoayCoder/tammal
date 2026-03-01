@@ -31,6 +31,13 @@ import {
   type ApprovalGateResult,
 } from "./approvalGate.ts";
 import { scanForPii } from "./piiScanner.ts";
+import {
+  rankProvidersHybrid,
+  updateProviderAgg,
+  type ProviderCandidate,
+  type RoutingResult,
+  type HybridProvider,
+} from "./hybridRouter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -50,7 +57,9 @@ const MODEL_FALLBACK_MAP: Record<string, string> = {
 };
 
 function getProviderName(modelKey: string): string {
-  return modelKey.startsWith('openai/') ? 'openai' : 'gemini';
+  if (modelKey.startsWith('openai/')) return 'openai';
+  if (modelKey.startsWith('anthropic/')) return 'anthropic';
+  return 'gemini';
 }
 
 // ── Token / context budget constants (mirrors src/config/ai.ts) ──
