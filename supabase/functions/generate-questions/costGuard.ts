@@ -1,9 +1,12 @@
 /**
- * CostGuard v2 — Soft Warning (80%) + Hard Block (100%)
+ * CostGuard v2.1 — Per-Tenant Configurable Soft Warning + Hard Block
  *
  * Checks tenant AI usage against configured limits before execution.
- * Creates at most one warning alert per tenant + month + feature + limit_type.
- * Never blocks below 100%. Never throws on warning path.
+ * - Hard block at 100% (throws CostLimitExceededError).
+ * - Soft warning at configurable threshold (default 80%).
+ * - Creates at most one alert per tenant + month + feature + limit_type
+ *   via unique constraint (23505 dedup).
+ * - Never blocks below 100%. Never throws on warning/alert path.
  */
 
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
@@ -23,6 +26,8 @@ export interface CostCheckResult {
   warningLimitType: string | null;
   blocked: boolean;
   blockedLimitType: string | null;
+  /** The tenant's configured warning threshold (for telemetry) */
+  threshold: number;
 }
 
 // ── Error ──────────────────────────────────────────────────────────
@@ -45,6 +50,7 @@ export async function checkBeforeExecution(ctx: CostGuardContext): Promise<CostC
     warningLimitType: null,
     blocked: false,
     blockedLimitType: null,
+    threshold: 80,
   };
 
   // 1. Fetch tenant limits
@@ -57,12 +63,18 @@ export async function checkBeforeExecution(ctx: CostGuardContext): Promise<CostC
   // No limits configured → allow freely
   if (!limits) return result;
 
-  const warningThreshold = limits.warning_threshold_percent ?? 80;
+  // Validate threshold: must be 1..99, default 80
+  const rawThreshold = limits.warning_threshold_percent;
+  const warningThreshold =
+    typeof rawThreshold === "number" && rawThreshold >= 1 && rawThreshold <= 99
+      ? rawThreshold
+      : 80;
+  result.threshold = warningThreshold;
 
   // 2. Calculate current month usage from ai_generation_logs
   const now = new Date();
   const monthStart = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-01T00:00:00Z`;
-  const alertMonth = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+  const monthKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
 
   const { data: usageRows } = await supabase
     .from("ai_generation_logs")
@@ -92,54 +104,53 @@ export async function checkBeforeExecution(ctx: CostGuardContext): Promise<CostC
     throw new CostLimitExceededError("cost", result.costPercent);
   }
 
-  // 4. Check soft warning (default 80%)
+  // 4. Soft warning at configurable threshold
   if (result.tokenPercent >= warningThreshold) {
     result.warningTriggered = true;
     result.warningLimitType = "token";
-    await createWarningAlert(supabase, tenantId, alertMonth, feature, "token", result.tokenPercent);
+    await createUsageAlertOnce(supabase, tenantId, feature, "token", monthKey, warningThreshold, result.tokenPercent);
   }
   if (result.costPercent >= warningThreshold) {
     result.warningTriggered = true;
     result.warningLimitType = result.warningLimitType ? "both" : "cost";
-    await createWarningAlert(supabase, tenantId, alertMonth, feature, "cost", result.costPercent);
+    await createUsageAlertOnce(supabase, tenantId, feature, "cost", monthKey, warningThreshold, result.costPercent);
   }
 
   return result;
 }
 
-// ── Alert spam prevention ──────────────────────────────────────────
-async function createWarningAlert(
+// ── Alert creation with 23505 dedup ────────────────────────────────
+async function createUsageAlertOnce(
   supabase: SupabaseClient,
   tenantId: string,
-  alertMonth: string,
   feature: string,
   limitType: string,
-  percentUsed: number,
+  monthKey: string,
+  thresholdPercent: number,
+  currentPercent: number,
 ): Promise<void> {
   try {
-    // Check if alert already exists for this tenant + month + feature + limit_type
-    const { data: existing } = await supabase
-      .from("ai_cost_alerts")
-      .select("id")
-      .eq("tenant_id", tenantId)
-      .eq("alert_month", alertMonth)
-      .eq("feature", feature)
-      .eq("limit_type", limitType)
-      .maybeSingle();
-
-    if (existing) return; // Already alerted this month
-
-    await supabase.from("ai_cost_alerts").insert({
+    const { error } = await supabase.from("ai_usage_alerts").insert({
       tenant_id: tenantId,
-      alert_month: alertMonth,
       feature,
       limit_type: limitType,
-      percent_used: percentUsed,
+      month_key: monthKey,
+      threshold_percent: thresholdPercent,
+      current_percent: currentPercent,
     });
 
-    console.log(`CostGuard: warning alert created tenant=${tenantId.substring(0, 8)}… type=${limitType} percent=${percentUsed.toFixed(1)}`);
+    if (error) {
+      // 23505 = unique_violation → already alerted this month, silently ignore
+      if (error.code === "23505") return;
+      // Any other error: warn but never block
+      console.warn(`CostGuard: alert insert failed code=${error.code} msg=${error.message}`);
+    } else {
+      console.log(
+        `CostGuard: usage alert created tenant=${tenantId.substring(0, 8)}… type=${limitType} pct=${currentPercent.toFixed(1)} threshold=${thresholdPercent}`,
+      );
+    }
   } catch (err) {
     // Never block execution due to alert creation failure
-    console.warn("CostGuard: failed to create warning alert", err instanceof Error ? err.message : "unknown");
+    console.warn("CostGuard: alert creation threw", err instanceof Error ? err.message : "unknown");
   }
 }
