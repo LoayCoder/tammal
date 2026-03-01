@@ -395,12 +395,14 @@ export type Database = {
       }
       ai_provider_metrics_agg: {
         Row: {
+          cost_ewma: number
           ewma_cost_per_1k: number
           ewma_latency_ms: number
           ewma_quality: number
           ewma_success_rate: number
           feature: string
           id: string
+          last_call_at: string | null
           last_updated: string
           model: string
           provider: string
@@ -410,12 +412,14 @@ export type Database = {
           tenant_id: string | null
         }
         Insert: {
+          cost_ewma?: number
           ewma_cost_per_1k?: number
           ewma_latency_ms?: number
           ewma_quality?: number
           ewma_success_rate?: number
           feature: string
           id?: string
+          last_call_at?: string | null
           last_updated?: string
           model: string
           provider: string
@@ -425,12 +429,14 @@ export type Database = {
           tenant_id?: string | null
         }
         Update: {
+          cost_ewma?: number
           ewma_cost_per_1k?: number
           ewma_latency_ms?: number
           ewma_quality?: number
           ewma_success_rate?: number
           feature?: string
           id?: string
+          last_call_at?: string | null
           last_updated?: string
           model?: string
           provider?: string
@@ -448,6 +454,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ai_provider_penalties: {
+        Row: {
+          created_at: string
+          feature: string
+          id: string
+          penalty_expires_at: string
+          penalty_multiplier: number
+          provider: string
+        }
+        Insert: {
+          created_at?: string
+          feature: string
+          id?: string
+          penalty_expires_at: string
+          penalty_multiplier?: number
+          provider: string
+        }
+        Update: {
+          created_at?: string
+          feature?: string
+          id?: string
+          penalty_expires_at?: string
+          penalty_multiplier?: number
+          provider?: string
+        }
+        Relationships: []
+      }
+      ai_provider_usage_24h: {
+        Row: {
+          calls_last_24h: number
+          last_updated: string
+          provider: string
+          usage_percentage: number
+        }
+        Insert: {
+          calls_last_24h?: number
+          last_updated?: string
+          provider: string
+          usage_percentage?: number
+        }
+        Update: {
+          calls_last_24h?: number
+          last_updated?: string
+          provider?: string
+          usage_percentage?: number
+        }
+        Relationships: []
       }
       ai_rate_limits: {
         Row: {
@@ -4943,6 +4997,44 @@ export type Database = {
             foreignKeyName: "task_connectors_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_ai_budget_config: {
+        Row: {
+          current_month_usage: number
+          monthly_budget: number
+          routing_mode: string
+          soft_limit_percentage: number
+          tenant_id: string
+          updated_at: string
+          usage_month: string
+        }
+        Insert: {
+          current_month_usage?: number
+          monthly_budget?: number
+          routing_mode?: string
+          soft_limit_percentage?: number
+          tenant_id: string
+          updated_at?: string
+          usage_month?: string
+        }
+        Update: {
+          current_month_usage?: number
+          monthly_budget?: number
+          routing_mode?: string
+          soft_limit_percentage?: number
+          tenant_id?: string
+          updated_at?: string
+          usage_month?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_ai_budget_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
