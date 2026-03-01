@@ -256,6 +256,47 @@ export type Database = {
           },
         ]
       }
+      ai_governance_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          new_value: Json | null
+          previous_value: Json | null
+          target_entity: string | null
+          tenant_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          new_value?: Json | null
+          previous_value?: Json | null
+          target_entity?: string | null
+          tenant_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          new_value?: Json | null
+          previous_value?: Json | null
+          target_entity?: string | null
+          tenant_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_governance_audit_log_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_knowledge_documents: {
         Row: {
           content_text: string | null
@@ -6052,6 +6093,40 @@ export type Database = {
       }
     }
     Views: {
+      ai_governance_summary: {
+        Row: {
+          burn_rate: number | null
+          calls_last_24h: number | null
+          cost_ewma: number | null
+          ewma_cost_per_1k: number | null
+          ewma_latency_ms: number | null
+          ewma_quality: number | null
+          ewma_success_rate: number | null
+          feature: string | null
+          forecast_updated: string | null
+          last_call_at: string | null
+          model: string | null
+          performance_drift_score: number | null
+          projected_monthly_cost: number | null
+          provider: string | null
+          sample_count: number | null
+          scope: string | null
+          sla_risk_level: string | null
+          tenant_id: string | null
+          ts_alpha: number | null
+          ts_beta: number | null
+          usage_percentage: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_forecast_state_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles_with_email: {
         Row: {
           avatar_url: string | null
@@ -6144,6 +6219,7 @@ export type Database = {
         }
         Returns: string
       }
+      refresh_ai_governance_summary: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "super_admin" | "tenant_admin" | "manager" | "user"
