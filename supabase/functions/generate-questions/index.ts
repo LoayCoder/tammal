@@ -51,6 +51,11 @@ import {
   type ThompsonRoutingResult,
   type RoutingStrategy,
 } from "./thompsonRouter.ts";
+import {
+  getForecastAdjustments,
+  applyForecastCostAdjustment,
+  type ForecastAdjustments,
+} from "./forecastEngine.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
