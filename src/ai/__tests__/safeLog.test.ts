@@ -12,7 +12,7 @@ describe('safeLog', () => {
 
   describe('in test/dev mode', () => {
     beforeEach(() => {
-      process.env.NODE_ENV = 'test';
+      (globalThis as any).process.env.NODE_ENV = 'test';
     });
 
     it('throws when payload contains "prompt"', () => {
@@ -68,7 +68,7 @@ describe('safeLog', () => {
 
   describe('in production mode', () => {
     beforeEach(() => {
-      process.env.NODE_ENV = 'production';
+      (globalThis as any).process.env.NODE_ENV = 'production';
     });
 
     it('strips forbidden keys and warns instead of throwing', () => {
