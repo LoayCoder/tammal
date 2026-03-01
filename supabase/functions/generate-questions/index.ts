@@ -113,32 +113,51 @@ async function callWithFallback(
   temperature: number,
   tools: unknown[],
   toolChoice: unknown,
-): Promise<AICallResult & { usedFallback: boolean }> {
-  try {
-    const result = await callAIGateway(apiKey, primaryModel, messages, temperature, tools, toolChoice);
-    if (result.response.ok) {
-      return { ...result, usedFallback: false };
+  orchCtx: OrchestratorContext,
+): Promise<AICallResult & { usedFallback: boolean; orchAttempts: number; orchReason?: string }> {
+  const rankedProviders = pickRankedProviders(orchCtx);
+  const scoreSummary = getScoreSummary();
+  console.log(`Orchestrator: ranked=${rankedProviders.join(',')}, scores=${JSON.stringify(scoreSummary)}`);
+
+  let lastError: string | undefined;
+
+  for (let attempt = 0; attempt < rankedProviders.length; attempt++) {
+    const provider = rankedProviders[attempt];
+    const model = resolveModelForProvider(provider, primaryModel);
+    const attemptStart = performance.now();
+
+    try {
+      const result = await callAIGateway(apiKey, model, messages, temperature, tools, toolChoice);
+      const latencyMs = Math.round(performance.now() - attemptStart);
+
+      if (result.response.ok) {
+        updateScores({ provider, outcome: 'success', latencyMs });
+        return { ...result, usedFallback: attempt > 0, orchAttempts: attempt + 1 };
+      }
+
+      const status = result.response.status;
+      // Rate limit / payment — don't fallback, surface immediately
+      if (status === 429 || status === 402) {
+        updateScores({ provider, outcome: 'provider_error', latencyMs });
+        return { ...result, usedFallback: attempt > 0, orchAttempts: attempt + 1 };
+      }
+
+      await result.response.text(); // consume body
+      updateScores({ provider, outcome: 'provider_error', latencyMs });
+      lastError = `provider_error(${status})`;
+      console.warn(`Orchestrator: ${provider}/${model} failed status=${status}, attempt=${attempt + 1}`);
+    } catch (err) {
+      const latencyMs = Math.round(performance.now() - attemptStart);
+      const isTimeout = err instanceof Error && err.name === 'AbortError';
+      const outcome: OutcomeType = isTimeout ? 'timeout' : 'provider_error';
+      updateScores({ provider, outcome, latencyMs });
+      lastError = isTimeout ? 'timeout' : 'provider_error';
+      console.warn(`Orchestrator: ${provider}/${model} threw ${lastError}, attempt=${attempt + 1}`);
     }
-    const status = result.response.status;
-    if (status === 429 || status === 402) {
-      return { ...result, usedFallback: false };
-    }
-    console.warn(`Primary model ${primaryModel} failed with status ${status}, attempting fallback`);
-    await result.response.text();
-  } catch (err) {
-    const errName = err instanceof Error ? err.name : 'Unknown';
-    console.warn(`Primary model ${primaryModel} threw ${errName}, attempting fallback`);
   }
 
-  const fallbackModel = MODEL_FALLBACK_MAP[primaryModel];
-  if (!fallbackModel) {
-    throw new Error(`No fallback model configured for ${primaryModel}`);
-  }
-
-  console.log(`Fallback: switching from ${primaryModel} (${getProviderName(primaryModel)}) to ${fallbackModel} (${getProviderName(fallbackModel)})`);
-
-  const fallbackResult = await callAIGateway(apiKey, fallbackModel, messages, temperature, tools, toolChoice);
-  return { ...fallbackResult, usedFallback: true };
+  // All providers failed
+  throw new Error(`All providers failed. Last reason: ${lastError || 'unknown'}`);
 }
 
 interface GenerateRequest {
