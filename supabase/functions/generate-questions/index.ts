@@ -19,6 +19,12 @@ import {
   RateLimitExceededError,
   type RateLimitResult,
 } from "./rateLimiter.ts";
+import {
+  checkFeatureGate,
+  FeaturePermissionDeniedError,
+  type FeatureGateResult,
+  type AIFeatureKey,
+} from "./featureGate.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -722,6 +728,30 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
       }
     }
 
+    // ── Feature Gate (RBAC + Feature Flags) ──
+    let featureGateResult: FeatureGateResult | null = null;
+    const aiFeatureKey: AIFeatureKey = advancedSettings.enableCriticPass ? 'ai_critic_pass' : 'question_generation';
+
+    if (resolvedTenantId && authUserData?.user) {
+      try {
+        featureGateResult = await checkFeatureGate(
+          supabase,
+          authUserData.user.id,
+          resolvedTenantId,
+          aiFeatureKey,
+        );
+      } catch (gateErr) {
+        if (gateErr instanceof FeaturePermissionDeniedError) {
+          console.warn(`FeatureGate: denied feature=${gateErr.feature} reason=${gateErr.reason} tenant=${resolvedTenantId.substring(0, 8)}…`);
+          return new Response(JSON.stringify({ error: gateErr.message }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        console.warn("FeatureGate: check failed (graceful degradation)", gateErr instanceof Error ? gateErr.message : "unknown");
+      }
+    }
+
     // ── Provider-agnostic call with orchestrated fallback ──
     const orchCtx: OrchestratorContext = {
       feature: 'question-generator',
@@ -1287,6 +1317,10 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           ai_rl_tenant_exceeded: rateLimitCheck?.tenantExceeded || false,
           ai_rl_window_key: rateLimitCheck?.windowKey ?? null,
           ai_feature: 'question-generator',
+          // Feature gate telemetry (no PII)
+          ai_feature_gate_allowed: featureGateResult?.allowed ?? true,
+          ai_feature_gate_role: featureGateResult?.userRole ?? null,
+          ai_feature_key: aiFeatureKey,
         },
         success: true,
       });
