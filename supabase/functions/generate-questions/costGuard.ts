@@ -1,15 +1,20 @@
 /**
- * CostGuard v2.1 — Per-Tenant Configurable Soft Warning + Hard Block
+ * CostGuard v3.0 — Plan-Based + Override Limit Resolution
  *
- * Checks tenant AI usage against configured limits before execution.
+ * Uses limitResolver to determine tenant limits from:
+ *   1. Override (ai_tenant_limits)
+ *   2. Plan (ai_plan_limits via ai_tenant_plan)
+ *   3. None → unlimited
+ *
+ * Behavior unchanged:
  * - Hard block at 100% (throws CostLimitExceededError).
  * - Soft warning at configurable threshold (default 80%).
- * - Creates at most one alert per tenant + month + feature + limit_type
- *   via unique constraint (23505 dedup).
+ * - Creates at most one alert per tenant + month + feature + limit_type.
  * - Never blocks below 100%. Never throws on warning/alert path.
  */
 
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { resolveTenantAiLimits, type LimitsSource } from "./limitResolver.ts";
 
 // ── Types ──────────────────────────────────────────────────────────
 export interface CostGuardContext {
@@ -28,6 +33,10 @@ export interface CostCheckResult {
   blockedLimitType: string | null;
   /** The tenant's configured warning threshold (for telemetry) */
   threshold: number;
+  /** Where limits were resolved from */
+  limits_source: LimitsSource;
+  /** The plan key if limits came from a plan */
+  plan_key: string | null;
 }
 
 // ── Error ──────────────────────────────────────────────────────────
@@ -51,25 +60,25 @@ export async function checkBeforeExecution(ctx: CostGuardContext): Promise<CostC
     blocked: false,
     blockedLimitType: null,
     threshold: 80,
+    limits_source: "none",
+    plan_key: null,
   };
 
-  // 1. Fetch tenant limits
-  const { data: limits } = await supabase
-    .from("ai_tenant_limits")
-    .select("monthly_token_limit, monthly_cost_limit, warning_threshold_percent")
-    .eq("tenant_id", tenantId)
-    .single();
+  // 1. Resolve tenant limits (override → plan → none)
+  const resolved = await resolveTenantAiLimits(supabase, tenantId);
+  result.limits_source = resolved.source;
+  result.plan_key = resolved.plan_key;
+  result.threshold = resolved.warning_threshold_percent;
 
   // No limits configured → allow freely
-  if (!limits) return result;
+  if (resolved.source === "none") return result;
 
-  // Validate threshold: must be 1..99, default 80
-  const rawThreshold = limits.warning_threshold_percent;
-  const warningThreshold =
-    typeof rawThreshold === "number" && rawThreshold >= 1 && rawThreshold <= 99
-      ? rawThreshold
-      : 80;
-  result.threshold = warningThreshold;
+  const tokenLimit = resolved.monthly_token_limit;
+  const costLimit = resolved.monthly_cost_limit;
+  const warningThreshold = resolved.warning_threshold_percent;
+
+  // If both limits are null (unlimited), allow freely
+  if (tokenLimit === null && costLimit === null) return result;
 
   // 2. Calculate current month usage from ai_generation_logs
   const now = new Date();
@@ -84,11 +93,10 @@ export async function checkBeforeExecution(ctx: CostGuardContext): Promise<CostC
     .eq("success", true);
 
   const totalTokens = (usageRows || []).reduce((sum: number, r: any) => sum + (r.tokens_used || 0), 0);
-  // Estimate cost: $0.001 per 1000 tokens (simplified)
   const estimatedCost = totalTokens / 1000 * 0.001;
 
-  result.tokenPercent = limits.monthly_token_limit > 0 ? (totalTokens / limits.monthly_token_limit) * 100 : 0;
-  result.costPercent = Number(limits.monthly_cost_limit) > 0 ? (estimatedCost / Number(limits.monthly_cost_limit)) * 100 : 0;
+  result.tokenPercent = tokenLimit !== null && tokenLimit > 0 ? (totalTokens / tokenLimit) * 100 : 0;
+  result.costPercent = costLimit !== null && costLimit > 0 ? (estimatedCost / costLimit) * 100 : 0;
 
   // 3. Check hard block (100%)
   if (result.tokenPercent >= 100) {
@@ -140,9 +148,7 @@ async function createUsageAlertOnce(
     });
 
     if (error) {
-      // 23505 = unique_violation → already alerted this month, silently ignore
       if (error.code === "23505") return;
-      // Any other error: warn but never block
       console.warn(`CostGuard: alert insert failed code=${error.code} msg=${error.message}`);
     } else {
       console.log(
@@ -150,7 +156,6 @@ async function createUsageAlertOnce(
       );
     }
   } catch (err) {
-    // Never block execution due to alert creation failure
     console.warn("CostGuard: alert creation threw", err instanceof Error ? err.message : "unknown");
   }
 }

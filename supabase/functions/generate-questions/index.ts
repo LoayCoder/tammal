@@ -1243,13 +1243,15 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           quality_duplicates: batchQuality.duplicatesCount,
           quality_decision: batchQuality.overallDecision,
           quality_used_critic: usedCritic,
-          // CostGuard v2.1 telemetry (no PII, no raw token counts)
+          // CostGuard v3 telemetry (no PII, no raw token counts)
           ai_costguard_warning_token: costCheck ? (costCheck.warningLimitType === "token" || costCheck.warningLimitType === "both") : false,
           ai_costguard_warning_cost: costCheck ? (costCheck.warningLimitType === "cost" || costCheck.warningLimitType === "both") : false,
           ai_costguard_token_percent: costCheck ? Math.round(costCheck.tokenPercent) : null,
           ai_costguard_cost_percent: costCheck ? Math.round(costCheck.costPercent) : null,
           ai_costguard_threshold: costCheck?.threshold ?? null,
           ai_costguard_blocked: costCheck?.blocked || false,
+          ai_limits_source: costCheck?.limits_source ?? 'none',
+          ai_plan_key: costCheck?.plan_key ?? null,
         },
         success: true,
       });
