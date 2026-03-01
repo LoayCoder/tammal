@@ -1282,6 +1282,11 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           ai_costguard_blocked: costCheck?.blocked || false,
           ai_limits_source: costCheck?.limits_source ?? 'none',
           ai_plan_key: costCheck?.plan_key ?? null,
+          // Rate limit telemetry (no PII)
+          ai_rl_user_exceeded: rateLimitCheck?.userExceeded || false,
+          ai_rl_tenant_exceeded: rateLimitCheck?.tenantExceeded || false,
+          ai_rl_window_key: rateLimitCheck?.windowKey ?? null,
+          ai_feature: 'question-generator',
         },
         success: true,
       });
