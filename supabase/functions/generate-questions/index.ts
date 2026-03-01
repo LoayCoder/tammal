@@ -14,6 +14,11 @@ import {
   CostLimitExceededError,
   type CostCheckResult,
 } from "./costGuard.ts";
+import {
+  checkRateLimit,
+  RateLimitExceededError,
+  type RateLimitResult,
+} from "./rateLimiter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
