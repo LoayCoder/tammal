@@ -25,6 +25,11 @@ import {
   type FeatureGateResult,
   type AIFeatureKey,
 } from "./featureGate.ts";
+import {
+  checkApprovalGate,
+  detectHighRisk,
+  type ApprovalGateResult,
+} from "./approvalGate.ts";
 import { scanForPii } from "./piiScanner.ts";
 
 const corsHeaders = {
@@ -203,6 +208,8 @@ interface GenerateRequest {
   periodId?: string;
   /** Purpose-based mode: 'survey' or 'wellness' */
   purpose?: "survey" | "wellness";
+  /** If retrying after admin approval, pass the pending request ID */
+  pendingRequestId?: string;
 }
 
 const MOOD_SCORE_MAP: Record<string, number> = {
@@ -257,6 +264,7 @@ serve(async (req) => {
       moodLevels = [],
       periodId,
       purpose = "survey",
+      pendingRequestId,
     }: GenerateRequest = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -581,10 +589,15 @@ All sources work together: a question should satisfy the category requirement wh
     }
 
     // ── Final budget check ──
+    const preTrimLength = systemPrompt.length;
     if (systemPrompt.length > MAX_CONTEXT_CHARS) {
       console.warn(`System prompt exceeds budget: ${systemPrompt.length}/${MAX_CONTEXT_CHARS}. Hard-trimming.`);
       systemPrompt = systemPrompt.substring(0, MAX_CONTEXT_CHARS);
     }
+    // Compute context trim percent for approval gate
+    const contextTrimPercent = trimLog.length > 0
+      ? trimLog.reduce((sum, t) => sum + (t.original - t.trimmed), 0) / Math.max(preTrimLength, 1)
+      : (preTrimLength > MAX_CONTEXT_CHARS ? (preTrimLength - MAX_CONTEXT_CHARS) / preTrimLength : 0);
 
     // Log trim telemetry (no content)
     if (trimLog.length > 0) {
@@ -750,6 +763,43 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
           });
         }
         console.warn("FeatureGate: check failed (graceful degradation)", gateErr instanceof Error ? gateErr.message : "unknown");
+      }
+    }
+
+    // ── Admin Approval Gate (high-risk requests) ──
+    let approvalGateResult: ApprovalGateResult | null = null;
+    if (resolvedTenantId && authUserData?.user) {
+      try {
+        const userRole = featureGateResult?.userRole || 'user';
+        approvalGateResult = await checkApprovalGate(supabase, {
+          tenantId: resolvedTenantId,
+          userId: authUserData.user.id,
+          userRole,
+          feature: aiFeatureKey,
+          questionCount,
+          enableCriticPass: advancedSettings.enableCriticPass === true,
+          contextTrimPercent,
+          pendingRequestId,
+          requestPayload: {
+            questionCount, complexity, tone, questionType,
+            model, accuracyMode, purpose,
+            enableCriticPass: advancedSettings.enableCriticPass || false,
+          },
+        });
+
+        if (!approvalGateResult.allowed) {
+          return new Response(JSON.stringify({
+            pending_request_id: approvalGateResult.pendingRequestId,
+            status: 'pending',
+            reasons: approvalGateResult.reasons,
+          }), {
+            status: 202,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      } catch (gateErr) {
+        // Fail open — don't block generation on approval gate infra failure
+        console.warn("ApprovalGate: check failed (graceful degradation)", gateErr instanceof Error ? gateErr.message : "unknown");
       }
     }
 
@@ -1329,6 +1379,11 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           ai_feature_gate_allowed: featureGateResult?.allowed ?? true,
           ai_feature_gate_role: featureGateResult?.userRole ?? null,
           ai_feature_key: aiFeatureKey,
+          // Approval gate telemetry (no PII)
+          ai_approval_gate_triggered: approvalGateResult ? approvalGateResult.reasons.length > 0 : false,
+          ai_approval_gate_reasons: approvalGateResult?.reasons ?? [],
+          ai_approval_gate_pending_id: pendingRequestId ?? null,
+          ai_context_trim_percent: Math.round(contextTrimPercent * 100),
         },
         success: true,
       });
