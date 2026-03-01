@@ -209,6 +209,14 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       ]
     },
     {
+      label: t('nav.aiPlatform'),
+      access: 'admin',
+      icon: Brain,
+      items: [
+        { title: t('nav.aiGovernance'), url: "/admin/ai-governance", icon: Gauge },
+      ]
+    },
+    {
       label: t('nav.operations'),
       access: 'admin',
       icon: Network,
