@@ -25,6 +25,11 @@ import {
   type FeatureGateResult,
   type AIFeatureKey,
 } from "./featureGate.ts";
+import {
+  checkApprovalGate,
+  detectHighRisk,
+  type ApprovalGateResult,
+} from "./approvalGate.ts";
 import { scanForPii } from "./piiScanner.ts";
 
 const corsHeaders = {
