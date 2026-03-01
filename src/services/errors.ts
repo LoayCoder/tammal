@@ -62,3 +62,11 @@ export class AIProviderTimeoutError extends DomainError {
     this.name = 'AIProviderTimeoutError';
   }
 }
+
+/** Thrown when a tenant exceeds their configured AI usage limit. */
+export class CostLimitExceededError extends DomainError {
+  constructor(limitType: string, percent: number) {
+    super(`AI cost limit exceeded (${limitType}: ${percent.toFixed(1)}%)`);
+    this.name = 'CostLimitExceededError';
+  }
+}
