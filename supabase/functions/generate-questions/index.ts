@@ -1505,6 +1505,33 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
       });
     }
 
+    // ── Post-call: update cost-aware metrics (fire-and-forget, fail-open) ──
+    const postCallQuality = batchQuality.averageScore ?? 75;
+    const estimatedCostPer1k = 0.005; // placeholder — real cost from provider billing API
+    const callSuccess = true;
+    const usedProvider = aiCall.provider;
+    const usedModel = aiCall.model;
+
+    // Update global + tenant metrics via V2 (includes cost_ewma, last_call_at)
+    const metricsBase = {
+      feature: 'question-generator',
+      purpose,
+      provider: usedProvider,
+      model: usedModel,
+      latencyMs: durationMs,
+      costPer1k: estimatedCostPer1k,
+      qualityAvg: postCallQuality,
+      success: callSuccess,
+    };
+
+    updateProviderMetricsV2(supabase, { ...metricsBase, scope: 'global', tenantId: null }).catch(() => {});
+    if (resolvedTenantId) {
+      updateProviderMetricsV2(supabase, { ...metricsBase, scope: 'tenant', tenantId: resolvedTenantId }).catch(() => {});
+    }
+
+    // Update 24h usage tracking
+    updateUsage24h(supabase, usedProvider).catch(() => {});
+
     return new Response(JSON.stringify({
       questions,
       success: true,
