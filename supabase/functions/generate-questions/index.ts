@@ -436,6 +436,7 @@ For EACH question you MUST also provide:
         .select("file_name, content_text")
         .in("id", knowledgeDocumentIds)
         .eq("is_active", true)
+        .eq("tenant_id", resolvedTenantId)
         .is("deleted_at", null);
 
       if (docs && docs.length > 0) {
