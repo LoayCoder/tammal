@@ -51,6 +51,11 @@ import {
   type ThompsonRoutingResult,
   type RoutingStrategy,
 } from "./thompsonRouter.ts";
+import {
+  getForecastAdjustments,
+  applyForecastCostAdjustment,
+  type ForecastAdjustments,
+} from "./forecastEngine.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -837,6 +842,12 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
     let costAwareResult: CostAwareRoutingResult | null = null;
     let thompsonResult: ThompsonRoutingResult | null = null;
     let activeRoutingStrategy: RoutingStrategy = 'cost_aware';
+    let forecastAdj: ForecastAdjustments | null = null;
+
+    // Fetch forecast adjustments (fail-open, fire-and-forget style)
+    try {
+      forecastAdj = await getForecastAdjustments(supabase, resolvedTenantId, 'question-generator');
+    } catch { /* fail-open */ }
 
     // Determine routing strategy: check tenant config first
     try {
@@ -1561,6 +1572,12 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           ai_ts_composite_score: thompsonResult?.scoreBreakdown?.[0]?.finalScore ?? null,
           ai_ts_posterior_updated: activeRoutingStrategy === 'thompson',
           ai_ts_fallback_triggered: thompsonResult?.fallbackTriggered ?? false,
+          // Forecast engine telemetry (PR-AI-INT-04, no PII)
+          ai_forecast_cost_weight_multiplier: forecastAdj?.costWeightMultiplier ?? 1.0,
+          ai_forecast_provider_penalty: forecastAdj?.providerPenalty ?? 1.0,
+          ai_forecast_exploration_boost: forecastAdj?.explorationBoost ?? false,
+          ai_forecast_auto_weight_adjusted: forecastAdj ? (forecastAdj.costWeightMultiplier !== 1.0 || forecastAdj.providerPenalty !== 1.0) : false,
+          ai_forecast_version: 'INT-04',
           // Quality telemetry (no question text)
           quality_avg: batchQuality.averageScore,
           quality_flagged: batchQuality.flaggedCount,

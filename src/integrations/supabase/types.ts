@@ -109,6 +109,82 @@ export type Database = {
           },
         ]
       }
+      ai_cost_daily_agg: {
+        Row: {
+          avg_cost_per_call: number | null
+          date: string
+          feature: string
+          provider: string
+          tenant_id: string
+          total_calls: number | null
+          total_cost: number | null
+        }
+        Insert: {
+          avg_cost_per_call?: number | null
+          date: string
+          feature: string
+          provider: string
+          tenant_id: string
+          total_calls?: number | null
+          total_cost?: number | null
+        }
+        Update: {
+          avg_cost_per_call?: number | null
+          date?: string
+          feature?: string
+          provider?: string
+          tenant_id?: string
+          total_calls?: number | null
+          total_cost?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_cost_daily_agg_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_forecast_state: {
+        Row: {
+          burn_rate: number | null
+          feature: string
+          last_updated: string | null
+          performance_drift_score: number | null
+          projected_monthly_cost: number | null
+          sla_risk_level: string | null
+          tenant_id: string
+        }
+        Insert: {
+          burn_rate?: number | null
+          feature: string
+          last_updated?: string | null
+          performance_drift_score?: number | null
+          projected_monthly_cost?: number | null
+          sla_risk_level?: string | null
+          tenant_id: string
+        }
+        Update: {
+          burn_rate?: number | null
+          feature?: string
+          last_updated?: string | null
+          performance_drift_score?: number | null
+          projected_monthly_cost?: number | null
+          sla_risk_level?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_forecast_state_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_generation_logs: {
         Row: {
           accuracy_mode: string | null
@@ -309,6 +385,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ai_performance_daily_agg: {
+        Row: {
+          avg_latency: number | null
+          date: string
+          error_rate: number | null
+          feature: string
+          provider: string
+          success_rate: number | null
+          total_calls: number | null
+        }
+        Insert: {
+          avg_latency?: number | null
+          date: string
+          error_rate?: number | null
+          feature: string
+          provider: string
+          success_rate?: number | null
+          total_calls?: number | null
+        }
+        Update: {
+          avg_latency?: number | null
+          date?: string
+          error_rate?: number | null
+          feature?: string
+          provider?: string
+          success_rate?: number | null
+          total_calls?: number | null
+        }
+        Relationships: []
       }
       ai_plan_limits: {
         Row: {
