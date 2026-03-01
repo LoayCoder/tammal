@@ -1243,6 +1243,11 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           quality_duplicates: batchQuality.duplicatesCount,
           quality_decision: batchQuality.overallDecision,
           quality_used_critic: usedCritic,
+          // CostGuard telemetry (no PII, no token counts)
+          ai_cost_percent: costCheck ? Math.max(costCheck.tokenPercent, costCheck.costPercent) : null,
+          ai_cost_warning: costCheck?.warningTriggered || false,
+          ai_cost_limit_type: costCheck?.warningLimitType || costCheck?.blockedLimitType || null,
+          ai_cost_blocked: costCheck?.blocked || false,
         },
         success: true,
       });
