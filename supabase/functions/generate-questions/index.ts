@@ -38,6 +38,13 @@ import {
   type RoutingResult,
   type HybridProvider,
 } from "./hybridRouter.ts";
+import {
+  rankProvidersCostAware,
+  updateProviderMetricsV2,
+  applySlaPenalty,
+  updateUsage24h,
+  type CostAwareRoutingResult,
+} from "./costAwareRouter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -813,7 +820,7 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
       }
     }
 
-    // ── Hybrid Provider Routing (PR-AI-INT-01C) ──
+    // ── Cost-Aware Provider Routing (PR-AI-INT-02, fallback to INT-01C) ──
     const routingCandidates: ProviderCandidate[] = [
       { provider: 'gemini', model: selectedModel.startsWith('google/') ? selectedModel : 'google/gemini-3-flash-preview' },
       { provider: 'openai', model: selectedModel.startsWith('openai/') ? selectedModel : 'openai/gpt-5-mini' },
@@ -821,17 +828,46 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
     ];
 
     let routingResult: RoutingResult | null = null;
+    let costAwareResult: CostAwareRoutingResult | null = null;
     try {
-      routingResult = await rankProvidersHybrid(supabase, {
+      costAwareResult = await rankProvidersCostAware(supabase, {
         tenantId: resolvedTenantId,
         feature: 'question-generator',
         purpose,
         candidates: routingCandidates,
       });
-      console.log(`HybridRouter: selected=${routingResult.selected.provider}/${routingResult.selected.model} mode=${routingResult.mode} alpha=${routingResult.alpha} beta=${routingResult.beta} eps=${routingResult.epsilon} tenantSamples=${routingResult.tenantFpSamples}`);
-    } catch (routeErr) {
-      // Fail open — fall back to existing orchestrator
-      console.warn('HybridRouter: ranking failed (graceful degradation)', routeErr instanceof Error ? routeErr.message : 'unknown');
+      // Adapt to RoutingResult interface for downstream compatibility
+      routingResult = {
+        ranked: costAwareResult.ranked,
+        selected: costAwareResult.selected,
+        mode: costAwareResult.mode,
+        alpha: costAwareResult.alpha,
+        beta: costAwareResult.beta,
+        epsilon: costAwareResult.epsilon,
+        tenantFpSamples: costAwareResult.tenantFpSamples,
+        scores: costAwareResult.scoreBreakdown.map(s => ({
+          provider: s.provider,
+          model: s.model,
+          finalScore: s.finalScore,
+          globalScore: s.qualityScore,
+          tenantScore: s.costScore,
+        })),
+      };
+      console.log(`CostAwareRouter: selected=${costAwareResult.selected.provider}/${costAwareResult.selected.model} mode=${costAwareResult.mode} routingMode=${costAwareResult.routingMode} budget=${costAwareResult.budgetState} costW=${costAwareResult.costWeight.toFixed(3)} penalty=${costAwareResult.penaltyApplied} decay=${costAwareResult.decayApplied} diversity=${costAwareResult.diversityTriggered}`);
+    } catch (costErr) {
+      // Fallback to INT-01C hybrid router
+      console.warn('CostAwareRouter: failed, falling back to HybridRouter', costErr instanceof Error ? costErr.message : 'unknown');
+      try {
+        routingResult = await rankProvidersHybrid(supabase, {
+          tenantId: resolvedTenantId,
+          feature: 'question-generator',
+          purpose,
+          candidates: routingCandidates,
+        });
+        console.log(`HybridRouter(fallback): selected=${routingResult.selected.provider}/${routingResult.selected.model}`);
+      } catch (hybridErr) {
+        console.warn('HybridRouter: also failed (graceful degradation)', hybridErr instanceof Error ? hybridErr.message : 'unknown');
+      }
     }
 
     // ── Provider-agnostic call with orchestrated fallback ──
@@ -1425,6 +1461,16 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           ai_routing_selected_model: routingResult?.selected.model ?? null,
           ai_routing_scores_top: routingResult?.scores ?? null,
           ai_routing_tenant_fp_samples: routingResult?.tenantFpSamples ?? null,
+          // Cost-Aware routing telemetry (PR-AI-INT-02, no PII)
+          ai_routing_mode_v2: costAwareResult?.routingMode ?? null,
+          ai_cost_weight: costAwareResult?.costWeight ?? null,
+          ai_final_score_breakdown: costAwareResult?.scoreBreakdown ?? null,
+          ai_penalty_applied: costAwareResult?.penaltyApplied ?? false,
+          ai_decay_applied: costAwareResult?.decayApplied ?? false,
+          ai_confidence_score: costAwareResult?.scoreBreakdown?.[0]?.confidenceScore ?? null,
+          ai_cost_score: costAwareResult?.scoreBreakdown?.[0]?.costScore ?? null,
+          ai_diversity_triggered: costAwareResult?.diversityTriggered ?? false,
+          ai_budget_state: costAwareResult?.budgetState ?? 'no_config',
           // Quality telemetry (no question text)
           quality_avg: batchQuality.averageScore,
           quality_flagged: batchQuality.flaggedCount,
@@ -1459,6 +1505,33 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
       });
     }
 
+    // ── Post-call: update cost-aware metrics (fire-and-forget, fail-open) ──
+    const postCallQuality = batchQuality.averageScore ?? 75;
+    const estimatedCostPer1k = 0.005; // placeholder — real cost from provider billing API
+    const callSuccess = true;
+    const usedProvider = aiCall.provider;
+    const usedModel = aiCall.model;
+
+    // Update global + tenant metrics via V2 (includes cost_ewma, last_call_at)
+    const metricsBase = {
+      feature: 'question-generator',
+      purpose,
+      provider: usedProvider,
+      model: usedModel,
+      latencyMs: durationMs,
+      costPer1k: estimatedCostPer1k,
+      qualityAvg: postCallQuality,
+      success: callSuccess,
+    };
+
+    updateProviderMetricsV2(supabase, { ...metricsBase, scope: 'global', tenantId: null }).catch(() => {});
+    if (resolvedTenantId) {
+      updateProviderMetricsV2(supabase, { ...metricsBase, scope: 'tenant', tenantId: resolvedTenantId }).catch(() => {});
+    }
+
+    // Update 24h usage tracking
+    updateUsage24h(supabase, usedProvider).catch(() => {});
+
     return new Response(JSON.stringify({
       questions,
       success: true,
@@ -1472,8 +1545,17 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
     });
   } catch (error: unknown) {
     console.error("Error in generate-questions:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    // SLA penalty: on timeout or 5xx, penalize the provider (fire-and-forget)
+    const errorMsg = error instanceof Error ? error.message : "Unknown error";
+    if (errorMsg.includes('timeout') || errorMsg.includes('All providers failed')) {
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const sb = createClient(supabaseUrl, supabaseKey);
+        applySlaPenalty(sb, 'gemini', 'question-generator').catch(() => {});
+      } catch { /* fail-open */ }
+    }
+    return new Response(JSON.stringify({ error: errorMsg }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
