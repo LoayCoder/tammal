@@ -1317,6 +1317,10 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           ai_rl_tenant_exceeded: rateLimitCheck?.tenantExceeded || false,
           ai_rl_window_key: rateLimitCheck?.windowKey ?? null,
           ai_feature: 'question-generator',
+          // Feature gate telemetry (no PII)
+          ai_feature_gate_allowed: featureGateResult?.allowed ?? true,
+          ai_feature_gate_role: featureGateResult?.userRole ?? null,
+          ai_feature_key: aiFeatureKey,
         },
         success: true,
       });
