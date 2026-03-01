@@ -264,6 +264,7 @@ serve(async (req) => {
       moodLevels = [],
       periodId,
       purpose = "survey",
+      pendingRequestId,
     }: GenerateRequest = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
