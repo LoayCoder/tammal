@@ -2,10 +2,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { safeLog, isForbiddenLogKey, getForbiddenKeys } from '../guards/safeLog';
 
 describe('safeLog', () => {
-  const originalEnv = process.env.NODE_ENV;
+  const originalEnv = (globalThis as any).process?.env?.NODE_ENV;
 
   afterEach(() => {
-    process.env.NODE_ENV = originalEnv;
+    if ((globalThis as any).process?.env) {
+      (globalThis as any).process.env.NODE_ENV = originalEnv;
+    }
   });
 
   describe('in test/dev mode', () => {

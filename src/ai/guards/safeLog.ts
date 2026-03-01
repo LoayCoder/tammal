@@ -55,14 +55,22 @@ export function safeLog<T extends Record<string, unknown>>(
 
   if (found.length === 0) return payload;
 
-  const isDev = typeof process !== 'undefined'
-    ? (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')
-    : false;
+  // Check Vite env for dev mode detection (works in both browser and test)
+  let isDev = false;
+  try {
+    isDev = !!(import.meta as any).env?.DEV;
+  } catch {
+    // fallback: not in Vite context
+  }
+  // Also check vitest / node test env
+  try {
+    isDev = isDev || (globalThis as any).process?.env?.NODE_ENV === 'development'
+      || (globalThis as any).process?.env?.NODE_ENV === 'test';
+  } catch {
+    // not in node context
+  }
 
-  // Also check Vite env
-  const isViteDev = typeof import.meta !== 'undefined' && (import.meta as any).env?.DEV === true;
-
-  if (isDev || isViteDev) {
+  if (isDev) {
     throw new Error(
       `[${context}] Forbidden keys detected in log payload: [${found.join(', ')}]. ` +
       `Never log prompt content, document text, question text, or secrets.`,
