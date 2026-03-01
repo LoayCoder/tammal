@@ -25,6 +25,7 @@ import {
   type FeatureGateResult,
   type AIFeatureKey,
 } from "./featureGate.ts";
+import { scanForPii } from "./piiScanner.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
