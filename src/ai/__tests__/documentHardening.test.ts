@@ -130,8 +130,9 @@ describe('RLS policy logic (mock assertions)', () => {
   }
 
   function canDelete(userId: string, userTenantId: string, isSuperAdmin: boolean, isAdmin: boolean, doc: MockDoc): boolean {
+    if (isSuperAdmin) return true;
     if (doc.user_id === userId && doc.tenant_id === userTenantId) return true;
-    if (doc.tenant_id === userTenantId && (isSuperAdmin || isAdmin)) return true;
+    if (doc.tenant_id === userTenantId && isAdmin) return true;
     return false;
   }
 
