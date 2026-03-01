@@ -1414,6 +1414,17 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           orch_attempts: aiCall.orchAttempts,
           orch_reason: aiCall.orchReason || null,
           orch_scores: getScoreSummary(),
+          // Hybrid routing telemetry (no PII)
+          ai_routing_feature: 'question-generator',
+          ai_routing_purpose: purpose,
+          ai_routing_alpha: routingResult?.alpha ?? null,
+          ai_routing_beta: routingResult?.beta ?? null,
+          ai_routing_epsilon: routingResult?.epsilon ?? null,
+          ai_routing_mode: routingResult?.mode ?? null,
+          ai_routing_selected_provider: routingResult?.selected.provider ?? null,
+          ai_routing_selected_model: routingResult?.selected.model ?? null,
+          ai_routing_scores_top: routingResult?.scores ?? null,
+          ai_routing_tenant_fp_samples: routingResult?.tenantFpSamples ?? null,
           // Quality telemetry (no question text)
           quality_avg: batchQuality.averageScore,
           quality_flagged: batchQuality.flaggedCount,
