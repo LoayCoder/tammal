@@ -1545,8 +1545,17 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
     });
   } catch (error: unknown) {
     console.error("Error in generate-questions:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    // SLA penalty: on timeout or 5xx, penalize the provider (fire-and-forget)
+    const errorMsg = error instanceof Error ? error.message : "Unknown error";
+    if (errorMsg.includes('timeout') || errorMsg.includes('All providers failed')) {
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const sb = createClient(supabaseUrl, supabaseKey);
+        applySlaPenalty(sb, 'gemini', 'question-generator').catch(() => {});
+      } catch { /* fail-open */ }
+    }
+    return new Response(JSON.stringify({ error: errorMsg }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
