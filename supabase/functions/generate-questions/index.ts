@@ -973,6 +973,210 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
       }
     }
 
+    // ========== QUALITY EVALUATION (Post-generation) ==========
+    const qualityEvalStart = performance.now();
+    let batchQuality: { averageScore: number; invalidCount: number; flaggedCount: number; duplicatesCount: number; overallDecision: string } = {
+      averageScore: 100, invalidCount: 0, flaggedCount: 0, duplicatesCount: 0, overallDecision: 'accept',
+    };
+    let usedCritic = false;
+
+    try {
+      // ── Heuristic constants ──
+      const Q_MIN_CHARS = 20;
+      const Q_MAX_CHARS = 220;
+      const LEADING_PATS = [
+        /^don['']t you think/i, /^isn['']t it true/i, /^wouldn['']t you agree/i,
+        /^don['']t you agree/i, /^surely you/i, /^obviously/i, /^clearly/i, /^everyone knows/i,
+      ];
+      const UNSAFE_PATS = [
+        /\bself[- ]?harm\b/i, /\bsuicid/i, /\bkill\s+(your|my)self/i,
+        /\bpersonal\s+data\s+request/i, /\bsocial\s+security/i, /\bcredit\s+card/i, /\bpassword/i,
+      ];
+
+      // ── Duplicate detection ──
+      const normFor = (t: string) => t.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
+      const seenTexts = new Map<string, number>();
+      const dupIndices = new Set<number>();
+      for (let i = 0; i < questions.length; i++) {
+        const norm = normFor(questions[i].question_text || '');
+        if (!norm) continue;
+        if (seenTexts.has(norm)) dupIndices.add(i);
+        else seenTexts.set(norm, i);
+      }
+
+      // ── Score each question ──
+      const questionQualities: { score: number; flags: string[]; reasons: string[] }[] = [];
+
+      for (let i = 0; i < questions.length; i++) {
+        const q = questions[i];
+        let score = 100;
+        const flags: string[] = [];
+        const reasons: string[] = [];
+        const text = (q.question_text || '').trim();
+
+        if (text.length < Q_MIN_CHARS) { score -= 25; flags.push('too_short'); reasons.push('Under min length'); }
+        if (text.length > Q_MAX_CHARS) { score -= 15; flags.push('too_long'); reasons.push('Over max length'); }
+        if ((text.match(/\?/g) || []).length > 1) { score -= 15; flags.push('format_issue'); reasons.push('Multiple question marks'); }
+        if (purpose === 'survey') {
+          for (const pat of LEADING_PATS) {
+            if (pat.test(text)) { score -= 20; flags.push('leading'); reasons.push('Leading language'); break; }
+          }
+        }
+        for (const pat of UNSAFE_PATS) {
+          if (pat.test(text)) { score -= 50; flags.push('unsafe'); reasons.push('Unsafe content'); break; }
+        }
+        if (dupIndices.has(i)) { score -= 30; flags.push('duplicate'); reasons.push('Duplicate in batch'); }
+        if (allowedCatIds.size > 0 && (!q.category_id || !allowedCatIds.has(q.category_id))) {
+          score -= 15; flags.push('category_mismatch'); reasons.push('Category not in allowed set');
+        }
+        if (!q.question_text_ar || q.question_text_ar.trim().length < 5) { score -= 5; reasons.push('Missing Arabic'); }
+        if (q.type === 'multiple_choice' && (!q.options || q.options.length < 2)) {
+          score -= 10; flags.push('format_issue'); reasons.push('MC missing options');
+        }
+
+        score = Math.max(0, Math.min(100, score));
+        questionQualities.push({ score, flags, reasons });
+
+        // Attach quality to question response
+        questions[i] = { ...q, quality: { score, flags } };
+      }
+
+      // ── Optional AI Critic (fast, sandboxed) ──
+      const criticEnabled = advancedSettings.enableCriticPass === true;
+      if (criticEnabled && questions.length > 0) {
+        try {
+          const criticModel = 'google/gemini-2.5-flash-lite';
+          const criticTimeout = 2500;
+          const sampleSize = Math.min(questions.length, 10);
+          const sampleIndices = Array.from({ length: sampleSize }, (_, i) => i);
+
+          const criticItems = sampleIndices.map(i => ({
+            index: i,
+            question_text: questions[i].question_text,
+            type: questions[i].type,
+            purpose,
+            category_id: questions[i].category_id || null,
+          }));
+
+          const criticPrompt = `You are a question quality auditor. Score each question 0-100 and flag issues.
+Flags: duplicate, too_long, too_short, unclear, purpose_mismatch, leading, unsafe, category_mismatch, format_issue.
+Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons":["..."]}]`;
+
+          const criticController = new AbortController();
+          const criticTimeoutId = setTimeout(() => criticController.abort(), criticTimeout);
+
+          const criticResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: criticModel,
+              messages: [
+                { role: "system", content: criticPrompt },
+                { role: "user", content: JSON.stringify(criticItems) },
+              ],
+              temperature: 0.1,
+            }),
+            signal: criticController.signal,
+          });
+          clearTimeout(criticTimeoutId);
+
+          if (criticResp.ok) {
+            const criticData = await criticResp.json();
+            const content = criticData.choices?.[0]?.message?.content || '';
+            const jsonMatch = content.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+              const criticResults: { index: number; score: number; flags: string[]; reasons: string[] }[] = JSON.parse(jsonMatch[0]);
+              usedCritic = true;
+
+              for (const cr of criticResults) {
+                if (typeof cr.index === 'number' && cr.index < questionQualities.length) {
+                  const hq = questionQualities[cr.index];
+                  const combined = Math.round(0.7 * hq.score + 0.3 * (cr.score || 80));
+                  const mergedFlags = [...new Set([...hq.flags, ...(cr.flags || [])])];
+                  const mergedReasons = [...new Set([...hq.reasons, ...(cr.reasons || [])])];
+                  questionQualities[cr.index] = { score: Math.max(0, Math.min(100, combined)), flags: mergedFlags, reasons: mergedReasons };
+                  questions[cr.index] = { ...questions[cr.index], quality: { score: questionQualities[cr.index].score, flags: mergedFlags } };
+                }
+              }
+            }
+          } else {
+            await criticResp.text();
+            console.warn('AI critic returned non-OK, falling back to heuristics only');
+          }
+        } catch (criticErr) {
+          console.warn('AI critic failed (graceful degradation):', criticErr instanceof Error ? criticErr.name : 'unknown');
+        }
+      }
+
+      // ── Batch decision ──
+      const avgScore = questionQualities.length > 0
+        ? Math.round(questionQualities.reduce((s, q) => s + q.score, 0) / questionQualities.length)
+        : 0;
+      const flaggedCount = questionQualities.filter(q => q.flags.length > 0).length;
+      const dupsCount = dupIndices.size;
+      const unsafeCount = questionQualities.filter(q => q.flags.includes('unsafe')).length;
+      const invalidCount = questionQualities.filter(q => q.score < 50).length;
+
+      let decision: string = 'accept';
+      if (avgScore < 70 || unsafeCount > 0) decision = 'regen_full';
+      else if (dupsCount >= 2) decision = 'regen_partial';
+
+      batchQuality = { averageScore: avgScore, invalidCount, flaggedCount, duplicatesCount: dupsCount, overallDecision: decision };
+
+      // ── Quality-triggered regen (max one attempt) ──
+      if (decision === 'regen_full') {
+        console.warn(`Quality regen triggered: avgScore=${avgScore}, unsafe=${unsafeCount}`);
+        try {
+          const qRegenCall = await callAIGateway(
+            LOVABLE_API_KEY, aiCall.model,
+            [
+              { role: "system", content: systemPrompt + `\n\nQUALITY RETRY: Previous batch scored ${avgScore}/100. Improve clarity, avoid leading language, ensure safety, and eliminate duplicates.` },
+              { role: "user", content: `Generate EXACTLY ${questionCount} high-quality ${isWellness ? 'wellness' : 'survey'} questions. Provide English and Arabic.${categoryIdEnum ? `\nUse ONLY these category IDs: [${categoryIdEnum.join(', ')}]` : ''}` },
+            ],
+            temperature, [toolDefinition], toolChoice,
+          );
+          if (qRegenCall.response.ok) {
+            const qRegenData = await qRegenCall.response.json();
+            const qRegenToolCall = qRegenData.choices?.[0]?.message?.tool_calls?.[0];
+            if (qRegenToolCall?.function?.arguments) {
+              const qRegenParsed = JSON.parse(qRegenToolCall.function.arguments);
+              if (Array.isArray(qRegenParsed.questions) && qRegenParsed.questions.length > 0) {
+                // Re-normalize the regen'd questions (simplified)
+                questions = qRegenParsed.questions.map((q: any) => ({
+                  ...q,
+                  type: normalizeType(q.type || 'likert_5'),
+                  question_hash: generateQuestionHash(q.question_text || ''),
+                  generation_period_id: generationPeriodId,
+                  quality: { score: 80, flags: [] }, // default post-regen score
+                }));
+                batchQuality = { ...batchQuality, overallDecision: 'accept', averageScore: 80 };
+                console.log(`Quality regen successful: ${questions.length} questions`);
+              }
+            }
+          } else {
+            await qRegenCall.response.text();
+            console.warn('Quality regen AI call failed, keeping original batch with flags');
+          }
+        } catch (regenErr) {
+          console.error('Quality regen failed:', regenErr);
+        }
+      } else if (decision === 'regen_partial' && dupsCount >= 2) {
+        // Auto-dedup: keep best-scoring unique questions
+        const uniqueQuestions = questions.filter((_: any, i: number) => !dupIndices.has(i));
+        if (uniqueQuestions.length > 0) {
+          questions = uniqueQuestions;
+          batchQuality = { ...batchQuality, duplicatesCount: 0, overallDecision: 'accept' };
+          console.log(`Auto-dedup: removed ${dupsCount} duplicates, ${questions.length} remaining`);
+        }
+      }
+
+      const qualityDurationMs = Math.round(performance.now() - qualityEvalStart);
+      console.log(`Quality eval: avg=${batchQuality.averageScore}, flagged=${batchQuality.flaggedCount}, dups=${batchQuality.duplicatesCount}, decision=${batchQuality.overallDecision}, critic=${usedCritic}, evalMs=${qualityDurationMs}`);
+    } catch (qualityErr) {
+      // Quality evaluation must never block generation
+      console.error('Quality evaluation failed (graceful degradation):', qualityErr);
+    }
+
     // Log generation
     if (authUserData?.user) {
       await supabase.from("ai_generation_logs").insert({
@@ -1004,6 +1208,12 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
           orch_attempts: aiCall.orchAttempts,
           orch_reason: aiCall.orchReason || null,
           orch_scores: getScoreSummary(),
+          // Quality telemetry (no question text)
+          quality_avg: batchQuality.averageScore,
+          quality_flagged: batchQuality.flaggedCount,
+          quality_duplicates: batchQuality.duplicatesCount,
+          quality_decision: batchQuality.overallDecision,
+          quality_used_critic: usedCritic,
         },
         success: true,
       });
@@ -1016,6 +1226,7 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
       duration_ms: durationMs,
       provider: aiCall.provider,
       used_fallback: aiCall.usedFallback,
+      batch_quality: batchQuality,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
