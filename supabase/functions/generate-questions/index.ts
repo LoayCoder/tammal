@@ -683,7 +683,15 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
     const tools = [toolDefinition];
     const toolChoice = { type: "function", function: { name: "return_questions" } };
 
-    // ── Provider-agnostic call with automatic fallback ──
+    // ── Provider-agnostic call with orchestrated fallback ──
+    const orchCtx: OrchestratorContext = {
+      feature: 'question-generator',
+      purpose,
+      strictMode: accuracyMode === 'strict',
+      tenant_id: null, // resolved later
+      retry_count: 0,
+    };
+
     const aiCall = await callWithFallback(
       LOVABLE_API_KEY,
       selectedModel,
@@ -691,6 +699,7 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
       temperature,
       tools,
       toolChoice,
+      orchCtx,
     );
 
     const response = aiCall.response;
