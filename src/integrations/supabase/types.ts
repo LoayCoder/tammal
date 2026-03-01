@@ -287,6 +287,47 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_rate_limits: {
+        Row: {
+          created_at: string
+          feature: string
+          id: string
+          request_count: number
+          tenant_id: string
+          updated_at: string
+          user_id: string | null
+          window_key: string
+        }
+        Insert: {
+          created_at?: string
+          feature: string
+          id?: string
+          request_count?: number
+          tenant_id: string
+          updated_at?: string
+          user_id?: string | null
+          window_key: string
+        }
+        Update: {
+          created_at?: string
+          feature?: string
+          id?: string
+          request_count?: number
+          tenant_id?: string
+          updated_at?: string
+          user_id?: string | null
+          window_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_rate_limits_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_tenant_limits: {
         Row: {
           created_at: string
