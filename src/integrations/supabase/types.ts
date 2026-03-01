@@ -410,6 +410,12 @@ export type Database = {
           sample_count: number
           scope: string
           tenant_id: string | null
+          ts_alpha: number
+          ts_beta: number
+          ts_cost_mean: number
+          ts_cost_variance: number
+          ts_latency_mean: number
+          ts_latency_variance: number
         }
         Insert: {
           cost_ewma?: number
@@ -427,6 +433,12 @@ export type Database = {
           sample_count?: number
           scope: string
           tenant_id?: string | null
+          ts_alpha?: number
+          ts_beta?: number
+          ts_cost_mean?: number
+          ts_cost_variance?: number
+          ts_latency_mean?: number
+          ts_latency_variance?: number
         }
         Update: {
           cost_ewma?: number
@@ -444,6 +456,12 @@ export type Database = {
           sample_count?: number
           scope?: string
           tenant_id?: string | null
+          ts_alpha?: number
+          ts_beta?: number
+          ts_cost_mean?: number
+          ts_cost_variance?: number
+          ts_latency_mean?: number
+          ts_latency_variance?: number
         }
         Relationships: [
           {
@@ -5007,6 +5025,7 @@ export type Database = {
           current_month_usage: number
           monthly_budget: number
           routing_mode: string
+          routing_strategy: string
           soft_limit_percentage: number
           tenant_id: string
           updated_at: string
@@ -5016,6 +5035,7 @@ export type Database = {
           current_month_usage?: number
           monthly_budget?: number
           routing_mode?: string
+          routing_strategy?: string
           soft_limit_percentage?: number
           tenant_id: string
           updated_at?: string
@@ -5025,6 +5045,7 @@ export type Database = {
           current_month_usage?: number
           monthly_budget?: number
           routing_mode?: string
+          routing_strategy?: string
           soft_limit_percentage?: number
           tenant_id?: string
           updated_at?: string
