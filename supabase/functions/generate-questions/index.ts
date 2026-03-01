@@ -38,6 +38,13 @@ import {
   type RoutingResult,
   type HybridProvider,
 } from "./hybridRouter.ts";
+import {
+  rankProvidersCostAware,
+  updateProviderMetricsV2,
+  applySlaPenalty,
+  updateUsage24h,
+  type CostAwareRoutingResult,
+} from "./costAwareRouter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
