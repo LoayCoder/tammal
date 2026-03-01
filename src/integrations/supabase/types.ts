@@ -340,6 +340,115 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_provider_events: {
+        Row: {
+          created_at: string
+          estimated_cost: number | null
+          feature: string
+          id: string
+          latency_ms: number
+          model: string
+          provider: string
+          purpose: string
+          quality_avg: number | null
+          success: boolean
+          tenant_id: string | null
+          tokens_used: number | null
+        }
+        Insert: {
+          created_at?: string
+          estimated_cost?: number | null
+          feature: string
+          id?: string
+          latency_ms: number
+          model: string
+          provider: string
+          purpose: string
+          quality_avg?: number | null
+          success?: boolean
+          tenant_id?: string | null
+          tokens_used?: number | null
+        }
+        Update: {
+          created_at?: string
+          estimated_cost?: number | null
+          feature?: string
+          id?: string
+          latency_ms?: number
+          model?: string
+          provider?: string
+          purpose?: string
+          quality_avg?: number | null
+          success?: boolean
+          tenant_id?: string | null
+          tokens_used?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_provider_events_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_provider_metrics_agg: {
+        Row: {
+          ewma_cost_per_1k: number
+          ewma_latency_ms: number
+          ewma_quality: number
+          ewma_success_rate: number
+          feature: string
+          id: string
+          last_updated: string
+          model: string
+          provider: string
+          purpose: string
+          sample_count: number
+          scope: string
+          tenant_id: string | null
+        }
+        Insert: {
+          ewma_cost_per_1k?: number
+          ewma_latency_ms?: number
+          ewma_quality?: number
+          ewma_success_rate?: number
+          feature: string
+          id?: string
+          last_updated?: string
+          model: string
+          provider: string
+          purpose: string
+          sample_count?: number
+          scope: string
+          tenant_id?: string | null
+        }
+        Update: {
+          ewma_cost_per_1k?: number
+          ewma_latency_ms?: number
+          ewma_quality?: number
+          ewma_success_rate?: number
+          feature?: string
+          id?: string
+          last_updated?: string
+          model?: string
+          provider?: string
+          purpose?: string
+          sample_count?: number
+          scope?: string
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_provider_metrics_agg_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_rate_limits: {
         Row: {
           created_at: string

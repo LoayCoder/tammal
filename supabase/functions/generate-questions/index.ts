@@ -31,6 +31,13 @@ import {
   type ApprovalGateResult,
 } from "./approvalGate.ts";
 import { scanForPii } from "./piiScanner.ts";
+import {
+  rankProvidersHybrid,
+  updateProviderAgg,
+  type ProviderCandidate,
+  type RoutingResult,
+  type HybridProvider,
+} from "./hybridRouter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -50,7 +57,9 @@ const MODEL_FALLBACK_MAP: Record<string, string> = {
 };
 
 function getProviderName(modelKey: string): string {
-  return modelKey.startsWith('openai/') ? 'openai' : 'gemini';
+  if (modelKey.startsWith('openai/')) return 'openai';
+  if (modelKey.startsWith('anthropic/')) return 'anthropic';
+  return 'gemini';
 }
 
 // ── Token / context budget constants (mirrors src/config/ai.ts) ──
@@ -804,6 +813,27 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
       }
     }
 
+    // ── Hybrid Provider Routing (PR-AI-INT-01C) ──
+    const routingCandidates: ProviderCandidate[] = [
+      { provider: 'gemini', model: selectedModel.startsWith('google/') ? selectedModel : 'google/gemini-3-flash-preview' },
+      { provider: 'openai', model: selectedModel.startsWith('openai/') ? selectedModel : 'openai/gpt-5-mini' },
+      { provider: 'anthropic', model: selectedModel.startsWith('anthropic/') ? selectedModel : 'anthropic/claude-sonnet' },
+    ];
+
+    let routingResult: RoutingResult | null = null;
+    try {
+      routingResult = await rankProvidersHybrid(supabase, {
+        tenantId: resolvedTenantId,
+        feature: 'question-generator',
+        purpose,
+        candidates: routingCandidates,
+      });
+      console.log(`HybridRouter: selected=${routingResult.selected.provider}/${routingResult.selected.model} mode=${routingResult.mode} alpha=${routingResult.alpha} beta=${routingResult.beta} eps=${routingResult.epsilon} tenantSamples=${routingResult.tenantFpSamples}`);
+    } catch (routeErr) {
+      // Fail open — fall back to existing orchestrator
+      console.warn('HybridRouter: ranking failed (graceful degradation)', routeErr instanceof Error ? routeErr.message : 'unknown');
+    }
+
     // ── Provider-agnostic call with orchestrated fallback ──
     const orchCtx: OrchestratorContext = {
       feature: 'question-generator',
@@ -813,15 +843,43 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
       retry_count: 0,
     };
 
+    // If hybrid router succeeded, use its selected model as primary
+    const routedModel = routingResult ? routingResult.selected.model : selectedModel;
+
+    const aiCallStart = performance.now();
     const aiCall = await callWithFallback(
       LOVABLE_API_KEY,
-      selectedModel,
+      routedModel,
       messages,
       temperature,
       tools,
       toolChoice,
       orchCtx,
     );
+
+    // ── Post-call: update hybrid router metrics (fire-and-forget) ──
+    const aiCallLatencyMs = Math.round(performance.now() - aiCallStart);
+    const aiCallSuccess = aiCall.response.ok;
+    if (routingResult) {
+      const usedProvider = getProviderName(aiCall.model);
+      const usedModel = aiCall.model;
+      const updateParams = {
+        feature: 'question-generator',
+        purpose,
+        provider: usedProvider,
+        model: usedModel,
+        latencyMs: aiCallLatencyMs,
+        costPer1k: 0, // estimated post-response below
+        qualityAvg: 0, // updated after quality eval
+        success: aiCallSuccess,
+      };
+      // Global update
+      updateProviderAgg(supabase, { ...updateParams, scope: 'global', tenantId: null });
+      // Tenant update
+      if (resolvedTenantId) {
+        updateProviderAgg(supabase, { ...updateParams, scope: 'tenant', tenantId: resolvedTenantId });
+      }
+    }
 
     const response = aiCall.response;
 
@@ -1356,6 +1414,17 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           orch_attempts: aiCall.orchAttempts,
           orch_reason: aiCall.orchReason || null,
           orch_scores: getScoreSummary(),
+          // Hybrid routing telemetry (no PII)
+          ai_routing_feature: 'question-generator',
+          ai_routing_purpose: purpose,
+          ai_routing_alpha: routingResult?.alpha ?? null,
+          ai_routing_beta: routingResult?.beta ?? null,
+          ai_routing_epsilon: routingResult?.epsilon ?? null,
+          ai_routing_mode: routingResult?.mode ?? null,
+          ai_routing_selected_provider: routingResult?.selected.provider ?? null,
+          ai_routing_selected_model: routingResult?.selected.model ?? null,
+          ai_routing_scores_top: routingResult?.scores ?? null,
+          ai_routing_tenant_fp_samples: routingResult?.tenantFpSamples ?? null,
           // Quality telemetry (no question text)
           quality_avg: batchQuality.averageScore,
           quality_flagged: batchQuality.flaggedCount,
