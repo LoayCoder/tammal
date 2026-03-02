@@ -849,6 +849,38 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
       forecastAdj = await getForecastAdjustments(supabase, resolvedTenantId, 'question-generator');
     } catch { /* fail-open */ }
 
+    // ── PR-AI-INT-06: Autonomous weight injection (fail-open) ──
+    let autonomousWeights: Record<string, number> | null = null;
+    let autonomousExplorationBoost = 0;
+    let autonomousEnabled = false;
+    let sandboxProvider: { provider: string; model: string; evaluationId: string } | null = null;
+    try {
+      if (resolvedTenantId) {
+        const { data: autoState } = await supabase
+          .from('ai_autonomous_state')
+          .select('current_weights, mode, exploration_boost, anomaly_frozen_until')
+          .eq('tenant_id', resolvedTenantId)
+          .eq('feature', 'question-generator')
+          .maybeSingle();
+        if (autoState?.mode === 'enabled' && autoState?.current_weights) {
+          autonomousWeights = autoState.current_weights as Record<string, number>;
+          autonomousExplorationBoost = autoState.exploration_boost || 0;
+          autonomousEnabled = true;
+        }
+        // Check for active sandbox evaluations
+        const { data: sandboxEvals } = await supabase
+          .from('ai_sandbox_evaluations')
+          .select('id, provider, model, traffic_percentage')
+          .eq('tenant_id', resolvedTenantId)
+          .eq('feature', 'question-generator')
+          .eq('status', 'active')
+          .limit(1);
+        if (sandboxEvals && sandboxEvals.length > 0 && Math.random() < (sandboxEvals[0].traffic_percentage / 100)) {
+          sandboxProvider = { provider: sandboxEvals[0].provider, model: sandboxEvals[0].model, evaluationId: sandboxEvals[0].id };
+        }
+      }
+    } catch { /* fail-open: autonomous layer never blocks routing */ }
+
     // Determine routing strategy: check tenant config first
     try {
       if (resolvedTenantId) {
