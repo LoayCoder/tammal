@@ -1002,8 +1002,14 @@ ${categoryIdEnum ? `\nCRITICAL: Use ONLY the provided category_id and subcategor
       retry_count: 0,
     };
 
-    // If hybrid router succeeded, use its selected model as primary
-    const routedModel = routingResult ? routingResult.selected.model : selectedModel;
+    // If sandbox provider is active, override the routed model (fail-open)
+    let routedModel: string;
+    if (sandboxProvider) {
+      routedModel = sandboxProvider.model;
+      console.log(`SandboxRoute: using sandbox provider=${sandboxProvider.provider}/${sandboxProvider.model} evalId=${sandboxProvider.evaluationId}`);
+    } else {
+      routedModel = routingResult ? routingResult.selected.model : selectedModel;
+    }
 
     const aiCallStart = performance.now();
     const aiCall = await callWithFallback(
