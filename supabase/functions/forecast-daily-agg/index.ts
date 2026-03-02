@@ -165,10 +165,116 @@ serve(async (req) => {
       forecastUpdated++;
     }
 
-    const duration = Math.round(performance.now() - startTime);
-    console.log(`ForecastAgg: done in ${duration}ms costs=${costAgg} perf=${perfAgg} forecasts=${forecastUpdated}`);
+    // 3. Anomaly Detection (Z-Score, piggybacked on daily cron — PR-AI-INT-06)
+    let anomaliesDetected = 0;
+    try {
+      const sevenDayPerfData = (perfData || []).filter(r => r.date >= sevenDaysAgo);
+      const providerFeatures = new Map<string, { latencies: number[]; errorRates: number[]; costs: number[] }>();
 
-    return new Response(JSON.stringify({ success: true, targetDate, duration, costAgg, perfAgg, forecastUpdated }), {
+      for (const r of sevenDayPerfData) {
+        const k = `${r.provider || 'unknown'}::${r.feature}`;
+        const entry = providerFeatures.get(k) || { latencies: [], errorRates: [], costs: [] };
+        entry.latencies.push(r.avg_latency ?? 0);
+        entry.errorRates.push(r.error_rate ?? 0);
+        providerFeatures.set(k, entry);
+      }
+
+      // Add cost data per provider
+      for (const [key, val] of costGroups || new Map()) {
+        const [, feat, prov] = key.split('::');
+        const k = `${prov}::${feat}`;
+        const entry = providerFeatures.get(k) || { latencies: [], errorRates: [], costs: [] };
+        entry.costs.push(val.cost);
+        providerFeatures.set(k, entry);
+      }
+
+      for (const [key, metrics] of providerFeatures) {
+        const anomalies: string[] = [];
+
+        // Z-score for latency
+        if (metrics.latencies.length >= 3) {
+          const mean = metrics.latencies.reduce((s, v) => s + v, 0) / metrics.latencies.length;
+          const stddev = Math.sqrt(metrics.latencies.reduce((s, v) => s + (v - mean) ** 2, 0) / metrics.latencies.length);
+          if (stddev > 0) {
+            const latest = metrics.latencies[metrics.latencies.length - 1];
+            const z = (latest - mean) / stddev;
+            if (Math.abs(z) > 3) anomalies.push(`latency_spike(z=${z.toFixed(2)})`);
+          }
+        }
+
+        // Z-score for error rate
+        if (metrics.errorRates.length >= 3) {
+          const mean = metrics.errorRates.reduce((s, v) => s + v, 0) / metrics.errorRates.length;
+          const stddev = Math.sqrt(metrics.errorRates.reduce((s, v) => s + (v - mean) ** 2, 0) / metrics.errorRates.length);
+          if (stddev > 0) {
+            const latest = metrics.errorRates[metrics.errorRates.length - 1];
+            const z = (latest - mean) / stddev;
+            if (Math.abs(z) > 3) anomalies.push(`error_burst(z=${z.toFixed(2)})`);
+          }
+        }
+
+        // Z-score for cost
+        if (metrics.costs.length >= 3) {
+          const mean = metrics.costs.reduce((s, v) => s + v, 0) / metrics.costs.length;
+          const stddev = Math.sqrt(metrics.costs.reduce((s, v) => s + (v - mean) ** 2, 0) / metrics.costs.length);
+          if (stddev > 0) {
+            const latest = metrics.costs[metrics.costs.length - 1];
+            const z = (latest - mean) / stddev;
+            if (Math.abs(z) > 3) anomalies.push(`cost_spike(z=${z.toFixed(2)})`);
+          }
+        }
+
+        if (anomalies.length > 0) {
+          anomaliesDetected++;
+          const [prov, feat] = key.split('::');
+
+          // Log anomaly to autonomous audit log
+          await supabase.from('ai_autonomous_audit_log').insert({
+            feature: feat,
+            anomaly_detected: true,
+            adjustment_reason: `Z-score anomaly: ${anomalies.join(', ')}`,
+            adjustment_magnitude: 0,
+            sandbox_event: null,
+          });
+
+          // Freeze autonomous adjustments for 24h on any tenant with this feature
+          await supabase.from('ai_autonomous_state')
+            .update({ anomaly_frozen_until: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() })
+            .eq('feature', feat)
+            .lt('anomaly_frozen_until', new Date().toISOString());
+
+          // Boost exploration by 5% (cap at 20%)
+          const { data: states } = await supabase.from('ai_autonomous_state')
+            .select('tenant_id, exploration_boost')
+            .eq('feature', feat);
+          for (const s of (states || [])) {
+            const newBoost = Math.min((s.exploration_boost || 0) + 0.05, 0.20);
+            await supabase.from('ai_autonomous_state')
+              .update({ exploration_boost: newBoost })
+              .eq('tenant_id', s.tenant_id)
+              .eq('feature', feat);
+          }
+
+          // Apply temporary conservative penalty (0.85, 30 min TTL)
+          await supabase.from('ai_provider_penalties').upsert({
+            provider: prov,
+            feature: feat,
+            penalty_multiplier: 0.85,
+            penalty_expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+          }, { onConflict: 'provider,feature' });
+
+          console.log(`AnomalyDetection: ${key} anomalies=[${anomalies.join(', ')}]`);
+        }
+      }
+    } catch (anomalyErr) {
+      // Anomaly detection must never block aggregation
+      console.warn('AnomalyDetection: failed (graceful degradation)', anomalyErr instanceof Error ? anomalyErr.message : 'unknown');
+    }
+
+    const duration = Math.round(performance.now() - startTime);
+    console.log(`ForecastAgg: done in ${duration}ms costs=${costAgg} perf=${perfAgg} forecasts=${forecastUpdated} anomalies=${anomaliesDetected}`);
+
+    return new Response(JSON.stringify({ success: true, targetDate, duration, costAgg, perfAgg, forecastUpdated, anomaliesDetected }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {

@@ -3198,6 +3198,7 @@
       "requestUpdated": "Request updated",
       "requestUpdateError": "Failed to update request",
       "markFulfilled": "Mark Fulfilled"
+    }
   },
   "aiGovernance": {
     "title": "AI Governance Dashboard",
@@ -3302,3 +3303,4 @@
     }
   }
 }
+
