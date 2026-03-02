@@ -3262,7 +3262,28 @@
     "posteriorReset": "Thompson posterior reset to defaults",
     "refreshSummary": "Refresh Summary Data",
     "auditLog": "Governance Audit Log",
+    "provider": "Provider",
+    "feature": "Feature",
+    "multiplier": "Multiplier",
+    "expires": "Expires",
+    "providerPlaceholder": "e.g. openai",
+    "featurePlaceholder": "e.g. question_generation",
+    "perDay": "day",
+    "avgLatencyMs": "Avg Latency (ms)",
+    "errorRatePct": "Error Rate (%)",
+    "strategies": {
+      "hybrid": "Hybrid",
+      "costAware": "Cost Aware",
+      "thompson": "Thompson Sampling"
+    },
+    "routingModes": {
+      "performance": "Performance",
+      "balanced": "Balanced",
+      "costSaver": "Cost Saver"
+    },
     "autonomous": {
+      "confirmModeTitle": "Change Autonomous Mode",
+      "confirmModeDescription": "Switching mode may impact routing stability. Are you sure you want to proceed?",
       "title": "Autonomous Optimization",
       "noStates": "No autonomous optimization states configured.",
       "modeUpdated": "Autonomous mode updated",

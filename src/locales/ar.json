@@ -3144,7 +3144,28 @@
     "posteriorReset": "تم إعادة تعيين مُعامِلات ثومبسون إلى القيم الافتراضية",
     "refreshSummary": "تحديث بيانات الملخص",
     "auditLog": "سجل مراجعة الحوكمة",
+    "provider": "المزود",
+    "feature": "الميزة",
+    "multiplier": "المضاعف",
+    "expires": "ينتهي",
+    "providerPlaceholder": "مثال: openai",
+    "featurePlaceholder": "مثال: question_generation",
+    "perDay": "يوم",
+    "avgLatencyMs": "متوسط التأخير (مللي ثانية)",
+    "errorRatePct": "معدل الخطأ (%)",
+    "strategies": {
+      "hybrid": "هجين",
+      "costAware": "واعي التكلفة",
+      "thompson": "عينات ثومبسون"
+    },
+    "routingModes": {
+      "performance": "الأداء",
+      "balanced": "متوازن",
+      "costSaver": "موفر التكلفة"
+    },
     "autonomous": {
+      "confirmModeTitle": "تغيير وضع التحسين الذاتي",
+      "confirmModeDescription": "قد يؤثر تبديل الوضع على استقرار التوجيه. هل أنت متأكد من المتابعة؟",
       "title": "التحسين الذاتي",
       "noStates": "لا توجد حالات تحسين ذاتي مُعدَّة.",
       "modeUpdated": "تم تحديث وضع التحسين الذاتي",

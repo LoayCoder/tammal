@@ -49,9 +49,9 @@ export function BudgetControls({ budgetConfig }: Props) {
             <Select value={routingMode} onValueChange={setRoutingMode}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="performance">Performance</SelectItem>
-                <SelectItem value="balanced">Balanced</SelectItem>
-                <SelectItem value="cost_saver">Cost Saver</SelectItem>
+                <SelectItem value="performance">{t('aiGovernance.routingModes.performance')}</SelectItem>
+                <SelectItem value="balanced">{t('aiGovernance.routingModes.balanced')}</SelectItem>
+                <SelectItem value="cost_saver">{t('aiGovernance.routingModes.costSaver')}</SelectItem>
               </SelectContent>
             </Select>
           </div>

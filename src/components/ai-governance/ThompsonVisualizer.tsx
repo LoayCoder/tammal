@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslation } from 'react-i18next';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -11,7 +12,6 @@ interface Props {
 
 function betaPdf(x: number, alpha: number, beta: number): number {
   if (x <= 0 || x >= 1) return 0;
-  // Use log-space to avoid overflow
   const logB = logBeta(alpha, beta);
   return Math.exp((alpha - 1) * Math.log(x) + (beta - 1) * Math.log(1 - x) - logB);
 }
@@ -21,7 +21,6 @@ function logBeta(a: number, b: number): number {
 }
 
 function logGamma(z: number): number {
-  // Lanczos approximation
   const g = 7;
   const c = [
     0.99999999999980993, 676.5203681218851, -1259.1392167224028,
@@ -41,21 +40,38 @@ function logGamma(z: number): number {
 export function ThompsonVisualizer({ summary, isLoading }: Props) {
   const { t } = useTranslation();
 
+  const providers = useMemo(() => {
+    return summary
+      .filter(r => r.provider && r.ts_alpha != null && r.ts_beta != null)
+      .reduce<Record<string, { alpha: number; beta: number; sampleCount: number }>>((acc, r) => {
+        if (!acc[r.provider!]) {
+          acc[r.provider!] = { alpha: r.ts_alpha!, beta: r.ts_beta!, sampleCount: r.sample_count ?? 0 };
+        }
+        return acc;
+      }, {});
+  }, [summary]);
+
+  const providerNames = Object.keys(providers);
+
+  // Memoize expensive PDF curve computation
+  const chartData = useMemo(() => {
+    if (providerNames.length === 0) return [];
+    const points = 100;
+    return Array.from({ length: points + 1 }, (_, i) => {
+      const x = i / points;
+      const row: Record<string, number> = { x: Number(x.toFixed(3)) };
+      for (const name of providerNames) {
+        const { alpha, beta } = providers[name];
+        row[name] = Number(betaPdf(x, alpha, beta).toFixed(4));
+      }
+      return row;
+    });
+  }, [providers, providerNames]);
+
   if (isLoading) {
     return <Card><CardContent className="pt-6"><Skeleton className="h-[300px] w-full" /></CardContent></Card>;
   }
 
-  // Unique providers with TS data
-  const providers = summary
-    .filter(r => r.provider && r.ts_alpha != null && r.ts_beta != null)
-    .reduce<Record<string, { alpha: number; beta: number; sampleCount: number }>>((acc, r) => {
-      if (!acc[r.provider!]) {
-        acc[r.provider!] = { alpha: r.ts_alpha!, beta: r.ts_beta!, sampleCount: r.sample_count ?? 0 };
-      }
-      return acc;
-    }, {});
-
-  const providerNames = Object.keys(providers);
   if (providerNames.length === 0) {
     return (
       <Card>
@@ -64,18 +80,6 @@ export function ThompsonVisualizer({ summary, isLoading }: Props) {
       </Card>
     );
   }
-
-  // Generate PDF curve data
-  const points = 100;
-  const chartData = Array.from({ length: points + 1 }, (_, i) => {
-    const x = i / points;
-    const row: Record<string, number> = { x: Number(x.toFixed(3)) };
-    for (const name of providerNames) {
-      const { alpha, beta } = providers[name];
-      row[name] = Number(betaPdf(x, alpha, beta).toFixed(4));
-    }
-    return row;
-  });
 
   const colors = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))'];
 
