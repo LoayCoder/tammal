@@ -26,6 +26,14 @@ const ACTION_ACCESS: Record<string, RoleAccess[]> = {
   update_budget: ['super_admin', 'finance'],
   refresh_summary: ['super_admin'],
   get_audit_log: ['super_admin', 'tenant_admin'],
+  get_autonomous_state: ['super_admin', 'engineering'],
+  get_autonomous_audit_log: ['super_admin', 'engineering'],
+  get_sandbox_evaluations: ['super_admin', 'engineering'],
+  toggle_autonomous_mode: ['super_admin'],
+  rollback_weights: ['super_admin'],
+  freeze_autonomous: ['super_admin'],
+  promote_sandbox: ['super_admin'],
+  disable_sandbox: ['super_admin'],
 }
 
 Deno.serve(async (req) => {
@@ -378,6 +386,92 @@ Deno.serve(async (req) => {
 
         const { data } = await query
         result = data ?? []
+        break
+      }
+
+      case 'get_autonomous_state': {
+        let query = db.from('ai_autonomous_state').select('*')
+        if (!isSuperAdmin && tenantId) query = query.eq('tenant_id', tenantId)
+        const { data } = await query
+        result = data ?? []
+        break
+      }
+
+      case 'get_autonomous_audit_log': {
+        const limit = (params.limit as number) || 50
+        let query = db.from('ai_autonomous_audit_log').select('*').order('created_at', { ascending: false }).limit(limit)
+        if (!isSuperAdmin && tenantId) query = query.eq('tenant_id', tenantId)
+        const { data } = await query
+        result = data ?? []
+        break
+      }
+
+      case 'get_sandbox_evaluations': {
+        let query = db.from('ai_sandbox_evaluations').select('*').order('created_at', { ascending: false })
+        if (!isSuperAdmin && tenantId) query = query.eq('tenant_id', tenantId)
+        const { data } = await query
+        result = data ?? []
+        break
+      }
+
+      case 'toggle_autonomous_mode': {
+        const targetTenantId = (params.tenant_id as string) || tenantId
+        const feature = params.feature as string
+        const mode = params.mode as string
+        if (!feature || !['enabled', 'disabled', 'shadow'].includes(mode)) {
+          return new Response(JSON.stringify({ error: 'Invalid feature or mode' }), { status: 400, headers: corsHeaders })
+        }
+        const { data: prev } = await db.from('ai_autonomous_state').select('mode').eq('tenant_id', targetTenantId).eq('feature', feature).single()
+        await db.from('ai_autonomous_state').upsert({ tenant_id: targetTenantId, feature, mode, updated_at: new Date().toISOString() }, { onConflict: 'tenant_id,feature' })
+        await db.from('ai_governance_audit_log').insert({ tenant_id: targetTenantId, user_id: userId, action: 'toggle_autonomous_mode', target_entity: `${targetTenantId}:${feature}`, previous_value: { mode: prev?.mode }, new_value: { mode } })
+        result = { success: true }
+        break
+      }
+
+      case 'rollback_weights': {
+        const targetTenantId = (params.tenant_id as string) || tenantId
+        const feature = params.feature as string
+        if (!feature) return new Response(JSON.stringify({ error: 'feature required' }), { status: 400, headers: corsHeaders })
+        const { data: state } = await db.from('ai_autonomous_state').select('current_weights, previous_weights_history').eq('tenant_id', targetTenantId).eq('feature', feature).single()
+        if (!state?.previous_weights_history?.length) return new Response(JSON.stringify({ error: 'No history to rollback' }), { status: 400, headers: corsHeaders })
+        const history = state.previous_weights_history as any[]
+        const restored = history[history.length - 1]
+        const newHistory = history.slice(0, -1)
+        await db.from('ai_autonomous_state').update({ current_weights: restored, previous_weights_history: newHistory, updated_at: new Date().toISOString() }).eq('tenant_id', targetTenantId).eq('feature', feature)
+        await db.from('ai_governance_audit_log').insert({ tenant_id: targetTenantId, user_id: userId, action: 'rollback_weights', target_entity: `${targetTenantId}:${feature}`, previous_value: state.current_weights, new_value: restored })
+        result = { success: true }
+        break
+      }
+
+      case 'freeze_autonomous': {
+        const targetTenantId = (params.tenant_id as string) || tenantId
+        const feature = params.feature as string
+        const hours = (params.hours as number) || 24
+        if (!feature) return new Response(JSON.stringify({ error: 'feature required' }), { status: 400, headers: corsHeaders })
+        const freezeUntil = new Date(Date.now() + hours * 3600000).toISOString()
+        await db.from('ai_autonomous_state').update({ anomaly_frozen_until: freezeUntil, updated_at: new Date().toISOString() }).eq('tenant_id', targetTenantId).eq('feature', feature)
+        await db.from('ai_governance_audit_log').insert({ tenant_id: targetTenantId, user_id: userId, action: 'freeze_autonomous', target_entity: `${targetTenantId}:${feature}`, new_value: { frozen_until: freezeUntil } })
+        result = { success: true }
+        break
+      }
+
+      case 'promote_sandbox': {
+        const sandboxId = params.sandbox_id as string
+        if (!sandboxId) return new Response(JSON.stringify({ error: 'sandbox_id required' }), { status: 400, headers: corsHeaders })
+        const { data: sb } = await db.from('ai_sandbox_evaluations').select('*').eq('id', sandboxId).single()
+        await db.from('ai_sandbox_evaluations').update({ status: 'promoted' }).eq('id', sandboxId)
+        await db.from('ai_governance_audit_log').insert({ tenant_id: sb?.tenant_id || tenantId, user_id: userId, action: 'promote_sandbox', target_entity: `${sb?.provider}/${sb?.model}`, previous_value: { status: sb?.status }, new_value: { status: 'promoted' } })
+        result = { success: true }
+        break
+      }
+
+      case 'disable_sandbox': {
+        const sandboxId = params.sandbox_id as string
+        if (!sandboxId) return new Response(JSON.stringify({ error: 'sandbox_id required' }), { status: 400, headers: corsHeaders })
+        const { data: sb } = await db.from('ai_sandbox_evaluations').select('*').eq('id', sandboxId).single()
+        await db.from('ai_sandbox_evaluations').update({ status: 'disabled' }).eq('id', sandboxId)
+        await db.from('ai_governance_audit_log').insert({ tenant_id: sb?.tenant_id || tenantId, user_id: userId, action: 'disable_sandbox', target_entity: `${sb?.provider}/${sb?.model}`, previous_value: { status: sb?.status }, new_value: { status: 'disabled' } })
+        result = { success: true }
         break
       }
     }

@@ -3260,7 +3260,45 @@
     "resetPosteriorWarning": "This resets all learned quality/latency/cost priors to defaults. The system will re-explore from scratch.",
     "posteriorReset": "Thompson posterior reset to defaults",
     "refreshSummary": "Refresh Summary Data",
-    "auditLog": "Governance Audit Log"
+    "auditLog": "Governance Audit Log",
+    "autonomous": {
+      "title": "Autonomous Optimization",
+      "noStates": "No autonomous optimization states configured.",
+      "modeUpdated": "Autonomous mode updated",
+      "weightsRolledBack": "Weights rolled back to previous state",
+      "frozen": "Frozen",
+      "modes": {
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "shadow": "Shadow"
+      },
+      "rollback": "Rollback",
+      "weights": {
+        "quality": "Quality",
+        "latency": "Latency",
+        "stability": "Stability",
+        "cost": "Cost",
+        "confidence": "Confidence"
+      },
+      "lastAdjustment": "Last Adjusted",
+      "magnitude": "Magnitude",
+      "historyCount": "History",
+      "anomalyTimeline": "Anomaly Detection Timeline",
+      "noAnomalies": "No anomalies detected.",
+      "anomaly": "Anomaly",
+      "sandboxTitle": "Sandbox Provider Evaluations",
+      "noSandbox": "No sandbox evaluations active.",
+      "sandboxUpdated": "Sandbox evaluation updated",
+      "traffic": "traffic",
+      "promote": "Promote",
+      "disable": "Disable",
+      "calls": "Calls",
+      "successRate": "Success Rate",
+      "avgLatency": "Avg Latency",
+      "quality": "Quality",
+      "callProgress": "Call Progress",
+      "timeProgress": "Time Progress",
+      "days": "days"
+    }
   }
-}
 }
