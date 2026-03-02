@@ -1,7 +1,8 @@
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, BarChart, Bar } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import type { CostDailyRow } from '@/hooks/ai-governance/useCostBreakdown';
 
 interface Props {
@@ -11,44 +12,47 @@ interface Props {
 }
 
 export function FinanceDashboard({ costData, budgetConfig, isLoading }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language;
+
+  const currencyFormatter = useMemo(
+    () => new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 4 }),
+    [locale]
+  );
+
+  const monthlyBudget = (budgetConfig?.monthly_budget as number) ?? 0;
+  const totalSpend = useMemo(() => costData.reduce((s, r) => s + r.total_cost, 0), [costData]);
+
+  const { providerChart, featureChart, trendData } = useMemo(() => {
+    const byProvider: Record<string, number> = {};
+    const byFeature: Record<string, number> = {};
+    const byDate: Record<string, number> = {};
+    costData.forEach(r => {
+      byProvider[r.provider] = (byProvider[r.provider] ?? 0) + r.total_cost;
+      byFeature[r.feature] = (byFeature[r.feature] ?? 0) + r.total_cost;
+      byDate[r.date] = (byDate[r.date] ?? 0) + r.total_cost;
+    });
+    return {
+      providerChart: Object.entries(byProvider).map(([provider, cost]) => ({ provider, cost: Number(cost.toFixed(4)) })),
+      featureChart: Object.entries(byFeature).map(([feature, cost]) => ({ feature, cost: Number(cost.toFixed(4)) })),
+      trendData: Object.entries(byDate).sort(([a], [b]) => a.localeCompare(b)).map(([date, cost]) => ({ date, cost: Number(cost.toFixed(4)) })),
+    };
+  }, [costData]);
 
   if (isLoading) {
     return <div className="space-y-4">{Array.from({ length: 3 }).map((_, i) => <Card key={i}><CardContent className="pt-6"><Skeleton className="h-48 w-full" /></CardContent></Card>)}</div>;
   }
-
-  const monthlyBudget = (budgetConfig?.monthly_budget as number) ?? 0;
-  const totalSpend = costData.reduce((s, r) => s + r.total_cost, 0);
-
-  // Cost by provider
-  const byProvider: Record<string, number> = {};
-  costData.forEach(r => {
-    byProvider[r.provider] = (byProvider[r.provider] ?? 0) + r.total_cost;
-  });
-  const providerChart = Object.entries(byProvider).map(([provider, cost]) => ({ provider, cost: Number(cost.toFixed(4)) }));
-
-  // Cost by feature
-  const byFeature: Record<string, number> = {};
-  costData.forEach(r => {
-    byFeature[r.feature] = (byFeature[r.feature] ?? 0) + r.total_cost;
-  });
-  const featureChart = Object.entries(byFeature).map(([feature, cost]) => ({ feature, cost: Number(cost.toFixed(4)) }));
-
-  // Cost trend by date
-  const byDate: Record<string, number> = {};
-  costData.forEach(r => { byDate[r.date] = (byDate[r.date] ?? 0) + r.total_cost; });
-  const trendData = Object.entries(byDate).sort(([a], [b]) => a.localeCompare(b)).map(([date, cost]) => ({ date, cost: Number(cost.toFixed(4)) }));
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{t('aiGovernance.totalSpend')}</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">${totalSpend.toFixed(4)}</p></CardContent>
+          <CardContent><p className="text-2xl font-bold">{currencyFormatter.format(totalSpend)}</p></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{t('aiGovernance.monthlyBudget')}</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">${monthlyBudget.toFixed(2)}</p></CardContent>
+          <CardContent><p className="text-2xl font-bold">{currencyFormatter.format(monthlyBudget)}</p></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{t('aiGovernance.budgetUtilization')}</CardTitle></CardHeader>

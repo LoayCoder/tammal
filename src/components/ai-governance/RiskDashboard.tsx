@@ -1,8 +1,8 @@
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { PerformanceDailyRow } from '@/hooks/ai-governance/usePerformanceTrend';
 
 interface Props {
@@ -11,37 +11,33 @@ interface Props {
   isLoading: boolean;
 }
 
-function riskBadge(level: string | null) {
-  if (!level) return <Badge variant="outline">N/A</Badge>;
-  const colors: Record<string, string> = {
-    low: 'bg-chart-2/20 text-chart-2 border-chart-2/30',
-    medium: 'bg-chart-4/20 text-chart-4 border-chart-4/30',
-    high: 'bg-destructive/20 text-destructive border-destructive/30',
-  };
-  return <Badge className={colors[level] ?? ''} variant="outline">{level.toUpperCase()}</Badge>;
-}
-
 export function RiskDashboard({ performanceData, penalties, isLoading }: Props) {
   const { t } = useTranslation();
+
+  const trendData = useMemo(() => {
+    const byDate: Record<string, { latency: number; errorRate: number; count: number }> = {};
+    performanceData.forEach(r => {
+      if (!byDate[r.date]) byDate[r.date] = { latency: 0, errorRate: 0, count: 0 };
+      byDate[r.date].latency += r.avg_latency ?? 0;
+      byDate[r.date].errorRate += r.error_rate ?? 0;
+      byDate[r.date].count += 1;
+    });
+    return Object.entries(byDate).sort(([a], [b]) => a.localeCompare(b)).map(([date, v]) => ({
+      date,
+      latency: Number((v.latency / v.count).toFixed(0)),
+      errorRate: Number(((v.errorRate / v.count) * 100).toFixed(2)),
+    }));
+  }, [performanceData]);
+
+  // Filter expired penalties client-side
+  const activePenalties = useMemo(() => {
+    const now = new Date();
+    return penalties.filter((p: any) => new Date(p.penalty_expires_at) > now);
+  }, [penalties]);
 
   if (isLoading) {
     return <div className="space-y-4">{Array.from({ length: 3 }).map((_, i) => <Card key={i}><CardContent className="pt-6"><Skeleton className="h-48 w-full" /></CardContent></Card>)}</div>;
   }
-
-  // Group performance by date for trends
-  const byDate: Record<string, { latency: number; errorRate: number; count: number }> = {};
-  performanceData.forEach(r => {
-    if (!byDate[r.date]) byDate[r.date] = { latency: 0, errorRate: 0, count: 0 };
-    byDate[r.date].latency += r.avg_latency ?? 0;
-    byDate[r.date].errorRate += r.error_rate ?? 0;
-    byDate[r.date].count += 1;
-  });
-
-  const trendData = Object.entries(byDate).sort(([a], [b]) => a.localeCompare(b)).map(([date, v]) => ({
-    date,
-    latency: Number((v.latency / v.count).toFixed(0)),
-    errorRate: Number(((v.errorRate / v.count) * 100).toFixed(2)),
-  }));
 
   return (
     <div className="space-y-6">
@@ -56,7 +52,7 @@ export function RiskDashboard({ performanceData, penalties, isLoading }: Props) 
                   <XAxis dataKey="date" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', color: 'hsl(var(--popover-foreground))' }} />
-                  <Line type="monotone" dataKey="latency" stroke="hsl(var(--chart-4))" strokeWidth={2} dot={false} name="Avg Latency (ms)" />
+                  <Line type="monotone" dataKey="latency" stroke="hsl(var(--chart-4))" strokeWidth={2} dot={false} name={t('aiGovernance.avgLatencyMs')} />
                 </LineChart>
               </ResponsiveContainer>
             ) : <p className="text-muted-foreground">{t('common.noData')}</p>}
@@ -72,7 +68,7 @@ export function RiskDashboard({ performanceData, penalties, isLoading }: Props) 
                   <XAxis dataKey="date" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', color: 'hsl(var(--popover-foreground))' }} />
-                  <Line type="monotone" dataKey="errorRate" stroke="hsl(var(--destructive))" strokeWidth={2} dot={false} name="Error Rate (%)" />
+                  <Line type="monotone" dataKey="errorRate" stroke="hsl(var(--destructive))" strokeWidth={2} dot={false} name={t('aiGovernance.errorRatePct')} />
                 </LineChart>
               </ResponsiveContainer>
             ) : <p className="text-muted-foreground">{t('common.noData')}</p>}
@@ -83,21 +79,21 @@ export function RiskDashboard({ performanceData, penalties, isLoading }: Props) 
       <Card>
         <CardHeader><CardTitle>{t('aiGovernance.activePenalties')}</CardTitle></CardHeader>
         <CardContent>
-          {penalties.length === 0 ? (
+          {activePenalties.length === 0 ? (
             <p className="text-muted-foreground">{t('aiGovernance.noPenalties')}</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-start py-2 pe-4 font-medium text-muted-foreground">Provider</th>
-                    <th className="text-start py-2 pe-4 font-medium text-muted-foreground">Feature</th>
-                    <th className="text-start py-2 pe-4 font-medium text-muted-foreground">Multiplier</th>
-                    <th className="text-start py-2 font-medium text-muted-foreground">Expires</th>
+                    <th className="text-start py-2 pe-4 font-medium text-muted-foreground">{t('aiGovernance.provider')}</th>
+                    <th className="text-start py-2 pe-4 font-medium text-muted-foreground">{t('aiGovernance.feature')}</th>
+                    <th className="text-start py-2 pe-4 font-medium text-muted-foreground">{t('aiGovernance.multiplier')}</th>
+                    <th className="text-start py-2 font-medium text-muted-foreground">{t('aiGovernance.expires')}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {penalties.map((p: any) => (
+                  {activePenalties.map((p: any) => (
                     <tr key={p.id} className="border-b border-border/50">
                       <td className="py-2 pe-4">{p.provider}</td>
                       <td className="py-2 pe-4">{p.feature}</td>

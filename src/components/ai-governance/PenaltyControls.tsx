@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +19,12 @@ export function PenaltyControls() {
   const [feature, setFeature] = useState('');
   const [duration, setDuration] = useState('10');
   const [multiplier, setMultiplier] = useState('0.7');
+
+  // Filter expired penalties
+  const activePenalties = useMemo(() => {
+    const now = new Date();
+    return penalties.filter((p: any) => new Date(p.penalty_expires_at) > now);
+  }, [penalties]);
 
   const handleApply = () => {
     if (!provider || !feature) return toast.error(t('aiGovernance.providerFeatureRequired'));
@@ -44,19 +51,19 @@ export function PenaltyControls() {
       <CardContent className="space-y-4">
         <div className="grid gap-4 md:grid-cols-4">
           <div className="space-y-2">
-            <Label>Provider</Label>
-            <Input value={provider} onChange={(e) => setProvider(e.target.value)} placeholder="e.g. openai" />
+            <Label>{t('aiGovernance.provider')}</Label>
+            <Input value={provider} onChange={(e) => setProvider(e.target.value)} placeholder={t('aiGovernance.providerPlaceholder')} />
           </div>
           <div className="space-y-2">
-            <Label>Feature</Label>
-            <Input value={feature} onChange={(e) => setFeature(e.target.value)} placeholder="e.g. question_generation" />
+            <Label>{t('aiGovernance.feature')}</Label>
+            <Input value={feature} onChange={(e) => setFeature(e.target.value)} placeholder={t('aiGovernance.featurePlaceholder')} />
           </div>
           <div className="space-y-2">
             <Label>{t('aiGovernance.durationMin')}</Label>
             <Input type="number" min="1" value={duration} onChange={(e) => setDuration(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label>Multiplier</Label>
+            <Label>{t('aiGovernance.multiplier')}</Label>
             <Input type="number" min="0" max="1" step="0.1" value={multiplier} onChange={(e) => setMultiplier(e.target.value)} />
           </div>
         </div>
@@ -64,9 +71,9 @@ export function PenaltyControls() {
           {t('aiGovernance.applyPenalty')}
         </Button>
 
-        {penalties.length > 0 && (
+        {activePenalties.length > 0 && (
           <div className="mt-4 space-y-2">
-            {penalties.map((p: any) => (
+            {activePenalties.map((p: any) => (
               <div key={p.id} className="flex items-center justify-between rounded-md border border-border p-3">
                 <span className="text-sm">{p.provider} / {p.feature} — {p.penalty_multiplier}x</span>
                 <Button size="sm" variant="ghost" onClick={() => handleClear(p.id)} disabled={clearPenalty.isPending}>

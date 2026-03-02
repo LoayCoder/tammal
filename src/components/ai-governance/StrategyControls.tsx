@@ -49,9 +49,9 @@ export function StrategyControls({ currentStrategy }: Props) {
               <Select value={strategy} onValueChange={setStrategy}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="hybrid">Hybrid</SelectItem>
-                  <SelectItem value="cost_aware">Cost Aware</SelectItem>
-                  <SelectItem value="thompson">Thompson Sampling</SelectItem>
+                  <SelectItem value="hybrid">{t('aiGovernance.strategies.hybrid')}</SelectItem>
+                  <SelectItem value="cost_aware">{t('aiGovernance.strategies.costAware')}</SelectItem>
+                  <SelectItem value="thompson">{t('aiGovernance.strategies.thompson')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -73,12 +73,12 @@ export function StrategyControls({ currentStrategy }: Props) {
           <p className="text-sm text-muted-foreground">{t('aiGovernance.resetPosteriorWarning')}</p>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label>Provider</Label>
-              <Input value={resetProvider} onChange={(e) => setResetProvider(e.target.value)} placeholder="e.g. openai" />
+              <Label>{t('aiGovernance.provider')}</Label>
+              <Input value={resetProvider} onChange={(e) => setResetProvider(e.target.value)} placeholder={t('aiGovernance.providerPlaceholder')} />
             </div>
             <div className="space-y-2">
-              <Label>Feature</Label>
-              <Input value={resetFeature} onChange={(e) => setResetFeature(e.target.value)} placeholder="e.g. question_generation" />
+              <Label>{t('aiGovernance.feature')}</Label>
+              <Input value={resetFeature} onChange={(e) => setResetFeature(e.target.value)} placeholder={t('aiGovernance.featurePlaceholder')} />
             </div>
           </div>
           <Button variant="destructive" onClick={handleReset} disabled={resetPosterior.isPending}>

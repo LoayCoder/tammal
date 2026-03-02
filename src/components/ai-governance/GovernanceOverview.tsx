@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { RiskBadge } from './RiskBadge';
 import type { GovernanceSummaryRow } from '@/hooks/ai-governance/useGovernanceSummary';
 import type { CostDailyRow } from '@/hooks/ai-governance/useCostBreakdown';
 
@@ -13,18 +15,76 @@ interface Props {
   isLoading: boolean;
 }
 
-function riskBadge(level: string | null) {
-  if (!level) return <Badge variant="outline">N/A</Badge>;
-  const colors: Record<string, string> = {
-    low: 'bg-chart-2/20 text-chart-2 border-chart-2/30',
-    medium: 'bg-chart-4/20 text-chart-4 border-chart-4/30',
-    high: 'bg-destructive/20 text-destructive border-destructive/30',
-  };
-  return <Badge className={colors[level] ?? ''} variant="outline">{level.toUpperCase()}</Badge>;
+function safeNum(v: number | null | undefined): number {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function formatSafe(v: number, decimals: number): string {
+  return Number.isFinite(v) ? v.toFixed(decimals) : '—';
 }
 
 export function GovernanceOverview({ summary, costData, budgetConfig, isLoading }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language;
+
+  const currencyFormatter = useMemo(
+    () => new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 4 }),
+    [locale]
+  );
+
+  // Aggregated KPIs
+  const { projectedCost, burnRate, slaRisk, driftScore, totalCalls, dominantProviderName, dominancePct } = useMemo(() => {
+    if (!summary?.length) {
+      return { projectedCost: 0, burnRate: 0, slaRisk: 'low', driftScore: 0, totalCalls: 0, dominantProviderName: null, dominancePct: '0' };
+    }
+
+    const projectedCost = summary.reduce((s, r) => s + safeNum(r.projected_monthly_cost), 0);
+    const burnRate = summary.reduce((s, r) => s + safeNum(r.burn_rate), 0);
+    const driftScore = summary.reduce((s, r) => s + safeNum(r.performance_drift_score), 0) / summary.length;
+    const totalCalls = summary.reduce((s, r) => s + safeNum(r.calls_last_24h), 0);
+
+    // Worst SLA risk
+    const riskOrder: Record<string, number> = { low: 0, medium: 1, high: 2 };
+    const slaRisk = summary.reduce((worst, r) => {
+      const level = r.sla_risk_level ?? 'low';
+      return (riskOrder[level] ?? 0) > (riskOrder[worst] ?? 0) ? level : worst;
+    }, 'low');
+
+    // Dominant provider — group by provider
+    const providerUsage = new Map<string, number>();
+    summary.forEach(r => {
+      if (r.provider) {
+        providerUsage.set(r.provider, (providerUsage.get(r.provider) ?? 0) + safeNum(r.usage_percentage));
+      }
+    });
+    let dominantProviderName: string | null = null;
+    let maxUsage = 0;
+    let totalUsage = 0;
+    providerUsage.forEach((usage, provider) => {
+      totalUsage += usage;
+      if (usage > maxUsage) { maxUsage = usage; dominantProviderName = provider; }
+    });
+    const dominancePct = totalUsage > 0 ? ((maxUsage / totalUsage) * 100).toFixed(0) : '0';
+
+    return { projectedCost, burnRate, slaRisk, driftScore, totalCalls, dominantProviderName, dominancePct };
+  }, [summary]);
+
+  const strategy = (budgetConfig?.routing_strategy as string) ?? 'cost_aware';
+  const budget = safeNum(budgetConfig?.monthly_budget as number);
+  const budgetUtilization = budget > 0 ? ((projectedCost / budget) * 100) : null;
+  const budgetUtilizationStr = budgetUtilization != null ? formatSafe(budgetUtilization, 1) : 'N/A';
+
+  // Memoized chart data
+  const chartData = useMemo(() => {
+    const costByDate = costData.reduce<Record<string, number>>((acc, r) => {
+      acc[r.date] = (acc[r.date] ?? 0) + r.total_cost;
+      return acc;
+    }, {});
+    return Object.entries(costByDate)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, cost]) => ({ date, cost: Number(cost.toFixed(4)) }));
+  }, [costData]);
 
   if (isLoading) {
     return (
@@ -36,33 +96,15 @@ export function GovernanceOverview({ summary, costData, budgetConfig, isLoading 
     );
   }
 
-  // Aggregate KPIs from summary rows
-  const firstRow = summary[0];
-  const projectedCost = firstRow?.projected_monthly_cost ?? 0;
-  const burnRate = firstRow?.burn_rate ?? 0;
-  const slaRisk = firstRow?.sla_risk_level ?? 'low';
-  const driftScore = firstRow?.performance_drift_score ?? 0;
-  const strategy = (budgetConfig?.routing_strategy as string) ?? 'cost_aware';
-  const budget = (budgetConfig?.monthly_budget as number) ?? 0;
-  const budgetUtilization = budget > 0 ? ((projectedCost / budget) * 100).toFixed(1) : 'N/A';
-
-  // Provider dominance
-  const totalUsage = summary.reduce((s, r) => s + (r.usage_percentage ?? 0), 0);
-  const dominantProvider = summary.reduce((best, r) =>
-    (r.usage_percentage ?? 0) > (best.usage_percentage ?? 0) ? r : best
-  , summary[0]);
-  const dominancePct = totalUsage > 0 && dominantProvider
-    ? ((dominantProvider.usage_percentage ?? 0) / totalUsage * 100).toFixed(0)
-    : '0';
-
-  // Cost trend for chart
-  const costByDate = costData.reduce<Record<string, number>>((acc, r) => {
-    acc[r.date] = (acc[r.date] ?? 0) + r.total_cost;
-    return acc;
-  }, {});
-  const chartData = Object.entries(costByDate)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, cost]) => ({ date, cost: Number(cost.toFixed(4)) }));
+  if (!summary?.length) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center">
+          <p className="text-muted-foreground">{t('common.noData')}</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -73,34 +115,34 @@ export function GovernanceOverview({ summary, costData, budgetConfig, isLoading 
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('aiGovernance.projectedCost')}</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">${projectedCost.toFixed(2)}</p></CardContent>
+          <CardContent><p className="text-2xl font-bold">{currencyFormatter.format(projectedCost)}</p></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('aiGovernance.budgetRisk')}</CardTitle></CardHeader>
           <CardContent>
-            {riskBadge(Number(budgetUtilization) > 90 ? 'high' : Number(budgetUtilization) > 70 ? 'medium' : 'low')}
-            <p className="text-sm text-muted-foreground mt-1">{budgetUtilization}% {t('aiGovernance.utilized')}</p>
+            <RiskBadge level={budgetUtilization != null && budgetUtilization > 90 ? 'high' : budgetUtilization != null && budgetUtilization > 70 ? 'medium' : 'low'} />
+            <p className="text-sm text-muted-foreground mt-1">{budgetUtilizationStr}% {t('aiGovernance.utilized')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('aiGovernance.slaRisk')}</CardTitle></CardHeader>
-          <CardContent>{riskBadge(slaRisk)}</CardContent>
+          <CardContent><RiskBadge level={slaRisk} /></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('aiGovernance.burnRate')}</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">${burnRate.toFixed(4)}<span className="text-sm text-muted-foreground">/day</span></p></CardContent>
+          <CardContent><p className="text-2xl font-bold">{currencyFormatter.format(burnRate)}<span className="text-sm text-muted-foreground">/{t('aiGovernance.perDay')}</span></p></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('aiGovernance.dominantProvider')}</CardTitle></CardHeader>
-          <CardContent><p className="text-lg font-semibold">{dominantProvider?.provider ?? 'N/A'} <span className="text-muted-foreground">({dominancePct}%)</span></p></CardContent>
+          <CardContent><p className="text-lg font-semibold">{dominantProviderName ?? 'N/A'} <span className="text-muted-foreground">({dominancePct}%)</span></p></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('aiGovernance.performanceDrift')}</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{(driftScore * 100).toFixed(1)}%</p></CardContent>
+          <CardContent><p className="text-2xl font-bold">{formatSafe(driftScore * 100, 1)}%</p></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('aiGovernance.totalCalls24h')}</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{summary.reduce((s, r) => s + (r.calls_last_24h ?? 0), 0)}</p></CardContent>
+          <CardContent><p className="text-2xl font-bold">{totalCalls.toLocaleString(locale)}</p></CardContent>
         </Card>
       </div>
 
