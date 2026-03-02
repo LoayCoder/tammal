@@ -67,8 +67,8 @@ describe('PR-AI-OPS-01: Multi-Tenant Isolation', () => {
 
   it('governance action cannot modify cross-tenant state', () => {
     // Simulate governance action where user belongs to Tenant A
-    const userTenantId = TENANT_A;
-    const targetTenantId = TENANT_B;
+    const userTenantId: string = TENANT_A;
+    const targetTenantId: string = TENANT_B;
     const isAuthorized = userTenantId === targetTenantId;
     expect(isAuthorized).toBe(false);
   });
