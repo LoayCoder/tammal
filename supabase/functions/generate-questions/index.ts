@@ -1614,8 +1614,14 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
           ai_forecast_cost_weight_multiplier: forecastAdj?.costWeightMultiplier ?? 1.0,
           ai_forecast_provider_penalty: forecastAdj?.providerPenalty ?? 1.0,
           ai_forecast_exploration_boost: forecastAdj?.explorationBoost ?? false,
-          ai_forecast_auto_weight_adjusted: forecastAdj ? (forecastAdj.costWeightMultiplier !== 1.0 || forecastAdj.providerPenalty !== 1.0) : false,
+           ai_forecast_auto_weight_adjusted: forecastAdj ? (forecastAdj.costWeightMultiplier !== 1.0 || forecastAdj.providerPenalty !== 1.0) : false,
           ai_forecast_version: 'INT-04',
+          // Autonomous optimization telemetry (PR-AI-INT-06, no PII)
+          ai_autonomous_enabled: autonomousEnabled,
+          ai_autonomous_weights_applied: autonomousWeights !== null,
+          ai_autonomous_exploration_boost: autonomousExplorationBoost,
+          ai_sandbox_provider_active: sandboxProvider !== null,
+          ai_sandbox_provider_id: sandboxProvider?.evaluationId ?? null,
           // Quality telemetry (no question text)
           quality_avg: batchQuality.averageScore,
           quality_flagged: batchQuality.flaggedCount,
@@ -1685,6 +1691,28 @@ Return ONLY a JSON array of objects: [{"index":0,"score":85,"flags":[],"reasons"
 
     // Update 24h usage tracking
     updateUsage24h(supabase, usedProvider).catch(() => {});
+
+    // ── PR-AI-INT-06: Update sandbox evaluation metrics (fire-and-forget) ──
+    if (sandboxProvider) {
+      try {
+        const callSuccess2 = aiCall.response.ok;
+        await supabase.rpc('increment_usage_24h', { p_provider: sandboxProvider.provider });
+        const { data: evalData } = await supabase.from('ai_sandbox_evaluations')
+          .select('calls_total, calls_success, avg_latency, avg_cost')
+          .eq('id', sandboxProvider.evaluationId)
+          .single();
+        if (evalData) {
+          const newTotal = (evalData.calls_total || 0) + 1;
+          const newSuccess = (evalData.calls_success || 0) + (callSuccess2 ? 1 : 0);
+          const newAvgLatency = evalData.avg_latency
+            ? (evalData.avg_latency * evalData.calls_total + durationMs) / newTotal
+            : durationMs;
+          await supabase.from('ai_sandbox_evaluations')
+            .update({ calls_total: newTotal, calls_success: newSuccess, avg_latency: newAvgLatency })
+            .eq('id', sandboxProvider.evaluationId);
+        }
+      } catch { /* sandbox metrics update is non-critical */ }
+    }
 
     return new Response(JSON.stringify({
       questions,
