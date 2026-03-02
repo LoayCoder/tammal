@@ -558,28 +558,8 @@ export async function updateUsage24h(
   allProviders: string[] = ['openai', 'gemini', 'anthropic'],
 ): Promise<void> {
   try {
-    // Atomic increment via RPC-style upsert to prevent race conditions (M1 fix)
-    // First ensure the row exists, then increment atomically
-    await supabase
-      .from('ai_provider_usage_24h')
-      .upsert(
-        { provider, calls_last_24h: 1, last_updated: new Date().toISOString() },
-        { onConflict: 'provider', ignoreDuplicates: true },
-      );
-
-    // Atomic increment using raw rpc if available, otherwise read-then-write
-    // Since Supabase JS doesn't support SET col = col + 1 directly,
-    // we use a select-then-update but minimize the race window
-    const { data: current } = await supabase
-      .from('ai_provider_usage_24h')
-      .select('calls_last_24h')
-      .eq('provider', provider)
-      .single();
-
-    await supabase
-      .from('ai_provider_usage_24h')
-      .update({ calls_last_24h: (current?.calls_last_24h || 0) + 1, last_updated: new Date().toISOString() })
-      .eq('provider', provider);
+    // Atomic increment via database function (M1 fix - no race condition)
+    await supabase.rpc('increment_usage_24h', { p_provider: provider });
 
     // Recalculate usage percentages
     const { data: allUsage } = await supabase
