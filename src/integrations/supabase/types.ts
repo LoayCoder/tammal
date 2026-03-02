@@ -71,6 +71,109 @@ export type Database = {
           },
         ]
       }
+      ai_autonomous_audit_log: {
+        Row: {
+          adjustment_magnitude: number | null
+          adjustment_reason: string | null
+          anomaly_detected: boolean
+          created_at: string
+          feature: string
+          hyperparameter_tuned: boolean
+          id: string
+          new_weights: Json | null
+          previous_weights: Json | null
+          sandbox_event: string | null
+          tenant_id: string | null
+        }
+        Insert: {
+          adjustment_magnitude?: number | null
+          adjustment_reason?: string | null
+          anomaly_detected?: boolean
+          created_at?: string
+          feature: string
+          hyperparameter_tuned?: boolean
+          id?: string
+          new_weights?: Json | null
+          previous_weights?: Json | null
+          sandbox_event?: string | null
+          tenant_id?: string | null
+        }
+        Update: {
+          adjustment_magnitude?: number | null
+          adjustment_reason?: string | null
+          anomaly_detected?: boolean
+          created_at?: string
+          feature?: string
+          hyperparameter_tuned?: boolean
+          id?: string
+          new_weights?: Json | null
+          previous_weights?: Json | null
+          sandbox_event?: string | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_autonomous_audit_log_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_autonomous_state: {
+        Row: {
+          adjustment_score: number | null
+          anomaly_frozen_until: string | null
+          created_at: string
+          current_weights: Json
+          exploration_boost: number
+          feature: string
+          hyperparams: Json
+          last_adjustment: string | null
+          mode: string
+          previous_weights_history: Json[]
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          adjustment_score?: number | null
+          anomaly_frozen_until?: string | null
+          created_at?: string
+          current_weights?: Json
+          exploration_boost?: number
+          feature: string
+          hyperparams?: Json
+          last_adjustment?: string | null
+          mode?: string
+          previous_weights_history?: Json[]
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          adjustment_score?: number | null
+          anomaly_frozen_until?: string | null
+          created_at?: string
+          current_weights?: Json
+          exploration_boost?: number
+          feature?: string
+          hyperparams?: Json
+          last_adjustment?: string | null
+          mode?: string
+          previous_weights_history?: Json[]
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_autonomous_state_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_cost_alerts: {
         Row: {
           alert_month: string
@@ -702,6 +805,68 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "ai_rate_limits_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_sandbox_evaluations: {
+        Row: {
+          avg_cost: number | null
+          avg_latency: number | null
+          calls_success: number
+          calls_total: number
+          created_at: string
+          expires_at: string
+          feature: string
+          id: string
+          median_quality: number | null
+          model: string
+          provider: string
+          started_at: string
+          status: string
+          tenant_id: string
+          traffic_percentage: number
+        }
+        Insert: {
+          avg_cost?: number | null
+          avg_latency?: number | null
+          calls_success?: number
+          calls_total?: number
+          created_at?: string
+          expires_at?: string
+          feature: string
+          id?: string
+          median_quality?: number | null
+          model: string
+          provider: string
+          started_at?: string
+          status?: string
+          tenant_id: string
+          traffic_percentage?: number
+        }
+        Update: {
+          avg_cost?: number | null
+          avg_latency?: number | null
+          calls_success?: number
+          calls_total?: number
+          created_at?: string
+          expires_at?: string
+          feature?: string
+          id?: string
+          median_quality?: number | null
+          model?: string
+          provider?: string
+          started_at?: string
+          status?: string
+          tenant_id?: string
+          traffic_percentage?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_sandbox_evaluations_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
