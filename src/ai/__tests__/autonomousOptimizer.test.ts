@@ -263,7 +263,8 @@ describe('PR-AI-INT-06: Autonomous Optimization Layer', () => {
     });
 
     it('triggers anomaly at |z| > 3', () => {
-      const values = [10, 10, 10, 10, 10, 10, 10, 100]; // extreme outlier
+      // Need many baseline values so the outlier doesn't dilute stddev
+      const values = [...Array(30).fill(10), 200]; // extreme outlier among stable baseline
       const z = computeZScore(values);
       expect(isAnomaly(z)).toBe(true);
     });
@@ -299,8 +300,8 @@ describe('PR-AI-INT-06: Autonomous Optimization Layer', () => {
     });
 
     it('handles multiple simultaneous anomalies', () => {
-      const latencies = [100, 100, 100, 100, 100, 500];
-      const errors = [0.01, 0.01, 0.01, 0.01, 0.01, 0.5];
+      const latencies = [...Array(30).fill(100), 2000];
+      const errors = [...Array(30).fill(0.01), 0.9];
       expect(isAnomaly(computeZScore(latencies))).toBe(true);
       expect(isAnomaly(computeZScore(errors))).toBe(true);
     });
