@@ -174,10 +174,10 @@ describe('PR-AI-OPS-01: Cascade Failure Simulation', () => {
   });
 
   it('system stabilizes after 24h freeze lifts', () => {
-    const weights = { w_quality: 0.20, w_latency: 0.20, w_stability: 0.20, w_cost: 0.20, w_confidence: 0.20 };
+    const weights: Weights = { w_quality: 0.20, w_latency: 0.20, w_stability: 0.20, w_cost: 0.20, w_confidence: 0.20 };
 
     // Simulate 10 consecutive adjustments with small deltas
-    let current = { ...weights };
+    let current: Weights = { ...weights };
     for (let i = 0; i < 10; i++) {
       const smallDelta = { w_quality: 0.1, w_latency: -0.05, w_stability: 0.05, w_cost: 0.1, w_confidence: -0.05 };
       current = adjustWeights(current, smallDelta);
