@@ -7,8 +7,8 @@
  */
 
 // ── Production Guard ────────────────────────────────────────────
-export const CHAOS_PRODUCTION_GUARD = typeof process !== 'undefined' &&
-  (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true');
+export const CHAOS_PRODUCTION_GUARD = typeof import.meta !== 'undefined' &&
+  (import.meta.env?.MODE === 'test' || import.meta.env?.VITEST === 'true');
 
 // ── Chaos Flags ─────────────────────────────────────────────────
 export interface ChaosFlags {

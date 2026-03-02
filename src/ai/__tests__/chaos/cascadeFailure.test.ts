@@ -221,8 +221,8 @@ describe('PR-AI-OPS-01: Cascade Failure Simulation', () => {
 
     // Step 3: Cost weight boost
     state.weights.w_cost *= 1.25;
-    const s = Object.values(state.weights).reduce((s, v) => s + v, 0);
-    for (const k of Object.keys(state.weights)) state.weights[k] /= s;
+    const total = Object.values(state.weights).reduce((a, b) => a + b, 0);
+    for (const k of Object.keys(state.weights)) state.weights[k] /= total;
 
     // Step 4: Freeze
     state.autonomousFrozen = true;

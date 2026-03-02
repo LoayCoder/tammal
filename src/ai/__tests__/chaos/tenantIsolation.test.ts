@@ -84,7 +84,8 @@ describe('PR-AI-OPS-01: Multi-Tenant Isolation', () => {
       const budgetFilter = state.tenant_id;
       expect(budgetFilter).toBe(state.tenant_id);
       // Forecast query uses state.tenant_id
-      expect(state.tenant_id).not.toBe(state.tenant_id === TENANT_A ? TENANT_B : TENANT_A);
+      // Each state is processed in isolation with its own tenant context
+      expect(typeof budgetFilter).toBe('string');
     }
   });
 
