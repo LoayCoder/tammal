@@ -478,15 +478,14 @@ describe('PR-AI-INT-06: Autonomous Optimization Layer', () => {
     });
 
     it('Thompson compatibility: weights do not interfere', () => {
-      const strategy = 'thompson';
+      const strategy: string = 'thompson';
       const autoWeights = { w_quality: 0.3 };
-      // Thompson uses its own sampling, autonomous weights are only for cost_aware
       const usesAutoWeights = strategy === 'cost_aware' && autoWeights !== null;
       expect(usesAutoWeights).toBe(false);
     });
 
     it('cost-aware compatibility: weights are applied', () => {
-      const strategy = 'cost_aware';
+      const strategy: string = 'cost_aware';
       const autoWeights = { w_quality: 0.3 };
       const usesAutoWeights = strategy === 'cost_aware' && autoWeights !== null;
       expect(usesAutoWeights).toBe(true);
