@@ -558,21 +558,8 @@ export async function updateUsage24h(
   allProviders: string[] = ['openai', 'gemini', 'anthropic'],
 ): Promise<void> {
   try {
-    // Increment the provider's call count
-    const { data: existing } = await supabase
-      .from('ai_provider_usage_24h')
-      .select('calls_last_24h')
-      .eq('provider', provider)
-      .maybeSingle();
-
-    const newCount = (existing?.calls_last_24h || 0) + 1;
-
-    await supabase
-      .from('ai_provider_usage_24h')
-      .upsert(
-        { provider, calls_last_24h: newCount, last_updated: new Date().toISOString() },
-        { onConflict: 'provider' },
-      );
+    // Atomic increment via database function (M1 fix - no race condition)
+    await supabase.rpc('increment_usage_24h', { p_provider: provider });
 
     // Recalculate usage percentages
     const { data: allUsage } = await supabase

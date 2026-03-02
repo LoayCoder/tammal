@@ -270,7 +270,10 @@ Deno.serve(async (req) => {
         const expiresAt = new Date(Date.now() + durationMinutes * 60_000).toISOString()
         const { error } = await db
           .from('ai_provider_penalties')
-          .insert({ provider, feature, penalty_multiplier: multiplier, penalty_expires_at: expiresAt })
+          .upsert(
+            { provider, feature, penalty_multiplier: multiplier, penalty_expires_at: expiresAt },
+            { onConflict: 'provider,feature' },
+          )
 
         if (error) throw error
 
