@@ -3143,6 +3143,45 @@
     "resetPosteriorWarning": "هذا يعيد تعيين جميع البيانات المتعلمة عن الجودة والتأخير والتكلفة إلى القيم الافتراضية. سيبدأ النظام بالاستكشاف من جديد.",
     "posteriorReset": "تم إعادة تعيين مُعامِلات ثومبسون إلى القيم الافتراضية",
     "refreshSummary": "تحديث بيانات الملخص",
-    "auditLog": "سجل مراجعة الحوكمة"
+    "auditLog": "سجل مراجعة الحوكمة",
+    "autonomous": {
+      "title": "التحسين الذاتي",
+      "noStates": "لا توجد حالات تحسين ذاتي مُعدَّة.",
+      "modeUpdated": "تم تحديث وضع التحسين الذاتي",
+      "weightsRolledBack": "تم استعادة الأوزان إلى الحالة السابقة",
+      "frozen": "مُجمَّد",
+      "modes": {
+        "enabled": "مُفعَّل",
+        "disabled": "مُعطَّل",
+        "shadow": "ظل"
+      },
+      "rollback": "استعادة",
+      "weights": {
+        "quality": "الجودة",
+        "latency": "التأخير",
+        "stability": "الاستقرار",
+        "cost": "التكلفة",
+        "confidence": "الثقة"
+      },
+      "lastAdjustment": "آخر تعديل",
+      "magnitude": "المقدار",
+      "historyCount": "السجل",
+      "anomalyTimeline": "خط زمني لكشف الشذوذ",
+      "noAnomalies": "لم يتم اكتشاف أي شذوذ.",
+      "anomaly": "شذوذ",
+      "sandboxTitle": "تقييمات مزود الحماية",
+      "noSandbox": "لا توجد تقييمات حماية نشطة.",
+      "sandboxUpdated": "تم تحديث تقييم الحماية",
+      "traffic": "حركة مرور",
+      "promote": "ترقية",
+      "disable": "تعطيل",
+      "calls": "الاستدعاءات",
+      "successRate": "معدل النجاح",
+      "avgLatency": "متوسط التأخير",
+      "quality": "الجودة",
+      "callProgress": "تقدم الاستدعاءات",
+      "timeProgress": "تقدم الوقت",
+      "days": "أيام"
+    }
   }
 }

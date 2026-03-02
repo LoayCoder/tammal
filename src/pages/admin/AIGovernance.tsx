@@ -17,6 +17,9 @@ import { PenaltyControls } from '@/components/ai-governance/PenaltyControls';
 import { RoutingInspector } from '@/components/ai-governance/RoutingInspector';
 import { StrategyControls } from '@/components/ai-governance/StrategyControls';
 import { GovernanceAuditLog } from '@/components/ai-governance/GovernanceAuditLog';
+import { AutonomousStatus } from '@/components/ai-governance/AutonomousStatus';
+import { AnomalyTimeline } from '@/components/ai-governance/AnomalyTimeline';
+import { SandboxMonitor } from '@/components/ai-governance/SandboxMonitor';
 
 export default function AIGovernance() {
   const { t } = useTranslation();
@@ -64,9 +67,12 @@ export default function AIGovernance() {
 
         {showEngineering && (
           <TabsContent value="engineering" className="space-y-6">
+            <AutonomousStatus />
             <ThompsonVisualizer summary={summary} isLoading={summaryLoading} />
             <RoutingBreakdownTable logs={routingLogs} isLoading={logsLoading} />
             <ExplorationMonitor summary={summary} isLoading={summaryLoading} />
+            <AnomalyTimeline />
+            <SandboxMonitor />
           </TabsContent>
         )}
 

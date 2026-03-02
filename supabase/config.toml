@@ -71,3 +71,6 @@ verify_jwt = false
 
 [functions.ai-governance]
 verify_jwt = false
+
+[functions.autonomous-optimizer]
+verify_jwt = false
