@@ -122,8 +122,8 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
   // ── First Aider list view ──
   return (
     <Dialog open={open} onOpenChange={handleCloseDialog}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto flex flex-col">
+        <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <HeartHandshake className="h-5 w-5 text-chart-1" />
             {t('crisisSupport.connectFirstAider', 'Connect with a First Aider')}
