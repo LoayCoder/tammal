@@ -27,7 +27,7 @@ export default function IslamicCalendar() {
   const [viewYear, setViewYear] = useState(now.getFullYear());
   const [calendarView, setCalendarView] = useState<CalendarView>('month');
 
-  const { data: calendarDays, isLoading: calLoading } = useHijriCalendar(viewMonth, viewYear);
+  const { data: calendarDays, isLoading: calLoading, error: calError } = useHijriCalendar(viewMonth, viewYear);
   const { data: hijriToday } = useHijriToday();
 
   const todayStr = now.toISOString().split('T')[0];
@@ -190,6 +190,10 @@ export default function IslamicCalendar() {
         <CardContent>
           {calLoading ? (
             <div><Skeleton className="h-64" /></div>
+          ) : calError ? (
+            <div className="text-center py-8 text-destructive">
+              <p className="text-sm font-medium">{t('spiritual.calendar.fetchError', 'Failed to load calendar data. Please try again.')}</p>
+            </div>
           ) : (
             <div className="grid grid-cols-7 gap-1">
               {/* Weekday headers */}
