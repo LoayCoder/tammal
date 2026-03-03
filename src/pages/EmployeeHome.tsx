@@ -349,6 +349,13 @@ export default function EmployeeHome() {
           </DialogContent>
         </Dialog>
 
+        {/* First Aider Quick Connect Dialog */}
+        <FirstAiderQuickConnect
+          open={openTool === 'first-aider-connect'}
+          onOpenChange={(open) => !open && setOpenTool(null)}
+          tenantId={employee?.tenant_id}
+        />
+
         {/* ── Personal Mood Dashboard (rich analytics) ── */}
         <PersonalMoodDashboard />
 
