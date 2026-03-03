@@ -8,7 +8,16 @@ import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferenc
 import { usePrayerTimes, PRAYER_NAMES } from '@/hooks/spiritual/usePrayerTimes';
 import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
 import { usePrayerCountdown } from '@/hooks/spiritual/usePrayerCountdown';
+import { useSunnahLogs } from '@/hooks/spiritual/useSunnahLogs';
 import { cn } from '@/lib/utils';
+
+const RAWATIB_CONFIG: Record<string, { before?: number; after?: number }> = {
+  Fajr:    { before: 2 },
+  Dhuhr:   { before: 2, after: 2 },
+  Asr:     {},
+  Maghrib: { after: 2 },
+  Isha:    { after: 2 },
+};
 
 function PrayerCountdownBadge({ prayerTime }: { prayerTime: string }) {
   const { minutesLeft, isExpired, isPrayerTime } = usePrayerCountdown(prayerTime);
@@ -33,6 +42,7 @@ export function DashboardPrayerWidget() {
     preferences?.calculation_method
   );
   const { todayLogs, logPrayer } = usePrayerLogs();
+  const { todayCompleted, togglePractice } = useSunnahLogs();
 
   const timings = prayerData?.timings;
   const hijri = prayerData?.date?.hijri;
@@ -71,6 +81,14 @@ export function DashboardPrayerWidget() {
     if (!activePrayer) return;
     logPrayer.mutate({ prayer_name: activePrayer, prayer_date: today, status });
   };
+
+  const handleToggleSunnah = (type: 'before' | 'after', completed: boolean) => {
+    if (!activePrayer) return;
+    togglePractice.mutate({ practice_type: `rawatib_${activePrayer.toLowerCase()}_${type}`, completed });
+  };
+
+  const activeRawatib = activePrayer ? RAWATIB_CONFIG[activePrayer] : null;
+  const hasActiveRawatib = activeRawatib && (activeRawatib.before || activeRawatib.after);
 
   return (
     <Card className="glass-card border-0 ring-1 ring-primary/20">
@@ -124,6 +142,43 @@ export function DashboardPrayerWidget() {
                 <Briefcase className="h-3 w-3" /> {t('spiritual.prayer.work')}
               </Button>
             </div>
+            {/* Rawatib Sunnah toggles */}
+            {hasActiveRawatib && (
+              <div className="flex flex-wrap gap-1.5">
+                {activeRawatib.before && (
+                  <button
+                    onClick={() => handleToggleSunnah('before', !todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_before`))}
+                    disabled={togglePractice.isPending}
+                    className={cn(
+                      'flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium border transition-all duration-200',
+                      todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_before`)
+                        ? 'border-primary/40 bg-primary/10 text-primary'
+                        : 'border-border bg-card text-muted-foreground hover:border-primary/40'
+                    )}
+                  >
+                    📿
+                    {todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_before`) && <Check className="h-3 w-3" />}
+                    <span>{i18n.language === 'ar' ? `${activeRawatib.before} ركعات قبل` : `${activeRawatib.before} Rak'ahs before`}</span>
+                  </button>
+                )}
+                {activeRawatib.after && (
+                  <button
+                    onClick={() => handleToggleSunnah('after', !todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_after`))}
+                    disabled={togglePractice.isPending}
+                    className={cn(
+                      'flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium border transition-all duration-200',
+                      todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_after`)
+                        ? 'border-primary/40 bg-primary/10 text-primary'
+                        : 'border-border bg-card text-muted-foreground hover:border-primary/40'
+                    )}
+                  >
+                    📿
+                    {todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_after`) && <Check className="h-3 w-3" />}
+                    <span>{i18n.language === 'ar' ? `${activeRawatib.after} ركعات بعد` : `${activeRawatib.after} Rak'ahs after`}</span>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           <div className="rounded-xl bg-chart-1/5 p-3 text-center">
@@ -135,10 +190,15 @@ export function DashboardPrayerWidget() {
 
         {/* Progress row — 5 prayer indicators */}
         <div className="flex items-center justify-between gap-1">
-          {PRAYER_NAMES.map(name => {
+        {PRAYER_NAMES.map(name => {
             const logged = !!todayLogs[name];
             const isMissed = todayLogs[name]?.status === 'missed';
             const isActive = name === activePrayer;
+            const rawatib = RAWATIB_CONFIG[name];
+            const hasBefore = !!rawatib?.before;
+            const hasAfter = !!rawatib?.after;
+            const beforeDone = todayCompleted.has(`rawatib_${name.toLowerCase()}_before`);
+            const afterDone = todayCompleted.has(`rawatib_${name.toLowerCase()}_after`);
             return (
               <div key={name} className="flex flex-col items-center gap-0.5 flex-1">
                 <div
@@ -157,6 +217,17 @@ export function DashboardPrayerWidget() {
                 <span className="text-[10px] text-muted-foreground leading-none">
                   {t(`spiritual.prayer.names.${name.toLowerCase()}`).slice(0, 3)}
                 </span>
+                {/* Rawatib dots */}
+                {(hasBefore || hasAfter) && (
+                  <div className="flex gap-0.5 mt-0.5">
+                    {hasBefore && (
+                      <span className={cn('h-1.5 w-1.5 rounded-full', beforeDone ? 'bg-primary' : 'bg-border')} />
+                    )}
+                    {hasAfter && (
+                      <span className={cn('h-1.5 w-1.5 rounded-full', afterDone ? 'bg-primary' : 'bg-border')} />
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
