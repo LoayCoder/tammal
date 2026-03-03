@@ -33,6 +33,7 @@ export function useSpiritualReports() {
         .from('spiritual_insight_reports')
         .select('*')
         .eq('user_id', user.id)
+        .is('deleted_at', null)
         .order('period_end', { ascending: false })
         .limit(10);
       if (error) throw error;
@@ -58,8 +59,22 @@ export function useSpiritualReports() {
     },
   });
 
+  const deleteReport = useMutation({
+    mutationFn: async (reportId: string) => {
+      const { error } = await supabase
+        .from('spiritual_insight_reports')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', reportId)
+        .eq('user_id', user!.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['spiritual-reports'] });
+    },
+  });
+
   const latestWeekly = reports.find(r => r.report_type === 'weekly');
   const latestMonthly = reports.find(r => r.report_type === 'monthly');
 
-  return { reports, isPending: isPending && isFetching, generateReport, latestWeekly, latestMonthly };
+  return { reports, isPending: isPending && isFetching, generateReport, deleteReport, latestWeekly, latestMonthly };
 }
