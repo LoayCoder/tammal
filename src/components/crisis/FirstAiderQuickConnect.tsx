@@ -207,7 +207,7 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
                           ) : (
                             <MessageSquare className="h-3.5 w-3.5" />
                           )}
-                          {t('crisisSupport.chat', 'Chat')}
+                          {t('crisisSupport.request.contactChat', 'Chat')}
                         </Button>
                         <Button
                           size="sm"
