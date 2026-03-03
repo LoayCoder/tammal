@@ -74,3 +74,6 @@ verify_jwt = false
 
 [functions.autonomous-optimizer]
 verify_jwt = false
+
+[functions.distribute-representative-task]
+verify_jwt = false
