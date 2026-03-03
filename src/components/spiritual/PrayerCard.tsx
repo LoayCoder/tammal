@@ -18,6 +18,8 @@ const RAWATIB_CONFIG: Record<string, { before?: number; after?: number }> = {
 interface PrayerCardProps {
   prayerName: string;
   prayerTime: string;
+  /** Optional override label for the time display (e.g. range like "10:00 PM – 4:30") */
+  timeLabel?: string;
   log?: PrayerLog;
   onLog: (status: string) => void;
   isPending?: boolean;
@@ -40,7 +42,7 @@ const STATUS_STYLES: Record<string, { border: string; bg: string }> = {
 };
 
 export function PrayerCard({
-  prayerName, prayerTime, log, onLog, isPending,
+  prayerName, prayerTime, timeLabel, log, onLog, isPending,
   sunnahBefore, sunnahAfter, onToggleSunnah, sunnahPending,
   countdownMinutes, isExpired, isPrayerTime: isPrayerTimeFlag, onAutoMiss,
 }: PrayerCardProps) {
@@ -85,7 +87,7 @@ export function PrayerCard({
             </h3>
             <p className="text-sm text-muted-foreground flex items-center gap-1">
               <Clock className="h-3.5 w-3.5" />
-              {prayerTime}
+              {timeLabel || prayerTime}
             </p>
           </div>
           <div className="flex items-center gap-2">

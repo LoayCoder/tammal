@@ -8,8 +8,11 @@ import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferenc
 import { usePrayerTimes, PRAYER_NAMES } from '@/hooks/spiritual/usePrayerTimes';
 import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
 import { usePrayerCountdown } from '@/hooks/spiritual/usePrayerCountdown';
+import { useWitrCountdown } from '@/hooks/spiritual/useWitrCountdown';
 import { useSunnahLogs } from '@/hooks/spiritual/useSunnahLogs';
 import { cn } from '@/lib/utils';
+
+const ALL_PRAYERS = [...PRAYER_NAMES, 'Witr'] as const;
 
 const RAWATIB_CONFIG: Record<string, { before?: number; after?: number }> = {
   Fajr:    { before: 2 },
@@ -43,6 +46,7 @@ export function DashboardPrayerWidget() {
   );
   const { todayLogs, logPrayer } = usePrayerLogs();
   const { todayCompleted, togglePractice } = useSunnahLogs();
+  const witrCountdown = useWitrCountdown(prayerData?.timings?.Fajr);
 
   const timings = prayerData?.timings;
   const hijri = prayerData?.date?.hijri;
@@ -52,7 +56,7 @@ export function DashboardPrayerWidget() {
     if (!timings) return null;
     const now = new Date();
 
-    // Find first unlogged prayer whose time has arrived
+    // Check 5 obligatory prayers first
     for (const name of PRAYER_NAMES) {
       if (todayLogs[name]) continue;
       const clean = (timings[name] || '').replace(/\s*\(.*\)/, '').trim();
@@ -63,19 +67,29 @@ export function DashboardPrayerWidget() {
       if (now >= pDate) return name;
     }
 
-    // Find next upcoming unlogged prayer
+    // Check Witr (active when 22:00+ or before Fajr and not logged)
+    if (!todayLogs['Witr'] && witrCountdown.isPrayerTime) {
+      return 'Witr' as const;
+    }
+
+    // Find next upcoming unlogged obligatory prayer
     for (const name of PRAYER_NAMES) {
       if (todayLogs[name]) continue;
       return name;
     }
 
+    // Check if Witr is still pending (before its window)
+    if (!todayLogs['Witr'] && !witrCountdown.isExpired) {
+      return 'Witr' as const;
+    }
+
     return null; // All logged
-  }, [timings, todayLogs]);
+  }, [timings, todayLogs, witrCountdown.isPrayerTime, witrCountdown.isExpired]);
 
   if (!isPrayerEnabled || !timings) return null;
 
   const today = new Date().toISOString().split('T')[0];
-  const completedCount = PRAYER_NAMES.filter(n => todayLogs[n]).length;
+  const completedCount = ALL_PRAYERS.filter(n => todayLogs[n]).length;
 
   const handleLog = (status: string) => {
     if (!activePrayer) return;
@@ -126,10 +140,22 @@ export function DashboardPrayerWidget() {
                 </p>
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {(timings[activePrayer] || '').replace(/\s*\(.*\)/, '').trim()}
+                  {activePrayer === 'Witr'
+                    ? t('spiritual.prayer.witrTimeRange', { fajr: (timings.Fajr || '').replace(/\s*\(.*\)/, '').trim() || '--:--' })
+                    : (timings[activePrayer as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()
+                  }
                 </p>
               </div>
-              <PrayerCountdownBadge prayerTime={timings[activePrayer]} />
+              {activePrayer === 'Witr' ? (
+                witrCountdown.isPrayerTime && !witrCountdown.isExpired && witrCountdown.minutesLeft != null ? (
+                  <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30">
+                    <Timer className="h-3 w-3" />
+                    {i18n.language === 'ar' ? `${witrCountdown.minutesLeft}د` : `${witrCountdown.minutesLeft}m`}
+                  </span>
+                ) : null
+              ) : (
+                <PrayerCountdownBadge prayerTime={timings[activePrayer as keyof typeof timings]} />
+              )}
             </div>
             <div className="flex flex-wrap gap-1.5">
               <Button size="sm" variant="outline" onClick={() => handleLog('completed_mosque')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
@@ -203,9 +229,9 @@ export function DashboardPrayerWidget() {
           </div>
         )}
 
-        {/* Progress row — 5 prayer indicators */}
+        {/* Progress row — 6 prayer indicators (5 obligatory + Witr) */}
         <div className="flex items-center justify-between gap-1">
-        {PRAYER_NAMES.map(name => {
+        {ALL_PRAYERS.map(name => {
             const logged = !!todayLogs[name];
             const isMissed = todayLogs[name]?.status === 'missed';
             const isActive = name === activePrayer;
@@ -250,7 +276,7 @@ export function DashboardPrayerWidget() {
 
         {/* Completion stat */}
         <p className="text-xs text-muted-foreground text-center">
-          {completedCount}/5 {i18n.language === 'ar' ? 'مكتملة' : 'completed'}
+          {completedCount}/6 {i18n.language === 'ar' ? 'مكتملة' : 'completed'}
         </p>
       </CardContent>
     </Card>
