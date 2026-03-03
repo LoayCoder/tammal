@@ -17,6 +17,10 @@ import {
   ChevronRight,
   Phone,
   HeartHandshake,
+  Wind,
+  BookOpen,
+  CheckSquare,
+  ClipboardCheck,
 } from 'lucide-react';
 import { DashboardPrayerWidget } from '@/components/dashboard/DashboardPrayerWidget';
 import { DashboardIslamicCalendarWidget } from '@/components/dashboard/DashboardIslamicCalendarWidget';
