@@ -11,6 +11,7 @@ import { PrayerCard } from '@/components/spiritual/PrayerCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export default function PrayerTracker() {
   const { t, i18n } = useTranslation();
