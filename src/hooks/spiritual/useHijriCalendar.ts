@@ -46,21 +46,36 @@ export function isSunnahFastingDay(gregorianDate: Date): boolean {
   return day === 1 || day === 4; // Monday=1, Thursday=4
 }
 
+interface AladhanGregorian {
+  date: string;
+  format: string;
+  day: string;
+  weekday: { en: string };
+  month: { number: number; en: string };
+  year: string;
+}
+
+interface AladhanHijri {
+  date: string;
+  day: string;
+  month: { number: number; en: string; ar: string };
+  year: string;
+  designation: { abbreviated: string; expanded: string };
+  holidays: string[];
+}
+
+interface AladhanCalendarEntry {
+  hijri?: AladhanHijri;
+  gregorian?: AladhanGregorian;
+  date?: {
+    hijri: AladhanHijri;
+    gregorian: AladhanGregorian;
+  };
+}
+
 interface AladhanCalendarResponse {
   code: number;
-  data: Array<{
-    date: {
-      gregorian: { date: string; format: string; day: string; weekday: { en: string } };
-      hijri: {
-        date: string;
-        day: string;
-        month: { number: number; en: string; ar: string };
-        year: string;
-        designation: { abbreviated: string; expanded: string };
-        holidays: string[];
-      };
-    };
-  }>;
+  data: AladhanCalendarEntry[];
 }
 
 export function useHijriCalendar(month: number, year: number) {
@@ -71,17 +86,29 @@ export function useHijriCalendar(month: number, year: number) {
       if (!res.ok) throw new Error('Failed to fetch Hijri calendar');
       const json: AladhanCalendarResponse = await res.json();
       
-      return json.data.map(day => ({
-        gregorian: `${year}-${String(month).padStart(2, '0')}-${day.date.gregorian.day.padStart(2, '0')}`,
-        hijri: {
-          day: day.date.hijri.day,
-          month: day.date.hijri.month,
-          year: day.date.hijri.year,
-          date: day.date.hijri.date,
-          designation: day.date.hijri.designation,
-          holidays: day.date.hijri.holidays,
-        },
-      }));
+      return json.data
+        .map(entry => {
+          const hijri = entry.hijri || entry.date?.hijri;
+          const greg = entry.gregorian || entry.date?.gregorian;
+          if (!hijri || !greg) return null;
+          
+          const gYear = greg.year || String(year);
+          const gMonth = String(greg.month?.number || month).padStart(2, '0');
+          const gDay = (greg.day || '01').padStart(2, '0');
+          
+          return {
+            gregorian: `${gYear}-${gMonth}-${gDay}`,
+            hijri: {
+              day: hijri.day,
+              month: hijri.month,
+              year: hijri.year,
+              date: hijri.date,
+              designation: hijri.designation,
+              holidays: hijri.holidays || [],
+            },
+          };
+        })
+        .filter((d): d is HijriMonthDay => d !== null);
     },
     staleTime: 1000 * 60 * 60 * 24, // cache 24 hours
     gcTime: 1000 * 60 * 60 * 24 * 7,

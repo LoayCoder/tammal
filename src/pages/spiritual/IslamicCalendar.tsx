@@ -27,7 +27,7 @@ export default function IslamicCalendar() {
   const [viewYear, setViewYear] = useState(now.getFullYear());
   const [calendarView, setCalendarView] = useState<CalendarView>('month');
 
-  const { data: calendarDays, isLoading: calLoading } = useHijriCalendar(viewMonth, viewYear);
+  const { data: calendarDays, isLoading: calLoading, error: calError } = useHijriCalendar(viewMonth, viewYear);
   const { data: hijriToday } = useHijriToday();
 
   const todayStr = now.toISOString().split('T')[0];
