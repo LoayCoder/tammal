@@ -2419,7 +2419,7 @@
     "quickAccess": "وصول سريع للطوارئ",
     "disclaimer": { "title": "دعم أقران، وليس علاجاً", "body": "المسعفون النفسيون يقدمون دعم الأقران والاستماع الفعال. ليسوا معالجين أو مستشارين مرخصين. للدعم السريري، يرجى التواصل مع متخصص." },
     "status": { "online": "متصل", "offline": "غير متصل" },
-    "intents": { "talk": "أحتاج للتحدث", "work_stress": "ضغوط العمل", "anxiety": "أشعر بالقلق", "overwhelmed": "أشعر بالإرهاق", "unsafe": "لا أشعر بالأمان", "self_harm": "أفكار إيذاء النفس", "other": "شيء آخر" },
+    "intents": { "talk": "أحتاج للتحدث", "talk_to_someone": "التحدث مع شخص", "work_stress": "ضغوط العمل", "anxiety": "أشعر بالقلق", "overwhelmed": "أشعر بالإرهاق", "unsafe": "لا أشعر بالأمان", "self_harm": "أفكار إيذاء النفس", "other": "شيء آخر" },
     "intentDesc": { "talk": "تواصل مع شخص يستمع إليك", "work_stress": "ناقش ضغوط مكان العمل", "anxiety": "شارك ما يقلقك", "overwhelmed": "احصل على الدعم عندما يبدو كل شيء صعباً", "unsafe": "مخاوف تتعلق بالسلامة الفورية", "self_harm": "لست وحدك — دعنا نساعدك", "other": "أي مخاوف أخرى" },
     "statuses": { "new": "جديد", "pending_assignment": "قيد الانتظار", "pending_first_aider_acceptance": "بانتظار القبول", "active": "نشط", "awaiting_user": "بانتظارك", "awaiting_first_aider": "بانتظار الرد", "escalated": "مُصعّد", "resolved": "محلول", "closed": "مغلق", "cancelled": "ملغي" },
     "highRisk": { "title": "سلامتك مهمة", "body": "بناءً على ما شاركته، نريد التأكد من حصولك على موارد الأزمات المهنية فوراً.", "notEmergency": "هذه الخدمة ليست بديلاً عن خدمات الطوارئ الطبية.", "emergencyNumbers": "موارد الطوارئ", "globalEmergency": "خدمات الطوارئ", "stillRequest": "ما زلت أريد دعم الأقران" },
