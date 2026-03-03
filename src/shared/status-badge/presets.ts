@@ -1,5 +1,6 @@
 import {
   CheckCircle, Clock, UserX, Ban,
+  Building2, Home, Briefcase, X,
 } from 'lucide-react';
 import type { StatusBadgeConfig } from './StatusBadge';
 
@@ -69,4 +70,12 @@ export const OKR_STATUS_CONFIG: StatusBadgeConfig = {
   on_track:    { variant: 'outline', className: 'bg-chart-2/15 text-chart-2 border-chart-2/30' },
   at_risk:     { variant: 'outline', className: 'bg-chart-4/15 text-chart-4 border-chart-4/30' },
   behind:      { variant: 'outline', className: 'bg-destructive/15 text-destructive border-destructive/30' },
+};
+
+// ── Prayer Status ────────────────────────────────────────────────────────────
+export const PRAYER_STATUS_CONFIG: StatusBadgeConfig = {
+  completed_mosque: { variant: 'outline', icon: Building2, className: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30' },
+  completed_home:   { variant: 'outline', icon: Home,      className: 'bg-amber-500/15 text-amber-800 dark:text-amber-400 border-amber-500/30' },
+  completed_work:   { variant: 'outline', icon: Briefcase,  className: 'bg-muted text-muted-foreground' },
+  missed:           { variant: 'outline', icon: X,          className: 'bg-destructive/15 text-destructive border-destructive/30' },
 };
