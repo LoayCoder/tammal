@@ -1,7 +1,8 @@
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Home, Building2, Briefcase, Clock, Check } from 'lucide-react';
+import { Home, Building2, Briefcase, Clock, Check, Pencil, Timer } from 'lucide-react';
 import type { PrayerLog } from '@/hooks/spiritual/usePrayerLogs';
 import { PrayerStatusBadge } from './PrayerStatusBadge';
 import { cn } from '@/lib/utils';
@@ -24,6 +25,11 @@ interface PrayerCardProps {
   sunnahAfter?: boolean;
   onToggleSunnah?: (type: 'before' | 'after', completed: boolean) => void;
   sunnahPending?: boolean;
+  // Countdown props
+  countdownMinutes?: number | null;
+  isExpired?: boolean;
+  isPrayerTime?: boolean;
+  onAutoMiss?: () => void;
 }
 
 const STATUS_STYLES: Record<string, { border: string; bg: string }> = {
@@ -33,8 +39,14 @@ const STATUS_STYLES: Record<string, { border: string; bg: string }> = {
   missed:           { border: 'border-red-500/40',       bg: 'bg-red-500/[0.01]' },
 };
 
-export function PrayerCard({ prayerName, prayerTime, log, onLog, isPending, sunnahBefore, sunnahAfter, onToggleSunnah, sunnahPending }: PrayerCardProps) {
+export function PrayerCard({
+  prayerName, prayerTime, log, onLog, isPending,
+  sunnahBefore, sunnahAfter, onToggleSunnah, sunnahPending,
+  countdownMinutes, isExpired, isPrayerTime: isPrayerTimeFlag, onAutoMiss,
+}: PrayerCardProps) {
   const { t, i18n } = useTranslation();
+  const [editing, setEditing] = useState(false);
+  const autoMissedRef = useRef(false);
 
   const isLogged = !!log;
   const style = log ? STATUS_STYLES[log.status] : null;
@@ -42,6 +54,26 @@ export function PrayerCard({ prayerName, prayerTime, log, onLog, isPending, sunn
   const prayerNameKey = prayerName.toLowerCase();
   const rawatib = RAWATIB_CONFIG[prayerName];
   const hasRawatib = rawatib && (rawatib.before || rawatib.after);
+
+  // Auto-miss logic
+  useEffect(() => {
+    if (isExpired && !isLogged && !autoMissedRef.current && onAutoMiss) {
+      autoMissedRef.current = true;
+      onAutoMiss();
+    }
+  }, [isExpired, isLogged, onAutoMiss]);
+
+  // Reset autoMissedRef when date changes (new day)
+  useEffect(() => {
+    autoMissedRef.current = false;
+  }, [prayerTime]);
+
+  const showButtons = !isLogged || editing;
+
+  const handleLog = (status: string) => {
+    onLog(status);
+    setEditing(false);
+  };
 
   return (
     <Card className={`glass-card border rounded-xl transition-all duration-300 ${cardClass}`}>
@@ -56,27 +88,56 @@ export function PrayerCard({ prayerName, prayerTime, log, onLog, isPending, sunn
               {prayerTime}
             </p>
           </div>
-          {isLogged && <PrayerStatusBadge status={log.status} />}
+          <div className="flex items-center gap-2">
+            {/* Countdown badge */}
+            {!isLogged && isPrayerTimeFlag && !isExpired && countdownMinutes != null && (
+              <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30">
+                <Timer className="h-3 w-3" />
+                {i18n.language === 'ar' ? `${countdownMinutes}د` : `${countdownMinutes}m`}
+              </span>
+            )}
+            {/* Upcoming badge */}
+            {!isLogged && !isPrayerTimeFlag && (
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                {i18n.language === 'ar' ? 'قادمة' : 'Upcoming'}
+              </span>
+            )}
+            {isLogged && !editing && <PrayerStatusBadge status={log.status} />}
+          </div>
         </div>
 
-        {!isLogged && (
+        {/* Action buttons */}
+        {showButtons && (
           <div className="flex flex-wrap gap-2 animate-in fade-in duration-300">
-            <Button size="sm" variant="outline" onClick={() => onLog('completed_mosque')} disabled={isPending} className="gap-1">
+            <Button size="sm" variant="outline" onClick={() => handleLog('completed_mosque')} disabled={isPending} className="gap-1">
               <Building2 className="h-3.5 w-3.5" />
               {t('spiritual.prayer.mosque')}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => onLog('completed_home')} disabled={isPending} className="gap-1">
+            <Button size="sm" variant="outline" onClick={() => handleLog('completed_home')} disabled={isPending} className="gap-1">
               <Home className="h-3.5 w-3.5" />
               {t('spiritual.prayer.home')}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => onLog('completed_work')} disabled={isPending} className="gap-1">
+            <Button size="sm" variant="outline" onClick={() => handleLog('completed_work')} disabled={isPending} className="gap-1">
               <Briefcase className="h-3.5 w-3.5" />
               {t('spiritual.prayer.work')}
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => onLog('missed')} disabled={isPending} className="text-muted-foreground">
+            <Button size="sm" variant="ghost" onClick={() => handleLog('missed')} disabled={isPending} className="text-muted-foreground">
               {t('spiritual.prayer.missed')}
             </Button>
           </div>
+        )}
+
+        {/* Edit button for logged prayers */}
+        {isLogged && !editing && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setEditing(true)}
+            className="gap-1 text-xs text-muted-foreground h-7"
+          >
+            <Pencil className="h-3 w-3" />
+            {i18n.language === 'ar' ? 'تعديل' : 'Edit'}
+          </Button>
         )}
 
         {/* Rawatib Sunnah toggles */}
