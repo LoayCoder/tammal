@@ -57,6 +57,7 @@ export default function CrisisRequestPage() {
   const [preferredLanguage, setPreferredLanguage] = useState(i18n.language === 'ar' ? 'ar' : 'en');
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showBooking, setShowBooking] = useState(false);
 
   const riskLevel = selectedIntent ? mapIntentToRisk(selectedIntent) : null;
 
