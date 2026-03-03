@@ -10,7 +10,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useFirstAiders, useCrisisCases } from '@/hooks/crisis/useCrisisSupport';
 import { useAuth } from '@/hooks/auth/useAuth';
 import EmployeeBookingWidget from '@/components/crisis/EmployeeBookingWidget';
-import { Phone, MessageSquare, CalendarDays, Languages, Loader2, HeartHandshake } from 'lucide-react';
+import EnhancedChatPanel from '@/components/crisis/EnhancedChatPanel';
+import { Phone, MessageSquare, CalendarDays, Languages, Loader2, HeartHandshake, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
@@ -33,6 +34,8 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
   const { createCase } = useCrisisCases();
   const [activeBookingId, setActiveBookingId] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
+  const [activeChatCaseId, setActiveChatCaseId] = useState<string | null>(null);
+  const [chatAiderName, setChatAiderName] = useState<string>('');
 
   const activeAiders = firstAiders.filter(fa => fa.is_active);
 
@@ -41,7 +44,7 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
     const actionKey = `${firstAiderId}-${method}`;
     setLoadingAction(actionKey);
     try {
-      await createCase.mutateAsync({
+      const result = await createCase.mutateAsync({
         tenant_id: tenantId,
         intent: 'talk_to_someone',
         anonymity_mode: 'identified',
@@ -49,13 +52,17 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
         urgency_level: method === 'voice' ? 5 : 3,
         preferred_contact_method: method,
       });
-      toast.success(
-        method === 'voice'
-          ? t('crisisSupport.urgentCallCreated', 'Urgent call request sent!')
-          : t('crisisSupport.chatCreated', 'Chat request sent!')
-      );
-      onOpenChange(false);
-      navigate('/my-support');
+
+      if (method === 'voice') {
+        toast.success(t('crisisSupport.urgentCallCreated', 'Urgent call request sent!'));
+        onOpenChange(false);
+        navigate('/my-support');
+      } else {
+        // Open inline chat
+        setChatAiderName(displayName);
+        setActiveChatCaseId(result.id);
+        toast.success(t('crisisSupport.chatCreated', 'Chat started!'));
+      }
     } catch {
       toast.error(t('common.error', 'Something went wrong'));
     } finally {
@@ -63,8 +70,58 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
     }
   };
 
+  const handleBackFromChat = () => {
+    setActiveChatCaseId(null);
+    setChatAiderName('');
+  };
+
+  const handleCloseDialog = (isOpen: boolean) => {
+    if (!isOpen) {
+      setActiveChatCaseId(null);
+      setChatAiderName('');
+      setActiveBookingId(null);
+    }
+    onOpenChange(isOpen);
+  };
+
+  // ── Chat view ──
+  if (activeChatCaseId && tenantId) {
+    return (
+      <Dialog open={open} onOpenChange={handleCloseDialog}>
+        <DialogContent className="max-w-2xl h-[85vh] overflow-hidden flex flex-col p-0">
+          <div className="flex items-center gap-3 px-6 pt-6 pb-3 border-b border-border/40">
+            <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8" onClick={handleBackFromChat}>
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+            </Button>
+            <div className="flex items-center gap-2 min-w-0">
+              <MessageSquare className="h-4 w-4 text-primary shrink-0" />
+              <h3 className="font-semibold text-sm truncate">
+                {t('crisisSupport.chatWith', 'Chat with {{name}}', { name: chatAiderName })}
+              </h3>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="ms-auto shrink-0 text-xs"
+              onClick={() => {
+                onOpenChange(false);
+                navigate('/my-support');
+              }}
+            >
+              {t('crisisSupport.openFullView', 'Full View')}
+            </Button>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <EnhancedChatPanel caseId={activeChatCaseId} tenantId={tenantId} />
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // ── First Aider list view ──
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleCloseDialog}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
