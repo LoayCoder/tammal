@@ -97,7 +97,7 @@ export default function QuranReader() {
   return (
     <div className="container mx-auto py-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <BookOpenCheck className="h-8 w-8 text-primary" />
           <div>
@@ -105,10 +105,16 @@ export default function QuranReader() {
             <p className="text-muted-foreground">{t('spiritual.quran.subtitle')}</p>
           </div>
         </div>
-        <Button onClick={() => setShowForm(!showForm)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          {t('spiritual.quran.logSession')}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => navigate('/spiritual/quran/read')} className="gap-2">
+            <BookOpen className="h-4 w-4" />
+            {t('spiritual.quranReader.readQuran', 'Read Qur\'an')}
+          </Button>
+          <Button onClick={() => setShowForm(!showForm)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            {t('spiritual.quran.logSession')}
+          </Button>
+        </div>
       </div>
 
       {/* Weekly stats */}
