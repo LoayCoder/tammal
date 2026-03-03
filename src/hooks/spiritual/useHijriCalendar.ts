@@ -67,11 +67,6 @@ export function useHijriCalendar(month: number, year: number) {
   return useQuery({
     queryKey: ['hijri-calendar', month, year],
     queryFn: async (): Promise<HijriMonthDay[]> => {
-      const url = `https://api.aladhan.com/v1/gpiritualToHijriCalendar/${month}/${year}`;
-      // Use the simpler calendar endpoint
-      const calUrl = `https://api.aladhan.com/v1/gpiritualToHijriCalendar/${month}/${year}`;
-      
-      // Actually use the Gregorian calendar endpoint which returns Hijri mapping
       const res = await fetch(`https://api.aladhan.com/v1/gToHCalendar/${month}/${year}`);
       if (!res.ok) throw new Error('Failed to fetch Hijri calendar');
       const json: AladhanCalendarResponse = await res.json();

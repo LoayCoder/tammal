@@ -50,8 +50,8 @@ export default function PrayerTracker() {
   if (prefsLoading) {
     return (
       <div className="container mx-auto py-6 space-y-6">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-64" />
+        <div><Skeleton className="h-8 w-48" /></div>
+        <div><Skeleton className="h-64" /></div>
       </div>
     );
   }
