@@ -36,6 +36,7 @@ import SelfAssessmentQuiz from '@/components/mental-toolkit/resources/SelfAssess
 import MeditationLibraryTool from '@/components/mental-toolkit/practices/MeditationLibraryTool';
 import PsychoeducationArticles from '@/components/mental-toolkit/resources/PsychoeducationArticles';
 import IslamicCalendar from '@/pages/spiritual/IslamicCalendar';
+import FirstAiderQuickConnect from '@/components/crisis/FirstAiderQuickConnect';
 
 const MOOD_EMOJIS: Record<string, string> = {
   great: '😄',
@@ -369,7 +370,7 @@ export default function EmployeeHome() {
                 </CardContent>
               </Card>
             </Link>
-            <Link to="/first-aider">
+            <div onClick={() => setOpenTool('first-aider-connect')} className="cursor-pointer">
               <Card className="glass-card border-0 ring-1 ring-chart-1/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-1/40">
                 <CardContent className="flex items-center gap-4 p-5">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-chart-1/10">
@@ -382,7 +383,7 @@ export default function EmployeeHome() {
                   <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
                 </CardContent>
               </Card>
-            </Link>
+            </div>
           </div>
         </div>
       </div>
