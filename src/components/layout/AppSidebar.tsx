@@ -477,8 +477,8 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                                 activeClassName="glass-active text-sidebar-primary"
                                 onClick={handleNavClick}
                               >
-                                <UtensilsCrossed className="h-4 w-4" />
-                                <span>{t('spiritual.nav.sunnahFasting')}</span>
+                                <Star className="h-4 w-4" />
+                                <span>{t('spiritual.nav.sunnahTracker')}</span>
                               </NavLink>
                             </SidebarMenuButton>
                           </SidebarMenuItem>

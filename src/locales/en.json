@@ -2501,6 +2501,7 @@
       "prayerTracker": "Prayer Tracker",
       "quranReader": "Qur'an Reader",
       "sunnahFasting": "Sunnah Fasting",
+      "sunnahTracker": "Sunnah Tracker",
       "insights": "Spiritual Insights",
       "calendar": "Islamic Calendar"
     },
@@ -2615,6 +2616,20 @@
         "excellent": "Mashallah — your consistency in Sunnah fasting reflects beautiful discipline.",
         "good": "Every fast is a gift. Keep nurturing your body and soul.",
         "encouragement": "Begin with Mondays or Thursdays. Small steps lead to lasting habits."
+      }
+    },
+    "sunnah": {
+      "title": "Sunnah Tracker",
+      "subtitle": "Track your daily Sunnah practices",
+      "notEnabled": "Sunnah Tracker Not Enabled",
+      "enablePrompt": "Enable Sunnah tracking in your profile settings to start.",
+      "todayTitle": "Today's Sunnah",
+      "tapToMark": "Tap to mark as done. Tap again to undo.",
+      "last30": "Last 30 Days",
+      "feedback": {
+        "excellent": "Mashallah — your consistency in practicing Sunnah is truly inspiring.",
+        "good": "Beautiful progress — every Sunnah you follow brings light to your day.",
+        "encouragement": "Start with one practice today. Small steps build lasting habits."
       }
     },
     "insights": {
