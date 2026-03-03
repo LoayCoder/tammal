@@ -23,7 +23,17 @@ interface Props {
 const STATUS_COLORS: Record<string, string> = {
   available: 'bg-chart-1/20 text-chart-1',
   busy: 'bg-chart-4/20 text-chart-4',
+  outside_hours: 'bg-chart-4/20 text-chart-4',
+  temporarily_unavailable: 'bg-destructive/20 text-destructive',
   offline: 'bg-muted text-muted-foreground',
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  available: 'Available',
+  busy: 'Busy',
+  outside_hours: 'Outside Hours',
+  temporarily_unavailable: 'Unavailable',
+  offline: 'Offline',
 };
 
 export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }: Props) {
@@ -170,7 +180,7 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
                           </div>
                         </div>
                         <Badge variant="secondary" className={`shrink-0 text-xs ${statusClass}`}>
-                          {t(`crisisSupport.status.${statusLabel}`, statusLabel)}
+                          {t(`crisisSupport.status.${statusLabel}`, STATUS_LABELS[statusLabel] || statusLabel)}
                         </Badge>
                       </div>
 
