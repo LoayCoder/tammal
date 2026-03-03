@@ -3441,7 +3441,7 @@
     "editSuccess": "Task updated successfully",
     "deleteSuccess": "Task deleted successfully",
     "extendSuccess": "Due date extended successfully",
-    "manageError": "Failed to manage task"
+    "manageError": "Failed to manage task",
     "admin": {
       "title": "Representatives",
       "description": "Manage representative assignments for task distribution",
