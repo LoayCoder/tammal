@@ -1,22 +1,52 @@
 
 
-## Plan: Add Rawatib (Sunnah) indicators to Dashboard Prayer Widget
+## Plan: Manager Team Task Management Page
 
-The `DashboardPrayerWidget` currently only shows the active prayer with log buttons but lacks the Rawatib Sunnah rak'ah info that `PrayerCard` already has.
+### Current State
+- `/admin/workload/team` is protected by `AdminRoute` (super_admin/tenant_admin only) — managers cannot access it.
+- The page (`TeamWorkload.tsx`) shows analytics quadrants and objective alignment but has **no task list, no task creation, and no filters**.
+- The sidebar item uses `access: 'admin'` which maps to `isManagerOrAdmin` for items, but the route guard blocks managers.
+- `useUnifiedTasks` hook already supports CRUD with `source_type: 'manager_assigned'`.
+- `useCurrentEmployee` provides the manager's `department_id`.
 
-### Changes
+### Changes Required
 
-**File: `src/components/dashboard/DashboardPrayerWidget.tsx`**
+**1. Route Guard — Allow Managers (`src/App.tsx`)**
+- Change the `/admin/workload/team` route from `<AdminRoute>` to `<ManagerOrAdminRoute>` so managers with a team can access it.
 
-1. Import the Sunnah hooks (`useSunnahLogs`) and add a `RAWATIB_CONFIG` map (same as in `PrayerCard.tsx`: Fajr → 2 after, Dhuhr → 2 before + 2 after, Asr → none, Maghrib → 2 after, Isha → 2 after).
+**2. Expand TeamWorkload Page (`src/pages/admin/TeamWorkload.tsx`)**
+Major rewrite to add:
 
-2. Inside the active prayer card section, add tap-to-toggle Rawatib chips below the log buttons — matching the existing style from `PrayerCard`:
-   - 📿 "2 Rak'ahs before" (if applicable)
-   - 📿 "2 Rak'ahs after" (if applicable)
-   - Each chip toggles completed state via `onToggleSunnah`
+- **Department Task List Section**: Query `unified_tasks` for all employees in the manager's department (fetch department employees via `employees` table using `department_id`).
+- **"Add Task" Button + Dialog**: Reuse `TaskDialog` component, allowing the manager to pick a team member and assign a task with `source_type: 'manager_assigned'`.
+- **Filter Bar**: Filters for:
+  - Status (todo / in_progress / done / blocked)
+  - Priority (P1–P5)
+  - Employee (dropdown of department members)
+  - Source type (manual / assigned / OKR / external)
+  - Date range (due date)
+- **Task Table/List**: Display all department tasks with columns: Employee Name, Title, Status, Priority, Due Date, Estimated Time, Source, Lock status. Reuse `UnifiedTaskList` style or build a `DataTable` variant.
+- **Task Actions**: Edit, delete (soft), lock/unlock, comment — via existing mutations in `useUnifiedTasks`.
 
-3. In the progress row (5 prayer indicators at the bottom), add small dot indicators beneath each prayer icon showing if its Rawatib are completed.
+**3. New Hook: `useDepartmentTasks` (`src/hooks/workload/useDepartmentTasks.ts`)**
+- Fetch all employees where `department_id` matches the manager's department.
+- Fetch all `unified_tasks` for those employee IDs.
+- Return tasks + department employee list for the assignment dropdown.
 
-### Hook dependency
-Need to check if `useSunnahLogs` or a similar hook exists for Rawatib tracking at the dashboard level, or if the sunnah data is already available through `usePrayerLogs`.
+**4. New Component: `TeamTaskFilters` (`src/components/workload/team/TeamTaskFilters.tsx`)**
+- Filter controls: status multi-select, priority, employee dropdown, source type, due date range.
+- Controlled state passed to parent for client-side filtering.
+
+**5. Translation Keys**
+- Add keys under `teamWorkload.*` in both `en.json` and `ar.json` for: `addTask`, `assignTo`, `filterByStatus`, `filterByPriority`, `filterByEmployee`, `filterBySource`, `allTasks`, `departmentTasks`, `noTasksFound`, `assignTask`, `assignTaskDesc`.
+
+### File Summary
+| File | Action |
+|---|---|
+| `src/App.tsx` | Change route guard to `ManagerOrAdminRoute` |
+| `src/pages/admin/TeamWorkload.tsx` | Add task list, filters, add-task dialog |
+| `src/hooks/workload/useDepartmentTasks.ts` | New hook — fetch dept employees + tasks |
+| `src/components/workload/team/TeamTaskFilters.tsx` | New filter bar component |
+| `src/locales/en.json` | Add translation keys |
+| `src/locales/ar.json` | Add translation keys |
 
