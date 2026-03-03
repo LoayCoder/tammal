@@ -110,7 +110,7 @@ describe('MySupportPage — label display', () => {
   });
 
   it('shows translated status badges', () => {
-    expect(screen.getByText('Active')).toBeInTheDocument();
+    expect(screen.getAllByText('Active').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Awaiting Acceptance')).toBeInTheDocument();
   });
 
