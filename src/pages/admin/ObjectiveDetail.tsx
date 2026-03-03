@@ -175,16 +175,18 @@ export default function ObjectiveDetail() {
                       <Badge variant="outline" className={statusColors[init.status] || ''}>{t(`workload.status.${init.status}`)}</Badge>
                       <Progress value={Number(init.progress)} className="w-20 h-2" />
                       <span className="text-xs text-muted-foreground w-8">{Number(init.progress).toFixed(0)}%</span>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7"
-                            onClick={() => init.is_locked ? unlockInitiative(init.id) : lockInitiative({ id: init.id, locked_by: userId })}>
-                            {init.is_locked ? <Unlock className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>{init.is_locked ? t('workload.lock.unlock') : t('workload.lock.lock')}</TooltipContent>
-                      </Tooltip>
-                      {!init.is_locked && (
+                      {(!init.is_locked || canUnlock) && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7"
+                              onClick={() => init.is_locked ? unlockInitiative(init.id) : lockInitiative({ id: init.id, locked_by: userId })}>
+                              {init.is_locked ? <Unlock className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>{init.is_locked ? t('workload.lock.unlock') : t('workload.lock.lock')}</TooltipContent>
+                        </Tooltip>
+                      )}
+                      {!init.is_locked && canManage && (
                         <>
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedInit(init); setInitDialogOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { setInitToDelete(init.id); setDeleteInitDialog(true); }}><Trash2 className="h-3.5 w-3.5" /></Button>
@@ -197,7 +199,7 @@ export default function ObjectiveDetail() {
                   <CardContent className="pt-0">
                     <div className="flex items-center justify-between mb-3 mt-2">
                       <h3 className="text-sm font-medium text-muted-foreground">{t('workload.actions.sectionTitle')}</h3>
-                      {!init.is_locked && (
+                      {!init.is_locked && canManage && (
                         <Button variant="outline" size="sm" onClick={() => { setSelectedAction(null); setActionInitId(init.id); setActionDialogOpen(true); }}>
                           <Plus className="me-1 h-3.5 w-3.5" />{t('workload.actions.add')}
                         </Button>
