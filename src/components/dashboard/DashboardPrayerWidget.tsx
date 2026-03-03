@@ -8,8 +8,11 @@ import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferenc
 import { usePrayerTimes, PRAYER_NAMES } from '@/hooks/spiritual/usePrayerTimes';
 import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
 import { usePrayerCountdown } from '@/hooks/spiritual/usePrayerCountdown';
+import { useWitrCountdown } from '@/hooks/spiritual/useWitrCountdown';
 import { useSunnahLogs } from '@/hooks/spiritual/useSunnahLogs';
 import { cn } from '@/lib/utils';
+
+const ALL_PRAYERS = [...PRAYER_NAMES, 'Witr'] as const;
 
 const RAWATIB_CONFIG: Record<string, { before?: number; after?: number }> = {
   Fajr:    { before: 2 },
