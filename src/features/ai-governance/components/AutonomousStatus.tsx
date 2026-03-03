@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Bot, Shield, Clock, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAutonomousState, type AutonomousStateRow } from '@/hooks/ai-governance/useAutonomousState';
+import { useAutonomousState, type AutonomousStateRow } from '@/features/ai-governance/hooks/useAutonomousState';
 import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';

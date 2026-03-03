@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslation } from 'react-i18next';
-import { useUpdateBudget } from '@/hooks/ai-governance/useGovernanceActions';
+import { useUpdateBudget } from '@/features/ai-governance/hooks/useGovernanceActions';
 import { useState } from 'react';
 import { toast } from 'sonner';
 

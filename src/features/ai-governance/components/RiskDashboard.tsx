@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import type { PerformanceDailyRow } from '@/hooks/ai-governance/usePerformanceTrend';
+import type { PerformanceDailyRow } from '@/features/ai-governance/hooks/usePerformanceTrend';
 
 interface Props {
   performanceData: PerformanceDailyRow[];

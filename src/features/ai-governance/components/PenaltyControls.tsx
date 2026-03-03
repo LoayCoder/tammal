@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from 'react-i18next';
-import { useApplyPenalty, useClearPenalty, usePenalties } from '@/hooks/ai-governance/useGovernanceActions';
+import { useApplyPenalty, useClearPenalty, usePenalties } from '@/features/ai-governance/hooks/useGovernanceActions';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';

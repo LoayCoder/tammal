@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { FlaskConical, CheckCircle2, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { useSandboxEvaluations, type SandboxEvaluation } from '@/hooks/ai-governance/useSandboxEvaluations';
+import { useSandboxEvaluations, type SandboxEvaluation } from '@/features/ai-governance/hooks/useSandboxEvaluations';
 import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
