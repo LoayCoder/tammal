@@ -27,6 +27,7 @@ export default function EmployeeBookingWidget({ firstAiderId, tenantId, caseId, 
   const [selectedSlot, setSelectedSlot] = useState<BookableSlot | null>(null);
   const [booking, setBooking] = useState(false);
   const [weekOffset, setWeekOffset] = useState(0);
+  const [dayIndex, setDayIndex] = useState(0);
 
   const today = startOfDay(new Date());
   const weekStart = addDays(today, weekOffset * 7);
@@ -44,6 +45,7 @@ export default function EmployeeBookingWidget({ firstAiderId, tenantId, caseId, 
       if (!cancelled) {
         setSlots(result);
         setLoading(false);
+        setDayIndex(0);
       }
     }).catch(() => {
       if (!cancelled) setLoading(false);
@@ -57,6 +59,10 @@ export default function EmployeeBookingWidget({ firstAiderId, tenantId, caseId, 
     acc[slot.date].push(slot);
     return acc;
   }, {});
+
+  const sortedDates = Object.keys(slotsByDate).sort();
+  const currentDate = sortedDates[dayIndex] || null;
+  const currentSlots = currentDate ? slotsByDate[currentDate] : [];
 
   const handleBook = async () => {
     if (!selectedSlot) return;
