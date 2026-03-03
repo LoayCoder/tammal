@@ -129,6 +129,10 @@ export default function EmployeeHome() {
           </Card>
         )}
 
+        {/* Spiritual Wellbeing Widgets */}
+        <DashboardPrayerWidget />
+        <DashboardIslamicCalendarWidget />
+
         {/* ── Personal Mood Dashboard (rich analytics) ── */}
         <PersonalMoodDashboard />
 
