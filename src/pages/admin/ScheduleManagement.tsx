@@ -143,18 +143,9 @@ export default function ScheduleManagement() {
 
   // ── Render helpers ────────────────────────────────────────────────────────
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <Badge className="bg-green-500">{t('common.active')}</Badge>;
-      case 'paused':
-        return <Badge variant="secondary">{t('schedules.paused')}</Badge>;
-      case 'draft':
-        return <Badge variant="outline">{t('schedules.draft')}</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
+  const renderStatusBadge = (status: string) => (
+    <StatusBadge status={status} config={SCHEDULE_STATUS_CONFIG} translationPrefix="schedules" />
+  );
 
   const getFrequencyLabel = (freq: string) => {
     const labels: Record<string, string> = {
