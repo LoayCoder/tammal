@@ -1,114 +1,85 @@
 
-## Phase 1: Architecture Refactor — STATUS: ✅ COMPLETE
 
-### Completed Items
+# Spiritual Wellbeing Module -- Full Audit & Fix Plan
 
-1. **Database Migration** ✅ — Added unique constraints for idempotency guards on `mood_entries` and `points_transactions`
-2. **Service Layer** ✅ — Created 8 services: `gamificationService`, `checkinService`, `inviteService`, `aiService`, `tenantService`, `accountService`, `moodTaggingService`, `scheduleService`
-3. **Hook Layer** ✅ — Created 11 thin wrapper hooks: `useCheckinSubmit`, `useTodayEntry`, `useAcceptInvite`, `useDeleteAccount`, `usePromptRewrite`, `useQuestionRewrite`, `useMoodTagging`, `useScheduleData`, `useScheduleActions`, `useTenantIdQuery`
-4. **Refactored useGamification** ✅ — Delegates to `gamificationService`
-5. **Unified Analytics** ✅ — `analyticsQueries.ts` now uses `gamificationService.computeStreak()` and `calculatePoints()`
-6. **Refactored 9 P1 Offender Files** ✅ — Removed direct Supabase calls from `DailyCheckin`, `InlineDailyCheckin`, `MoodStep`, `AIQuestionGenerator`, `MoodPathwaySettings`, `AcceptInvite`, `ScheduleManagement`, `DeleteAccountDialog`, `QuestionCard`
-7. **MoodStep tenantId prop threading** ✅ — Accepts `tenantId` via props, no internal fetch
+## Issues Found
 
-### Deferred Items
+### 1. CRITICAL BUG: Hijri Calendar API URL Typo
+**File:** `src/hooks/spiritual/useHijriCalendar.ts` (lines 70-72)
 
-- **~~70 Hook Shim Deletion~~**: ✅ Already cleaned up — no barrel re-export files remain in `src/hooks/` root.
+The calendar hook contains a typo in two unused URL variables (`gpiritualToHijriCalendar` instead of `gToHCalendar`). While the actual fetch on line 75 uses the correct URL, the dead code is confusing and the unused variables `url` and `calUrl` should be removed.
+
+**Fix:** Remove the two dead-code lines (70-72) that reference the typo'd URL. The actual fetch on line 75 already uses the correct endpoint `https://api.aladhan.com/v1/gToHCalendar/${month}/${year}`.
 
 ---
 
-## Phase 2: Feature Modularization — STATUS: ✅ COMPLETE
+### 2. Console Warning: Function components cannot be given refs (PrayerTracker)
+**File:** `src/pages/spiritual/PrayerTracker.tsx` (lines 51-57)
 
-1. **ai-governance → src/features/** ✅ — Components, hooks, types consolidated with barrel export
-2. **ai-generator → src/features/** ✅ — All 12 components moved from `src/components/ai-generator/` to `src/features/ai-generator/components/`, internal imports updated
-3. **Dead file cleanup** ✅ — Removed orphan compatibility shims and empty type directories
-4. **as any reduction** ✅ — Eliminated ~80 casts in governance, admin, and hook layers
+The `Skeleton` component is used directly as a child where a ref may be passed (by the grid layout or parent). The warning traces show both `Skeleton` and `PrayerCard` producing ref warnings inside `PrayerTracker`.
+
+The issue is that the loading state returns raw `<Skeleton>` elements without wrapping divs, and in the prayer grid, `PrayerCard` is a function component used where React may try to pass a ref. `PrayerCard` does not use `forwardRef`.
+
+**Fix:** Wrap `Skeleton` elements inside `<div>` wrappers in the loading state (lines 53-56), and verify `PrayerCard` doesn't need `forwardRef` (it doesn't receive refs from parent, so this warning is likely a React 18 dev-mode artifact from the grid rendering -- wrapping skeletons will fix it).
 
 ---
 
-## Make the App Fully Mobile-Responsive as a PWA
+### 3. Edge Function: Unused `Separator` import in SunnahFasting
+**File:** `src/pages/spiritual/SunnahFasting.tsx` (line 11)
 
-### Overview
-The app has good PWA infrastructure (service worker, manifest, install banner, caching) but several UI areas are not optimized for mobile touch interaction. This plan addresses the key gaps to make the app feel native on phones.
+`Separator` is imported but never used.
 
-### 1. Mobile Bottom Navigation Bar
+**Fix:** Remove unused import.
 
-Create a persistent bottom navigation bar for mobile users (visible below `md` breakpoint) with quick-access icons for the most-used sections: Dashboard, Wellness, Support, Profile, and More (opens sidebar).
+---
 
-**New file: `src/components/layout/MobileBottomNav.tsx`**
+### 4. Edge Function: Unused `Separator` import in QuranReader  
+**File:** `src/pages/spiritual/QuranReader.tsx` (line 10)
 
-- Fixed to the bottom of the viewport with `safe-area-inset-bottom` padding
-- Glass styling consistent with the header
-- Active state indicator matching `glass-active`
-- Hidden on desktop (`md:hidden`)
-- Uses logical properties for RTL
+`Separator` is imported but never used.
 
-**Mount in `MainLayout.tsx`** after the `</main>` tag.
+**Fix:** Remove unused import.
 
-### 2. Mobile Card View for Data Tables
+---
 
-The `UserTable` (and similar admin tables) renders a full `<table>` which is unusable on small screens. Create a responsive wrapper pattern.
+### 5. Edge Function generate-spiritual-insights: No error for missing LOVABLE_API_KEY
+**File:** `supabase/functions/generate-spiritual-insights/index.ts`
 
-**New file: `src/components/ui/responsive-table.tsx`**
+If `LOVABLE_API_KEY` is not set, the function silently falls back to defaults. This is acceptable behavior (graceful degradation), so no fix needed here -- just noting it works as designed.
 
-A wrapper component that:
-- On desktop (`md+`): renders children (the table) as-is
-- On mobile (`<md`): renders each row as a stacked card with key-value pairs
+---
 
-**Update `src/components/users/UserTable.tsx`**:
-- On mobile: render user cards (avatar, name, email, status badge, role badges, action menu) in a vertical stack
-- On desktop: keep the existing table layout
-- Use `useIsMobile()` hook to switch between views
+### 6. Missing Arabic translations check
+All spiritual translation keys exist in both `en.json` and `ar.json` based on the comprehensive key structure found. No missing keys detected.
 
-### 3. Touch-Friendly Sizing & Spacing
+---
 
-**Update `src/index.css`** with mobile-specific utilities:
+### 7. Hijri Calendar API: `gToH` endpoint for today
+**File:** `src/hooks/spiritual/useHijriCalendar.ts` (line 101)
 
-- Add a `.touch-target` utility class ensuring minimum 44x44px tap targets (Apple HIG)
-- Increase padding on interactive elements at small breakpoints
-- Add `overscroll-behavior: contain` on the main scroll area to prevent pull-to-refresh interference in standalone PWA mode
+The `useHijriToday` hook calls `https://api.aladhan.com/v1/gToH` without a date parameter. This returns today's Hijri date correctly. No issue here.
 
-### 4. PWA Standalone Mode Enhancements
+---
 
-**Update `src/index.css`**:
-- Add `@media (display-mode: standalone)` styles to hide browser-specific UI hints
-- Ensure the bottom nav accounts for the home indicator on notched devices
-- Add smooth momentum scrolling (`-webkit-overflow-scrolling: touch`)
+## Summary of Changes
 
-**Update `src/components/layout/MainLayout.tsx`**:
-- Add `pb-16 md:pb-0` to the main content area to prevent the bottom nav from covering content on mobile
-- Add `overscroll-behavior-y: contain` on the root layout div
+| # | File | Fix | Severity |
+|---|------|-----|----------|
+| 1 | `src/hooks/spiritual/useHijriCalendar.ts` | Remove dead-code typo'd URLs (lines 70-72) | Low (cleanup) |
+| 2 | `src/pages/spiritual/PrayerTracker.tsx` | Wrap Skeleton elements in divs to fix ref warning | Medium |
+| 3 | `src/pages/spiritual/SunnahFasting.tsx` | Remove unused `Separator` import | Low |
+| 4 | `src/pages/spiritual/QuranReader.tsx` | Remove unused `Separator` import | Low |
 
-### 5. Header Adjustments for Mobile
+## Functional Assessment
 
-**Update `src/components/layout/Header.tsx`**:
-- On mobile, hide the breadcrumb (already done with `hidden md:flex`)
-- Ensure all header action buttons meet 44px touch targets
-- Add the page title as a simple text element on mobile (replacing the breadcrumb)
+All 5 tabs are structurally complete and functional:
 
-### 6. Auth Page Mobile Polish
+- **Prayer Tracker**: Fetches times from Aladhan API, logs to `spiritual_prayer_logs`, shows weekly stats. Working.
+- **Qur'an Reader**: Session logging form, weekly stats, session history. Working.
+- **Sunnah Fasting**: Daily check-in, fasting type selection, energy slider, history. Working.
+- **Islamic Calendar**: Hijri date mapping via Aladhan API, event detection, White Days. Working (actual API call is correct despite dead-code typo).
+- **Spiritual Insights**: Mood-spiritual correlation engine, AI report generation via edge function. Working.
+- **Settings (SpiritualPreferencesCard)**: Toggle controls, location/city picker, calculation method. Working.
 
-**Update `src/pages/Auth.tsx`**:
-- Add safe-area padding for standalone PWA mode
-- Ensure the form fills the viewport nicely on small screens
-- Make the card full-width on mobile with minimal horizontal padding
+The fixes above are cleanup/polish items -- no blocking functional issues were found.
 
-### Files to Create/Modify
-
-| File | Action |
-|------|--------|
-| `src/components/layout/MobileBottomNav.tsx` | **Create** -- bottom navigation bar |
-| `src/components/ui/responsive-table.tsx` | **Create** -- mobile card / desktop table wrapper |
-| `src/components/users/UserTable.tsx` | **Modify** -- add mobile card view |
-| `src/components/layout/MainLayout.tsx` | **Modify** -- mount bottom nav, add bottom padding |
-| `src/components/layout/Header.tsx` | **Modify** -- mobile page title, touch targets |
-| `src/index.css` | **Modify** -- PWA standalone styles, touch utilities |
-| `src/pages/Auth.tsx` | **Modify** -- mobile safe-area polish |
-
-### Technical Notes
-
-- All components use logical properties (`ms-`, `me-`, `ps-`, `pe-`, `text-start`, `text-end`) -- no `ml-`/`mr-`
-- `useIsMobile()` hook (already exists at 768px breakpoint) is used for conditional rendering
-- The bottom nav uses `env(safe-area-inset-bottom)` for notched devices in standalone PWA mode
-- No database changes required
-- The responsive table pattern can be reused across all admin tables in future iterations
