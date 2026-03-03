@@ -17,6 +17,10 @@ import {
   ChevronRight,
   Phone,
   HeartHandshake,
+  Wind,
+  BookOpen,
+  CheckSquare,
+  ClipboardCheck,
 } from 'lucide-react';
 import { DashboardPrayerWidget } from '@/components/dashboard/DashboardPrayerWidget';
 import { DashboardIslamicCalendarWidget } from '@/components/dashboard/DashboardIslamicCalendarWidget';
@@ -132,6 +136,69 @@ export default function EmployeeHome() {
         {/* Spiritual Wellbeing Widgets */}
         <DashboardPrayerWidget />
         <DashboardIslamicCalendarWidget />
+
+        {/* Mental Health Tools Hub */}
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold">{t('home.mentalHealthTools', 'Mental Health Tools')}</h2>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+            <Link to="/mental-toolkit/breathing">
+              <Card className="glass-card border-0 ring-1 ring-chart-3/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-3/40">
+                <CardContent className="flex items-center gap-4 p-5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-chart-3/10">
+                    <Wind className="h-6 w-6 text-chart-3" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm">{t('home.breathingGrounding', 'Breathing & Grounding')}</h3>
+                    <p className="text-muted-foreground text-xs mt-0.5">{t('home.breathingGroundingDesc', 'Calm your mind with guided exercises')}</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
+                </CardContent>
+              </Card>
+            </Link>
+            <Link to="/mental-toolkit/journaling">
+              <Card className="glass-card border-0 ring-1 ring-chart-4/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-4/40">
+                <CardContent className="flex items-center gap-4 p-5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-chart-4/10">
+                    <BookOpen className="h-6 w-6 text-chart-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm">{t('home.dailyJournaling', 'Daily Journaling Prompts')}</h3>
+                    <p className="text-muted-foreground text-xs mt-0.5">{t('home.dailyJournalingDesc', 'Reflect and express your thoughts')}</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
+                </CardContent>
+              </Card>
+            </Link>
+            <Link to="/mental-toolkit/habits">
+              <Card className="glass-card border-0 ring-1 ring-chart-1/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-1/40">
+                <CardContent className="flex items-center gap-4 p-5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-chart-1/10">
+                    <CheckSquare className="h-6 w-6 text-chart-1" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm">{t('home.habitsPlanner', 'Positive Habits Planner')}</h3>
+                    <p className="text-muted-foreground text-xs mt-0.5">{t('home.habitsPlannerDesc', 'Build healthy daily routines')}</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
+                </CardContent>
+              </Card>
+            </Link>
+            <Link to="/mental-toolkit/assessment">
+              <Card className="glass-card border-0 ring-1 ring-chart-2/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-2/40">
+                <CardContent className="flex items-center gap-4 p-5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-chart-2/10">
+                    <ClipboardCheck className="h-6 w-6 text-chart-2" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm">{t('home.selfAssessment', 'Self-Assessment Quizzes')}</h3>
+                    <p className="text-muted-foreground text-xs mt-0.5">{t('home.selfAssessmentDesc', 'Check in on your wellbeing')}</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </div>
 
         {/* ── Personal Mood Dashboard (rich analytics) ── */}
         <PersonalMoodDashboard />
