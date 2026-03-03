@@ -162,7 +162,7 @@ export function useActions(initiativeId?: string) {
         .from('objective_actions').select('comments').eq('id', id).single();
       if (fetchErr) throw fetchErr;
       const comments = [...((current?.comments as unknown as TaskComment[]) ?? []), comment];
-      const { error } = await supabase.from('objective_actions').update({ comments: comments as unknown as Record<string, unknown>[] }).eq('id', id);
+      const { error } = await supabase.from('objective_actions').update({ comments: JSON.parse(JSON.stringify(comments)) }).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
