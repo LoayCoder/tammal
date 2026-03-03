@@ -22,6 +22,9 @@ import {
   BookOpen,
   CheckSquare,
   ClipboardCheck,
+  Music,
+  BookMarked,
+  Calendar,
 } from 'lucide-react';
 import { DashboardPrayerWidget } from '@/components/dashboard/DashboardPrayerWidget';
 import { DashboardIslamicCalendarWidget } from '@/components/dashboard/DashboardIslamicCalendarWidget';
@@ -30,6 +33,9 @@ import BreathingGroundingTool from '@/components/mental-toolkit/tools/BreathingG
 import JournalingPromptsTool from '@/components/mental-toolkit/practices/JournalingPromptsTool';
 import HabitsPlanner from '@/components/mental-toolkit/practices/HabitsPlanner';
 import SelfAssessmentQuiz from '@/components/mental-toolkit/resources/SelfAssessmentQuiz';
+import MeditationLibraryTool from '@/components/mental-toolkit/practices/MeditationLibraryTool';
+import PsychoeducationArticles from '@/components/mental-toolkit/resources/PsychoeducationArticles';
+import IslamicCalendar from '@/pages/spiritual/IslamicCalendar';
 
 const MOOD_EMOJIS: Record<string, string> = {
   great: '😄',
@@ -253,6 +259,92 @@ export default function EmployeeHome() {
               </DialogTitle>
             </DialogHeader>
             <SelfAssessmentQuiz />
+          </DialogContent>
+        </Dialog>
+
+        {/* Mental Health Resources Hub */}
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold">{t('home.mentalHealthResources', 'Mental Health Resources')}</h2>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+            <div onClick={() => setOpenTool('meditation')} className="cursor-pointer">
+              <Card className="glass-card border-0 ring-1 ring-primary/20 cursor-pointer transition-all hover:shadow-lg hover:ring-primary/40">
+                <CardContent className="flex items-center gap-4 p-5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
+                    <Music className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm">{t('home.meditationLibrary', 'Meditation Library')}</h3>
+                    <p className="text-muted-foreground text-xs mt-0.5">{t('home.meditationLibraryDesc', 'Guided sessions for calm & focus')}</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
+                </CardContent>
+              </Card>
+            </div>
+            <div onClick={() => setOpenTool('articles')} className="cursor-pointer">
+              <Card className="glass-card border-0 ring-1 ring-chart-5/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-5/40">
+                <CardContent className="flex items-center gap-4 p-5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-chart-5/10">
+                    <BookMarked className="h-6 w-6 text-chart-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm">{t('home.psychoeducationArticles', 'Psychoeducation Articles')}</h3>
+                    <p className="text-muted-foreground text-xs mt-0.5">{t('home.psychoeducationArticlesDesc', 'Learn about mental wellness')}</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
+                </CardContent>
+              </Card>
+            </div>
+            <div onClick={() => setOpenTool('calendar')} className="cursor-pointer">
+              <Card className="glass-card border-0 ring-1 ring-chart-3/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-3/40">
+                <CardContent className="flex items-center gap-4 p-5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-chart-3/10">
+                    <Calendar className="h-6 w-6 text-chart-3" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm">{t('home.islamicCalendar', 'Islamic Calendar')}</h3>
+                    <p className="text-muted-foreground text-xs mt-0.5">{t('home.islamicCalendarDesc', 'Hijri dates & Islamic events')}</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+
+        {/* Resource Dialogs */}
+        <Dialog open={openTool === 'meditation'} onOpenChange={(open) => !open && setOpenTool(null)}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Music className="h-5 w-5 text-primary" />
+                {t('home.meditationLibrary', 'Meditation Library')}
+              </DialogTitle>
+            </DialogHeader>
+            <MeditationLibraryTool />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={openTool === 'articles'} onOpenChange={(open) => !open && setOpenTool(null)}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <BookMarked className="h-5 w-5 text-chart-5" />
+                {t('home.psychoeducationArticles', 'Psychoeducation Articles')}
+              </DialogTitle>
+            </DialogHeader>
+            <PsychoeducationArticles />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={openTool === 'calendar'} onOpenChange={(open) => !open && setOpenTool(null)}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-chart-3" />
+                {t('home.islamicCalendar', 'Islamic Calendar')}
+              </DialogTitle>
+            </DialogHeader>
+            <IslamicCalendar />
           </DialogContent>
         </Dialog>
 
