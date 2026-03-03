@@ -15,24 +15,49 @@ export interface HijriMonthDay {
 }
 
 // Known Islamic events mapped by Hijri month-day
-export const ISLAMIC_EVENTS: Record<string, { en: string; ar: string; isFastingDay?: boolean }> = {
-  '1-1': { en: 'Islamic New Year', ar: 'رأس السنة الهجرية' },
-  '1-10': { en: 'Day of Ashura', ar: 'يوم عاشوراء', isFastingDay: true },
-  '1-9': { en: 'Tasu\'a', ar: 'تاسوعاء', isFastingDay: true },
-  '3-12': { en: 'Mawlid al-Nabi', ar: 'المولد النبوي' },
-  '7-27': { en: 'Isra & Mi\'raj', ar: 'الإسراء والمعراج' },
-  '8-15': { en: 'Mid-Sha\'ban', ar: 'ليلة النصف من شعبان' },
-  '9-1': { en: 'Start of Ramadan', ar: 'بداية رمضان' },
-  '9-27': { en: 'Laylat al-Qadr (est.)', ar: 'ليلة القدر (تقديرية)' },
-  '10-1': { en: 'Eid al-Fitr', ar: 'عيد الفطر' },
-  '10-2': { en: 'Eid al-Fitr (Day 2)', ar: 'عيد الفطر (اليوم الثاني)' },
-  '10-3': { en: 'Eid al-Fitr (Day 3)', ar: 'عيد الفطر (اليوم الثالث)' },
-  '12-8': { en: 'Day of Tarwiyah', ar: 'يوم التروية' },
-  '12-9': { en: 'Day of Arafah', ar: 'يوم عرفة', isFastingDay: true },
-  '12-10': { en: 'Eid al-Adha', ar: 'عيد الأضحى' },
-  '12-11': { en: 'Eid al-Adha (Day 2)', ar: 'عيد الأضحى (اليوم الثاني)' },
-  '12-12': { en: 'Eid al-Adha (Day 3)', ar: 'عيد الأضحى (اليوم الثالث)' },
-  '12-13': { en: 'Eid al-Adha (Day 4)', ar: 'عيد الأضحى (اليوم الرابع)' },
+export const ISLAMIC_EVENTS: Record<string, {
+  en: string; ar: string;
+  descEn?: string; descAr?: string;
+  isFastingDay?: boolean;
+}> = {
+  // Muharram
+  '1-1': { en: 'Islamic New Year', ar: 'رأس السنة الهجرية', descEn: 'Marks the beginning of the Hijri calendar year', descAr: 'بداية السنة الهجرية الجديدة' },
+  '1-9': { en: 'Tasu\'a', ar: 'تاسوعاء', isFastingDay: true, descEn: 'Day before Ashura; recommended to fast', descAr: 'اليوم الذي يسبق عاشوراء، يُستحب صيامه' },
+  '1-10': { en: 'Day of Ashura', ar: 'يوم عاشوراء', isFastingDay: true, descEn: 'Commemorates Prophet Musa\'s deliverance; recommended fasting', descAr: 'يوم نجّى الله فيه موسى عليه السلام، يُستحب صيامه' },
+  // Safar
+  '2-1': { en: 'First of Safar', ar: 'غرة شهر صفر', descEn: 'Beginning of the month of Safar', descAr: 'بداية شهر صفر' },
+  // Rabi al-Awwal
+  '3-12': { en: 'Mawlid al-Nabi', ar: 'المولد النبوي', descEn: 'Birthday of Prophet Muhammad ﷺ', descAr: 'ذكرى مولد النبي محمد ﷺ' },
+  // Rajab
+  '7-27': { en: 'Isra & Mi\'raj', ar: 'الإسراء والمعراج', descEn: 'Night Journey and Ascension of the Prophet ﷺ', descAr: 'رحلة الإسراء والمعراج للنبي ﷺ' },
+  // Sha'ban
+  '8-1': { en: 'Start of Sha\'ban', ar: 'بداية شهر شعبان', descEn: 'Month preceding Ramadan; increase good deeds', descAr: 'الشهر الذي يسبق رمضان، يُستحب الإكثار من الطاعات' },
+  '8-15': { en: 'Mid-Sha\'ban', ar: 'ليلة النصف من شعبان', descEn: 'Night of forgiveness and blessings', descAr: 'ليلة المغفرة والبركات' },
+  // Ramadan
+  '9-1': { en: 'Start of Ramadan', ar: 'بداية رمضان', descEn: 'Beginning of the blessed month of fasting', descAr: 'بداية شهر الصيام المبارك' },
+  '9-21': { en: 'Laylat al-Qadr (search)', ar: 'تحري ليلة القدر', descEn: 'Seek it in the odd nights of the last 10', descAr: 'تُلتمس في الليالي الوتر من العشر الأواخر' },
+  '9-23': { en: 'Laylat al-Qadr (possible)', ar: 'ليلة القدر (محتملة)', descEn: 'Better than a thousand months (Quran 97:3)', descAr: 'خير من ألف شهر (القدر:٣)' },
+  '9-25': { en: 'Laylat al-Qadr (possible)', ar: 'ليلة القدر (محتملة)', descEn: 'Better than a thousand months (Quran 97:3)', descAr: 'خير من ألف شهر (القدر:٣)' },
+  '9-27': { en: 'Laylat al-Qadr (possible)', ar: 'ليلة القدر (محتملة)', descEn: 'Better than a thousand months (Quran 97:3)', descAr: 'خير من ألف شهر (القدر:٣)' },
+  '9-29': { en: 'Laylat al-Qadr (possible)', ar: 'ليلة القدر (محتملة)', descEn: 'Better than a thousand months (Quran 97:3)', descAr: 'خير من ألف شهر (القدر:٣)' },
+  // Shawwal
+  '10-1': { en: 'Eid al-Fitr', ar: 'عيد الفطر', descEn: 'Celebration marking the end of Ramadan', descAr: 'عيد الفطر المبارك بعد صيام رمضان' },
+  '10-2': { en: 'Eid al-Fitr (Day 2)', ar: 'عيد الفطر (اليوم الثاني)', descEn: 'Celebration marking the end of Ramadan', descAr: 'عيد الفطر المبارك' },
+  '10-3': { en: 'Eid al-Fitr (Day 3)', ar: 'عيد الفطر (اليوم الثالث)', descEn: 'Celebration marking the end of Ramadan', descAr: 'عيد الفطر المبارك' },
+  '10-4': { en: 'Shawwal Fasting', ar: 'صيام شوال', isFastingDay: true, descEn: 'Six days of Shawwal; equals a full year of fasting', descAr: 'صيام ستة من شوال كصيام الدهر' },
+  '10-5': { en: 'Shawwal Fasting', ar: 'صيام شوال', isFastingDay: true, descEn: 'Six days of Shawwal; equals a full year of fasting', descAr: 'صيام ستة من شوال كصيام الدهر' },
+  '10-6': { en: 'Shawwal Fasting', ar: 'صيام شوال', isFastingDay: true, descEn: 'Six days of Shawwal; equals a full year of fasting', descAr: 'صيام ستة من شوال كصيام الدهر' },
+  '10-7': { en: 'Shawwal Fasting', ar: 'صيام شوال', isFastingDay: true, descEn: 'Six days of Shawwal; equals a full year of fasting', descAr: 'صيام ستة من شوال كصيام الدهر' },
+  '10-8': { en: 'Shawwal Fasting', ar: 'صيام شوال', isFastingDay: true, descEn: 'Six days of Shawwal; equals a full year of fasting', descAr: 'صيام ستة من شوال كصيام الدهر' },
+  '10-9': { en: 'Shawwal Fasting', ar: 'صيام شوال', isFastingDay: true, descEn: 'Six days of Shawwal; equals a full year of fasting', descAr: 'صيام ستة من شوال كصيام الدهر' },
+  // Dhul Hijjah
+  '12-1': { en: 'Start of Dhul Hijjah', ar: 'بداية ذي الحجة', descEn: 'First 10 days are the most blessed days of the year', descAr: 'أفضل أيام الدنيا العشر الأوائل من ذي الحجة' },
+  '12-8': { en: 'Day of Tarwiyah', ar: 'يوم التروية', descEn: 'Pilgrims prepare for Hajj; fasting recommended', descAr: 'يوم تروية الحجاج، يُستحب صيامه', isFastingDay: true },
+  '12-9': { en: 'Day of Arafah', ar: 'يوم عرفة', isFastingDay: true, descEn: 'Best day for du\'a; fasting expiates two years of sins', descAr: 'أفضل يوم للدعاء، صيامه يكفّر سنتين' },
+  '12-10': { en: 'Eid al-Adha', ar: 'عيد الأضحى', descEn: 'Festival of Sacrifice; commemorates Prophet Ibrahim\'s devotion', descAr: 'عيد الأضحى المبارك، ذكرى فداء إبراهيم عليه السلام' },
+  '12-11': { en: 'Eid al-Adha (Day 2)', ar: 'عيد الأضحى (اليوم الثاني)', descEn: 'Days of Tashreeq; eat, drink, and remember Allah', descAr: 'أيام التشريق، أيام أكل وشرب وذكر لله' },
+  '12-12': { en: 'Eid al-Adha (Day 3)', ar: 'عيد الأضحى (اليوم الثالث)', descEn: 'Days of Tashreeq; eat, drink, and remember Allah', descAr: 'أيام التشريق' },
+  '12-13': { en: 'Eid al-Adha (Day 4)', ar: 'عيد الأضحى (اليوم الرابع)', descEn: 'Last day of Tashreeq', descAr: 'آخر أيام التشريق' },
 };
 
 // White Days (13-14-15 of every Hijri month) are recommended fasting days
