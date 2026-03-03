@@ -2323,6 +2323,7 @@
     "accessTab": "Access & Auth",
     "rolesTab": "Roles & Permissions",
     "invitationsTab": "Invitations",
+    "representativesTab": "Representatives",
     "accountStatus": "Account Status",
     "notInvited": "Not Invited",
     "invitationSent": "Invitation Sent",
