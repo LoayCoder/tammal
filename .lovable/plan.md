@@ -1,114 +1,115 @@
 
-## Phase 1: Architecture Refactor — STATUS: ✅ COMPLETE
 
-### Completed Items
+# Integrate Rawatib into Each Prayer Card + Position Duha
 
-1. **Database Migration** ✅ — Added unique constraints for idempotency guards on `mood_entries` and `points_transactions`
-2. **Service Layer** ✅ — Created 8 services: `gamificationService`, `checkinService`, `inviteService`, `aiService`, `tenantService`, `accountService`, `moodTaggingService`, `scheduleService`
-3. **Hook Layer** ✅ — Created 11 thin wrapper hooks: `useCheckinSubmit`, `useTodayEntry`, `useAcceptInvite`, `useDeleteAccount`, `usePromptRewrite`, `useQuestionRewrite`, `useMoodTagging`, `useScheduleData`, `useScheduleActions`, `useTenantIdQuery`
-4. **Refactored useGamification** ✅ — Delegates to `gamificationService`
-5. **Unified Analytics** ✅ — `analyticsQueries.ts` now uses `gamificationService.computeStreak()` and `calculatePoints()`
-6. **Refactored 9 P1 Offender Files** ✅ — Removed direct Supabase calls from `DailyCheckin`, `InlineDailyCheckin`, `MoodStep`, `AIQuestionGenerator`, `MoodPathwaySettings`, `AcceptInvite`, `ScheduleManagement`, `DeleteAccountDialog`, `QuestionCard`
-7. **MoodStep tenantId prop threading** ✅ — Accepts `tenantId` via props, no internal fetch
+## Overview
+Move Rawatib tracking from a standalone card into each obligatory prayer card, with the correct rak'ah configuration per prayer. Place Duha as its own card between Fajr and Dhuhr in the grid.
 
-### Deferred Items
+## Rawatib Configuration Per Prayer
 
-- **~~70 Hook Shim Deletion~~**: ✅ Already cleaned up — no barrel re-export files remain in `src/hooks/` root.
+| Prayer  | Before | After |
+|---------|--------|-------|
+| Fajr    | --     | 2     |
+| Dhuhr   | 2      | 2     |
+| Asr     | --     | --    |
+| Maghrib | --     | 2     |
+| Isha    | --     | 2     |
 
----
+## Changes
 
-## Phase 2: Feature Modularization — STATUS: ✅ COMPLETE
+### 1. Define Rawatib config constant
+**File:** `src/components/spiritual/PrayerCard.tsx`
 
-1. **ai-governance → src/features/** ✅ — Components, hooks, types consolidated with barrel export
-2. **ai-generator → src/features/** ✅ — All 12 components moved from `src/components/ai-generator/` to `src/features/ai-generator/components/`, internal imports updated
-3. **Dead file cleanup** ✅ — Removed orphan compatibility shims and empty type directories
-4. **as any reduction** ✅ — Eliminated ~80 casts in governance, admin, and hook layers
+Add a config map:
+```typescript
+const RAWATIB_CONFIG: Record<string, { before?: number; after?: number }> = {
+  Fajr:    { after: 2 },
+  Dhuhr:   { before: 2, after: 2 },
+  Asr:     {},
+  Maghrib: { after: 2 },
+  Isha:    { after: 2 },
+};
+```
 
----
+### 2. Extend PrayerCard to include Rawatib toggles
+**File:** `src/components/spiritual/PrayerCard.tsx`
 
-## Make the App Fully Mobile-Responsive as a PWA
+Add new props:
+- `sunnahBefore?: boolean` -- is the "before" sunnah completed today
+- `sunnahAfter?: boolean` -- is the "after" sunnah completed today  
+- `onToggleSunnah?: (type: 'before' | 'after', completed: boolean) => void`
+- `sunnahPending?: boolean`
 
-### Overview
-The app has good PWA infrastructure (service worker, manifest, install banner, caching) but several UI areas are not optimized for mobile touch interaction. This plan addresses the key gaps to make the app feel native on phones.
+Inside the card, below the obligatory prayer status/buttons, render a small Rawatib section (only if the prayer has rawatib config):
+- Show "2 Rak'ahs before" toggle (if `before` exists) -- small pill/chip button
+- Show "2 Rak'ahs after" toggle (if `after` exists) -- small pill/chip button
+- Each toggle is a compact button with a check icon when done
+- Uses `📿` emoji prefix for visual consistency
 
-### 1. Mobile Bottom Navigation Bar
+For Asr, nothing extra is rendered (empty config).
 
-Create a persistent bottom navigation bar for mobile users (visible below `md` breakpoint) with quick-access icons for the most-used sections: Dashboard, Wellness, Support, Profile, and More (opens sidebar).
+### 3. Update Sunnah log keys for per-prayer Rawatib
+Instead of one generic `rawatib` key, use per-prayer keys in `spiritual_sunnah_logs`:
+- `rawatib_fajr_after`
+- `rawatib_dhuhr_before`, `rawatib_dhuhr_after`
+- `rawatib_maghrib_after`
+- `rawatib_isha_after`
 
-**New file: `src/components/layout/MobileBottomNav.tsx`**
+This allows tracking each individual Rawatib independently.
 
-- Fixed to the bottom of the viewport with `safe-area-inset-bottom` padding
-- Glass styling consistent with the header
-- Active state indicator matching `glass-active`
-- Hidden on desktop (`md:hidden`)
-- Uses logical properties for RTL
+**File:** `src/hooks/spiritual/useSunnahLogs.ts`
+- Remove the generic `rawatib` entry from `SUNNAH_PRACTICES` (keep `duha`)
+- The `togglePractice` mutation already accepts any `practice_type` string, so no mutation change needed
+- Update `todayCompleted` set -- it already works with any practice_type
 
-**Mount in `MainLayout.tsx`** after the `</main>` tag.
+### 4. Reorder grid and place Duha between Fajr and Dhuhr
+**File:** `src/pages/spiritual/PrayerTracker.tsx`
 
-### 2. Mobile Card View for Data Tables
+Instead of mapping `PRAYER_NAMES` then appending voluntary cards, build an explicit ordered list:
 
-The `UserTable` (and similar admin tables) renders a full `<table>` which is unusable on small screens. Create a responsive wrapper pattern.
+1. **Fajr** (PrayerCard with rawatib after)
+2. **Duha** (standalone sunnah card -- keep current style with emoji toggle)
+3. **Dhuhr** (PrayerCard with rawatib before + after)
+4. **Asr** (PrayerCard, no rawatib)
+5. **Maghrib** (PrayerCard with rawatib after)
+6. **Isha** (PrayerCard with rawatib after)
 
-**New file: `src/components/ui/responsive-table.tsx`**
+Remove the `voluntaryPractices.map` block. Duha card rendered inline in the correct position.
 
-A wrapper component that:
-- On desktop (`md+`): renders children (the table) as-is
-- On mobile (`<md`): renders each row as a stacked card with key-value pairs
+Pass sunnah state to each PrayerCard:
+```typescript
+<PrayerCard
+  prayerName="Fajr"
+  prayerTime={...}
+  log={todayLogs.Fajr}
+  onLog={...}
+  sunnahAfter={todayCompleted.has('rawatib_fajr_after')}
+  onToggleSunnah={(type, done) => 
+    togglePractice.mutate({ practice_type: `rawatib_fajr_${type}`, completed: done })
+  }
+/>
+```
 
-**Update `src/components/users/UserTable.tsx`**:
-- On mobile: render user cards (avatar, name, email, status badge, role badges, action menu) in a vertical stack
-- On desktop: keep the existing table layout
-- Use `useIsMobile()` hook to switch between views
+### 5. Localization
+**Files:** `src/locales/en.json`, `src/locales/ar.json`
 
-### 3. Touch-Friendly Sizing & Spacing
+Add keys:
+- `spiritual.prayer.rakahsBefore`: "{{count}} Rak'ahs before" / "{{count}} ركعات قبل"
+- `spiritual.prayer.rakahsAfter`: "{{count}} Rak'ahs after" / "{{count}} ركعات بعد"
+- `spiritual.prayer.sunnah`: "Sunnah" / "سنة"
 
-**Update `src/index.css`** with mobile-specific utilities:
+### 6. Update SunnahTracker stats
+**File:** `src/pages/spiritual/SunnahTracker.tsx`
 
-- Add a `.touch-target` utility class ensuring minimum 44x44px tap targets (Apple HIG)
-- Increase padding on interactive elements at small breakpoints
-- Add `overscroll-behavior: contain` on the main scroll area to prevent pull-to-refresh interference in standalone PWA mode
+The Sunnah Tracker page iterates `SUNNAH_PRACTICES` for stats. Since we removed the generic `rawatib` entry, the per-prayer rawatib logs won't show there (they're tracked in Prayer Tracker context). The remaining practices (fasting, adhkar_morning, adhkar_evening, tahajjud, duha) display normally. Adjust grid back to appropriate column count.
 
-### 4. PWA Standalone Mode Enhancements
+## Files to modify
+- `src/components/spiritual/PrayerCard.tsx` -- add rawatib config + toggle UI
+- `src/pages/spiritual/PrayerTracker.tsx` -- reorder grid, pass sunnah props, place Duha inline
+- `src/hooks/spiritual/useSunnahLogs.ts` -- remove generic `rawatib` from SUNNAH_PRACTICES
+- `src/locales/en.json` -- add rak'ah labels
+- `src/locales/ar.json` -- add rak'ah labels
+- `src/pages/spiritual/SunnahTracker.tsx` -- adjust grid for 5 items
 
-**Update `src/index.css`**:
-- Add `@media (display-mode: standalone)` styles to hide browser-specific UI hints
-- Ensure the bottom nav accounts for the home indicator on notched devices
-- Add smooth momentum scrolling (`-webkit-overflow-scrolling: touch`)
-
-**Update `src/components/layout/MainLayout.tsx`**:
-- Add `pb-16 md:pb-0` to the main content area to prevent the bottom nav from covering content on mobile
-- Add `overscroll-behavior-y: contain` on the root layout div
-
-### 5. Header Adjustments for Mobile
-
-**Update `src/components/layout/Header.tsx`**:
-- On mobile, hide the breadcrumb (already done with `hidden md:flex`)
-- Ensure all header action buttons meet 44px touch targets
-- Add the page title as a simple text element on mobile (replacing the breadcrumb)
-
-### 6. Auth Page Mobile Polish
-
-**Update `src/pages/Auth.tsx`**:
-- Add safe-area padding for standalone PWA mode
-- Ensure the form fills the viewport nicely on small screens
-- Make the card full-width on mobile with minimal horizontal padding
-
-### Files to Create/Modify
-
-| File | Action |
-|------|--------|
-| `src/components/layout/MobileBottomNav.tsx` | **Create** -- bottom navigation bar |
-| `src/components/ui/responsive-table.tsx` | **Create** -- mobile card / desktop table wrapper |
-| `src/components/users/UserTable.tsx` | **Modify** -- add mobile card view |
-| `src/components/layout/MainLayout.tsx` | **Modify** -- mount bottom nav, add bottom padding |
-| `src/components/layout/Header.tsx` | **Modify** -- mobile page title, touch targets |
-| `src/index.css` | **Modify** -- PWA standalone styles, touch utilities |
-| `src/pages/Auth.tsx` | **Modify** -- mobile safe-area polish |
-
-### Technical Notes
-
-- All components use logical properties (`ms-`, `me-`, `ps-`, `pe-`, `text-start`, `text-end`) -- no `ml-`/`mr-`
-- `useIsMobile()` hook (already exists at 768px breakpoint) is used for conditional rendering
-- The bottom nav uses `env(safe-area-inset-bottom)` for notched devices in standalone PWA mode
-- No database changes required
-- The responsive table pattern can be reused across all admin tables in future iterations
+## No database changes needed
+The `spiritual_sunnah_logs.practice_type` is a free-text field; new keys like `rawatib_fajr_after` work without migration.
