@@ -70,6 +70,7 @@ const PersonalCommandCenter = lazy(() => import("@/pages/employee/PersonalComman
 const WorkloadDashboard = lazy(() => import("@/pages/admin/WorkloadDashboard"));
 const TeamWorkload = lazy(() => import("@/pages/admin/TeamWorkload"));
 const TaskConnectors = lazy(() => import("@/pages/admin/TaskConnectors"));
+const RepresentativeWorkload = lazy(() => import("@/pages/admin/RepresentativeWorkload"));
 const RecognitionManagement = lazy(() => import("@/pages/admin/RecognitionManagement"));
 const NominatePage = lazy(() => import("@/pages/recognition/NominatePage"));
 const MyNominationsPage = lazy(() => import("@/pages/recognition/MyNominationsPage"));
@@ -158,6 +159,7 @@ const App = () => (
                 <Route path="/admin/workload/dashboard" element={<AdminRoute><WorkloadDashboard /></AdminRoute>} />
                 <Route path="/admin/workload/team" element={<ManagerOrAdminRoute><TeamWorkload /></ManagerOrAdminRoute>} />
                 <Route path="/admin/workload/connectors" element={<AdminRoute><TaskConnectors /></AdminRoute>} />
+                <Route path="/admin/workload/representative" element={<ManagerOrAdminRoute><RepresentativeWorkload /></ManagerOrAdminRoute>} />
                 <Route path="/admin/recognition" element={<AdminRoute><RecognitionManagement /></AdminRoute>} />
                 <Route path="/admin/recognition/results" element={<AdminRoute><RecognitionResults /></AdminRoute>} />
                 <Route path="/admin/recognition/redemption" element={<AdminRoute><RedemptionManagement /></AdminRoute>} />

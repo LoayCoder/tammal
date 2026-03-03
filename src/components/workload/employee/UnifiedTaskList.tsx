@@ -20,6 +20,7 @@ interface UnifiedTaskListProps {
 const SOURCE_LABELS: Record<string, { label: string; className: string }> = {
   manual: { label: 'Manual', className: 'bg-primary/10 text-primary' },
   manager_assigned: { label: 'Assigned', className: 'bg-chart-3/10 text-chart-3' },
+  representative_assigned: { label: 'Rep. Assigned', className: 'bg-chart-5/10 text-chart-5' },
   objective: { label: 'OKR', className: 'bg-chart-1/10 text-chart-1' },
   external: { label: 'External', className: 'bg-chart-2/10 text-chart-2' },
   observation: { label: 'Observation', className: 'bg-chart-4/10 text-chart-4' },

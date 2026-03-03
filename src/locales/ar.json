@@ -93,6 +93,7 @@
     "workloadDashboard": "لوحة أعباء العمل",
     "teamWorkload": "أعباء الفريق",
     "taskConnectors": "موصلات المهام",
+    "representativeWorkload": "مهام المندوب",
     "recognitionAwards": "التقدير والجوائز",
     "recognition": "التقدير",
     "aiPlatform": "منصة الذكاء الاصطناعي",
@@ -3252,5 +3253,34 @@
       "timeProgress": "تقدم الوقت",
       "days": "أيام"
     }
+  },
+  "representative": {
+    "pageTitle": "مهام المندوب",
+    "pageDesc": "توزيع المهام على الأقسام أو الإدارات أو الوحدات المعينة لك",
+    "distributeTask": "توزيع مهمة",
+    "scope": "النطاق المستهدف",
+    "selectScope": "اختر نطاقاً...",
+    "willDistributeTo": "سيتم توزيع المهمة على جميع أعضاء {{scope}}",
+    "taskTitle": "عنوان المهمة",
+    "taskTitlePlaceholder": "أدخل عنوان المهمة...",
+    "taskTitleAr": "عنوان المهمة (عربي)",
+    "taskTitleArPlaceholder": "أدخل عنوان المهمة...",
+    "description": "الوصف",
+    "dueDate": "تاريخ الاستحقاق",
+    "priority": "الأولوية",
+    "priorityHigh": "عالية",
+    "priorityNormal": "عادية",
+    "priorityLow": "منخفضة",
+    "estimatedMinutes": "الوقت المقدر (دقائق)",
+    "distribute": "توزيع",
+    "distributeSuccess": "تم توزيع المهمة على {{count}} موظف",
+    "distributeError": "فشل في توزيع المهمة",
+    "noBatches": "لا توجد مهام موزعة بعد. انقر على 'توزيع مهمة' للبدء.",
+    "scopeTypes": {
+      "division": "قسم",
+      "department": "إدارة",
+      "section": "وحدة"
+    }
   }
 }
+
