@@ -1,22 +1,76 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { useWorkloadAnalytics } from '@/hooks/workload/useWorkloadAnalytics';
 import { useObjectives } from '@/hooks/workload/useObjectives';
 import { useInitiatives } from '@/hooks/workload/useInitiatives';
+import { useDepartmentTasks } from '@/hooks/workload/useDepartmentTasks';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { useTenantId } from '@/hooks/org/useTenantId';
+import { TeamTaskFilters, type TaskFilters } from '@/components/workload/team/TeamTaskFilters';
+import { AddTeamTaskDialog } from '@/components/workload/team/AddTeamTaskDialog';
+import { DataTable } from '@/shared/data-table/DataTable';
 import {
-  Users, AlertTriangle, Clock, CheckCircle2, TrendingUp,
+  Users, AlertTriangle, Clock, CheckCircle2, TrendingUp, Plus,
+  Lock, Unlock, Trash2,
 } from 'lucide-react';
+import { format } from 'date-fns';
+
+const statusColors: Record<string, string> = {
+  todo: 'secondary',
+  in_progress: 'default',
+  done: 'outline',
+  blocked: 'destructive',
+};
+
+const priorityLabels: Record<number, string> = {
+  1: 'P1', 2: 'P2', 3: 'P3', 4: 'P4', 5: 'P5',
+};
 
 export default function TeamWorkload() {
   const { t } = useTranslation();
-  const { teamLoad, isPending, atRiskCount } = useWorkloadAnalytics();
+  const { user } = useAuth();
+  const { tenantId } = useTenantId();
+  const { teamLoad, isPending: analyticsLoading } = useWorkloadAnalytics();
   const { objectives } = useObjectives();
   const { initiatives } = useInitiatives();
+  const {
+    employees, tasks, isPending: tasksLoading,
+    createTask, deleteTask, lockTask, unlockTask, isCreating,
+  } = useDepartmentTasks();
 
+  const [addOpen, setAddOpen] = useState(false);
+  const [filters, setFilters] = useState<TaskFilters>({
+    status: 'all', priority: 'all', employeeId: 'all', sourceType: 'all', search: '',
+  });
+
+  // Build employee name map
+  const empMap = useMemo(() => {
+    const m: Record<string, string> = {};
+    employees.forEach(e => { m[e.id] = e.full_name; });
+    return m;
+  }, [employees]);
+
+  // Apply filters
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task => {
+      if (filters.status !== 'all' && task.status !== filters.status) return false;
+      if (filters.priority !== 'all' && task.priority !== parseInt(filters.priority)) return false;
+      if (filters.employeeId !== 'all' && task.employee_id !== filters.employeeId) return false;
+      if (filters.sourceType !== 'all' && task.source_type !== filters.sourceType) return false;
+      if (filters.search) {
+        const s = filters.search.toLowerCase();
+        if (!task.title.toLowerCase().includes(s) && !(task.title_ar ?? '').toLowerCase().includes(s)) return false;
+      }
+      return true;
+    });
+  }, [tasks, filters]);
+
+  // Risk members
   const riskMembers = useMemo(
     () => teamLoad.filter(m => m.estimatedMinutes > 480 || m.overdueTasks > 2 || m.offHoursMinutes > 120),
     [teamLoad]
@@ -24,7 +78,7 @@ export default function TeamWorkload() {
 
   // Quadrants
   const quadrants = useMemo(() => {
-    const high = 360; // 6h threshold
+    const high = 360;
     return {
       lowLoadHealthy: teamLoad.filter(m => m.estimatedMinutes <= high && m.overdueTasks === 0),
       highLoadHealthy: teamLoad.filter(m => m.estimatedMinutes > high && m.overdueTasks === 0),
@@ -40,11 +94,107 @@ export default function TeamWorkload() {
     { title: t('teamWorkload.initActive'), value: initiatives.filter(i => i.status !== 'completed').length, icon: CheckCircle2 },
   ];
 
+  const columns = [
+    {
+      id: 'employee',
+      header: t('teamWorkload.employee'),
+      cell: (row: typeof filteredTasks[number]) => (
+        <span className="font-medium text-sm">{empMap[row.employee_id] ?? '—'}</span>
+      ),
+    },
+    {
+      id: 'title',
+      header: t('workload.tasks.title'),
+      cell: (row: typeof filteredTasks[number]) => (
+        <div>
+          <p className="text-sm font-medium">{row.title}</p>
+          {row.title_ar && <p className="text-xs text-muted-foreground" dir="rtl">{row.title_ar}</p>}
+        </div>
+      ),
+    },
+    {
+      id: 'status',
+      header: t('common.status'),
+      cell: (row: typeof filteredTasks[number]) => (
+        <Badge variant={(statusColors[row.status] as any) ?? 'secondary'} className="text-xs capitalize">
+          {row.status.replace('_', ' ')}
+        </Badge>
+      ),
+      className: 'w-28',
+    },
+    {
+      id: 'priority',
+      header: t('workload.tasks.priority'),
+      cell: (row: typeof filteredTasks[number]) => (
+        <Badge variant={row.priority <= 2 ? 'destructive' : 'secondary'} className="text-xs">
+          {priorityLabels[row.priority] ?? `P${row.priority}`}
+        </Badge>
+      ),
+      className: 'w-20',
+    },
+    {
+      id: 'dueDate',
+      header: t('workload.tasks.dueDate'),
+      cell: (row: typeof filteredTasks[number]) => (
+        <span className="text-sm text-muted-foreground">
+          {row.due_date ? format(new Date(row.due_date), 'MMM dd') : '—'}
+        </span>
+      ),
+      className: 'w-28',
+    },
+    {
+      id: 'estimated',
+      header: t('workload.tasks.estimatedMinutes'),
+      cell: (row: typeof filteredTasks[number]) => (
+        <span className="text-sm text-muted-foreground">
+          {row.estimated_minutes ? `${row.estimated_minutes}m` : '—'}
+        </span>
+      ),
+      className: 'w-20',
+    },
+    {
+      id: 'source',
+      header: t('teamWorkload.source'),
+      cell: (row: typeof filteredTasks[number]) => (
+        <span className="text-xs text-muted-foreground capitalize">{row.source_type.replace('_', ' ')}</span>
+      ),
+      className: 'w-28',
+    },
+    {
+      id: 'actions',
+      header: '',
+      headerHidden: true,
+      cell: (row: typeof filteredTasks[number]) => (
+        <div className="flex items-center gap-1">
+          {row.is_locked ? (
+            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => unlockTask(row.id)}>
+              <Unlock className="h-3.5 w-3.5" />
+            </Button>
+          ) : (
+            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => lockTask({ id: row.id, locked_by: user?.id ?? '' })}>
+              <Lock className="h-3.5 w-3.5" />
+            </Button>
+          )}
+          <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => deleteTask(row.id)}>
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      ),
+      className: 'w-20',
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">{t('teamWorkload.pageTitle')}</h1>
-        <p className="text-muted-foreground text-sm">{t('teamWorkload.pageDesc')}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">{t('teamWorkload.pageTitle')}</h1>
+          <p className="text-muted-foreground text-sm">{t('teamWorkload.pageDesc')}</p>
+        </div>
+        <Button onClick={() => setAddOpen(true)} className="gap-2">
+          <Plus className="h-4 w-4" />
+          {t('teamWorkload.assignTask')}
+        </Button>
       </div>
 
       {/* KPI */}
@@ -58,7 +208,7 @@ export default function TeamWorkload() {
               </div>
             </CardHeader>
             <CardContent>
-              {isPending ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-bold">{stat.value}</div>}
+              {analyticsLoading ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-bold">{stat.value}</div>}
             </CardContent>
           </Card>
         ))}
@@ -80,18 +230,39 @@ export default function TeamWorkload() {
                   <p className="font-medium text-sm">{m.employeeName}</p>
                   <p className="text-xs text-muted-foreground">
                     {m.estimatedMinutes > 480 && `${Math.round(m.estimatedMinutes / 60)}h ${t('teamWorkload.scheduled')}`}
-                    {m.overdueTasks > 0 && ` · ${m.overdueTasks} ${t('commandCenter.overdue')}`}
-                    {m.offHoursMinutes > 0 && ` · ${Math.round(m.offHoursMinutes / 60)}h ${t('adminWorkload.offHours')}`}
+                    {m.overdueTasks > 0 && ` · ${m.overdueTasks} ${t('common.overdue')}`}
                   </p>
                 </div>
-                <Badge variant="destructive" className="text-xs">{t('adminWorkload.atRisk')}</Badge>
+                <Badge variant="destructive" className="text-xs">{t('teamWorkload.atRiskMembers')}</Badge>
               </div>
             ))}
           </CardContent>
         </Card>
       )}
 
-      {/* Team Load Quadrant */}
+      {/* Department Tasks Section */}
+      <Card className="glass-card border-0">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">{t('teamWorkload.departmentTasks')}</CardTitle>
+            <Badge variant="secondary" className="text-xs">{filteredTasks.length} {t('teamWorkload.allTasks')}</Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <TeamTaskFilters filters={filters} onChange={setFilters} employees={employees} />
+          <DataTable
+            columns={columns}
+            data={filteredTasks}
+            rowKey={row => row.id}
+            isLoading={tasksLoading}
+            emptyMessage={t('teamWorkload.noTasksFound')}
+            emptyIcon={<CheckCircle2 className="h-8 w-8 text-muted-foreground" />}
+            bordered={false}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Quadrants */}
       <div className="grid gap-4 md:grid-cols-2">
         {[
           { key: 'highLoadAtRisk', title: t('teamWorkload.burnoutRisk'), members: quadrants.highLoadAtRisk, variant: 'destructive' as const },
@@ -107,7 +278,7 @@ export default function TeamWorkload() {
               </div>
             </CardHeader>
             <CardContent>
-              {isPending ? <Skeleton className="h-16" /> : q.members.length > 0 ? (
+              {analyticsLoading ? <Skeleton className="h-16" /> : q.members.length > 0 ? (
                 <div className="space-y-1">
                   {q.members.slice(0, 5).map(m => (
                     <div key={m.employeeId} className="flex items-center justify-between text-sm py-1">
@@ -131,7 +302,7 @@ export default function TeamWorkload() {
           <CardTitle className="text-base">{t('teamWorkload.objectiveAlignment')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {isPending ? <Skeleton className="h-20" /> : objectives.length > 0 ? objectives.slice(0, 5).map(obj => (
+          {analyticsLoading ? <Skeleton className="h-20" /> : objectives.length > 0 ? objectives.slice(0, 5).map(obj => (
             <div key={obj.id} className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium truncate">{obj.title}</span>
@@ -144,6 +315,19 @@ export default function TeamWorkload() {
           )}
         </CardContent>
       </Card>
+
+      {/* Add Task Dialog */}
+      {tenantId && user?.id && (
+        <AddTeamTaskDialog
+          open={addOpen}
+          onOpenChange={setAddOpen}
+          employees={employees}
+          tenantId={tenantId}
+          createdBy={user.id}
+          onSubmit={createTask}
+          isCreating={isCreating}
+        />
+      )}
     </div>
   );
 }
