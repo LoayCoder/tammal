@@ -69,8 +69,26 @@ Deno.serve(async (req) => {
       p.status?.startsWith("completed")
     ).length;
     const totalPrayers = prayers.length;
-    const prayerConsistency =
-      totalPrayers > 0 ? Math.round((completedPrayers / totalPrayers) * 100) : 0;
+
+    // Calculate unique prayer days and daily consistency
+    const prayerDates = new Set(prayers.map((p: any) => p.prayer_date));
+    const totalDays = Math.max(1, Math.ceil(
+      (new Date(period_end).getTime() - new Date(period_start).getTime()) / (1000 * 60 * 60 * 24)
+    ) + 1);
+    const daysWithPrayer = prayerDates.size;
+
+    // 5 obligatory prayers per day
+    const expectedPrayers = totalDays * 5;
+    const prayerConsistency = expectedPrayers > 0
+      ? Math.round((completedPrayers / expectedPrayers) * 100)
+      : 0;
+
+    // Count prayers by name for detailed breakdown
+    const prayerBreakdown: Record<string, number> = {};
+    prayers.filter((p: any) => p.status?.startsWith("completed")).forEach((p: any) => {
+      const name = p.prayer_name || "unknown";
+      prayerBreakdown[name] = (prayerBreakdown[name] || 0) + 1;
+    });
 
     const totalQuranMin = quranSessions.reduce(
       (s: number, q: any) => s + (q.duration_minutes || 0),
@@ -81,56 +99,103 @@ Deno.serve(async (req) => {
         ? Math.round(totalQuranMin / quranSessions.length)
         : 0;
 
+    // Count unique Quran reading days
+    const quranDates = new Set(quranSessions.map((q: any) => q.session_date));
+
     const completedFasts = fastingLogs.filter((f: any) => f.completed).length;
 
-    // Build prompt for AI
+    // Determine fasting types
+    const fastingTypes: Record<string, number> = {};
+    fastingLogs.filter((f: any) => f.completed).forEach((f: any) => {
+      const type = f.fast_type || "voluntary";
+      fastingTypes[type] = (fastingTypes[type] || 0) + 1;
+    });
+
+    // Build accurate prompt
+    const prayerDetail = Object.entries(prayerBreakdown)
+      .map(([name, count]) => `${name}: ${count}`)
+      .join(", ");
+
+    const fastingDetail = Object.entries(fastingTypes)
+      .map(([type, count]) => `${type}: ${count}`)
+      .join(", ");
+
     const statsContext = `
-Spiritual Activity Summary for ${period_start} to ${period_end}:
-- Prayer: ${completedPrayers} completed out of ${totalPrayers} logged (${prayerConsistency}% consistency)
-- Qur'an: ${quranSessions.length} sessions, ${totalQuranMin} total minutes (avg ${avgQuranMin} min/session)
-- Fasting: ${completedFasts} completed fasts out of ${fastingLogs.length} logged days
+Spiritual Activity Report — ${period_start} to ${period_end} (${totalDays} days):
+
+SALAH (Prayer):
+- ${completedPrayers} prayers completed out of ${expectedPrayers} expected (${prayerConsistency}% consistency)
+- ${daysWithPrayer} out of ${totalDays} days had at least one prayer logged
+- Breakdown: ${prayerDetail || "no breakdown available"}
+- Missed prayers: ${expectedPrayers - completedPrayers}
+
+QUR'AN:
+- ${quranSessions.length} reading sessions across ${quranDates.size} unique days
+- Total: ${totalQuranMin} minutes (avg ${avgQuranMin} min/session)
+
+FASTING:
+- ${completedFasts} completed fasts out of ${fastingLogs.length} logged
+- Types: ${fastingDetail || "not specified"}
 `;
 
-    const prompt = `You are a compassionate spiritual wellness advisor. Based on the following activity data, provide a brief ${report_type} spiritual wellness report.
+    const prompt = `You are a knowledgeable Islamic spiritual wellness advisor grounded in Qur'an and Sunnah.
+
+Based on the following verified activity data, provide an accurate ${report_type} spiritual wellness report.
 
 ${statsContext}
 
-Provide:
-1. A warm, encouraging summary (2-3 sentences, non-judgmental)
-2. 3 specific, actionable recommendations for the upcoming period
-3. 2-3 highlights or achievements to celebrate
+Rules:
+- Use ONLY the numbers provided above. Do NOT invent or estimate data.
+- Reference Islamic teachings where relevant (e.g., hadith on prayer consistency, virtues of Qur'an recitation).
+- Be warm, encouraging, and non-judgmental — remind the user that Allah values sincerity over quantity.
+- If activity is low, gently encourage with relevant ayat or hadith (e.g., "The most beloved deed to Allah is the most consistent, even if small" — Bukhari).
+- Recommendations must be specific and actionable for the upcoming ${report_type === 'weekly' ? 'week' : 'month'}.
+- Keep total response under 250 words.
 
-Important:
-- Be positive and encouraging, never guilt-inducing
-- Focus on progress, not perfection
-- If data is sparse, gently encourage more engagement
-- Keep total response under 200 words
-- Return as JSON with fields: summary (string), recommendations (string array), highlights (string array), overallScore (number 1-10)`;
+Return valid JSON with these exact fields:
+{
+  "summary": "2-3 sentence warm summary referencing actual stats",
+  "recommendations": ["actionable recommendation 1", "actionable recommendation 2", "actionable recommendation 3"],
+  "highlights": ["achievement 1", "achievement 2"],
+  "overallScore": <number 1-10 based on actual data>
+}
 
-    // Call Lovable AI
+Scoring guide:
+- 1-3: Very low activity, needs encouragement
+- 4-5: Some activity but inconsistent
+- 6-7: Good effort with room to grow
+- 8-9: Strong consistent practice
+- 10: Exceptional dedication`;
+
+    // Call Lovable AI with correct gateway URL
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
-    const aiResponse = await fetch("https://api.lovable.dev/v1/chat/completions", {
+    if (!lovableApiKey) {
+      console.error("LOVABLE_API_KEY is not configured");
+      throw new Error("AI service is not configured");
+    }
+
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${lovableApiKey}`,
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-3-flash-preview",
         messages: [{ role: "user", content: prompt }],
-        temperature: 0.7,
+        temperature: 0.4,
         response_format: { type: "json_object" },
       }),
     });
 
     let aiData = {
-      summary: "Keep up your spiritual journey! Every small step matters.",
+      summary: "Keep up your spiritual journey! Every small step matters. The Prophet ﷺ said: 'The most beloved deed to Allah is the most consistent, even if small.'",
       recommendations: [
-        "Try maintaining consistency in your daily prayers",
-        "Set a small Qur'an reading goal each day",
-        "Consider fasting on Mondays and Thursdays",
+        "Try to maintain all five daily prayers consistently",
+        "Set a small daily Qur'an reading goal, even 5 minutes",
+        "Consider fasting on Mondays and Thursdays (Sunnah)",
       ],
-      highlights: ["You showed up and tracked your spiritual activities"],
+      highlights: ["You are tracking your spiritual activities — that's a great first step!"],
       overallScore: 5,
     };
 
@@ -139,11 +204,38 @@ Important:
       const content = aiJson.choices?.[0]?.message?.content;
       if (content) {
         try {
-          aiData = JSON.parse(content);
+          const parsed = JSON.parse(content);
+          // Validate required fields exist
+          if (parsed.summary && Array.isArray(parsed.recommendations) && typeof parsed.overallScore === 'number') {
+            aiData = {
+              summary: parsed.summary,
+              recommendations: parsed.recommendations.slice(0, 5),
+              highlights: Array.isArray(parsed.highlights) ? parsed.highlights.slice(0, 5) : [],
+              overallScore: Math.min(10, Math.max(1, Math.round(parsed.overallScore))),
+            };
+          }
         } catch {
-          // Use defaults
+          console.error("Failed to parse AI response as JSON");
         }
       }
+    } else {
+      const errStatus = aiResponse.status;
+      const errText = await aiResponse.text().catch(() => "");
+      console.error(`AI gateway error: ${errStatus}`, errText);
+
+      if (errStatus === 429) {
+        return new Response(JSON.stringify({ error: "AI rate limit exceeded. Please try again in a moment." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (errStatus === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add funds." }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      // For other errors, continue with fallback data
     }
 
     // Store the report
@@ -151,7 +243,7 @@ Important:
       ...aiData,
       prayerStats: {
         completed: completedPrayers,
-        total: totalPrayers,
+        total: expectedPrayers,
         consistency: prayerConsistency,
       },
       quranStats: {
@@ -183,6 +275,7 @@ Important:
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
+    console.error("generate-spiritual-insights error:", error);
     return new Response(
       JSON.stringify({ error: error.message || "Internal server error" }),
       {
