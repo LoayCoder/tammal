@@ -81,12 +81,14 @@ export default function IslamicCalendar() {
     if (!calendarDays?.length) return [];
     return calendarDays.map(day => {
       const hijriDay = parseInt(day.hijri.day);
-      const hijriKey = `${day.hijri.month.number}-${hijriDay}`;
+      const hijriMonth = day.hijri.month.number;
+      const hijriKey = `${hijriMonth}-${hijriDay}`;
       const event = ISLAMIC_EVENTS[hijriKey];
       const white = isWhiteDay(hijriDay);
       const gregDate = new Date(day.gregorian);
       const sunnah = isSunnahFastingDay(gregDate);
-      return { ...day, event, isWhiteDay: white, isSunnahDay: sunnah };
+      const isRamadan = hijriMonth === 9;
+      return { ...day, event, isWhiteDay: white, isSunnahDay: sunnah, isRamadan };
     });
   }, [calendarDays]);
 
@@ -103,7 +105,7 @@ export default function IslamicCalendar() {
     [enrichedDays]
   );
   const fastingDays = useMemo(() =>
-    enrichedDays.filter(d => d.isWhiteDay || d.isSunnahDay || d.event?.isFastingDay),
+    enrichedDays.filter(d => d.isRamadan || d.isWhiteDay || d.isSunnahDay || d.event?.isFastingDay),
     [enrichedDays]
   );
 
@@ -226,7 +228,7 @@ export default function IslamicCalendar() {
                       {(event || hasHoliday) && (
                         <Star className="h-3 w-3 text-chart-4 fill-chart-4" />
                       )}
-                      {(white || sunnah || event?.isFastingDay) && (
+                      {(white || sunnah || event?.isFastingDay || day.hijri.month.number === 9) && (
                         <UtensilsCrossed className="h-3 w-3 text-chart-2" />
                       )}
                     </div>
@@ -303,7 +305,9 @@ export default function IslamicCalendar() {
               const dayName = isRTL ? WEEKDAYS_AR[dayOfWeek] : WEEKDAYS_EN[dayOfWeek];
 
               let reason = '';
-              if (day.event?.isFastingDay) {
+              if (day.isRamadan) {
+                reason = isRTL ? 'صيام رمضان (فرض)' : 'Ramadan Fasting (Obligatory)';
+              } else if (day.event?.isFastingDay) {
                 reason = isRTL ? day.event.ar : day.event.en;
               } else if (day.isWhiteDay) {
                 reason = isRTL ? 'أيام البيض (13-14-15)' : 'White Days (13th-15th)';
