@@ -89,7 +89,7 @@ export function DashboardPrayerWidget() {
   if (!isPrayerEnabled || !timings) return null;
 
   const today = new Date().toISOString().split('T')[0];
-  const completedCount = PRAYER_NAMES.filter(n => todayLogs[n]).length;
+  const completedCount = ALL_PRAYERS.filter(n => todayLogs[n]).length;
 
   const handleLog = (status: string) => {
     if (!activePrayer) return;
