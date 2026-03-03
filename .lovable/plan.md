@@ -1,22 +1,24 @@
 
 
-## Plan: Add Rawatib (Sunnah) indicators to Dashboard Prayer Widget
+## Plan: Migrate PrayerStatusBadge to Shared StatusBadge
 
-The `DashboardPrayerWidget` currently only shows the active prayer with log buttons but lacks the Rawatib Sunnah rak'ah info that `PrayerCard` already has.
+### Current State
+`PrayerStatusBadge` uses a custom `<span>` with manual color classes instead of the shared `Badge`-based `StatusBadge` component. It has 4 statuses: `completed_mosque`, `completed_home`, `completed_work`, `missed`.
 
 ### Changes
 
-**File: `src/components/dashboard/DashboardPrayerWidget.tsx`**
+**1. Add `PRAYER_STATUS_CONFIG` preset (`src/shared/status-badge/presets.ts`)**
+- Add a new config mapping the 4 prayer statuses with appropriate icons (Building2, Home, Briefcase, X) and custom className colors matching the current design.
 
-1. Import the Sunnah hooks (`useSunnahLogs`) and add a `RAWATIB_CONFIG` map (same as in `PrayerCard.tsx`: Fajr → 2 after, Dhuhr → 2 before + 2 after, Asr → none, Maghrib → 2 after, Isha → 2 after).
+**2. Export from barrel (`src/shared/status-badge/index.ts`)**
+- Add `PRAYER_STATUS_CONFIG` to exports.
 
-2. Inside the active prayer card section, add tap-to-toggle Rawatib chips below the log buttons — matching the existing style from `PrayerCard`:
-   - 📿 "2 Rak'ahs before" (if applicable)
-   - 📿 "2 Rak'ahs after" (if applicable)
-   - Each chip toggles completed state via `onToggleSunnah`
+**3. Refactor `PrayerStatusBadge` (`src/components/spiritual/PrayerStatusBadge.tsx`)**
+- Replace the custom span implementation with `<StatusBadge>` using `PRAYER_STATUS_CONFIG`, `showIcon`, `translationPrefix="spiritual.prayer.status"`.
 
-3. In the progress row (5 prayer indicators at the bottom), add small dot indicators beneath each prayer icon showing if its Rawatib are completed.
-
-### Hook dependency
-Need to check if `useSunnahLogs` or a similar hook exists for Rawatib tracking at the dashboard level, or if the sunnah data is already available through `usePrayerLogs`.
+| File | Action |
+|---|---|
+| `src/shared/status-badge/presets.ts` | Add `PRAYER_STATUS_CONFIG` |
+| `src/shared/status-badge/index.ts` | Export new config |
+| `src/components/spiritual/PrayerStatusBadge.tsx` | Rewrite as thin wrapper |
 
