@@ -360,7 +360,7 @@ export default function SpiritualInsights() {
           ) : (
             <div className="space-y-4">
               {reports.map(report => (
-                <ReportCard key={report.id} report={report} />
+                <ReportCard key={report.id} report={report} onDelete={handleDeleteReport} />
               ))}
             </div>
           )}
