@@ -99,10 +99,24 @@ function computeFirstAiderStatus(schedule: FirstAiderSchedule | null): { statusL
   if (!schedule || !schedule.is_enabled) return { statusLabel: 'offline', isAvailable: false };
   if (schedule.temp_unavailable) return { statusLabel: 'temporarily_unavailable', isAvailable: false };
 
+  // Convert current time to the schedule's timezone using Intl API
+  const tz = schedule.timezone || 'Asia/Riyadh';
   const now = new Date();
-  const dayName = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][now.getDay()];
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: tz,
+    weekday: 'short',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false,
+  });
+  const parts = formatter.formatToParts(now);
+  const weekday = parts.find(p => p.type === 'weekday')?.value?.toLowerCase()?.slice(0, 3) || '';
+  const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
+  const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+
+  const dayName = weekday; // e.g. "sun", "mon", "tue"
   const rules = schedule.weekly_rules?.[dayName] || [];
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const nowMinutes = hour * 60 + minute;
 
   for (const slot of rules) {
     const [fh, fm] = slot.from.split(':').map(Number);
