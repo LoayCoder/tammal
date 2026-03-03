@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
+import type { GovernanceAuditLogEntry, PenaltyRow } from '@/features/ai-governance/types';
 
 function useGovernanceMutation(action: string, invalidateKeys: string[][] = []) {
   const qc = useQueryClient();
