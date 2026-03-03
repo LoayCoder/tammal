@@ -2720,12 +2720,16 @@
     },
     "status": {
       "onTrack": "On Track",
+      "on_track": "On Track",
       "atRisk": "At Risk",
+      "at_risk": "At Risk",
       "delayed": "Delayed",
       "completed": "Completed",
       "planned": "Planned",
       "inProgress": "In Progress",
+      "in_progress": "In Progress",
       "onHold": "On Hold",
+      "on_hold": "On Hold",
       "scheduled": "Scheduled",
       "blocked": "Blocked"
     },
