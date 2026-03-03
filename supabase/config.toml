@@ -77,3 +77,6 @@ verify_jwt = false
 
 [functions.distribute-representative-task]
 verify_jwt = false
+
+[functions.manage-representative-task]
+verify_jwt = false

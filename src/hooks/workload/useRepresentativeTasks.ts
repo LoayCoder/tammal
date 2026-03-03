@@ -34,6 +34,18 @@ export interface BulkTaskPayload {
   estimated_minutes?: number;
 }
 
+export interface ManageTaskPayload {
+  task_id: string;
+  action: 'edit' | 'delete' | 'extend_due_date';
+  justification: string;
+  title?: string;
+  title_ar?: string;
+  description?: string;
+  priority?: number;
+  estimated_minutes?: number;
+  new_due_date?: string;
+}
+
 export interface ScopeEmployee {
   id: string;
   full_name: string;
@@ -146,6 +158,26 @@ export function useRepresentativeTasks() {
     onError: (err: Error) => toast.error(err.message || t('representative.distributeError')),
   });
 
+  // Manage task (edit / delete / extend due date)
+  const manageMutation = useMutation({
+    mutationFn: async (payload: ManageTaskPayload) => {
+      const { data, error } = await supabase.functions.invoke('manage-representative-task', {
+        body: payload,
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data as { success: boolean; action: string };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['representative-tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['representative-batch-detail'] });
+      queryClient.invalidateQueries({ queryKey: ['unified-tasks'] });
+      const msgKey = data.action === 'delete' ? 'representative.deleteSuccess' : data.action === 'extend_due_date' ? 'representative.extendSuccess' : 'representative.editSuccess';
+      toast.success(t(msgKey));
+    },
+    onError: (err: Error) => toast.error(err.message || t('representative.manageError')),
+  });
+
   // Fetch batch detail (tasks + employee names) for completion matrix
   const useBatchDetail = (batchId: string | null) => {
     return useQuery({
@@ -153,7 +185,7 @@ export function useRepresentativeTasks() {
       queryFn: async () => {
         const { data, error } = await supabase
           .from('unified_tasks')
-          .select('id, employee_id, title, status, updated_at, due_date')
+          .select('id, employee_id, title, title_ar, description, status, updated_at, due_date, priority, estimated_minutes, due_date_history')
           .eq('source_id', batchId!)
           .eq('source_type', 'representative_assigned')
           .is('deleted_at', null)
@@ -174,6 +206,7 @@ export function useRepresentativeTasks() {
         return (data ?? []).map(t => ({
           ...t,
           employee_name: empMap[t.employee_id] ?? t.employee_id,
+          due_date_history: (Array.isArray(t.due_date_history) ? t.due_date_history : []) as Array<{ old_due_date: string | null; new_due_date: string; changed_at: string; justification: string }>,
         }));
       },
       enabled: !!batchId,
@@ -189,6 +222,8 @@ export function useRepresentativeTasks() {
     isDistributing: distributeMutation.isPending,
     bulkDistribute: bulkDistributeMutation.mutateAsync,
     isBulkDistributing: bulkDistributeMutation.isPending,
+    manageTask: manageMutation.mutateAsync,
+    isManaging: manageMutation.isPending,
     isRepresentative: (assignmentsQuery.data ?? []).length > 0,
     useEmployeesByScope,
     useBatchDetail,
