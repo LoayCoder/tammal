@@ -1,0 +1,1 @@
+ALTER TABLE public.unified_tasks ADD COLUMN IF NOT EXISTS due_date_history jsonb DEFAULT '[]'::jsonb;
