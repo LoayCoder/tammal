@@ -6358,6 +6358,13 @@ export type Database = {
       date_trunc_utc: { Args: { ts: string }; Returns: string }
       get_first_aider_id: { Args: { _user_id: string }; Returns: string }
       get_profile_email: { Args: { _user_id: string }; Returns: string }
+      get_public_platform_config: {
+        Args: never
+        Returns: {
+          allow_public_signup: boolean
+          show_invitation_link: boolean
+        }[]
+      }
       get_user_department_id: { Args: { _user_id: string }; Returns: string }
       get_user_email: { Args: { _user_id: string }; Returns: string }
       get_user_tenant_id: { Args: { _user_id: string }; Returns: string }
@@ -6386,6 +6393,14 @@ export type Database = {
         Returns: string
       }
       refresh_ai_governance_summary: { Args: never; Returns: undefined }
+      verify_invitation_code: {
+        Args: { p_code: string }
+        Returns: {
+          id: string
+          tenant_id: string
+          used: boolean
+        }[]
+      }
     }
     Enums: {
       app_role: "super_admin" | "tenant_admin" | "manager" | "user"
