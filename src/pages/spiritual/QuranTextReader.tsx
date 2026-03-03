@@ -286,6 +286,9 @@ export default function QuranTextReader() {
     <div className="container mx-auto py-6 space-y-4">
       {/* Header */}
       <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={() => navigate('/spiritual/quran')} className="shrink-0">
+          <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
+        </Button>
         <BookOpen className="h-7 w-7 text-primary" />
         <div>
           <h1 className="text-2xl font-bold">{t('spiritual.quranReader.title', 'Read the Qur\'an')}</h1>
