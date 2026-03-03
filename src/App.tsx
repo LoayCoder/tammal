@@ -70,6 +70,7 @@ const PersonalCommandCenter = lazy(() => import("@/pages/employee/PersonalComman
 const WorkloadDashboard = lazy(() => import("@/pages/admin/WorkloadDashboard"));
 const TeamWorkload = lazy(() => import("@/pages/admin/TeamWorkload"));
 const TaskConnectors = lazy(() => import("@/pages/admin/TaskConnectors"));
+const RepresentativeWorkload = lazy(() => import("@/pages/admin/RepresentativeWorkload"));
 const RecognitionManagement = lazy(() => import("@/pages/admin/RecognitionManagement"));
 const NominatePage = lazy(() => import("@/pages/recognition/NominatePage"));
 const MyNominationsPage = lazy(() => import("@/pages/recognition/MyNominationsPage"));
