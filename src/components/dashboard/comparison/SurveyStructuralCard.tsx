@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { ClipboardCheck, AlertTriangle, TrendingDown, BarChart } from 'lucide-react';
-import type { SurveyStructuralMetrics } from '@/lib/synthesisEngine';
+import type { SurveyStructuralMetrics } from '@/lib/analytics/types';
 
 interface Props {
   data: SurveyStructuralMetrics | null;

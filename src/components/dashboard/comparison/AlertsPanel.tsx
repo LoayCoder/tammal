@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, ShieldAlert, Info } from 'lucide-react';
-import type { DivergenceAlert } from '@/lib/synthesisEngine';
+import type { DivergenceAlert } from '@/lib/analytics/types';
 
 interface Props {
   alerts: DivergenceAlert[];

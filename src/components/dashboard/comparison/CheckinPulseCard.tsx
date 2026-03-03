@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus, Activity, BarChart3, Zap, Heart } from 'lucide-react';
-import type { CheckinPulseMetrics } from '@/lib/synthesisEngine';
+import type { CheckinPulseMetrics } from '@/lib/analytics/types';
 
 interface Props {
   data: CheckinPulseMetrics | null;

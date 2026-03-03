@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TrendingUp, TrendingDown, Minus, ShieldAlert, Sparkles } from 'lucide-react';
-import type { PeriodComparison, EarlyWarning } from '@/lib/wellnessAnalytics';
+import type { PeriodComparison, EarlyWarning } from '@/lib/analytics/types';
 
 interface Props {
   healthScore: number;

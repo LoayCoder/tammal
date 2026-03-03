@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ResponsiveContainer, AreaChart, Area, YAxis } from 'recharts';
-import type { CategoryRiskScore, CategoryTrendPoint } from '@/lib/wellnessAnalytics';
+import type { CategoryRiskScore, CategoryTrendPoint } from '@/lib/analytics/types';
 
 interface Props {
   risks: CategoryRiskScore[];

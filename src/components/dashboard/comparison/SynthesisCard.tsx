@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Brain, Shield, Target, Gauge, Lightbulb } from 'lucide-react';
-import type { SynthesisResult } from '@/lib/synthesisEngine';
+import type { SynthesisResult } from '@/lib/analytics/types';
 
 interface Props {
   data: SynthesisResult | null;
