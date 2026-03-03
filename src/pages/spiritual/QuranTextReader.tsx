@@ -126,16 +126,14 @@ function SurahViewer({ surahNumber, onBack }: { surahNumber: number; onBack: () 
         <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
         </Button>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowTranslation(!showTranslation)}
-            className="text-xs text-muted-foreground"
-          >
-            {showTranslation ? t('spiritual.quranReader.hideTranslation', 'Hide Translation') : t('spiritual.quranReader.showTranslation', 'Show Translation')}
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowTranslation(!showTranslation)}
+          className="text-xs text-muted-foreground"
+        >
+          {showTranslation ? t('spiritual.quranReader.hideTranslation', 'Hide Translation') : t('spiritual.quranReader.showTranslation', 'Show Translation')}
+        </Button>
       </div>
 
       {/* Ornamental Surah Header */}
