@@ -6,6 +6,7 @@ import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferenc
 import { usePrayerTimes, PRAYER_NAMES } from '@/hooks/spiritual/usePrayerTimes';
 import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
 import { useSunnahLogs, SUNNAH_PRACTICES } from '@/hooks/spiritual/useSunnahLogs';
+import { usePrayerCountdown } from '@/hooks/spiritual/usePrayerCountdown';
 import { PrayerCard } from '@/components/spiritual/PrayerCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
@@ -35,6 +36,13 @@ export default function PrayerTracker() {
 
   const { logs, todayLogs, logPrayer, isPending: logsLoading } = usePrayerLogs({ from: weekAgo, to: today });
   const { todayCompleted, togglePractice, isPending: sunnahLoading } = useSunnahLogs();
+
+  // Countdowns for each prayer
+  const fajrCountdown = usePrayerCountdown(prayerData?.timings?.Fajr);
+  const dhuhrCountdown = usePrayerCountdown(prayerData?.timings?.Dhuhr);
+  const asrCountdown = usePrayerCountdown(prayerData?.timings?.Asr);
+  const maghribCountdown = usePrayerCountdown(prayerData?.timings?.Maghrib);
+  const ishaCountdown = usePrayerCountdown(prayerData?.timings?.Isha);
 
   const duha = SUNNAH_PRACTICES.find(p => p.key === 'duha')!;
 
@@ -80,6 +88,36 @@ export default function PrayerTracker() {
   const noLocation = !preferences?.city || !preferences?.country;
   const duhaCompleted = todayCompleted.has('duha');
 
+  const countdowns: Record<string, ReturnType<typeof usePrayerCountdown>> = {
+    Fajr: fajrCountdown,
+    Dhuhr: dhuhrCountdown,
+    Asr: asrCountdown,
+    Maghrib: maghribCountdown,
+    Isha: ishaCountdown,
+  };
+
+  const renderPrayerCard = (name: string) => {
+    const cd = countdowns[name];
+    return (
+      <PrayerCard
+        key={name}
+        prayerName={name}
+        prayerTime={prayerData?.timings?.[name as keyof typeof prayerData.timings] ?? '--:--'}
+        log={todayLogs[name]}
+        onLog={(status) => handleLog(name, status)}
+        isPending={logPrayer.isPending}
+        sunnahBefore={todayCompleted.has(`rawatib_${name.toLowerCase()}_before`)}
+        sunnahAfter={todayCompleted.has(`rawatib_${name.toLowerCase()}_after`)}
+        onToggleSunnah={(type, done) => handleToggleSunnah(name, type, done)}
+        sunnahPending={togglePractice.isPending}
+        countdownMinutes={cd.minutesLeft}
+        isExpired={cd.isExpired}
+        isPrayerTime={cd.isPrayerTime}
+        onAutoMiss={() => handleLog(name, 'missed')}
+      />
+    );
+  };
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       {/* Header */}
@@ -115,19 +153,9 @@ export default function PrayerTracker() {
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {/* 1. Fajr */}
-            <PrayerCard
-              prayerName="Fajr"
-              prayerTime={prayerData?.timings?.Fajr ?? '--:--'}
-              log={todayLogs.Fajr}
-              onLog={(status) => handleLog('Fajr', status)}
-              isPending={logPrayer.isPending}
-              sunnahAfter={todayCompleted.has('rawatib_fajr_after')}
-              onToggleSunnah={(type, done) => handleToggleSunnah('Fajr', type, done)}
-              sunnahPending={togglePractice.isPending}
-            />
+            {renderPrayerCard('Fajr')}
 
-            {/* 2. Duha — between Fajr and Dhuhr */}
+            {/* Duha card */}
             <Card className={cn(
               'glass-card border rounded-xl transition-all duration-300',
               duhaCompleted ? 'border-primary/40 bg-primary/[0.01]' : ''
@@ -162,51 +190,10 @@ export default function PrayerTracker() {
               </CardContent>
             </Card>
 
-            {/* 3. Dhuhr */}
-            <PrayerCard
-              prayerName="Dhuhr"
-              prayerTime={prayerData?.timings?.Dhuhr ?? '--:--'}
-              log={todayLogs.Dhuhr}
-              onLog={(status) => handleLog('Dhuhr', status)}
-              isPending={logPrayer.isPending}
-              sunnahBefore={todayCompleted.has('rawatib_dhuhr_before')}
-              sunnahAfter={todayCompleted.has('rawatib_dhuhr_after')}
-              onToggleSunnah={(type, done) => handleToggleSunnah('Dhuhr', type, done)}
-              sunnahPending={togglePractice.isPending}
-            />
-
-            {/* 4. Asr — no rawatib */}
-            <PrayerCard
-              prayerName="Asr"
-              prayerTime={prayerData?.timings?.Asr ?? '--:--'}
-              log={todayLogs.Asr}
-              onLog={(status) => handleLog('Asr', status)}
-              isPending={logPrayer.isPending}
-            />
-
-            {/* 5. Maghrib */}
-            <PrayerCard
-              prayerName="Maghrib"
-              prayerTime={prayerData?.timings?.Maghrib ?? '--:--'}
-              log={todayLogs.Maghrib}
-              onLog={(status) => handleLog('Maghrib', status)}
-              isPending={logPrayer.isPending}
-              sunnahAfter={todayCompleted.has('rawatib_maghrib_after')}
-              onToggleSunnah={(type, done) => handleToggleSunnah('Maghrib', type, done)}
-              sunnahPending={togglePractice.isPending}
-            />
-
-            {/* 6. Isha */}
-            <PrayerCard
-              prayerName="Isha"
-              prayerTime={prayerData?.timings?.Isha ?? '--:--'}
-              log={todayLogs.Isha}
-              onLog={(status) => handleLog('Isha', status)}
-              isPending={logPrayer.isPending}
-              sunnahAfter={todayCompleted.has('rawatib_isha_after')}
-              onToggleSunnah={(type, done) => handleToggleSunnah('Isha', type, done)}
-              sunnahPending={togglePractice.isPending}
-            />
+            {renderPrayerCard('Dhuhr')}
+            {renderPrayerCard('Asr')}
+            {renderPrayerCard('Maghrib')}
+            {renderPrayerCard('Isha')}
           </div>
 
           {/* Weekly summary */}
