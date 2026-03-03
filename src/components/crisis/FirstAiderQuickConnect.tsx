@@ -130,7 +130,7 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 -mx-6 px-6">
+        <div>
           {isPending ? (
             <div className="space-y-3">
               <Skeleton className="h-24" />
@@ -244,7 +244,7 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
               })}
             </div>
           )}
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );
