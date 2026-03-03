@@ -1,53 +1,114 @@
 
+## Phase 1: Architecture Refactor — STATUS: ✅ COMPLETE
 
-# Add Duha Prayer & Rawatib to Prayer Tracker + Sunnah Integration
+### Completed Items
 
-## Overview
-Add two new voluntary prayer sections to the Prayer Tracker page -- **Duha** (mid-morning) and **Rawatib** (Sunnah prayers before/after obligatory ones). These will be tracked via the existing `spiritual_sunnah_logs` table, reusing the Sunnah toggle system for a consistent, simple tap-to-mark experience.
+1. **Database Migration** ✅ — Added unique constraints for idempotency guards on `mood_entries` and `points_transactions`
+2. **Service Layer** ✅ — Created 8 services: `gamificationService`, `checkinService`, `inviteService`, `aiService`, `tenantService`, `accountService`, `moodTaggingService`, `scheduleService`
+3. **Hook Layer** ✅ — Created 11 thin wrapper hooks: `useCheckinSubmit`, `useTodayEntry`, `useAcceptInvite`, `useDeleteAccount`, `usePromptRewrite`, `useQuestionRewrite`, `useMoodTagging`, `useScheduleData`, `useScheduleActions`, `useTenantIdQuery`
+4. **Refactored useGamification** ✅ — Delegates to `gamificationService`
+5. **Unified Analytics** ✅ — `analyticsQueries.ts` now uses `gamificationService.computeStreak()` and `calculatePoints()`
+6. **Refactored 9 P1 Offender Files** ✅ — Removed direct Supabase calls from `DailyCheckin`, `InlineDailyCheckin`, `MoodStep`, `AIQuestionGenerator`, `MoodPathwaySettings`, `AcceptInvite`, `ScheduleManagement`, `DeleteAccountDialog`, `QuestionCard`
+7. **MoodStep tenantId prop threading** ✅ — Accepts `tenantId` via props, no internal fetch
 
-## Changes
+### Deferred Items
 
-### 1. Add new practice keys to `SUNNAH_PRACTICES`
-**File:** `src/hooks/spiritual/useSunnahLogs.ts`
+- **~~70 Hook Shim Deletion~~**: ✅ Already cleaned up — no barrel re-export files remain in `src/hooks/` root.
 
-Add two new entries:
-- `duha` -- emoji: `☀️`, labels: "Duha Prayer" / "صلاة الضحى"
-- `rawatib` -- emoji: `📿`, labels: "Rawatib" / "الرواتب"
+---
 
-The stats grid in the Sunnah Tracker page will automatically pick these up since it iterates over `SUNNAH_PRACTICES`.
+## Phase 2: Feature Modularization — STATUS: ✅ COMPLETE
 
-### 2. Add a "Voluntary Prayers" section to Prayer Tracker
-**File:** `src/pages/spiritual/PrayerTracker.tsx`
+1. **ai-governance → src/features/** ✅ — Components, hooks, types consolidated with barrel export
+2. **ai-generator → src/features/** ✅ — All 12 components moved from `src/components/ai-generator/` to `src/features/ai-generator/components/`, internal imports updated
+3. **Dead file cleanup** ✅ — Removed orphan compatibility shims and empty type directories
+4. **as any reduction** ✅ — Eliminated ~80 casts in governance, admin, and hook layers
 
-After the 5 obligatory prayer cards and before the weekly summary, add a new card titled "Voluntary Prayers" / "النوافل" containing two simple emoji toggle buttons (same style as Sunnah Tracker):
-- **Duha**: ☀️ tap to mark done
-- **Rawatib**: 📿 tap to mark done
+---
 
-These buttons call `useSunnahLogs().togglePractice` with `practice_type: 'duha'` / `'rawatib'`, writing to `spiritual_sunnah_logs` -- fully integrated with the Sunnah page.
+## Make the App Fully Mobile-Responsive as a PWA
 
-Import `useSunnahLogs` into PrayerTracker and use `todayCompleted` to show checked/unchecked state.
+### Overview
+The app has good PWA infrastructure (service worker, manifest, install banner, caching) but several UI areas are not optimized for mobile touch interaction. This plan addresses the key gaps to make the app feel native on phones.
 
-### 3. Localization
-**Files:** `src/locales/en.json`, `src/locales/ar.json`
+### 1. Mobile Bottom Navigation Bar
 
-Add keys:
-- `spiritual.prayer.voluntaryTitle`: "Voluntary Prayers" / "النوافل"
-- `spiritual.prayer.voluntarySubtitle`: "Sunnah prayers linked to your daily tracking" / "صلوات السنة مرتبطة بتتبعك اليومي"
+Create a persistent bottom navigation bar for mobile users (visible below `md` breakpoint) with quick-access icons for the most-used sections: Dashboard, Wellness, Support, Profile, and More (opens sidebar).
 
-No new keys needed for the practice labels themselves -- they're defined in `SUNNAH_PRACTICES` with inline bilingual labels.
+**New file: `src/components/layout/MobileBottomNav.tsx`**
 
-### 4. Update stats grid layout
-**File:** `src/pages/spiritual/SunnahTracker.tsx`
+- Fixed to the bottom of the viewport with `safe-area-inset-bottom` padding
+- Glass styling consistent with the header
+- Active state indicator matching `glass-active`
+- Hidden on desktop (`md:hidden`)
+- Uses logical properties for RTL
 
-Change the 30-day stats grid from `sm:grid-cols-4` to `sm:grid-cols-3` (6 items now, 3 per row looks better than 4+2).
+**Mount in `MainLayout.tsx`** after the `</main>` tag.
 
-## Files to modify
-- `src/hooks/spiritual/useSunnahLogs.ts` -- add `duha` and `rawatib` to `SUNNAH_PRACTICES`
-- `src/pages/spiritual/PrayerTracker.tsx` -- add voluntary prayers section using sunnah toggle
-- `src/pages/spiritual/SunnahTracker.tsx` -- adjust grid columns for 6 items
-- `src/locales/en.json` -- add 2 keys
-- `src/locales/ar.json` -- add 2 keys
+### 2. Mobile Card View for Data Tables
 
-## No database changes needed
-Both new practices use the existing `spiritual_sunnah_logs` table with `practice_type` text field -- no migration required.
+The `UserTable` (and similar admin tables) renders a full `<table>` which is unusable on small screens. Create a responsive wrapper pattern.
 
+**New file: `src/components/ui/responsive-table.tsx`**
+
+A wrapper component that:
+- On desktop (`md+`): renders children (the table) as-is
+- On mobile (`<md`): renders each row as a stacked card with key-value pairs
+
+**Update `src/components/users/UserTable.tsx`**:
+- On mobile: render user cards (avatar, name, email, status badge, role badges, action menu) in a vertical stack
+- On desktop: keep the existing table layout
+- Use `useIsMobile()` hook to switch between views
+
+### 3. Touch-Friendly Sizing & Spacing
+
+**Update `src/index.css`** with mobile-specific utilities:
+
+- Add a `.touch-target` utility class ensuring minimum 44x44px tap targets (Apple HIG)
+- Increase padding on interactive elements at small breakpoints
+- Add `overscroll-behavior: contain` on the main scroll area to prevent pull-to-refresh interference in standalone PWA mode
+
+### 4. PWA Standalone Mode Enhancements
+
+**Update `src/index.css`**:
+- Add `@media (display-mode: standalone)` styles to hide browser-specific UI hints
+- Ensure the bottom nav accounts for the home indicator on notched devices
+- Add smooth momentum scrolling (`-webkit-overflow-scrolling: touch`)
+
+**Update `src/components/layout/MainLayout.tsx`**:
+- Add `pb-16 md:pb-0` to the main content area to prevent the bottom nav from covering content on mobile
+- Add `overscroll-behavior-y: contain` on the root layout div
+
+### 5. Header Adjustments for Mobile
+
+**Update `src/components/layout/Header.tsx`**:
+- On mobile, hide the breadcrumb (already done with `hidden md:flex`)
+- Ensure all header action buttons meet 44px touch targets
+- Add the page title as a simple text element on mobile (replacing the breadcrumb)
+
+### 6. Auth Page Mobile Polish
+
+**Update `src/pages/Auth.tsx`**:
+- Add safe-area padding for standalone PWA mode
+- Ensure the form fills the viewport nicely on small screens
+- Make the card full-width on mobile with minimal horizontal padding
+
+### Files to Create/Modify
+
+| File | Action |
+|------|--------|
+| `src/components/layout/MobileBottomNav.tsx` | **Create** -- bottom navigation bar |
+| `src/components/ui/responsive-table.tsx` | **Create** -- mobile card / desktop table wrapper |
+| `src/components/users/UserTable.tsx` | **Modify** -- add mobile card view |
+| `src/components/layout/MainLayout.tsx` | **Modify** -- mount bottom nav, add bottom padding |
+| `src/components/layout/Header.tsx` | **Modify** -- mobile page title, touch targets |
+| `src/index.css` | **Modify** -- PWA standalone styles, touch utilities |
+| `src/pages/Auth.tsx` | **Modify** -- mobile safe-area polish |
+
+### Technical Notes
+
+- All components use logical properties (`ms-`, `me-`, `ps-`, `pe-`, `text-start`, `text-end`) -- no `ml-`/`mr-`
+- `useIsMobile()` hook (already exists at 768px breakpoint) is used for conditional rendering
+- The bottom nav uses `env(safe-area-inset-bottom)` for notched devices in standalone PWA mode
+- No database changes required
+- The responsive table pattern can be reused across all admin tables in future iterations

@@ -115,7 +115,7 @@ export default function SunnahTracker() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {SUNNAH_PRACTICES.map(practice => {
               const stat = stats.find(s => s.key === practice.key);
               return (

@@ -2560,7 +2560,9 @@
         "excellent": "Mashallah — you maintained strong consistency this week. Consistency builds inner stability.",
         "good": "Good progress — small consistent steps create long-term balance.",
         "encouragement": "Every prayer counts. Keep showing up, and the journey will unfold beautifully."
-      }
+      },
+      "voluntaryTitle": "Voluntary Prayers",
+      "voluntarySubtitle": "Sunnah prayers linked to your daily tracking"
     },
     "quran": {
       "title": "Qur'an Reader",
