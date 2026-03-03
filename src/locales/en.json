@@ -2464,7 +2464,8 @@
       "upcomingSessions": "Upcoming",
       "pastSessions": "Past",
       "joinSession": "Join",
-      "cancelSession": "Cancel Session"
+      "cancelSession": "Cancel Session",
+      "slotsAvailable": "slots available"
     },
     "session": {
       "workspace": "Session Workspace",
