@@ -113,7 +113,7 @@ export default function PrayerTracker() {
         </div>
       ) : (
         <>
-          {/* Prayer cards */}
+          {/* Prayer cards — obligatory + voluntary in one grid */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {PRAYER_NAMES.map((name) => (
               <PrayerCard
@@ -125,49 +125,51 @@ export default function PrayerTracker() {
                 isPending={logPrayer.isPending}
               />
             ))}
-          </div>
 
-          {/* Voluntary Prayers */}
-          <Card className="glass-card border-0 rounded-xl">
-            <CardHeader>
-              <CardTitle className="text-lg">{t('spiritual.prayer.voluntaryTitle')}</CardTitle>
-              <CardDescription>{t('spiritual.prayer.voluntarySubtitle')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-3">
-                {voluntaryPractices.map(practice => {
-                  const done = todayCompleted.has(practice.key);
-                  return (
-                    <button
-                      key={practice.key}
+            {/* Duha & Rawatib inline */}
+            {voluntaryPractices.map(practice => {
+              const done = todayCompleted.has(practice.key);
+              return (
+                <Card key={practice.key} className={cn(
+                  'glass-card border rounded-xl transition-all duration-300',
+                  done ? 'border-primary/40 bg-primary/[0.01]' : ''
+                )}>
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">{practice.emoji}</span>
+                        <div>
+                          <h3 className="font-semibold text-base">
+                            {i18n.language === 'ar' ? practice.labelAr : practice.labelEn}
+                          </h3>
+                          <p className="text-xs text-muted-foreground">
+                            {practice.key === 'duha'
+                              ? (i18n.language === 'ar' ? 'صلاة نافلة الضحى' : 'Mid-morning voluntary prayer')
+                              : (i18n.language === 'ar' ? 'السنن الرواتب قبل وبعد الفرائض' : 'Before/after obligatory prayers')
+                            }
+                          </p>
+                        </div>
+                      </div>
+                      {done && <Check className="h-5 w-5 text-primary" />}
+                    </div>
+
+                    <Button
+                      size="sm"
+                      variant={done ? 'secondary' : 'outline'}
                       onClick={() => togglePractice.mutate({ practice_type: practice.key, completed: !done })}
                       disabled={togglePractice.isPending}
-                      className={cn(
-                        'relative flex flex-col items-center justify-center gap-2 rounded-xl border-2 p-5 transition-all duration-200',
-                        'hover:scale-[1.02] active:scale-[0.98]',
-                        done
-                          ? 'border-primary bg-primary/10 shadow-sm'
-                          : 'border-border bg-card hover:border-primary/40'
-                      )}
+                      className="w-full gap-1"
                     >
-                      {done && (
-                        <div className="absolute top-2 end-2">
-                          <Check className="h-4 w-4 text-primary" />
-                        </div>
-                      )}
-                      <span className="text-3xl">{practice.emoji}</span>
-                      <span className={cn(
-                        'text-sm font-medium text-center',
-                        done ? 'text-primary' : 'text-muted-foreground'
-                      )}>
-                        {i18n.language === 'ar' ? practice.labelAr : practice.labelEn}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+                      {done
+                        ? (i18n.language === 'ar' ? 'تراجع' : 'Undo')
+                        : (i18n.language === 'ar' ? 'تم ✓' : 'Done ✓')
+                      }
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
 
           {/* Weekly summary */}
           <Card className="glass-card border-0 rounded-xl">
