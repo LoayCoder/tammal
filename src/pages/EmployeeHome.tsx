@@ -1,36 +1,23 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useGamification } from '@/hooks/wellness/useGamification';
 import { useMoodHistory } from '@/hooks/wellness/useMoodHistory';
 import { useScheduledQuestions } from '@/hooks/questions/useScheduledQuestions';
 import { InlineDailyCheckin } from '@/components/checkin/InlineDailyCheckin';
+import { PersonalMoodDashboard } from '@/components/dashboard/PersonalMoodDashboard';
 import {
   Flame,
   Star,
   CheckCircle2,
   ClipboardList,
-  TrendingUp,
-  Calendar,
-  Heart,
   ChevronRight,
   Phone,
   HeartHandshake,
 } from 'lucide-react';
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from 'recharts';
-import { format, parseISO } from 'date-fns';
 
 const MOOD_EMOJIS: Record<string, string> = {
   great: '😄',
@@ -52,36 +39,13 @@ export default function EmployeeHome() {
   const navigate = useNavigate();
   const { employee, isPending: empLoading } = useCurrentEmployee();
   const { streak, totalPoints, isPending: gamLoading } = useGamification(employee?.id ?? null);
-  const { moodData, avgMood7d, burnoutZone, monthlyCheckins, todayEntry, isPending: moodLoading } =
-    useMoodHistory(employee?.id ?? null);
+  const { todayEntry, isPending: moodLoading } = useMoodHistory(employee?.id ?? null);
   const { pendingQuestions, isPending: sqLoading } = useScheduledQuestions(
     employee?.id,
     undefined
   );
 
-  const isAr = i18n.language === 'ar';
   const firstName = employee?.full_name?.split(' ')[0] ?? '';
-
-  const burnoutPercent = Math.round((avgMood7d / 5) * 100);
-
-  const burnoutColor =
-    burnoutZone === 'thriving'
-      ? 'text-chart-1'
-      : burnoutZone === 'watch'
-        ? 'text-chart-4'
-        : 'text-destructive';
-
-  const burnoutBg =
-    burnoutZone === 'thriving'
-      ? 'bg-chart-1'
-      : burnoutZone === 'watch'
-        ? 'bg-chart-4'
-        : 'bg-destructive';
-
-  const chartData = moodData.map((d) => ({
-    ...d,
-    label: format(parseISO(d.date), 'dd/MM'),
-  }));
 
   if (empLoading) {
     return (
@@ -98,8 +62,6 @@ export default function EmployeeHome() {
 
   return (
     <div className="relative min-h-full">
-      {/* Gradient blobs handled by MainLayout */}
-
       <div className="relative space-y-6">
         {/* Greeting */}
         <div className="flex flex-col gap-1">
@@ -165,36 +127,8 @@ export default function EmployeeHome() {
           </Card>
         )}
 
-        {/* Quick Stats */}
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-          <Card className="glass-stat border-0">
-            <CardContent className="p-5 flex flex-col items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-                <Calendar className="h-5 w-5 text-primary" />
-              </div>
-              <div className="text-2xl font-bold">{moodLoading ? '—' : monthlyCheckins}</div>
-              <p className="text-muted-foreground text-xs">{t('home.monthlyCheckins')}</p>
-            </CardContent>
-          </Card>
-          <Card className="glass-stat border-0">
-            <CardContent className="p-5 flex flex-col items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-chart-1/10">
-                <TrendingUp className="h-5 w-5 text-chart-1" />
-              </div>
-              <div className="text-2xl font-bold">{moodLoading ? '—' : avgMood7d}</div>
-              <p className="text-muted-foreground text-xs">{t('home.avgMood')}</p>
-            </CardContent>
-          </Card>
-          <Card className="glass-stat border-0">
-            <CardContent className="p-5 flex flex-col items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-chart-4/10">
-                <Flame className="h-5 w-5 text-chart-4" />
-              </div>
-              <div className="text-2xl font-bold">{gamLoading ? '—' : streak}</div>
-              <p className="text-muted-foreground text-xs">{t('home.currentStreak')}</p>
-            </CardContent>
-          </Card>
-        </div>
+        {/* ── Personal Mood Dashboard (rich analytics) ── */}
+        <PersonalMoodDashboard />
 
         {/* Quick Actions */}
         <div className="space-y-2">
@@ -230,102 +164,6 @@ export default function EmployeeHome() {
             </Link>
           </div>
         </div>
-        <Card className="glass-card border-0">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">{t('home.moodHistory')}</CardTitle>
-            <p className="text-muted-foreground text-xs">{t('home.last14Days')}</p>
-          </CardHeader>
-          <CardContent>
-            {moodLoading ? (
-              <Skeleton className="h-[200px] w-full" />
-            ) : chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={200}>
-                <AreaChart data={chartData}>
-                  <defs>
-                    <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    domain={[1, 5]}
-                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={24}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: 'hsl(var(--card) / 0.6)',
-                      backdropFilter: 'blur(16px)',
-                      WebkitBackdropFilter: 'blur(16px)',
-                      border: '1px solid hsl(var(--border) / 0.25)',
-                      borderRadius: '8px',
-                      fontSize: 12,
-                      boxShadow: '0 8px 32px hsl(0 0% 0% / 0.08)',
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="score"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={2.5}
-                    fill="url(#moodGradient)"
-                    dot={{ r: 4, fill: 'hsl(var(--primary))', strokeWidth: 0 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-[200px] text-muted-foreground">
-                <Heart className="h-10 w-10 mb-2 opacity-30" />
-                <p className="text-sm">{t('home.noMoodData')}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Burnout Indicator */}
-        <Card className="glass-card border-0">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">{t('home.burnout')}</CardTitle>
-            <p className="text-muted-foreground text-xs">{t('home.burnoutPeriod')}</p>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {moodLoading ? (
-              <Skeleton className="h-6 w-full" />
-            ) : (
-              <>
-                <div className="flex items-center justify-between text-sm">
-                  <span className={`font-medium ${burnoutColor}`}>
-                    {t(`home.${burnoutZone}`)}
-                  </span>
-                  <span className="text-muted-foreground">
-                    {avgMood7d}/5
-                  </span>
-                </div>
-                <div className="relative h-3 w-full overflow-hidden rounded-full bg-secondary/30">
-                  <div
-                    className={`h-full rounded-full transition-all duration-700 ${burnoutBg}`}
-                    style={{ width: `${burnoutPercent}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>{t('home.atRisk')}</span>
-                  <span>{t('home.watch')}</span>
-                  <span>{t('home.thriving')}</span>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
