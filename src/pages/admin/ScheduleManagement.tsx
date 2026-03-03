@@ -310,7 +310,7 @@ export default function ScheduleManagement() {
                       )}
                     </TableCell>
                     <TableCell>{renderAudienceCell(schedule)}</TableCell>
-                    <TableCell>{getStatusBadge(schedule.status)}</TableCell>
+                    <TableCell>{renderStatusBadge(schedule.status)}</TableCell>
                     <TableCell>{schedule.preferred_time || '09:00'}</TableCell>
                     <TableCell className="text-end">
                       <div className="flex items-center justify-end gap-1">
