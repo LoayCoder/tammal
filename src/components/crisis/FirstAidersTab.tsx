@@ -151,9 +151,21 @@ export default function FirstAidersTab() {
                   <TableCell className="font-medium">{fa.display_name}</TableCell>
                   <TableCell>{fa.department || '—'}</TableCell>
                   <TableCell>
-                    <Badge variant={fa.statusLabel === 'available' ? 'default' : 'secondary'} className="text-xs">
-                      {fa.statusLabel === 'available' ? '🟢 ' + t('crisisSupport.status.online') : '⚫ ' + t('crisisSupport.status.offline')}
-                    </Badge>
+                    {(() => {
+                      const statusMap: Record<string, { emoji: string; key: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+                        available: { emoji: '🟢', key: 'crisisSupport.status.available', variant: 'default' },
+                        busy: { emoji: '🟡', key: 'crisisSupport.status.busy', variant: 'secondary' },
+                        outside_hours: { emoji: '🔵', key: 'crisisSupport.status.outside_hours', variant: 'outline' },
+                        temporarily_unavailable: { emoji: '🟠', key: 'crisisSupport.status.temporarily_unavailable', variant: 'destructive' },
+                        offline: { emoji: '⚫', key: 'crisisSupport.status.offline', variant: 'secondary' },
+                      };
+                      const info = statusMap[fa.statusLabel] || statusMap.offline;
+                      return (
+                        <Badge variant={info.variant} className="text-xs">
+                          {info.emoji} {t(info.key)}
+                        </Badge>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell>{fa.max_active_cases}</TableCell>
                   <TableCell>
