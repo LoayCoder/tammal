@@ -4,16 +4,21 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Users, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
+import { Plus, Users, CheckCircle2, Clock, AlertTriangle, Download, Upload } from 'lucide-react';
 import { useRepresentativeTasks } from '@/hooks/workload/useRepresentativeTasks';
 import { DistributeTaskDialog } from '@/components/workload/representative/DistributeTaskDialog';
+import { BatchDetailDialog } from '@/components/workload/representative/BatchDetailDialog';
+import { BulkImportDialog } from '@/components/workload/representative/BulkImportDialog';
+import { downloadTemplate } from '@/components/workload/representative/csvTemplate';
 import { useOrgTree } from '@/hooks/org/useOrgTree';
 
 export default function RepresentativeWorkload() {
   const { t } = useTranslation();
-  const { assignments, tasks, isLoadingTasks, isLoadingAssignments, distributeTask, isDistributing } = useRepresentativeTasks();
+  const { assignments, tasks, isLoadingTasks, isLoadingAssignments, distributeTask, isDistributing, bulkDistribute, isBulkDistributing } = useRepresentativeTasks();
   const { divisions, departments, sites } = useOrgTree();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [selectedBatch, setSelectedBatch] = useState<{ id: string; title: string } | null>(null);
 
   // Group tasks by batch (source_id)
   const batches = useMemo(() => {
@@ -53,15 +58,25 @@ export default function RepresentativeWorkload() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold">{t('representative.pageTitle')}</h1>
           <p className="text-muted-foreground text-sm">{t('representative.pageDesc')}</p>
         </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4 me-2" />
-          {t('representative.distributeTask')}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={downloadTemplate}>
+            <Download className="h-4 w-4 me-2" />
+            {t('representative.downloadTemplate')}
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+            <Upload className="h-4 w-4 me-2" />
+            {t('representative.bulkImport')}
+          </Button>
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 me-2" />
+            {t('representative.assignTask')}
+          </Button>
+        </div>
       </div>
 
       {/* Scope assignments */}
@@ -86,7 +101,11 @@ export default function RepresentativeWorkload() {
           {batches.map(batch => {
             const completion = batch.total > 0 ? Math.round((batch.done / batch.total) * 100) : 0;
             return (
-              <Card key={batch.batchId}>
+              <Card
+                key={batch.batchId}
+                className="cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => setSelectedBatch({ id: batch.batchId, title: batch.title })}
+              >
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">{batch.title}</CardTitle>
                   {batch.due_date && (
@@ -132,6 +151,20 @@ export default function RepresentativeWorkload() {
         assignments={assignments}
         onSubmit={distributeTask}
         isSubmitting={isDistributing}
+      />
+
+      <BulkImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onSubmit={bulkDistribute}
+        isSubmitting={isBulkDistributing}
+      />
+
+      <BatchDetailDialog
+        open={!!selectedBatch}
+        onOpenChange={(open) => { if (!open) setSelectedBatch(null); }}
+        batchId={selectedBatch?.id ?? null}
+        batchTitle={selectedBatch?.title ?? ''}
       />
     </div>
   );
