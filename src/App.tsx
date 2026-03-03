@@ -52,7 +52,7 @@ const ArticlesPage = lazy(() => import("@/pages/mental-toolkit/ArticlesPage"));
 const AssessmentPage = lazy(() => import("@/pages/mental-toolkit/AssessmentPage"));
 const PrayerTracker = lazy(() => import("@/pages/spiritual/PrayerTracker"));
 const QuranReader = lazy(() => import("@/pages/spiritual/QuranReader"));
-const SunnahFasting = lazy(() => import("@/pages/spiritual/SunnahFasting"));
+const SunnahTracker = lazy(() => import("@/pages/spiritual/SunnahTracker"));
 const SpiritualInsights = lazy(() => import("@/pages/spiritual/SpiritualInsights"));
 const IslamicCalendar = lazy(() => import("@/pages/spiritual/IslamicCalendar"));
 const UnifiedUserManagement = lazy(() => import("@/pages/admin/UnifiedUserManagement"));
@@ -202,7 +202,7 @@ const App = () => (
               <Route element={<PageErrorBoundary routeGroup="spiritual"><Outlet /></PageErrorBoundary>}>
                 <Route path="/spiritual/prayer" element={<PrayerTracker />} />
                 <Route path="/spiritual/quran" element={<QuranReader />} />
-                <Route path="/spiritual/fasting" element={<SunnahFasting />} />
+                <Route path="/spiritual/sunnah" element={<SunnahTracker />} />
                 <Route path="/spiritual/insights" element={<SpiritualInsights />} />
                 <Route path="/spiritual/calendar" element={<IslamicCalendar />} />
               </Route>

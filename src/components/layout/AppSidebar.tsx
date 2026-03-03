@@ -470,15 +470,15 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                         )}
                         {preferences?.fasting_enabled && (
                           <SidebarMenuItem>
-                            <SidebarMenuButton asChild tooltip={t('spiritual.nav.sunnahFasting')}>
+                            <SidebarMenuButton asChild tooltip={t('spiritual.nav.sunnahTracker')}>
                               <NavLink
-                                to="/spiritual/fasting"
+                                to="/spiritual/sunnah"
                                 className="flex items-center gap-2"
                                 activeClassName="glass-active text-sidebar-primary"
                                 onClick={handleNavClick}
                               >
-                                <UtensilsCrossed className="h-4 w-4" />
-                                <span>{t('spiritual.nav.sunnahFasting')}</span>
+                                <Star className="h-4 w-4" />
+                                <span>{t('spiritual.nav.sunnahTracker')}</span>
                               </NavLink>
                             </SidebarMenuButton>
                           </SidebarMenuItem>
