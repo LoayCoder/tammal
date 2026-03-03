@@ -93,6 +93,7 @@
     "workloadDashboard": "Workload Dashboard",
     "teamWorkload": "Team Workload",
     "taskConnectors": "Task Connectors",
+    "representativeWorkload": "Representative Tasks",
     "recognitionAwards": "Recognition & Awards",
     "recognition": "Recognition",
     "aiPlatform": "AI Platform",
@@ -3370,6 +3371,34 @@
       "callProgress": "Call Progress",
       "timeProgress": "Time Progress",
       "days": "days"
+    }
+  },
+  "representative": {
+    "pageTitle": "Representative Workload",
+    "pageDesc": "Distribute tasks across your assigned divisions, departments, or sections",
+    "distributeTask": "Distribute Task",
+    "scope": "Target Scope",
+    "selectScope": "Select a scope...",
+    "willDistributeTo": "Task will be distributed to all members of {{scope}}",
+    "taskTitle": "Task Title",
+    "taskTitlePlaceholder": "Enter task title...",
+    "taskTitleAr": "Task Title (Arabic)",
+    "taskTitleArPlaceholder": "أدخل عنوان المهمة...",
+    "description": "Description",
+    "dueDate": "Due Date",
+    "priority": "Priority",
+    "priorityHigh": "High",
+    "priorityNormal": "Normal",
+    "priorityLow": "Low",
+    "estimatedMinutes": "Estimated Minutes",
+    "distribute": "Distribute",
+    "distributeSuccess": "Task distributed to {{count}} employees",
+    "distributeError": "Failed to distribute task",
+    "noBatches": "No distributed tasks yet. Click 'Distribute Task' to get started.",
+    "scopeTypes": {
+      "division": "Division",
+      "department": "Department",
+      "section": "Section"
     }
   }
 }
