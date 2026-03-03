@@ -79,12 +79,16 @@ function SurahList({
   );
 }
 
+function toArabicNumeral(n: number): string {
+  const digits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+  return String(n).replace(/\d/g, d => digits[parseInt(d)]);
+}
+
 function SurahViewer({ surahNumber, onBack }: { surahNumber: number; onBack: () => void }) {
   const { t } = useTranslation();
   const { data, isPending, isError } = useQuranSurah(surahNumber);
   const topRef = useRef<HTMLDivElement>(null);
-  const [showScrollTop, setShowScrollTop] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showTranslation, setShowTranslation] = useState(true);
 
   useEffect(() => {
     topRef.current?.scrollIntoView();
@@ -93,9 +97,9 @@ function SurahViewer({ surahNumber, onBack }: { surahNumber: number; onBack: () 
   if (isPending) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-10 w-48" />
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-20" />
+        <Skeleton className="h-10 w-48 mx-auto" />
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-24" />
         ))}
       </div>
     );
@@ -114,92 +118,120 @@ function SurahViewer({ surahNumber, onBack }: { surahNumber: number; onBack: () 
   const showBismillah = surah.number !== 1 && surah.number !== 9;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div ref={topRef} />
-      {/* Header */}
-      <div className="flex items-center gap-3">
+
+      {/* Back button */}
+      <div className="flex items-center justify-between">
         <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
         </Button>
-        <div className="flex-1 min-w-0 text-center">
-          <h2 className="text-xl font-bold">{surah.name}</h2>
-          <p className="text-sm text-muted-foreground">
-            {surah.englishName} — {surah.englishNameTranslation} • {surah.numberOfAyahs} ayahs
-          </p>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowTranslation(!showTranslation)}
+            className="text-xs text-muted-foreground"
+          >
+            {showTranslation ? t('spiritual.quranReader.hideTranslation', 'Hide Translation') : t('spiritual.quranReader.showTranslation', 'Show Translation')}
+          </Button>
         </div>
-        <div className="w-10" /> {/* Spacer for centering */}
       </div>
 
+      {/* Ornamental Surah Header */}
+      <div className="text-center space-y-2 py-6 border-y border-primary/15">
+        <div className="flex items-center justify-center gap-3 text-primary/40 text-xs tracking-[0.3em] uppercase">
+          <span className="h-px w-12 bg-primary/20" />
+          {surah.revelationType}
+          <span className="h-px w-12 bg-primary/20" />
+        </div>
+        <h2 className="text-4xl font-arabic text-primary" dir="rtl">{surah.name}</h2>
+        <p className="text-sm text-muted-foreground">
+          {surah.englishName} — {surah.englishNameTranslation}
+        </p>
+        <p className="text-xs text-muted-foreground/60">
+          {surah.numberOfAyahs} {t('spiritual.quranReader.ayahs', 'Ayahs')} • {t('spiritual.quranReader.surahNum', 'Surah')} {surah.number}
+        </p>
+      </div>
+
+      {/* Bismillah */}
+      {showBismillah && (
+        <p className="text-center text-2xl font-arabic py-2 text-primary/70" dir="rtl">
+          بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
+        </p>
+      )}
+
+      {/* Flowing Arabic Text */}
+      <div
+        dir="rtl"
+        className="text-2xl md:text-3xl font-arabic leading-[2.5] text-foreground px-2 md:px-6 text-justify"
+      >
+        {verses.map((v) => (
+          <span key={v.numberInSurah}>
+            {v.text}
+            <span className="inline-flex items-center justify-center text-primary/50 text-base md:text-lg mx-1 font-sans select-none">
+              ﴿{toArabicNumeral(v.numberInSurah)}﴾
+            </span>
+          </span>
+        ))}
+      </div>
+
+      {/* Translation Section */}
+      {showTranslation && (
+        <div className="border-t border-primary/10 pt-6 space-y-0">
+          <h3 className="text-xs font-medium text-muted-foreground/60 uppercase tracking-wider mb-4 px-2">
+            {t('spiritual.quranReader.translation', 'Translation')}
+          </h3>
+          {verses.map((v) => (
+            <div
+              key={v.numberInSurah}
+              className="flex items-start gap-3 py-2.5 border-b border-border/40 last:border-b-0 px-2"
+            >
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/8 text-[10px] font-semibold text-primary/60 mt-0.5">
+                {v.numberInSurah}
+              </span>
+              <p className="text-sm text-muted-foreground leading-relaxed flex-1">
+                {v.translation}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Navigation */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pt-4 border-t border-primary/10">
         <Button
           variant="outline"
           size="sm"
           disabled={surah.number <= 1}
-          onClick={() => onBack()}
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent('quran-navigate', { detail: surah.number - 1 }));
+          }}
           className="gap-1"
         >
           <ChevronLeft className="h-3 w-3 rtl:rotate-180" />
           {t('spiritual.quranReader.prevSurah', 'Previous')}
         </Button>
-        <Badge variant="secondary">
-          {t('spiritual.quranReader.surahNum', 'Surah')} {surah.number}/114
-        </Badge>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => topRef.current?.scrollIntoView({ behavior: 'smooth' })}
+          className="gap-1 text-muted-foreground"
+        >
+          <ArrowUp className="h-3 w-3" />
+          {t('spiritual.quranReader.backToTop', 'Top')}
+        </Button>
         <Button
           variant="outline"
           size="sm"
           disabled={surah.number >= 114}
           onClick={() => {
-            // Navigate to next surah by updating parent state
             window.dispatchEvent(new CustomEvent('quran-navigate', { detail: surah.number + 1 }));
           }}
           className="gap-1"
         >
           {t('spiritual.quranReader.nextSurah', 'Next')}
           <ChevronRight className="h-3 w-3 rtl:rotate-180" />
-        </Button>
-      </div>
-
-      {/* Bismillah */}
-      {showBismillah && (
-        <p className="text-center text-2xl font-arabic py-4 text-primary/80" dir="rtl">
-          بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
-        </p>
-      )}
-
-      {/* Verses */}
-      <div className="space-y-3">
-        {verses.map((v) => (
-          <Card key={v.numberInSurah} className="border rounded-lg overflow-hidden">
-            <CardContent className="p-4 space-y-3">
-              <div className="flex items-start gap-2">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary mt-1">
-                  {v.numberInSurah}
-                </span>
-                <p className="text-xl leading-loose font-arabic text-end flex-1" dir="rtl">
-                  {v.text}
-                </p>
-              </div>
-              {v.translation && (
-                <p className="text-sm text-muted-foreground leading-relaxed ps-9">
-                  {v.translation}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Scroll to top */}
-      <div className="flex justify-center py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => topRef.current?.scrollIntoView({ behavior: 'smooth' })}
-          className="gap-2"
-        >
-          <ArrowUp className="h-4 w-4" />
-          {t('spiritual.quranReader.backToTop', 'Back to top')}
         </Button>
       </div>
     </div>

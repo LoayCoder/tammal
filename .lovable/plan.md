@@ -1,44 +1,114 @@
 
+## Phase 1: Architecture Refactor — STATUS: ✅ COMPLETE
 
-# Redesign Qur'an Surah Viewer — Flowing Text Layout
+### Completed Items
 
-## Problem
-Currently each ayah is inside its own `Card`, creating a cluttered, card-heavy layout that doesn't feel like reading a book.
+1. **Database Migration** ✅ — Added unique constraints for idempotency guards on `mood_entries` and `points_transactions`
+2. **Service Layer** ✅ — Created 8 services: `gamificationService`, `checkinService`, `inviteService`, `aiService`, `tenantService`, `accountService`, `moodTaggingService`, `scheduleService`
+3. **Hook Layer** ✅ — Created 11 thin wrapper hooks: `useCheckinSubmit`, `useTodayEntry`, `useAcceptInvite`, `useDeleteAccount`, `usePromptRewrite`, `useQuestionRewrite`, `useMoodTagging`, `useScheduleData`, `useScheduleActions`, `useTenantIdQuery`
+4. **Refactored useGamification** ✅ — Delegates to `gamificationService`
+5. **Unified Analytics** ✅ — `analyticsQueries.ts` now uses `gamificationService.computeStreak()` and `calculatePoints()`
+6. **Refactored 9 P1 Offender Files** ✅ — Removed direct Supabase calls from `DailyCheckin`, `InlineDailyCheckin`, `MoodStep`, `AIQuestionGenerator`, `MoodPathwaySettings`, `AcceptInvite`, `ScheduleManagement`, `DeleteAccountDialog`, `QuestionCard`
+7. **MoodStep tenantId prop threading** ✅ — Accepts `tenantId` via props, no internal fetch
 
-## Design Approach
-Replace the per-ayah cards with a **flowing paragraph** style — like a real Mushaf page:
+### Deferred Items
 
-### Arabic Text Section
-- All verses flow as **inline text** in a single RTL paragraph, separated by verse-end markers (﴿١﴾ style ornamental numbers)
-- Large, elegant Arabic font with generous `leading-[2.5]` line-height
-- Centered on a clean, borderless surface with subtle top/bottom decorative dividers
+- **~~70 Hook Shim Deletion~~**: ✅ Already cleaned up — no barrel re-export files remain in `src/hooks/` root.
 
-### Translation Section
-- Below the Arabic block, translations displayed as a **numbered list** (not cards) with soft separator lines between them
-- Each translation prefixed with the verse number in a small circle
-- Compact, readable `text-sm` styling
+---
 
-### Header
-- Ornamental surah header: surah name in Arabic (large), English name + translation below, revelation type badge
-- Decorative border/divider using a simple CSS ornament pattern
+## Phase 2: Feature Modularization — STATUS: ✅ COMPLETE
 
-### Navigation
-- Keep prev/next surah buttons and back button
-- Keep bismillah display
-- Keep scroll-to-top
+1. **ai-governance → src/features/** ✅ — Components, hooks, types consolidated with barrel export
+2. **ai-generator → src/features/** ✅ — All 12 components moved from `src/components/ai-generator/` to `src/features/ai-generator/components/`, internal imports updated
+3. **Dead file cleanup** ✅ — Removed orphan compatibility shims and empty type directories
+4. **as any reduction** ✅ — Eliminated ~80 casts in governance, admin, and hook layers
 
-## File Changes
+---
 
-### Edit: `src/pages/spiritual/QuranTextReader.tsx`
-Rewrite the `SurahViewer` component's verse rendering section:
+## Make the App Fully Mobile-Responsive as a PWA
 
-1. **Replace** the `<div className="space-y-3">` verses loop with:
-   - A single `<div dir="rtl">` containing all Arabic text inline, each verse followed by `<span className="text-primary/60 text-lg mx-1">﴿{numberInSurah}﴾</span>`
-   
-2. **Add** a translation section below with a toggle (show/hide translations):
-   - Simple divs with verse numbers, no cards
-   
-3. **Restyle** the surah header with a decorative centered layout
+### Overview
+The app has good PWA infrastructure (service worker, manifest, install banner, caching) but several UI areas are not optimized for mobile touch interaction. This plan addresses the key gaps to make the app feel native on phones.
 
-No new files needed. Single file edit.
+### 1. Mobile Bottom Navigation Bar
 
+Create a persistent bottom navigation bar for mobile users (visible below `md` breakpoint) with quick-access icons for the most-used sections: Dashboard, Wellness, Support, Profile, and More (opens sidebar).
+
+**New file: `src/components/layout/MobileBottomNav.tsx`**
+
+- Fixed to the bottom of the viewport with `safe-area-inset-bottom` padding
+- Glass styling consistent with the header
+- Active state indicator matching `glass-active`
+- Hidden on desktop (`md:hidden`)
+- Uses logical properties for RTL
+
+**Mount in `MainLayout.tsx`** after the `</main>` tag.
+
+### 2. Mobile Card View for Data Tables
+
+The `UserTable` (and similar admin tables) renders a full `<table>` which is unusable on small screens. Create a responsive wrapper pattern.
+
+**New file: `src/components/ui/responsive-table.tsx`**
+
+A wrapper component that:
+- On desktop (`md+`): renders children (the table) as-is
+- On mobile (`<md`): renders each row as a stacked card with key-value pairs
+
+**Update `src/components/users/UserTable.tsx`**:
+- On mobile: render user cards (avatar, name, email, status badge, role badges, action menu) in a vertical stack
+- On desktop: keep the existing table layout
+- Use `useIsMobile()` hook to switch between views
+
+### 3. Touch-Friendly Sizing & Spacing
+
+**Update `src/index.css`** with mobile-specific utilities:
+
+- Add a `.touch-target` utility class ensuring minimum 44x44px tap targets (Apple HIG)
+- Increase padding on interactive elements at small breakpoints
+- Add `overscroll-behavior: contain` on the main scroll area to prevent pull-to-refresh interference in standalone PWA mode
+
+### 4. PWA Standalone Mode Enhancements
+
+**Update `src/index.css`**:
+- Add `@media (display-mode: standalone)` styles to hide browser-specific UI hints
+- Ensure the bottom nav accounts for the home indicator on notched devices
+- Add smooth momentum scrolling (`-webkit-overflow-scrolling: touch`)
+
+**Update `src/components/layout/MainLayout.tsx`**:
+- Add `pb-16 md:pb-0` to the main content area to prevent the bottom nav from covering content on mobile
+- Add `overscroll-behavior-y: contain` on the root layout div
+
+### 5. Header Adjustments for Mobile
+
+**Update `src/components/layout/Header.tsx`**:
+- On mobile, hide the breadcrumb (already done with `hidden md:flex`)
+- Ensure all header action buttons meet 44px touch targets
+- Add the page title as a simple text element on mobile (replacing the breadcrumb)
+
+### 6. Auth Page Mobile Polish
+
+**Update `src/pages/Auth.tsx`**:
+- Add safe-area padding for standalone PWA mode
+- Ensure the form fills the viewport nicely on small screens
+- Make the card full-width on mobile with minimal horizontal padding
+
+### Files to Create/Modify
+
+| File | Action |
+|------|--------|
+| `src/components/layout/MobileBottomNav.tsx` | **Create** -- bottom navigation bar |
+| `src/components/ui/responsive-table.tsx` | **Create** -- mobile card / desktop table wrapper |
+| `src/components/users/UserTable.tsx` | **Modify** -- add mobile card view |
+| `src/components/layout/MainLayout.tsx` | **Modify** -- mount bottom nav, add bottom padding |
+| `src/components/layout/Header.tsx` | **Modify** -- mobile page title, touch targets |
+| `src/index.css` | **Modify** -- PWA standalone styles, touch utilities |
+| `src/pages/Auth.tsx` | **Modify** -- mobile safe-area polish |
+
+### Technical Notes
+
+- All components use logical properties (`ms-`, `me-`, `ps-`, `pe-`, `text-start`, `text-end`) -- no `ml-`/`mr-`
+- `useIsMobile()` hook (already exists at 768px breakpoint) is used for conditional rendering
+- The bottom nav uses `env(safe-area-inset-bottom)` for notched devices in standalone PWA mode
+- No database changes required
+- The responsive table pattern can be reused across all admin tables in future iterations
