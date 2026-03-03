@@ -20,17 +20,29 @@ import { GovernanceAuditLog } from '@/components/ai-governance/GovernanceAuditLo
 import { AutonomousStatus } from '@/components/ai-governance/AutonomousStatus';
 import { AnomalyTimeline } from '@/components/ai-governance/AnomalyTimeline';
 import { SandboxMonitor } from '@/components/ai-governance/SandboxMonitor';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function AIGovernance() {
   const { t } = useTranslation();
   const { isSuperAdmin, hasPermission } = useUserPermissions();
+  const queryClient = useQueryClient();
 
-  const { data: summary = [], isPending: summaryLoading } = useGovernanceSummary();
-  const { data: routingLogs = [], isPending: logsLoading } = useRoutingLogs();
-  const { data: costData = [], isPending: costLoading } = useCostBreakdown();
-  const { data: perfData = [], isPending: perfLoading } = usePerformanceTrend();
-  const { data: budgetConfig = null } = useBudgetConfig();
-  const { data: penalties = [] } = usePenalties();
+  const summaryQuery = useGovernanceSummary();
+  const logsQuery = useRoutingLogs();
+  const costQuery = useCostBreakdown();
+  const perfQuery = usePerformanceTrend();
+  const budgetQuery = useBudgetConfig();
+  const penaltiesQuery = usePenalties();
+
+  const summary = summaryQuery.data ?? [];
+  const routingLogs = logsQuery.data ?? [];
+  const costData = costQuery.data ?? [];
+  const perfData = perfQuery.data ?? [];
+  const budgetConfig = budgetQuery.data ?? null;
+  const penalties = penaltiesQuery.data ?? [];
 
   const showEngineering = isSuperAdmin || hasPermission('ai_governance.engineering');
   const showFinance = isSuperAdmin || hasPermission('ai_governance.finance');
@@ -38,6 +50,46 @@ export default function AIGovernance() {
   const showInspector = isSuperAdmin;
 
   const currentStrategy = (budgetConfig?.routing_strategy as string) ?? 'cost_aware';
+
+  // Check if any critical query has errored
+  const queryError = summaryQuery.error || costQuery.error || budgetQuery.error || 
+    logsQuery.error || perfQuery.error || penaltiesQuery.error;
+
+  const handleRetryAll = () => {
+    queryClient.invalidateQueries({ queryKey: ['ai-governance'] });
+  };
+
+  if (queryError) {
+    return (
+      <div className="space-y-6 p-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{t('aiGovernance.title')}</h1>
+          <p className="text-muted-foreground">{t('aiGovernance.subtitle')}</p>
+        </div>
+        <Card className="border-destructive/30">
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center space-y-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+              <AlertTriangle className="h-6 w-6 text-destructive" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-lg font-semibold text-foreground">
+                {t('aiGovernance.loadError', 'Failed to load governance data')}
+              </h3>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                {t('aiGovernance.loadErrorDescription', 'The governance dashboard encountered an error while loading data. Please try again.')}
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleRetryAll}>
+              <RefreshCw className="h-4 w-4 me-2" />
+              {t('common.tryAgain', 'Try Again')}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const isLoading = summaryQuery.isPending || costQuery.isPending;
 
   return (
     <div className="space-y-6 p-6">
@@ -61,16 +113,16 @@ export default function AIGovernance() {
             summary={summary}
             costData={costData}
             budgetConfig={budgetConfig}
-            isLoading={summaryLoading || costLoading}
+            isLoading={isLoading}
           />
         </TabsContent>
 
         {showEngineering && (
           <TabsContent value="engineering" className="space-y-6">
             <AutonomousStatus />
-            <ThompsonVisualizer summary={summary} isLoading={summaryLoading} />
-            <RoutingBreakdownTable logs={routingLogs} isLoading={logsLoading} />
-            <ExplorationMonitor summary={summary} isLoading={summaryLoading} />
+            <ThompsonVisualizer summary={summary} isLoading={summaryQuery.isPending} />
+            <RoutingBreakdownTable logs={routingLogs} isLoading={logsQuery.isPending} />
+            <ExplorationMonitor summary={summary} isLoading={summaryQuery.isPending} />
             <AnomalyTimeline />
             <SandboxMonitor />
           </TabsContent>
@@ -78,14 +130,14 @@ export default function AIGovernance() {
 
         {showFinance && (
           <TabsContent value="finance" className="space-y-6">
-            <FinanceDashboard costData={costData} budgetConfig={budgetConfig} isLoading={costLoading} />
+            <FinanceDashboard costData={costData} budgetConfig={budgetConfig} isLoading={costQuery.isPending} />
             {(isSuperAdmin || hasPermission('ai_governance.finance')) && <BudgetControls budgetConfig={budgetConfig} />}
           </TabsContent>
         )}
 
         {showRisk && (
           <TabsContent value="risk" className="space-y-6">
-            <RiskDashboard performanceData={perfData} penalties={penalties} isLoading={perfLoading} />
+            <RiskDashboard performanceData={perfData} penalties={penalties} isLoading={perfQuery.isPending} />
             {(isSuperAdmin || hasPermission('ai_governance.risk')) && <PenaltyControls />}
           </TabsContent>
         )}

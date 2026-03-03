@@ -56,12 +56,11 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
     })
 
-    const token = authHeader.replace('Bearer ', '')
-    const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token)
-    if (claimsError || !claimsData?.claims) {
+    const { data: { user }, error: authError } = await authClient.auth.getUser()
+    if (authError || !user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
     }
-    const userId = claimsData.claims.sub as string
+    const userId = user.id
 
     // Service-role client for all data access
     const db = createClient(supabaseUrl, serviceRoleKey)

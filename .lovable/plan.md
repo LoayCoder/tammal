@@ -1,74 +1,105 @@
 
+## Phase 1: Architecture Refactor — STATUS: ✅ COMPLETE
 
-# Fix: AI Governance Page "Something went wrong" Crash
+### Completed Items
 
-## Root Cause Analysis
+1. **Database Migration** ✅ — Added unique constraints for idempotency guards on `mood_entries` and `points_transactions`
+2. **Service Layer** ✅ — Created 8 services: `gamificationService`, `checkinService`, `inviteService`, `aiService`, `tenantService`, `accountService`, `moodTaggingService`, `scheduleService`
+3. **Hook Layer** ✅ — Created 11 thin wrapper hooks: `useCheckinSubmit`, `useTodayEntry`, `useAcceptInvite`, `useDeleteAccount`, `usePromptRewrite`, `useQuestionRewrite`, `useMoodTagging`, `useScheduleData`, `useScheduleActions`, `useTenantIdQuery`
+4. **Refactored useGamification** ✅ — Delegates to `gamificationService`
+5. **Unified Analytics** ✅ — `analyticsQueries.ts` now uses `gamificationService.computeStreak()` and `calculatePoints()`
+6. **Refactored 9 P1 Offender Files** ✅ — Removed direct Supabase calls from `DailyCheckin`, `InlineDailyCheckin`, `MoodStep`, `AIQuestionGenerator`, `MoodPathwaySettings`, `AcceptInvite`, `ScheduleManagement`, `DeleteAccountDialog`, `QuestionCard`
+7. **MoodStep tenantId prop threading** ✅ — Accepts `tenantId` via props, no internal fetch
 
-After thorough code review, the crash is caused by the `ai-governance` edge function failing and error propagation breaking the React component tree. Two specific issues were identified:
+### Deferred Items
 
-### Issue 1: Edge Function Auth Method Incompatibility
+- **70 Hook Shim Deletion**: 400+ import references across 61 files. Shims are harmless tree-shakeable re-exports. Can be done incrementally per-module in future PRs.
 
-The `ai-governance` edge function (line 60) uses `authClient.auth.getClaims(token)` which may not be available in the version of `@supabase/supabase-js@2` resolved by esm.sh. Most other edge functions in the project use `auth.getUser(token)` which is stable across all v2 versions.
+---
 
-When `getClaims` is undefined, the edge function throws an unhandled error at line 60, returning a 500 (not 401). The `supabase.functions.invoke` call in the hooks receives a `FunctionsHttpError`, and `if (error) throw error` propagates it into React Query. While React Query normally handles this gracefully, the `AIGovernance.tsx` page component destructures data from **6 parallel queries** at the top level. If any hook's error state leads to unexpected `undefined` access during render, the PageErrorBoundary catches it.
+## Make the App Fully Mobile-Responsive as a PWA
 
-### Issue 2: Unsafe Destructuring of Hook Results
+### Overview
+The app has good PWA infrastructure (service worker, manifest, install banner, caching) but several UI areas are not optimized for mobile touch interaction. This plan addresses the key gaps to make the app feel native on phones.
 
-In `AIGovernance.tsx` (line 36), `budgetConfig` is typed as `Record<string, unknown> | null`, but is used on line 73 with:
-```
-const currentStrategy = (budgetConfig?.routing_strategy as string) ?? 'cost_aware';
-```
-This is safe. However, the deeper issue is that when the edge function returns a 500, `useBudgetConfig` returns `undefined` (not `null`), and `budgetConfig` is `undefined` which may cascade through the components.
+### 1. Mobile Bottom Navigation Bar
 
-## Fix Plan
+Create a persistent bottom navigation bar for mobile users (visible below `md` breakpoint) with quick-access icons for the most-used sections: Dashboard, Wellness, Support, Profile, and More (opens sidebar).
 
-### Fix 1: Stabilize Edge Function Auth (Critical)
+**New file: `src/components/layout/MobileBottomNav.tsx`**
 
-**File:** `supabase/functions/ai-governance/index.ts`
+- Fixed to the bottom of the viewport with `safe-area-inset-bottom` padding
+- Glass styling consistent with the header
+- Active state indicator matching `glass-active`
+- Hidden on desktop (`md:hidden`)
+- Uses logical properties for RTL
 
-Replace `getClaims` with the more reliable `getUser` pattern used by all other edge functions:
+**Mount in `MainLayout.tsx`** after the `</main>` tag.
 
-```typescript
-// Before (line 59-64):
-const token = authHeader.replace('Bearer ', '')
-const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token)
-if (claimsError || !claimsData?.claims) { ... }
-const userId = claimsData.claims.sub as string
+### 2. Mobile Card View for Data Tables
 
-// After:
-const { data: { user }, error: authError } = await authClient.auth.getUser()
-if (authError || !user) {
-  return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-}
-const userId = user.id
-```
+The `UserTable` (and similar admin tables) renders a full `<table>` which is unusable on small screens. Create a responsive wrapper pattern.
 
-This aligns with the 11 other edge functions that use `getUser()` successfully.
+**New file: `src/components/ui/responsive-table.tsx`**
 
-### Fix 2: Defensive Hook Error Handling in Page Component
+A wrapper component that:
+- On desktop (`md+`): renders children (the table) as-is
+- On mobile (`<md`): renders each row as a stacked card with key-value pairs
 
-**File:** `src/pages/admin/AIGovernance.tsx`
+**Update `src/components/users/UserTable.tsx`**:
+- On mobile: render user cards (avatar, name, email, status badge, role badges, action menu) in a vertical stack
+- On desktop: keep the existing table layout
+- Use `useIsMobile()` hook to switch between views
 
-Wrap the governance page content so that if **any** of the 6 queries returns an error, a clear error state is shown instead of crashing:
+### 3. Touch-Friendly Sizing & Spacing
 
-- Check `summaryQuery.error || logsQuery.error || costQuery.error || perfQuery.error || budgetQuery.error || penaltiesQuery.error`
-- If any has errored, show a user-friendly error card with a retry button
-- This prevents cascading `undefined` access through child components
+**Update `src/index.css`** with mobile-specific utilities:
 
-### Fix 3: Deploy Edge Function
+- Add a `.touch-target` utility class ensuring minimum 44x44px tap targets (Apple HIG)
+- Increase padding on interactive elements at small breakpoints
+- Add `overscroll-behavior: contain` on the main scroll area to prevent pull-to-refresh interference in standalone PWA mode
 
-Re-deploy the `ai-governance` edge function after the auth fix to ensure it handles auth correctly.
+### 4. PWA Standalone Mode Enhancements
 
-## Files Changed
+**Update `src/index.css`**:
+- Add `@media (display-mode: standalone)` styles to hide browser-specific UI hints
+- Ensure the bottom nav accounts for the home indicator on notched devices
+- Add smooth momentum scrolling (`-webkit-overflow-scrolling: touch`)
 
-| File | Change |
+**Update `src/components/layout/MainLayout.tsx`**:
+- Add `pb-16 md:pb-0` to the main content area to prevent the bottom nav from covering content on mobile
+- Add `overscroll-behavior-y: contain` on the root layout div
+
+### 5. Header Adjustments for Mobile
+
+**Update `src/components/layout/Header.tsx`**:
+- On mobile, hide the breadcrumb (already done with `hidden md:flex`)
+- Ensure all header action buttons meet 44px touch targets
+- Add the page title as a simple text element on mobile (replacing the breadcrumb)
+
+### 6. Auth Page Mobile Polish
+
+**Update `src/pages/Auth.tsx`**:
+- Add safe-area padding for standalone PWA mode
+- Ensure the form fills the viewport nicely on small screens
+- Make the card full-width on mobile with minimal horizontal padding
+
+### Files to Create/Modify
+
+| File | Action |
 |------|--------|
-| `supabase/functions/ai-governance/index.ts` | Replace `getClaims` with `getUser` |
-| `src/pages/admin/AIGovernance.tsx` | Add query error guard with retry UI |
+| `src/components/layout/MobileBottomNav.tsx` | **Create** -- bottom navigation bar |
+| `src/components/ui/responsive-table.tsx` | **Create** -- mobile card / desktop table wrapper |
+| `src/components/users/UserTable.tsx` | **Modify** -- add mobile card view |
+| `src/components/layout/MainLayout.tsx` | **Modify** -- mount bottom nav, add bottom padding |
+| `src/components/layout/Header.tsx` | **Modify** -- mobile page title, touch targets |
+| `src/index.css` | **Modify** -- PWA standalone styles, touch utilities |
+| `src/pages/Auth.tsx` | **Modify** -- mobile safe-area polish |
 
-## Validation
+### Technical Notes
 
-- Navigate to `/admin/ai-governance` while logged in -- page loads without crash
-- Navigate while logged out -- redirected to `/auth` by `AdminRoute`
-- Edge function returns 401 (not 500) for invalid tokens
-- All 6 data queries fail gracefully with error UI and retry option
+- All components use logical properties (`ms-`, `me-`, `ps-`, `pe-`, `text-start`, `text-end`) -- no `ml-`/`mr-`
+- `useIsMobile()` hook (already exists at 768px breakpoint) is used for conditional rendering
+- The bottom nav uses `env(safe-area-inset-bottom)` for notched devices in standalone PWA mode
+- No database changes required
+- The responsive table pattern can be reused across all admin tables in future iterations
