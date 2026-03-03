@@ -17,6 +17,8 @@ import { InitiativeDialog } from '@/components/workload/InitiativeDialog';
 import { ActionDialog } from '@/components/workload/ActionDialog';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
+import { useIsRepresentative } from '@/hooks/workload/useIsRepresentative';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
