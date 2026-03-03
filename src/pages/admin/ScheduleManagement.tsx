@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge, SCHEDULE_STATUS_CONFIG } from '@/shared/status-badge';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
@@ -143,18 +144,9 @@ export default function ScheduleManagement() {
 
   // ── Render helpers ────────────────────────────────────────────────────────
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <Badge className="bg-green-500">{t('common.active')}</Badge>;
-      case 'paused':
-        return <Badge variant="secondary">{t('schedules.paused')}</Badge>;
-      case 'draft':
-        return <Badge variant="outline">{t('schedules.draft')}</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
+  const renderStatusBadge = (status: string) => (
+    <StatusBadge status={status} config={SCHEDULE_STATUS_CONFIG} translationPrefix="schedules" />
+  );
 
   const getFrequencyLabel = (freq: string) => {
     const labels: Record<string, string> = {
@@ -318,7 +310,7 @@ export default function ScheduleManagement() {
                       )}
                     </TableCell>
                     <TableCell>{renderAudienceCell(schedule)}</TableCell>
-                    <TableCell>{getStatusBadge(schedule.status)}</TableCell>
+                    <TableCell>{renderStatusBadge(schedule.status)}</TableCell>
                     <TableCell>{schedule.preferred_time || '09:00'}</TableCell>
                     <TableCell className="text-end">
                       <div className="flex items-center justify-end gap-1">

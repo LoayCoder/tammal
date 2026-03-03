@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge, GENERIC_TASK_STATUS_CONFIG } from '@/shared/status-badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -20,12 +21,6 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 
-const statusColors: Record<string, string> = {
-  todo: 'secondary',
-  in_progress: 'default',
-  done: 'outline',
-  blocked: 'destructive',
-};
 
 const priorityLabels: Record<number, string> = {
   1: 'P1', 2: 'P2', 3: 'P3', 4: 'P4', 5: 'P5',
@@ -116,9 +111,11 @@ export default function TeamWorkload() {
       id: 'status',
       header: t('common.status'),
       cell: (row: typeof filteredTasks[number]) => (
-        <Badge variant={(statusColors[row.status] as any) ?? 'secondary'} className="text-xs capitalize">
-          {row.status.replace('_', ' ')}
-        </Badge>
+        <StatusBadge
+          status={row.status}
+          config={GENERIC_TASK_STATUS_CONFIG}
+          translationPrefix="teamWorkload"
+        />
       ),
       className: 'w-28',
     },

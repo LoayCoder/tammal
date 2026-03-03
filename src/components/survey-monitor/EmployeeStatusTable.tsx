@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge, GENERIC_TASK_STATUS_CONFIG } from '@/shared/status-badge';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Users } from 'lucide-react';
@@ -38,16 +39,13 @@ export function EmployeeStatusTable({ employees, isLoading }: Props) {
     });
   }, [employees, search, sortBy]);
 
-  const statusBadge = (status: EmployeeStatus['status']) => {
-    switch (status) {
-      case 'completed':
-        return <Badge className="bg-chart-1/15 text-chart-1 border-chart-1/30">{t('surveyMonitor.employeeStatus.completed')}</Badge>;
-      case 'in_progress':
-        return <Badge className="bg-chart-4/15 text-chart-4 border-chart-4/30">{t('surveyMonitor.employeeStatus.inProgress')}</Badge>;
-      case 'not_started':
-        return <Badge variant="secondary">{t('surveyMonitor.employeeStatus.notStarted')}</Badge>;
-    }
-  };
+  const statusBadge = (status: EmployeeStatus['status']) => (
+    <StatusBadge
+      status={status}
+      config={GENERIC_TASK_STATUS_CONFIG}
+      translationPrefix="surveyMonitor.employeeStatus"
+    />
+  );
 
   if (isLoading) return <Skeleton className="h-64 w-full" />;
 
