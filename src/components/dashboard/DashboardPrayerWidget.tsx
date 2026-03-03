@@ -229,9 +229,9 @@ export function DashboardPrayerWidget() {
           </div>
         )}
 
-        {/* Progress row — 5 prayer indicators */}
+        {/* Progress row — 6 prayer indicators (5 obligatory + Witr) */}
         <div className="flex items-center justify-between gap-1">
-        {PRAYER_NAMES.map(name => {
+        {ALL_PRAYERS.map(name => {
             const logged = !!todayLogs[name];
             const isMissed = todayLogs[name]?.status === 'missed';
             const isActive = name === activePrayer;
@@ -276,7 +276,7 @@ export function DashboardPrayerWidget() {
 
         {/* Completion stat */}
         <p className="text-xs text-muted-foreground text-center">
-          {completedCount}/5 {i18n.language === 'ar' ? 'مكتملة' : 'completed'}
+          {completedCount}/6 {i18n.language === 'ar' ? 'مكتملة' : 'completed'}
         </p>
       </CardContent>
     </Card>
