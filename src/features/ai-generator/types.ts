@@ -37,8 +37,8 @@ export interface AIGeneratorState {
   setSelectedMoodLevels: (v: string[]) => void;
   selectedPeriodId: string | null;
   setSelectedPeriodId: (v: string | null) => void;
-  purpose: import('@/components/ai-generator/ConfigPanel').QuestionPurpose;
-  setPurpose: (v: import('@/components/ai-generator/ConfigPanel').QuestionPurpose) => void;
+  purpose: import('./components/ConfigPanel').QuestionPurpose;
+  setPurpose: (v: import('./components/ConfigPanel').QuestionPurpose) => void;
   questionsPerDay: number;
   setQuestionsPerDay: (v: number) => void;
   batchDialogOpen: boolean;
