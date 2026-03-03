@@ -2357,7 +2357,23 @@
     "atRisk": "At Risk",
     "monthlyCheckins": "This Month",
     "avgMood": "Avg. Mood",
-    "currentStreak": "Streak"
+    "currentStreak": "Streak",
+    "mentalHealthTools": "Mental Health Tools",
+    "mentalHealthResources": "Mental Health Resources",
+    "breathingGrounding": "Breathing & Grounding",
+    "breathingGroundingDesc": "Guided breathing and grounding exercises",
+    "dailyJournaling": "Daily Journaling Prompts",
+    "dailyJournalingDesc": "Reflect on your thoughts and feelings",
+    "habitsPlanner": "Positive Habits Planner",
+    "habitsPlannerDesc": "Build and track healthy habits",
+    "selfAssessment": "Self-Assessment Quizzes",
+    "selfAssessmentDesc": "Evaluate your mental wellbeing",
+    "meditationLibrary": "Meditation Library",
+    "meditationLibraryDesc": "Guided meditation sessions",
+    "psychoeducationArticles": "Psychoeducation Articles",
+    "psychoeducationArticlesDesc": "Learn about mental health topics",
+    "islamicCalendar": "Islamic Calendar",
+    "islamicCalendarDesc": "Important Islamic dates and events"
   },
   "moodPathway": {
     "title": "Mood Follow-up",
@@ -2790,7 +2806,16 @@
       "updateSuccess": "Task updated successfully",
       "updateError": "Failed to update task",
       "deleteSuccess": "Task deleted successfully",
-      "deleteError": "Failed to delete task"
+      "deleteError": "Failed to delete task",
+      "title": "Title",
+      "titleAr": "Title (Arabic)",
+      "description": "Description",
+      "priority": "Priority",
+      "dueDate": "Due Date",
+      "estimatedMinutes": "Est. Minutes",
+      "statusTodo": "To Do",
+      "statusInProgress": "In Progress",
+      "statusBlocked": "Blocked"
     },
     "lock": {
       "lock": "Lock",
@@ -2903,7 +2928,13 @@
     "sourceOKR": "OKR",
     "sourceExternal": "External",
     "taskCreated": "Task assigned successfully",
-    "taskCreateError": "Failed to assign task"
+    "taskCreateError": "Failed to assign task",
+    "todo": "To Do",
+    "in_progress": "In Progress",
+    "done": "Done",
+    "blocked": "Blocked",
+    "completed": "Completed",
+    "not_started": "Not Started"
   },
   "connectors": {
     "pageTitle": "Task Connectors",

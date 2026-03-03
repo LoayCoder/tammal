@@ -1,75 +1,22 @@
 
 
-## Fix Missing Translation Keys
+## Plan: Add Rawatib (Sunnah) indicators to Dashboard Prayer Widget
 
-Two groups of missing i18n keys are causing raw key paths to display in the UI.
+The `DashboardPrayerWidget` currently only shows the active prayer with log buttons but lacks the Rawatib Sunnah rak'ah info that `PrayerCard` already has.
 
----
+### Changes
 
-### 1. `home.*` — Mental Health Tools & Resources Hub (both en.json & ar.json)
+**File: `src/components/dashboard/DashboardPrayerWidget.tsx`**
 
-The `MentalHealthToolsHub` and `MentalHealthResourcesHub` components reference keys under `home.*` that were never added to the locale files.
+1. Import the Sunnah hooks (`useSunnahLogs`) and add a `RAWATIB_CONFIG` map (same as in `PrayerCard.tsx`: Fajr → 2 after, Dhuhr → 2 before + 2 after, Asr → none, Maghrib → 2 after, Isha → 2 after).
 
-**Missing keys to add inside the `home` object:**
+2. Inside the active prayer card section, add tap-to-toggle Rawatib chips below the log buttons — matching the existing style from `PrayerCard`:
+   - 📿 "2 Rak'ahs before" (if applicable)
+   - 📿 "2 Rak'ahs after" (if applicable)
+   - Each chip toggles completed state via `onToggleSunnah`
 
-| Key | EN | AR |
-|---|---|---|
-| `mentalHealthTools` | Mental Health Tools | أدوات الصحة النفسية |
-| `mentalHealthResources` | Mental Health Resources | موارد الصحة النفسية |
-| `breathingGrounding` | Breathing & Grounding | تمارين التنفس والتأريض |
-| `breathingGroundingDesc` | Guided breathing and grounding exercises | تمارين التنفس والتأريض الموجهة |
-| `dailyJournaling` | Daily Journaling Prompts | مطالبات التدوين اليومي |
-| `dailyJournalingDesc` | Reflect on your thoughts and feelings | تأمل أفكارك ومشاعرك |
-| `habitsPlanner` | Positive Habits Planner | مخطط العادات الإيجابية |
-| `habitsPlannerDesc` | Build and track healthy habits | بناء وتتبع العادات الصحية |
-| `selfAssessment` | Self-Assessment Quizzes | اختبارات التقييم الذاتي |
-| `selfAssessmentDesc` | Evaluate your mental wellbeing | قيّم صحتك النفسية |
-| `meditationLibrary` | Meditation Library | مكتبة التأمل |
-| `meditationLibraryDesc` | Guided meditation sessions | جلسات تأمل موجهة |
-| `psychoeducationArticles` | Psychoeducation Articles | مقالات التثقيف النفسي |
-| `psychoeducationArticlesDesc` | Learn about mental health topics | تعرف على مواضيع الصحة النفسية |
-| `islamicCalendar` | Islamic Calendar | التقويم الإسلامي |
-| `islamicCalendarDesc` | Important Islamic dates and events | التواريخ والمناسبات الإسلامية |
+3. In the progress row (5 prayer indicators at the bottom), add small dot indicators beneath each prayer icon showing if its Rawatib are completed.
 
-### 2. `workload.tasks.*` — Team Workload Table Headers (both en.json & ar.json)
-
-The `TeamWorkload` page references `workload.tasks.title`, `.priority`, `.dueDate`, `.estimatedMinutes`, `.titleAr`, `.description`, plus filter keys `.statusTodo`, `.statusInProgress`, `.statusBlocked` — none exist.
-
-**Add inside `workload.tasks`:**
-
-| Key | EN | AR |
-|---|---|---|
-| `title` | Title | العنوان |
-| `titleAr` | Title (Arabic) | العنوان (عربي) |
-| `description` | Description | الوصف |
-| `priority` | Priority | الأولوية |
-| `dueDate` | Due Date | تاريخ الاستحقاق |
-| `estimatedMinutes` | Est. Minutes | الدقائق المقدرة |
-| `statusTodo` | To Do | قيد الانتظار |
-| `statusInProgress` | In Progress | قيد التنفيذ |
-| `statusBlocked` | Blocked | محظور |
-
-### 3. `teamWorkload.*` — Status Badge Keys (both en.json & ar.json)
-
-`StatusBadge` with `translationPrefix="teamWorkload"` generates keys like `teamWorkload.todo`, `teamWorkload.in_progress`, etc. These are missing.
-
-**Add inside `teamWorkload`:**
-
-| Key | EN | AR |
-|---|---|---|
-| `todo` | To Do | قيد الانتظار |
-| `in_progress` | In Progress | قيد التنفيذ |
-| `done` | Done | مكتمل |
-| `blocked` | Blocked | محظور |
-| `completed` | Completed | مكتمل |
-| `not_started` | Not Started | لم يبدأ |
-
----
-
-### Files Modified
-
-| File | Change |
-|---|---|
-| `src/locales/en.json` | Add ~30 missing keys across `home`, `workload.tasks`, and `teamWorkload` |
-| `src/locales/ar.json` | Add matching Arabic translations for the same keys |
+### Hook dependency
+Need to check if `useSunnahLogs` or a similar hook exists for Rawatib tracking at the dashboard level, or if the sunnah data is already available through `usePrayerLogs`.
 
