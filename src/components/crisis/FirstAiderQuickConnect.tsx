@@ -180,7 +180,7 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
                           </div>
                         </div>
                         <Badge variant="secondary" className={`shrink-0 text-xs ${statusClass}`}>
-                          {t(`crisisSupport.status.${statusLabel}`, statusLabel)}
+                          {t(`crisisSupport.status.${statusLabel}`, STATUS_LABELS[statusLabel] || statusLabel)}
                         </Badge>
                       </div>
 
