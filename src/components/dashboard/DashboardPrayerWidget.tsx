@@ -140,10 +140,22 @@ export function DashboardPrayerWidget() {
                 </p>
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {(timings[activePrayer] || '').replace(/\s*\(.*\)/, '').trim()}
+                  {activePrayer === 'Witr'
+                    ? t('spiritual.prayer.witrTimeRange', { fajr: (timings.Fajr || '').replace(/\s*\(.*\)/, '').trim() || '--:--' })
+                    : (timings[activePrayer as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()
+                  }
                 </p>
               </div>
-              <PrayerCountdownBadge prayerTime={timings[activePrayer]} />
+              {activePrayer === 'Witr' ? (
+                witrCountdown.isPrayerTime && !witrCountdown.isExpired && witrCountdown.minutesLeft != null ? (
+                  <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30">
+                    <Timer className="h-3 w-3" />
+                    {i18n.language === 'ar' ? `${witrCountdown.minutesLeft}د` : `${witrCountdown.minutesLeft}m`}
+                  </span>
+                ) : null
+              ) : (
+                <PrayerCountdownBadge prayerTime={timings[activePrayer as keyof typeof timings]} />
+              )}
             </div>
             <div className="flex flex-wrap gap-1.5">
               <Button size="sm" variant="outline" onClick={() => handleLog('completed_mosque')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
