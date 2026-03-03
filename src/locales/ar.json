@@ -2464,7 +2464,8 @@
       "upcomingSessions": "القادمة",
       "pastSessions": "السابقة",
       "joinSession": "انضمام",
-      "cancelSession": "إلغاء الجلسة"
+      "cancelSession": "إلغاء الجلسة",
+      "slotsAvailable": "أوقات متاحة"
     },
     "session": {
       "workspace": "مساحة الجلسة",
