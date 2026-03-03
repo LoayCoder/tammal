@@ -181,10 +181,25 @@ export function DashboardPrayerWidget() {
             )}
           </div>
         ) : (
-          <div className="rounded-xl bg-chart-1/5 p-3 text-center">
-            <p className="text-sm font-medium text-chart-1">
-              ✅ {i18n.language === 'ar' ? 'أكملت جميع الصلوات' : 'All prayers completed!'}
-            </p>
+          <div className="rounded-xl bg-gradient-to-br from-chart-1/10 via-primary/5 to-chart-1/10 border border-chart-1/20 p-4 text-center space-y-2.5">
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-2xl">🎉</span>
+              <p className="text-sm font-bold text-chart-1">
+                {i18n.language === 'ar' ? 'ما شاء الله! أكملت جميع الصلوات' : 'Masha\'Allah! All prayers completed!'}
+              </p>
+              <span className="text-2xl">🎉</span>
+            </div>
+            <div className="rounded-lg bg-background/60 backdrop-blur-sm border border-border/50 p-3 space-y-1">
+              <p className="text-xs font-semibold text-primary">📖 {i18n.language === 'ar' ? 'حديث شريف' : 'Hadith'}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed italic">
+                {i18n.language === 'ar'
+                  ? '«أَرَأَيْتُمْ لَوْ أَنَّ نَهْرًا بِبَابِ أَحَدِكُمْ يَغْتَسِلُ مِنْهُ كُلَّ يَوْمٍ خَمْسَ مَرَّاتٍ، هَلْ يَبْقَى مِنْ دَرَنِهِ شَيْءٌ؟» قَالُوا: لاَ يَبْقَى مِنْ دَرَنِهِ شَيْءٌ. قَالَ: «فَذَلِكَ مَثَلُ الصَّلَوَاتِ الْخَمْسِ، يَمْحُو اللَّهُ بِهِنَّ الْخَطَايَا»'
+                  : '"If there was a river at the door of anyone of you and he took a bath in it five times a day, would any dirt remain on him?" They said, "No." He ﷺ said, "That is the example of the five prayers with which Allah erases sins."'}
+              </p>
+              <p className="text-[10px] text-muted-foreground/70">
+                {i18n.language === 'ar' ? '— متفق عليه' : '— Agreed upon (Bukhari & Muslim)'}
+              </p>
+            </div>
           </div>
         )}
 
