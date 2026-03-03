@@ -1,114 +1,54 @@
 
-## Phase 1: Architecture Refactor — STATUS: ✅ COMPLETE
 
-### Completed Items
+# Add Mood Tracker Dashboard to My Dashboard Page
 
-1. **Database Migration** ✅ — Added unique constraints for idempotency guards on `mood_entries` and `points_transactions`
-2. **Service Layer** ✅ — Created 8 services: `gamificationService`, `checkinService`, `inviteService`, `aiService`, `tenantService`, `accountService`, `moodTaggingService`, `scheduleService`
-3. **Hook Layer** ✅ — Created 11 thin wrapper hooks: `useCheckinSubmit`, `useTodayEntry`, `useAcceptInvite`, `useDeleteAccount`, `usePromptRewrite`, `useQuestionRewrite`, `useMoodTagging`, `useScheduleData`, `useScheduleActions`, `useTenantIdQuery`
-4. **Refactored useGamification** ✅ — Delegates to `gamificationService`
-5. **Unified Analytics** ✅ — `analyticsQueries.ts` now uses `gamificationService.computeStreak()` and `calculatePoints()`
-6. **Refactored 9 P1 Offender Files** ✅ — Removed direct Supabase calls from `DailyCheckin`, `InlineDailyCheckin`, `MoodStep`, `AIQuestionGenerator`, `MoodPathwaySettings`, `AcceptInvite`, `ScheduleManagement`, `DeleteAccountDialog`, `QuestionCard`
-7. **MoodStep tenantId prop threading** ✅ — Accepts `tenantId` via props, no internal fetch
+## What Changes
+Integrate the rich mood analytics content currently on `/mental-toolkit/mood-tracker` (KPI cards, 14-day trend chart with org average, mood distribution donut, weekly activity heatmap, survey stats) into the **My Dashboard** page (`EmployeeHome`), replacing the simpler mood history chart and burnout indicator currently there.
 
-### Deferred Items
+## Approach
 
-- **~~70 Hook Shim Deletion~~**: ✅ Already cleaned up — no barrel re-export files remain in `src/hooks/` root.
+### 1. Extract reusable dashboard sections from MoodTrackerPage
 
----
+Create a new component `src/components/dashboard/PersonalMoodDashboard.tsx` that contains the visual sections from `MoodTrackerPage`:
+- **4 KPI cards** (Streak, 7-Day Avg with burnout zone badge, Monthly check-ins, Today's mood)
+- **14-day Mood Trend Chart** (area chart with org average reference line)
+- **Two-column row**: Mood Distribution donut + Weekly Activity heatmap
+- **Survey Stats** section
+- **Quick links** row (Thought Reframer, Breathing, Mood Tracker full page)
 
-## Phase 2: Feature Modularization — STATUS: ✅ COMPLETE
+This component will accept the data from the `usePersonalMoodDashboard` hook and render it, keeping it reusable.
 
-1. **ai-governance → src/features/** ✅ — Components, hooks, types consolidated with barrel export
-2. **ai-generator → src/features/** ✅ — All 12 components moved from `src/components/ai-generator/` to `src/features/ai-generator/components/`, internal imports updated
-3. **Dead file cleanup** ✅ — Removed orphan compatibility shims and empty type directories
-4. **as any reduction** ✅ — Eliminated ~80 casts in governance, admin, and hook layers
+### 2. Update EmployeeHome to use the new component
 
----
+Replace the existing sections in `EmployeeHome.tsx`:
+- **Remove**: The simple 3-stat cards (This Month, Avg Mood, Streak), the basic 14-day area chart, and the burnout progress bar
+- **Keep**: Greeting header, gamification badges, inline daily check-in, pending surveys card, quick actions (Crisis Support, First Aider)
+- **Add**: The new `PersonalMoodDashboard` component after the check-in/survey sections, using `usePersonalMoodDashboard` hook (which already powers the mood tracker page)
 
-## Make the App Fully Mobile-Responsive as a PWA
+### 3. Layout order on My Dashboard
 
-### Overview
-The app has good PWA infrastructure (service worker, manifest, install banner, caching) but several UI areas are not optimized for mobile touch interaction. This plan addresses the key gaps to make the app feel native on phones.
+```text
+1. Greeting + Gamification badges
+2. Inline Daily Check-in (if not done) / Check-in done card
+3. Pending Surveys card (if any)
+4. KPI Cards row (Streak, 7d Avg, Monthly, Today)
+5. 14-day Mood Trend Chart (with org avg line)
+6. Distribution Donut + Weekly Activity Heatmap (side by side)
+7. Survey Stats
+8. Quick Actions (Crisis Support, First Aider)
+9. Links to full Mood Tracker, Thought Reframer, Breathing
+```
 
-### 1. Mobile Bottom Navigation Bar
+## Technical Details
 
-Create a persistent bottom navigation bar for mobile users (visible below `md` breakpoint) with quick-access icons for the most-used sections: Dashboard, Wellness, Support, Profile, and More (opens sidebar).
+- **Hook reuse**: `usePersonalMoodDashboard` already aggregates all the data needed (streak, burnout zone, distribution, day activity, survey stats, org averages). It will be called in `EmployeeHome` instead of the current `useMoodHistory` + `useGamification` combo.
+- **No data duplication**: The existing `useMoodHistory` and `useGamification` hooks will still be used for the inline check-in component; the dashboard sections use `usePersonalMoodDashboard`.
+- **RTL safe**: All layout uses logical properties (`ms-`, `me-`, `ps-`, `pe-`) and existing glass-card/glass-stat patterns.
+- **No breaking changes**: The `/mental-toolkit/mood-tracker` page remains available as the full dedicated view.
 
-**New file: `src/components/layout/MobileBottomNav.tsx`**
+### Files to create
+- `src/components/dashboard/PersonalMoodDashboard.tsx` -- extracted dashboard widget
 
-- Fixed to the bottom of the viewport with `safe-area-inset-bottom` padding
-- Glass styling consistent with the header
-- Active state indicator matching `glass-active`
-- Hidden on desktop (`md:hidden`)
-- Uses logical properties for RTL
+### Files to modify
+- `src/pages/EmployeeHome.tsx` -- integrate new component, remove redundant sections
 
-**Mount in `MainLayout.tsx`** after the `</main>` tag.
-
-### 2. Mobile Card View for Data Tables
-
-The `UserTable` (and similar admin tables) renders a full `<table>` which is unusable on small screens. Create a responsive wrapper pattern.
-
-**New file: `src/components/ui/responsive-table.tsx`**
-
-A wrapper component that:
-- On desktop (`md+`): renders children (the table) as-is
-- On mobile (`<md`): renders each row as a stacked card with key-value pairs
-
-**Update `src/components/users/UserTable.tsx`**:
-- On mobile: render user cards (avatar, name, email, status badge, role badges, action menu) in a vertical stack
-- On desktop: keep the existing table layout
-- Use `useIsMobile()` hook to switch between views
-
-### 3. Touch-Friendly Sizing & Spacing
-
-**Update `src/index.css`** with mobile-specific utilities:
-
-- Add a `.touch-target` utility class ensuring minimum 44x44px tap targets (Apple HIG)
-- Increase padding on interactive elements at small breakpoints
-- Add `overscroll-behavior: contain` on the main scroll area to prevent pull-to-refresh interference in standalone PWA mode
-
-### 4. PWA Standalone Mode Enhancements
-
-**Update `src/index.css`**:
-- Add `@media (display-mode: standalone)` styles to hide browser-specific UI hints
-- Ensure the bottom nav accounts for the home indicator on notched devices
-- Add smooth momentum scrolling (`-webkit-overflow-scrolling: touch`)
-
-**Update `src/components/layout/MainLayout.tsx`**:
-- Add `pb-16 md:pb-0` to the main content area to prevent the bottom nav from covering content on mobile
-- Add `overscroll-behavior-y: contain` on the root layout div
-
-### 5. Header Adjustments for Mobile
-
-**Update `src/components/layout/Header.tsx`**:
-- On mobile, hide the breadcrumb (already done with `hidden md:flex`)
-- Ensure all header action buttons meet 44px touch targets
-- Add the page title as a simple text element on mobile (replacing the breadcrumb)
-
-### 6. Auth Page Mobile Polish
-
-**Update `src/pages/Auth.tsx`**:
-- Add safe-area padding for standalone PWA mode
-- Ensure the form fills the viewport nicely on small screens
-- Make the card full-width on mobile with minimal horizontal padding
-
-### Files to Create/Modify
-
-| File | Action |
-|------|--------|
-| `src/components/layout/MobileBottomNav.tsx` | **Create** -- bottom navigation bar |
-| `src/components/ui/responsive-table.tsx` | **Create** -- mobile card / desktop table wrapper |
-| `src/components/users/UserTable.tsx` | **Modify** -- add mobile card view |
-| `src/components/layout/MainLayout.tsx` | **Modify** -- mount bottom nav, add bottom padding |
-| `src/components/layout/Header.tsx` | **Modify** -- mobile page title, touch targets |
-| `src/index.css` | **Modify** -- PWA standalone styles, touch utilities |
-| `src/pages/Auth.tsx` | **Modify** -- mobile safe-area polish |
-
-### Technical Notes
-
-- All components use logical properties (`ms-`, `me-`, `ps-`, `pe-`, `text-start`, `text-end`) -- no `ml-`/`mr-`
-- `useIsMobile()` hook (already exists at 768px breakpoint) is used for conditional rendering
-- The bottom nav uses `env(safe-area-inset-bottom)` for notched devices in standalone PWA mode
-- No database changes required
-- The responsive table pattern can be reused across all admin tables in future iterations
