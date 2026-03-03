@@ -73,7 +73,7 @@ export function useActions(initiativeId?: string) {
       if (initiativeId) query = query.eq('initiative_id', initiativeId);
       const { data, error } = await query;
       if (error) throw error;
-      return (data as ObjAction[]).map(d => ({ ...d, comments: d.comments ?? [] }));
+      return (data ?? []).map(d => ({ ...d, comments: (d.comments as unknown as TaskComment[]) ?? [] })) as ObjAction[];
     },
     enabled: !!tenantId,
   });
@@ -161,8 +161,8 @@ export function useActions(initiativeId?: string) {
       const { data: current, error: fetchErr } = await supabase
         .from('objective_actions').select('comments').eq('id', id).single();
       if (fetchErr) throw fetchErr;
-      const comments = [...((current?.comments as TaskComment[] | null) ?? []), comment];
-      const { error } = await supabase.from('objective_actions').update({ comments }).eq('id', id);
+      const comments = [...((current?.comments as unknown as TaskComment[]) ?? []), comment];
+      const { error } = await supabase.from('objective_actions').update({ comments: comments as unknown as Record<string, unknown>[] }).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
