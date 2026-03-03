@@ -228,7 +228,7 @@ export default function IslamicCalendar() {
                       {(event || hasHoliday) && (
                         <Star className="h-3 w-3 text-chart-4 fill-chart-4" />
                       )}
-                      {(white || sunnah || event?.isFastingDay) && (
+                      {(white || sunnah || event?.isFastingDay || day.hijri.month.number === 9) && (
                         <UtensilsCrossed className="h-3 w-3 text-chart-2" />
                       )}
                     </div>
@@ -305,7 +305,9 @@ export default function IslamicCalendar() {
               const dayName = isRTL ? WEEKDAYS_AR[dayOfWeek] : WEEKDAYS_EN[dayOfWeek];
 
               let reason = '';
-              if (day.event?.isFastingDay) {
+              if (day.isRamadan) {
+                reason = isRTL ? 'صيام رمضان (فرض)' : 'Ramadan Fasting (Obligatory)';
+              } else if (day.event?.isFastingDay) {
                 reason = isRTL ? day.event.ar : day.event.en;
               } else if (day.isWhiteDay) {
                 reason = isRTL ? 'أيام البيض (13-14-15)' : 'White Days (13th-15th)';
