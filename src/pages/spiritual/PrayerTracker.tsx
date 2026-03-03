@@ -36,6 +36,9 @@ export default function PrayerTracker() {
   }, []);
 
   const { logs, todayLogs, logPrayer, isPending: logsLoading } = usePrayerLogs({ from: weekAgo, to: today });
+  const { todayCompleted, togglePractice, isPending: sunnahLoading } = useSunnahLogs();
+
+  const voluntaryPractices = SUNNAH_PRACTICES.filter(p => p.key === 'duha' || p.key === 'rawatib');
 
   // Weekly stats
   const weeklyStats = useMemo(() => {
@@ -122,6 +125,48 @@ export default function PrayerTracker() {
               />
             ))}
           </div>
+
+          {/* Voluntary Prayers */}
+          <Card className="glass-card border-0 rounded-xl">
+            <CardHeader>
+              <CardTitle className="text-lg">{t('spiritual.prayer.voluntaryTitle')}</CardTitle>
+              <CardDescription>{t('spiritual.prayer.voluntarySubtitle')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3">
+                {voluntaryPractices.map(practice => {
+                  const done = todayCompleted.has(practice.key);
+                  return (
+                    <button
+                      key={practice.key}
+                      onClick={() => togglePractice.mutate({ practice_type: practice.key, completed: !done })}
+                      disabled={togglePractice.isPending}
+                      className={cn(
+                        'relative flex flex-col items-center justify-center gap-2 rounded-xl border-2 p-5 transition-all duration-200',
+                        'hover:scale-[1.02] active:scale-[0.98]',
+                        done
+                          ? 'border-primary bg-primary/10 shadow-sm'
+                          : 'border-border bg-card hover:border-primary/40'
+                      )}
+                    >
+                      {done && (
+                        <div className="absolute top-2 end-2">
+                          <Check className="h-4 w-4 text-primary" />
+                        </div>
+                      )}
+                      <span className="text-3xl">{practice.emoji}</span>
+                      <span className={cn(
+                        'text-sm font-medium text-center',
+                        done ? 'text-primary' : 'text-muted-foreground'
+                      )}>
+                        {i18n.language === 'ar' ? practice.labelAr : practice.labelEn}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Weekly summary */}
           <Card className="glass-card border-0 rounded-xl">
