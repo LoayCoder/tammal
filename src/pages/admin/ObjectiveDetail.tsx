@@ -232,16 +232,18 @@ export default function ObjectiveDetail() {
                               <TableCell><Badge variant="outline" className={statusColors[act.status] || ''}>{t(`workload.status.${act.status}`)}</Badge></TableCell>
                               <TableCell>
                                 <div className="flex gap-1">
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button variant="ghost" size="icon" className="h-7 w-7"
-                                        onClick={() => act.is_locked ? unlockAction(act.id) : lockAction({ id: act.id, locked_by: userId })}>
-                                        {act.is_locked ? <Unlock className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>{act.is_locked ? t('workload.lock.unlock') : t('workload.lock.lock')}</TooltipContent>
-                                  </Tooltip>
-                                  {!act.is_locked && (
+                                  {(!act.is_locked || canUnlock) && (
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-7 w-7"
+                                          onClick={() => act.is_locked ? unlockAction(act.id) : lockAction({ id: act.id, locked_by: userId })}>
+                                          {act.is_locked ? <Unlock className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+                                        </Button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>{act.is_locked ? t('workload.lock.unlock') : t('workload.lock.lock')}</TooltipContent>
+                                    </Tooltip>
+                                  )}
+                                  {!act.is_locked && canManage && (
                                     <>
                                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedAction(act); setActionInitId(init.id); setActionDialogOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
                                       <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { setActionToDelete(act.id); setDeleteActionDialog(true); }}><Trash2 className="h-3.5 w-3.5" /></Button>
