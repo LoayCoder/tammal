@@ -4896,6 +4896,7 @@ export type Database = {
       spiritual_insight_reports: {
         Row: {
           created_at: string
+          deleted_at: string | null
           id: string
           period_end: string
           period_start: string
@@ -4905,6 +4906,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           id?: string
           period_end: string
           period_start: string
@@ -4914,6 +4916,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           id?: string
           period_end?: string
           period_start?: string
