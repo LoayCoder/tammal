@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useFirstAiders, useCrisisCases } from '@/hooks/crisis/useCrisisSupport';
 import { useAuth } from '@/hooks/auth/useAuth';
 import EmployeeBookingWidget from '@/components/crisis/EmployeeBookingWidget';
-import { Phone, MessageSquare, CalendarDays, Star, Languages, Loader2, HeartHandshake } from 'lucide-react';
+import { Phone, MessageSquare, CalendarDays, Languages, Loader2, HeartHandshake } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
