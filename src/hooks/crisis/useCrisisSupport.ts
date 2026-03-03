@@ -100,7 +100,7 @@ function computeFirstAiderStatus(schedule: FirstAiderSchedule | null): { statusL
   if (schedule.temp_unavailable) return { statusLabel: 'temporarily_unavailable', isAvailable: false };
 
   const now = new Date();
-  const dayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
+  const dayName = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][now.getDay()];
   const rules = schedule.weekly_rules?.[dayName] || [];
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
