@@ -115,15 +115,18 @@ export default function ObjectiveDetail() {
             {objective.description && <p className="text-muted-foreground mt-1">{objective.description}</p>}
           </div>
           <div className="flex items-center gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="outline" size="icon" className="h-8 w-8"
-                  onClick={() => objective.is_locked ? unlockObjective(objective.id) : lockObjective({ id: objective.id, locked_by: userId })}>
-                  {objective.is_locked ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{objective.is_locked ? t('workload.lock.unlock') : t('workload.lock.lock')}</TooltipContent>
-            </Tooltip>
+            {/* Lock: representatives + managers; Unlock: only managers/admins */}
+            {(!objective.is_locked || canUnlock) && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-8 w-8"
+                    onClick={() => objective.is_locked ? unlockObjective(objective.id) : lockObjective({ id: objective.id, locked_by: userId })}>
+                    {objective.is_locked ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{objective.is_locked ? t('workload.lock.unlock') : t('workload.lock.lock')}</TooltipContent>
+              </Tooltip>
+            )}
             <div className="text-end">
               <span className="text-3xl font-bold">{Number(objective.progress).toFixed(0)}%</span>
               <Progress value={Number(objective.progress)} className="w-32 h-2 mt-1" />
@@ -136,7 +139,7 @@ export default function ObjectiveDetail() {
       {/* Initiatives Section */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold flex items-center gap-2"><Rocket className="h-5 w-5 text-primary" />{t('workload.initiatives.sectionTitle')}</h2>
-        {!objective.is_locked && (
+        {!objective.is_locked && canManage && (
           <Button onClick={() => { setSelectedInit(null); setInitDialogOpen(true); }}><Plus className="me-2 h-4 w-4" />{t('workload.initiatives.add')}</Button>
         )}
       </div>
