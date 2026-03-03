@@ -5046,6 +5046,33 @@ export type Database = {
         }
         Relationships: []
       }
+      spiritual_sunnah_logs: {
+        Row: {
+          completed: boolean
+          created_at: string
+          id: string
+          log_date: string
+          practice_type: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          log_date?: string
+          practice_type: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          log_date?: string
+          practice_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       strategic_objectives: {
         Row: {
           created_at: string
