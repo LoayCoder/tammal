@@ -5,8 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { RiskBadge } from './RiskBadge';
-import type { GovernanceSummaryRow } from '@/hooks/ai-governance/useGovernanceSummary';
-import type { CostDailyRow } from '@/hooks/ai-governance/useCostBreakdown';
+import type { GovernanceSummaryRow } from '@/features/ai-governance/hooks/useGovernanceSummary';
+import type { CostDailyRow } from '@/features/ai-governance/hooks/useCostBreakdown';
 
 interface Props {
   summary: GovernanceSummaryRow[];

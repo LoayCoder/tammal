@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
-import { useGovernanceAuditLog } from '@/hooks/ai-governance/useGovernanceActions';
+import { useGovernanceAuditLog } from '@/features/ai-governance/hooks/useGovernanceActions';
 
 export function GovernanceAuditLog() {
   const { t } = useTranslation();

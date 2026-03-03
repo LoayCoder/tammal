@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
-import type { RoutingLogEntry } from '@/hooks/ai-governance/useRoutingLogs';
+import type { RoutingLogEntry } from '@/features/ai-governance/hooks/useRoutingLogs';
 
 interface Props {
   logs: RoutingLogEntry[];

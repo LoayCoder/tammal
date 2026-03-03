@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
-import type { RoutingLogEntry } from '@/hooks/ai-governance/useRoutingLogs';
+import type { RoutingLogEntry } from '@/features/ai-governance/hooks/useRoutingLogs';
 
 interface Props {
   logs: RoutingLogEntry[];

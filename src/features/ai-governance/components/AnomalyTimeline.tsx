@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle } from 'lucide-react';
-import { useAutonomousAuditLog } from '@/hooks/ai-governance/useAutonomousState';
+import { useAutonomousAuditLog } from '@/features/ai-governance/hooks/useAutonomousState';
 
 export function AnomalyTimeline() {
   const { t } = useTranslation();

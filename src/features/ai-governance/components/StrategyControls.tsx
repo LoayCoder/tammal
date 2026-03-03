@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from 'react-i18next';
-import { useSwitchStrategy, useResetPosterior, useRefreshSummary } from '@/hooks/ai-governance/useGovernanceActions';
+import { useSwitchStrategy, useResetPosterior, useRefreshSummary } from '@/features/ai-governance/hooks/useGovernanceActions';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
