@@ -45,7 +45,7 @@ export function useDashboardStats() {
       const monthlyRevenue = subscriptions
         ?.filter(s => s.status === 'active')
         .reduce((sum, sub) => {
-          const price = (sub.plan as any)?.price ?? 0;
+          const price = (sub.plan as { price?: number })?.price ?? 0;
           return sum + Number(price);
         }, 0) ?? 0;
 

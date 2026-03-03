@@ -104,11 +104,11 @@ export function UserEditDialog({
     if (user) {
       form.reset({
         full_name: user.full_name || '',
-        phone: (user as any).phone || '',
-        job_title: (user as any).job_title || '',
-        department: (user as any).department || '',
-        location: (user as any).location || '',
-        status: (user as any).status || 'active',
+        phone: user.phone || '',
+        job_title: user.job_title || '',
+        department: user.department || '',
+        location: user.location || '',
+        status: user.status || 'active',
       });
       setAvatarUrl(user.avatar_url);
     }

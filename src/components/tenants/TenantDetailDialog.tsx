@@ -40,19 +40,17 @@ export function TenantDetailDialog({
 
   if (!tenant) return null;
 
-  const tenantData = tenant as any;
-
   const trialData = {
-    subscription_status: tenantData.subscription_status || 'inactive',
-    trial_start_date: tenantData.trial_start_date || null,
-    trial_end_date: tenantData.trial_end_date || null,
+    subscription_status: tenant.subscription_status || 'inactive',
+    trial_start_date: tenant.trial_start_date || null,
+    trial_end_date: tenant.trial_end_date || null,
   };
 
   const securitySettings: SecuritySettings = {
-    mfa_trust_duration_days: tenantData.mfa_trust_duration_days ?? DEFAULT_SECURITY_SETTINGS.mfa_trust_duration_days,
-    session_timeout_minutes: tenantData.session_timeout_minutes ?? DEFAULT_SECURITY_SETTINGS.session_timeout_minutes,
-    max_concurrent_sessions: tenantData.max_concurrent_sessions ?? DEFAULT_SECURITY_SETTINGS.max_concurrent_sessions,
-    glass_break_active: tenantData.glass_break_active ?? DEFAULT_SECURITY_SETTINGS.glass_break_active,
+    mfa_trust_duration_days: tenant.mfa_trust_duration_days ?? DEFAULT_SECURITY_SETTINGS.mfa_trust_duration_days,
+    session_timeout_minutes: tenant.session_timeout_minutes ?? DEFAULT_SECURITY_SETTINGS.session_timeout_minutes,
+    max_concurrent_sessions: tenant.max_concurrent_sessions ?? DEFAULT_SECURITY_SETTINGS.max_concurrent_sessions,
+    glass_break_active: tenant.glass_break_active ?? DEFAULT_SECURITY_SETTINGS.glass_break_active,
   };
 
   const handleStartTrial = (days: number) => {

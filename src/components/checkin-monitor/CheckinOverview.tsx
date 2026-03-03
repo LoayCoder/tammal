@@ -56,7 +56,7 @@ export function CheckinOverview({ stats, isLoading }: Props) {
             </div>
             <div className="flex items-center gap-1">
               <span className="text-2xl font-bold">{value}</span>
-              {(suffix as any) ?? null}
+              {suffix ?? null}
             </div>
             <span className="text-xs text-muted-foreground">{label}</span>
           </CardContent>
