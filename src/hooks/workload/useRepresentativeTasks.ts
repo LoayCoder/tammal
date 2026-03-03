@@ -15,14 +15,31 @@ export interface RepresentativeAssignment {
 }
 
 export interface DistributeTaskPayload {
+  employee_id: string;
   title: string;
   title_ar?: string;
   description?: string;
   due_date?: string;
   priority?: number;
   estimated_minutes?: number;
-  scope_type: string;
-  scope_id: string;
+}
+
+export interface BulkTaskPayload {
+  employee_id: string;
+  title: string;
+  title_ar?: string;
+  description?: string;
+  due_date?: string;
+  priority?: number;
+  estimated_minutes?: number;
+}
+
+export interface ScopeEmployee {
+  id: string;
+  full_name: string;
+  email: string;
+  department_id: string | null;
+  section_id: string | null;
 }
 
 export function useRepresentativeTasks() {
@@ -63,7 +80,34 @@ export function useRepresentativeTasks() {
     enabled: !!user?.id && !!tenantId,
   });
 
-  // Distribute task via edge function
+  // Fetch employees filtered by department/section for the cascading picker
+  const useEmployeesByScope = (departmentId?: string, sectionId?: string) => {
+    return useQuery({
+      queryKey: ['scope-employees', tenantId, departmentId, sectionId],
+      queryFn: async () => {
+        let query = supabase
+          .from('employees')
+          .select('id, full_name, email, department_id, section_id')
+          .eq('tenant_id', tenantId!)
+          .eq('status', 'active')
+          .is('deleted_at', null)
+          .order('full_name', { ascending: true });
+
+        if (sectionId) {
+          query = query.eq('section_id', sectionId);
+        } else if (departmentId) {
+          query = query.eq('department_id', departmentId);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+        return data as ScopeEmployee[];
+      },
+      enabled: !!tenantId && !!(departmentId || sectionId),
+    });
+  };
+
+  // Single task distribution
   const distributeMutation = useMutation({
     mutationFn: async (payload: DistributeTaskPayload) => {
       const { data, error } = await supabase.functions.invoke('distribute-representative-task', {
@@ -81,6 +125,61 @@ export function useRepresentativeTasks() {
     onError: (err: Error) => toast.error(err.message || t('representative.distributeError')),
   });
 
+  // Bulk task distribution
+  const bulkDistributeMutation = useMutation({
+    mutationFn: async (tasks: BulkTaskPayload[]) => {
+      const { data, error } = await supabase.functions.invoke('distribute-representative-task', {
+        body: { tenant_id: tenantId, mode: 'bulk', tasks },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data as { distributed: number; batch_id: string; errors?: Array<{ row: number; error: string }> };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['representative-tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['unified-tasks'] });
+      toast.success(t('representative.distributeSuccess', { count: data.distributed }));
+      if (data.errors && data.errors.length > 0) {
+        toast.warning(t('representative.bulkPartialErrors', { count: data.errors.length }));
+      }
+    },
+    onError: (err: Error) => toast.error(err.message || t('representative.distributeError')),
+  });
+
+  // Fetch batch detail (tasks + employee names) for completion matrix
+  const useBatchDetail = (batchId: string | null) => {
+    return useQuery({
+      queryKey: ['representative-batch-detail', batchId],
+      queryFn: async () => {
+        const { data, error } = await supabase
+          .from('unified_tasks')
+          .select('id, employee_id, title, status, updated_at, due_date')
+          .eq('source_id', batchId!)
+          .eq('source_type', 'representative_assigned')
+          .is('deleted_at', null)
+          .order('updated_at', { ascending: false });
+        if (error) throw error;
+
+        // Get employee names
+        const empIds = [...new Set((data ?? []).map(t => t.employee_id))];
+        let empMap: Record<string, string> = {};
+        if (empIds.length > 0) {
+          const { data: emps } = await supabase
+            .from('employees')
+            .select('id, full_name')
+            .in('id', empIds);
+          empMap = Object.fromEntries((emps ?? []).map(e => [e.id, e.full_name]));
+        }
+
+        return (data ?? []).map(t => ({
+          ...t,
+          employee_name: empMap[t.employee_id] ?? t.employee_id,
+        }));
+      },
+      enabled: !!batchId,
+    });
+  };
+
   return {
     assignments: assignmentsQuery.data ?? [],
     isLoadingAssignments: assignmentsQuery.isPending,
@@ -88,6 +187,10 @@ export function useRepresentativeTasks() {
     isLoadingTasks: tasksQuery.isPending,
     distributeTask: distributeMutation.mutateAsync,
     isDistributing: distributeMutation.isPending,
+    bulkDistribute: bulkDistributeMutation.mutateAsync,
+    isBulkDistributing: bulkDistributeMutation.isPending,
     isRepresentative: (assignmentsQuery.data ?? []).length > 0,
+    useEmployeesByScope,
+    useBatchDetail,
   };
 }

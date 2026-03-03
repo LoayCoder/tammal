@@ -32,86 +32,157 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { tenant_id, title, title_ar, description, due_date, priority, estimated_minutes, scope_type, scope_id } = body;
+    const { tenant_id, mode } = body;
 
-    if (!tenant_id || !title || !scope_type || !scope_id) {
-      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+    if (!tenant_id) {
+      return new Response(JSON.stringify({ error: 'Missing tenant_id' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Verify the caller has a representative assignment for this scope
-    const { data: assignment, error: assignErr } = await supabase
+    // Get all representative assignments for this user
+    const { data: assignments, error: assignErr } = await supabase
       .from('representative_assignments')
-      .select('id')
+      .select('*')
       .eq('user_id', user.id)
       .eq('tenant_id', tenant_id)
-      .eq('scope_type', scope_type)
-      .eq('scope_id', scope_id)
-      .is('deleted_at', null)
-      .maybeSingle();
+      .is('deleted_at', null);
 
-    if (assignErr || !assignment) {
-      return new Response(JSON.stringify({ error: 'No representative assignment for this scope' }), {
+    if (assignErr) {
+      return new Response(JSON.stringify({ error: 'Failed to fetch assignments' }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!assignments || assignments.length === 0) {
+      return new Response(JSON.stringify({ error: 'No representative assignments found' }), {
         status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Resolve employees based on scope
-    let employeeIds: string[] = [];
+    // Helper: check if an employee is within the representative's scope
+    async function isEmployeeInScope(employeeId: string): Promise<boolean> {
+      const { data: emp } = await supabase
+        .from('employees')
+        .select('id, department_id, section_id')
+        .eq('id', employeeId)
+        .eq('tenant_id', tenant_id)
+        .eq('status', 'active')
+        .is('deleted_at', null)
+        .maybeSingle();
 
-    if (scope_type === 'division') {
-      // Get all departments under this division, then all employees in those departments
-      const { data: depts } = await supabase
-        .from('departments')
-        .select('id')
-        .eq('division_id', scope_id)
-        .is('deleted_at', null);
+      if (!emp) return false;
 
-      const deptIds = (depts ?? []).map((d: { id: string }) => d.id);
-      if (deptIds.length > 0) {
-        const { data: emps } = await supabase
-          .from('employees')
-          .select('id')
-          .in('department_id', deptIds)
-          .is('deleted_at', null)
-          .eq('status', 'active')
-          .eq('tenant_id', tenant_id);
-        employeeIds = (emps ?? []).map((e: { id: string }) => e.id);
+      for (const a of assignments!) {
+        if (a.scope_type === 'section' && emp.section_id === a.scope_id) return true;
+        if (a.scope_type === 'department' && emp.department_id === a.scope_id) return true;
+        if (a.scope_type === 'division') {
+          // Check if employee's department belongs to this division
+          if (emp.department_id) {
+            const { data: dept } = await supabase
+              .from('departments')
+              .select('division_id')
+              .eq('id', emp.department_id)
+              .maybeSingle();
+            if (dept?.division_id === a.scope_id) return true;
+          }
+        }
       }
-    } else if (scope_type === 'department') {
-      const { data: emps } = await supabase
-        .from('employees')
-        .select('id')
-        .eq('department_id', scope_id)
-        .is('deleted_at', null)
-        .eq('status', 'active')
-        .eq('tenant_id', tenant_id);
-      employeeIds = (emps ?? []).map((e: { id: string }) => e.id);
-    } else if (scope_type === 'section') {
-      const { data: emps } = await supabase
-        .from('employees')
-        .select('id')
-        .eq('section_id', scope_id)
-        .is('deleted_at', null)
-        .eq('status', 'active')
-        .eq('tenant_id', tenant_id);
-      employeeIds = (emps ?? []).map((e: { id: string }) => e.id);
+      return false;
     }
 
-    if (employeeIds.length === 0) {
-      return new Response(JSON.stringify({ error: 'No employees found in this scope', distributed: 0 }), {
+    // BULK MODE: array of tasks
+    if (mode === 'bulk' && Array.isArray(body.tasks)) {
+      const tasks = body.tasks as Array<{
+        employee_id: string;
+        title: string;
+        title_ar?: string;
+        description?: string;
+        due_date?: string;
+        priority?: number;
+        estimated_minutes?: number;
+      }>;
+
+      if (tasks.length === 0) {
+        return new Response(JSON.stringify({ error: 'No tasks provided', distributed: 0 }), {
+          status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Validate all employees
+      const validatedTasks = [];
+      const errors = [];
+      for (let i = 0; i < tasks.length; i++) {
+        const t = tasks[i];
+        if (!t.employee_id || !t.title) {
+          errors.push({ row: i, error: 'Missing employee_id or title' });
+          continue;
+        }
+        const inScope = await isEmployeeInScope(t.employee_id);
+        if (!inScope) {
+          errors.push({ row: i, error: 'Employee not in representative scope' });
+          continue;
+        }
+        validatedTasks.push(t);
+      }
+
+      if (validatedTasks.length === 0) {
+        return new Response(JSON.stringify({ error: 'No valid tasks', errors, distributed: 0 }), {
+          status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const batchId = crypto.randomUUID();
+      const rows = validatedTasks.map((t) => ({
+        tenant_id,
+        employee_id: t.employee_id,
+        title: t.title,
+        title_ar: t.title_ar ?? null,
+        description: t.description ?? null,
+        due_date: t.due_date ?? null,
+        priority: t.priority ?? 3,
+        estimated_minutes: t.estimated_minutes ?? null,
+        source_type: 'representative_assigned',
+        source_id: batchId,
+        is_locked: true,
+        locked_by: user.id,
+        locked_at: new Date().toISOString(),
+        created_by: user.id,
+        status: 'todo',
+      }));
+
+      const { error: insertErr } = await supabase.from('unified_tasks').insert(rows);
+      if (insertErr) {
+        return new Response(JSON.stringify({ error: insertErr.message }), {
+          status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      return new Response(JSON.stringify({ distributed: validatedTasks.length, batch_id: batchId, errors }), {
         status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Generate a batch ID so we can track this distribution
-    const batchId = crypto.randomUUID();
+    // SINGLE MODE: one employee_id
+    const { employee_id, title, title_ar, description, due_date, priority, estimated_minutes } = body;
 
-    // Bulk-insert locked tasks for each employee
-    const tasks = employeeIds.map((empId) => ({
+    if (!employee_id || !title) {
+      return new Response(JSON.stringify({ error: 'Missing required fields (employee_id, title)' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const inScope = await isEmployeeInScope(employee_id);
+    if (!inScope) {
+      return new Response(JSON.stringify({ error: 'Employee is not within your representative scope' }), {
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const batchId = crypto.randomUUID();
+    const { error: insertErr } = await supabase.from('unified_tasks').insert({
       tenant_id,
-      employee_id: empId,
+      employee_id,
       title,
       title_ar: title_ar ?? null,
       description: description ?? null,
@@ -125,17 +196,15 @@ Deno.serve(async (req) => {
       locked_at: new Date().toISOString(),
       created_by: user.id,
       status: 'todo',
-    }));
+    });
 
-    const { error: insertErr } = await supabase.from('unified_tasks').insert(tasks);
     if (insertErr) {
-      console.error('Insert error:', insertErr);
       return new Response(JSON.stringify({ error: insertErr.message }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify({ distributed: employeeIds.length, batch_id: batchId }), {
+    return new Response(JSON.stringify({ distributed: 1, batch_id: batchId }), {
       status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {

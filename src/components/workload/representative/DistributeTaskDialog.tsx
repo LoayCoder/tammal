@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -7,8 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useOrgTree } from '@/hooks/org/useOrgTree';
-import { Loader2, Users } from 'lucide-react';
+import { Loader2, User } from 'lucide-react';
 import type { RepresentativeAssignment, DistributeTaskPayload } from '@/hooks/workload/useRepresentativeTasks';
+import { useRepresentativeTasks } from '@/hooks/workload/useRepresentativeTasks';
 
 interface DistributeTaskDialogProps {
   open: boolean;
@@ -20,9 +21,16 @@ interface DistributeTaskDialogProps {
 
 export function DistributeTaskDialog({ open, onOpenChange, assignments, onSubmit, isSubmitting }: DistributeTaskDialogProps) {
   const { t } = useTranslation();
-  const { divisions, departments, sites } = useOrgTree();
+  const { divisions, getDepartmentsByDivision, getSitesByDepartment } = useOrgTree();
+  const { useEmployeesByScope } = useRepresentativeTasks();
 
-  const [selectedAssignment, setSelectedAssignment] = useState<string>('');
+  // Cascading selection state
+  const [selectedDivisionId, setSelectedDivisionId] = useState('');
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState('');
+  const [selectedSectionId, setSelectedSectionId] = useState('');
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
+
+  // Task fields
   const [title, setTitle] = useState('');
   const [titleAr, setTitleAr] = useState('');
   const [description, setDescription] = useState('');
@@ -30,33 +38,58 @@ export function DistributeTaskDialog({ open, onOpenChange, assignments, onSubmit
   const [priority, setPriority] = useState('3');
   const [estimatedMinutes, setEstimatedMinutes] = useState('');
 
-  const assignment = assignments.find(a => a.id === selectedAssignment);
+  // Get unique division IDs from assignments
+  const availableDivisions = useMemo(() => {
+    const divisionAssignments = assignments.filter(a => a.scope_type === 'division');
+    return divisionAssignments
+      .map(a => divisions.find(d => d.id === a.scope_id))
+      .filter(Boolean) as typeof divisions;
+  }, [assignments, divisions]);
 
-  const scopeLabel = useMemo(() => {
-    if (!assignment) return '';
-    if (assignment.scope_type === 'division') {
-      return divisions.find(d => d.id === assignment.scope_id)?.name ?? assignment.scope_id;
-    }
-    if (assignment.scope_type === 'department') {
-      return departments.find(d => d.id === assignment.scope_id)?.name ?? assignment.scope_id;
-    }
-    if (assignment.scope_type === 'section') {
-      return sites.find(s => s.id === assignment.scope_id)?.name ?? assignment.scope_id;
-    }
-    return '';
-  }, [assignment, divisions, departments, sites]);
+  // Departments filtered by selected division
+  const filteredDepartments = useMemo(() => {
+    if (!selectedDivisionId) return [];
+    return getDepartmentsByDivision(selectedDivisionId);
+  }, [selectedDivisionId, getDepartmentsByDivision]);
+
+  // Sections filtered by selected department
+  const filteredSections = useMemo(() => {
+    if (!selectedDepartmentId) return [];
+    return getSitesByDepartment(selectedDepartmentId);
+  }, [selectedDepartmentId, getSitesByDepartment]);
+
+  // Employees query
+  const { data: employees = [], isPending: employeesLoading } = useEmployeesByScope(
+    selectedDepartmentId || undefined,
+    selectedSectionId || undefined,
+  );
+
+  // Reset cascading on parent change
+  useEffect(() => {
+    setSelectedDepartmentId('');
+    setSelectedSectionId('');
+    setSelectedEmployeeId('');
+  }, [selectedDivisionId]);
+
+  useEffect(() => {
+    setSelectedSectionId('');
+    setSelectedEmployeeId('');
+  }, [selectedDepartmentId]);
+
+  useEffect(() => {
+    setSelectedEmployeeId('');
+  }, [selectedSectionId]);
 
   const handleSubmit = async () => {
-    if (!assignment || !title.trim()) return;
+    if (!selectedEmployeeId || !title.trim()) return;
     await onSubmit({
+      employee_id: selectedEmployeeId,
       title: title.trim(),
       title_ar: titleAr.trim() || undefined,
       description: description.trim() || undefined,
       due_date: dueDate || undefined,
       priority: parseInt(priority),
       estimated_minutes: estimatedMinutes ? parseInt(estimatedMinutes) : undefined,
-      scope_type: assignment.scope_type,
-      scope_id: assignment.scope_id,
     });
     // Reset
     setTitle('');
@@ -65,43 +98,89 @@ export function DistributeTaskDialog({ open, onOpenChange, assignments, onSubmit
     setDueDate('');
     setPriority('3');
     setEstimatedMinutes('');
-    setSelectedAssignment('');
+    setSelectedDivisionId('');
+    setSelectedDepartmentId('');
+    setSelectedSectionId('');
+    setSelectedEmployeeId('');
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{t('representative.distributeTask')}</DialogTitle>
+          <DialogTitle>{t('representative.assignTask')}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          {/* Scope selector */}
+          {/* Division */}
           <div className="space-y-2">
-            <Label>{t('representative.scope')}</Label>
-            <Select value={selectedAssignment} onValueChange={setSelectedAssignment}>
-              <SelectTrigger><SelectValue placeholder={t('representative.selectScope')} /></SelectTrigger>
+            <Label>{t('representative.scopeTypes.division')}</Label>
+            <Select value={selectedDivisionId} onValueChange={setSelectedDivisionId}>
+              <SelectTrigger><SelectValue placeholder={t('representative.selectDivision')} /></SelectTrigger>
               <SelectContent>
-                {assignments.map(a => {
-                  let label: string = a.scope_type;
-                  if (a.scope_type === 'division') label = divisions.find(d => d.id === a.scope_id)?.name ?? a.scope_id;
-                  else if (a.scope_type === 'department') label = departments.find(d => d.id === a.scope_id)?.name ?? a.scope_id;
-                  else if (a.scope_type === 'section') label = sites.find(s => s.id === a.scope_id)?.name ?? a.scope_id;
-                  return (
-                    <SelectItem key={a.id} value={a.id}>
-                      {t(`representative.scopeTypes.${a.scope_type}` as const)} — {label}
-                    </SelectItem>
-                  );
-                })}
+                {availableDivisions.map(d => (
+                  <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
-            {assignment && (
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <Users className="h-3 w-3" />
-                {t('representative.willDistributeTo', { scope: scopeLabel })}
-              </p>
-            )}
           </div>
+
+          {/* Department */}
+          {selectedDivisionId && (
+            <div className="space-y-2">
+              <Label>{t('representative.scopeTypes.department')}</Label>
+              <Select value={selectedDepartmentId} onValueChange={setSelectedDepartmentId}>
+                <SelectTrigger><SelectValue placeholder={t('representative.selectDepartment')} /></SelectTrigger>
+                <SelectContent>
+                  {filteredDepartments.map(d => (
+                    <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Section (optional) */}
+          {selectedDepartmentId && filteredSections.length > 0 && (
+            <div className="space-y-2">
+              <Label>{t('representative.scopeTypes.section')} ({t('common.none')})</Label>
+              <Select value={selectedSectionId} onValueChange={setSelectedSectionId}>
+                <SelectTrigger><SelectValue placeholder={t('representative.selectSection')} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">{t('common.all')}</SelectItem>
+                  {filteredSections.map(s => (
+                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Employee picker */}
+          {selectedDepartmentId && (
+            <div className="space-y-2">
+              <Label>{t('representative.employee')}</Label>
+              {employeesLoading ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                  <Loader2 className="h-4 w-4 animate-spin" /> {t('common.loading')}
+                </div>
+              ) : (
+                <Select value={selectedEmployeeId} onValueChange={setSelectedEmployeeId}>
+                  <SelectTrigger><SelectValue placeholder={t('representative.selectEmployee')} /></SelectTrigger>
+                  <SelectContent>
+                    {employees.map(e => (
+                      <SelectItem key={e.id} value={e.id}>
+                        <span className="flex items-center gap-2">
+                          <User className="h-3 w-3" />
+                          {e.full_name} — {e.email}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          )}
 
           {/* Title */}
           <div className="space-y-2">
@@ -152,9 +231,9 @@ export function DistributeTaskDialog({ open, onOpenChange, assignments, onSubmit
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>{t('common.cancel')}</Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting || !assignment || !title.trim()}>
+          <Button onClick={handleSubmit} disabled={isSubmitting || !selectedEmployeeId || !title.trim()}>
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin me-2" />}
-            {t('representative.distribute')}
+            {t('representative.assign')}
           </Button>
         </DialogFooter>
       </DialogContent>

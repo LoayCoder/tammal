@@ -11,7 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Search, Users, Shield, UserPlus, Building2, Upload, Download, FolderOpen, Mail } from 'lucide-react';
+import { Plus, Search, Users, Shield, UserPlus, Building2, Upload, Download, FolderOpen, Mail, UserCheck } from 'lucide-react';
+import { RepresentativeTab } from '@/components/users/RepresentativeTab';
 import { useUnifiedUsers } from '@/hooks/org/useUnifiedUsers';
 import { useUsers, type UserWithRoles } from '@/hooks/org/useUsers';
 import { useRoles, type Role, type CreateRoleInput, type UpdateRoleInput } from '@/hooks/auth/useRoles';
@@ -286,6 +287,10 @@ export default function UnifiedUserManagement() {
             <Mail className="h-4 w-4" />
             {t('userManagement.invitationsTab')}
           </TabsTrigger>
+          <TabsTrigger value="representatives" className="flex items-center gap-2 rounded-xl">
+            <UserCheck className="h-4 w-4" />
+            {t('userManagement.representativesTab')}
+          </TabsTrigger>
         </TabsList>
 
         {/* Directory Tab */}
@@ -449,6 +454,11 @@ export default function UnifiedUserManagement() {
         {/* Invitations Tab */}
         <TabsContent value="invitations" className="space-y-4">
           <InvitationManagement tenantId={effectiveTenantId} />
+        </TabsContent>
+
+        {/* Representatives Tab */}
+        <TabsContent value="representatives" className="space-y-4">
+          <RepresentativeTab tenantId={effectiveTenantId} />
         </TabsContent>
       </Tabs>
 
