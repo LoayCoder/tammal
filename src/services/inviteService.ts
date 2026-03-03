@@ -27,30 +27,31 @@ export type VerifyResult =
 export async function verifyInviteCode(code: string): Promise<VerifyResult> {
   const upperCode = code.toUpperCase();
 
-  const { data, error } = await supabase
-    .from('invitations')
-    .select('id, code, email, full_name, tenant_id, employee_id, tenants(name)')
-    .eq('code', upperCode)
-    .is('deleted_at', null)
-    .is('used', false)
-    .gt('expires_at', new Date().toISOString())
-    .single();
+  // Use the security-definer RPC to verify without exposing PII via public SELECT
+  const { data: rpcResult, error: rpcError } = await supabase
+    .rpc('verify_invitation_code', { p_code: upperCode });
 
-  if (error || !data) {
-    // Check if it exists but was already used
-    const { data: usedCheck } = await supabase
-      .from('invitations')
-      .select('used')
-      .eq('code', upperCode)
-      .single();
-
-    if (usedCheck?.used) {
-      return { status: 'used' };
-    }
+  if (rpcError || !rpcResult || rpcResult.length === 0) {
     return { status: 'invalid' };
   }
 
-  return { status: 'valid', invitation: data as unknown as InvitationData };
+  const match = rpcResult[0];
+  if (match.used) {
+    return { status: 'used' };
+  }
+
+  return {
+    status: 'valid',
+    invitation: {
+      id: match.id,
+      code: upperCode,
+      email: match.email ?? '',
+      full_name: match.full_name ?? null,
+      tenant_id: match.tenant_id,
+      employee_id: match.employee_id ?? null,
+      tenants: match.tenant_name ? { name: match.tenant_name } : null,
+    },
+  };
 }
 
 export interface AcceptInviteParams {
