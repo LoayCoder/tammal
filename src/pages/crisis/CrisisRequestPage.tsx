@@ -43,7 +43,13 @@ export default function CrisisRequestPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isFirstAider } = useIsFirstAider();
   const { employee } = useCurrentEmployee();
+
+  // If user is a First Aider, show their dashboard instead
+  if (isFirstAider) {
+    return <FirstAiderDashboard />;
+  }
   const { firstAiders } = useFirstAiders(employee?.tenant_id);
   const { contacts: emergencyContacts } = useEmergencyContacts(employee?.tenant_id);
   const { createCase } = useCrisisCases();
