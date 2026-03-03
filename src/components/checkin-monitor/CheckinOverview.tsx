@@ -1,7 +1,8 @@
+import type { ReactNode } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
-import { Users, UserCheck, UserX, TrendingUp, TrendingDown, SmilePlus, Flame, Percent } from 'lucide-react';
+import { Users, UserCheck, UserX, TrendingUp, TrendingDown, SmilePlus, Flame, Percent, type LucideIcon } from 'lucide-react';
 import type { ParticipationStats } from '@/hooks/analytics/useCheckinMonitor';
 
 interface Props {
@@ -26,7 +27,7 @@ export function CheckinOverview({ stats, isLoading }: Props) {
     ? stats.avgMoodScore - stats.avgMoodScoreYesterday
     : null;
 
-  const cards = [
+  const cards: { label: string; value: string | number; icon: LucideIcon; colorClass: string; suffix?: ReactNode }[] = [
     { label: t('checkinMonitor.stats.totalEmployees'), value: stats.totalEmployees, icon: Users, colorClass: 'text-primary' },
     { label: t('checkinMonitor.stats.checkedIn'), value: stats.checkedInToday, icon: UserCheck, colorClass: 'text-chart-1' },
     { label: t('checkinMonitor.stats.notCheckedIn'), value: stats.notCheckedIn, icon: UserX, colorClass: 'text-muted-foreground' },
@@ -56,7 +57,7 @@ export function CheckinOverview({ stats, isLoading }: Props) {
             </div>
             <div className="flex items-center gap-1">
               <span className="text-2xl font-bold">{value}</span>
-              {(suffix as any) ?? null}
+              {suffix ?? null}
             </div>
             <span className="text-xs text-muted-foreground">{label}</span>
           </CardContent>

@@ -24,7 +24,7 @@ interface UsageStatsCardsProps {
 export function UsageStatsCards({ usage, tenant, plan, isLoading }: UsageStatsCardsProps) {
   const { t } = useTranslation();
 
-  const maxUsers = (tenant?.settings as any)?.max_users ?? plan?.max_users ?? 10;
+  const maxUsers = (tenant?.settings as Record<string, unknown> | null)?.max_users as number ?? plan?.max_users ?? 10;
   const maxStorageMb = (plan?.max_storage_gb ?? 10) * 1024;
 
   const activeUsers = usage?.active_users ?? 0;

@@ -104,11 +104,11 @@ export function UserEditDialog({
     if (user) {
       form.reset({
         full_name: user.full_name || '',
-        phone: (user as any).phone || '',
-        job_title: (user as any).job_title || '',
-        department: (user as any).department || '',
-        location: (user as any).location || '',
-        status: (user as any).status || 'active',
+        phone: user.phone || '',
+        job_title: user.job_title || '',
+        department: user.department || '',
+        location: user.location || '',
+        status: (user.status || 'active') as 'active' | 'inactive' | 'suspended',
       });
       setAvatarUrl(user.avatar_url);
     }
@@ -215,7 +215,7 @@ export function UserEditDialog({
 
   const handlePasswordReset = async () => {
     if (!user || !onPasswordReset) return;
-    const email = (user as any).email || '';
+    const email = user.email || '';
     if (!email) {
       toast.error(t('users.noEmailForReset'));
       return;
@@ -226,7 +226,7 @@ export function UserEditDialog({
 
   if (!user) return null;
 
-  const userEmail = (user as any).email || user.user_id;
+  const userEmail = user.email || user.user_id;
 
   return (
     <>
@@ -253,8 +253,8 @@ export function UserEditDialog({
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-lg truncate">{user.full_name || t('users.unnamed')}</div>
               <div className="text-sm text-muted-foreground truncate">{userEmail}</div>
-              <Badge variant={getStatusVariant((user as any).status || 'active')} className="mt-2">
-                {getStatusLabel((user as any).status || 'active')}
+              <Badge variant={getStatusVariant(user.status || 'active')} className="mt-2">
+                {getStatusLabel(user.status || 'active')}
               </Badge>
             </div>
           </div>

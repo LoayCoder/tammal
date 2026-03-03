@@ -78,7 +78,7 @@ export function TenantTable({ tenants, isLoading, onEdit, onDelete, onViewDetail
               </div>
             </TableCell>
             <TableCell className="text-muted-foreground font-mono text-sm">
-              {(tenant as any).slug || '-'}
+              {tenant.slug || '-'}
             </TableCell>
             <TableCell>
               {tenant.plan ? (

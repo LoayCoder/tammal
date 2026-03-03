@@ -40,19 +40,17 @@ export function TenantDetailDialog({
 
   if (!tenant) return null;
 
-  const tenantData = tenant as any;
-
   const trialData = {
-    subscription_status: tenantData.subscription_status || 'inactive',
-    trial_start_date: tenantData.trial_start_date || null,
-    trial_end_date: tenantData.trial_end_date || null,
+    subscription_status: tenant.subscription_status || 'inactive',
+    trial_start_date: tenant.trial_start_date || null,
+    trial_end_date: tenant.trial_end_date || null,
   };
 
   const securitySettings: SecuritySettings = {
-    mfa_trust_duration_days: tenantData.mfa_trust_duration_days ?? DEFAULT_SECURITY_SETTINGS.mfa_trust_duration_days,
-    session_timeout_minutes: tenantData.session_timeout_minutes ?? DEFAULT_SECURITY_SETTINGS.session_timeout_minutes,
-    max_concurrent_sessions: tenantData.max_concurrent_sessions ?? DEFAULT_SECURITY_SETTINGS.max_concurrent_sessions,
-    glass_break_active: tenantData.glass_break_active ?? DEFAULT_SECURITY_SETTINGS.glass_break_active,
+    mfa_trust_duration_days: tenant.mfa_trust_duration_days ?? DEFAULT_SECURITY_SETTINGS.mfa_trust_duration_days,
+    session_timeout_minutes: tenant.session_timeout_minutes ?? DEFAULT_SECURITY_SETTINGS.session_timeout_minutes,
+    max_concurrent_sessions: tenant.max_concurrent_sessions ?? DEFAULT_SECURITY_SETTINGS.max_concurrent_sessions,
+    glass_break_active: tenant.glass_break_active ?? DEFAULT_SECURITY_SETTINGS.glass_break_active,
   };
 
   const handleStartTrial = (days: number) => {
@@ -80,7 +78,7 @@ export function TenantDetailDialog({
             <TenantStatusBadge status={tenant.status} />
           </div>
           <DialogDescription>
-            {tenantData.slug && <span className="font-mono">{tenantData.slug}</span>}
+            {tenant.slug && <span className="font-mono">{tenant.slug}</span>}
             {tenant.domain && (
               <>
                 <span className="mx-2">•</span>
@@ -128,7 +126,7 @@ export function TenantDetailDialog({
                     <span className="text-xs">{t('tenants.industry')}</span>
                   </div>
                   <p className="mt-1 font-medium">
-                    {tenantData.industry ? t(`tenants.industries.${tenantData.industry}`) : '-'}
+                    {tenant.industry ? t(`tenants.industries.${tenant.industry}`) : '-'}
                   </p>
                 </CardContent>
               </Card>
@@ -138,7 +136,7 @@ export function TenantDetailDialog({
                     <Users className="h-4 w-4" />
                     <span className="text-xs">{t('tenants.employeeCount')}</span>
                   </div>
-                  <p className="mt-1 font-medium">{tenantData.employee_count || '-'}</p>
+                  <p className="mt-1 font-medium">{tenant.employee_count || '-'}</p>
                 </CardContent>
               </Card>
             </div>
@@ -152,19 +150,19 @@ export function TenantDetailDialog({
                 <CardContent className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground w-24">{t('tenants.contactPerson')}:</span>
-                    <span>{tenantData.contact_person || '-'}</span>
+                    <span>{tenant.contact_person || '-'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Mail className="h-3 w-3 text-muted-foreground" />
-                    <span>{tenantData.contact_email || '-'}</span>
+                    <span>{tenant.contact_email || '-'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone className="h-3 w-3 text-muted-foreground" />
-                    <span dir="ltr">{tenantData.contact_phone || '-'}</span>
+                    <span dir="ltr">{tenant.contact_phone || '-'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Globe className="h-3 w-3 text-muted-foreground" />
-                    <span>{tenantData.country ? `${tenantData.city || ''}, ${tenantData.country}` : '-'}</span>
+                    <span>{tenant.country ? `${tenant.city || ''}, ${tenant.country}` : '-'}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -176,32 +174,32 @@ export function TenantDetailDialog({
                 <CardContent className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground w-24">{t('tenants.crNumber')}:</span>
-                    <span dir="ltr">{tenantData.cr_number || '-'}</span>
+                    <span dir="ltr">{tenant.cr_number || '-'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground w-24">{t('tenants.vatNumber')}:</span>
-                    <span dir="ltr">{tenantData.vat_number || '-'}</span>
+                    <span dir="ltr">{tenant.vat_number || '-'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground w-24">{t('tenants.currency')}:</span>
-                    <span>{tenantData.preferred_currency || 'SAR'}</span>
+                    <span>{tenant.preferred_currency || 'SAR'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground w-24">{t('tenants.billingEmail')}:</span>
-                    <span>{tenantData.billing_email || '-'}</span>
+                    <span>{tenant.billing_email || '-'}</span>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Notes */}
-            {tenantData.notes && (
+            {tenant.notes && (
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">{t('tenants.notes')}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{tenantData.notes}</p>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{tenant.notes}</p>
                 </CardContent>
               </Card>
             )}
