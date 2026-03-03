@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, TrendingDown, Minus, Sparkles, Moon, BookOpenCheck, UtensilsCrossed, FileText, RefreshCw, Loader2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Sparkles, Moon, BookOpenCheck, UtensilsCrossed, FileText, RefreshCw, Loader2, Trash2 } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
 import { useQuranSessions } from '@/hooks/spiritual/useQuranSessions';
@@ -67,7 +68,7 @@ function CorrelationCards({ insights }: { insights: InsightCard[] }) {
   );
 }
 
-function ReportCard({ report }: { report: SpiritualReport }) {
+function ReportCard({ report, onDelete }: { report: SpiritualReport; onDelete: (id: string) => void }) {
   const { t } = useTranslation();
   const data = report.report_data;
 
@@ -82,6 +83,25 @@ function ReportCard({ report }: { report: SpiritualReport }) {
           <Badge variant="outline" className="text-xs">
             {format(new Date(report.period_start), 'MMM d')} - {format(new Date(report.period_end), 'MMM d')}
           </Badge>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive">
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t('spiritual.insights.deleteReportTitle', 'Delete Report?')}</AlertDialogTitle>
+                <AlertDialogDescription>{t('spiritual.insights.deleteReportDesc', 'This will remove this spiritual insight report. This action cannot be undone.')}</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{t('common.cancel', 'Cancel')}</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDelete(report.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  {t('common.delete', 'Delete')}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
