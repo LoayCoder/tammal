@@ -17,6 +17,8 @@ import { InitiativeDialog } from '@/components/workload/InitiativeDialog';
 import { ActionDialog } from '@/components/workload/ActionDialog';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
+import { useIsRepresentative } from '@/hooks/workload/useIsRepresentative';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -41,6 +43,12 @@ export default function ObjectiveDetail() {
   const navigate = useNavigate();
   const { tenantId } = useTenantId();
   const { user } = useAuth();
+  const { isSuperAdmin } = useUserPermissions();
+  const { hasRole: isTenantAdmin } = useHasRole('tenant_admin');
+  const { hasRole: isManager } = useHasRole('manager');
+  const { isRepresentative } = useIsRepresentative();
+  const canManage = isSuperAdmin || isTenantAdmin || isManager;
+  const canUnlock = canManage; // only managers/admins can unlock
   const { objectives, isPending: objLoading, lockObjective, unlockObjective } = useObjectives();
   const {
     initiatives, isPending: initLoading, createInitiative, updateInitiative, deleteInitiative,
@@ -107,15 +115,18 @@ export default function ObjectiveDetail() {
             {objective.description && <p className="text-muted-foreground mt-1">{objective.description}</p>}
           </div>
           <div className="flex items-center gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="outline" size="icon" className="h-8 w-8"
-                  onClick={() => objective.is_locked ? unlockObjective(objective.id) : lockObjective({ id: objective.id, locked_by: userId })}>
-                  {objective.is_locked ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{objective.is_locked ? t('workload.lock.unlock') : t('workload.lock.lock')}</TooltipContent>
-            </Tooltip>
+            {/* Lock: representatives + managers; Unlock: only managers/admins */}
+            {(!objective.is_locked || canUnlock) && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-8 w-8"
+                    onClick={() => objective.is_locked ? unlockObjective(objective.id) : lockObjective({ id: objective.id, locked_by: userId })}>
+                    {objective.is_locked ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{objective.is_locked ? t('workload.lock.unlock') : t('workload.lock.lock')}</TooltipContent>
+              </Tooltip>
+            )}
             <div className="text-end">
               <span className="text-3xl font-bold">{Number(objective.progress).toFixed(0)}%</span>
               <Progress value={Number(objective.progress)} className="w-32 h-2 mt-1" />
@@ -128,7 +139,7 @@ export default function ObjectiveDetail() {
       {/* Initiatives Section */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold flex items-center gap-2"><Rocket className="h-5 w-5 text-primary" />{t('workload.initiatives.sectionTitle')}</h2>
-        {!objective.is_locked && (
+        {!objective.is_locked && canManage && (
           <Button onClick={() => { setSelectedInit(null); setInitDialogOpen(true); }}><Plus className="me-2 h-4 w-4" />{t('workload.initiatives.add')}</Button>
         )}
       </div>
@@ -164,16 +175,18 @@ export default function ObjectiveDetail() {
                       <Badge variant="outline" className={statusColors[init.status] || ''}>{t(`workload.status.${init.status}`)}</Badge>
                       <Progress value={Number(init.progress)} className="w-20 h-2" />
                       <span className="text-xs text-muted-foreground w-8">{Number(init.progress).toFixed(0)}%</span>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7"
-                            onClick={() => init.is_locked ? unlockInitiative(init.id) : lockInitiative({ id: init.id, locked_by: userId })}>
-                            {init.is_locked ? <Unlock className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>{init.is_locked ? t('workload.lock.unlock') : t('workload.lock.lock')}</TooltipContent>
-                      </Tooltip>
-                      {!init.is_locked && (
+                      {(!init.is_locked || canUnlock) && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7"
+                              onClick={() => init.is_locked ? unlockInitiative(init.id) : lockInitiative({ id: init.id, locked_by: userId })}>
+                              {init.is_locked ? <Unlock className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>{init.is_locked ? t('workload.lock.unlock') : t('workload.lock.lock')}</TooltipContent>
+                        </Tooltip>
+                      )}
+                      {!init.is_locked && canManage && (
                         <>
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedInit(init); setInitDialogOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { setInitToDelete(init.id); setDeleteInitDialog(true); }}><Trash2 className="h-3.5 w-3.5" /></Button>
@@ -186,7 +199,7 @@ export default function ObjectiveDetail() {
                   <CardContent className="pt-0">
                     <div className="flex items-center justify-between mb-3 mt-2">
                       <h3 className="text-sm font-medium text-muted-foreground">{t('workload.actions.sectionTitle')}</h3>
-                      {!init.is_locked && (
+                      {!init.is_locked && canManage && (
                         <Button variant="outline" size="sm" onClick={() => { setSelectedAction(null); setActionInitId(init.id); setActionDialogOpen(true); }}>
                           <Plus className="me-1 h-3.5 w-3.5" />{t('workload.actions.add')}
                         </Button>
@@ -219,16 +232,18 @@ export default function ObjectiveDetail() {
                               <TableCell><Badge variant="outline" className={statusColors[act.status] || ''}>{t(`workload.status.${act.status}`)}</Badge></TableCell>
                               <TableCell>
                                 <div className="flex gap-1">
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button variant="ghost" size="icon" className="h-7 w-7"
-                                        onClick={() => act.is_locked ? unlockAction(act.id) : lockAction({ id: act.id, locked_by: userId })}>
-                                        {act.is_locked ? <Unlock className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>{act.is_locked ? t('workload.lock.unlock') : t('workload.lock.lock')}</TooltipContent>
-                                  </Tooltip>
-                                  {!act.is_locked && (
+                                  {(!act.is_locked || canUnlock) && (
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-7 w-7"
+                                          onClick={() => act.is_locked ? unlockAction(act.id) : lockAction({ id: act.id, locked_by: userId })}>
+                                          {act.is_locked ? <Unlock className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+                                        </Button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>{act.is_locked ? t('workload.lock.unlock') : t('workload.lock.lock')}</TooltipContent>
+                                    </Tooltip>
+                                  )}
+                                  {!act.is_locked && canManage && (
                                     <>
                                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedAction(act); setActionInitId(init.id); setActionDialogOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
                                       <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { setActionToDelete(act.id); setDeleteActionDialog(true); }}><Trash2 className="h-3.5 w-3.5" /></Button>
