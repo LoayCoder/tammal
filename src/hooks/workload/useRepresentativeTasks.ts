@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import type { UnifiedTask } from './useUnifiedTasks';
+import type { UnifiedTask, TaskComment } from './useUnifiedTasks';
 
 export interface RepresentativeAssignment {
   id: string;
@@ -58,7 +58,7 @@ export function useRepresentativeTasks() {
         .is('deleted_at', null)
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return (data ?? []) as UnifiedTask[];
+      return (data ?? []).map((d: Record<string, unknown>) => ({ ...d, comments: (d.comments as TaskComment[]) ?? [] })) as UnifiedTask[];
     },
     enabled: !!user?.id && !!tenantId,
   });

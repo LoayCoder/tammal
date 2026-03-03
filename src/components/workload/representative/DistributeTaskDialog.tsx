@@ -83,13 +83,13 @@ export function DistributeTaskDialog({ open, onOpenChange, assignments, onSubmit
               <SelectTrigger><SelectValue placeholder={t('representative.selectScope')} /></SelectTrigger>
               <SelectContent>
                 {assignments.map(a => {
-                  let label = a.scope_type;
+                  let label: string = a.scope_type;
                   if (a.scope_type === 'division') label = divisions.find(d => d.id === a.scope_id)?.name ?? a.scope_id;
                   else if (a.scope_type === 'department') label = departments.find(d => d.id === a.scope_id)?.name ?? a.scope_id;
                   else if (a.scope_type === 'section') label = sites.find(s => s.id === a.scope_id)?.name ?? a.scope_id;
                   return (
                     <SelectItem key={a.id} value={a.id}>
-                      {t(`representative.scopeTypes.${a.scope_type}`)} — {label}
+                      {t(`representative.scopeTypes.${a.scope_type}` as const)} — {label}
                     </SelectItem>
                   );
                 })}
