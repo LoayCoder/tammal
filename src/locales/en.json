@@ -3426,6 +3426,22 @@
       "department": "Department",
       "section": "Section"
     },
+    "editTask": "Edit Task",
+    "deleteTask": "Delete Task",
+    "deleteTaskConfirm": "Are you sure you want to delete the task \"{{title}}\"? This action requires justification.",
+    "extendDueDate": "Extend Due Date",
+    "currentDueDate": "Current Due Date",
+    "newDueDate": "New Due Date",
+    "dueDateHistory": "Due Date History",
+    "justification": "Justification",
+    "justificationPlaceholder": "Explain why this change is being made...",
+    "deleteJustificationPlaceholder": "Explain why this task is being deleted...",
+    "extendJustificationPlaceholder": "Explain why the due date needs to be extended...",
+    "extend": "Extend",
+    "editSuccess": "Task updated successfully",
+    "deleteSuccess": "Task deleted successfully",
+    "extendSuccess": "Due date extended successfully",
+    "manageError": "Failed to manage task"
     "admin": {
       "title": "Representatives",
       "description": "Manage representative assignments for task distribution",
