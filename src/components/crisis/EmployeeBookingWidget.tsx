@@ -101,57 +101,103 @@ export default function EmployeeBookingWidget({ firstAiderId, tenantId, caseId, 
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Week navigation */}
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={() => setWeekOffset(Math.max(0, weekOffset - 1))} disabled={weekOffset === 0}>
-            <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
-          </Button>
-          <span className="text-sm font-medium">
-            {format(weekStart, 'MMM d')} – {format(weekEnd, 'MMM d, yyyy')}
-          </span>
-          <Button variant="ghost" size="sm" onClick={() => setWeekOffset(weekOffset + 1)} disabled={weekOffset >= 3}>
-            <ChevronRight className="h-4 w-4 rtl:rotate-180" />
-          </Button>
-        </div>
-
         {loading ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
-        ) : Object.keys(slotsByDate).length === 0 ? (
-          <div className="text-center py-8">
+        ) : sortedDates.length === 0 ? (
+          <div className="text-center py-6 space-y-2">
             <p className="text-sm text-muted-foreground">{t('crisisSupport.scheduling.noSlots')}</p>
-            <p className="text-xs text-muted-foreground mt-1">{t('crisisSupport.scheduling.tryNextWeek')}</p>
+            <p className="text-xs text-muted-foreground">{t('crisisSupport.scheduling.tryNextWeek')}</p>
+            <div className="flex justify-center gap-2 pt-2">
+              <Button variant="outline" size="sm" onClick={() => setWeekOffset(Math.max(0, weekOffset - 1))} disabled={weekOffset === 0}>
+                <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
+                {t('common.previous', 'Previous Week')}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => { setWeekOffset(weekOffset + 1); }} disabled={weekOffset >= 3}>
+                {t('common.next', 'Next Week')}
+                <ChevronRight className="h-4 w-4 rtl:rotate-180" />
+              </Button>
+            </div>
           </div>
         ) : (
-          <div className="space-y-4">
-            {Object.entries(slotsByDate).map(([date, dateSlots]) => (
-              <div key={date}>
-                <p className="text-sm font-medium mb-2">
-                  {format(new Date(date + 'T12:00:00'), 'EEEE, MMM d')}
+          <div className="space-y-3">
+            {/* Day navigation */}
+            <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (dayIndex > 0) {
+                    setDayIndex(dayIndex - 1);
+                  } else if (weekOffset > 0) {
+                    setWeekOffset(weekOffset - 1);
+                    // dayIndex will reset to 0 via useEffect
+                  }
+                }}
+                disabled={dayIndex === 0 && weekOffset === 0}
+              >
+                <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
+              </Button>
+              <div className="text-center">
+                <p className="text-sm font-semibold">
+                  {currentDate && format(new Date(currentDate + 'T12:00:00'), 'EEEE, MMM d')}
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  {dateSlots.map((slot, idx) => {
-                    const isSelected = selectedSlot?.date === slot.date && selectedSlot?.start === slot.start;
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => setSelectedSlot(isSelected ? null : slot)}
-                        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm transition-colors ${
-                          isSelected
-                            ? 'border-primary bg-primary/10 text-primary font-medium'
-                            : 'border-border bg-background text-foreground hover:bg-muted'
-                        }`}
-                      >
-                        <Clock className="h-3 w-3" />
-                        {slot.start} – {slot.end}
-                        {isSelected && <Check className="h-3 w-3" />}
-                      </button>
-                    );
-                  })}
-                </div>
+                <p className="text-xs text-muted-foreground">
+                  {currentSlots.length} {t('crisisSupport.scheduling.slotsAvailable', 'slots available')}
+                </p>
               </div>
-            ))}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (dayIndex < sortedDates.length - 1) {
+                    setDayIndex(dayIndex + 1);
+                  } else if (weekOffset < 3) {
+                    setWeekOffset(weekOffset + 1);
+                    // dayIndex will reset to 0 via useEffect
+                  }
+                }}
+                disabled={dayIndex >= sortedDates.length - 1 && weekOffset >= 3}
+              >
+                <ChevronRight className="h-4 w-4 rtl:rotate-180" />
+              </Button>
+            </div>
+
+            {/* Time slots grid */}
+            <div className="flex flex-wrap gap-2">
+              {currentSlots.map((slot, idx) => {
+                const isSelected = selectedSlot?.date === slot.date && selectedSlot?.start === slot.start;
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedSlot(isSelected ? null : slot)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm transition-colors ${
+                      isSelected
+                        ? 'border-primary bg-primary/10 text-primary font-medium'
+                        : 'border-border bg-background text-foreground hover:bg-muted'
+                    }`}
+                  >
+                    <Clock className="h-3 w-3" />
+                    {slot.start} – {slot.end}
+                    {isSelected && <Check className="h-3 w-3" />}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Day dots indicator */}
+            <div className="flex justify-center gap-1">
+              {sortedDates.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setDayIndex(i)}
+                  className={`h-1.5 rounded-full transition-all ${
+                    i === dayIndex ? 'w-4 bg-primary' : 'w-1.5 bg-muted-foreground/30'
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         )}
 
