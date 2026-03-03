@@ -13,9 +13,10 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useFirstAiders, useEmergencyContacts, useCrisisCases, mapIntentToRisk } from '@/hooks/crisis/useCrisisSupport';
 import { useSmartMatching, MatchResult } from '@/hooks/crisis/useSmartMatching';
-import { Phone, MessageSquare, Shield, AlertTriangle, ArrowRight, Clock, User, EyeOff, Star, Languages, Video, Loader2 } from 'lucide-react';
+import { Phone, MessageSquare, Shield, AlertTriangle, ArrowRight, Clock, User, EyeOff, Star, Languages, Video, Loader2, CalendarDays, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 import CrisisSupport from '@/components/mental-toolkit/resources/CrisisSupport';
+import EmployeeBookingWidget from '@/components/crisis/EmployeeBookingWidget';
 
 const INTENTS = [
   { key: 'talk', icon: MessageSquare, color: 'bg-chart-2/20 text-chart-2' },
@@ -56,6 +57,7 @@ export default function CrisisRequestPage() {
   const [preferredLanguage, setPreferredLanguage] = useState(i18n.language === 'ar' ? 'ar' : 'en');
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showBooking, setShowBooking] = useState(false);
 
   const riskLevel = selectedIntent ? mapIntentToRisk(selectedIntent) : null;
 
@@ -368,7 +370,7 @@ export default function CrisisRequestPage() {
                     {matches.map((match, idx) => (
                       <button
                         key={match.first_aider_id}
-                        onClick={() => setSelectedMatchId(match.first_aider_id)}
+                        onClick={() => { setSelectedMatchId(match.first_aider_id); setShowBooking(false); }}
                         className={`w-full flex items-start gap-3 p-4 rounded-xl border transition-colors text-start ${
                           selectedMatchId === match.first_aider_id
                             ? 'border-primary bg-primary/5'
@@ -404,15 +406,6 @@ export default function CrisisRequestPage() {
                               {match.status === 'online' ? `🟢 ${t('crisisSupport.status.online')}` : `⚫ ${t('crisisSupport.status.offline')}`}
                             </Badge>
                           </div>
-                          {match.specializations.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-2">
-                              {match.specializations.map(spec => (
-                                <Badge key={spec} variant="outline" className="text-[10px] px-1.5 py-0">
-                                  {spec.replace('_', ' ')}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
                         </div>
                         <div className="text-end shrink-0">
                           <p className="text-xs text-muted-foreground">{t('crisisSupport.request.matchScore')}</p>
@@ -423,14 +416,125 @@ export default function CrisisRequestPage() {
                   </CardContent>
                 </Card>
 
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => { setStep('options'); clearMatches(); }} className="flex-1">
-                    {t('common.back')}
-                  </Button>
-                  <Button onClick={handleConfirmMatch} className="flex-1">
-                    {t('crisisSupport.request.confirmMatch')}
-                  </Button>
-                </div>
+                {/* Selected First Aider Profile & Actions Panel */}
+                {(() => {
+                  const selectedMatch = matches.find(m => m.first_aider_id === selectedMatchId);
+                  if (!selectedMatch) return null;
+                  return (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Left: Profile */}
+                      <Card className="glass-card border-0 rounded-xl">
+                        <CardContent className="pt-6 space-y-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                              <User className="h-7 w-7 text-primary" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-foreground">{selectedMatch.display_name}</h3>
+                              <Badge variant={selectedMatch.status === 'online' ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0 mt-1">
+                                {selectedMatch.status === 'online' ? `🟢 ${t('crisisSupport.status.online')}` : `⚫ ${t('crisisSupport.status.offline')}`}
+                              </Badge>
+                            </div>
+                          </div>
+
+                          <div className="space-y-3">
+                            {selectedMatch.rating && (
+                              <div className="flex items-center gap-2 text-sm">
+                                <Star className="h-4 w-4 fill-chart-4 text-chart-4" />
+                                <span className="text-muted-foreground">{t('crisisSupport.request.rating')}:</span>
+                                <span className="font-medium text-foreground">{selectedMatch.rating}</span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-2 text-sm">
+                              <Languages className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-muted-foreground">{t('crisisSupport.request.languages')}:</span>
+                              <span className="font-medium text-foreground">{selectedMatch.languages.join(', ') || '—'}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                              <Activity className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-muted-foreground">{t('crisisSupport.request.activeCases')}:</span>
+                              <span className="font-medium text-foreground">{selectedMatch.active_cases}</span>
+                            </div>
+                            {selectedMatch.response_time_avg && (
+                              <div className="flex items-center gap-2 text-sm">
+                                <Clock className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-muted-foreground">{t('crisisSupport.request.responseTime')}:</span>
+                                <span className="font-medium text-foreground">{selectedMatch.response_time_avg} min</span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-2 text-sm">
+                              <Shield className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-muted-foreground">{t('crisisSupport.request.matchScore')}:</span>
+                              <span className="font-bold text-primary">{Math.round(selectedMatch.score * 100)}%</span>
+                            </div>
+                          </div>
+
+                          {selectedMatch.specializations.length > 0 && (
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-1.5">{t('crisisSupport.request.specializations')}</p>
+                              <div className="flex flex-wrap gap-1">
+                                {selectedMatch.specializations.map(spec => (
+                                  <Badge key={spec} variant="outline" className="text-[10px] px-1.5 py-0">
+                                    {spec.replace('_', ' ')}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+
+                      {/* Right: Actions */}
+                      <div className="space-y-3">
+                        <Card className="glass-card border-0 rounded-xl">
+                          <CardContent className="pt-6 space-y-3">
+                            <Button
+                              onClick={handleConfirmMatch}
+                              className="w-full gap-2 rounded-xl"
+                              size="lg"
+                            >
+                              <MessageSquare className="h-5 w-5" />
+                              {t('crisisSupport.request.startChat')}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={handleConfirmMatch}
+                              className="w-full gap-2 rounded-xl"
+                              size="lg"
+                            >
+                              <Phone className="h-5 w-5" />
+                              {t('crisisSupport.request.voiceCall')}
+                            </Button>
+                            <Button
+                              variant={showBooking ? 'secondary' : 'outline'}
+                              onClick={() => setShowBooking(!showBooking)}
+                              className="w-full gap-2 rounded-xl"
+                              size="lg"
+                            >
+                              <CalendarDays className="h-5 w-5" />
+                              {t('crisisSupport.request.bookSession')}
+                            </Button>
+                          </CardContent>
+                        </Card>
+
+                        {showBooking && employee?.tenant_id && (
+                          <EmployeeBookingWidget
+                            firstAiderId={selectedMatch.first_aider_id}
+                            tenantId={employee.tenant_id}
+                            displayName={selectedMatch.display_name}
+                            communicationChannel={preferredContact}
+                            onBooked={() => navigate('/my-support')}
+                            onCancel={() => setShowBooking(false)}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                <Button variant="outline" onClick={() => { setStep('options'); clearMatches(); setSelectedMatchId(null); setShowBooking(false); }} className="w-full">
+                  {t('common.back')}
+                </Button>
               </>
             )}
           </div>
