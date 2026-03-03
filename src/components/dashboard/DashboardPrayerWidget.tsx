@@ -46,6 +46,7 @@ export function DashboardPrayerWidget() {
   );
   const { todayLogs, logPrayer } = usePrayerLogs();
   const { todayCompleted, togglePractice } = useSunnahLogs();
+  const witrCountdown = useWitrCountdown(prayerData?.timings?.Fajr);
 
   const timings = prayerData?.timings;
   const hijri = prayerData?.date?.hijri;
@@ -55,7 +56,7 @@ export function DashboardPrayerWidget() {
     if (!timings) return null;
     const now = new Date();
 
-    // Find first unlogged prayer whose time has arrived
+    // Check 5 obligatory prayers first
     for (const name of PRAYER_NAMES) {
       if (todayLogs[name]) continue;
       const clean = (timings[name] || '').replace(/\s*\(.*\)/, '').trim();
@@ -66,14 +67,24 @@ export function DashboardPrayerWidget() {
       if (now >= pDate) return name;
     }
 
-    // Find next upcoming unlogged prayer
+    // Check Witr (active when 22:00+ or before Fajr and not logged)
+    if (!todayLogs['Witr'] && witrCountdown.isPrayerTime) {
+      return 'Witr' as const;
+    }
+
+    // Find next upcoming unlogged obligatory prayer
     for (const name of PRAYER_NAMES) {
       if (todayLogs[name]) continue;
       return name;
     }
 
+    // Check if Witr is still pending (before its window)
+    if (!todayLogs['Witr'] && !witrCountdown.isExpired) {
+      return 'Witr' as const;
+    }
+
     return null; // All logged
-  }, [timings, todayLogs]);
+  }, [timings, todayLogs, witrCountdown.isPrayerTime, witrCountdown.isExpired]);
 
   if (!isPrayerEnabled || !timings) return null;
 
