@@ -27,30 +27,47 @@ export type VerifyResult =
 export async function verifyInviteCode(code: string): Promise<VerifyResult> {
   const upperCode = code.toUpperCase();
 
-  const { data, error } = await supabase
-    .from('invitations')
-    .select('id, code, email, full_name, tenant_id, employee_id, tenants(name)')
-    .eq('code', upperCode)
-    .is('deleted_at', null)
-    .is('used', false)
-    .gt('expires_at', new Date().toISOString())
-    .single();
+  // Use the security-definer RPC to verify without exposing PII via public SELECT
+  const { data: rpcResult, error: rpcError } = await supabase
+    .rpc('verify_invitation_code', { p_code: upperCode });
 
-  if (error || !data) {
-    // Check if it exists but was already used
-    const { data: usedCheck } = await supabase
-      .from('invitations')
-      .select('used')
-      .eq('code', upperCode)
-      .single();
-
-    if (usedCheck?.used) {
-      return { status: 'used' };
-    }
+  if (rpcError || !rpcResult || rpcResult.length === 0) {
     return { status: 'invalid' };
   }
 
-  return { status: 'valid', invitation: data as unknown as InvitationData };
+  const match = rpcResult[0];
+  if (match.used) {
+    return { status: 'used' };
+  }
+
+  // Fetch full invitation details now that we know the ID
+  // This will work for authenticated users via admin policies;
+  // for pre-auth, we construct minimal data from the RPC result
+  const { data: fullData } = await supabase
+    .from('invitations')
+    .select('id, code, email, full_name, tenant_id, employee_id, tenants(name)')
+    .eq('id', match.id)
+    .single();
+
+  if (fullData) {
+    return { status: 'valid', invitation: fullData as unknown as InvitationData };
+  }
+
+  // Fallback: if the user isn't authenticated yet, the SELECT above will fail.
+  // In that case, use an edge function or return minimal data.
+  // For now, return minimal data from the RPC — the accept flow will get full data post-signup.
+  return {
+    status: 'valid',
+    invitation: {
+      id: match.id,
+      code: upperCode,
+      email: '',
+      full_name: null,
+      tenant_id: match.tenant_id,
+      employee_id: null,
+      tenants: null,
+    },
+  };
 }
 
 export interface AcceptInviteParams {
