@@ -155,7 +155,7 @@ const App = () => (
                 <Route path="/admin/workload/objectives" element={<ManagerOrAdminRoute><ObjectivesManagement /></ManagerOrAdminRoute>} />
                 <Route path="/admin/workload/objectives/:id" element={<ManagerOrAdminRoute><ObjectiveDetail /></ManagerOrAdminRoute>} />
                 <Route path="/admin/workload/dashboard" element={<AdminRoute><WorkloadDashboard /></AdminRoute>} />
-                <Route path="/admin/workload/team" element={<AdminRoute><TeamWorkload /></AdminRoute>} />
+                <Route path="/admin/workload/team" element={<ManagerOrAdminRoute><TeamWorkload /></ManagerOrAdminRoute>} />
                 <Route path="/admin/workload/connectors" element={<AdminRoute><TaskConnectors /></AdminRoute>} />
                 <Route path="/admin/recognition" element={<AdminRoute><RecognitionManagement /></AdminRoute>} />
                 <Route path="/admin/recognition/results" element={<AdminRoute><RecognitionResults /></AdminRoute>} />
