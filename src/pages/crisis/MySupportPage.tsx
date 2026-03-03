@@ -24,6 +24,12 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: 'outline',
 };
 
+function resolveIntentLabel(t: (key: string) => string, intent: string): string {
+  const key = `crisisSupport.intents.${intent}`;
+  const translated = String(t(key));
+  return translated === key ? intent : translated;
+}
+
 export default function MySupportPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -109,7 +115,7 @@ function CaseCardList({ cases, onSelect }: { cases: any[]; onSelect: (id: string
                   <MessageSquare className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="font-medium text-sm">{String(t(`crisisSupport.intents.${c.intent}`, c.intent))}</p>
+                  <p className="font-medium text-sm">{resolveIntentLabel((key) => String(t(key)), c.intent)}</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <Clock className="h-3 w-3 text-muted-foreground" />
                     <span className="text-xs text-muted-foreground">{format(new Date(c.created_at), 'MMM d, yyyy h:mm a')}</span>
@@ -152,7 +158,7 @@ function CaseThread({ caseData, onBack }: { caseData: any; onBack: () => void })
           <ArrowLeft className="h-5 w-5 rtl:-scale-x-100" />
         </Button>
         <div className="flex-1">
-          <h2 className="font-semibold">{String(t(`crisisSupport.intents.${caseData.intent}`, caseData.intent))}</h2>
+          <h2 className="font-semibold">{resolveIntentLabel((key) => String(t(key)), caseData.intent)}</h2>
           <p className="text-xs text-muted-foreground">{format(new Date(caseData.created_at), 'MMM d, yyyy h:mm a')}</p>
         </div>
         <Badge variant={STATUS_COLORS[caseData.status] as any || 'secondary'}>
