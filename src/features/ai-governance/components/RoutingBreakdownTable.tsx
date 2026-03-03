@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import type { RoutingLogEntry } from '@/features/ai-governance/hooks/useRoutingLogs';
+import type { RoutingSettings } from '@/features/ai-governance/types';
 
 interface Props {
   logs: RoutingLogEntry[];
@@ -37,7 +38,7 @@ export function RoutingBreakdownTable({ logs, isLoading }: Props) {
               </thead>
               <tbody>
                 {logs.slice(0, 100).map((log) => {
-                  const settings = log.settings ?? {};
+                  const settings = (log.settings ?? {}) as RoutingSettings;
                   return (
                     <tr key={log.id} className="border-b border-border/50 hover:bg-muted/50">
                       <td className="py-2 pe-4">
@@ -46,10 +47,10 @@ export function RoutingBreakdownTable({ logs, isLoading }: Props) {
                         </Badge>
                       </td>
                       <td className="py-2 pe-4 font-mono text-xs">{log.model_used ?? 'N/A'}</td>
-                      <td className="py-2 pe-4 text-xs">{(settings as any).ai_routing_strategy ?? '-'}</td>
+                      <td className="py-2 pe-4 text-xs">{settings.ai_routing_strategy ?? '-'}</td>
                       <td className="py-2 pe-4 text-xs font-mono">
-                        {(settings as any).ai_composite_sample_score != null
-                          ? Number((settings as any).ai_composite_sample_score).toFixed(4)
+                        {settings.ai_composite_sample_score != null
+                          ? Number(settings.ai_composite_sample_score).toFixed(4)
                           : '-'}
                       </td>
                       <td className="py-2 pe-4 text-xs">{log.duration_ms ? `${log.duration_ms}ms` : '-'}</td>

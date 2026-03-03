@@ -53,7 +53,7 @@ export function usePenalties() {
         body: { action: 'get_penalties' },
       });
       if (error) throw error;
-      return (data?.data ?? []) as any[];
+      return (data?.data ?? []) as PenaltyRow[];
     },
     staleTime: 30_000,
   });
@@ -81,7 +81,7 @@ export function useGovernanceAuditLog(limit = 50) {
         body: { action: 'get_audit_log', params: { limit } },
       });
       if (error) throw error;
-      return (data?.data ?? []) as any[];
+      return (data?.data ?? []) as GovernanceAuditLogEntry[];
     },
     staleTime: 30_000,
   });
