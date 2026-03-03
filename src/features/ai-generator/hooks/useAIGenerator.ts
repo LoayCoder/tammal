@@ -17,7 +17,7 @@ import { useGenerationPeriods } from '@/hooks/questions/useGenerationPeriods';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useTenantIdQuery } from '@/hooks/admin/useTenantIdQuery';
 import { usePromptRewrite } from '@/hooks/admin/usePromptRewrite';
-import type { QuestionPurpose } from '@/components/ai-generator/ConfigPanel';
+import type { QuestionPurpose } from '../components/ConfigPanel';
 import type { AIGeneratorState } from '../types';
 
 export function useAIGenerator(): AIGeneratorState {

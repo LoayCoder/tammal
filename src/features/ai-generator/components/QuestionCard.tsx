@@ -15,7 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { EnhancedGeneratedQuestion } from '@/hooks/questions/useEnhancedAIGeneration';
 import { toast } from 'sonner';
 import { useQuestionRewrite } from '@/hooks/admin/useQuestionRewrite';
-import type { QuestionPurpose } from '@/components/ai-generator/ConfigPanel';
+import type { QuestionPurpose } from './ConfigPanel';
 import type { MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';
 import { DEFAULT_MOOD_META } from '@/config/moods';
 

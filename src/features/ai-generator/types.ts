@@ -4,7 +4,7 @@
  */
 
 export type { EnhancedGeneratedQuestion, ValidationReport, AdvancedSettings, GenerateInput } from '@/hooks/questions/useEnhancedAIGeneration';
-export type { QuestionPurpose } from '@/components/ai-generator/ConfigPanel';
+export type { QuestionPurpose } from './components/ConfigPanel';
 export type { AIModel } from '@/hooks/questions/useAIModels';
 export type { ReferenceFramework } from '@/hooks/questions/useReferenceFrameworks';
 
