@@ -164,8 +164,13 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
                       {/* Header row */}
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold">
+                          <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold">
                             {aider.display_name?.charAt(0) || '?'}
+                            <span className={`absolute -bottom-0.5 -end-0.5 h-3 w-3 rounded-full border-2 border-background ${
+                              statusLabel === 'available' ? 'bg-chart-1 animate-pulse' :
+                              statusLabel === 'busy' ? 'bg-chart-4' :
+                              'bg-muted-foreground/40'
+                            }`} />
                           </div>
                           <div className="min-w-0">
                             <h4 className="font-semibold text-sm truncate">{aider.display_name}</h4>
