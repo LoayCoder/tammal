@@ -86,11 +86,10 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
           ) : (
             <div className="space-y-3 pb-4">
               {activeAiders.map(aider => {
-                const statusLabel = aider.currentStatus || 'offline';
+                const statusLabel = aider.statusLabel || 'offline';
                 const statusClass = STATUS_COLORS[statusLabel] || STATUS_COLORS.offline;
                 const isBooking = activeBookingId === aider.id;
-                const specs = (aider.specializations as string[]) || [];
-                const langs = (aider.languages as string[]) || [];
+                const langs = aider.languages || [];
 
                 return (
                   <Card key={aider.id} className="glass-card border-0 ring-1 ring-border/40">
@@ -104,12 +103,6 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
                           <div className="min-w-0">
                             <h4 className="font-semibold text-sm truncate">{aider.display_name}</h4>
                             <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
-                              {aider.rating && (
-                                <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
-                                  <Star className="h-3 w-3 text-chart-4 fill-chart-4" />
-                                  {aider.rating.toFixed(1)}
-                                </span>
-                              )}
                               {langs.length > 0 && (
                                 <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
                                   <Languages className="h-3 w-3" />
@@ -124,15 +117,9 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
                         </Badge>
                       </div>
 
-                      {/* Specializations */}
-                      {specs.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {specs.map(s => (
-                            <Badge key={s} variant="outline" className="text-xs">
-                              {s}
-                            </Badge>
-                          ))}
-                        </div>
+                      {/* Bio */}
+                      {aider.bio && (
+                        <p className="text-xs text-muted-foreground line-clamp-2">{aider.bio}</p>
                       )}
 
                       {/* Action buttons */}
