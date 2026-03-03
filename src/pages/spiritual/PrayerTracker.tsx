@@ -7,6 +7,7 @@ import { usePrayerTimes, PRAYER_NAMES } from '@/hooks/spiritual/usePrayerTimes';
 import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
 import { useSunnahLogs, SUNNAH_PRACTICES } from '@/hooks/spiritual/useSunnahLogs';
 import { usePrayerCountdown } from '@/hooks/spiritual/usePrayerCountdown';
+import { useWitrCountdown } from '@/hooks/spiritual/useWitrCountdown';
 import { PrayerCard } from '@/components/spiritual/PrayerCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
@@ -43,11 +44,12 @@ export default function PrayerTracker() {
   const asrCountdown = usePrayerCountdown(prayerData?.timings?.Asr);
   const maghribCountdown = usePrayerCountdown(prayerData?.timings?.Maghrib);
   const ishaCountdown = usePrayerCountdown(prayerData?.timings?.Isha);
+  const witrCountdown = useWitrCountdown(prayerData?.timings?.Fajr);
 
   const duha = SUNNAH_PRACTICES.find(p => p.key === 'duha')!;
 
   const weeklyStats = useMemo(() => {
-    const totalPossible = 7 * 5;
+    const totalPossible = 7 * 6; // 5 obligatory + Witr
     const completed = logs.filter((l) => l.status.startsWith('completed')).length;
     const pct = totalPossible > 0 ? Math.round((completed / totalPossible) * 100) : 0;
     return { completed, totalPossible, pct };
@@ -96,7 +98,27 @@ export default function PrayerTracker() {
     Isha: ishaCountdown,
   };
 
+  const fajrClean = (prayerData?.timings?.Fajr || '').replace(/\s*\(.*\)/, '').trim();
+  const witrTimeLabel = t('spiritual.prayer.witrTimeRange', { fajr: fajrClean || '--:--' });
+
   const renderPrayerCard = (name: string) => {
+    if (name === 'Witr') {
+      return (
+        <PrayerCard
+          key="Witr"
+          prayerName="Witr"
+          prayerTime="22:00"
+          timeLabel={witrTimeLabel}
+          log={todayLogs['Witr']}
+          onLog={(status) => handleLog('Witr', status)}
+          isPending={logPrayer.isPending}
+          countdownMinutes={witrCountdown.minutesLeft}
+          isExpired={witrCountdown.isExpired}
+          isPrayerTime={witrCountdown.isPrayerTime}
+          onAutoMiss={() => handleLog('Witr', 'missed')}
+        />
+      );
+    }
     const cd = countdowns[name];
     return (
       <PrayerCard
@@ -194,7 +216,7 @@ export default function PrayerTracker() {
             {renderPrayerCard('Asr')}
             {renderPrayerCard('Maghrib')}
             {renderPrayerCard('Isha')}
-          </div>
+            {renderPrayerCard('Witr')}
 
           {/* Weekly summary */}
           <Card className="glass-card border-0 rounded-xl">
