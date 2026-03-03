@@ -175,7 +175,16 @@ export default function SpiritualInsights() {
   
   const { preferences, isPending: prefsLoading, isEnabled } = useSpiritualPreferences();
   const { employee } = useCurrentEmployee();
-  const { reports, isPending: reportsLoading, generateReport } = useSpiritualReports();
+  const { reports, isPending: reportsLoading, generateReport, deleteReport } = useSpiritualReports();
+
+  const handleDeleteReport = async (id: string) => {
+    try {
+      await deleteReport.mutateAsync(id);
+      toast.success(t('spiritual.insights.reportDeleted', 'Report deleted'));
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
 
   const thirtyDaysAgo = useMemo(() => {
     const d = new Date();
