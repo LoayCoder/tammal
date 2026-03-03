@@ -5,6 +5,8 @@ import { Moon, TrendingUp } from 'lucide-react';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { usePrayerTimes, PRAYER_NAMES } from '@/hooks/spiritual/usePrayerTimes';
 import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
+import { useSunnahLogs, SUNNAH_PRACTICES } from '@/hooks/spiritual/useSunnahLogs';
+import { Check } from 'lucide-react';
 import { PrayerCard } from '@/components/spiritual/PrayerCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
