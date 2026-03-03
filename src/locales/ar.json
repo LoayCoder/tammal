@@ -3307,6 +3307,22 @@
       "department": "إدارة",
       "section": "وحدة"
     },
+    "editTask": "تعديل المهمة",
+    "deleteTask": "حذف المهمة",
+    "deleteTaskConfirm": "هل أنت متأكد من حذف المهمة \"{{title}}\"؟ يتطلب هذا الإجراء تبريراً.",
+    "extendDueDate": "تمديد تاريخ الاستحقاق",
+    "currentDueDate": "تاريخ الاستحقاق الحالي",
+    "newDueDate": "تاريخ الاستحقاق الجديد",
+    "dueDateHistory": "سجل تواريخ الاستحقاق",
+    "justification": "التبرير",
+    "justificationPlaceholder": "اشرح سبب هذا التغيير...",
+    "deleteJustificationPlaceholder": "اشرح سبب حذف هذه المهمة...",
+    "extendJustificationPlaceholder": "اشرح سبب تمديد تاريخ الاستحقاق...",
+    "extend": "تمديد",
+    "editSuccess": "تم تحديث المهمة بنجاح",
+    "deleteSuccess": "تم حذف المهمة بنجاح",
+    "extendSuccess": "تم تمديد تاريخ الاستحقاق بنجاح",
+    "manageError": "فشل في إدارة المهمة"
     "admin": {
       "title": "المندوبون",
       "description": "إدارة تعيينات المندوبين لتوزيع المهام",
