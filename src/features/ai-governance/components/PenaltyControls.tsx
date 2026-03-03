@@ -23,7 +23,7 @@ export function PenaltyControls() {
   // Filter expired penalties
   const activePenalties = useMemo(() => {
     const now = new Date();
-    return penalties.filter((p: any) => new Date(p.penalty_expires_at) > now);
+    return penalties.filter(p => new Date(p.penalty_expires_at) > now);
   }, [penalties]);
 
   const handleApply = () => {
@@ -73,7 +73,7 @@ export function PenaltyControls() {
 
         {activePenalties.length > 0 && (
           <div className="mt-4 space-y-2">
-            {activePenalties.map((p: any) => (
+            {activePenalties.map((p) => (
               <div key={p.id} className="flex items-center justify-between rounded-md border border-border p-3">
                 <span className="text-sm">{p.provider} / {p.feature} — {p.penalty_multiplier}x</span>
                 <Button size="sm" variant="ghost" onClick={() => handleClear(p.id)} disabled={clearPenalty.isPending}>

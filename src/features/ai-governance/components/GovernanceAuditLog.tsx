@@ -29,7 +29,7 @@ export function GovernanceAuditLog() {
                 </tr>
               </thead>
               <tbody>
-                {logs.map((log: any) => (
+                {logs.map((log) => (
                   <tr key={log.id} className="border-b border-border/50">
                     <td className="py-2 pe-4 font-medium">{log.action}</td>
                     <td className="py-2 pe-4 text-xs font-mono">{log.target_entity ?? '-'}</td>

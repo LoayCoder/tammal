@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
+import type { GovernanceAuditLogEntry, PenaltyRow } from '@/features/ai-governance/types';
 
 function useGovernanceMutation(action: string, invalidateKeys: string[][] = []) {
   const qc = useQueryClient();
@@ -53,7 +53,7 @@ export function usePenalties() {
         body: { action: 'get_penalties' },
       });
       if (error) throw error;
-      return (data?.data ?? []) as any[];
+      return (data?.data ?? []) as PenaltyRow[];
     },
     staleTime: 30_000,
   });
@@ -81,7 +81,7 @@ export function useGovernanceAuditLog(limit = 50) {
         body: { action: 'get_audit_log', params: { limit } },
       });
       if (error) throw error;
-      return (data?.data ?? []) as any[];
+      return (data?.data ?? []) as GovernanceAuditLogEntry[];
     },
     staleTime: 30_000,
   });

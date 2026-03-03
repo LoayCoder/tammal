@@ -8,7 +8,7 @@ export function AnomalyTimeline() {
   const { t } = useTranslation();
   const { data: logs = [], isPending } = useAutonomousAuditLog(30);
 
-  const anomalyLogs = logs.filter((l: any) => l.anomaly_detected);
+  const anomalyLogs = logs.filter(l => l.anomaly_detected);
 
   if (isPending) return <Card><CardContent className="p-6 text-muted-foreground">{t('common.loading')}</CardContent></Card>;
 
@@ -25,7 +25,7 @@ export function AnomalyTimeline() {
           <p className="text-sm text-muted-foreground">{t('aiGovernance.autonomous.noAnomalies')}</p>
         ) : (
           <div className="space-y-3">
-            {anomalyLogs.map((log: any) => (
+            {anomalyLogs.map((log) => (
               <div key={log.id} className="flex items-start gap-3 border-s-2 border-destructive ps-3 py-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">

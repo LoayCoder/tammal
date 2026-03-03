@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { AutonomousAuditLogEntry } from '@/features/ai-governance/types';
 
 export interface AutonomousStateRow {
   tenant_id: string;
@@ -36,7 +37,7 @@ export function useAutonomousAuditLog(limit = 50) {
         body: { action: 'get_autonomous_audit_log', params: { limit } },
       });
       if (error) throw error;
-      return (data?.data ?? []) as any[];
+      return (data?.data ?? []) as AutonomousAuditLogEntry[];
     },
     staleTime: 30_000,
   });

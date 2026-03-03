@@ -23,3 +23,9 @@ export type { CostDailyRow } from './hooks/useCostBreakdown';
 export type { PerformanceDailyRow } from './hooks/usePerformanceTrend';
 export type { AutonomousStateRow } from './hooks/useAutonomousState';
 export type { SandboxEvaluation } from './hooks/useSandboxEvaluations';
+export type {
+  GovernanceAuditLogEntry,
+  AutonomousAuditLogEntry,
+  PenaltyRow,
+  RoutingSettings,
+} from './types';
