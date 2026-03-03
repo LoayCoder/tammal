@@ -43,6 +43,12 @@ export default function ObjectiveDetail() {
   const navigate = useNavigate();
   const { tenantId } = useTenantId();
   const { user } = useAuth();
+  const { isSuperAdmin } = useUserPermissions();
+  const { hasRole: isTenantAdmin } = useHasRole('tenant_admin');
+  const { hasRole: isManager } = useHasRole('manager');
+  const { isRepresentative } = useIsRepresentative();
+  const canManage = isSuperAdmin || isTenantAdmin || isManager;
+  const canUnlock = canManage; // only managers/admins can unlock
   const { objectives, isPending: objLoading, lockObjective, unlockObjective } = useObjectives();
   const {
     initiatives, isPending: initLoading, createInitiative, updateInitiative, deleteInitiative,
