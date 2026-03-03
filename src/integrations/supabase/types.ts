@@ -6396,8 +6396,12 @@ export type Database = {
       verify_invitation_code: {
         Args: { p_code: string }
         Returns: {
+          email: string
+          employee_id: string
+          full_name: string
           id: string
           tenant_id: string
+          tenant_name: string
           used: boolean
         }[]
       }
