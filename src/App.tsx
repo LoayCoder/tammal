@@ -79,6 +79,7 @@ const PointsDashboard = lazy(() => import("@/pages/recognition/PointsDashboard")
 const RedemptionCatalog = lazy(() => import("@/pages/recognition/RedemptionCatalog"));
 const RedemptionManagement = lazy(() => import("@/pages/admin/RedemptionManagement"));
 const AIGovernance = lazy(() => import("@/pages/admin/AIGovernance"));
+const ComponentShowcase = lazy(() => import("@/pages/dev/ComponentShowcase"));
 const queryClient = new QueryClient();
 
 const PageFallback = () => (
@@ -208,6 +209,9 @@ const App = () => (
                 <Route path="/spiritual/insights" element={<SpiritualInsights />} />
                 <Route path="/spiritual/calendar" element={<IslamicCalendar />} />
               </Route>
+
+              {/* ── Dev / QA routes ── */}
+              <Route path="/dev/components" element={<ComponentShowcase />} />
             </Route>
             </Route>
             <Route path="*" element={<NotFound />} />
