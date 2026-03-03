@@ -81,12 +81,14 @@ export default function IslamicCalendar() {
     if (!calendarDays?.length) return [];
     return calendarDays.map(day => {
       const hijriDay = parseInt(day.hijri.day);
-      const hijriKey = `${day.hijri.month.number}-${hijriDay}`;
+      const hijriMonth = day.hijri.month.number;
+      const hijriKey = `${hijriMonth}-${hijriDay}`;
       const event = ISLAMIC_EVENTS[hijriKey];
       const white = isWhiteDay(hijriDay);
       const gregDate = new Date(day.gregorian);
       const sunnah = isSunnahFastingDay(gregDate);
-      return { ...day, event, isWhiteDay: white, isSunnahDay: sunnah };
+      const isRamadan = hijriMonth === 9;
+      return { ...day, event, isWhiteDay: white, isSunnahDay: sunnah, isRamadan };
     });
   }, [calendarDays]);
 
@@ -103,7 +105,7 @@ export default function IslamicCalendar() {
     [enrichedDays]
   );
   const fastingDays = useMemo(() =>
-    enrichedDays.filter(d => d.isWhiteDay || d.isSunnahDay || d.event?.isFastingDay),
+    enrichedDays.filter(d => d.isRamadan || d.isWhiteDay || d.isSunnahDay || d.event?.isFastingDay),
     [enrichedDays]
   );
 
