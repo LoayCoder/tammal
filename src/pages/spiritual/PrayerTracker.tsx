@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Moon, TrendingUp } from 'lucide-react';
+import { Moon, TrendingUp, Check } from 'lucide-react';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { usePrayerTimes, PRAYER_NAMES } from '@/hooks/spiritual/usePrayerTimes';
 import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
 import { useSunnahLogs, SUNNAH_PRACTICES } from '@/hooks/spiritual/useSunnahLogs';
-import { Check } from 'lucide-react';
 import { PrayerCard } from '@/components/spiritual/PrayerCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
@@ -18,7 +17,6 @@ export default function PrayerTracker() {
   const navigate = useNavigate();
   const { preferences, isPending: prefsLoading } = useSpiritualPreferences();
 
-  // Redirect if not enabled
   const isActive = preferences?.enabled && preferences?.prayer_enabled;
 
   const { data: prayerData, isLoading: timesLoading } = usePrayerTimes(
@@ -29,7 +27,6 @@ export default function PrayerTracker() {
 
   const today = new Date().toISOString().split('T')[0];
 
-  // Get 7-day range for weekly summary
   const weekAgo = useMemo(() => {
     const d = new Date();
     d.setDate(d.getDate() - 6);
@@ -39,11 +36,10 @@ export default function PrayerTracker() {
   const { logs, todayLogs, logPrayer, isPending: logsLoading } = usePrayerLogs({ from: weekAgo, to: today });
   const { todayCompleted, togglePractice, isPending: sunnahLoading } = useSunnahLogs();
 
-  const voluntaryPractices = SUNNAH_PRACTICES.filter(p => p.key === 'duha' || p.key === 'rawatib');
+  const duha = SUNNAH_PRACTICES.find(p => p.key === 'duha')!;
 
-  // Weekly stats
   const weeklyStats = useMemo(() => {
-    const totalPossible = 7 * 5; // 7 days × 5 prayers
+    const totalPossible = 7 * 5;
     const completed = logs.filter((l) => l.status.startsWith('completed')).length;
     const pct = totalPossible > 0 ? Math.round((completed / totalPossible) * 100) : 0;
     return { completed, totalPossible, pct };
@@ -51,6 +47,10 @@ export default function PrayerTracker() {
 
   const handleLog = (prayerName: string, status: string) => {
     logPrayer.mutate({ prayer_name: prayerName, prayer_date: today, status });
+  };
+
+  const handleToggleSunnah = (prayerName: string, type: 'before' | 'after', completed: boolean) => {
+    togglePractice.mutate({ practice_type: `rawatib_${prayerName.toLowerCase()}_${type}`, completed });
   };
 
   if (prefsLoading) {
@@ -78,6 +78,7 @@ export default function PrayerTracker() {
   }
 
   const noLocation = !preferences?.city || !preferences?.country;
+  const duhaCompleted = todayCompleted.has('duha');
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -109,66 +110,103 @@ export default function PrayerTracker() {
         </Card>
       ) : timesLoading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-32" />)}
+          {[1, 2, 3, 4, 5, 6].map((i) => <Skeleton key={i} className="h-32" />)}
         </div>
       ) : (
         <>
-          {/* Prayer cards — obligatory + voluntary in one grid */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {PRAYER_NAMES.map((name) => (
-              <PrayerCard
-                key={name}
-                prayerName={name}
-                prayerTime={prayerData?.timings?.[name] ?? '--:--'}
-                log={todayLogs[name]}
-                onLog={(status) => handleLog(name, status)}
-                isPending={logPrayer.isPending}
-              />
-            ))}
+            {/* 1. Fajr */}
+            <PrayerCard
+              prayerName="Fajr"
+              prayerTime={prayerData?.timings?.Fajr ?? '--:--'}
+              log={todayLogs.Fajr}
+              onLog={(status) => handleLog('Fajr', status)}
+              isPending={logPrayer.isPending}
+              sunnahAfter={todayCompleted.has('rawatib_fajr_after')}
+              onToggleSunnah={(type, done) => handleToggleSunnah('Fajr', type, done)}
+              sunnahPending={togglePractice.isPending}
+            />
 
-            {/* Duha & Rawatib inline */}
-            {voluntaryPractices.map(practice => {
-              const done = todayCompleted.has(practice.key);
-              return (
-                <Card key={practice.key} className={cn(
-                  'glass-card border rounded-xl transition-all duration-300',
-                  done ? 'border-primary/40 bg-primary/[0.01]' : ''
-                )}>
-                  <CardContent className="p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl">{practice.emoji}</span>
-                        <div>
-                          <h3 className="font-semibold text-base">
-                            {i18n.language === 'ar' ? practice.labelAr : practice.labelEn}
-                          </h3>
-                          <p className="text-xs text-muted-foreground">
-                            {practice.key === 'duha'
-                              ? (i18n.language === 'ar' ? 'صلاة نافلة الضحى' : 'Mid-morning voluntary prayer')
-                              : (i18n.language === 'ar' ? 'السنن الرواتب قبل وبعد الفرائض' : 'Before/after obligatory prayers')
-                            }
-                          </p>
-                        </div>
-                      </div>
-                      {done && <Check className="h-5 w-5 text-primary" />}
+            {/* 2. Duha — between Fajr and Dhuhr */}
+            <Card className={cn(
+              'glass-card border rounded-xl transition-all duration-300',
+              duhaCompleted ? 'border-primary/40 bg-primary/[0.01]' : ''
+            )}>
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{duha.emoji}</span>
+                    <div>
+                      <h3 className="font-semibold text-base">
+                        {i18n.language === 'ar' ? duha.labelAr : duha.labelEn}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        {i18n.language === 'ar' ? 'صلاة نافلة الضحى' : 'Mid-morning voluntary prayer'}
+                      </p>
                     </div>
+                  </div>
+                  {duhaCompleted && <Check className="h-5 w-5 text-primary" />}
+                </div>
+                <Button
+                  size="sm"
+                  variant={duhaCompleted ? 'secondary' : 'outline'}
+                  onClick={() => togglePractice.mutate({ practice_type: 'duha', completed: !duhaCompleted })}
+                  disabled={togglePractice.isPending}
+                  className="w-full gap-1"
+                >
+                  {duhaCompleted
+                    ? (i18n.language === 'ar' ? 'تراجع' : 'Undo')
+                    : (i18n.language === 'ar' ? 'تم ✓' : 'Done ✓')
+                  }
+                </Button>
+              </CardContent>
+            </Card>
 
-                    <Button
-                      size="sm"
-                      variant={done ? 'secondary' : 'outline'}
-                      onClick={() => togglePractice.mutate({ practice_type: practice.key, completed: !done })}
-                      disabled={togglePractice.isPending}
-                      className="w-full gap-1"
-                    >
-                      {done
-                        ? (i18n.language === 'ar' ? 'تراجع' : 'Undo')
-                        : (i18n.language === 'ar' ? 'تم ✓' : 'Done ✓')
-                      }
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {/* 3. Dhuhr */}
+            <PrayerCard
+              prayerName="Dhuhr"
+              prayerTime={prayerData?.timings?.Dhuhr ?? '--:--'}
+              log={todayLogs.Dhuhr}
+              onLog={(status) => handleLog('Dhuhr', status)}
+              isPending={logPrayer.isPending}
+              sunnahBefore={todayCompleted.has('rawatib_dhuhr_before')}
+              sunnahAfter={todayCompleted.has('rawatib_dhuhr_after')}
+              onToggleSunnah={(type, done) => handleToggleSunnah('Dhuhr', type, done)}
+              sunnahPending={togglePractice.isPending}
+            />
+
+            {/* 4. Asr — no rawatib */}
+            <PrayerCard
+              prayerName="Asr"
+              prayerTime={prayerData?.timings?.Asr ?? '--:--'}
+              log={todayLogs.Asr}
+              onLog={(status) => handleLog('Asr', status)}
+              isPending={logPrayer.isPending}
+            />
+
+            {/* 5. Maghrib */}
+            <PrayerCard
+              prayerName="Maghrib"
+              prayerTime={prayerData?.timings?.Maghrib ?? '--:--'}
+              log={todayLogs.Maghrib}
+              onLog={(status) => handleLog('Maghrib', status)}
+              isPending={logPrayer.isPending}
+              sunnahAfter={todayCompleted.has('rawatib_maghrib_after')}
+              onToggleSunnah={(type, done) => handleToggleSunnah('Maghrib', type, done)}
+              sunnahPending={togglePractice.isPending}
+            />
+
+            {/* 6. Isha */}
+            <PrayerCard
+              prayerName="Isha"
+              prayerTime={prayerData?.timings?.Isha ?? '--:--'}
+              log={todayLogs.Isha}
+              onLog={(status) => handleLog('Isha', status)}
+              isPending={logPrayer.isPending}
+              sunnahAfter={todayCompleted.has('rawatib_isha_after')}
+              onToggleSunnah={(type, done) => handleToggleSunnah('Isha', type, done)}
+              sunnahPending={togglePractice.isPending}
+            />
           </div>
 
           {/* Weekly summary */}

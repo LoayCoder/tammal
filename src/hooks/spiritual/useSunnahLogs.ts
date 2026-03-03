@@ -10,7 +10,6 @@ export const SUNNAH_PRACTICES = [
   { key: 'adhkar_evening', emoji: '🌙', labelEn: 'Evening Adhkar', labelAr: 'أذكار المساء' },
   { key: 'tahajjud', emoji: '🕌', labelEn: 'Tahajjud', labelAr: 'التهجد' },
   { key: 'duha', emoji: '☀️', labelEn: 'Duha Prayer', labelAr: 'صلاة الضحى' },
-  { key: 'rawatib', emoji: '📿', labelEn: 'Rawatib', labelAr: 'الرواتب' },
 ] as const;
 
 export type PracticeKey = typeof SUNNAH_PRACTICES[number]['key'];
