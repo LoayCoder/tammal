@@ -217,6 +217,7 @@ export default function PrayerTracker() {
             {renderPrayerCard('Maghrib')}
             {renderPrayerCard('Isha')}
             {renderPrayerCard('Witr')}
+          </div>
 
           {/* Weekly summary */}
           <Card className="glass-card border-0 rounded-xl">
