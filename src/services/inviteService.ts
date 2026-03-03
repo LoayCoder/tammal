@@ -40,32 +40,16 @@ export async function verifyInviteCode(code: string): Promise<VerifyResult> {
     return { status: 'used' };
   }
 
-  // Fetch full invitation details now that we know the ID
-  // This will work for authenticated users via admin policies;
-  // for pre-auth, we construct minimal data from the RPC result
-  const { data: fullData } = await supabase
-    .from('invitations')
-    .select('id, code, email, full_name, tenant_id, employee_id, tenants(name)')
-    .eq('id', match.id)
-    .single();
-
-  if (fullData) {
-    return { status: 'valid', invitation: fullData as unknown as InvitationData };
-  }
-
-  // Fallback: if the user isn't authenticated yet, the SELECT above will fail.
-  // In that case, use an edge function or return minimal data.
-  // For now, return minimal data from the RPC — the accept flow will get full data post-signup.
   return {
     status: 'valid',
     invitation: {
       id: match.id,
       code: upperCode,
-      email: '',
-      full_name: null,
+      email: match.email ?? '',
+      full_name: match.full_name ?? null,
       tenant_id: match.tenant_id,
-      employee_id: null,
-      tenants: null,
+      employee_id: match.employee_id ?? null,
+      tenants: match.tenant_name ? { name: match.tenant_name } : null,
     },
   };
 }
