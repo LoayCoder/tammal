@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle, TrendingDown, Zap, Users, RotateCcw } from 'lucide-react';
-import type { EarlyWarning } from '@/lib/wellnessAnalytics';
+import type { EarlyWarning } from '@/lib/analytics/types';
 
 interface Props {
   warnings: EarlyWarning[];
