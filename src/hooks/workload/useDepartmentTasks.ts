@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
@@ -16,9 +16,27 @@ export interface DepartmentEmployee {
 export function useDepartmentTasks() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const { employee } = useCurrentEmployee();
+  const { user } = useAuth();
   const { tenantId } = useTenantId();
-  const departmentId = employee?.department_id ?? null;
+
+  // Fetch manager's department_id from employees table directly
+  const managerQuery = useQuery({
+    queryKey: ['manager-dept', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('employees')
+        .select('id, department_id')
+        .eq('user_id', user!.id)
+        .is('deleted_at', null)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  const departmentId = managerQuery.data?.department_id ?? null;
+  const managerId = managerQuery.data?.id ?? null;
 
   // Fetch department employees
   const employeesQuery = useQuery({
