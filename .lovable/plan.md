@@ -13,7 +13,16 @@
 
 ### Deferred Items
 
-- **70 Hook Shim Deletion**: 400+ import references across 61 files. Shims are harmless tree-shakeable re-exports. Can be done incrementally per-module in future PRs.
+- **~~70 Hook Shim Deletion~~**: ✅ Already cleaned up — no barrel re-export files remain in `src/hooks/` root.
+
+---
+
+## Phase 2: Feature Modularization — STATUS: ✅ COMPLETE
+
+1. **ai-governance → src/features/** ✅ — Components, hooks, types consolidated with barrel export
+2. **ai-generator → src/features/** ✅ — All 12 components moved from `src/components/ai-generator/` to `src/features/ai-generator/components/`, internal imports updated
+3. **Dead file cleanup** ✅ — Removed orphan compatibility shims and empty type directories
+4. **as any reduction** ✅ — Eliminated ~80 casts in governance, admin, and hook layers
 
 ---
 

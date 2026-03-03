@@ -10,12 +10,12 @@ import { SkeletonList } from '@/shared/loading/Skeletons';
 import { EmptyState } from '@/shared/empty/EmptyState';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Sparkles, RefreshCw, ShieldCheck, AlertTriangle } from 'lucide-react';
-import { TopControlBar } from '@/components/ai-generator/TopControlBar';
-import { ConfigPanel } from '@/components/ai-generator/ConfigPanel';
-import { QuestionCard } from '@/components/ai-generator/QuestionCard';
-import { ValidationReport } from '@/components/ai-generator/ValidationReport';
-import { BatchSaveDialog } from '@/components/ai-generator/BatchSaveDialog';
-import { WellnessSavePreviewDialog } from '@/components/ai-generator/WellnessSavePreviewDialog';
+import { TopControlBar } from '@/features/ai-generator/components/TopControlBar';
+import { ConfigPanel } from '@/features/ai-generator/components/ConfigPanel';
+import { QuestionCard } from '@/features/ai-generator/components/QuestionCard';
+import { ValidationReport } from '@/features/ai-generator/components/ValidationReport';
+import { BatchSaveDialog } from '@/features/ai-generator/components/BatchSaveDialog';
+import { WellnessSavePreviewDialog } from '@/features/ai-generator/components/WellnessSavePreviewDialog';
 import { useAIGenerator, GeneratorProvider } from '@/features/ai-generator';
 import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 
