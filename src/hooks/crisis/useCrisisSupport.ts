@@ -142,11 +142,30 @@ export function useFirstAiders(tenantId?: string) {
     enabled: !!user?.id,
   });
 
-  const firstAidersWithStatus = firstAiders.map(fa => {
+  // Realtime subscription for live status updates
+  useEffect(() => {
+    if (!tenantId) return;
+    const channel = supabase
+      .channel(`fa-schedule-${tenantId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mh_first_aider_schedule', filter: `tenant_id=eq.${tenantId}` }, () => {
+        queryClient.invalidateQueries({ queryKey: ['mh-first-aider-schedules', tenantId] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [tenantId, queryClient]);
+
+  // Re-compute status every 60s so schedule boundaries are reflected
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => setTick(t => t + 1), 60_000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const firstAidersWithStatus = useMemo(() => firstAiders.map(fa => {
     const schedule = schedules.find(s => s.first_aider_id === fa.id) || null;
     const statusInfo = computeFirstAiderStatus(schedule);
     return { ...fa, schedule, ...statusInfo };
-  });
+  }), [firstAiders, schedules, tick]);
 
   const createFirstAider = useMutation({
     mutationFn: async (data: Partial<FirstAider>) => {
