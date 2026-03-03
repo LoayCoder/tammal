@@ -2553,7 +2553,9 @@
       "weeklySummary": "الملخص الأسبوعي",
       "weeklyDescription": "انتظامك في الصلاة خلال آخر 7 أيام",
       "weeklyDetail": "{{completed}} من {{total}} صلاة مكتملة",
-      "names": { "fajr": "الفجر", "dhuhr": "الظهر", "asr": "العصر", "maghrib": "المغرب", "isha": "العشاء" },
+      "names": { "fajr": "الفجر", "dhuhr": "الظهر", "asr": "العصر", "maghrib": "المغرب", "isha": "العشاء", "witr": "الوتر" },
+      "witrTimeRange": "١٠:٠٠ م – {{fajr}}",
+      "witrDescription": "صلاة نافلة الليل",
       "status": { "completed_mosque": "المسجد", "completed_home": "المنزل", "completed_work": "العمل", "missed": "فاتت" },
       "feedback": {
         "excellent": "ما شاء الله — حافظت على انتظام قوي هذا الأسبوع. الانتظام يبني الاستقرار الداخلي.",

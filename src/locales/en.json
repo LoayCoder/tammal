@@ -2558,8 +2558,11 @@
         "dhuhr": "Dhuhr",
         "asr": "Asr",
         "maghrib": "Maghrib",
-        "isha": "Isha"
+        "isha": "Isha",
+        "witr": "Al-Witr"
       },
+      "witrTimeRange": "10:00 PM – {{fajr}}",
+      "witrDescription": "Voluntary night prayer",
       "status": {
         "completed_mosque": "Mosque",
         "completed_home": "Home",
