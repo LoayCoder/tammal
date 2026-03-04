@@ -2788,7 +2788,8 @@
     "tabs": {
       "overview": "نظرة عامة",
       "initiatives": "المبادرات",
-      "risk": "تحليل المخاطر"
+      "risk": "تحليل المخاطر",
+      "predictions": "توقعات الذكاء الاصطناعي"
     },
     "statusDistribution": "توزيع الحالات",
     "objectiveProgress": "تقدم الأهداف",
@@ -2803,7 +2804,12 @@
       "delayed": "متأخر",
       "not_started": "لم يبدأ",
       "completed": "مكتمل"
-    }
+    },
+    "delayPredictions": "توقعات التأخير بالذكاء الاصطناعي",
+    "confidence": "ثقة",
+    "riskFactors": "عوامل الخطر",
+    "suggestedActions": "الإجراءات المقترحة",
+    "noPredictions": "لا توجد توقعات تأخير — جميع المبادرات على المسار الصحيح"
   },
   "executive": {
     "pageTitle": "لوحة القيادة التنفيذية",
