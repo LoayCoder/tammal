@@ -2909,6 +2909,54 @@
     "lowRisk": "Low",
     "noOffHours": "No off-hours work detected"
   },
+  "portfolio": {
+    "pageTitle": "Initiative Portfolio",
+    "pageDesc": "Strategic objectives, initiative progress, and risk analysis",
+    "totalObjectives": "Total Objectives",
+    "activeInitiatives": "Active Initiatives",
+    "atRisk": "At Risk",
+    "avgProgress": "Avg. Progress",
+    "tabs": {
+      "overview": "Overview",
+      "initiatives": "Initiatives",
+      "risk": "Risk Analysis"
+    },
+    "statusDistribution": "Status Distribution",
+    "objectiveProgress": "Objective Progress",
+    "allObjectives": "All Objectives",
+    "initiatives": "initiatives",
+    "actions": "actions",
+    "riskHeatmap": "Risk Heatmap",
+    "noRisks": "No at-risk objectives detected",
+    "status": {
+      "on_track": "On Track",
+      "at_risk": "At Risk",
+      "delayed": "Delayed",
+      "not_started": "Not Started",
+      "completed": "Completed"
+    }
+  },
+  "executive": {
+    "pageTitle": "Executive Dashboard",
+    "pageDesc": "Strategic progress, workforce capacity, and organizational alignment",
+    "strategicProgress": "Strategic Progress",
+    "initiativeProgress": "Initiative Progress",
+    "workforceUtilization": "Workforce Utilization",
+    "burnoutRiskCount": "Burnout Risk",
+    "alignmentScore": "Alignment Score",
+    "totalWorkforce": "Total Workforce",
+    "strategicOverview": "Strategic Overview",
+    "objectives": "Objectives",
+    "initiatives": "Initiatives",
+    "departmentWorkload": "Department Workload",
+    "avgHours": "Avg. Hours",
+    "burnoutRiskMap": "Burnout Risk Map",
+    "noBurnoutRisks": "No burnout risks detected",
+    "organizationAlignment": "Organization Alignment",
+    "overallAlignment": "Overall Alignment",
+    "overallUtilization": "Overall Utilization",
+    "employeesAtRisk": "Employees At Risk"
+  },
   "teamWorkload": {
     "pageTitle": "Team Command Center",
     "pageDesc": "Monitor team workload, risk alerts, and objective alignment",
