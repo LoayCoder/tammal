@@ -111,6 +111,10 @@ export default function PortfolioDashboard() {
           <TabsTrigger value="risk" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
             {t('portfolio.tabs.risk')}
           </TabsTrigger>
+          <TabsTrigger value="predictions" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
+            <Brain className="h-3.5 w-3.5 me-1.5" />
+            {t('portfolio.tabs.predictions')}
+          </TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
