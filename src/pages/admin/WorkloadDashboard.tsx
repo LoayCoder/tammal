@@ -5,8 +5,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useWorkloadAnalytics, type TeamMemberLoad } from '@/hooks/workload/useWorkloadAnalytics';
+import { useWorkloadMetrics } from '@/hooks/workload/useWorkloadMetrics';
 import {
-  Users, AlertTriangle, Clock, Target, TrendingUp, Moon,
+  Users, AlertTriangle, Clock, Target, TrendingUp, Moon, Activity, Shield,
 } from 'lucide-react';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
@@ -27,16 +28,32 @@ function getLoadColor(mins: number) {
   return 'hsl(var(--chart-1))';
 }
 
+function classifyUtilization(pct: number) {
+  if (pct < 60) return { key: 'underutilized', variant: 'secondary' as const };
+  if (pct <= 90) return { key: 'healthy', variant: 'default' as const };
+  if (pct <= 110) return { key: 'highLoad', variant: 'secondary' as const };
+  return { key: 'burnoutRisk', variant: 'destructive' as const };
+}
+
 export default function WorkloadDashboard() {
   const { t } = useTranslation();
   const {
     teamLoad, objProgress, isPending,
     totalEmployees, avgLoadMinutes, atRiskCount, offHoursWorkers,
   } = useWorkloadAnalytics();
+  const { metrics, isPending: metricsLoading } = useWorkloadMetrics();
+
+  // Merge metrics into teamLoad for display
+  const getMetric = (empId: string) => metrics.find(m => m.employee_id === empId);
+
+  const avgUtilization = metrics.length > 0
+    ? Math.round(metrics.reduce((s, m) => s + m.utilization_percentage, 0) / metrics.length)
+    : 0;
 
   const statCards = [
     { title: t('adminWorkload.totalEmployees'), value: totalEmployees, icon: Users },
     { title: t('adminWorkload.avgLoad'), value: `${Math.round(avgLoadMinutes / 60)}h`, icon: Clock },
+    { title: t('adminWorkload.avgUtilization'), value: `${avgUtilization}%`, icon: Activity },
     { title: t('adminWorkload.atRisk'), value: atRiskCount, icon: AlertTriangle },
     { title: t('adminWorkload.offHoursWorkers'), value: offHoursWorkers, icon: Moon },
   ];
@@ -56,7 +73,7 @@ export default function WorkloadDashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-5">
         {statCards.map(stat => (
           <Card key={stat.title} className="glass-stat border-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -122,36 +139,57 @@ export default function WorkloadDashboard() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-border/30">
-                        <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.employee')}</th>
-                        <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.activeTasks')}</th>
-                        <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.load')}</th>
-                        <th className="text-start py-2 font-medium text-muted-foreground">{t('commandCenter.overdue')}</th>
-                        <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.offHours')}</th>
-                        <th className="text-start py-2 font-medium text-muted-foreground">{t('common.status')}</th>
-                      </tr>
+                       <tr className="border-b border-border/30">
+                         <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.employee')}</th>
+                         <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.activeTasks')}</th>
+                         <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.load')}</th>
+                         <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.utilization')}</th>
+                         <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.alignment')}</th>
+                         <th className="text-start py-2 font-medium text-muted-foreground">{t('commandCenter.overdue')}</th>
+                         <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.offHours')}</th>
+                         <th className="text-start py-2 font-medium text-muted-foreground">{t('common.status')}</th>
+                       </tr>
                     </thead>
                     <tbody>
                       {teamLoad.map(m => (
-                        <tr key={m.employeeId} className="border-b border-border/10">
-                          <td className="py-2.5 font-medium">{m.employeeName}</td>
-                          <td className="py-2.5">{m.activeTasks}</td>
-                          <td className="py-2.5">{Math.round(m.estimatedMinutes / 60 * 10) / 10}h</td>
-                          <td className="py-2.5">
-                            {m.overdueTasks > 0 ? (
-                              <Badge variant="destructive" className="text-xs">{m.overdueTasks}</Badge>
-                            ) : '—'}
-                          </td>
-                          <td className="py-2.5">{m.offHoursMinutes > 0 ? `${Math.round(m.offHoursMinutes / 60)}h` : '—'}</td>
-                          <td className="py-2.5">
-                            <Badge variant={m.estimatedMinutes > 480 ? 'destructive' : m.estimatedMinutes > 360 ? 'secondary' : 'default'} className="text-xs">
-                              {m.estimatedMinutes > 480 ? t('adminWorkload.overloaded') : m.estimatedMinutes > 360 ? t('commandCenter.busy') : t('commandCenter.healthy')}
-                            </Badge>
-                          </td>
-                        </tr>
+                         <tr key={m.employeeId} className="border-b border-border/10">
+                           <td className="py-2.5 font-medium">{m.employeeName}</td>
+                           <td className="py-2.5">{m.activeTasks}</td>
+                           <td className="py-2.5">{Math.round(m.estimatedMinutes / 60 * 10) / 10}h</td>
+                           <td className="py-2.5">
+                             {(() => {
+                               const metric = getMetric(m.employeeId);
+                               if (!metric) return '—';
+                               const cls = classifyUtilization(metric.utilization_percentage);
+                               return (
+                                 <Badge variant={cls.variant} className="text-xs">
+                                   {metric.utilization_percentage}% — {t(`adminWorkload.${cls.key}`)}
+                                 </Badge>
+                               );
+                             })()}
+                           </td>
+                           <td className="py-2.5">
+                             {(() => {
+                               const metric = getMetric(m.employeeId);
+                               if (!metric) return '—';
+                               return <span className="text-sm">{metric.alignment_score}%</span>;
+                             })()}
+                           </td>
+                           <td className="py-2.5">
+                             {m.overdueTasks > 0 ? (
+                               <Badge variant="destructive" className="text-xs">{m.overdueTasks}</Badge>
+                             ) : '—'}
+                           </td>
+                           <td className="py-2.5">{m.offHoursMinutes > 0 ? `${Math.round(m.offHoursMinutes / 60)}h` : '—'}</td>
+                           <td className="py-2.5">
+                             <Badge variant={m.estimatedMinutes > 480 ? 'destructive' : m.estimatedMinutes > 360 ? 'secondary' : 'default'} className="text-xs">
+                               {m.estimatedMinutes > 480 ? t('adminWorkload.overloaded') : m.estimatedMinutes > 360 ? t('commandCenter.busy') : t('commandCenter.healthy')}
+                             </Badge>
+                           </td>
+                         </tr>
                       ))}
                       {teamLoad.length === 0 && (
-                        <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">{t('common.noData')}</td></tr>
+                        <tr><td colSpan={8} className="py-8 text-center text-muted-foreground">{t('common.noData')}</td></tr>
                       )}
                     </tbody>
                   </table>
