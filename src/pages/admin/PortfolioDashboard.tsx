@@ -7,8 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useObjectives } from '@/hooks/workload/useObjectives';
 import { useInitiatives } from '@/hooks/workload/useInitiatives';
 import { useWorkloadAnalytics } from '@/hooks/workload/useWorkloadAnalytics';
+import { useDelayPredictions } from '@/hooks/workload/useWorkloadIntelligence';
 import {
-  Target, TrendingUp, AlertTriangle, Layers,
+  Target, TrendingUp, AlertTriangle, Layers, Brain, Clock,
 } from 'lucide-react';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -43,6 +44,7 @@ export default function PortfolioDashboard() {
   const { objectives, isPending: objLoading } = useObjectives();
   const { initiatives, isPending: initLoading } = useInitiatives();
   const { objProgress, isPending: analyticsLoading } = useWorkloadAnalytics();
+  const { data: predictions, isPending: predictionsLoading } = useDelayPredictions();
 
   const isPending = objLoading || initLoading || analyticsLoading;
 
