@@ -3544,6 +3544,54 @@
       "addSuccess": "Representative assignment added",
       "removeSuccess": "Representative assignment removed"
     }
+  },
+  "governance": {
+    "sla": {
+      "within_sla": "Within SLA",
+      "approaching": "Approaching Breach",
+      "breached": "Breached"
+    },
+    "escalation": {
+      "title": "Escalation History",
+      "level": "Level",
+      "noEvents": "No escalation events recorded"
+    },
+    "justification": {
+      "label": "Justification",
+      "placeholder": "Provide a reason for this action..."
+    },
+    "evidence": {
+      "title": "Evidence & Compliance",
+      "upload": "Upload",
+      "empty": "No evidence uploaded yet",
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      }
+    },
+    "settings": {
+      "title": "Escalation & Governance",
+      "subtitle": "Configure escalation thresholds, SLA rules, and compliance policies",
+      "escalationRules": "Escalation Rules",
+      "escalationRulesDesc": "Automated escalation levels based on overdue duration",
+      "daysOverdue": "days overdue",
+      "target": {
+        "manager": "Notify assigned manager",
+        "departmentHead": "Escalate to department head",
+        "executive": "Escalate to executive leadership"
+      },
+      "slaConfig": "SLA Configuration",
+      "slaConfigDesc": "Service level thresholds for task completion",
+      "slaWithinDesc": "Task is on track and within the expected deadline",
+      "slaApproachingDesc": "Task is within 2 days of the deadline",
+      "slaBreachedDesc": "Task has exceeded the planned deadline",
+      "policies": "Governance Policies",
+      "policiesDesc": "Active compliance rules for task management",
+      "policyJustification": "All due date extensions and task deletions require a mandatory justification",
+      "policyEvidence": "Actions require uploaded verification (documents, photos, or reports) approved by a designated verifier",
+      "policyAudit": "All governance actions are logged in the audit trail with full change history"
+    }
   }
 }
 
