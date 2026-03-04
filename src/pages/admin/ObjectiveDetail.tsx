@@ -5,7 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Plus, ArrowRight, Pencil, Trash2, ChevronLeft, Rocket, FolderOpen, Lock, Unlock } from 'lucide-react';
+import { Plus, ArrowRight, Pencil, Trash2, ChevronLeft, Rocket, FolderOpen, Lock, Unlock, AlertTriangle } from 'lucide-react';
+import { SlaBadge } from '@/components/workload/governance/SlaBadge';
+import { EscalationPanel } from '@/components/workload/governance/EscalationPanel';
+import { JustificationDialog } from '@/components/workload/governance/JustificationDialog';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -69,6 +72,9 @@ export default function ObjectiveDetail() {
   const [actionInitId, setActionInitId] = useState<string>('');
   const [deleteActionDialog, setDeleteActionDialog] = useState(false);
   const [actionToDelete, setActionToDelete] = useState<string | null>(null);
+  const [justifyDeleteOpen, setJustifyDeleteOpen] = useState(false);
+  const [justifyDeleteTarget, setJustifyDeleteTarget] = useState<{ type: 'initiative' | 'action'; id: string } | null>(null);
+  const [escalationTaskId, setEscalationTaskId] = useState<string | null>(null);
 
   const {
     actions, createAction, updateAction, deleteAction,
