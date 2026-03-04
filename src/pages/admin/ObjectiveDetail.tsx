@@ -5,7 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Plus, ArrowRight, Pencil, Trash2, ChevronLeft, Rocket, FolderOpen, Lock, Unlock } from 'lucide-react';
+import { Plus, ArrowRight, Pencil, Trash2, ChevronLeft, Rocket, FolderOpen, Lock, Unlock, AlertTriangle } from 'lucide-react';
+import { SlaBadge } from '@/components/workload/governance/SlaBadge';
+import { EscalationPanel } from '@/components/workload/governance/EscalationPanel';
+import { JustificationDialog } from '@/components/workload/governance/JustificationDialog';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -69,6 +72,9 @@ export default function ObjectiveDetail() {
   const [actionInitId, setActionInitId] = useState<string>('');
   const [deleteActionDialog, setDeleteActionDialog] = useState(false);
   const [actionToDelete, setActionToDelete] = useState<string | null>(null);
+  const [justifyDeleteOpen, setJustifyDeleteOpen] = useState(false);
+  const [justifyDeleteTarget, setJustifyDeleteTarget] = useState<{ type: 'initiative' | 'action'; id: string } | null>(null);
+  const [escalationTaskId, setEscalationTaskId] = useState<string | null>(null);
 
   const {
     actions, createAction, updateAction, deleteAction,
@@ -189,7 +195,7 @@ export default function ObjectiveDetail() {
                       {!init.is_locked && canManage && (
                         <>
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedInit(init); setInitDialogOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { setInitToDelete(init.id); setDeleteInitDialog(true); }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { setJustifyDeleteTarget({ type: 'initiative', id: init.id }); setJustifyDeleteOpen(true); }}><Trash2 className="h-3.5 w-3.5" /></Button>
                         </>
                       )}
                     </div>
@@ -214,6 +220,7 @@ export default function ObjectiveDetail() {
                             <TableHead>{t('workload.actions.title')}</TableHead>
                             <TableHead className="w-16">{t('workload.actions.priority')}</TableHead>
                             <TableHead className="w-20">{t('workload.actions.estimatedHours')}</TableHead>
+                            <TableHead className="w-20">SLA</TableHead>
                             <TableHead className="w-24">{t('common.status')}</TableHead>
                             <TableHead className="w-24">{t('common.actions')}</TableHead>
                           </TableRow>
@@ -229,6 +236,7 @@ export default function ObjectiveDetail() {
                               </TableCell>
                               <TableCell><Badge variant="outline">P{act.priority}</Badge></TableCell>
                               <TableCell>{Number(act.estimated_hours)}h</TableCell>
+                              <TableCell><SlaBadge dueDate={act.planned_end} completedAt={act.status === 'completed' ? act.updated_at : null} className="text-xs" /></TableCell>
                               <TableCell><Badge variant="outline" className={statusColors[act.status] || ''}>{t(`workload.status.${act.status}`)}</Badge></TableCell>
                               <TableCell>
                                 <div className="flex gap-1">
@@ -246,7 +254,15 @@ export default function ObjectiveDetail() {
                                   {!act.is_locked && canManage && (
                                     <>
                                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedAction(act); setActionInitId(init.id); setActionDialogOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
-                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { setActionToDelete(act.id); setDeleteActionDialog(true); }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { setJustifyDeleteTarget({ type: 'action', id: act.id }); setJustifyDeleteOpen(true); }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEscalationTaskId(escalationTaskId === act.id ? null : act.id)}>
+                                            <AlertTriangle className="h-3.5 w-3.5" />
+                                          </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>{t('governance.escalation.title')}</TooltipContent>
+                                      </Tooltip>
                                     </>
                                   )}
                                 </div>
@@ -267,6 +283,32 @@ export default function ObjectiveDetail() {
       {/* Dialogs */}
       <InitiativeDialog open={initDialogOpen} onOpenChange={setInitDialogOpen} initiative={selectedInit} objectiveId={id!} onSubmit={handleInitSubmit} isSubmitting={initCreating || initUpdating} />
       <ActionDialog open={actionDialogOpen} onOpenChange={setActionDialogOpen} action={selectedAction} initiativeId={actionInitId} onSubmit={handleActionSubmit} isSubmitting={actCreating || actUpdating} />
+
+      {/* Escalation Panel for selected task */}
+      {escalationTaskId && (() => {
+        const act = actions.find(a => a.id === escalationTaskId);
+        return act ? (
+          <EscalationPanel taskId={act.id} taskTitle={act.title} dueDate={act.planned_end} completedAt={act.status === 'completed' ? act.updated_at : null} />
+        ) : null;
+      })()}
+
+      {/* Justification Delete Dialog */}
+      <JustificationDialog
+        open={justifyDeleteOpen}
+        onOpenChange={setJustifyDeleteOpen}
+        actionLabel={t('common.delete')}
+        description={t('governance.justification.deleteDesc')}
+        isPending={initDeleting || actDeleting}
+        onConfirm={(justification) => {
+          if (justifyDeleteTarget?.type === 'initiative') {
+            deleteInitiative(justifyDeleteTarget.id);
+          } else if (justifyDeleteTarget?.type === 'action') {
+            deleteAction(justifyDeleteTarget.id);
+          }
+          setJustifyDeleteOpen(false);
+          setJustifyDeleteTarget(null);
+        }}
+      />
 
       <AlertDialog open={deleteInitDialog} onOpenChange={setDeleteInitDialog}>
         <AlertDialogContent>

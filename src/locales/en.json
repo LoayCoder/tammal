@@ -2920,7 +2920,8 @@
     "tabs": {
       "overview": "Overview",
       "initiatives": "Initiatives",
-      "risk": "Risk Analysis"
+      "risk": "Risk Analysis",
+      "predictions": "AI Predictions"
     },
     "statusDistribution": "Status Distribution",
     "objectiveProgress": "Objective Progress",
@@ -2935,7 +2936,12 @@
       "delayed": "Delayed",
       "not_started": "Not Started",
       "completed": "Completed"
-    }
+    },
+    "delayPredictions": "AI Delay Predictions",
+    "confidence": "confidence",
+    "riskFactors": "Risk Factors",
+    "suggestedActions": "Suggested Actions",
+    "noPredictions": "No delay predictions — all initiatives are on track"
   },
   "executive": {
     "pageTitle": "Executive Dashboard",
@@ -3559,7 +3565,8 @@
     },
     "justification": {
       "label": "Justification",
-      "placeholder": "Provide a reason for this action..."
+      "placeholder": "Provide a reason for this action...",
+      "deleteDesc": "A justification is required before deleting this item. This action will be logged in the audit trail."
     },
     "evidence": {
       "title": "Evidence & Compliance",

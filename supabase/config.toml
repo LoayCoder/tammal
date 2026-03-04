@@ -80,3 +80,9 @@ verify_jwt = false
 
 [functions.manage-representative-task]
 verify_jwt = false
+
+[functions.workload-intelligence]
+verify_jwt = false
+
+[functions.escalation-check]
+verify_jwt = false

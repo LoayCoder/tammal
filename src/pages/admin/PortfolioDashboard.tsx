@@ -7,8 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useObjectives } from '@/hooks/workload/useObjectives';
 import { useInitiatives } from '@/hooks/workload/useInitiatives';
 import { useWorkloadAnalytics } from '@/hooks/workload/useWorkloadAnalytics';
+import { useDelayPredictions } from '@/hooks/workload/useWorkloadIntelligence';
 import {
-  Target, TrendingUp, AlertTriangle, Layers,
+  Target, TrendingUp, AlertTriangle, Layers, Brain, Clock,
 } from 'lucide-react';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -43,6 +44,7 @@ export default function PortfolioDashboard() {
   const { objectives, isPending: objLoading } = useObjectives();
   const { initiatives, isPending: initLoading } = useInitiatives();
   const { objProgress, isPending: analyticsLoading } = useWorkloadAnalytics();
+  const { data: predictions, isPending: predictionsLoading } = useDelayPredictions();
 
   const isPending = objLoading || initLoading || analyticsLoading;
 
@@ -108,6 +110,10 @@ export default function PortfolioDashboard() {
           </TabsTrigger>
           <TabsTrigger value="risk" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
             {t('portfolio.tabs.risk')}
+          </TabsTrigger>
+          <TabsTrigger value="predictions" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
+            <Brain className="h-3.5 w-3.5 me-1.5" />
+            {t('portfolio.tabs.predictions')}
           </TabsTrigger>
         </TabsList>
 
@@ -253,6 +259,61 @@ export default function PortfolioDashboard() {
                 </div>
               ) : (
                 <p className="text-center text-muted-foreground py-8">{t('portfolio.noRisks')}</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* AI Predictions Tab */}
+        <TabsContent value="predictions" className="space-y-4">
+          <Card className="glass-card border-0">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Brain className="h-4 w-4 text-primary" />
+                {t('portfolio.delayPredictions')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {predictionsLoading ? <Skeleton className="h-40" /> : (predictions ?? []).length > 0 ? (
+                <div className="space-y-3">
+                  {(predictions ?? []).map(pred => (
+                    <div key={pred.initiativeId} className="p-4 rounded-lg border border-destructive/20 bg-destructive/5 space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="text-sm font-semibold truncate">{pred.initiativeTitle}</h3>
+                        <Badge variant="destructive" className="text-xs gap-1">
+                          <Clock className="h-3 w-3" />
+                          +{pred.predictedDelayDays}d
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {Math.round(pred.confidence * 100)}% {t('portfolio.confidence')}
+                        </Badge>
+                      </div>
+                      {pred.riskFactors.length > 0 && (
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground">{t('portfolio.riskFactors')}</p>
+                          {pred.riskFactors.map((f, i) => (
+                            <p key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                              <AlertTriangle className="h-3 w-3 text-destructive shrink-0 mt-0.5" />
+                              {f}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                      {pred.suggestedActions.length > 0 && (
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground">{t('portfolio.suggestedActions')}</p>
+                          {pred.suggestedActions.map((a, i) => (
+                            <p key={i} className="text-xs text-primary">{a}</p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-muted-foreground py-8">{t('portfolio.noPredictions')}</p>
               )}
             </CardContent>
           </Card>
