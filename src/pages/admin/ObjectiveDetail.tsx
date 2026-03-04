@@ -195,7 +195,7 @@ export default function ObjectiveDetail() {
                       {!init.is_locked && canManage && (
                         <>
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedInit(init); setInitDialogOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { setInitToDelete(init.id); setDeleteInitDialog(true); }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { setJustifyDeleteTarget({ type: 'initiative', id: init.id }); setJustifyDeleteOpen(true); }}><Trash2 className="h-3.5 w-3.5" /></Button>
                         </>
                       )}
                     </div>
