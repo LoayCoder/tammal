@@ -3565,7 +3565,8 @@
     },
     "justification": {
       "label": "Justification",
-      "placeholder": "Provide a reason for this action..."
+      "placeholder": "Provide a reason for this action...",
+      "deleteDesc": "A justification is required before deleting this item. This action will be logged in the audit trail."
     },
     "evidence": {
       "title": "Evidence & Compliance",
