@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +21,7 @@ import { InitiativeDialog } from '@/components/workload/InitiativeDialog';
 import { ActionDialog } from '@/components/workload/ActionDialog';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuditLog } from '@/hooks/audit/useAuditLog';
 import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
 import { useIsRepresentative } from '@/hooks/workload/useIsRepresentative';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -85,13 +87,13 @@ export default function ObjectiveDetail() {
   if (objLoading) return <div className="space-y-4">{[1,2,3].map(i => <Skeleton key={i} className="h-24" />)}</div>;
   if (!objective) return <div className="text-center py-12 text-muted-foreground">{t('common.noData')}</div>;
 
-  const handleInitSubmit = (data: any) => {
+  const handleInitSubmit = (data: Record<string, unknown>) => {
     if (selectedInit) updateInitiative({ id: selectedInit.id, ...data });
     else createInitiative({ ...data, tenant_id: tenantId });
     setInitDialogOpen(false);
   };
 
-  const handleActionSubmit = (data: any) => {
+  const handleActionSubmit = (data: Record<string, unknown>) => {
     if (selectedAction) updateAction({ id: selectedAction.id, ...data });
     else createAction({ ...data, tenant_id: tenantId });
     setActionDialogOpen(false);

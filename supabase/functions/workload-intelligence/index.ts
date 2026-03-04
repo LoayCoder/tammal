@@ -22,10 +22,9 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, serviceKey);
-
-    // Verify user
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+    // Verify user identity
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -37,15 +36,30 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { action, params } = await req.json();
+    const supabase = createClient(supabaseUrl, serviceKey);
+
+    // Resolve tenant_id server-side from user's profile — never trust client input
+    const { data: profile, error: profileErr } = await supabase
+      .from("profiles")
+      .select("tenant_id")
+      .eq("user_id", userData.user.id)
+      .single();
+
+    if (profileErr || !profile?.tenant_id) {
+      return new Response(JSON.stringify({ error: "No tenant found for user" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const tenantId = profile.tenant_id;
+    const { action } = await req.json();
 
     if (action === "predict_delays") {
-      const { tenant_id } = params;
-      // Fetch active initiatives with their actions
       const { data: initiatives } = await supabase
         .from("initiatives")
         .select("id, title, status, progress, start_date, end_date")
-        .eq("tenant_id", tenant_id)
+        .eq("tenant_id", tenantId)
         .is("deleted_at", null)
         .in("status", ["planned", "in_progress"]);
 
@@ -55,6 +69,7 @@ Deno.serve(async (req) => {
           .from("objective_actions")
           .select("id, status, estimated_hours, planned_end, created_at, updated_at")
           .eq("initiative_id", init.id)
+          .eq("tenant_id", tenantId)
           .is("deleted_at", null);
 
         const total = actions?.length ?? 0;
@@ -68,7 +83,6 @@ Deno.serve(async (req) => {
         const overdueRate = overdue / total;
         const blockedRate = blocked / total;
 
-        // Simple heuristic delay prediction
         let predictedDelayDays = 0;
         const riskFactors: string[] = [];
         const suggestedActions: string[] = [];
@@ -85,7 +99,7 @@ Deno.serve(async (req) => {
         }
         if (completionRate < 0.3 && init.end_date) {
           const daysLeft = Math.max(0, (new Date(init.end_date).getTime() - Date.now()) / 86400000);
-          const daysNeeded = (total - completed) * 3; // rough estimate
+          const daysNeeded = (total - completed) * 3;
           if (daysNeeded > daysLeft) {
             predictedDelayDays += Math.round(daysNeeded - daysLeft);
             riskFactors.push("Low completion velocity relative to deadline");
@@ -111,17 +125,15 @@ Deno.serve(async (req) => {
     }
 
     if (action === "suggest_redistribution") {
-      const { tenant_id } = params;
-      // Fetch employee workload metrics
       const { data: metrics } = await supabase
         .from("workload_metrics")
         .select("*")
-        .eq("tenant_id", tenant_id)
+        .eq("tenant_id", tenantId)
         .is("deleted_at", null);
 
       const overloaded = (metrics ?? []).filter((m: any) => m.utilization_percentage > 110);
       const underloaded = (metrics ?? []).filter((m: any) => m.utilization_percentage < 60);
-      
+
       const suggestions = [];
       for (const over of overloaded) {
         const best = underloaded.sort((a: any, b: any) => a.utilization_percentage - b.utilization_percentage)[0];
