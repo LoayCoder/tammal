@@ -254,7 +254,15 @@ export default function ObjectiveDetail() {
                                   {!act.is_locked && canManage && (
                                     <>
                                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedAction(act); setActionInitId(init.id); setActionDialogOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
-                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { setActionToDelete(act.id); setDeleteActionDialog(true); }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { setJustifyDeleteTarget({ type: 'action', id: act.id }); setJustifyDeleteOpen(true); }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEscalationTaskId(escalationTaskId === act.id ? null : act.id)}>
+                                            <AlertTriangle className="h-3.5 w-3.5" />
+                                          </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>{t('governance.escalation.title')}</TooltipContent>
+                                      </Tooltip>
                                     </>
                                   )}
                                 </div>
@@ -275,6 +283,32 @@ export default function ObjectiveDetail() {
       {/* Dialogs */}
       <InitiativeDialog open={initDialogOpen} onOpenChange={setInitDialogOpen} initiative={selectedInit} objectiveId={id!} onSubmit={handleInitSubmit} isSubmitting={initCreating || initUpdating} />
       <ActionDialog open={actionDialogOpen} onOpenChange={setActionDialogOpen} action={selectedAction} initiativeId={actionInitId} onSubmit={handleActionSubmit} isSubmitting={actCreating || actUpdating} />
+
+      {/* Escalation Panel for selected task */}
+      {escalationTaskId && (() => {
+        const act = actions.find(a => a.id === escalationTaskId);
+        return act ? (
+          <EscalationPanel taskId={act.id} taskTitle={act.title} dueDate={act.planned_end} completedAt={act.status === 'completed' ? act.updated_at : null} />
+        ) : null;
+      })()}
+
+      {/* Justification Delete Dialog */}
+      <JustificationDialog
+        open={justifyDeleteOpen}
+        onOpenChange={setJustifyDeleteOpen}
+        actionLabel={t('common.delete')}
+        description={t('governance.justification.deleteDesc')}
+        isPending={initDeleting || actDeleting}
+        onConfirm={(justification) => {
+          if (justifyDeleteTarget?.type === 'initiative') {
+            deleteInitiative(justifyDeleteTarget.id);
+          } else if (justifyDeleteTarget?.type === 'action') {
+            deleteAction(justifyDeleteTarget.id);
+          }
+          setJustifyDeleteOpen(false);
+          setJustifyDeleteTarget(null);
+        }}
+      />
 
       <AlertDialog open={deleteInitDialog} onOpenChange={setDeleteInitDialog}>
         <AlertDialogContent>
