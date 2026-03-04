@@ -17,6 +17,7 @@ export type Database = {
       action_sub_tasks: {
         Row: {
           action_id: string
+          assigned_user_id: string | null
           completed_at: string | null
           created_at: string
           deleted_at: string | null
@@ -30,6 +31,7 @@ export type Database = {
         }
         Insert: {
           action_id: string
+          assigned_user_id?: string | null
           completed_at?: string | null
           created_at?: string
           deleted_at?: string | null
@@ -43,6 +45,7 @@ export type Database = {
         }
         Update: {
           action_id?: string
+          assigned_user_id?: string | null
           completed_at?: string | null
           created_at?: string
           deleted_at?: string | null
@@ -60,6 +63,13 @@ export type Database = {
             columns: ["action_id"]
             isOneToOne: false
             referencedRelation: "objective_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_sub_tasks_assigned_user_id_fkey"
+            columns: ["assigned_user_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
@@ -1544,6 +1554,57 @@ export type Database = {
           },
         ]
       }
+      employee_capacity: {
+        Row: {
+          created_at: string | null
+          daily_capacity_minutes: number
+          deleted_at: string | null
+          id: string
+          max_concurrent_actions: number
+          tenant_id: string
+          updated_at: string | null
+          user_id: string
+          weekly_capacity_minutes: number
+        }
+        Insert: {
+          created_at?: string | null
+          daily_capacity_minutes?: number
+          deleted_at?: string | null
+          id?: string
+          max_concurrent_actions?: number
+          tenant_id: string
+          updated_at?: string | null
+          user_id: string
+          weekly_capacity_minutes?: number
+        }
+        Update: {
+          created_at?: string | null
+          daily_capacity_minutes?: number
+          deleted_at?: string | null
+          id?: string
+          max_concurrent_actions?: number
+          tenant_id?: string
+          updated_at?: string | null
+          user_id?: string
+          weekly_capacity_minutes?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_capacity_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_capacity_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employee_responses: {
         Row: {
           answer_text: string | null
@@ -1712,6 +1773,61 @@ export type Database = {
           },
           {
             foreignKeyName: "employees_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      escalation_events: {
+        Row: {
+          created_at: string | null
+          deleted_at: string | null
+          escalated_to: string | null
+          escalation_level: number
+          id: string
+          reason: string | null
+          task_id: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          deleted_at?: string | null
+          escalated_to?: string | null
+          escalation_level?: number
+          id?: string
+          reason?: string | null
+          task_id: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string | null
+          deleted_at?: string | null
+          escalated_to?: string | null
+          escalation_level?: number
+          id?: string
+          reason?: string | null
+          task_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escalation_events_escalated_to_fkey"
+            columns: ["escalated_to"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escalation_events_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "objective_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escalation_events_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -1921,6 +2037,7 @@ export type Database = {
       }
       initiatives: {
         Row: {
+          accountable_user_id: string | null
           budget: number | null
           created_at: string
           deleted_at: string | null
@@ -1944,6 +2061,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          accountable_user_id?: string | null
           budget?: number | null
           created_at?: string
           deleted_at?: string | null
@@ -1967,6 +2085,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          accountable_user_id?: string | null
           budget?: number | null
           created_at?: string
           deleted_at?: string | null
@@ -1990,6 +2109,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "initiatives_accountable_user_id_fkey"
+            columns: ["accountable_user_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "initiatives_department_id_fkey"
             columns: ["department_id"]
@@ -3480,6 +3606,7 @@ export type Database = {
       }
       objective_actions: {
         Row: {
+          accountable_user_id: string | null
           actual_hours: number | null
           assignee_id: string | null
           comments: Json
@@ -3489,6 +3616,8 @@ export type Database = {
           dependencies: string[] | null
           description: string | null
           estimated_hours: number
+          evidence_type: string | null
+          evidence_url: string | null
           id: string
           initiative_id: string
           is_locked: boolean
@@ -3498,15 +3627,21 @@ export type Database = {
           planned_end: string | null
           planned_start: string | null
           priority: number
+          priority_score: number | null
+          sla_minutes: number | null
+          sla_status: string | null
           source: string
           status: string
           tenant_id: string
           title: string
           title_ar: string | null
           updated_at: string
+          verified_at: string | null
+          verified_by: string | null
           work_hours_only: boolean
         }
         Insert: {
+          accountable_user_id?: string | null
           actual_hours?: number | null
           assignee_id?: string | null
           comments?: Json
@@ -3516,6 +3651,8 @@ export type Database = {
           dependencies?: string[] | null
           description?: string | null
           estimated_hours?: number
+          evidence_type?: string | null
+          evidence_url?: string | null
           id?: string
           initiative_id: string
           is_locked?: boolean
@@ -3525,15 +3662,21 @@ export type Database = {
           planned_end?: string | null
           planned_start?: string | null
           priority?: number
+          priority_score?: number | null
+          sla_minutes?: number | null
+          sla_status?: string | null
           source?: string
           status?: string
           tenant_id: string
           title: string
           title_ar?: string | null
           updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
           work_hours_only?: boolean
         }
         Update: {
+          accountable_user_id?: string | null
           actual_hours?: number | null
           assignee_id?: string | null
           comments?: Json
@@ -3543,6 +3686,8 @@ export type Database = {
           dependencies?: string[] | null
           description?: string | null
           estimated_hours?: number
+          evidence_type?: string | null
+          evidence_url?: string | null
           id?: string
           initiative_id?: string
           is_locked?: boolean
@@ -3552,15 +3697,27 @@ export type Database = {
           planned_end?: string | null
           planned_start?: string | null
           priority?: number
+          priority_score?: number | null
+          sla_minutes?: number | null
+          sla_status?: string | null
           source?: string
           status?: string
           tenant_id?: string
           title?: string
           title_ar?: string | null
           updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
           work_hours_only?: boolean
         }
         Relationships: [
+          {
+            foreignKeyName: "objective_actions_accountable_user_id_fkey"
+            columns: ["accountable_user_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "objective_actions_assignee_id_fkey"
             columns: ["assignee_id"]
@@ -3580,6 +3737,13 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "objective_actions_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
         ]
@@ -5116,6 +5280,7 @@ export type Database = {
       }
       strategic_objectives: {
         Row: {
+          accountable_user_id: string | null
           created_at: string
           deleted_at: string | null
           description: string | null
@@ -5137,6 +5302,7 @@ export type Database = {
           year: number
         }
         Insert: {
+          accountable_user_id?: string | null
           created_at?: string
           deleted_at?: string | null
           description?: string | null
@@ -5158,6 +5324,7 @@ export type Database = {
           year?: number
         }
         Update: {
+          accountable_user_id?: string | null
           created_at?: string
           deleted_at?: string | null
           description?: string | null
@@ -5179,6 +5346,13 @@ export type Database = {
           year?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "strategic_objectives_accountable_user_id_fkey"
+            columns: ["accountable_user_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "strategic_objectives_tenant_id_fkey"
             columns: ["tenant_id"]
@@ -5396,6 +5570,58 @@ export type Database = {
           },
           {
             foreignKeyName: "task_connectors_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_dependencies: {
+        Row: {
+          created_at: string | null
+          deleted_at: string | null
+          dependency_type: string
+          depends_on_task_id: string
+          id: string
+          task_id: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          deleted_at?: string | null
+          dependency_type?: string
+          depends_on_task_id: string
+          id?: string
+          task_id: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string | null
+          deleted_at?: string | null
+          dependency_type?: string
+          depends_on_task_id?: string
+          id?: string
+          task_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_dependencies_depends_on_task_id_fkey"
+            columns: ["depends_on_task_id"]
+            isOneToOne: false
+            referencedRelation: "objective_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_dependencies_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "objective_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_dependencies_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -6269,6 +6495,54 @@ export type Database = {
           },
           {
             foreignKeyName: "work_sites_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workload_metrics: {
+        Row: {
+          alignment_score: number | null
+          burnout_risk_score: number | null
+          deleted_at: string | null
+          employee_id: string
+          id: string
+          tenant_id: string
+          updated_at: string | null
+          utilization_percentage: number | null
+        }
+        Insert: {
+          alignment_score?: number | null
+          burnout_risk_score?: number | null
+          deleted_at?: string | null
+          employee_id: string
+          id?: string
+          tenant_id: string
+          updated_at?: string | null
+          utilization_percentage?: number | null
+        }
+        Update: {
+          alignment_score?: number | null
+          burnout_risk_score?: number | null
+          deleted_at?: string | null
+          employee_id?: string
+          id?: string
+          tenant_id?: string
+          updated_at?: string | null
+          utilization_percentage?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workload_metrics_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workload_metrics_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
