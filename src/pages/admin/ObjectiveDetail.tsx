@@ -47,6 +47,7 @@ export default function ObjectiveDetail() {
   const navigate = useNavigate();
   const { tenantId } = useTenantId();
   const { user } = useAuth();
+  const { logEvent } = useAuditLog();
   const { isSuperAdmin } = useUserPermissions();
   const { hasRole: isTenantAdmin } = useHasRole('tenant_admin');
   const { hasRole: isManager } = useHasRole('manager');
@@ -303,8 +304,22 @@ export default function ObjectiveDetail() {
         onConfirm={(justification) => {
           if (justifyDeleteTarget?.type === 'initiative') {
             deleteInitiative(justifyDeleteTarget.id);
+            logEvent({
+              tenant_id: tenantId,
+              entity_type: 'initiative',
+              entity_id: justifyDeleteTarget.id,
+              action: 'delete',
+              changes: { justification },
+            });
           } else if (justifyDeleteTarget?.type === 'action') {
             deleteAction(justifyDeleteTarget.id);
+            logEvent({
+              tenant_id: tenantId,
+              entity_type: 'objective_action',
+              entity_id: justifyDeleteTarget.id,
+              action: 'delete',
+              changes: { justification },
+            });
           }
           setJustifyDeleteOpen(false);
           setJustifyDeleteTarget(null);
