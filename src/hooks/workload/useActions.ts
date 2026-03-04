@@ -68,6 +68,7 @@ export function useActions(initiativeId?: string) {
       let query = supabase
         .from('objective_actions')
         .select('*')
+        .eq('tenant_id', tenantId!)
         .is('deleted_at', null)
         .order('priority', { ascending: true });
       if (initiativeId) query = query.eq('initiative_id', initiativeId);

@@ -31,6 +31,7 @@ export function useWorkloadMetrics(employeeId?: string) {
       let query = supabase
         .from('workload_metrics')
         .select('*')
+        .eq('tenant_id', tenantId!)
         .is('deleted_at', null);
       if (employeeId) query = query.eq('employee_id', employeeId);
       const { data, error } = await query;
@@ -50,7 +51,7 @@ export function useWorkloadMetrics(employeeId?: string) {
       const [util, burnout, alignment] = await Promise.all([
         calculateUtilization(empId, tenantId),
         detectBurnoutRisk(empId, tenantId),
-        computeAlignmentScore(empId),
+        computeAlignmentScore(empId, tenantId),
       ]);
       await upsertWorkloadMetrics(tenantId, empId, {
         utilization_percentage: util.utilization,

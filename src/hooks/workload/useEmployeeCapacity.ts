@@ -35,6 +35,7 @@ export function useEmployeeCapacity(employeeId?: string) {
       let query = supabase
         .from('employee_capacity')
         .select('*')
+        .eq('tenant_id', tenantId!)
         .is('deleted_at', null);
       if (employeeId) query = query.eq('user_id', employeeId);
       const { data, error } = await query;

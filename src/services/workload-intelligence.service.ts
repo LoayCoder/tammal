@@ -86,6 +86,7 @@ export async function calculateUtilization(
     .from('objective_actions')
     .select('estimated_hours')
     .eq('assignee_id', employeeId)
+    .eq('tenant_id', tenantId)
     .is('deleted_at', null)
     .neq('status', 'completed');
 
@@ -123,6 +124,7 @@ export async function detectBurnoutRisk(
     .from('objective_actions')
     .select('estimated_hours, planned_end, status')
     .eq('assignee_id', employeeId)
+    .eq('tenant_id', tenantId)
     .is('deleted_at', null)
     .neq('status', 'completed');
 
@@ -140,6 +142,7 @@ export async function detectBurnoutRisk(
     .from('off_hours_sessions')
     .select('total_minutes')
     .eq('employee_id', employeeId)
+    .eq('tenant_id', tenantId)
     .is('deleted_at', null);
 
   const offHoursMinutes = (offHours ?? []).reduce(
@@ -171,12 +174,15 @@ export async function detectBurnoutRisk(
  */
 export async function computeAlignmentScore(
   employeeId: string,
+  tenantId?: string,
 ): Promise<AlignmentResult> {
-  const { data: actions } = await supabase
+  let query = supabase
     .from('objective_actions')
     .select('id, initiative_id')
     .eq('assignee_id', employeeId)
     .is('deleted_at', null);
+  if (tenantId) query = query.eq('tenant_id', tenantId);
+  const { data: actions } = await query;
 
   const total = (actions ?? []).length;
   const linked = (actions ?? []).filter(a => !!a.initiative_id).length;
