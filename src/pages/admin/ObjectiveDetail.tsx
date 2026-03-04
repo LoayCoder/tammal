@@ -220,6 +220,7 @@ export default function ObjectiveDetail() {
                             <TableHead>{t('workload.actions.title')}</TableHead>
                             <TableHead className="w-16">{t('workload.actions.priority')}</TableHead>
                             <TableHead className="w-20">{t('workload.actions.estimatedHours')}</TableHead>
+                            <TableHead className="w-20">SLA</TableHead>
                             <TableHead className="w-24">{t('common.status')}</TableHead>
                             <TableHead className="w-24">{t('common.actions')}</TableHead>
                           </TableRow>
@@ -235,6 +236,7 @@ export default function ObjectiveDetail() {
                               </TableCell>
                               <TableCell><Badge variant="outline">P{act.priority}</Badge></TableCell>
                               <TableCell>{Number(act.estimated_hours)}h</TableCell>
+                              <TableCell><SlaBadge dueDate={act.planned_end} completedAt={act.status === 'completed' ? act.updated_at : null} className="text-xs" /></TableCell>
                               <TableCell><Badge variant="outline" className={statusColors[act.status] || ''}>{t(`workload.status.${act.status}`)}</Badge></TableCell>
                               <TableCell>
                                 <div className="flex gap-1">
