@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -88,14 +87,14 @@ export default function ObjectiveDetail() {
   if (!objective) return <div className="text-center py-12 text-muted-foreground">{t('common.noData')}</div>;
 
   const handleInitSubmit = (data: Record<string, unknown>) => {
-    if (selectedInit) updateInitiative({ id: selectedInit.id, ...data });
-    else createInitiative({ ...data, tenant_id: tenantId });
+    if (selectedInit) updateInitiative({ id: selectedInit.id, ...data } as any);
+    else createInitiative({ ...data, tenant_id: tenantId } as any);
     setInitDialogOpen(false);
   };
 
   const handleActionSubmit = (data: Record<string, unknown>) => {
-    if (selectedAction) updateAction({ id: selectedAction.id, ...data });
-    else createAction({ ...data, tenant_id: tenantId });
+    if (selectedAction) updateAction({ id: selectedAction.id, ...data } as any);
+    else createAction({ ...data, tenant_id: tenantId } as any);
     setActionDialogOpen(false);
   };
 
