@@ -28,7 +28,7 @@ export function useDelayPredictions() {
     queryKey: ['workload-intelligence', 'delay-predictions', tenantId],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('workload-intelligence', {
-        body: { action: 'predict_delays', params: { tenant_id: tenantId } },
+        body: { action: 'predict_delays' },
       });
       if (error) throw error;
       return (data?.data ?? []) as DelayPrediction[];
@@ -45,7 +45,7 @@ export function useRedistributionSuggestions() {
     queryKey: ['workload-intelligence', 'redistribution', tenantId],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('workload-intelligence', {
-        body: { action: 'suggest_redistribution', params: { tenant_id: tenantId } },
+        body: { action: 'suggest_redistribution' },
       });
       if (error) throw error;
       return (data?.data ?? []) as RedistributionSuggestion[];

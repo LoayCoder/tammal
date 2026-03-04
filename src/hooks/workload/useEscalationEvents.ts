@@ -23,6 +23,7 @@ export function useEscalationEvents(taskId?: string) {
       let query = supabase
         .from('escalation_events')
         .select('*')
+        .eq('tenant_id', tenantId!)
         .is('deleted_at', null)
         .order('created_at', { ascending: false });
       if (taskId) query = query.eq('task_id', taskId);

@@ -20,6 +20,7 @@ import { InitiativeDialog } from '@/components/workload/InitiativeDialog';
 import { ActionDialog } from '@/components/workload/ActionDialog';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuditLog } from '@/hooks/audit/useAuditLog';
 import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
 import { useIsRepresentative } from '@/hooks/workload/useIsRepresentative';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -46,6 +47,7 @@ export default function ObjectiveDetail() {
   const navigate = useNavigate();
   const { tenantId } = useTenantId();
   const { user } = useAuth();
+  const { logEvent } = useAuditLog();
   const { isSuperAdmin } = useUserPermissions();
   const { hasRole: isTenantAdmin } = useHasRole('tenant_admin');
   const { hasRole: isManager } = useHasRole('manager');
@@ -85,15 +87,15 @@ export default function ObjectiveDetail() {
   if (objLoading) return <div className="space-y-4">{[1,2,3].map(i => <Skeleton key={i} className="h-24" />)}</div>;
   if (!objective) return <div className="text-center py-12 text-muted-foreground">{t('common.noData')}</div>;
 
-  const handleInitSubmit = (data: any) => {
-    if (selectedInit) updateInitiative({ id: selectedInit.id, ...data });
-    else createInitiative({ ...data, tenant_id: tenantId });
+  const handleInitSubmit = (data: Record<string, unknown>) => {
+    if (selectedInit) updateInitiative({ id: selectedInit.id, ...data } as any);
+    else createInitiative({ ...data, tenant_id: tenantId } as any);
     setInitDialogOpen(false);
   };
 
-  const handleActionSubmit = (data: any) => {
-    if (selectedAction) updateAction({ id: selectedAction.id, ...data });
-    else createAction({ ...data, tenant_id: tenantId });
+  const handleActionSubmit = (data: Record<string, unknown>) => {
+    if (selectedAction) updateAction({ id: selectedAction.id, ...data } as any);
+    else createAction({ ...data, tenant_id: tenantId } as any);
     setActionDialogOpen(false);
   };
 
@@ -302,8 +304,22 @@ export default function ObjectiveDetail() {
         onConfirm={(justification) => {
           if (justifyDeleteTarget?.type === 'initiative') {
             deleteInitiative(justifyDeleteTarget.id);
+            logEvent({
+              tenant_id: tenantId,
+              entity_type: 'initiative',
+              entity_id: justifyDeleteTarget.id,
+              action: 'delete',
+              changes: { justification },
+            });
           } else if (justifyDeleteTarget?.type === 'action') {
             deleteAction(justifyDeleteTarget.id);
+            logEvent({
+              tenant_id: tenantId,
+              entity_type: 'objective_action',
+              entity_id: justifyDeleteTarget.id,
+              action: 'delete',
+              changes: { justification },
+            });
           }
           setJustifyDeleteOpen(false);
           setJustifyDeleteTarget(null);

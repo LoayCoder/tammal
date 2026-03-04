@@ -48,6 +48,7 @@ export function useWorkloadAnalytics() {
       const { data: tasks, error: taskErr } = await supabase
         .from('unified_tasks')
         .select('employee_id, status, estimated_minutes, due_date')
+        .eq('tenant_id', tenantId!)
         .is('deleted_at', null);
       if (taskErr) throw taskErr;
 
@@ -55,6 +56,7 @@ export function useWorkloadAnalytics() {
       const { data: offHours, error: ohErr } = await supabase
         .from('off_hours_sessions')
         .select('employee_id, total_minutes')
+        .eq('tenant_id', tenantId!)
         .is('deleted_at', null);
       if (ohErr) throw ohErr;
 

@@ -27,6 +27,7 @@ export function useTaskDependencies(taskId?: string) {
       let query = supabase
         .from('task_dependencies')
         .select('*')
+        .eq('tenant_id', tenantId!)
         .is('deleted_at', null);
       if (taskId) {
         query = query.or(`task_id.eq.${taskId},depends_on_task_id.eq.${taskId}`);

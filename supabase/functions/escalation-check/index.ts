@@ -20,6 +20,51 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    // Auth: require either service role key or valid JWT with admin role
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+
+    // If the token is the service role key, allow (cron/scheduled job)
+    if (token !== serviceKey) {
+      // Verify as user JWT and check for admin role
+      const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+      const userClient = createClient(supabaseUrl, anonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: userData, error: authErr } = await userClient.auth.getUser();
+      if (authErr || !userData?.user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Verify user has admin or super_admin role
+      const supabase = createClient(supabaseUrl, serviceKey);
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userData.user.id);
+
+      const hasAdmin = (roles ?? []).some(
+        (r: any) => r.role === "super_admin" || r.role === "tenant_admin"
+      );
+      if (!hasAdmin) {
+        return new Response(JSON.stringify({ error: "Forbidden: admin role required" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     const supabase = createClient(supabaseUrl, serviceKey);
 
     // Fetch all overdue tasks across tenants
@@ -41,14 +86,12 @@ Deno.serve(async (req) => {
         (Date.now() - new Date(task.planned_end).getTime()) / 86400000
       );
 
-      // Find the highest applicable escalation level
       const applicableLevel = ESCALATION_THRESHOLDS
         .filter((t) => daysOverdue >= t.daysOverdue)
         .sort((a, b) => b.level - a.level)[0];
 
       if (!applicableLevel) continue;
 
-      // Check if this escalation level already exists for this task
       const { data: existing } = await supabase
         .from("escalation_events")
         .select("id")
@@ -59,7 +102,6 @@ Deno.serve(async (req) => {
 
       if (existing && existing.length > 0) continue;
 
-      // Create the escalation event
       const { error: insertErr } = await supabase
         .from("escalation_events")
         .insert({
