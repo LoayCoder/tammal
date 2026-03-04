@@ -82,6 +82,7 @@ const PointsDashboard = lazy(() => import("@/pages/recognition/PointsDashboard")
 const RedemptionCatalog = lazy(() => import("@/pages/recognition/RedemptionCatalog"));
 const RedemptionManagement = lazy(() => import("@/pages/admin/RedemptionManagement"));
 const AIGovernance = lazy(() => import("@/pages/admin/AIGovernance"));
+const EscalationSettings = lazy(() => import("@/pages/admin/EscalationSettings"));
 const ComponentShowcase = lazy(() => import("@/pages/dev/ComponentShowcase"));
 const queryClient = new QueryClient();
 
@@ -168,6 +169,7 @@ const App = () => (
                 <Route path="/admin/recognition/results" element={<AdminRoute><RecognitionResults /></AdminRoute>} />
                 <Route path="/admin/recognition/redemption" element={<AdminRoute><RedemptionManagement /></AdminRoute>} />
                 <Route path="/admin/ai-governance" element={<AdminRoute><AIGovernance /></AdminRoute>} />
+                <Route path="/admin/workload/escalation" element={<AdminRoute><EscalationSettings /></AdminRoute>} />
               </Route>
 
               {/* ── Workload (employee-facing) ── */}
