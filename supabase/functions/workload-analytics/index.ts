@@ -277,6 +277,85 @@ Deno.serve(async (req) => {
       );
     }
 
+    // ──────────────── COMPUTE ORG SCORE ────────────────
+    if (action === "compute_org_score") {
+      // Alignment: avg alignment_score from strategic_alignment_metrics
+      const { data: alignments } = await supabase
+        .from("strategic_alignment_metrics")
+        .select("alignment_score")
+        .eq("tenant_id", tenantId)
+        .is("deleted_at", null)
+        .order("snapshot_date", { ascending: false })
+        .limit(500);
+
+      const avgAlignment = (alignments ?? []).length > 0
+        ? (alignments as any[]).reduce((s: number, a: any) => s + (a.alignment_score ?? 0), 0) / (alignments as any[]).length
+        : 0;
+
+      // Velocity: avg velocity_score
+      const { data: velocities } = await supabase
+        .from("execution_velocity_metrics")
+        .select("velocity_score")
+        .eq("tenant_id", tenantId)
+        .is("deleted_at", null)
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      const avgVelocityRaw = (velocities ?? []).length > 0
+        ? (velocities as any[]).reduce((s: number, v: any) => s + (v.velocity_score ?? 0), 0) / (velocities as any[]).length
+        : 0;
+      // Normalize velocity to 0-100 (assume 2 actions/day = 100)
+      const velocityNorm = Math.min(Math.round((avgVelocityRaw / 2) * 100), 100);
+
+      // Capacity balance: from heatmap - % in healthy range
+      const { data: heatmaps } = await supabase
+        .from("workload_heatmap_metrics")
+        .select("classification")
+        .eq("tenant_id", tenantId)
+        .is("deleted_at", null)
+        .eq("snapshot_date", todayStr);
+
+      const heatTotal = (heatmaps ?? []).length;
+      const healthyCount = (heatmaps ?? []).filter((h: any) => h.classification === "healthy").length;
+      const capacityBalance = heatTotal > 0 ? Math.round((healthyCount / heatTotal) * 100) : 50;
+
+      // Burnout health: avg burnout risk from workload_metrics (inverted)
+      const { data: wlMetrics } = await supabase
+        .from("workload_metrics")
+        .select("burnout_risk_score")
+        .eq("tenant_id", tenantId)
+        .is("deleted_at", null);
+
+      const avgBurnout = (wlMetrics ?? []).length > 0
+        ? (wlMetrics as any[]).reduce((s: number, m: any) => s + (m.burnout_risk_score ?? 0), 0) / (wlMetrics as any[]).length
+        : 0;
+      const burnoutHealth = Math.round(100 - avgBurnout);
+
+      const tammalIndex = Math.round(
+        avgAlignment * 0.25 +
+        velocityNorm * 0.25 +
+        capacityBalance * 0.25 +
+        burnoutHealth * 0.25
+      );
+
+      await supabase.from("org_intelligence_scores").insert({
+        tenant_id: tenantId,
+        score: tammalIndex,
+        components: {
+          alignment: Math.round(avgAlignment),
+          velocity: velocityNorm,
+          capacity_balance: capacityBalance,
+          burnout_health: burnoutHealth,
+        },
+        snapshot_date: todayStr,
+      });
+
+      return new Response(
+        JSON.stringify({ data: { score: tammalIndex, date: todayStr } }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     return new Response(JSON.stringify({ error: "Unknown action" }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
