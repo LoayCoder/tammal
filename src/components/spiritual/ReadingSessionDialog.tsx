@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AlertDialog,
@@ -10,6 +10,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useQuranSessions } from '@/hooks/spiritual/useQuranSessions';
 
@@ -36,7 +37,20 @@ export function ReadingSessionDialog({
 }: ReadingSessionDialogProps) {
   const { t } = useTranslation();
   const [reflection, setReflection] = useState('');
+  const [lastAyahInput, setLastAyahInput] = useState('1');
   const { logSession } = useQuranSessions();
+
+  useEffect(() => {
+    if (!open) return;
+    const initialLastAyah = Math.max(1, lastAyahPosition ?? totalAyahs ?? 1);
+    setLastAyahInput(String(initialLastAyah));
+  }, [open, lastAyahPosition, totalAyahs]);
+
+  const maxAyah = Math.max(1, totalAyahs ?? 1);
+  const parsedLastAyah = Number.parseInt(lastAyahInput, 10);
+  const safeLastAyah = Number.isNaN(parsedLastAyah)
+    ? Math.max(1, lastAyahPosition ?? 1)
+    : Math.min(maxAyah, Math.max(1, parsedLastAyah));
 
   const formattedDuration = durationMinutes >= 1
     ? `${durationMinutes} ${t('spiritual.quran.min', 'min')}`
@@ -48,15 +62,17 @@ export function ReadingSessionDialog({
       surah_name: surahName || undefined,
       juz_number: juzNumber ?? undefined,
       reflection_notes: reflection.trim() || undefined,
-      ayahs_read: totalAyahs ?? 0,
-      last_ayah_position: lastAyahPosition ?? 0,
+      ayahs_read: safeLastAyah,
+      last_ayah_position: safeLastAyah,
     });
     setReflection('');
+    setLastAyahInput('1');
     onOpenChange(false);
   };
 
   const handleDiscard = () => {
     setReflection('');
+    setLastAyahInput('1');
     onOpenChange(false);
   };
 
@@ -75,6 +91,24 @@ export function ReadingSessionDialog({
             {totalAyahs ? ` (${totalAyahs} ${t('spiritual.quran.ayahsRead', 'ayahs')})` : ''}
           </AlertDialogDescription>
         </AlertDialogHeader>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-foreground" htmlFor="last-ayah-input">
+            {t('spiritual.quran.sessionDialog.lastAyahLabel', 'Last ayah reached')}
+          </label>
+          <Input
+            id="last-ayah-input"
+            type="number"
+            min={1}
+            max={maxAyah}
+            value={lastAyahInput}
+            onChange={(e) => setLastAyahInput(e.target.value)}
+            placeholder={t('spiritual.quran.sessionDialog.lastAyahPlaceholder', 'Enter ayah number')}
+          />
+          <p className="text-xs text-muted-foreground">
+            {t('spiritual.quran.sessionDialog.lastAyahHint', 'You can resume later from this ayah.')}
+          </p>
+        </div>
 
         <Textarea
           value={reflection}

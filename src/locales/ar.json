@@ -2654,7 +2654,10 @@
         "description": "قرأت {{surah}} لمدة {{duration}}. هل تريد تسجيل هذه الجلسة؟",
         "save": "حفظ الجلسة",
         "discard": "تجاهل",
-      "reflection": "أضف تأملاً (اختياري)"
+        "reflection": "أضف تأملاً (اختياري)",
+        "lastAyahLabel": "آخر آية وصلت إليها",
+        "lastAyahPlaceholder": "أدخل رقم الآية",
+        "lastAyahHint": "يمكنك المتابعة لاحقًا من هذه الآية."
       },
       "readingTime": "وقت القراءة",
       "sessionSaved": "تم حفظ جلسة القراءة",

@@ -163,16 +163,26 @@ function SurahViewer({ surahNumber, onBack, onStopAndSave, elapsedSeconds, forma
       <div ref={topRef} />
 
       {/* Back button + timer */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
         </Button>
 
-        {/* Live reading timer */}
-        <Badge variant="secondary" className="gap-1.5 text-xs font-mono">
-          <Timer className="h-3 w-3" />
-          {formatTime(elapsedSeconds)}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="gap-1.5 text-xs font-mono">
+            <Timer className="h-3 w-3" />
+            {formatTime(elapsedSeconds)}
+          </Badge>
+          <Button
+            variant="default"
+            size="sm"
+            onClick={onStopAndSave}
+            className="gap-1.5"
+          >
+            <BookOpen className="h-3.5 w-3.5" />
+            {t('spiritual.quranReader.stopAndSave', 'Stop & Save')}
+          </Button>
+        </div>
 
         <Button
           variant="ghost"

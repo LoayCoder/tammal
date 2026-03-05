@@ -2666,7 +2666,10 @@
         "description": "You read {{surah}} for {{duration}}. Would you like to log this session?",
         "save": "Save Session",
         "discard": "Discard",
-      "reflection": "Add a reflection (optional)"
+        "reflection": "Add a reflection (optional)",
+        "lastAyahLabel": "Last ayah reached",
+        "lastAyahPlaceholder": "Enter ayah number",
+        "lastAyahHint": "You can resume later from this ayah."
       },
       "readingTime": "Reading Time",
       "sessionSaved": "Reading session saved",
