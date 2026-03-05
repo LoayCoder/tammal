@@ -88,9 +88,10 @@ function toArabicNumeral(n: number): string {
   return String(n).replace(/\d/g, d => digits[parseInt(d)]);
 }
 
-function SurahViewer({ surahNumber, onBack, elapsedSeconds, formatTime, initialAyah, onAyahChange }: {
+function SurahViewer({ surahNumber, onBack, onStopAndSave, elapsedSeconds, formatTime, initialAyah, onAyahChange }: {
   surahNumber: number;
   onBack: () => void;
+  onStopAndSave: () => void;
   elapsedSeconds: number;
   formatTime: (s: number) => string;
   initialAyah?: number;
