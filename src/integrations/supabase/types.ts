@@ -1902,6 +1902,67 @@ export type Database = {
           },
         ]
       }
+      execution_velocity_metrics: {
+        Row: {
+          actions_completed: number
+          created_at: string
+          deleted_at: string | null
+          department_id: string | null
+          id: string
+          initiative_id: string | null
+          period_end: string
+          period_start: string
+          tenant_id: string
+          velocity_score: number
+        }
+        Insert: {
+          actions_completed?: number
+          created_at?: string
+          deleted_at?: string | null
+          department_id?: string | null
+          id?: string
+          initiative_id?: string | null
+          period_end: string
+          period_start: string
+          tenant_id: string
+          velocity_score?: number
+        }
+        Update: {
+          actions_completed?: number
+          created_at?: string
+          deleted_at?: string | null
+          department_id?: string | null
+          id?: string
+          initiative_id?: string | null
+          period_end?: string
+          period_start?: string
+          tenant_id?: string
+          velocity_score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "execution_velocity_metrics_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execution_velocity_metrics_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "initiatives"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execution_velocity_metrics_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       focus_areas: {
         Row: {
           created_at: string
@@ -2095,6 +2156,63 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "generation_periods_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      initiative_risk_metrics: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          escalation_score: number
+          id: string
+          initiative_id: string
+          overdue_score: number
+          resource_score: number
+          risk_score: number
+          snapshot_date: string
+          tenant_id: string
+          velocity_score: number
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          escalation_score?: number
+          id?: string
+          initiative_id: string
+          overdue_score?: number
+          resource_score?: number
+          risk_score?: number
+          snapshot_date: string
+          tenant_id: string
+          velocity_score?: number
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          escalation_score?: number
+          id?: string
+          initiative_id?: string
+          overdue_score?: number
+          resource_score?: number
+          risk_score?: number
+          snapshot_date?: string
+          tenant_id?: string
+          velocity_score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "initiative_risk_metrics_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "initiatives"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "initiative_risk_metrics_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -5345,6 +5463,50 @@ export type Database = {
         }
         Relationships: []
       }
+      strategic_alignment_metrics: {
+        Row: {
+          aligned_actions: number
+          alignment_score: number
+          created_at: string
+          deleted_at: string | null
+          id: string
+          snapshot_date: string
+          tenant_id: string
+          total_actions: number
+          user_id: string
+        }
+        Insert: {
+          aligned_actions?: number
+          alignment_score?: number
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          snapshot_date: string
+          tenant_id: string
+          total_actions?: number
+          user_id: string
+        }
+        Update: {
+          aligned_actions?: number
+          alignment_score?: number
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          snapshot_date?: string
+          tenant_id?: string
+          total_actions?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategic_alignment_metrics_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       strategic_objectives: {
         Row: {
           accountable_user_id: string | null
@@ -6700,6 +6862,64 @@ export type Database = {
           },
           {
             foreignKeyName: "work_sites_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workload_heatmap_metrics: {
+        Row: {
+          classification: string
+          created_at: string
+          deleted_at: string | null
+          department_id: string | null
+          employee_id: string
+          id: string
+          snapshot_date: string
+          tenant_id: string
+          utilization_pct: number
+        }
+        Insert: {
+          classification?: string
+          created_at?: string
+          deleted_at?: string | null
+          department_id?: string | null
+          employee_id: string
+          id?: string
+          snapshot_date: string
+          tenant_id: string
+          utilization_pct?: number
+        }
+        Update: {
+          classification?: string
+          created_at?: string
+          deleted_at?: string | null
+          department_id?: string | null
+          employee_id?: string
+          id?: string
+          snapshot_date?: string
+          tenant_id?: string
+          utilization_pct?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workload_heatmap_metrics_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workload_heatmap_metrics_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workload_heatmap_metrics_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"

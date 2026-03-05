@@ -86,3 +86,22 @@ export function useRunSlaMonitor() {
     },
   });
 }
+
+export function useRunAnalyticsSnapshot() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (action: 'compute_velocity' | 'snapshot_heatmap' | 'compute_initiative_risk' | 'snapshot_alignment') => {
+      const { data, error } = await supabase.functions.invoke('workload-analytics', {
+        body: { action },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['execution-velocity'] });
+      qc.invalidateQueries({ queryKey: ['workload-heatmap'] });
+      qc.invalidateQueries({ queryKey: ['initiative-risk'] });
+      qc.invalidateQueries({ queryKey: ['alignment-metrics'] });
+    },
+  });
+}
