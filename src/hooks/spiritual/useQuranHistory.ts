@@ -61,7 +61,7 @@ export function useQuranHistory() {
 
   const { sessions, isPending } = useQuranSessions({ from, to });
 
-  const { dailyData, topSurahs, currentStreak, bestStreak, totalMinutes, totalSessions, avgMinutesPerSession, activeDays } = useMemo(() => {
+  const { dailyData, topSurahs, currentStreak, bestStreak, totalMinutes, totalSessions, totalAyahsRead, avgMinutesPerSession, activeDays } = useMemo(() => {
     const days = eachDay(from, to);
 
     const byDate = new Map<string, QuranSession[]>();
