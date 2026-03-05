@@ -1,22 +1,54 @@
 
 
-## Plan: Add Rawatib (Sunnah) indicators to Dashboard Prayer Widget
+# Prayer History & Trends
 
-The `DashboardPrayerWidget` currently only shows the active prayer with log buttons but lacks the Rawatib Sunnah rak'ah info that `PrayerCard` already has.
+## What to Build
 
-### Changes
+Add a collapsible "History & Trends" section below the existing weekly summary on `/spiritual/prayer`. Users can toggle between Week, Month, Quarter, Year, or Custom date range and see:
 
-**File: `src/components/dashboard/DashboardPrayerWidget.tsx`**
+1. **Completion trend chart** — Recharts BarChart showing daily completion rate (% of 6 prayers completed per day), grouped by prayer name with color coding
+2. **Per-prayer breakdown** — Small stat cards showing completion % for each prayer (Fajr, Dhuhr, Asr, Maghrib, Isha, Witr) over the selected period
+3. **Streak indicator** — Current consecutive-days streak and best streak
 
-1. Import the Sunnah hooks (`useSunnahLogs`) and add a `RAWATIB_CONFIG` map (same as in `PrayerCard.tsx`: Fajr → 2 after, Dhuhr → 2 before + 2 after, Asr → none, Maghrib → 2 after, Isha → 2 after).
+## Implementation
 
-2. Inside the active prayer card section, add tap-to-toggle Rawatib chips below the log buttons — matching the existing style from `PrayerCard`:
-   - 📿 "2 Rak'ahs before" (if applicable)
-   - 📿 "2 Rak'ahs after" (if applicable)
-   - Each chip toggles completed state via `onToggleSunnah`
+### Task 1: Create `usePrayerHistory` Hook
 
-3. In the progress row (5 prayer indicators at the bottom), add small dot indicators beneath each prayer icon showing if its Rawatib are completed.
+New hook `src/hooks/spiritual/usePrayerHistory.ts`:
+- Accepts a `range` param: `'week' | 'month' | 'quarter' | 'year' | 'custom'` plus optional custom start/end
+- Computes date boundaries (7d, 30d, 90d, 365d)
+- Calls `usePrayerLogs({ from, to })` with the computed range
+- Derives:
+  - Daily completion data array `{ date, completed, total, pct, byPrayer: Record<string, status> }`
+  - Per-prayer stats `{ prayerName, completed, total, pct }`
+  - Current streak and best streak
 
-### Hook dependency
-Need to check if `useSunnahLogs` or a similar hook exists for Rawatib tracking at the dashboard level, or if the sunnah data is already available through `usePrayerLogs`.
+### Task 2: Create `PrayerHistory` Component
+
+New component `src/components/spiritual/PrayerHistory.tsx`:
+- Toggle group for range selection (Week / Month / Quarter / Year / Custom)
+- Custom range: two date pickers (reuse Calendar/Popover pattern)
+- Recharts `BarChart` showing daily completion % with responsive container
+- 6 small stat cards in a grid for per-prayer breakdown
+- Streak display with flame icon
+- RTL-safe (logical properties, `text-start/end`)
+- Uses glass-card styling consistent with existing spiritual UI
+
+### Task 3: Integrate into PrayerTracker Page
+
+Add `<PrayerHistory />` below the existing weekly summary card in `PrayerTracker.tsx`.
+
+### Task 4: i18n Keys
+
+Add to `en.json` and `ar.json`:
+- `spiritual.prayer.history.title` — "Prayer History"
+- `spiritual.prayer.history.week/month/quarter/year/custom` — range labels
+- `spiritual.prayer.history.completionRate` — "Completion Rate"
+- `spiritual.prayer.history.streak` — "Current Streak"
+- `spiritual.prayer.history.bestStreak` — "Best Streak"
+- `spiritual.prayer.history.days` — "days"
+- `spiritual.prayer.history.perPrayer` — "Per Prayer"
+- `spiritual.prayer.history.noData` — "No prayer data for this period"
+
+No database changes needed — the existing `spiritual_prayer_logs` table with its date-range query already supports this.
 
