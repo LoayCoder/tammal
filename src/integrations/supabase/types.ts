@@ -1062,6 +1062,70 @@ export type Database = {
           },
         ]
       }
+      approvals: {
+        Row: {
+          approved_by: string | null
+          created_at: string
+          deleted_at: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          justification: string | null
+          requested_by: string | null
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          approved_by?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          justification?: string | null
+          requested_by?: string | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          approved_by?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          justification?: string | null
+          requested_by?: string | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approvals_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approvals_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approvals_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -1070,6 +1134,7 @@ export type Database = {
           entity_id: string
           entity_type: string
           id: string
+          ip_address: string | null
           metadata: Json | null
           tenant_id: string | null
           user_id: string | null
@@ -1081,6 +1146,7 @@ export type Database = {
           entity_id: string
           entity_type: string
           id?: string
+          ip_address?: string | null
           metadata?: Json | null
           tenant_id?: string | null
           user_id?: string | null
@@ -1092,6 +1158,7 @@ export type Database = {
           entity_id?: string
           entity_type?: string
           id?: string
+          ip_address?: string | null
           metadata?: Json | null
           tenant_id?: string | null
           user_id?: string | null
@@ -5629,6 +5696,144 @@ export type Database = {
           },
         ]
       }
+      task_evidence: {
+        Row: {
+          action_id: string
+          created_at: string
+          deleted_at: string | null
+          file_type: string
+          file_url: string
+          id: string
+          status: string
+          tenant_id: string
+          uploaded_by: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          action_id: string
+          created_at?: string
+          deleted_at?: string | null
+          file_type?: string
+          file_url: string
+          id?: string
+          status?: string
+          tenant_id: string
+          uploaded_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          action_id?: string
+          created_at?: string
+          deleted_at?: string | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          status?: string
+          tenant_id?: string
+          uploaded_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_evidence_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "objective_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_evidence_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_evidence_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_evidence_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_queue_items: {
+        Row: {
+          action_id: string
+          created_at: string
+          deleted_at: string | null
+          due_date: string | null
+          employee_id: string | null
+          id: string
+          priority: number
+          source_type: string
+          status: string
+          tenant_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          action_id: string
+          created_at?: string
+          deleted_at?: string | null
+          due_date?: string | null
+          employee_id?: string | null
+          id?: string
+          priority?: number
+          source_type?: string
+          status?: string
+          tenant_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          action_id?: string
+          created_at?: string
+          deleted_at?: string | null
+          due_date?: string | null
+          employee_id?: string | null
+          id?: string
+          priority?: number
+          source_type?: string
+          status?: string
+          tenant_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_queue_items_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "objective_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_queue_items_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_queue_items_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_ai_budget_config: {
         Row: {
           current_month_usage: number
@@ -6703,6 +6908,7 @@ export type Database = {
         Returns: string
       }
       count_active_cases: { Args: { _first_aider_id: string }; Returns: number }
+      current_tenant_id: { Args: never; Returns: string }
       date_trunc_utc: { Args: { ts: string }; Returns: string }
       get_first_aider_id: { Args: { _user_id: string }; Returns: string }
       get_profile_email: { Args: { _user_id: string }; Returns: string }
