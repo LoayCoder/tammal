@@ -195,6 +195,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         { title: t('nav.portfolio'), url: "/admin/workload/portfolio", icon: Briefcase, access: 'admin' },
         { title: t('nav.executive'), url: "/admin/workload/executive", icon: BarChart, access: 'admin' },
         { title: t('nav.escalationSettings'), url: "/admin/workload/escalation", icon: Shield, access: 'admin' },
+        { title: t('nav.systemHealth'), url: "/admin/workload/system-health", icon: Shield, access: 'admin' },
       ]
     },
     {
