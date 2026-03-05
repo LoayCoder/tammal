@@ -1426,6 +1426,60 @@ export type Database = {
           },
         ]
       }
+      burnout_predictions: {
+        Row: {
+          ai_reasoning: string | null
+          burnout_probability_score: number
+          confidence_score: number | null
+          created_at: string
+          deleted_at: string | null
+          employee_id: string
+          id: string
+          indicators: Json
+          predicted_at: string
+          tenant_id: string
+        }
+        Insert: {
+          ai_reasoning?: string | null
+          burnout_probability_score?: number
+          confidence_score?: number | null
+          created_at?: string
+          deleted_at?: string | null
+          employee_id: string
+          id?: string
+          indicators?: Json
+          predicted_at?: string
+          tenant_id: string
+        }
+        Update: {
+          ai_reasoning?: string | null
+          burnout_probability_score?: number
+          confidence_score?: number | null
+          created_at?: string
+          deleted_at?: string | null
+          employee_id?: string
+          id?: string
+          indicators?: Json
+          predicted_at?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "burnout_predictions_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "burnout_predictions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_question_schedule: {
         Row: {
           created_at: string
@@ -3996,6 +4050,44 @@ export type Database = {
           },
         ]
       }
+      org_intelligence_scores: {
+        Row: {
+          components: Json
+          created_at: string
+          deleted_at: string | null
+          id: string
+          score: number
+          snapshot_date: string
+          tenant_id: string
+        }
+        Insert: {
+          components?: Json
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          score?: number
+          snapshot_date?: string
+          tenant_id: string
+        }
+        Update: {
+          components?: Json
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          score?: number
+          snapshot_date?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_intelligence_scores_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       peer_endorsements: {
         Row: {
           additional_context: string | null
@@ -4861,6 +4953,86 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      redistribution_recommendations: {
+        Row: {
+          action_id: string | null
+          ai_reasoning: string | null
+          capacity_diff: number | null
+          created_at: string
+          deleted_at: string | null
+          from_employee_id: string
+          id: string
+          priority: string
+          reason: string | null
+          skill_match_score: number | null
+          status: string
+          tenant_id: string
+          to_employee_id: string
+          updated_at: string
+        }
+        Insert: {
+          action_id?: string | null
+          ai_reasoning?: string | null
+          capacity_diff?: number | null
+          created_at?: string
+          deleted_at?: string | null
+          from_employee_id: string
+          id?: string
+          priority?: string
+          reason?: string | null
+          skill_match_score?: number | null
+          status?: string
+          tenant_id: string
+          to_employee_id: string
+          updated_at?: string
+        }
+        Update: {
+          action_id?: string | null
+          ai_reasoning?: string | null
+          capacity_diff?: number | null
+          created_at?: string
+          deleted_at?: string | null
+          from_employee_id?: string
+          id?: string
+          priority?: string
+          reason?: string | null
+          skill_match_score?: number | null
+          status?: string
+          tenant_id?: string
+          to_employee_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "redistribution_recommendations_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "objective_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "redistribution_recommendations_from_employee_id_fkey"
+            columns: ["from_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "redistribution_recommendations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "redistribution_recommendations_to_employee_id_fkey"
+            columns: ["to_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
         ]
