@@ -9,6 +9,7 @@ import { useSunnahLogs, SUNNAH_PRACTICES } from '@/hooks/spiritual/useSunnahLogs
 import { usePrayerCountdown } from '@/hooks/spiritual/usePrayerCountdown';
 import { useWitrCountdown } from '@/hooks/spiritual/useWitrCountdown';
 import { PrayerCard } from '@/components/spiritual/PrayerCard';
+import { PrayerHistory } from '@/components/spiritual/PrayerHistory';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -248,6 +249,9 @@ export default function PrayerTracker() {
               </p>
             </CardContent>
           </Card>
+
+          {/* Prayer History & Trends */}
+          <PrayerHistory />
         </>
       )}
     </div>
