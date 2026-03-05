@@ -1134,6 +1134,7 @@ export type Database = {
           entity_id: string
           entity_type: string
           id: string
+          ip_address: string | null
           metadata: Json | null
           tenant_id: string | null
           user_id: string | null
@@ -1145,6 +1146,7 @@ export type Database = {
           entity_id: string
           entity_type: string
           id?: string
+          ip_address?: string | null
           metadata?: Json | null
           tenant_id?: string | null
           user_id?: string | null
@@ -1156,6 +1158,7 @@ export type Database = {
           entity_id?: string
           entity_type?: string
           id?: string
+          ip_address?: string | null
           metadata?: Json | null
           tenant_id?: string | null
           user_id?: string | null
