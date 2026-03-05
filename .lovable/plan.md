@@ -1,22 +1,39 @@
 
 
-## Plan: Add Rawatib (Sunnah) indicators to Dashboard Prayer Widget
+# Fix Qur'an Reader: Add Visible "Stop & Save" Button + Remove Min Duration
 
-The `DashboardPrayerWidget` currently only shows the active prayer with log buttons but lacks the Rawatib Sunnah rak'ah info that `PrayerCard` already has.
+## Problem
 
-### Changes
+When the user opens a surah in the reader, there is no visible UI to stop reading and save the session. The timer runs silently in the background, and sessions only auto-save when navigating back (and only if 60+ seconds have passed). The user sees no feedback, no controls, and ends up going back to the surah list with nothing recorded.
 
-**File: `src/components/dashboard/DashboardPrayerWidget.tsx`**
+## Solution
 
-1. Import the Sunnah hooks (`useSunnahLogs`) and add a `RAWATIB_CONFIG` map (same as in `PrayerCard.tsx`: Fajr → 2 after, Dhuhr → 2 before + 2 after, Asr → none, Maghrib → 2 after, Isha → 2 after).
+### Task 1: Add a floating "Stop Reading" control bar inside `SurahViewer`
 
-2. Inside the active prayer card section, add tap-to-toggle Rawatib chips below the log buttons — matching the existing style from `PrayerCard`:
-   - 📿 "2 Rak'ahs before" (if applicable)
-   - 📿 "2 Rak'ahs after" (if applicable)
-   - Each chip toggles completed state via `onToggleSunnah`
+Add a sticky/fixed bottom bar inside the `SurahViewer` component that shows:
+- The live timer (already exists as a badge but only at the top)
+- A prominent **"Stop & Save Session"** button
+- The current surah name for context
 
-3. In the progress row (5 prayer indicators at the bottom), add small dot indicators beneath each prayer icon showing if its Rawatib are completed.
+This bar will be always visible while reading. When clicked, it triggers `stopAndPrompt()` which opens the `ReadingSessionDialog`.
 
-### Hook dependency
-Need to check if `useSunnahLogs` or a similar hook exists for Rawatib tracking at the dashboard level, or if the sunnah data is already available through `usePrayerLogs`.
+### Task 2: Remove the 60-second minimum session threshold
+
+Change `MIN_SESSION_SECONDS` from `60` to `0` in `QuranTextReader.tsx` so that any reading session can be saved regardless of duration.
+
+### Task 3: Always show timer from start (fix timer visibility)
+
+Currently the timer badge in `SurahViewer` only shows when `elapsedSeconds > 0`. Change this to always show the timer when a surah is open (it starts at `00:00`). This gives immediate visual feedback that a session is being tracked.
+
+### Task 4: Add i18n keys
+
+Add keys for:
+- `spiritual.quranReader.stopAndSave` — "Stop & Save Session"
+- `spiritual.quranReader.reading` — "Reading..."
+
+### Files to modify
+
+- `src/pages/spiritual/QuranTextReader.tsx` — Add floating control bar in `SurahViewer`, remove min duration, expose stop callback
+- `src/locales/en.json` — Add new keys
+- `src/locales/ar.json` — Add new keys
 
