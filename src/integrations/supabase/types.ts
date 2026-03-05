@@ -5577,6 +5577,7 @@ export type Database = {
       }
       spiritual_quran_sessions: {
         Row: {
+          ayahs_read: number | null
           created_at: string
           duration_minutes: number
           id: string
@@ -5587,6 +5588,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ayahs_read?: number | null
           created_at?: string
           duration_minutes?: number
           id?: string
@@ -5597,6 +5599,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ayahs_read?: number | null
           created_at?: string
           duration_minutes?: number
           id?: string

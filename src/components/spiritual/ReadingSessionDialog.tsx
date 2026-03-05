@@ -20,6 +20,7 @@ interface ReadingSessionDialogProps {
   juzNumber: number | null;
   durationMinutes: number;
   durationSeconds: number;
+  totalAyahs?: number;
 }
 
 export function ReadingSessionDialog({
@@ -29,6 +30,7 @@ export function ReadingSessionDialog({
   juzNumber,
   durationMinutes,
   durationSeconds,
+  totalAyahs,
 }: ReadingSessionDialogProps) {
   const { t } = useTranslation();
   const [reflection, setReflection] = useState('');
@@ -44,6 +46,7 @@ export function ReadingSessionDialog({
       surah_name: surahName || undefined,
       juz_number: juzNumber ?? undefined,
       reflection_notes: reflection.trim() || undefined,
+      ayahs_read: totalAyahs ?? 0,
     });
     setReflection('');
     onOpenChange(false);
@@ -59,29 +62,30 @@ export function ReadingSessionDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {t('spiritual.quranReader.sessionDialog.title', 'Save Reading Session?')}
+            {t('spiritual.quran.sessionDialog.title', 'Save Reading Session?')}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {t('spiritual.quranReader.sessionDialog.description', 'You read {{surah}} for {{duration}}. Would you like to log this session?', {
+            {t('spiritual.quran.sessionDialog.description', 'You read {{surah}} for {{duration}}. Would you like to log this session?', {
               surah: surahName,
               duration: formattedDuration,
             })}
+            {totalAyahs ? ` (${totalAyahs} ${t('spiritual.quran.ayahsRead', 'ayahs')})` : ''}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
         <Textarea
           value={reflection}
           onChange={(e) => setReflection(e.target.value)}
-          placeholder={t('spiritual.quranReader.sessionDialog.reflection', 'Add a reflection (optional)')}
+          placeholder={t('spiritual.quran.sessionDialog.reflection', 'Add a reflection (optional)')}
           className="min-h-[80px]"
         />
 
         <AlertDialogFooter>
           <AlertDialogCancel onClick={handleDiscard}>
-            {t('spiritual.quranReader.sessionDialog.discard', 'Discard')}
+            {t('spiritual.quran.sessionDialog.discard', 'Discard')}
           </AlertDialogCancel>
           <AlertDialogAction onClick={handleSave} disabled={logSession.isPending}>
-            {t('spiritual.quranReader.sessionDialog.save', 'Save Session')}
+            {t('spiritual.quran.sessionDialog.save', 'Save Session')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

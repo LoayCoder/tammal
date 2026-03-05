@@ -2652,10 +2652,16 @@
         "description": "قرأت {{surah}} لمدة {{duration}}. هل تريد تسجيل هذه الجلسة؟",
         "save": "حفظ الجلسة",
         "discard": "تجاهل",
-        "reflection": "أضف تأملاً (اختياري)"
+      "reflection": "أضف تأملاً (اختياري)"
       },
       "readingTime": "وقت القراءة",
-      "sessionSaved": "تم حفظ جلسة القراءة"
+      "sessionSaved": "تم حفظ جلسة القراءة",
+      "resumeSession": "استئناف آخر جلسة",
+      "resumeReading": "استئناف",
+      "ayahsRead": "آيات",
+      "filterBySurah": "تصفية حسب السورة",
+      "allSurahs": "جميع السور",
+      "startReading": "ابدأ القراءة"
     },
     "fasting": {
       "title": "صيام السنة",

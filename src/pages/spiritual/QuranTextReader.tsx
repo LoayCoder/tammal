@@ -274,7 +274,8 @@ export default function QuranTextReader() {
     juzNumber: number | null;
     durationMinutes: number;
     durationSeconds: number;
-  }>({ open: false, surahName: '', juzNumber: null, durationMinutes: 0, durationSeconds: 0 });
+    totalAyahs: number;
+  }>({ open: false, surahName: '', juzNumber: null, durationMinutes: 0, durationSeconds: 0, totalAyahs: 0 });
 
   // Get surah data for timer
   const { data: surahData } = useQuranSurah(activeSurah);
@@ -298,6 +299,7 @@ export default function QuranTextReader() {
         juzNumber: result.juzNumber,
         durationMinutes: result.durationMinutes,
         durationSeconds: result.durationSeconds,
+        totalAyahs: surahData?.surah.numberOfAyahs ?? 0,
       });
     }
   }, [timer]);
@@ -405,6 +407,7 @@ export default function QuranTextReader() {
         juzNumber={sessionDialog.juzNumber}
         durationMinutes={sessionDialog.durationMinutes}
         durationSeconds={sessionDialog.durationSeconds}
+        totalAyahs={sessionDialog.totalAyahs}
       />
     </div>
   );

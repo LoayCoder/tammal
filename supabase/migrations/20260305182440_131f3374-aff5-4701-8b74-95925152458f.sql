@@ -1,0 +1,1 @@
+ALTER TABLE public.spiritual_quran_sessions ADD COLUMN ayahs_read integer DEFAULT 0;
