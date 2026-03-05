@@ -32,6 +32,7 @@ export function ReadingSessionDialog({
   durationMinutes,
   durationSeconds,
   totalAyahs,
+  lastAyahPosition,
 }: ReadingSessionDialogProps) {
   const { t } = useTranslation();
   const [reflection, setReflection] = useState('');
