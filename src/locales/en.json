@@ -2610,7 +2610,11 @@
         "bestStreak": "Best Streak",
         "days": "days",
         "perPrayer": "Per Prayer",
-        "noData": "No prayer data for this period"
+        "noData": "No prayer data for this period",
+        "rawatib": "Sunnah Rak'ahs (Rawatib)",
+        "rakaahsBefore": "Rak'ahs Before",
+        "rakaahsAfter": "Rak'ahs After",
+        "rawatibRate": "Rawatib Rate"
       }
     },
     "quran": {
