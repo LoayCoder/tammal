@@ -15,7 +15,9 @@ function filterByTenant(rows: TenantRow[], currentTenantId: string): TenantRow[]
   return rows.filter(r => r.tenant_id === currentTenantId);
 }
 
-function filterSoftDeleted(rows: TenantRow & { deleted_at: string | null }[]): typeof rows {
+type TenantRowWithDelete = TenantRow & { deleted_at: string | null };
+
+function filterSoftDeleted(rows: TenantRowWithDelete[]): TenantRowWithDelete[] {
   return rows.filter(r => r.deleted_at === null);
 }
 
