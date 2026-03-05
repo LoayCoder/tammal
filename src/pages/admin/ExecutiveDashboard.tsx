@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useObjectives } from '@/hooks/workload/useObjectives';
 import { useInitiatives } from '@/hooks/workload/useInitiatives';
 import { useWorkloadAnalytics } from '@/hooks/workload/useWorkloadAnalytics';
@@ -11,15 +12,19 @@ import { useWorkloadMetrics } from '@/hooks/workload/useWorkloadMetrics';
 import { useExecutionVelocity } from '@/hooks/workload/useExecutionVelocity';
 import { useWorkloadHeatmap } from '@/hooks/workload/useWorkloadHeatmap';
 import { useInitiativeRisk } from '@/hooks/workload/useInitiativeRisk';
-import { useRunAnalyticsSnapshot } from '@/hooks/workload/useWorkloadIntelligence';
+import { useBurnoutPredictions } from '@/hooks/workload/useBurnoutPredictions';
+import { useRedistributionRecommendations } from '@/hooks/workload/useRedistributionRecommendations';
+import { useOrgIntelligenceScore } from '@/hooks/workload/useOrgIntelligenceScore';
+import { useRunAnalyticsSnapshot, useRunAIPredictions } from '@/hooks/workload/useWorkloadIntelligence';
 import { toast } from 'sonner';
 import {
   Target, TrendingUp, AlertTriangle, Users, Activity, Shield,
-  Zap, BarChart3, RefreshCw,
+  Zap, BarChart3, RefreshCw, Brain, ArrowRightLeft, Gauge, Check, X,
 } from 'lucide-react';
 import {
   ResponsiveContainer, RadialBarChart, RadialBar, Legend,
-  BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
+  BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, CartesianGrid, Cell,
+  PieChart, Pie,
 } from 'recharts';
 
 const GLASS_TOOLTIP = {
@@ -46,8 +51,12 @@ export default function ExecutiveDashboard() {
   const { metrics, isPending: metricsLoading } = useWorkloadMetrics();
   const { avgVelocity, totalCompleted, isPending: velocityLoading } = useExecutionVelocity();
   const { distribution, isPending: heatmapLoading } = useWorkloadHeatmap();
-  const { metrics: riskMetrics, highRisk, isPending: riskLoading } = useInitiativeRisk();
+  const { metrics: riskMetrics, isPending: riskLoading } = useInitiativeRisk();
+  const { predictions: burnoutPredictions, highRisk: burnoutHighRisk, isPending: burnoutLoading } = useBurnoutPredictions();
+  const { recommendations, pending: pendingRedistributions, isPending: redistLoading, updateStatus } = useRedistributionRecommendations();
+  const { score: orgScore, isPending: orgScoreLoading } = useOrgIntelligenceScore();
   const snapshotMutation = useRunAnalyticsSnapshot();
+  const aiMutation = useRunAIPredictions();
 
   const isPending = objLoading || initLoading || analyticsLoading || metricsLoading;
 
@@ -57,9 +66,20 @@ export default function ExecutiveDashboard() {
       await snapshotMutation.mutateAsync('snapshot_heatmap');
       await snapshotMutation.mutateAsync('compute_initiative_risk');
       await snapshotMutation.mutateAsync('snapshot_alignment');
+      await snapshotMutation.mutateAsync('compute_org_score');
       toast.success(t('executive.snapshotSuccess'));
     } catch {
       toast.error('Snapshot failed');
+    }
+  };
+
+  const handleAIPredictions = async () => {
+    try {
+      await aiMutation.mutateAsync('predict_burnout');
+      await aiMutation.mutateAsync('smart_redistribute');
+      toast.success(t('executive.aiPredictionsSuccess'));
+    } catch {
+      toast.error(t('executive.aiPredictionsFailed'));
     }
   };
 
@@ -133,24 +153,103 @@ export default function ExecutiveDashboard() {
   const initMap: Record<string, string> = {};
   initiatives.forEach(i => { initMap[i.id] = i.title; });
 
+  // Employee names map
+  const empMap: Record<string, string> = {};
+  teamLoad.forEach(t => { empMap[t.employeeId] = t.employeeName; });
+
+  // TAMMAL Index gauge data
+  const tammalScore = orgScore?.score ?? 0;
+  const tammalGaugeData = [
+    { name: 'Score', value: tammalScore, fill: tammalScore > 70 ? 'hsl(var(--chart-2))' : tammalScore > 40 ? 'hsl(var(--chart-4))' : 'hsl(var(--destructive))' },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t('executive.pageTitle')}</h1>
           <p className="text-muted-foreground text-sm">{t('executive.pageDesc')}</p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSnapshot}
-          disabled={snapshotMutation.isPending}
-          className="gap-2"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${snapshotMutation.isPending ? 'animate-spin' : ''}`} />
-          {snapshotMutation.isPending ? t('executive.snapshotRunning') : t('executive.runSnapshot')}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleAIPredictions}
+            disabled={aiMutation.isPending}
+            className="gap-2"
+          >
+            <Brain className={`h-3.5 w-3.5 ${aiMutation.isPending ? 'animate-spin' : ''}`} />
+            {aiMutation.isPending ? t('executive.aiRunning') : t('executive.runAI')}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSnapshot}
+            disabled={snapshotMutation.isPending}
+            className="gap-2"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${snapshotMutation.isPending ? 'animate-spin' : ''}`} />
+            {snapshotMutation.isPending ? t('executive.snapshotRunning') : t('executive.runSnapshot')}
+          </Button>
+        </div>
       </div>
+
+      {/* TAMMAL Index */}
+      <Card className="glass-card border-0">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Gauge className="h-4 w-4 text-primary" />
+            {t('executive.tammalIndex')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {orgScoreLoading ? <Skeleton className="h-[200px]" /> : (
+            <div className="grid gap-4 md:grid-cols-5 items-center">
+              <div className="md:col-span-2 flex justify-center">
+                <ResponsiveContainer width={180} height={180}>
+                  <PieChart>
+                    <Pie
+                      data={tammalGaugeData}
+                      dataKey="value"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={75}
+                      startAngle={180}
+                      endAngle={0}
+                      cornerRadius={8}
+                    >
+                      {tammalGaugeData.map((entry, idx) => (
+                        <Cell key={idx} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute flex flex-col items-center justify-center" style={{ marginTop: 60 }}>
+                  <span className="text-4xl font-bold">{tammalScore}</span>
+                  <span className="text-xs text-muted-foreground">/100</span>
+                </div>
+              </div>
+              <div className="md:col-span-3 grid gap-3 grid-cols-2">
+                {[
+                  { label: t('executive.alignmentComponent'), value: orgScore?.components?.alignment ?? 0, color: 'hsl(var(--chart-1))' },
+                  { label: t('executive.velocityComponent'), value: orgScore?.components?.velocity ?? 0, color: 'hsl(var(--chart-2))' },
+                  { label: t('executive.capacityComponent'), value: orgScore?.components?.capacity_balance ?? 0, color: 'hsl(var(--chart-4))' },
+                  { label: t('executive.burnoutHealthComponent'), value: orgScore?.components?.burnout_health ?? 0, color: 'hsl(var(--chart-3))' },
+                ].map(comp => (
+                  <div key={comp.label} className="p-3 rounded-lg bg-muted/30 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">{comp.label}</span>
+                      <span className="text-sm font-bold">{comp.value}%</span>
+                    </div>
+                    <Progress value={comp.value} className="h-1.5" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* KPI Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
@@ -181,7 +280,7 @@ export default function ExecutiveDashboard() {
                 <RadialBarChart cx="50%" cy="50%" innerRadius="30%" outerRadius="90%" data={radialData} startAngle={180} endAngle={0}>
                   <RadialBar dataKey="value" cornerRadius={8} />
                   <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
-                  <Tooltip contentStyle={GLASS_TOOLTIP} formatter={(v: number) => [`${v}%`]} />
+                  <RechartsTooltip contentStyle={GLASS_TOOLTIP} formatter={(v: number) => [`${v}%`]} />
                 </RadialBarChart>
               </ResponsiveContainer>
             )}
@@ -200,7 +299,7 @@ export default function ExecutiveDashboard() {
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
                   <XAxis type="number" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
                   <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={GLASS_TOOLTIP} />
+                  <RechartsTooltip contentStyle={GLASS_TOOLTIP} />
                   <Bar dataKey="avgHours" fill="hsl(var(--primary))" name={t('executive.avgHours')} radius={[0, 6, 6, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -241,7 +340,7 @@ export default function ExecutiveDashboard() {
         </CardContent>
       </Card>
 
-      {/* Workforce Health Heatmap */}
+      {/* Workforce Health Heatmap + Initiative Risk */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="glass-card border-0">
           <CardHeader className="pb-2">
@@ -255,7 +354,7 @@ export default function ExecutiveDashboard() {
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
                     <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-                    <Tooltip contentStyle={GLASS_TOOLTIP} />
+                    <RechartsTooltip contentStyle={GLASS_TOOLTIP} />
                     <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                       {heatmapChart.map((entry, idx) => (
                         <Cell key={idx} fill={entry.fill} />
@@ -270,7 +369,6 @@ export default function ExecutiveDashboard() {
           </CardContent>
         </Card>
 
-        {/* Initiative Risk Radar */}
         <Card className="glass-card border-0">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
@@ -305,7 +403,110 @@ export default function ExecutiveDashboard() {
         </Card>
       </div>
 
-      {/* Burnout Risk Map */}
+      {/* AI Burnout Predictions */}
+      <Card className="glass-card border-0">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Brain className="h-4 w-4 text-destructive" />
+            {t('executive.aiBurnoutPredictions')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {burnoutLoading ? <Skeleton className="h-32" /> : burnoutPredictions.length > 0 ? (
+            <TooltipProvider>
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                {burnoutPredictions
+                  .sort((a, b) => b.burnout_probability_score - a.burnout_probability_score)
+                  .slice(0, 9)
+                  .map(pred => (
+                    <Tooltip key={pred.id}>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 cursor-help">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">
+                              {empMap[pred.employee_id] ?? pred.employee_id}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Progress value={pred.burnout_probability_score} className="h-1.5 flex-1" />
+                              <span className="text-xs font-semibold">{Math.round(pred.burnout_probability_score)}%</span>
+                            </div>
+                          </div>
+                          <Badge
+                            variant={pred.burnout_probability_score > 60 ? 'destructive' : 'secondary'}
+                            className="text-xs shrink-0"
+                          >
+                            {pred.confidence_score ? `${Math.round(pred.confidence_score)}% ${t('executive.confidence')}` : t('executive.aiPredicted')}
+                          </Badge>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs">
+                        <p className="text-xs">{pred.ai_reasoning ?? t('executive.noAIReasoning')}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+              </div>
+            </TooltipProvider>
+          ) : (
+            <p className="text-muted-foreground text-sm text-center py-8">{t('executive.noBurnoutPredictions')}</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Smart Redistribution */}
+      <Card className="glass-card border-0">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <ArrowRightLeft className="h-4 w-4 text-primary" />
+            {t('executive.smartRedistribution')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {redistLoading ? <Skeleton className="h-32" /> : pendingRedistributions.length > 0 ? (
+            <div className="space-y-3">
+              {pendingRedistributions.slice(0, 8).map(rec => (
+                <div key={rec.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">
+                      {empMap[rec.from_employee_id] ?? rec.from_employee_id}
+                      {' → '}
+                      {empMap[rec.to_employee_id] ?? rec.to_employee_id}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate">{rec.reason}</p>
+                    {rec.ai_reasoning && (
+                      <p className="text-xs text-muted-foreground/70 mt-0.5 truncate italic">{rec.ai_reasoning}</p>
+                    )}
+                  </div>
+                  <Badge variant="secondary" className="text-xs shrink-0">{rec.priority}</Badge>
+                  <div className="flex gap-1 shrink-0">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      onClick={() => updateStatus.mutate({ id: rec.id, status: 'accepted' })}
+                      disabled={updateStatus.isPending}
+                    >
+                      <Check className="h-3.5 w-3.5 text-chart-2" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      onClick={() => updateStatus.mutate({ id: rec.id, status: 'rejected' })}
+                      disabled={updateStatus.isPending}
+                    >
+                      <X className="h-3.5 w-3.5 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-sm text-center py-8">{t('executive.noRedistributions')}</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Burnout Risk Map (existing rule-based) */}
       <Card className="glass-card border-0">
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
