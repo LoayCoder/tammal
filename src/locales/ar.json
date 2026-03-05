@@ -2646,7 +2646,16 @@
         "noData": "لا توجد بيانات قراءة لهذه الفترة",
         "dailyMinutes": "الدقائق اليومية",
         "sessions": "الجلسات"
-      }
+      },
+      "sessionDialog": {
+        "title": "حفظ جلسة القراءة؟",
+        "description": "قرأت {{surah}} لمدة {{duration}}. هل تريد تسجيل هذه الجلسة؟",
+        "save": "حفظ الجلسة",
+        "discard": "تجاهل",
+        "reflection": "أضف تأملاً (اختياري)"
+      },
+      "readingTime": "وقت القراءة",
+      "sessionSaved": "تم حفظ جلسة القراءة"
     },
     "fasting": {
       "title": "صيام السنة",
