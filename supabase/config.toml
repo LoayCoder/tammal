@@ -92,3 +92,6 @@ verify_jwt = false
 
 [functions.workload-analytics]
 verify_jwt = false
+
+[functions.workload-ai]
+verify_jwt = false

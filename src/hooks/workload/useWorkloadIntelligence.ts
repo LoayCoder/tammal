@@ -90,7 +90,7 @@ export function useRunSlaMonitor() {
 export function useRunAnalyticsSnapshot() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (action: 'compute_velocity' | 'snapshot_heatmap' | 'compute_initiative_risk' | 'snapshot_alignment') => {
+    mutationFn: async (action: 'compute_velocity' | 'snapshot_heatmap' | 'compute_initiative_risk' | 'snapshot_alignment' | 'compute_org_score') => {
       const { data, error } = await supabase.functions.invoke('workload-analytics', {
         body: { action },
       });
@@ -102,6 +102,25 @@ export function useRunAnalyticsSnapshot() {
       qc.invalidateQueries({ queryKey: ['workload-heatmap'] });
       qc.invalidateQueries({ queryKey: ['initiative-risk'] });
       qc.invalidateQueries({ queryKey: ['alignment-metrics'] });
+      qc.invalidateQueries({ queryKey: ['org-intelligence-score'] });
+    },
+  });
+}
+
+export function useRunAIPredictions() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (action: 'predict_burnout' | 'forecast_completion' | 'smart_redistribute') => {
+      const { data, error } = await supabase.functions.invoke('workload-ai', {
+        body: { action },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['burnout-predictions'] });
+      qc.invalidateQueries({ queryKey: ['redistribution-recommendations'] });
+      qc.invalidateQueries({ queryKey: ['initiative-risk'] });
     },
   });
 }

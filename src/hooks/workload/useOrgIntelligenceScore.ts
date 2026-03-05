@@ -30,7 +30,7 @@ export function useOrgIntelligenceScore() {
         .maybeSingle();
 
       if (error) throw error;
-      return data as OrgIntelligenceScore | null;
+      return data as unknown as OrgIntelligenceScore | null;
     },
     enabled: !!tenantId,
     staleTime: 5 * 60_000,
