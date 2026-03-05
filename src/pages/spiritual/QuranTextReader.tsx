@@ -274,7 +274,8 @@ export default function QuranTextReader() {
     juzNumber: number | null;
     durationMinutes: number;
     durationSeconds: number;
-  }>({ open: false, surahName: '', juzNumber: null, durationMinutes: 0, durationSeconds: 0 });
+    totalAyahs: number;
+  }>({ open: false, surahName: '', juzNumber: null, durationMinutes: 0, durationSeconds: 0, totalAyahs: 0 });
 
   // Get surah data for timer
   const { data: surahData } = useQuranSurah(activeSurah);
