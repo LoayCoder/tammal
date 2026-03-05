@@ -299,6 +299,7 @@ export default function QuranTextReader() {
         juzNumber: result.juzNumber,
         durationMinutes: result.durationMinutes,
         durationSeconds: result.durationSeconds,
+        totalAyahs: surahData?.surah.numberOfAyahs ?? 0,
       });
     }
   }, [timer]);
@@ -406,6 +407,7 @@ export default function QuranTextReader() {
         juzNumber={sessionDialog.juzNumber}
         durationMinutes={sessionDialog.durationMinutes}
         durationSeconds={sessionDialog.durationSeconds}
+        totalAyahs={sessionDialog.totalAyahs}
       />
     </div>
   );
