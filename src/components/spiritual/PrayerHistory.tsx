@@ -133,7 +133,7 @@ export const PrayerHistory = React.memo(function PrayerHistory() {
                 {/* Streaks */}
                 <div className="flex items-center gap-6">
                   <div className="flex items-center gap-2">
-                    <Flame className="h-5 w-5 text-orange-500" />
+                    <Flame className="h-5 w-5 text-destructive" />
                     <div>
                       <p className="text-sm font-medium">{currentStreak} {t('spiritual.prayer.history.days')}</p>
                       <p className="text-xs text-muted-foreground">{t('spiritual.prayer.history.streak')}</p>
