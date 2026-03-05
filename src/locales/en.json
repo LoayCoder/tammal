@@ -2643,6 +2643,21 @@
         "excellent": "Mashallah — consistent engagement with the Qur'an nurtures the soul.",
         "good": "Beautiful progress — every verse brings you closer to peace.",
         "encouragement": "Start with even a few minutes. The Qur'an meets you where you are."
+      },
+      "history": {
+        "title": "Reading History",
+        "totalMinutes": "Total Minutes",
+        "totalSessions": "Total Sessions",
+        "activeDays": "Active Days",
+        "avgPerSession": "Avg per Session",
+        "streak": "Current Streak",
+        "bestStreak": "Best Streak",
+        "days": "days",
+        "minutes": "min",
+        "topSurahs": "Most Read Surahs",
+        "noData": "No reading data for this period",
+        "dailyMinutes": "Daily Minutes",
+        "sessions": "Sessions"
       }
     },
     "fasting": {

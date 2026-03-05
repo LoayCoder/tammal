@@ -1,62 +1,22 @@
 
 
-# Qur'an History & Trends
+## Plan: Add Rawatib (Sunnah) indicators to Dashboard Prayer Widget
 
-## What to Build
+The `DashboardPrayerWidget` currently only shows the active prayer with log buttons but lacks the Rawatib Sunnah rak'ah info that `PrayerCard` already has.
 
-Add a collapsible "History & Trends" section to `/spiritual/quran` (QuranReader page), mirroring the Prayer History pattern. Users select a timeframe and see:
+### Changes
 
-1. **Duration trend chart** — BarChart showing daily reading minutes
-2. **Summary stats** — Total sessions, total minutes, average per session, reading days count over the selected period
-3. **Streak indicator** — Current and best consecutive reading day streaks
-4. **Juz/Surah breakdown** — Most-read surahs or juz distribution (if data exists)
+**File: `src/components/dashboard/DashboardPrayerWidget.tsx`**
 
-## Implementation
+1. Import the Sunnah hooks (`useSunnahLogs`) and add a `RAWATIB_CONFIG` map (same as in `PrayerCard.tsx`: Fajr → 2 after, Dhuhr → 2 before + 2 after, Asr → none, Maghrib → 2 after, Isha → 2 after).
 
-### Task 1: Create `useQuranHistory` hook
+2. Inside the active prayer card section, add tap-to-toggle Rawatib chips below the log buttons — matching the existing style from `PrayerCard`:
+   - 📿 "2 Rak'ahs before" (if applicable)
+   - 📿 "2 Rak'ahs after" (if applicable)
+   - Each chip toggles completed state via `onToggleSunnah`
 
-`src/hooks/spiritual/useQuranHistory.ts` — mirrors `usePrayerHistory` pattern:
-- State for `range` (week/month/quarter/year/custom) + custom dates
-- Computes `from`/`to` date boundaries
-- Calls `useQuranSessions({ from, to })` (already supports date ranges)
-- Derives:
-  - `dailyData[]` — `{ date, totalMinutes, sessionCount }` for each day in range
-  - `topSurahs[]` — aggregated surah frequency/duration
-  - `currentStreak` / `bestStreak` — consecutive days with at least 1 session
-  - Period totals: `totalMinutes`, `totalSessions`, `avgMinutesPerSession`, `activeDays`
+3. In the progress row (5 prayer indicators at the bottom), add small dot indicators beneath each prayer icon showing if its Rawatib are completed.
 
-### Task 2: Create `QuranHistory` component
-
-`src/components/spiritual/QuranHistory.tsx` — collapsible card matching PrayerHistory styling:
-- ToggleGroup for range selection
-- Custom date pickers when range is "custom"
-- Recharts BarChart showing daily minutes (primary bar) and session count (secondary bar)
-- Summary stat cards: total minutes, sessions, active days, avg per session
-- Streak display with flame icons
-- Top surahs mini-list (top 5 by session count)
-- RTL-safe with logical properties
-
-### Task 3: Integrate into QuranReader page
-
-Add `<QuranHistory />` below the weekly stats section in `QuranReader.tsx`.
-
-### Task 4: i18n keys
-
-Add to `en.json` and `ar.json`:
-- `spiritual.quran.history.title` — "Reading History"
-- `spiritual.quran.history.week/month/quarter/year/custom` — range labels
-- `spiritual.quran.history.totalMinutes` — "Total Minutes"
-- `spiritual.quran.history.totalSessions` — "Total Sessions"
-- `spiritual.quran.history.activeDays` — "Active Days"
-- `spiritual.quran.history.avgPerSession` — "Avg per Session"
-- `spiritual.quran.history.streak` — "Current Streak"
-- `spiritual.quran.history.bestStreak` — "Best Streak"
-- `spiritual.quran.history.days` — "days"
-- `spiritual.quran.history.minutes` — "min"
-- `spiritual.quran.history.topSurahs` — "Most Read Surahs"
-- `spiritual.quran.history.noData` — "No reading data for this period"
-- `spiritual.quran.history.dailyMinutes` — "Daily Minutes"
-- `spiritual.quran.history.sessions` — "Sessions"
-
-No database changes needed — `useQuranSessions` already supports `{ from, to }` date range queries.
+### Hook dependency
+Need to check if `useSunnahLogs` or a similar hook exists for Rawatib tracking at the dashboard level, or if the sunnah data is already available through `usePrayerLogs`.
 

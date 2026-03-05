@@ -13,6 +13,7 @@ import { BookOpenCheck, Clock, TrendingUp, Plus, BookOpen } from 'lucide-react';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { useQuranSessions } from '@/hooks/spiritual/useQuranSessions';
 import { useNavigate } from 'react-router-dom';
+import { QuranHistory } from '@/components/spiritual/QuranHistory';
 
 const SURAHS = [
   'Al-Fatiha','Al-Baqarah','Aal-Imran','An-Nisa','Al-Maidah','Al-Anam','Al-Araf','Al-Anfal',
@@ -153,6 +154,9 @@ export default function QuranReader() {
           </CardContent>
         </Card>
       </div>
+
+      {/* History & Trends */}
+      <QuranHistory />
 
       {/* Log form */}
       {showForm && (
