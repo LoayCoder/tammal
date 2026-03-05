@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { Progress } from '@/components/ui/progress';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import { ChevronDown, Flame, CalendarIcon, History } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePrayerHistory, type HistoryRange } from '@/hooks/spiritual/usePrayerHistory';
@@ -29,7 +30,7 @@ export const PrayerHistory = React.memo(function PrayerHistory() {
   const {
     range, setRange,
     customFrom, customTo, setCustomFrom, setCustomTo,
-    dailyData, prayerStats,
+    dailyData, prayerStats, rawatibStats,
     currentStreak, bestStreak,
     isPending,
   } = usePrayerHistory();
@@ -102,8 +103,8 @@ export const PrayerHistory = React.memo(function PrayerHistory() {
               </div>
             ) : (
               <>
-                {/* Chart */}
-                <div className="h-56">
+                {/* Chart with Rawatib overlay */}
+                <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
@@ -122,10 +123,23 @@ export const PrayerHistory = React.memo(function PrayerHistory() {
                         tickFormatter={(v) => `${v}%`}
                       />
                       <Tooltip
-                        formatter={(value: number) => [`${value}%`, t('spiritual.prayer.history.completionRate')]}
+                        formatter={(value: number, name: string) => [
+                          `${value}%`,
+                          name === 'pct'
+                            ? t('spiritual.prayer.history.completionRate')
+                            : t('spiritual.prayer.history.rawatibRate'),
+                        ]}
                         contentStyle={{ borderRadius: 8, border: 'none' }}
                       />
+                      <Legend
+                        formatter={(value) =>
+                          value === 'pct'
+                            ? t('spiritual.prayer.history.completionRate')
+                            : t('spiritual.prayer.history.rawatibRate')
+                        }
+                      />
                       <Bar dataKey="pct" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="rawatibPct" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -169,6 +183,48 @@ export const PrayerHistory = React.memo(function PrayerHistory() {
                     ))}
                   </div>
                 </div>
+
+                {/* Rawatib Breakdown */}
+                {rawatibStats.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium mb-3">📿 {t('spiritual.prayer.history.rawatib')}</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                      {rawatibStats.map((s) => (
+                        <Card key={s.prayerName} className="border rounded-lg">
+                          <CardContent className="p-3 space-y-2">
+                            <p className="text-sm font-medium text-center" style={{ color: PRAYER_COLORS[s.prayerName] }}>
+                              {t(`spiritual.prayer.names.${s.prayerName.toLowerCase()}`, s.prayerName)}
+                            </p>
+                            {s.beforeTotal > 0 && (
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-muted-foreground">{t('spiritual.prayer.history.rakaahsBefore')}</span>
+                                  <span className="font-medium">{s.beforePct}%</span>
+                                </div>
+                                <Progress value={s.beforePct} className="h-1.5" />
+                                <p className="text-[10px] text-muted-foreground text-end">
+                                  {s.beforeCompleted}/{s.beforeTotal}
+                                </p>
+                              </div>
+                            )}
+                            {s.afterTotal > 0 && (
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-muted-foreground">{t('spiritual.prayer.history.rakaahsAfter')}</span>
+                                  <span className="font-medium">{s.afterPct}%</span>
+                                </div>
+                                <Progress value={s.afterPct} className="h-1.5" />
+                                <p className="text-[10px] text-muted-foreground text-end">
+                                  {s.afterCompleted}/{s.afterTotal}
+                                </p>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </CardContent>
