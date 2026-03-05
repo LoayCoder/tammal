@@ -97,6 +97,7 @@
     "portfolio": "Initiative Portfolio",
     "executive": "Executive Dashboard",
     "escalationSettings": "Escalation & Governance",
+    "systemHealth": "System Health",
     "recognitionAwards": "Recognition & Awards",
     "recognition": "Recognition",
     "aiPlatform": "AI Platform",
@@ -3646,6 +3647,24 @@
       "policyJustification": "All due date extensions and task deletions require a mandatory justification",
       "policyEvidence": "Actions require uploaded verification (documents, photos, or reports) approved by a designated verifier",
       "policyAudit": "All governance actions are logged in the audit trail with full change history"
+    }
+  },
+  "systemHealth": {
+    "title": "System Health",
+    "description": "Real-time governance subsystem monitoring",
+    "runCheck": "Run Health Check",
+    "governanceStatus": "Governance Status",
+    "governanceDesc": "Live status of all governance subsystems",
+    "subsystem": "Subsystem",
+    "details": "Details",
+    "lastChecked": "Last Checked",
+    "checks": {
+      "queueSync": "Queue Sync",
+      "slaMonitor": "SLA Monitor",
+      "escalation": "Escalation System",
+      "auditLogs": "Audit Logs",
+      "tenantIsolation": "Tenant Isolation",
+      "capacity": "Capacity Calculations"
     }
   }
 }

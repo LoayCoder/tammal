@@ -73,6 +73,7 @@ const TaskConnectors = lazy(() => import("@/pages/admin/TaskConnectors"));
 const RepresentativeWorkload = lazy(() => import("@/pages/admin/RepresentativeWorkload"));
 const PortfolioDashboard = lazy(() => import("@/pages/admin/PortfolioDashboard"));
 const ExecutiveDashboard = lazy(() => import("@/pages/admin/ExecutiveDashboard"));
+const SystemHealth = lazy(() => import("@/pages/admin/SystemHealth"));
 const RecognitionManagement = lazy(() => import("@/pages/admin/RecognitionManagement"));
 const NominatePage = lazy(() => import("@/pages/recognition/NominatePage"));
 const MyNominationsPage = lazy(() => import("@/pages/recognition/MyNominationsPage"));
@@ -170,6 +171,7 @@ const App = () => (
                 <Route path="/admin/recognition/redemption" element={<AdminRoute><RedemptionManagement /></AdminRoute>} />
                 <Route path="/admin/ai-governance" element={<AdminRoute><AIGovernance /></AdminRoute>} />
                 <Route path="/admin/workload/escalation" element={<AdminRoute><EscalationSettings /></AdminRoute>} />
+                <Route path="/admin/workload/system-health" element={<AdminRoute><SystemHealth /></AdminRoute>} />
               </Route>
 
               {/* ── Workload (employee-facing) ── */}
