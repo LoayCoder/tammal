@@ -13,7 +13,7 @@ import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferenc
 import { useReadingTimer } from '@/hooks/spiritual/useReadingTimer';
 import { ReadingSessionDialog } from '@/components/spiritual/ReadingSessionDialog';
 
-const MIN_SESSION_SECONDS = 60;
+const MIN_SESSION_SECONDS = 0;
 
 function SurahList({
   surahs,
@@ -168,12 +168,10 @@ function SurahViewer({ surahNumber, onBack, elapsedSeconds, formatTime, initialA
         </Button>
 
         {/* Live reading timer */}
-        {elapsedSeconds > 0 && (
-          <Badge variant="secondary" className="gap-1.5 text-xs font-mono">
-            <Timer className="h-3 w-3" />
-            {formatTime(elapsedSeconds)}
-          </Badge>
-        )}
+        <Badge variant="secondary" className="gap-1.5 text-xs font-mono">
+          <Timer className="h-3 w-3" />
+          {formatTime(elapsedSeconds)}
+        </Badge>
 
         <Button
           variant="ghost"
@@ -284,6 +282,30 @@ function SurahViewer({ surahNumber, onBack, elapsedSeconds, formatTime, initialA
           {t('spiritual.quranReader.nextSurah', 'Next')}
           <ChevronRight className="h-3 w-3 rtl:rotate-180" />
         </Button>
+      </div>
+
+      {/* Floating Stop & Save Bar */}
+      <div className="sticky bottom-0 z-10 -mx-4 md:-mx-6 px-4 md:px-6 py-3 bg-background/95 backdrop-blur-sm border-t border-border">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <Badge variant="outline" className="gap-1.5 text-xs font-mono shrink-0">
+              <Timer className="h-3 w-3" />
+              {formatTime(elapsedSeconds)}
+            </Badge>
+            <span className="text-sm text-muted-foreground truncate">
+              {surah.englishName}
+            </span>
+          </div>
+          <Button
+            variant="default"
+            size="sm"
+            onClick={onStopAndSave}
+            className="gap-1.5 shrink-0"
+          >
+            <BookOpen className="h-3.5 w-3.5" />
+            {t('spiritual.quranReader.stopAndSave', 'Stop & Save')}
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -430,6 +452,7 @@ export default function QuranTextReader() {
             <SurahViewer
               surahNumber={activeSurah}
               onBack={handleBack}
+              onStopAndSave={stopAndPrompt}
               elapsedSeconds={timer.elapsedSeconds}
               formatTime={timer.formatTime}
               initialAyah={initialAyah}
