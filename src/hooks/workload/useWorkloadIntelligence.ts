@@ -70,3 +70,19 @@ export function useRunEscalationCheck() {
     },
   });
 }
+
+export function useRunSlaMonitor() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke('sla-monitor', {
+        body: {},
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['objective-actions'] });
+    },
+  });
+}
