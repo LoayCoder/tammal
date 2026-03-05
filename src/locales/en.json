@@ -2597,7 +2597,21 @@
         "encouragement": "Every prayer counts. Keep showing up, and the journey will unfold beautifully."
       },
       "voluntaryTitle": "Voluntary Prayers",
-      "voluntarySubtitle": "Sunnah prayers linked to your daily tracking"
+      "voluntarySubtitle": "Sunnah prayers linked to your daily tracking",
+      "history": {
+        "title": "Prayer History & Trends",
+        "week": "Week",
+        "month": "Month",
+        "quarter": "Quarter",
+        "year": "Year",
+        "custom": "Custom",
+        "completionRate": "Completion Rate",
+        "streak": "Current Streak",
+        "bestStreak": "Best Streak",
+        "days": "days",
+        "perPrayer": "Per Prayer",
+        "noData": "No prayer data for this period"
+      }
     },
     "quran": {
       "title": "Qur'an Reader",
