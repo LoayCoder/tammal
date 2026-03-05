@@ -5582,6 +5582,7 @@ export type Database = {
           duration_minutes: number
           id: string
           juz_number: number | null
+          last_ayah_position: number | null
           reflection_notes: string | null
           session_date: string
           surah_name: string | null
@@ -5593,6 +5594,7 @@ export type Database = {
           duration_minutes?: number
           id?: string
           juz_number?: number | null
+          last_ayah_position?: number | null
           reflection_notes?: string | null
           session_date?: string
           surah_name?: string | null
@@ -5604,6 +5606,7 @@ export type Database = {
           duration_minutes?: number
           id?: string
           juz_number?: number | null
+          last_ayah_position?: number | null
           reflection_notes?: string | null
           session_date?: string
           surah_name?: string | null
