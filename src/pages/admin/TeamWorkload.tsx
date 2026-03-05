@@ -10,6 +10,7 @@ import { useWorkloadAnalytics } from '@/hooks/workload/useWorkloadAnalytics';
 import { useObjectives } from '@/hooks/workload/useObjectives';
 import { useInitiatives } from '@/hooks/workload/useInitiatives';
 import { useDepartmentTasks } from '@/hooks/workload/useDepartmentTasks';
+import { useInitiativeRisk } from '@/hooks/workload/useInitiativeRisk';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { TeamTaskFilters, type TaskFilters } from '@/components/workload/team/TeamTaskFilters';
@@ -17,10 +18,21 @@ import { AddTeamTaskDialog } from '@/components/workload/team/AddTeamTaskDialog'
 import { DataTable } from '@/shared/data-table/DataTable';
 import {
   Users, AlertTriangle, Clock, CheckCircle2, TrendingUp, Plus,
-  Lock, Unlock, Trash2,
+  Lock, Unlock, Trash2, Zap, BarChart3,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import {
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
+} from 'recharts';
 
+const GLASS_TOOLTIP = {
+  background: 'hsl(var(--card) / 0.6)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
+  border: '1px solid hsl(var(--border) / 0.25)',
+  borderRadius: '12px',
+  fontSize: 12,
+};
 
 const priorityLabels: Record<number, string> = {
   1: 'P1', 2: 'P2', 3: 'P3', 4: 'P4', 5: 'P5',
@@ -37,20 +49,19 @@ export default function TeamWorkload() {
     employees, tasks, isPending: tasksLoading,
     createTask, deleteTask, lockTask, unlockTask, isCreating,
   } = useDepartmentTasks();
+  const { metrics: riskMetrics, isPending: riskLoading } = useInitiativeRisk();
 
   const [addOpen, setAddOpen] = useState(false);
   const [filters, setFilters] = useState<TaskFilters>({
     status: 'all', priority: 'all', employeeId: 'all', sourceType: 'all', search: '',
   });
 
-  // Build employee name map
   const empMap = useMemo(() => {
     const m: Record<string, string> = {};
     employees.forEach(e => { m[e.id] = e.full_name; });
     return m;
   }, [employees]);
 
-  // Apply filters
   const filteredTasks = useMemo(() => {
     return tasks.filter(task => {
       if (filters.status !== 'all' && task.status !== filters.status) return false;
@@ -65,13 +76,42 @@ export default function TeamWorkload() {
     });
   }, [tasks, filters]);
 
-  // Risk members
   const riskMembers = useMemo(
     () => teamLoad.filter(m => m.estimatedMinutes > 480 || m.overdueTasks > 2 || m.offHoursMinutes > 120),
     [teamLoad]
   );
 
-  // Quadrants
+  // Execution metrics
+  const totalTasks = teamLoad.reduce((s, m) => s + m.totalTasks, 0);
+  const totalDone = teamLoad.reduce((s, m) => s + m.doneTasks, 0);
+  const totalOverdue = teamLoad.reduce((s, m) => s + m.overdueTasks, 0);
+  const completionRate = totalTasks > 0 ? Math.round((totalDone / totalTasks) * 100) : 0;
+  const overdueRate = totalTasks > 0 ? Math.round((totalOverdue / totalTasks) * 100) : 0;
+  const velocity = totalTasks > 0 ? Math.round((totalDone / 30) * 100) / 100 : 0;
+
+  // Workload distribution by classification
+  const workloadDistribution = useMemo(() => {
+    const classify = (minutes: number) => {
+      const pct = (minutes / 480) * 100;
+      if (pct < 60) return 'underutilized';
+      if (pct <= 90) return 'healthy';
+      if (pct <= 110) return 'high_load';
+      return 'burnout_risk';
+    };
+    const counts = { underutilized: 0, healthy: 0, high_load: 0, burnout_risk: 0 };
+    teamLoad.forEach(m => { counts[classify(m.estimatedMinutes) as keyof typeof counts]++; });
+    return [
+      { name: t('executive.underutilized'), value: counts.underutilized, fill: 'hsl(var(--chart-1))' },
+      { name: t('executive.healthy'), value: counts.healthy, fill: 'hsl(var(--chart-2))' },
+      { name: t('executive.highLoad'), value: counts.high_load, fill: 'hsl(var(--chart-4))' },
+      { name: t('executive.burnoutRiskLabel'), value: counts.burnout_risk, fill: 'hsl(var(--destructive))' },
+    ];
+  }, [teamLoad, t]);
+
+  // Initiative names for risk display
+  const initMap: Record<string, string> = {};
+  initiatives.forEach(i => { initMap[i.id] = i.title; });
+
   const quadrants = useMemo(() => {
     const high = 360;
     return {
@@ -111,11 +151,7 @@ export default function TeamWorkload() {
       id: 'status',
       header: t('common.status'),
       cell: (row: typeof filteredTasks[number]) => (
-        <StatusBadge
-          status={row.status}
-          config={GENERIC_TASK_STATUS_CONFIG}
-          translationPrefix="teamWorkload"
-        />
+        <StatusBadge status={row.status} config={GENERIC_TASK_STATUS_CONFIG} translationPrefix="teamWorkload" />
       ),
       className: 'w-28',
     },
@@ -210,6 +246,85 @@ export default function TeamWorkload() {
           </Card>
         ))}
       </div>
+
+      {/* Workload Distribution + Execution Metrics */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card className="glass-chart border-0">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-primary" />
+              {t('teamWorkload.workloadDistribution')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {analyticsLoading ? <Skeleton className="h-[200px]" /> : (
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={workloadDistribution}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
+                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={GLASS_TOOLTIP} />
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                    {workloadDistribution.map((entry, idx) => (
+                      <Cell key={idx} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="glass-card border-0">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />
+              {t('teamWorkload.executionMetrics')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3 grid-cols-3">
+              <div className="text-center space-y-1 p-3 rounded-lg bg-muted/30">
+                <p className="text-2xl font-bold">{velocity}</p>
+                <p className="text-xs text-muted-foreground">{t('teamWorkload.teamVelocity')}</p>
+              </div>
+              <div className="text-center space-y-1 p-3 rounded-lg bg-muted/30">
+                <p className="text-2xl font-bold">{completionRate}%</p>
+                <p className="text-xs text-muted-foreground">{t('teamWorkload.completionRate')}</p>
+              </div>
+              <div className="text-center space-y-1 p-3 rounded-lg bg-muted/30">
+                <p className="text-2xl font-bold">{overdueRate}%</p>
+                <p className="text-xs text-muted-foreground">{t('teamWorkload.overdueRate')}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Initiative Risk Indicators */}
+      {riskMetrics.length > 0 && (
+        <Card className="glass-card border-0">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              {t('teamWorkload.riskIndicators')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {riskMetrics.slice(0, 6).map(r => (
+                <div key={r.initiative_id} className="space-y-1.5 p-3 rounded-lg bg-muted/30">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium truncate">{initMap[r.initiative_id] ?? r.initiative_id}</span>
+                    <Badge variant={r.risk_score > 60 ? 'destructive' : 'secondary'} className="text-xs">{r.risk_score}%</Badge>
+                  </div>
+                  <Progress value={r.risk_score} className="h-1.5" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Risk Alerts */}
       {riskMembers.length > 0 && (
