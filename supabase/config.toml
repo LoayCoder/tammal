@@ -89,3 +89,6 @@ verify_jwt = false
 
 [functions.sla-monitor]
 verify_jwt = false
+
+[functions.workload-analytics]
+verify_jwt = false
