@@ -83,8 +83,10 @@ export function DashboardPrayerWidget() {
       return 'Witr' as const;
     }
 
-    return null; // All logged
+    return null; // All logged (but not necessarily all completed)
   }, [timings, todayLogs, witrCountdown.isPrayerTime, witrCountdown.isExpired]);
+
+  const allCompleted = ALL_PRAYERS.every(n => todayLogs[n]?.status?.startsWith('completed'));
 
   if (!isPrayerEnabled || !timings) return null;
 
