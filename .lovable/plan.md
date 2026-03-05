@@ -1,46 +1,22 @@
 
 
-# Add Rawatib (Rak'ahs) to Prayer History
+## Plan: Add Rawatib (Sunnah) indicators to Dashboard Prayer Widget
 
-## What to Build
+The `DashboardPrayerWidget` currently only shows the active prayer with log buttons but lacks the Rawatib Sunnah rak'ah info that `PrayerCard` already has.
 
-Enhance the Prayer History section to show Sunnah Rawatib completion (before/after Rak'ahs) alongside obligatory prayer data. Rawatib are already tracked in `spiritual_sunnah_logs` with keys like `rawatib_fajr_before`, `rawatib_dhuhr_after`, etc.
+### Changes
 
-## RAWATIB Config (from existing code)
+**File: `src/components/dashboard/DashboardPrayerWidget.tsx`**
 
-| Prayer | Before | After |
-|--------|--------|-------|
-| Fajr | 2 | — |
-| Dhuhr | 2 | 2 |
-| Asr | — | — |
-| Maghrib | — | 2 |
-| Isha | — | 2 |
+1. Import the Sunnah hooks (`useSunnahLogs`) and add a `RAWATIB_CONFIG` map (same as in `PrayerCard.tsx`: Fajr → 2 after, Dhuhr → 2 before + 2 after, Asr → none, Maghrib → 2 after, Isha → 2 after).
 
-## Changes
+2. Inside the active prayer card section, add tap-to-toggle Rawatib chips below the log buttons — matching the existing style from `PrayerCard`:
+   - 📿 "2 Rak'ahs before" (if applicable)
+   - 📿 "2 Rak'ahs after" (if applicable)
+   - Each chip toggles completed state via `onToggleSunnah`
 
-### Task 1: Create `useSunnahHistoryLogs` helper
+3. In the progress row (5 prayer indicators at the bottom), add small dot indicators beneath each prayer icon showing if its Rawatib are completed.
 
-Add a date-range-aware query for `spiritual_sunnah_logs` filtered to `rawatib_*` practice types. The existing `useSunnahLogs` only fetches 30 days and doesn't accept custom ranges — we need a new lightweight query hook that accepts `{ from, to }` like `usePrayerLogs`.
-
-### Task 2: Enhance `usePrayerHistory` hook
-
-- Import and call the new sunnah logs query with the same `from`/`to` range
-- Add `rawatibStats` to the return value: per-prayer Rawatib completion stats (`{ prayerName, beforeCompleted, afterCompleted, beforeTotal, afterTotal, beforePct, afterPct }`)
-- Add daily Rawatib count to `dailyData` for chart overlay
-
-### Task 3: Update `PrayerHistory` component
-
-- Add a new **Rawatib Breakdown** section below the per-prayer cards
-- Show each prayer with its before/after Rak'ah completion rate (only for prayers that have Rawatib)
-- Use small progress indicators with Rak'ah counts (e.g., "2 Rak'ahs before: 85%")
-- Include Rawatib in the daily chart as a stacked or secondary bar
-- RTL-safe with logical properties
-
-### Task 4: i18n keys
-
-Add to `en.json` and `ar.json`:
-- `spiritual.prayer.history.rawatib` — "Sunnah Rak'ahs (Rawatib)"
-- `spiritual.prayer.history.rakaahsBefore` — "Rak'ahs Before"
-- `spiritual.prayer.history.rakaahsAfter` — "Rak'ahs After"
-- `spiritual.prayer.history.rawatibRate` — "Rawatib Rate"
+### Hook dependency
+Need to check if `useSunnahLogs` or a similar hook exists for Rawatib tracking at the dashboard level, or if the sunnah data is already available through `usePrayerLogs`.
 
