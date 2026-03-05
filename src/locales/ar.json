@@ -2645,7 +2645,9 @@
         "topSurahs": "أكثر السور قراءة",
         "noData": "لا توجد بيانات قراءة لهذه الفترة",
         "dailyMinutes": "الدقائق اليومية",
-        "sessions": "الجلسات"
+        "sessions": "الجلسات",
+        "totalAyahs": "إجمالي الآيات",
+        "dailyAyahs": "الآيات المقروءة"
       },
       "sessionDialog": {
         "title": "حفظ جلسة القراءة؟",
@@ -2661,7 +2663,9 @@
       "ayahsRead": "آيات",
       "filterBySurah": "تصفية حسب السورة",
       "allSurahs": "جميع السور",
-      "startReading": "ابدأ القراءة"
+      "startReading": "ابدأ القراءة",
+      "lastPosition": "الآية {{ayah}}",
+      "resumeFrom": "استئناف من الآية {{ayah}}"
     },
     "fasting": {
       "title": "صيام السنة",

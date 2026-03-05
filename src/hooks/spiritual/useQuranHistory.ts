@@ -40,6 +40,7 @@ export interface QuranDailyData {
   date: string;
   totalMinutes: number;
   sessionCount: number;
+  totalAyahs: number;
 }
 
 export interface SurahStat {
@@ -76,6 +77,7 @@ export function useQuranHistory() {
         date,
         totalMinutes: daySessions.reduce((sum, s) => sum + s.duration_minutes, 0),
         sessionCount: daySessions.length,
+        totalAyahs: daySessions.reduce((sum, s) => sum + (s.ayahs_read ?? 0), 0),
       };
     });
 
@@ -117,10 +119,11 @@ export function useQuranHistory() {
 
     const totalMinutes = sessions.reduce((sum, s) => sum + s.duration_minutes, 0);
     const totalSessions = sessions.length;
+    const totalAyahsRead = sessions.reduce((sum, s) => sum + (s.ayahs_read ?? 0), 0);
     const activeDays = dailyData.filter((d) => d.sessionCount > 0).length;
     const avgMinutesPerSession = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
 
-    return { dailyData, topSurahs, currentStreak, bestStreak, totalMinutes, totalSessions, avgMinutesPerSession, activeDays };
+    return { dailyData, topSurahs, currentStreak, bestStreak, totalMinutes, totalSessions, totalAyahsRead, avgMinutesPerSession, activeDays };
   }, [sessions, from, to]);
 
   return {
@@ -129,7 +132,7 @@ export function useQuranHistory() {
     from, to,
     dailyData, topSurahs,
     currentStreak, bestStreak,
-    totalMinutes, totalSessions, avgMinutesPerSession, activeDays,
+    totalMinutes, totalSessions, totalAyahsRead, avgMinutesPerSession, activeDays,
     isPending,
   };
 }

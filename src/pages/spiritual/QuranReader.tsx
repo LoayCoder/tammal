@@ -87,9 +87,10 @@ export default function QuranReader() {
     setReflection('');
   };
 
-  const handleResume = (surahName: string) => {
+  const handleResume = (surahName: string, ayah?: number) => {
     const num = getSurahNumber(surahName);
-    navigate(`/spiritual/quran/read?surah=${num}`);
+    const params = ayah && ayah > 1 ? `?surah=${num}&ayah=${ayah}` : `?surah=${num}`;
+    navigate(`/spiritual/quran/read${params}`);
   };
 
   if (prefsLoading) {
@@ -128,7 +129,17 @@ export default function QuranReader() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => navigate('/spiritual/quran/read')} className="gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              if (lastSession?.surah_name) {
+                handleResume(lastSession.surah_name, lastSession.last_ayah_position ?? undefined);
+              } else {
+                navigate('/spiritual/quran/read');
+              }
+            }}
+            className="gap-2"
+          >
             <BookOpen className="h-4 w-4" />
             {t('spiritual.quran.startReading', 'Start Reading')}
           </Button>
@@ -151,12 +162,13 @@ export default function QuranReader() {
                 <p className="font-medium text-sm">{t('spiritual.quran.resumeSession', 'Resume Last Session')}</p>
                 <p className="text-xs text-muted-foreground">
                   {lastSession.surah_name}
+                  {lastSession.last_ayah_position ? ` • ${t('spiritual.quran.lastPosition', 'Ayah {{ayah}}', { ayah: lastSession.last_ayah_position })}` : ''}
                   {lastSession.ayahs_read ? ` • ${lastSession.ayahs_read} ${t('spiritual.quran.ayahsRead', 'ayahs')}` : ''}
                   {' • '}{lastSession.session_date}
                 </p>
               </div>
             </div>
-            <Button size="sm" onClick={() => handleResume(lastSession.surah_name!)} className="gap-1.5 shrink-0">
+            <Button size="sm" onClick={() => handleResume(lastSession.surah_name!, lastSession.last_ayah_position ?? undefined)} className="gap-1.5 shrink-0">
               <PlayCircle className="h-4 w-4" />
               {t('spiritual.quran.resumeReading', 'Resume')}
             </Button>
@@ -308,7 +320,7 @@ export default function QuranReader() {
                         variant="ghost"
                         size="icon"
                         className="h-7 w-7"
-                        onClick={() => handleResume(session.surah_name!)}
+                        onClick={() => handleResume(session.surah_name!, session.last_ayah_position ?? undefined)}
                         title={t('spiritual.quran.resumeReading', 'Resume')}
                       >
                         <PlayCircle className="h-4 w-4 text-primary" />

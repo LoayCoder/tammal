@@ -23,7 +23,7 @@ export const QuranHistory = React.memo(function QuranHistory() {
     customFrom, customTo, setCustomFrom, setCustomTo,
     dailyData, topSurahs,
     currentStreak, bestStreak,
-    totalMinutes, totalSessions, avgMinutesPerSession, activeDays,
+    totalMinutes, totalSessions, totalAyahsRead, avgMinutesPerSession, activeDays,
     isPending,
   } = useQuranHistory();
 
@@ -96,7 +96,7 @@ export const QuranHistory = React.memo(function QuranHistory() {
             ) : (
               <>
                 {/* Summary stats */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                   <StatCard
                     icon={<Clock className="h-4 w-4 text-primary" />}
                     value={totalMinutes}
@@ -106,6 +106,11 @@ export const QuranHistory = React.memo(function QuranHistory() {
                     icon={<BookOpen className="h-4 w-4 text-primary" />}
                     value={totalSessions}
                     label={t('spiritual.quran.history.totalSessions')}
+                  />
+                  <StatCard
+                    icon={<BookOpen className="h-4 w-4 text-primary" />}
+                    value={totalAyahsRead}
+                    label={t('spiritual.quran.history.totalAyahs', 'Total Ayahs')}
                   />
                   <StatCard
                     icon={<CalendarIconSolid className="h-4 w-4 text-primary" />}
@@ -143,7 +148,9 @@ export const QuranHistory = React.memo(function QuranHistory() {
                             : value,
                           name === 'totalMinutes'
                             ? t('spiritual.quran.history.dailyMinutes')
-                            : t('spiritual.quran.history.sessions'),
+                            : name === 'totalAyahs'
+                              ? t('spiritual.quran.history.dailyAyahs', 'Ayahs Read')
+                              : t('spiritual.quran.history.sessions'),
                         ]}
                         contentStyle={{ borderRadius: 8, border: 'none' }}
                       />
@@ -151,11 +158,14 @@ export const QuranHistory = React.memo(function QuranHistory() {
                         formatter={(value) =>
                           value === 'totalMinutes'
                             ? t('spiritual.quran.history.dailyMinutes')
-                            : t('spiritual.quran.history.sessions')
+                            : value === 'totalAyahs'
+                              ? t('spiritual.quran.history.dailyAyahs', 'Ayahs Read')
+                              : t('spiritual.quran.history.sessions')
                         }
                       />
                       <Bar dataKey="totalMinutes" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="sessionCount" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="totalAyahs" fill="hsl(var(--chart-3, 142 71% 45%))" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>

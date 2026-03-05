@@ -88,20 +88,51 @@ function toArabicNumeral(n: number): string {
   return String(n).replace(/\d/g, d => digits[parseInt(d)]);
 }
 
-function SurahViewer({ surahNumber, onBack, elapsedSeconds, formatTime }: {
+function SurahViewer({ surahNumber, onBack, elapsedSeconds, formatTime, initialAyah, onAyahChange }: {
   surahNumber: number;
   onBack: () => void;
   elapsedSeconds: number;
   formatTime: (s: number) => string;
+  initialAyah?: number;
+  onAyahChange?: (ayah: number) => void;
 }) {
   const { t } = useTranslation();
   const { data, isPending, isError } = useQuranSurah(surahNumber);
   const topRef = useRef<HTMLDivElement>(null);
+  const ayahRefs = useRef<Map<number, HTMLSpanElement>>(new Map());
   const [showTranslation, setShowTranslation] = useState(true);
 
+  // Scroll to initial ayah or top
   useEffect(() => {
+    if (initialAyah && initialAyah > 1 && data) {
+      const el = ayahRefs.current.get(initialAyah);
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+        return;
+      }
+    }
     topRef.current?.scrollIntoView();
-  }, [surahNumber]);
+  }, [surahNumber, data, initialAyah]);
+
+  // IntersectionObserver to track last visible ayah
+  useEffect(() => {
+    if (!data) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let maxAyah = 0;
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const num = parseInt(entry.target.getAttribute('data-ayah') ?? '0');
+            if (num > maxAyah) maxAyah = num;
+          }
+        });
+        if (maxAyah > 0) onAyahChange?.(maxAyah);
+      },
+      { threshold: 0.5 }
+    );
+    ayahRefs.current.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [data, onAyahChange]);
 
   if (isPending) {
     return (
@@ -183,7 +214,11 @@ function SurahViewer({ surahNumber, onBack, elapsedSeconds, formatTime }: {
         className="text-2xl md:text-3xl font-arabic leading-[2.5] text-foreground px-2 md:px-6 text-justify"
       >
         {verses.map((v) => (
-          <span key={v.numberInSurah}>
+          <span
+            key={v.numberInSurah}
+            data-ayah={v.numberInSurah}
+            ref={(el) => { if (el) ayahRefs.current.set(v.numberInSurah, el); }}
+          >
             {v.text}
             <span className="inline-flex items-center justify-center text-primary/50 text-base md:text-lg mx-1 font-sans select-none">
               ﴿{toArabicNumeral(v.numberInSurah)}﴾
@@ -263,9 +298,16 @@ export default function QuranTextReader() {
   const [search, setSearch] = useState('');
 
   const activeSurah = searchParams.get('surah') ? parseInt(searchParams.get('surah')!) : null;
+  const initialAyah = searchParams.get('ayah') ? parseInt(searchParams.get('ayah')!) : undefined;
 
   // Reading timer
   const timer = useReadingTimer();
+
+  // Track current ayah position
+  const currentAyahRef = useRef(0);
+  const handleAyahChange = useCallback((ayah: number) => {
+    currentAyahRef.current = Math.max(currentAyahRef.current, ayah);
+  }, []);
 
   // Session dialog state
   const [sessionDialog, setSessionDialog] = useState<{
@@ -275,7 +317,8 @@ export default function QuranTextReader() {
     durationMinutes: number;
     durationSeconds: number;
     totalAyahs: number;
-  }>({ open: false, surahName: '', juzNumber: null, durationMinutes: 0, durationSeconds: 0, totalAyahs: 0 });
+    lastAyahPosition: number;
+  }>({ open: false, surahName: '', juzNumber: null, durationMinutes: 0, durationSeconds: 0, totalAyahs: 0, lastAyahPosition: 0 });
 
   // Get surah data for timer
   const { data: surahData } = useQuranSurah(activeSurah);
@@ -299,10 +342,12 @@ export default function QuranTextReader() {
         juzNumber: result.juzNumber,
         durationMinutes: result.durationMinutes,
         durationSeconds: result.durationSeconds,
-        totalAyahs: surahData?.surah.numberOfAyahs ?? 0,
+        totalAyahs: currentAyahRef.current || (surahData?.surah.numberOfAyahs ?? 0),
+        lastAyahPosition: currentAyahRef.current,
       });
     }
-  }, [timer]);
+    currentAyahRef.current = 0;
+  }, [timer, surahData]);
 
   // Handle back navigation
   const handleBack = useCallback(() => {
@@ -387,6 +432,8 @@ export default function QuranTextReader() {
               onBack={handleBack}
               elapsedSeconds={timer.elapsedSeconds}
               formatTime={timer.formatTime}
+              initialAyah={initialAyah}
+              onAyahChange={handleAyahChange}
             />
           ) : (
             <SurahList
@@ -408,6 +455,7 @@ export default function QuranTextReader() {
         durationMinutes={sessionDialog.durationMinutes}
         durationSeconds={sessionDialog.durationSeconds}
         totalAyahs={sessionDialog.totalAyahs}
+        lastAyahPosition={sessionDialog.lastAyahPosition}
       />
     </div>
   );
