@@ -2664,10 +2664,16 @@
         "description": "You read {{surah}} for {{duration}}. Would you like to log this session?",
         "save": "Save Session",
         "discard": "Discard",
-        "reflection": "Add a reflection (optional)"
+      "reflection": "Add a reflection (optional)"
       },
       "readingTime": "Reading Time",
-      "sessionSaved": "Reading session saved"
+      "sessionSaved": "Reading session saved",
+      "resumeSession": "Resume Last Session",
+      "resumeReading": "Resume",
+      "ayahsRead": "ayahs",
+      "filterBySurah": "Filter by Surah",
+      "allSurahs": "All Surahs",
+      "startReading": "Start Reading"
     },
     "fasting": {
       "title": "Sunnah Fasting",

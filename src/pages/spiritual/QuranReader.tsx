@@ -7,11 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-
 import { Skeleton } from '@/components/ui/skeleton';
-import { BookOpenCheck, Clock, TrendingUp, Plus, BookOpen } from 'lucide-react';
+import { BookOpenCheck, Clock, TrendingUp, Plus, BookOpen, PlayCircle, RotateCcw } from 'lucide-react';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
-import { useQuranSessions } from '@/hooks/spiritual/useQuranSessions';
+import { useQuranSessions, useLastQuranSession } from '@/hooks/spiritual/useQuranSessions';
 import { useNavigate } from 'react-router-dom';
 import { QuranHistory } from '@/components/spiritual/QuranHistory';
 
@@ -34,8 +33,13 @@ const SURAHS = [
   'Al-Falaq','An-Nas'
 ];
 
+function getSurahNumber(name: string): number {
+  const idx = SURAHS.indexOf(name);
+  return idx >= 0 ? idx + 1 : 1;
+}
+
 export default function QuranReader() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { preferences, isPending: prefsLoading } = useSpiritualPreferences();
 
@@ -48,7 +52,12 @@ export default function QuranReader() {
   }, []);
   const today = new Date().toISOString().split('T')[0];
 
-  const { sessions, isPending: isLoading, logSession, totalMinutes, totalSessions } = useQuranSessions({ from: weekAgo, to: today });
+  const [surahFilter, setSurahFilter] = useState<string>('');
+  const { sessions, isPending: isLoading, logSession, totalMinutes, totalSessions } = useQuranSessions(
+    { from: weekAgo, to: today },
+    surahFilter || undefined
+  );
+  const { data: lastSession } = useLastQuranSession();
 
   // Form state
   const [duration, setDuration] = useState('15');
@@ -56,6 +65,13 @@ export default function QuranReader() {
   const [juz, setJuz] = useState('');
   const [reflection, setReflection] = useState('');
   const [showForm, setShowForm] = useState(false);
+
+  // Unique surahs from sessions for filter
+  const uniqueSurahs = useMemo(() => {
+    const names = new Set<string>();
+    sessions.forEach(s => { if (s.surah_name) names.add(s.surah_name); });
+    return Array.from(names).sort();
+  }, [sessions]);
 
   const handleSubmit = () => {
     logSession.mutate({
@@ -69,6 +85,11 @@ export default function QuranReader() {
     setSurah('');
     setJuz('');
     setReflection('');
+  };
+
+  const handleResume = (surahName: string) => {
+    const num = getSurahNumber(surahName);
+    navigate(`/spiritual/quran/read?surah=${num}`);
   };
 
   if (prefsLoading) {
@@ -109,7 +130,7 @@ export default function QuranReader() {
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => navigate('/spiritual/quran/read')} className="gap-2">
             <BookOpen className="h-4 w-4" />
-            {t('spiritual.quranReader.readQuran', 'Read Qur\'an')}
+            {t('spiritual.quran.startReading', 'Start Reading')}
           </Button>
           <Button onClick={() => setShowForm(!showForm)} className="gap-2">
             <Plus className="h-4 w-4" />
@@ -117,6 +138,31 @@ export default function QuranReader() {
           </Button>
         </div>
       </div>
+
+      {/* Resume Last Session */}
+      {lastSession?.surah_name && (
+        <Card className="glass-card border-0 rounded-xl border-s-4 border-s-primary/40">
+          <CardContent className="p-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="rounded-full bg-primary/10 p-2">
+                <RotateCcw className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-medium text-sm">{t('spiritual.quran.resumeSession', 'Resume Last Session')}</p>
+                <p className="text-xs text-muted-foreground">
+                  {lastSession.surah_name}
+                  {lastSession.ayahs_read ? ` • ${lastSession.ayahs_read} ${t('spiritual.quran.ayahsRead', 'ayahs')}` : ''}
+                  {' • '}{lastSession.session_date}
+                </p>
+              </div>
+            </div>
+            <Button size="sm" onClick={() => handleResume(lastSession.surah_name!)} className="gap-1.5 shrink-0">
+              <PlayCircle className="h-4 w-4" />
+              {t('spiritual.quran.resumeReading', 'Resume')}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Weekly stats */}
       <div className="grid gap-4 sm:grid-cols-3">
@@ -169,21 +215,12 @@ export default function QuranReader() {
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
                 <Label>{t('spiritual.quran.duration')}</Label>
-                <Input
-                  type="number"
-                  min="1"
-                  max="240"
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  placeholder="15"
-                />
+                <Input type="number" min="1" max="240" value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="15" />
               </div>
               <div className="space-y-2">
                 <Label>{t('spiritual.quran.surah')}</Label>
                 <Select value={surah} onValueChange={setSurah}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('spiritual.quran.selectSurah')} />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t('spiritual.quran.selectSurah')} /></SelectTrigger>
                   <SelectContent className="max-h-60">
                     {SURAHS.map((s, i) => (
                       <SelectItem key={i} value={s}>{`${i + 1}. ${s}`}</SelectItem>
@@ -194,9 +231,7 @@ export default function QuranReader() {
               <div className="space-y-2">
                 <Label>{t('spiritual.quran.juz')}</Label>
                 <Select value={juz} onValueChange={setJuz}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('spiritual.quran.selectJuz')} />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t('spiritual.quran.selectJuz')} /></SelectTrigger>
                   <SelectContent className="max-h-60">
                     {Array.from({ length: 30 }, (_, i) => (
                       <SelectItem key={i + 1} value={String(i + 1)}>{`${t('spiritual.quran.juzLabel')} ${i + 1}`}</SelectItem>
@@ -207,18 +242,11 @@ export default function QuranReader() {
             </div>
             <div className="space-y-2">
               <Label>{t('spiritual.quran.reflection')}</Label>
-              <Textarea
-                value={reflection}
-                onChange={(e) => setReflection(e.target.value)}
-                placeholder={t('spiritual.quran.reflectionPlaceholder')}
-                rows={3}
-              />
+              <Textarea value={reflection} onChange={(e) => setReflection(e.target.value)} placeholder={t('spiritual.quran.reflectionPlaceholder')} rows={3} />
             </div>
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={() => setShowForm(false)}>{t('common.cancel')}</Button>
-              <Button onClick={handleSubmit} disabled={logSession.isPending}>
-                {t('common.save')}
-              </Button>
+              <Button onClick={handleSubmit} disabled={logSession.isPending}>{t('common.save')}</Button>
             </div>
           </CardContent>
         </Card>
@@ -227,7 +255,20 @@ export default function QuranReader() {
       {/* Session history */}
       <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
-          <CardTitle className="text-lg">{t('spiritual.quran.recentSessions')}</CardTitle>
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <CardTitle className="text-lg">{t('spiritual.quran.recentSessions')}</CardTitle>
+            <Select value={surahFilter} onValueChange={(v) => setSurahFilter(v === '__all__' ? '' : v)}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder={t('spiritual.quran.filterBySurah', 'Filter by Surah')} />
+              </SelectTrigger>
+              <SelectContent className="max-h-60">
+                <SelectItem value="__all__">{t('spiritual.quran.allSurahs', 'All Surahs')}</SelectItem>
+                {uniqueSurahs.map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -241,7 +282,7 @@ export default function QuranReader() {
               {sessions.map((session) => (
                 <div key={session.id} className="flex items-start justify-between rounded-lg border p-3">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <Badge variant="secondary" className="gap-1">
                         <Clock className="h-3 w-3" />
                         {session.duration_minutes} {t('spiritual.quran.min')}
@@ -252,12 +293,28 @@ export default function QuranReader() {
                       {session.juz_number && (
                         <Badge variant="outline">{t('spiritual.quran.juzLabel')} {session.juz_number}</Badge>
                       )}
+                      {session.ayahs_read ? (
+                        <Badge variant="outline">{session.ayahs_read} {t('spiritual.quran.ayahsRead', 'ayahs')}</Badge>
+                      ) : null}
                     </div>
                     {session.reflection_notes && (
                       <p className="text-sm text-muted-foreground italic">"{session.reflection_notes}"</p>
                     )}
                   </div>
-                  <span className="text-xs text-muted-foreground shrink-0 ms-2">{session.session_date}</span>
+                  <div className="flex items-center gap-2 shrink-0 ms-2">
+                    <span className="text-xs text-muted-foreground">{session.session_date}</span>
+                    {session.surah_name && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => handleResume(session.surah_name!)}
+                        title={t('spiritual.quran.resumeReading', 'Resume')}
+                      >
+                        <PlayCircle className="h-4 w-4 text-primary" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
