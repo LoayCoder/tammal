@@ -1,0 +1,1 @@
+ALTER TABLE public.spiritual_quran_sessions ADD COLUMN last_ayah_position integer DEFAULT 0;

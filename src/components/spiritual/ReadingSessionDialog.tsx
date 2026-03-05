@@ -21,6 +21,7 @@ interface ReadingSessionDialogProps {
   durationMinutes: number;
   durationSeconds: number;
   totalAyahs?: number;
+  lastAyahPosition?: number;
 }
 
 export function ReadingSessionDialog({
@@ -31,6 +32,7 @@ export function ReadingSessionDialog({
   durationMinutes,
   durationSeconds,
   totalAyahs,
+  lastAyahPosition,
 }: ReadingSessionDialogProps) {
   const { t } = useTranslation();
   const [reflection, setReflection] = useState('');
@@ -47,6 +49,7 @@ export function ReadingSessionDialog({
       juz_number: juzNumber ?? undefined,
       reflection_notes: reflection.trim() || undefined,
       ayahs_read: totalAyahs ?? 0,
+      last_ayah_position: lastAyahPosition ?? 0,
     });
     setReflection('');
     onOpenChange(false);

@@ -11,6 +11,7 @@ export interface QuranSession {
   juz_number: number | null;
   reflection_notes: string | null;
   ayahs_read: number | null;
+  last_ayah_position: number | null;
   session_date: string;
   created_at: string;
 }
@@ -52,6 +53,7 @@ export function useQuranSessions(dateRange?: { from: string; to: string }, surah
       reflection_notes?: string;
       session_date?: string;
       ayahs_read?: number;
+      last_ayah_position?: number;
     }) => {
       if (!user?.id) throw new Error('Not authenticated');
       const { data, error } = await supabase
@@ -64,6 +66,7 @@ export function useQuranSessions(dateRange?: { from: string; to: string }, surah
           reflection_notes: input.reflection_notes || null,
           session_date: input.session_date ?? today,
           ayahs_read: input.ayahs_read ?? 0,
+          last_ayah_position: input.last_ayah_position ?? 0,
         })
         .select()
         .single();

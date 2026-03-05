@@ -2657,7 +2657,9 @@
         "topSurahs": "Most Read Surahs",
         "noData": "No reading data for this period",
         "dailyMinutes": "Daily Minutes",
-        "sessions": "Sessions"
+        "sessions": "Sessions",
+        "totalAyahs": "Total Ayahs",
+        "dailyAyahs": "Ayahs Read"
       },
       "sessionDialog": {
         "title": "Save Reading Session?",
@@ -2673,7 +2675,9 @@
       "ayahsRead": "ayahs",
       "filterBySurah": "Filter by Surah",
       "allSurahs": "All Surahs",
-      "startReading": "Start Reading"
+      "startReading": "Start Reading",
+      "lastPosition": "Ayah {{ayah}}",
+      "resumeFrom": "Resume from Ayah {{ayah}}"
     },
     "fasting": {
       "title": "Sunnah Fasting",
