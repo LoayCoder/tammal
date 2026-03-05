@@ -1,49 +1,22 @@
 
 
-# Auto-Log Reading Sessions in Qur'an Reader
+## Plan: Add Rawatib (Sunnah) indicators to Dashboard Prayer Widget
 
-## What to Build
+The `DashboardPrayerWidget` currently only shows the active prayer with log buttons but lacks the Rawatib Sunnah rak'ah info that `PrayerCard` already has.
 
-When a user reads a surah in the Mushaf reader (`/spiritual/quran/read`), automatically track reading time. When they stop (navigate back to surah list, leave the page, or switch surah), show a confirmation dialog asking if they want to save the session with the auto-recorded duration, surah name, and optional reflection notes.
+### Changes
 
-## Implementation
+**File: `src/components/dashboard/DashboardPrayerWidget.tsx`**
 
-### Task 1: Create `useReadingTimer` Hook
+1. Import the Sunnah hooks (`useSunnahLogs`) and add a `RAWATIB_CONFIG` map (same as in `PrayerCard.tsx`: Fajr → 2 after, Dhuhr → 2 before + 2 after, Asr → none, Maghrib → 2 after, Isha → 2 after).
 
-New hook `src/hooks/spiritual/useReadingTimer.ts`:
-- Starts a timer (`setInterval` every second) when a surah is active
-- Tracks `startTime`, `elapsedSeconds`, and current `surahName`/`juzNumber`
-- Exposes `start(surahName, juzNumber)`, `stop() → { durationMinutes, surahName, juzNumber }`, `reset()`, `elapsedSeconds`
-- Cleans up interval on unmount
+2. Inside the active prayer card section, add tap-to-toggle Rawatib chips below the log buttons — matching the existing style from `PrayerCard`:
+   - 📿 "2 Rak'ahs before" (if applicable)
+   - 📿 "2 Rak'ahs after" (if applicable)
+   - Each chip toggles completed state via `onToggleSunnah`
 
-### Task 2: Create `ReadingSessionDialog` Component
+3. In the progress row (5 prayer indicators at the bottom), add small dot indicators beneath each prayer icon showing if its Rawatib are completed.
 
-New component `src/components/spiritual/ReadingSessionDialog.tsx`:
-- AlertDialog that appears when reading stops
-- Shows auto-recorded duration (formatted as minutes), surah name
-- Optional reflection notes textarea
-- "Save Session" button calls `logSession` from `useQuranSessions`
-- "Discard" button dismisses without saving
-- RTL-safe with logical properties
-
-### Task 3: Integrate into `QuranTextReader`
-
-Modify `src/pages/spiritual/QuranTextReader.tsx`:
-- Start timer when `activeSurah` is set and surah data loads (capturing surah englishName + juz from first verse)
-- When user navigates back (`onBack`), switches surah, or unmounts: stop timer → if elapsed > 60 seconds, open the save dialog
-- Show a small live reading timer badge in the header while reading (e.g., "⏱ 12:34")
-- On surah switch via prev/next navigation: stop + prompt for previous surah, then start new timer
-
-### Task 4: i18n Keys
-
-Add to `en.json` and `ar.json`:
-- `spiritual.quranReader.sessionDialog.title` — "Save Reading Session?"
-- `spiritual.quranReader.sessionDialog.description` — "You read {surah} for {duration}. Would you like to log this session?"
-- `spiritual.quranReader.sessionDialog.save` — "Save Session"
-- `spiritual.quranReader.sessionDialog.discard` — "Discard"
-- `spiritual.quranReader.sessionDialog.reflection` — "Add a reflection (optional)"
-- `spiritual.quranReader.readingTime` — "Reading Time"
-- `spiritual.quranReader.sessionSaved` — "Reading session saved"
-
-No database changes needed — uses existing `useQuranSessions.logSession`.
+### Hook dependency
+Need to check if `useSunnahLogs` or a similar hook exists for Rawatib tracking at the dashboard level, or if the sunnah data is already available through `usePrayerLogs`.
 

@@ -1,15 +1,19 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { BookOpen, ChevronRight, ChevronLeft, Search, ArrowUp } from 'lucide-react';
+import { BookOpen, ChevronRight, ChevronLeft, Search, ArrowUp, Timer } from 'lucide-react';
 import { useQuranSurahList, useQuranSurah, SurahMeta } from '@/hooks/spiritual/useQuranText';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
+import { useReadingTimer } from '@/hooks/spiritual/useReadingTimer';
+import { ReadingSessionDialog } from '@/components/spiritual/ReadingSessionDialog';
+
+const MIN_SESSION_SECONDS = 60;
 
 function SurahList({
   surahs,
@@ -84,7 +88,12 @@ function toArabicNumeral(n: number): string {
   return String(n).replace(/\d/g, d => digits[parseInt(d)]);
 }
 
-function SurahViewer({ surahNumber, onBack }: { surahNumber: number; onBack: () => void }) {
+function SurahViewer({ surahNumber, onBack, elapsedSeconds, formatTime }: {
+  surahNumber: number;
+  onBack: () => void;
+  elapsedSeconds: number;
+  formatTime: (s: number) => string;
+}) {
   const { t } = useTranslation();
   const { data, isPending, isError } = useQuranSurah(surahNumber);
   const topRef = useRef<HTMLDivElement>(null);
@@ -121,11 +130,20 @@ function SurahViewer({ surahNumber, onBack }: { surahNumber: number; onBack: () 
     <div className="space-y-6">
       <div ref={topRef} />
 
-      {/* Back button */}
+      {/* Back button + timer */}
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
         </Button>
+
+        {/* Live reading timer */}
+        {elapsedSeconds > 0 && (
+          <Badge variant="secondary" className="gap-1.5 text-xs font-mono">
+            <Timer className="h-3 w-3" />
+            {formatTime(elapsedSeconds)}
+          </Badge>
+        )}
+
         <Button
           variant="ghost"
           size="sm"
@@ -246,15 +264,70 @@ export default function QuranTextReader() {
 
   const activeSurah = searchParams.get('surah') ? parseInt(searchParams.get('surah')!) : null;
 
-  // Listen for navigation events from the viewer
+  // Reading timer
+  const timer = useReadingTimer();
+
+  // Session dialog state
+  const [sessionDialog, setSessionDialog] = useState<{
+    open: boolean;
+    surahName: string;
+    juzNumber: number | null;
+    durationMinutes: number;
+    durationSeconds: number;
+  }>({ open: false, surahName: '', juzNumber: null, durationMinutes: 0, durationSeconds: 0 });
+
+  // Get surah data for timer
+  const { data: surahData } = useQuranSurah(activeSurah);
+
+  // Start timer when surah data loads
+  useEffect(() => {
+    if (surahData && activeSurah) {
+      const juz = surahData.verses[0]?.juz ?? null;
+      timer.start(surahData.surah.englishName, juz);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [surahData?.surah.number]);
+
+  // Stop timer and maybe prompt
+  const stopAndPrompt = useCallback(() => {
+    const result = timer.stop();
+    if (result && result.durationSeconds >= MIN_SESSION_SECONDS) {
+      setSessionDialog({
+        open: true,
+        surahName: result.surahName,
+        juzNumber: result.juzNumber,
+        durationMinutes: result.durationMinutes,
+        durationSeconds: result.durationSeconds,
+      });
+    }
+  }, [timer]);
+
+  // Handle back navigation
+  const handleBack = useCallback(() => {
+    stopAndPrompt();
+    setSearchParams({});
+  }, [stopAndPrompt, setSearchParams]);
+
+  // Listen for navigation events from the viewer (prev/next surah)
   useEffect(() => {
     const handler = (e: Event) => {
       const num = (e as CustomEvent).detail;
+      // Stop timer for current surah and prompt if long enough
+      stopAndPrompt();
       setSearchParams({ surah: String(num) });
     };
     window.addEventListener('quran-navigate', handler);
     return () => window.removeEventListener('quran-navigate', handler);
-  }, [setSearchParams]);
+  }, [setSearchParams, stopAndPrompt]);
+
+  // Prompt on unmount if reading
+  useEffect(() => {
+    return () => {
+      // Can't show dialog on unmount, but reset timer
+      timer.reset();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const isActive = preferences?.enabled && preferences?.quran_enabled;
 
@@ -309,7 +382,9 @@ export default function QuranTextReader() {
           ) : activeSurah ? (
             <SurahViewer
               surahNumber={activeSurah}
-              onBack={() => setSearchParams({})}
+              onBack={handleBack}
+              elapsedSeconds={timer.elapsedSeconds}
+              formatTime={timer.formatTime}
             />
           ) : (
             <SurahList
@@ -321,6 +396,16 @@ export default function QuranTextReader() {
           )}
         </CardContent>
       </Card>
+
+      {/* Session save dialog */}
+      <ReadingSessionDialog
+        open={sessionDialog.open}
+        onOpenChange={(open) => setSessionDialog((prev) => ({ ...prev, open }))}
+        surahName={sessionDialog.surahName}
+        juzNumber={sessionDialog.juzNumber}
+        durationMinutes={sessionDialog.durationMinutes}
+        durationSeconds={sessionDialog.durationSeconds}
+      />
     </div>
   );
 }
