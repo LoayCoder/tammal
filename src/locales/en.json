@@ -2658,7 +2658,16 @@
         "noData": "No reading data for this period",
         "dailyMinutes": "Daily Minutes",
         "sessions": "Sessions"
-      }
+      },
+      "sessionDialog": {
+        "title": "Save Reading Session?",
+        "description": "You read {{surah}} for {{duration}}. Would you like to log this session?",
+        "save": "Save Session",
+        "discard": "Discard",
+        "reflection": "Add a reflection (optional)"
+      },
+      "readingTime": "Reading Time",
+      "sessionSaved": "Reading session saved"
     },
     "fasting": {
       "title": "Sunnah Fasting",
