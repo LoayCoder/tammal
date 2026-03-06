@@ -1,76 +1,87 @@
-# Enterprise Task Management — Architecture Refactoring Plan
+# Enterprise Task Management — Architecture Audit
 
-## Overview
-Consolidate 33+ scattered task files into a self-contained `src/features/tasks/` module, extract inline Supabase calls into hooks, and fix type co-location violations.
+## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
 ---
 
-## Phase 1: Create `src/features/tasks/` Module Structure
+## 1. Folder Architecture — ✅ PASS
 
-### 1.1 — Scaffold feature directory
+The project follows a clean modular structure:
+
+```text
+src/
+  ai/          — Isolated AI client, prompts, guards, quality
+  components/  — UI components
+  config/      — Centralized constants
+  features/    — Feature modules (tasks, approvals, workload, etc.)
+  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
+  services/    — Pure async business services (no UI imports)
+  types/       — Shared type definitions
 ```
-src/features/tasks/
-  components/        ← move from src/components/tasks/
-  hooks/             ← move from src/hooks/tasks/
-  pages/             ← move from src/pages/tasks/
-  types/             ← new, task-specific types
-  index.ts           ← barrel exports
-```
 
-### 1.2 — Move components (12 files)
-- CreateTaskModal, NotificationBell, TaskAIPanel, TaskActivityTimeline
-- TaskAttachments, TaskChecklist, TaskCommentsPanel, TaskDependenciesPanel
-- TaskMembersPicker, TaskTagPicker, TaskTemplatePicker, TaskTimeTrackingPanel
-
-### 1.3 — Move hooks (12 files)
-- useEnterpriseTasks, useTaskAI, useTaskActivity, useTaskAttachments
-- useTaskChecklists, useTaskComments, useTaskDependencies, useTaskMembers
-- useTaskNotifications, useTaskTags, useTaskTemplates, useTaskTimeTracking
-
-### 1.4 — Move pages (9 files)
-- ApprovalQueue, ManagerTaskOverview, MyTasks, OverdueTasks, RecurringTasks
-- TaskCalendar, TaskDetail, TaskPerformanceAnalytics, TaskTemplates
-
-### 1.5 — Update all import paths (App.tsx, AppSidebar, cross-references)
+**Layer separation checks:**
+- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
+- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
+- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
+- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
 
 ---
 
-## Phase 2: Extract Inline Supabase Calls into Hooks
+## 2. Feature Isolation — ✅ PASS
 
-- TaskDetail.tsx → useTaskDetail(id) + useTaskUpdate(id)
-- ApprovalQueue.tsx → useApprovalQueue()
-- OverdueTasks.tsx → useOverdueTasks()
-- ManagerTaskOverview.tsx → useManagerTaskOverview()
-- RecurringTasks.tsx → useRecurringTasks()
-- TaskPerformanceAnalytics.tsx → useTaskPerformanceAnalytics()
-- TaskDependenciesPanel.tsx → extend useTaskDependencies hook
+| Module | Location | Status |
+|---|---|---|
+| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
+| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
+| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
+| AI Governance | `src/features/ai-governance/` | ✅ |
+| AI Generator | `src/features/ai-generator/` | ✅ |
+| Org Dashboard | `src/features/org-dashboard/` | ✅ |
+| Cycle Builder | `src/features/cycle-builder/` | ✅ |
 
----
-
-## Phase 3: Fix Type Co-location Violations
-
-- AccountStatusBadge types → src/types/employee.ts
-- TenantSecurityControl types → src/types/tenant.ts
-- HSLColorPicker types → src/types/branding.ts
-- Update hook imports to new type locations
+**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
 
 ---
 
-## Phase 4: Create Approvals Feature Module
+## 3. Backend Architecture — ✅ PASS
 
-- Scaffold src/features/approvals/ (components, hooks, pages, types, index.ts)
-- Move approval-related code from tasks module
+- **35 edge functions** properly separate API routes from client code
+- **Services layer** (`src/services/`) handles business logic
+- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
+- Database access centralized through the Supabase client
 
 ---
 
-## Execution Order
-1. ✅ Phase 3 (type fixes — smallest, unblocks others)
-2. ✅ Phase 1 (file moves — bulk restructure)
-3. ✅ Phase 2 (extract hooks — code quality)
-4. ✅ Phase 4 (approvals module — new feature boundary)
+## 4. Supabase Integration — ✅ PASS
 
-## Rules
-- No business logic changes — structure only
-- All imports use @/ alias
-- Barrel index.ts for each feature module
-- Verify build passes after each phase
+- **Client centralized** in `src/integrations/supabase/client.ts`
+- **RLS enabled** on all task-related tables with `authenticated` role enforcement
+- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
+
+---
+
+## 5. Warnings
+
+### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
+
+Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
+`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
+
+### ⚠️ WARNING (low priority): Workload feature is a thin barrel
+
+`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
+
+---
+
+## Summary
+
+| Category | Result |
+|---|---|
+| Folder Architecture | ✅ PASS |
+| Feature Isolation | ✅ PASS |
+| Backend Architecture | ✅ PASS |
+| Supabase Integration | ✅ PASS |
+| Layer Separation | ✅ PASS (resolved) |
+| Workload Consolidation | ⚠️ Low-priority migration |
+
+**No FAIL conditions found.** Architecture is production-ready.
