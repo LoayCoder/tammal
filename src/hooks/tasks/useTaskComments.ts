@@ -62,10 +62,26 @@ export function useTaskComments(taskId?: string) {
     onError: () => toast.error(t('tasks.comments.deleteError')),
   });
 
+  const edit = useMutation({
+    mutationFn: async (item: { id: string; comment_text: string }) => {
+      const { error } = await supabase
+        .from('task_comments')
+        .update({ comment_text: item.comment_text, updated_at: new Date().toISOString() })
+        .eq('id', item.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['task-comments'] });
+      toast.success(t('tasks.comments.editSuccess'));
+    },
+    onError: () => toast.error(t('tasks.comments.editError')),
+  });
+
   return {
     comments: query.data ?? [],
     isPending: query.isPending,
     addComment: create.mutate,
     removeComment: remove.mutate,
+    editComment: edit.mutate,
   };
 }
