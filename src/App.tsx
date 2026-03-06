@@ -185,6 +185,7 @@ const App = () => (
               <Route path="/tasks/:id" element={<TaskDetail />} />
               <Route path="/approval-queue" element={<ApprovalQueue />} />
               <Route path="/admin/workload/overdue" element={<ManagerOrAdminRoute><OverdueTasks /></ManagerOrAdminRoute>} />
+              <Route path="/tasks/team" element={<ManagerOrAdminRoute><ManagerTaskOverview /></ManagerOrAdminRoute>} />
 
               {/* ── Recognition (employee-facing) ── */}
               <Route element={<PageErrorBoundary routeGroup="recognition"><Outlet /></PageErrorBoundary>}>
