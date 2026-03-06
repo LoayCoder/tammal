@@ -7337,6 +7337,7 @@ export type Database = {
       increment_usage_24h: { Args: { p_provider: string }; Returns: undefined }
       is_first_aider: { Args: { _user_id: string }; Returns: boolean }
       is_manager: { Args: { _user_id: string }; Returns: boolean }
+      is_representative: { Args: { _user_id: string }; Returns: boolean }
       map_intent_to_risk: { Args: { p_intent: string }; Returns: string }
       redeem_points: {
         Args: {
