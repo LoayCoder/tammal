@@ -3767,7 +3767,8 @@
       "estimatedMinutes": "الوقت المقدر (دقيقة)",
       "visibility": "الرؤية",
       "progress": "التقدم",
-      "estimated": "مقدر"
+      "estimated": "مقدر",
+      "assignee": "المكلف"
     }
   }
 }
