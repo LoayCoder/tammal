@@ -3925,7 +3925,8 @@
       "estimatedMinutes": "Estimated Time (min)",
       "visibility": "Visibility",
       "progress": "Progress",
-      "estimated": "estimated"
+      "estimated": "estimated",
+      "assignee": "Assignee"
     }
   }
 }
