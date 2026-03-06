@@ -4024,5 +4024,24 @@
     "descPlaceholder": "What did you work on?",
     "entryAdded": "Time entry added",
     "empty": "No time logged yet. Start a timer or add a manual entry."
+  },
+  "taskAI": {
+    "title": "AI Insights",
+    "suggestAssignee": "Suggest Assignee",
+    "estimateTime": "Estimate Time",
+    "predictRisk": "Predict Risk",
+    "assigneeSuggestions": "Suggested Assignees",
+    "completionEstimate": "Completion Estimate",
+    "riskPrediction": "Risk Analysis",
+    "confidence": "Confidence",
+    "riskScore": "Risk Score",
+    "riskLevels": {
+      "low": "Low Risk",
+      "medium": "Medium Risk",
+      "high": "High Risk",
+      "critical": "Critical Risk"
+    },
+    "error": "AI analysis failed. Please try again.",
+    "empty": "Click a button above to get AI-powered insights for this task."
   }
 }

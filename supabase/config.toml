@@ -95,3 +95,6 @@ verify_jwt = false
 
 [functions.workload-ai]
 verify_jwt = false
+
+[functions.task-ai-engine]
+verify_jwt = false
