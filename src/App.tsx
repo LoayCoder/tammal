@@ -88,6 +88,7 @@ const MyTasks = lazy(() => import("@/pages/tasks/MyTasks"));
 const TaskDetail = lazy(() => import("@/pages/tasks/TaskDetail"));
 const ApprovalQueue = lazy(() => import("@/pages/tasks/ApprovalQueue"));
 const OverdueTasks = lazy(() => import("@/pages/tasks/OverdueTasks"));
+const ManagerTaskOverview = lazy(() => import("@/pages/tasks/ManagerTaskOverview"));
 const ComponentShowcase = lazy(() => import("@/pages/dev/ComponentShowcase"));
 const queryClient = new QueryClient();
 
