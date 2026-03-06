@@ -14,6 +14,7 @@ export interface Objective {
   description_ar: string | null;
   year: number;
   quarter: string;
+  owner_user_id: string | null;
   accountable_user_id: string | null;
   progress: number;
   status: string;
