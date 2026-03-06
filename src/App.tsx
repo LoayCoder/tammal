@@ -84,10 +84,7 @@ const RedemptionCatalog = lazy(() => import("@/pages/recognition/RedemptionCatal
 const RedemptionManagement = lazy(() => import("@/pages/admin/RedemptionManagement"));
 const AIGovernance = lazy(() => import("@/pages/admin/AIGovernance"));
 const EscalationSettings = lazy(() => import("@/pages/admin/EscalationSettings"));
-const MyTasks = lazy(() => import("@/features/tasks/pages/MyTasks"));
-const TaskCalendar = lazy(() => import("@/features/tasks/pages/TaskCalendar"));
 const TaskDetail = lazy(() => import("@/features/tasks/pages/TaskDetail"));
-const ApprovalQueue = lazy(() => import("@/features/tasks/pages/ApprovalQueue"));
 const OverdueTasks = lazy(() => import("@/features/tasks/pages/OverdueTasks"));
 const ManagerTaskOverview = lazy(() => import("@/features/tasks/pages/ManagerTaskOverview"));
 const TaskPerformanceAnalytics = lazy(() => import("@/features/tasks/pages/TaskPerformanceAnalytics"));
@@ -185,10 +182,10 @@ const App = () => (
 
               {/* ── Workload (employee-facing) ── */}
               <Route path="/my-workload" element={<PersonalCommandCenter />} />
-              <Route path="/my-tasks" element={<MyTasks />} />
-              <Route path="/tasks/calendar" element={<TaskCalendar />} />
+              <Route path="/my-tasks" element={<Navigate to="/my-workload" replace />} />
+              <Route path="/tasks/calendar" element={<Navigate to="/my-workload" replace />} />
+              <Route path="/approval-queue" element={<Navigate to="/my-workload" replace />} />
               <Route path="/tasks/:id" element={<TaskDetail />} />
-              <Route path="/approval-queue" element={<ApprovalQueue />} />
               <Route path="/admin/workload/overdue" element={<ManagerOrAdminRoute><OverdueTasks /></ManagerOrAdminRoute>} />
               <Route path="/tasks/team" element={<ManagerOrAdminRoute><ManagerTaskOverview /></ManagerOrAdminRoute>} />
               <Route path="/tasks/analytics" element={<ManagerOrAdminRoute><TaskPerformanceAnalytics /></ManagerOrAdminRoute>} />
