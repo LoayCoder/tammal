@@ -1,7 +1,3 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useTenantId } from '@/hooks/org/useTenantId';
-import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +13,7 @@ import { Plus, RefreshCw, Pencil, Trash2, Clock, Calendar } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { useRecurringTasks } from '@/features/tasks/hooks/useRecurringTasks';
 
 const PATTERNS = ['daily', 'weekly', 'biweekly', 'monthly', 'quarterly'] as const;
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -42,27 +39,10 @@ const defaultForm: TemplateForm = {
 
 export default function RecurringTasks() {
   const { t } = useTranslation();
-  const { tenantId } = useTenantId();
-  const { employee } = useCurrentEmployee();
-  const qc = useQueryClient();
+  const { templates, isPending, employee, tenantId, upsertTemplate, toggleActive, softDelete } = useRecurringTasks();
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<TemplateForm>(defaultForm);
-
-  const { data: templates, isPending } = useQuery({
-    queryKey: ['task-templates', tenantId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('task_templates')
-        .select('*')
-        .eq('tenant_id', tenantId!)
-        .is('deleted_at', null)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    },
-    enabled: !!tenantId,
-  });
 
   const upsert = useMutation({
     mutationFn: async () => {
