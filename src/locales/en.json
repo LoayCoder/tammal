@@ -4011,5 +4011,18 @@
       "blocks": "Blocks",
       "related": "Related"
     }
+  },
+  "timeTracking": {
+    "title": "Time Tracking",
+    "total": "Total",
+    "start": "Start",
+    "stop": "Stop",
+    "manual": "Manual",
+    "notRunning": "No timer running",
+    "minutes": "Minutes",
+    "description": "Description",
+    "descPlaceholder": "What did you work on?",
+    "entryAdded": "Time entry added",
+    "empty": "No time logged yet. Start a timer or add a manual entry."
   }
 }

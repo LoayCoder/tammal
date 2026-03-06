@@ -6759,6 +6759,73 @@ export type Database = {
           },
         ]
       }
+      task_time_entries: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          description: string | null
+          duration_minutes: number | null
+          employee_id: string
+          ended_at: string | null
+          id: string
+          is_running: boolean
+          started_at: string
+          task_id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          employee_id: string
+          ended_at?: string | null
+          id?: string
+          is_running?: boolean
+          started_at?: string
+          task_id: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          employee_id?: string
+          ended_at?: string | null
+          id?: string
+          is_running?: boolean
+          started_at?: string
+          task_id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_time_entries_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_time_entries_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "unified_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_time_entries_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_ai_budget_config: {
         Row: {
           current_month_usage: number
