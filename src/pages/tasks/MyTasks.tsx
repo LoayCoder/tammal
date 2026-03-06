@@ -57,12 +57,11 @@ export default function MyTasks() {
   }, [tasks, search, statusFilter, priorityFilter]);
 
   const stats = useMemo(() => {
-    const active = filtered.filter(t => !['completed', 'verified', 'archived'].includes(t.status));
+    const active = filtered.filter(t => !['completed', 'archived'].includes(t.status));
     const completed = filtered.filter(t => t.status === 'completed');
-    const verified = filtered.filter(t => t.status === 'verified');
     const overdue = active.filter(t => t.due_date && t.due_date.split('T')[0] < todayStr);
     const pendingApproval = filtered.filter(t => t.status === 'pending_approval' || t.status === 'under_review');
-    return { active, completed, verified, overdue, pendingApproval };
+    return { active, completed, overdue, pendingApproval };
   }, [filtered, todayStr]);
 
   const handleEdit = (task: any) => {
@@ -91,7 +90,7 @@ export default function MyTasks() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-3 grid-cols-2 sm:grid-cols-5">
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
         <Card className="border-0 bg-muted/30"><CardContent className="p-3 text-center">
           <div className="text-xl font-bold">{stats.active.length}</div>
           <p className="text-xs text-muted-foreground">{t('tasks.stats.active')}</p>
@@ -99,10 +98,6 @@ export default function MyTasks() {
         <Card className="border-0 bg-muted/30"><CardContent className="p-3 text-center">
           <div className="text-xl font-bold text-chart-1">{stats.completed.length}</div>
           <p className="text-xs text-muted-foreground">{t('tasks.stats.completed')}</p>
-        </CardContent></Card>
-        <Card className="border-0 bg-muted/30"><CardContent className="p-3 text-center">
-          <div className="text-xl font-bold text-primary">{stats.verified.length}</div>
-          <p className="text-xs text-muted-foreground">{t('tasks.stats.verified')}</p>
         </CardContent></Card>
         <Card className="border-0 bg-muted/30"><CardContent className="p-3 text-center">
           <div className="text-xl font-bold text-destructive">{stats.overdue.length}</div>
@@ -151,9 +146,8 @@ export default function MyTasks() {
               <TabsTrigger value="active" className="gap-1.5 text-xs"><ListChecks className="h-3.5 w-3.5" />{t('tasks.tabs.active')} ({stats.active.length})</TabsTrigger>
               <TabsTrigger value="overdue" className="gap-1.5 text-xs"><AlertTriangle className="h-3.5 w-3.5" />{t('tasks.tabs.overdue')} ({stats.overdue.length})</TabsTrigger>
               <TabsTrigger value="completed" className="gap-1.5 text-xs"><CheckCircle2 className="h-3.5 w-3.5" />{t('tasks.tabs.completed')} ({stats.completed.length})</TabsTrigger>
-              <TabsTrigger value="verified" className="gap-1.5 text-xs"><ShieldCheck className="h-3.5 w-3.5" />{t('tasks.tabs.verified')} ({stats.verified.length})</TabsTrigger>
             </TabsList>
-            {(['active', 'overdue', 'completed', 'verified'] as const).map(key => (
+            {(['active', 'overdue', 'completed'] as const).map(key => (
               <TabsContent key={key} value={key}>
                 {tasksLoading ? <Skeleton className="h-40" /> : (
                   <UnifiedTaskList
