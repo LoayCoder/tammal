@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/popover';
 import {
   Bell, CheckCircle2, MessageSquare, AlertTriangle, UserPlus,
-  ShieldCheck, XCircle, Clock, CheckCheck,
+  ShieldCheck, XCircle, Clock, CheckCheck, ListChecks, Timer,
 } from 'lucide-react';
 import { useTaskNotifications, type TaskNotification } from '@/features/tasks/hooks/useTaskNotifications';
 import { formatDistanceToNow } from 'date-fns';
@@ -22,6 +22,8 @@ const TYPE_ICONS: Record<string, typeof Bell> = {
   approval_requested: ShieldCheck,
   approved: CheckCircle2,
   rejected: XCircle,
+  checklist_completed: ListChecks,
+  deadline_approaching: Timer,
 };
 
 const TYPE_COLORS: Record<string, string> = {
@@ -32,6 +34,8 @@ const TYPE_COLORS: Record<string, string> = {
   approval_requested: 'text-chart-5',
   approved: 'text-chart-1',
   rejected: 'text-destructive',
+  checklist_completed: 'text-chart-2',
+  deadline_approaching: 'text-chart-5',
 };
 
 export function NotificationBell() {
