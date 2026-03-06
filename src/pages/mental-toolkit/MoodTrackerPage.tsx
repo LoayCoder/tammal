@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { SmilePlus, Flame, TrendingUp, CalendarCheck, Activity, BarChart3, PieChart, Grid3X3, ClipboardList, RefreshCw, ArrowRight, Wind } from "lucide-react";
 import { Link } from "react-router-dom";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePersonalMoodDashboard } from "@/hooks/analytics/usePersonalMoodDashboard";
 import {
