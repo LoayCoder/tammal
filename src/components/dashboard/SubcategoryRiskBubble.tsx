@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ResponsiveContainer, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ZAxis } from 'recharts';
 import type { SubcategoryScore } from '@/hooks/analytics/useOrgAnalytics';
+import { CHART_AXIS_TICK, CHART_AXIS_LABEL, CHART_TOOLTIP_STYLE, CHART_GRID_STROKE } from '@/config/chart-styles';
 
 interface SubcategoryBubble extends SubcategoryScore {
   declineRate: number;
@@ -56,24 +57,24 @@ export function SubcategoryRiskBubble({ data, isLoading }: Props) {
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 10 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} />
             <XAxis
               dataKey="x" type="number" domain={[0, 5]}
               name={t('orgDashboard.avgScore')}
-              tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+              tick={CHART_AXIS_TICK}
               axisLine={false} tickLine={false}
-              label={{ value: t('orgDashboard.avgScore'), position: 'bottom', fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+              label={{ value: t('orgDashboard.avgScore'), position: 'bottom', ...CHART_AXIS_LABEL }}
             />
             <YAxis
               dataKey="y" type="number"
               name={t('orgDashboard.responses')}
-              tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+              tick={CHART_AXIS_TICK}
               axisLine={false} tickLine={false}
-              label={{ value: t('orgDashboard.responses'), angle: -90, position: 'insideLeft', fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+              label={{ value: t('orgDashboard.responses'), angle: -90, position: 'insideLeft', ...CHART_AXIS_LABEL }}
             />
             <ZAxis dataKey="z" range={[40, 400]} />
             <Tooltip
-              contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: 12 }}
+              contentStyle={CHART_TOOLTIP_STYLE}
               formatter={(_val: any, _name: string, props: any) => {
                 const d = props.payload;
                 return [

@@ -4,6 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
 import type { CheckinByOrgUnitItem } from '@/hooks/analytics/useOrgAnalytics';
 import i18n from '@/lib/i18n';
+import { CHART_AXIS_TICK, CHART_AXIS_LABEL, CHART_TOOLTIP_STYLE, CHART_GRID_STROKE } from '@/config/chart-styles';
 
 interface Props {
   data: CheckinByOrgUnitItem[];
@@ -31,12 +32,12 @@ export function CheckinByOrgUnit({ data, orgAvgScore, isLoading }: Props) {
         ) : chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-              <YAxis domain={[0, 5]} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={24} />
-              <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: 12 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} />
+              <XAxis dataKey="name" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
+              <YAxis domain={[0, 5]} tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} width={24} />
+              <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
               {orgAvgScore > 0 && (
-                <ReferenceLine y={orgAvgScore} stroke="hsl(var(--destructive))" strokeDasharray="4 4" label={{ value: t('orgDashboard.orgAverage'), position: 'insideTopRight', fontSize: 10, fill: 'hsl(var(--destructive))' }} />
+                <ReferenceLine y={orgAvgScore} stroke="hsl(var(--destructive))" strokeDasharray="4 4" label={{ value: t('orgDashboard.orgAverage'), position: 'insideTopRight', ...CHART_AXIS_LABEL, fill: 'hsl(var(--destructive))' }} />
               )}
               <Bar dataKey="avgScore" name={t('orgDashboard.avgScore')} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
             </BarChart>
