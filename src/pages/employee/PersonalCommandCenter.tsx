@@ -12,6 +12,7 @@ import { useMoodHistory } from '@/hooks/wellness/useMoodHistory';
 import { CapacityGauge } from '@/components/workload/employee/CapacityGauge';
 import { UnifiedTaskList } from '@/components/workload/employee/UnifiedTaskList';
 import { TaskDialog } from '@/components/workload/employee/TaskDialog';
+import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import {
   Plus, ListChecks, CalendarDays, CheckCircle2, AlertTriangle, Flame, Star, ShieldCheck,
 } from 'lucide-react';
