@@ -32,18 +32,7 @@ import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
-const STATUS_OPTIONS = ['draft', 'open', 'in_progress', 'under_review', 'pending_approval', 'completed', 'rejected', 'archived'] as const;
-
-const STATUS_COLORS: Record<string, string> = {
-  draft: 'bg-muted text-muted-foreground',
-  open: 'bg-chart-2/10 text-chart-2',
-  in_progress: 'bg-chart-2/10 text-chart-2',
-  under_review: 'bg-chart-4/10 text-chart-4',
-  pending_approval: 'bg-chart-5/10 text-chart-5',
-  completed: 'bg-chart-1/10 text-chart-1',
-  rejected: 'bg-destructive/10 text-destructive',
-  archived: 'bg-muted text-muted-foreground',
-};
+import { getValidNextStatuses, STATUS_COLORS } from '@/features/tasks/constants/taskLifecycle';
 
 const PRIORITY_LABELS: Record<number, { label: string; className: string }> = {
   0: { label: 'Critical', className: 'text-destructive' },
