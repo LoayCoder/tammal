@@ -1,43 +1,87 @@
+# Enterprise Task Management — Architecture Audit
 
+## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
-# Add Test Tasks via Database Seed
+---
 
-## What
+## 1. Folder Architecture — ✅ PASS
 
-Insert test tasks directly into `unified_tasks` covering different statuses, priorities, and due dates to exercise the representative task system end-to-end.
+The project follows a clean modular structure:
 
-## Test Tasks (6 tasks across 3 employees)
+```text
+src/
+  ai/          — Isolated AI client, prompts, guards, quality
+  components/  — UI components
+  config/      — Centralized constants
+  features/    — Feature modules (tasks, approvals, workload, etc.)
+  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
+  services/    — Pure async business services (no UI imports)
+  types/       — Shared type definitions
+```
 
-All tasks use:
-- `tenant_id`: `4fc9029e-2485-46a5-a540-ec2de643c3e3`
-- `source_type`: `representative_assigned`
-- `created_by`: `276100d6-b28d-491b-9c6e-e54cb3cd306d` (LUAY — the representative)
-- Single `source_id` batch UUID for grouping
+**Layer separation checks:**
+- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
+- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
+- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
+- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
 
-| # | Employee | Title | Status | Priority | Due Date | Est. Min |
-|---|----------|-------|--------|----------|----------|----------|
-| 1 | LUAY (c90bf2da) | Review Q2 compliance report | `open` | 1 (high) | +3 days | 120 |
-| 2 | LUAY (c90bf2da) | Update safety protocols | `in_progress` | 2 | +7 days | 90 |
-| 3 | Test User (61170e42) | Prepare training materials | `open` | 3 (medium) | +5 days | 60 |
-| 4 | Test User (61170e42) | Submit incident report | `draft` | 1 | +2 days | 30 |
-| 5 | Abdullah (6bf750db) | Conduct site inspection | `open` | 2 | +10 days | 180 |
-| 6 | Abdullah (6bf750db) | Complete HSE audit checklist | `in_progress` | 1 | +1 day (approaching deadline) | 240 |
+---
 
-## Implementation
+## 2. Feature Isolation — ✅ PASS
 
-Single SQL migration that:
-1. Generates a shared `source_id` batch UUID
-2. Inserts 6 rows into `unified_tasks` with valid statuses (`draft`, `open`, `in_progress`)
-3. Sets `is_locked = true` and `locked_by` for representative-assigned tasks
-4. All tasks include `department_id` from the employee records
+| Module | Location | Status |
+|---|---|---|
+| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
+| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
+| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
+| AI Governance | `src/features/ai-governance/` | ✅ |
+| AI Generator | `src/features/ai-generator/` | ✅ |
+| Org Dashboard | `src/features/org-dashboard/` | ✅ |
+| Cycle Builder | `src/features/cycle-builder/` | ✅ |
 
-This covers testing:
-- **Status lifecycle**: draft, open, in_progress
-- **Priority levels**: 1 (high), 2, 3 (medium)
-- **Due date scenarios**: approaching (1 day), normal (3-10 days)
-- **Multiple employees** across the representative's scope
-- **Batch grouping** via shared `source_id`
+**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
 
-## Files
-- 1 new migration file (SQL INSERT)
+---
 
+## 3. Backend Architecture — ✅ PASS
+
+- **35 edge functions** properly separate API routes from client code
+- **Services layer** (`src/services/`) handles business logic
+- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
+- Database access centralized through the Supabase client
+
+---
+
+## 4. Supabase Integration — ✅ PASS
+
+- **Client centralized** in `src/integrations/supabase/client.ts`
+- **RLS enabled** on all task-related tables with `authenticated` role enforcement
+- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
+
+---
+
+## 5. Warnings
+
+### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
+
+Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
+`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
+
+### ⚠️ WARNING (low priority): Workload feature is a thin barrel
+
+`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
+
+---
+
+## Summary
+
+| Category | Result |
+|---|---|
+| Folder Architecture | ✅ PASS |
+| Feature Isolation | ✅ PASS |
+| Backend Architecture | ✅ PASS |
+| Supabase Integration | ✅ PASS |
+| Layer Separation | ✅ PASS (resolved) |
+| Workload Consolidation | ⚠️ Low-priority migration |
+
+**No FAIL conditions found.** Architecture is production-ready.
