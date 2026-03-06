@@ -80,7 +80,7 @@ export function AIInsightsCard({ analyticsData, isLoading: parentLoading }: Prop
                   const Icon = style.icon;
                   return (
                     <div key={idx} className="flex items-start gap-2 p-2 rounded border border-border/30">
-                      <Badge variant={style.variant} className="text-[10px] shrink-0 mt-0.5">{rec.priority}</Badge>
+                      <Badge variant={style.variant} className="text-2xs shrink-0 mt-0.5">{rec.priority}</Badge>
                       <div>
                         <p className="text-sm font-medium">{rec.title}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{rec.description}</p>

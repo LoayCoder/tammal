@@ -444,14 +444,14 @@ export default function TeamWorkload() {
                             <div className="flex items-center gap-2">
                               <span className="font-medium text-sm truncate">{member.name}</span>
                               {riskLevel === 'high' && (
-                                <Badge variant="destructive" className="gap-1 text-[10px] py-0 px-1.5">
-                                  <Flame className="h-2.5 w-2.5" />{t('tasks.managerOverview.atRisk')}
-                                </Badge>
-                              )}
-                              {riskLevel === 'medium' && (
-                                <Badge className="bg-chart-5/10 text-chart-5 gap-1 text-[10px] py-0 px-1.5">
-                                  <AlertTriangle className="h-2.5 w-2.5" />{t('tasks.managerOverview.warning')}
-                                </Badge>
+                                 <Badge variant="destructive" className="gap-1 text-2xs py-0 px-1.5">
+                                   <Flame className="h-2.5 w-2.5" />{t('tasks.managerOverview.atRisk')}
+                                 </Badge>
+                               )}
+                               {riskLevel === 'medium' && (
+                                 <Badge className="bg-chart-5/10 text-chart-5 gap-1 text-2xs py-0 px-1.5">
+                                   <AlertTriangle className="h-2.5 w-2.5" />{t('tasks.managerOverview.warning')}
+                                 </Badge>
                               )}
                             </div>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -466,26 +466,26 @@ export default function TeamWorkload() {
                         <div className="hidden sm:flex items-center gap-4">
                           <div className="text-center">
                             <div className="text-xs font-bold">{member.active}</div>
-                            <p className="text-[9px] text-muted-foreground">{t('tasks.stats.active')}</p>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-bold text-chart-1">{member.completed}</div>
-                            <p className="text-[9px] text-muted-foreground">{t('tasks.stats.completed')}</p>
-                          </div>
-                          <div className="text-center">
-                            <div className={`text-xs font-bold ${member.overdue > 0 ? 'text-destructive' : ''}`}>{member.overdue}</div>
-                            <p className="text-[9px] text-muted-foreground">{t('tasks.stats.overdue')}</p>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-bold text-chart-5">{member.highPriority}</div>
-                            <p className="text-[9px] text-muted-foreground">P1</p>
-                          </div>
-                          <div className="w-20">
-                            <div className="flex items-center justify-between text-[9px] mb-0.5">
-                              <span className="text-muted-foreground">{t('tasks.managerOverview.avgProgress')}</span>
-                              <span className="font-medium">{member.avgProgress}%</span>
-                            </div>
-                            <Progress value={member.avgProgress} className="h-1" />
+                             <p className="text-2xs text-muted-foreground">{t('tasks.stats.active')}</p>
+                           </div>
+                           <div className="text-center">
+                             <div className="text-xs font-bold text-chart-1">{member.completed}</div>
+                             <p className="text-2xs text-muted-foreground">{t('tasks.stats.completed')}</p>
+                           </div>
+                           <div className="text-center">
+                             <div className={`text-xs font-bold ${member.overdue > 0 ? 'text-destructive' : ''}`}>{member.overdue}</div>
+                             <p className="text-2xs text-muted-foreground">{t('tasks.stats.overdue')}</p>
+                           </div>
+                           <div className="text-center">
+                             <div className="text-xs font-bold text-chart-5">{member.highPriority}</div>
+                             <p className="text-2xs text-muted-foreground">P1</p>
+                           </div>
+                           <div className="w-20">
+                             <div className="flex items-center justify-between text-2xs mb-0.5">
+                               <span className="text-muted-foreground">{t('tasks.managerOverview.avgProgress')}</span>
+                               <span className="font-medium">{member.avgProgress}%</span>
+                             </div>
+                             <Progress value={member.avgProgress} className="h-1" />
                           </div>
                         </div>
                       </div>
@@ -495,19 +495,19 @@ export default function TeamWorkload() {
                       <div className="sm:hidden grid grid-cols-4 gap-2 text-center mb-3 py-2 px-2 rounded-lg bg-muted/20">
                         <div>
                           <div className="text-sm font-bold">{member.active}</div>
-                          <p className="text-[10px] text-muted-foreground">{t('tasks.stats.active')}</p>
-                        </div>
-                        <div>
-                          <div className="text-sm font-bold text-chart-1">{member.completed}</div>
-                          <p className="text-[10px] text-muted-foreground">{t('tasks.stats.completed')}</p>
-                        </div>
-                        <div>
-                          <div className={`text-sm font-bold ${member.overdue > 0 ? 'text-destructive' : ''}`}>{member.overdue}</div>
-                          <p className="text-[10px] text-muted-foreground">{t('tasks.stats.overdue')}</p>
-                        </div>
-                        <div>
-                          <div className="text-sm font-bold text-chart-5">{member.highPriority}</div>
-                          <p className="text-[10px] text-muted-foreground">P1</p>
+                           <p className="text-2xs text-muted-foreground">{t('tasks.stats.active')}</p>
+                         </div>
+                         <div>
+                           <div className="text-sm font-bold text-chart-1">{member.completed}</div>
+                           <p className="text-2xs text-muted-foreground">{t('tasks.stats.completed')}</p>
+                         </div>
+                         <div>
+                           <div className={`text-sm font-bold ${member.overdue > 0 ? 'text-destructive' : ''}`}>{member.overdue}</div>
+                           <p className="text-2xs text-muted-foreground">{t('tasks.stats.overdue')}</p>
+                         </div>
+                         <div>
+                           <div className="text-sm font-bold text-chart-5">{member.highPriority}</div>
+                           <p className="text-2xs text-muted-foreground">P1</p>
                         </div>
                       </div>
 
