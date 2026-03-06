@@ -87,7 +87,14 @@ export default function TaskPerformanceAnalytics() {
       .sort((a, b) => b.completed - a.completed)
       .slice(0, 10);
 
-    return { total, completed, inProgress, overdue, avgProgress, completionRate, statusData, priorityData, trendData, topPerformers };
+    // Format avg completion time for display
+    const avgCompletionDisplay = avgCompletionHours !== null
+      ? avgCompletionHours >= 24
+        ? `${Math.round(avgCompletionHours / 24 * 10) / 10}d`
+        : `${Math.round(avgCompletionHours)}h`
+      : '—';
+
+    return { total, completed, inProgress, overdue, avgProgress, completionRate, avgCompletionDisplay, statusData, priorityData, trendData, topPerformers };
   }, [tasks, sinceDate]);
 
   const STATUS_COLORS = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))', 'hsl(var(--muted-foreground))'];
