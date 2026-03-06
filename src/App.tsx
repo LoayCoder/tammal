@@ -187,7 +187,7 @@ const App = () => (
               <Route path="/approval-queue" element={<Navigate to="/my-workload" replace />} />
               <Route path="/tasks/:id" element={<TaskDetail />} />
               <Route path="/admin/workload/overdue" element={<ManagerOrAdminRoute><OverdueTasks /></ManagerOrAdminRoute>} />
-              <Route path="/tasks/team" element={<ManagerOrAdminRoute><ManagerTaskOverview /></ManagerOrAdminRoute>} />
+              <Route path="/tasks/team" element={<Navigate to="/admin/workload/team" replace />} />
               <Route path="/tasks/analytics" element={<ManagerOrAdminRoute><TaskPerformanceAnalytics /></ManagerOrAdminRoute>} />
               <Route path="/tasks/recurring" element={<ManagerOrAdminRoute><RecurringTasks /></ManagerOrAdminRoute>} />
               <Route path="/tasks/templates" element={<ManagerOrAdminRoute><TaskTemplates /></ManagerOrAdminRoute>} />
