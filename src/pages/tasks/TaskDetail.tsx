@@ -20,6 +20,7 @@ import {
   Send, Trash2, Plus, Upload, FileIcon, X,
 } from 'lucide-react';
 import { useTaskChecklists } from '@/hooks/tasks/useTaskChecklists';
+import { TaskDependenciesPanel } from '@/components/tasks/TaskDependenciesPanel';
 import { useTaskComments } from '@/hooks/tasks/useTaskComments';
 import { useTaskActivity } from '@/hooks/tasks/useTaskActivity';
 import { useTaskAttachments } from '@/hooks/tasks/useTaskAttachments';
@@ -268,6 +269,9 @@ export default function TaskDetail() {
           )}
         </CardContent>
       </Card>
+
+      {/* Dependencies */}
+      {id && <TaskDependenciesPanel taskId={id} />}
 
       {/* Tabs: Comments, Checklist, Attachments, Activity */}
       <Card className="border-0">
