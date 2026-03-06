@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   Users, Building2, CreditCard,
   HelpCircle, Palette, FileText, LayoutDashboard,
@@ -8,25 +8,20 @@ import {
   BookOpen, Music, CheckSquare, BookMarked, Phone, ClipboardCheck,
   ChevronRight, Shield, HeartHandshake, Inbox, Moon, BookOpenCheck, UtensilsCrossed, CalendarDays,
   Activity, Target, Gauge, Users2, Plug, Trophy, Award, Star, Vote, Coins, Gift, UserCog, Briefcase, BarChart,
-  ListChecks, AlertTriangle
+  ListChecks, AlertTriangle, ChevronsLeft, ChevronsRight
 } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarHeader,
+  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Badge } from "@/components/ui/badge";
 import { NavLink } from "@/components/NavLink";
 import { useTranslation } from 'react-i18next';
 import { ThemeLogo } from "@/components/branding/ThemeLogo";
@@ -35,8 +30,11 @@ import type { BrandingConfig } from "@/hooks/branding/useBranding";
 import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
-import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { SidebarPopup } from './sidebar/SidebarPopup';
+import { UserProfileSection } from './sidebar/UserProfileSection';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 type MenuAccess = 'all' | 'admin' | 'employee';
 
@@ -45,6 +43,7 @@ interface MenuItem {
   url: string;
   icon: React.ComponentType<{ className?: string }>;
   access?: MenuAccess;
+  badge?: number;
 }
 
 interface MenuGroup {
@@ -71,7 +70,7 @@ interface AppSidebarProps {
 
 export function AppSidebar({ branding }: AppSidebarProps) {
   const { t } = useTranslation();
-  const { state, isMobile, setOpenMobile } = useSidebar();
+  const { state, isMobile, setOpenMobile, toggleSidebar } = useSidebar();
   const isCollapsed = state === 'collapsed';
   const isRTL = document.documentElement.dir === 'rtl';
   const { isSuperAdmin, isPending: permLoading } = useUserPermissions();
@@ -83,6 +82,30 @@ export function AppSidebar({ branding }: AppSidebarProps) {
   const { hasRole: isManager } = useHasRole('manager');
   const isAdmin = isSuperAdmin || isTenantAdmin;
   const isManagerOrAdmin = isAdmin || isManager;
+
+  // Hover popup state for collapsed mode
+  const [hoveredGroup, setHoveredGroup] = useState<string | null>(null);
+  const [popupAnchorRect, setPopupAnchorRect] = useState<DOMRect | null>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleGroupHoverEnter = useCallback((label: string, el: HTMLElement) => {
+    if (!isCollapsed) return;
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setHoveredGroup(label);
+    setPopupAnchorRect(el.getBoundingClientRect());
+  }, [isCollapsed]);
+
+  const handleGroupHoverLeave = useCallback(() => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoveredGroup(null);
+      setPopupAnchorRect(null);
+    }, 150);
+  }, []);
+
+  const handlePopupClose = useCallback(() => {
+    setHoveredGroup(null);
+    setPopupAnchorRect(null);
+  }, []);
 
   // Track which mental toolkit sections are open
   const isMentalToolkitActive = location.pathname.startsWith('/mental-toolkit');
@@ -188,7 +211,6 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       icon: Target,
       items: [
         { title: t('nav.myWorkload'), url: "/my-workload", icon: ClipboardList, access: 'employee' },
-        
         { title: t('nav.objectives'), url: "/admin/workload/objectives", icon: Target, access: 'all' },
         { title: t('nav.workloadDashboard'), url: "/admin/workload/dashboard", icon: Gauge, access: 'admin' },
         { title: t('nav.teamWorkload'), url: "/admin/workload/team", icon: Users2, access: 'admin' },
@@ -281,105 +303,146 @@ export function AppSidebar({ branding }: AppSidebarProps) {
 
   const handleNavClick = () => {
     if (isMobile) setOpenMobile(false);
+    handlePopupClose();
   };
+
+  const isItemActive = (url: string) => {
+    if (url === '/') return location.pathname === '/';
+    return location.pathname.startsWith(url);
+  };
+
+  const ToggleIcon = isCollapsed
+    ? (isRTL ? ChevronsLeft : ChevronsRight)
+    : (isRTL ? ChevronsRight : ChevronsLeft);
 
   return (
     <Sidebar variant="sidebar" collapsible="icon" side={isRTL ? "right" : "left"}>
+      {/* Header with logo and toggle */}
       <SidebarHeader className="px-3 pt-4 pb-3">
-        <div className="flex items-center justify-center">
-          {isCollapsed ? (
-            <ThemeIcon
-              iconLightUrl={branding.icon_light_url}
-              iconDarkUrl={branding.icon_dark_url}
-              className="h-9 w-9 object-contain shrink-0"
-              alt={t('branding.themeIcon')}
-              fallback={<Building className="h-8 w-8 text-sidebar-foreground/70" />}
-            />
-          ) : (
-            <ThemeLogo
-              logoUrl={branding.logo_url}
-              logoLightUrl={branding.logo_light_url}
-              logoDarkUrl={branding.logo_dark_url}
-              className="h-10 max-w-[200px] object-contain"
-              alt={t('branding.themeLogo')}
-              fallback={
-                <div className="flex items-center gap-2">
-                  <Building className="h-6 w-6 text-sidebar-foreground/70" />
-                  <span className="font-semibold text-base text-sidebar-foreground/90">SaaS Admin</span>
-                </div>
-              }
-            />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center justify-center flex-1">
+            {isCollapsed ? (
+              <ThemeIcon
+                iconLightUrl={branding.icon_light_url}
+                iconDarkUrl={branding.icon_dark_url}
+                className="h-9 w-9 object-contain shrink-0"
+                alt={t('branding.themeIcon')}
+                fallback={<Building className="h-8 w-8 text-sidebar-foreground/70" />}
+              />
+            ) : (
+              <ThemeLogo
+                logoUrl={branding.logo_url}
+                logoLightUrl={branding.logo_light_url}
+                logoDarkUrl={branding.logo_dark_url}
+                className="h-10 max-w-[180px] object-contain"
+                alt={t('branding.themeLogo')}
+                fallback={
+                  <div className="flex items-center gap-2">
+                    <Building className="h-6 w-6 text-sidebar-foreground/70" />
+                    <span className="font-semibold text-base text-sidebar-foreground/90">SaaS Admin</span>
+                  </div>
+                }
+              />
+            )}
+          </div>
+          {!isCollapsed && (
+            <button
+              onClick={toggleSidebar}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-[hsl(var(--sidebar-hover-bg))] hover:text-sidebar-foreground"
+              aria-label={t('accessibility.toggleSidebar')}
+            >
+              <ToggleIcon className="h-4 w-4" />
+            </button>
           )}
         </div>
       </SidebarHeader>
-      <SidebarContent className="pt-4">
-        {/* Regular menu groups */}
+
+      <SidebarContent className="pt-1 px-2">
         {filteredGroups.map((group) => {
           const isWellnessGroup = group.label === t('nav.wellness');
-          const isGroupActive = group.items.some(item => 
-            item.url === '/' ? location.pathname === '/' : location.pathname.startsWith(item.url)
-          ) || (isWellnessGroup && location.pathname.startsWith('/mental-toolkit'));
+          const isGroupActive = group.items.some(item => isItemActive(item.url))
+            || (isWellnessGroup && location.pathname.startsWith('/mental-toolkit'));
 
           return (
             <React.Fragment key={group.label}>
-            <SidebarGroup>
-              <Collapsible defaultOpen={isGroupActive || isCollapsed} className="group/collapsible-group">
-                {isCollapsed ? (
-                  <div className="flex justify-center py-1">
-                    <group.icon className="h-4 w-4 text-sidebar-foreground/50" />
+              <SidebarGroup className="px-0 py-0">
+                {/* Section label */}
+                {!isCollapsed && (
+                  <div className="px-3 pt-4 pb-1">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      {group.label}
+                    </span>
                   </div>
-                ) : (
-                  <SidebarGroupLabel asChild>
-                    <CollapsibleTrigger className="flex w-full items-center justify-between">
-                      <span className="flex items-center gap-1.5">
-                        <group.icon className="h-3.5 w-3.5" />
-                        {group.label}
-                      </span>
-                      <ChevronRight className="h-3 w-3 transition-transform duration-200 group-data-[state=open]/collapsible-group:rotate-90 rtl:-scale-x-100" />
-                    </CollapsibleTrigger>
-                  </SidebarGroupLabel>
                 )}
-                <CollapsibleContent>
+
+                {/* Collapsed: show group icon with hover popup */}
+                {isCollapsed && (
+                  <div
+                    className="flex justify-center py-2"
+                    onMouseEnter={(e) => handleGroupHoverEnter(group.label, e.currentTarget)}
+                    onMouseLeave={handleGroupHoverLeave}
+                  >
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          className={cn(
+                            "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200",
+                            isGroupActive
+                              ? "bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary"
+                              : "text-sidebar-foreground/60 hover:bg-[hsl(var(--sidebar-hover-bg))] hover:text-sidebar-foreground"
+                          )}
+                          aria-label={group.label}
+                        >
+                          <group.icon className="h-5 w-5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side={isRTL ? 'left' : 'right'} className="text-xs">
+                        {group.label}
+                      </TooltipContent>
+                    </Tooltip>
+                    {hoveredGroup === group.label && (
+                      <SidebarPopup
+                        label={group.label}
+                        items={group.items}
+                        anchorRect={popupAnchorRect}
+                        onClose={handlePopupClose}
+                        onNavClick={handleNavClick}
+                      />
+                    )}
+                  </div>
+                )}
+
+                {/* Expanded: show items */}
+                {!isCollapsed && (
                   <SidebarGroupContent>
-                    <SidebarMenu>
+                    <SidebarMenu className="gap-0.5 px-1">
                       {group.items.map((item) => (
                         <SidebarMenuItem key={item.title}>
-                          <SidebarMenuButton asChild tooltip={item.title}>
-                            <NavLink
-                              to={item.url}
-                              end={item.url === '/'}
-                              className="flex items-center gap-2"
-                              activeClassName="glass-active text-sidebar-primary"
-                              onClick={handleNavClick}
-                            >
-                              <item.icon className="h-4 w-4" />
-                              <span>{item.title}</span>
-                            </NavLink>
-                          </SidebarMenuButton>
+                          <NavLink
+                            to={item.url}
+                            end={item.url === '/'}
+                            className={cn(
+                              "flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition-all duration-200",
+                              "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                            )}
+                            activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                            onClick={handleNavClick}
+                          >
+                            <item.icon className="h-5 w-5 shrink-0" />
+                            <span className="truncate">{item.title}</span>
+                            {item.badge && (
+                              <span className="ms-auto inline-flex items-center rounded-lg bg-sidebar-primary px-1.5 py-0.5 text-[11px] font-medium text-sidebar-primary-foreground">
+                                {item.badge}
+                              </span>
+                            )}
+                          </NavLink>
                         </SidebarMenuItem>
                       ))}
+
                       {/* Mental Toolkit collapsible sections inside Wellness */}
                       {isWellnessGroup && mentalToolkitSections.map((section, sectionIdx) => {
                         const { open, setOpen } = sectionStates[sectionIdx];
                         const isSectionActive = section.items.some(i => location.pathname.startsWith(i.url));
-
-                        if (isCollapsed) {
-                          return section.items.map((item) => (
-                            <SidebarMenuItem key={item.url}>
-                              <SidebarMenuButton asChild tooltip={item.title}>
-                                <NavLink
-                                  to={item.url}
-                                  className="flex items-center gap-2"
-                                  activeClassName="glass-active text-sidebar-primary"
-                                  onClick={handleNavClick}
-                                >
-                                  <item.icon className="h-4 w-4" />
-                                  <span>{item.title}</span>
-                                </NavLink>
-                              </SidebarMenuButton>
-                            </SidebarMenuItem>
-                          ));
-                        }
 
                         return (
                           <Collapsible
@@ -390,32 +453,33 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                           >
                             <SidebarMenuItem>
                               <CollapsibleTrigger asChild>
-                                <SidebarMenuButton
-                                  className={isSectionActive ? "glass-active text-sidebar-primary" : ""}
-                                  tooltip={section.label}
+                                <button
+                                  className={cn(
+                                    "flex h-10 w-full items-center gap-3 rounded-xl px-3 text-sm transition-all duration-200",
+                                    isSectionActive
+                                      ? "bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                                      : "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                                  )}
                                 >
                                   <span className="flex-1 text-start text-xs font-medium">{section.label}</span>
-                                  <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 rtl:-scale-x-100" />
-                                </SidebarMenuButton>
+                                  <ChevronRight className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 rtl:-scale-x-100" />
+                                </button>
                               </CollapsibleTrigger>
                               <CollapsibleContent>
-                                <SidebarMenuSub>
+                                <div className="ms-4 mt-0.5 flex flex-col gap-0.5 border-s border-sidebar-border ps-3">
                                   {section.items.map((item) => (
-                                    <SidebarMenuSubItem key={item.url}>
-                                      <SidebarMenuSubButton asChild>
-                                        <NavLink
-                                          to={item.url}
-                                          className="flex items-center gap-2"
-                                          activeClassName="glass-active text-sidebar-primary font-medium"
-                                          onClick={handleNavClick}
-                                        >
-                                          <item.icon className="h-3.5 w-3.5 shrink-0" />
-                                          <span>{item.title}</span>
-                                        </NavLink>
-                                      </SidebarMenuSubButton>
-                                    </SidebarMenuSubItem>
+                                    <NavLink
+                                      key={item.url}
+                                      to={item.url}
+                                      className="flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm text-sidebar-foreground transition-colors hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                                      activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                                      onClick={handleNavClick}
+                                    >
+                                      <item.icon className="h-4 w-4 shrink-0" />
+                                      <span className="truncate">{item.title}</span>
+                                    </NavLink>
                                   ))}
-                                </SidebarMenuSub>
+                                </div>
                               </CollapsibleContent>
                             </SidebarMenuItem>
                           </Collapsible>
@@ -423,113 +487,129 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                       })}
                     </SidebarMenu>
                   </SidebarGroupContent>
-                </CollapsibleContent>
-              </Collapsible>
-            </SidebarGroup>
-            {/* Spiritual Wellbeing — rendered right after Wellness */}
-            {isWellnessGroup && spiritualEnabled && (
-              <SidebarGroup>
-                <Collapsible defaultOpen={location.pathname.startsWith('/spiritual') || isCollapsed} className="group/collapsible-group">
+                )}
+              </SidebarGroup>
+
+              {/* Spiritual Wellbeing — rendered right after Wellness */}
+              {isWellnessGroup && spiritualEnabled && (
+                <SidebarGroup className="px-0 py-0">
+                  {!isCollapsed && (
+                    <div className="px-3 pt-4 pb-1">
+                      <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        {t('spiritual.nav.title')}
+                      </span>
+                    </div>
+                  )}
                   {isCollapsed ? (
-                    <div className="flex justify-center py-1">
-                      <Moon className="h-4 w-4 text-sidebar-foreground/50" />
+                    <div className="flex justify-center py-2">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            className={cn(
+                              "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200",
+                              location.pathname.startsWith('/spiritual')
+                                ? "bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary"
+                                : "text-sidebar-foreground/60 hover:bg-[hsl(var(--sidebar-hover-bg))] hover:text-sidebar-foreground"
+                            )}
+                            aria-label={t('spiritual.nav.title')}
+                          >
+                            <Moon className="h-5 w-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side={isRTL ? 'left' : 'right'} className="text-xs">
+                          {t('spiritual.nav.title')}
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                   ) : (
-                    <SidebarGroupLabel asChild>
-                      <CollapsibleTrigger className="flex w-full items-center justify-between">
-                        <span className="flex items-center gap-1.5">
-                          <Moon className="h-3.5 w-3.5" />
-                          {t('spiritual.nav.title')}
-                        </span>
-                        <ChevronRight className="h-3 w-3 transition-transform duration-200 group-data-[state=open]/collapsible-group:rotate-90 rtl:-scale-x-100" />
-                      </CollapsibleTrigger>
-                    </SidebarGroupLabel>
-                  )}
-                  <CollapsibleContent>
                     <SidebarGroupContent>
-                      <SidebarMenu>
+                      <SidebarMenu className="gap-0.5 px-1">
                         {isPrayerEnabled && (
                           <SidebarMenuItem>
-                            <SidebarMenuButton asChild tooltip={t('spiritual.nav.prayerTracker')}>
-                              <NavLink
-                                to="/spiritual/prayer"
-                                className="flex items-center gap-2"
-                                activeClassName="glass-active text-sidebar-primary"
-                                onClick={handleNavClick}
-                              >
-                                <Moon className="h-4 w-4" />
-                                <span>{t('spiritual.nav.prayerTracker')}</span>
-                              </NavLink>
-                            </SidebarMenuButton>
+                            <NavLink
+                              to="/spiritual/prayer"
+                              className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-sidebar-foreground transition-all duration-200 hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                              activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                              onClick={handleNavClick}
+                            >
+                              <Moon className="h-5 w-5 shrink-0" />
+                              <span>{t('spiritual.nav.prayerTracker')}</span>
+                            </NavLink>
                           </SidebarMenuItem>
                         )}
                         {preferences?.quran_enabled && (
                           <SidebarMenuItem>
-                            <SidebarMenuButton asChild tooltip={t('spiritual.nav.quranReader')}>
-                              <NavLink
-                                to="/spiritual/quran"
-                                className="flex items-center gap-2"
-                                activeClassName="glass-active text-sidebar-primary"
-                                onClick={handleNavClick}
-                              >
-                                <BookOpenCheck className="h-4 w-4" />
-                                <span>{t('spiritual.nav.quranReader')}</span>
-                              </NavLink>
-                            </SidebarMenuButton>
+                            <NavLink
+                              to="/spiritual/quran"
+                              className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-sidebar-foreground transition-all duration-200 hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                              activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                              onClick={handleNavClick}
+                            >
+                              <BookOpenCheck className="h-5 w-5 shrink-0" />
+                              <span>{t('spiritual.nav.quranReader')}</span>
+                            </NavLink>
                           </SidebarMenuItem>
                         )}
                         {preferences?.fasting_enabled && (
                           <SidebarMenuItem>
-                            <SidebarMenuButton asChild tooltip={t('spiritual.nav.sunnahTracker')}>
-                              <NavLink
-                                to="/spiritual/sunnah"
-                                className="flex items-center gap-2"
-                                activeClassName="glass-active text-sidebar-primary"
-                                onClick={handleNavClick}
-                              >
-                                <Star className="h-4 w-4" />
-                                <span>{t('spiritual.nav.sunnahTracker')}</span>
-                              </NavLink>
-                            </SidebarMenuButton>
+                            <NavLink
+                              to="/spiritual/sunnah"
+                              className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-sidebar-foreground transition-all duration-200 hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                              activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                              onClick={handleNavClick}
+                            >
+                              <Star className="h-5 w-5 shrink-0" />
+                              <span>{t('spiritual.nav.sunnahTracker')}</span>
+                            </NavLink>
                           </SidebarMenuItem>
                         )}
                         <SidebarMenuItem>
-                          <SidebarMenuButton asChild tooltip={t('spiritual.nav.calendar')}>
-                            <NavLink
-                              to="/spiritual/calendar"
-                              className="flex items-center gap-2"
-                              activeClassName="glass-active text-sidebar-primary"
-                              onClick={handleNavClick}
-                            >
-                              <CalendarDays className="h-4 w-4" />
-                              <span>{t('spiritual.nav.calendar')}</span>
-                            </NavLink>
-                          </SidebarMenuButton>
+                          <NavLink
+                            to="/spiritual/calendar"
+                            className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-sidebar-foreground transition-all duration-200 hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                            activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                            onClick={handleNavClick}
+                          >
+                            <CalendarDays className="h-5 w-5 shrink-0" />
+                            <span>{t('spiritual.nav.calendar')}</span>
+                          </NavLink>
                         </SidebarMenuItem>
                         <SidebarMenuItem>
-                          <SidebarMenuButton asChild tooltip={t('spiritual.nav.insights')}>
-                            <NavLink
-                              to="/spiritual/insights"
-                              className="flex items-center gap-2"
-                              activeClassName="glass-active text-sidebar-primary"
-                              onClick={handleNavClick}
-                            >
-                              <Sparkles className="h-4 w-4" />
-                              <span>{t('spiritual.nav.insights')}</span>
-                            </NavLink>
-                          </SidebarMenuButton>
+                          <NavLink
+                            to="/spiritual/insights"
+                            className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-sidebar-foreground transition-all duration-200 hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                            activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                            onClick={handleNavClick}
+                          >
+                            <Sparkles className="h-5 w-5 shrink-0" />
+                            <span>{t('spiritual.nav.insights')}</span>
+                          </NavLink>
                         </SidebarMenuItem>
                       </SidebarMenu>
                     </SidebarGroupContent>
-                  </CollapsibleContent>
-                </Collapsible>
-              </SidebarGroup>
-            )}
-          </React.Fragment>
+                  )}
+                </SidebarGroup>
+              )}
+            </React.Fragment>
           );
         })}
-
       </SidebarContent>
+
+      {/* User profile footer */}
+      <SidebarFooter className="border-t border-sidebar-border p-3">
+        {isCollapsed && (
+          <div className="flex justify-center">
+            <button
+              onClick={toggleSidebar}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-[hsl(var(--sidebar-hover-bg))] hover:text-sidebar-foreground"
+              aria-label={t('accessibility.toggleSidebar')}
+            >
+              <ToggleIcon className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+        <UserProfileSection isCollapsed={isCollapsed} />
+      </SidebarFooter>
     </Sidebar>
   );
 }
