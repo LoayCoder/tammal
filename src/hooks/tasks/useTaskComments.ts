@@ -14,6 +14,7 @@ export interface TaskComment {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+  employee?: { full_name: string } | null;
 }
 
 export function useTaskComments(taskId?: string) {
@@ -26,7 +27,7 @@ export function useTaskComments(taskId?: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('task_comments')
-        .select('*')
+        .select('*, employee:employees!task_comments_user_id_fkey(full_name)')
         .eq('task_id', taskId!)
         .eq('tenant_id', tenantId!)
         .is('deleted_at', null)

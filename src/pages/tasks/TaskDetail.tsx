@@ -178,7 +178,7 @@ export default function TaskDetail() {
                       <div key={c.id} className="flex gap-3 p-3 rounded-lg bg-muted/30">
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-medium">{c.user_id.slice(0, 8)}</span>
+                            <span className="text-xs font-medium">{c.employee?.full_name ?? c.user_id.slice(0, 8)}</span>
                             <span className="text-xs text-muted-foreground">{format(new Date(c.created_at), 'PP p')}</span>
                           </div>
                           <p className="text-sm mt-1">{c.comment_text}</p>
@@ -240,6 +240,7 @@ export default function TaskDetail() {
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-medium capitalize">{a.action.replace(/_/g, ' ')}</span>
+                            {a.employee?.full_name && <span className="text-xs text-muted-foreground">— {a.employee.full_name}</span>}
                             <span className="text-xs text-muted-foreground">{format(new Date(a.created_at), 'PP p')}</span>
                           </div>
                           {a.details && Object.keys(a.details).length > 0 && (
