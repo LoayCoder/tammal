@@ -37,7 +37,7 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
   const [closureComment, setClosureComment] = useState('');
   const [progress, setProgress] = useState(task?.progress ?? 0);
   const [closureError, setClosureError] = useState(false);
-  const [evidence, setEvidence] = useState<Array<{ id: string; file_name: string; status: string }>>([]);
+  const [evidence, setEvidence] = useState<Array<{ id: string; file_url: string; status: string }>>([]);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -54,10 +54,10 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
   const loadEvidence = async (taskId: string) => {
     const { data } = await supabase
       .from('task_evidence')
-      .select('id, file_name, status')
+      .select('id, file_url, status')
       .eq('action_id', taskId)
       .is('deleted_at', null);
-    setEvidence((data as Array<{ id: string; file_name: string; status: string }>) ?? []);
+    setEvidence(data ?? []);
   };
 
   const { register, handleSubmit, setValue, watch, reset } = useForm({
@@ -159,14 +159,14 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
       const { error: uploadError } = await supabase.storage.from('support-attachments').upload(filePath, file);
       if (uploadError) throw uploadError;
 
+      const { data: urlData } = supabase.storage.from('support-attachments').getPublicUrl(filePath);
+
       const { error: insertError } = await supabase.from('task_evidence').insert({
         tenant_id: tenantId,
         action_id: task.id,
         uploaded_by: employeeId,
-        file_name: file.name,
-        file_path: filePath,
+        file_url: urlData.publicUrl,
         file_type: file.type || 'application/octet-stream',
-        file_size: file.size,
         status: 'pending',
       });
       if (insertError) throw insertError;
@@ -323,14 +323,17 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
               </Label>
               {evidence.length > 0 ? (
                 <div className="space-y-1">
-                  {evidence.map(ev => (
-                    <div key={ev.id} className="flex items-center justify-between text-xs bg-muted/50 rounded p-2">
-                      <span>{ev.file_name}</span>
-                      <Badge variant="outline" className={`text-[10px] ${ev.status === 'approved' ? 'text-chart-1' : ev.status === 'rejected' ? 'text-destructive' : 'text-muted-foreground'}`}>
-                        {ev.status}
-                      </Badge>
-                    </div>
-                  ))}
+                  {evidence.map(ev => {
+                    const fileName = ev.file_url.split('/').pop() || 'file';
+                    return (
+                      <div key={ev.id} className="flex items-center justify-between text-xs bg-muted/50 rounded p-2">
+                        <span className="truncate max-w-[200px]">{fileName}</span>
+                        <Badge variant="outline" className={`text-[10px] ${ev.status === 'approved' ? 'text-chart-1' : ev.status === 'rejected' ? 'text-destructive' : 'text-muted-foreground'}`}>
+                          {ev.status}
+                        </Badge>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="text-xs text-muted-foreground">{t('workload.tasks.noEvidence')}</p>
