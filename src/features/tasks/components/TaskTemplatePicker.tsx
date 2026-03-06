@@ -3,7 +3,7 @@ import { FileText } from 'lucide-react';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
-import { useTaskTemplates } from '@/hooks/tasks/useTaskTemplates';
+import { useTaskTemplates } from '@/features/tasks/hooks/useTaskTemplates';
 
 interface TaskTemplatePickerProps {
   onSelect: (template: {

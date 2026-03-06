@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Plus, X, Tag } from 'lucide-react';
-import { useTaskTags, type TaskTag } from '@/hooks/tasks/useTaskTags';
+import { useTaskTags, type TaskTag } from '@/features/tasks/hooks/useTaskTags';
 
 interface TaskTagPickerProps {
   selectedTagIds: string[];

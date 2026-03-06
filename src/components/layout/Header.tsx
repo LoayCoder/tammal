@@ -3,7 +3,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { UserMenu } from "@/components/UserMenu";
 import NotificationBell from "@/components/crisis/NotificationBell";
-import { NotificationBell as TaskNotificationBell } from "@/components/tasks/NotificationBell";
+import { NotificationBell as TaskNotificationBell } from "@/features/tasks/components/NotificationBell";
 import {
   Breadcrumb,
   BreadcrumbItem,

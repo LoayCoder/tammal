@@ -9,7 +9,7 @@ import {
   UserPlus, ArrowRightLeft, AlertTriangle, Clock, Filter,
 } from 'lucide-react';
 import { format } from 'date-fns';
-import type { TaskActivityLog } from '@/hooks/tasks/useTaskActivity';
+import type { TaskActivityLog } from '@/features/tasks/hooks/useTaskActivity';
 
 interface TaskActivityTimelineProps {
   activities: TaskActivityLog[];
