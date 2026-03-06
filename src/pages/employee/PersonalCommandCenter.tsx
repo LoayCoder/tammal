@@ -25,6 +25,7 @@ export default function PersonalCommandCenter() {
   const { avgMood7d } = useMoodHistory(employee?.id ?? null);
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [enterpriseModalOpen, setEnterpriseModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<any>(null);
   const [tab, setTab] = useState('today');
 
