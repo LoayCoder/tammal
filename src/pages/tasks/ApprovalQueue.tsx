@@ -27,7 +27,7 @@ export default function ApprovalQueue() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('unified_tasks')
-        .select('*')
+        .select('*, employee:employees!unified_tasks_employee_id_fkey(full_name)')
         .eq('tenant_id', tenantId!)
         .is('deleted_at', null)
         .or(`reviewer_id.eq.${employee!.id},approver_id.eq.${employee!.id}`)
@@ -85,6 +85,7 @@ export default function ApprovalQueue() {
                       </Badge>
                       <Badge variant="outline">P{task.priority}</Badge>
                     </div>
+                    {(task as any).employee?.full_name && <p className="text-xs text-muted-foreground">{t('tasks.fields.assignee')}: {(task as any).employee.full_name}</p>}
                     {task.description && <p className="text-xs text-muted-foreground line-clamp-2">{task.description}</p>}
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
                       {task.due_date && (

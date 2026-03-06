@@ -30,7 +30,7 @@ export default function OverdueTasks() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('unified_tasks')
-        .select('*')
+        .select('*, employee:employees!unified_tasks_employee_id_fkey(full_name)')
         .eq('tenant_id', tenantId!)
         .is('deleted_at', null)
         .eq('archived', false)
@@ -95,6 +95,7 @@ export default function OverdueTasks() {
                         <Badge variant="outline" className="text-destructive">{daysOverdue}d {t('tasks.overdue')}</Badge>
                         <Badge variant="outline">P{task.priority}</Badge>
                       </div>
+                      {(task as any).employee?.full_name && <p className="text-xs text-muted-foreground">{t('tasks.fields.assignee')}: {(task as any).employee.full_name}</p>}
                       {task.description && <p className="text-xs text-muted-foreground line-clamp-1">{task.description}</p>}
                       <div className="flex items-center gap-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{t('tasks.fields.dueDate')}: {format(new Date(task.due_date), 'PP')}</span>

@@ -10,6 +10,7 @@ export interface TaskActivityLog {
   details: Record<string, unknown>;
   tenant_id: string;
   created_at: string;
+  employee?: { full_name: string } | null;
 }
 
 export function useTaskActivity(taskId?: string) {
@@ -20,7 +21,7 @@ export function useTaskActivity(taskId?: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('task_activity_logs')
-        .select('*')
+        .select('*, employee:employees!task_activity_logs_performed_by_fkey(full_name)')
         .eq('task_id', taskId!)
         .eq('tenant_id', tenantId!)
         .order('created_at', { ascending: false })
