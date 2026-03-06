@@ -708,7 +708,8 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                         </div>
                       </CollapsibleContent>
                     </Collapsible>
-                 </SidebarGroup>
+                  )}
+                </SidebarGroup>
               )}
             </React.Fragment>
           );
