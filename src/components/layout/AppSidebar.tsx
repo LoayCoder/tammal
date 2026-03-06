@@ -8,7 +8,7 @@ import {
   BookOpen, Music, CheckSquare, BookMarked, Phone, ClipboardCheck,
   ChevronRight, Shield, HeartHandshake, Inbox, Moon, BookOpenCheck, UtensilsCrossed, CalendarDays,
   Activity, Target, Gauge, Users2, Plug, Trophy, Award, Star, Vote, Coins, Gift, UserCog, Briefcase, BarChart,
-  ListChecks, CheckSquare, AlertTriangle
+  ListChecks, AlertTriangle
 } from 'lucide-react';
 import {
   Sidebar,
