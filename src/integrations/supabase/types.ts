@@ -6616,6 +6616,7 @@ export type Database = {
         Row: {
           approver_id: string | null
           assignee_id: string | null
+          checklist_items: Json | null
           created_at: string
           created_by: string | null
           deleted_at: string | null
@@ -6627,6 +6628,8 @@ export type Database = {
           initiative_id: string | null
           is_active: boolean
           last_run_at: string | null
+          name: string | null
+          name_ar: string | null
           next_run_at: string | null
           objective_id: string | null
           priority: string
@@ -6645,6 +6648,7 @@ export type Database = {
         Insert: {
           approver_id?: string | null
           assignee_id?: string | null
+          checklist_items?: Json | null
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
@@ -6656,6 +6660,8 @@ export type Database = {
           initiative_id?: string | null
           is_active?: boolean
           last_run_at?: string | null
+          name?: string | null
+          name_ar?: string | null
           next_run_at?: string | null
           objective_id?: string | null
           priority?: string
@@ -6674,6 +6680,7 @@ export type Database = {
         Update: {
           approver_id?: string | null
           assignee_id?: string | null
+          checklist_items?: Json | null
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
@@ -6685,6 +6692,8 @@ export type Database = {
           initiative_id?: string | null
           is_active?: boolean
           last_run_at?: string | null
+          name?: string | null
+          name_ar?: string | null
           next_run_at?: string | null
           objective_id?: string | null
           priority?: string
