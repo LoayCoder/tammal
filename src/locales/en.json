@@ -50,7 +50,10 @@
     "sectionError": "Section error",
     "sectionErrorDescription": "An unexpected error occurred in this section. Other parts of the page should still work.",
     "habitRemoved": "Habit removed",
-    "pointsEarned": "🎉 +{{points}} {{label}}!"
+    "pointsEarned": "🎉 +{{points}} {{label}}!",
+    "allStatuses": "All Statuses",
+    "allPriorities": "All Priorities",
+    "view": "View"
   },
   "nav": {
     "dashboard": "Dashboard",
