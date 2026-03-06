@@ -1,27 +1,22 @@
 
 
-# Fix: Action Creation Fails Due to Status Mismatch
+## Plan: Add Rawatib (Sunnah) indicators to Dashboard Prayer Widget
 
-## Root Cause
+The `DashboardPrayerWidget` currently only shows the active prayer with log buttons but lacks the Rawatib Sunnah rak'ah info that `PrayerCard` already has.
 
-The `sync_action_to_queue` trigger copies the action's `status` directly into `task_queue_items`. However, `objective_actions` uses statuses like `planned` and `scheduled`, while `task_queue_items` has a validation trigger (`validate_queue_item_status`) that only allows: `pending`, `in_progress`, `completed`, `blocked`, `cancelled`.
+### Changes
 
-When you create an action with status `planned`, the trigger tries to insert `planned` into `task_queue_items` → validation fails → entire transaction rolls back.
+**File: `src/components/dashboard/DashboardPrayerWidget.tsx`**
 
-## Fix
+1. Import the Sunnah hooks (`useSunnahLogs`) and add a `RAWATIB_CONFIG` map (same as in `PrayerCard.tsx`: Fajr → 2 after, Dhuhr → 2 before + 2 after, Asr → none, Maghrib → 2 after, Isha → 2 after).
 
-**Database migration** to update the `sync_action_to_queue` function to map action statuses to valid queue statuses:
+2. Inside the active prayer card section, add tap-to-toggle Rawatib chips below the log buttons — matching the existing style from `PrayerCard`:
+   - 📿 "2 Rak'ahs before" (if applicable)
+   - 📿 "2 Rak'ahs after" (if applicable)
+   - Each chip toggles completed state via `onToggleSunnah`
 
-| Action Status | Queue Status |
-|---|---|
-| `planned` | `pending` |
-| `scheduled` | `pending` |
-| `in_progress` | `in_progress` |
-| `completed` | `completed` |
-| `blocked` | `blocked` |
-| anything else | `pending` |
+3. In the progress row (5 prayer indicators at the bottom), add small dot indicators beneath each prayer icon showing if its Rawatib are completed.
 
-The fix is a single `CREATE OR REPLACE FUNCTION` for `sync_action_to_queue` that adds a status mapping variable before inserting/updating `task_queue_items`.
-
-No frontend changes needed.
+### Hook dependency
+Need to check if `useSunnahLogs` or a similar hook exists for Rawatib tracking at the dashboard level, or if the sunnah data is already available through `usePrayerLogs`.
 
