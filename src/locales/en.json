@@ -2442,6 +2442,11 @@
     "minMoodsRequired": "At least 2 mood levels are required.",
     "deletingDefaultWarning": "This is a default mood. Deleting it cannot be undone."
   },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "empty": "No notifications yet"
+  },
   "crisisSupport": {
     "nav": { "crisisSupport": "Crisis Support", "mySupport": "My Support", "firstAider": "First Aider" },
     "banner": "If you are in immediate danger, please call emergency services immediately.",
