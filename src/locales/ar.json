@@ -2442,6 +2442,11 @@
     "minMoodsRequired": "يجب الاحتفاظ بمستويين من المزاج على الأقل.",
     "deletingDefaultWarning": "هذا مزاج افتراضي. لا يمكن التراجع عن حذفه."
   },
+  "notifications": {
+    "title": "الإشعارات",
+    "markAllRead": "تحديد الكل كمقروء",
+    "empty": "لا توجد إشعارات بعد"
+  },
   "crisisSupport": {
     "nav": { "crisisSupport": "دعم الأزمات", "mySupport": "طلبات الدعم", "firstAider": "المسعف النفسي" },
     "banner": "إذا كنت في خطر فوري، يرجى الاتصال بخدمات الطوارئ على الفور.",

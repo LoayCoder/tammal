@@ -3,6 +3,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { UserMenu } from "@/components/UserMenu";
 import NotificationBell from "@/components/crisis/NotificationBell";
+import { NotificationBell as TaskNotificationBell } from "@/components/tasks/NotificationBell";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -83,6 +84,7 @@ export function Header() {
       </Breadcrumb>
 
       <div className="ms-auto flex items-center gap-1 md:gap-2">
+        <TaskNotificationBell />
         <NotificationBell />
         <LanguageSelector />
         <ThemeToggle />

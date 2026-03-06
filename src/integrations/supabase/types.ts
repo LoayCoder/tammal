@@ -6394,6 +6394,70 @@ export type Database = {
           },
         ]
       }
+      task_notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          deleted_at: string | null
+          id: string
+          is_read: boolean
+          metadata: Json | null
+          recipient_id: string
+          task_id: string
+          tenant_id: string
+          title: string
+          type: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_read?: boolean
+          metadata?: Json | null
+          recipient_id: string
+          task_id: string
+          tenant_id: string
+          title: string
+          type: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_read?: boolean
+          metadata?: Json | null
+          recipient_id?: string
+          task_id?: string
+          tenant_id?: string
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_notifications_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "unified_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_notifications_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_queue_items: {
         Row: {
           action_id: string
