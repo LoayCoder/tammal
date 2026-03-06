@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
+import { CreateTaskModal } from '@/features/tasks/components/CreateTaskModal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge, GENERIC_TASK_STATUS_CONFIG } from '@/shared/status-badge';

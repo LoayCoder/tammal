@@ -84,15 +84,15 @@ const RedemptionCatalog = lazy(() => import("@/pages/recognition/RedemptionCatal
 const RedemptionManagement = lazy(() => import("@/pages/admin/RedemptionManagement"));
 const AIGovernance = lazy(() => import("@/pages/admin/AIGovernance"));
 const EscalationSettings = lazy(() => import("@/pages/admin/EscalationSettings"));
-const MyTasks = lazy(() => import("@/pages/tasks/MyTasks"));
-const TaskCalendar = lazy(() => import("@/pages/tasks/TaskCalendar"));
-const TaskDetail = lazy(() => import("@/pages/tasks/TaskDetail"));
-const ApprovalQueue = lazy(() => import("@/pages/tasks/ApprovalQueue"));
-const OverdueTasks = lazy(() => import("@/pages/tasks/OverdueTasks"));
-const ManagerTaskOverview = lazy(() => import("@/pages/tasks/ManagerTaskOverview"));
-const TaskPerformanceAnalytics = lazy(() => import("@/pages/tasks/TaskPerformanceAnalytics"));
-const RecurringTasks = lazy(() => import("@/pages/tasks/RecurringTasks"));
-const TaskTemplates = lazy(() => import("@/pages/tasks/TaskTemplates"));
+const MyTasks = lazy(() => import("@/features/tasks/pages/MyTasks"));
+const TaskCalendar = lazy(() => import("@/features/tasks/pages/TaskCalendar"));
+const TaskDetail = lazy(() => import("@/features/tasks/pages/TaskDetail"));
+const ApprovalQueue = lazy(() => import("@/features/tasks/pages/ApprovalQueue"));
+const OverdueTasks = lazy(() => import("@/features/tasks/pages/OverdueTasks"));
+const ManagerTaskOverview = lazy(() => import("@/features/tasks/pages/ManagerTaskOverview"));
+const TaskPerformanceAnalytics = lazy(() => import("@/features/tasks/pages/TaskPerformanceAnalytics"));
+const RecurringTasks = lazy(() => import("@/features/tasks/pages/RecurringTasks"));
+const TaskTemplates = lazy(() => import("@/features/tasks/pages/TaskTemplates"));
 const ComponentShowcase = lazy(() => import("@/pages/dev/ComponentShowcase"));
 const queryClient = new QueryClient();
 
