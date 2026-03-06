@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { ASSESSMENT_COLORS, TOOLKIT } from "@/config/toolkit-colors";
+import GradientButton from "@/components/mental-toolkit/shared/GradientButton";
+import { format } from "date-fns";
 
 interface Quiz {
   id: string;
@@ -45,10 +48,10 @@ const QUIZZES: Quiz[] = [
     ],
     options: FREQ_OPTIONS,
     getResult: (score) => {
-      if (score <= 4) return { labelKey: "minimal", message: "Your anxiety levels appear minimal. Keep practising self-care and check in with yourself regularly.", color: "#A8C5A0" };
-      if (score <= 9) return { labelKey: "mild", message: "You are experiencing mild anxiety. Breathing exercises and journaling may help. Consider speaking to a counsellor if symptoms persist.", color: "#FAD7A0" };
-      if (score <= 14) return { labelKey: "moderate", message: "You are experiencing moderate anxiety. We encourage you to reach out to a mental health professional for support.", color: "#F5CBA7" };
-      return { labelKey: "severe", message: "Your score suggests severe anxiety. Please speak with a qualified mental health professional or your doctor as soon as possible.", color: "#F1948A" };
+      if (score <= 4) return { labelKey: "minimal", message: "Your anxiety levels appear minimal. Keep practising self-care and check in with yourself regularly.", color: ASSESSMENT_COLORS.minimal };
+      if (score <= 9) return { labelKey: "mild", message: "You are experiencing mild anxiety. Breathing exercises and journaling may help. Consider speaking to a counsellor if symptoms persist.", color: ASSESSMENT_COLORS.mild };
+      if (score <= 14) return { labelKey: "moderate", message: "You are experiencing moderate anxiety. We encourage you to reach out to a mental health professional for support.", color: ASSESSMENT_COLORS.moderate };
+      return { labelKey: "severe", message: "Your score suggests severe anxiety. Please speak with a qualified mental health professional or your doctor as soon as possible.", color: ASSESSMENT_COLORS.severe };
     },
   },
   {
@@ -66,11 +69,11 @@ const QUIZZES: Quiz[] = [
     ],
     options: FREQ_OPTIONS,
     getResult: (score) => {
-      if (score <= 4) return { labelKey: "minimal", message: "Your mood appears healthy. Continue with self-care routines and check in with yourself regularly.", color: "#A8C5A0" };
-      if (score <= 9) return { labelKey: "mild", message: "You may be experiencing mild depression. Gentle activity, social connection, and journaling can help. Consider speaking to someone if this persists.", color: "#FAD7A0" };
-      if (score <= 14) return { labelKey: "moderate", message: "You are experiencing moderate depression. We recommend connecting with a mental health professional for personalised support.", color: "#F5CBA7" };
-      if (score <= 19) return { labelKey: "moderatelySevere", message: "Your score indicates moderately severe depression. Please seek professional support — effective help is available.", color: "#E59866" };
-      return { labelKey: "severe", message: "Your score suggests severe depression. Please reach out to a mental health professional or crisis line today. You deserve support.", color: "#F1948A" };
+      if (score <= 4) return { labelKey: "minimal", message: "Your mood appears healthy. Continue with self-care routines and check in with yourself regularly.", color: ASSESSMENT_COLORS.minimal };
+      if (score <= 9) return { labelKey: "mild", message: "You may be experiencing mild depression. Gentle activity, social connection, and journaling can help. Consider speaking to someone if this persists.", color: ASSESSMENT_COLORS.mild };
+      if (score <= 14) return { labelKey: "moderate", message: "You are experiencing moderate depression. We recommend connecting with a mental health professional for personalised support.", color: ASSESSMENT_COLORS.moderate };
+      if (score <= 19) return { labelKey: "moderatelySevere", message: "Your score indicates moderately severe depression. Please seek professional support — effective help is available.", color: ASSESSMENT_COLORS.moderatelySevere };
+      return { labelKey: "severe", message: "Your score suggests severe depression. Please reach out to a mental health professional or crisis line today. You deserve support.", color: ASSESSMENT_COLORS.severe };
     },
   },
   {
@@ -89,9 +92,9 @@ const QUIZZES: Quiz[] = [
     ],
     options: STRESS_OPTIONS,
     getResult: (score) => {
-      if (score <= 13) return { labelKey: "low", message: "Your perceived stress is low. You seem to be managing well. Keep up your self-care practices!", color: "#A8C5A0" };
-      if (score <= 26) return { labelKey: "moderate", message: "You are experiencing moderate stress. Focus on boundaries, rest, and relaxation techniques. Consider mindfulness or journaling.", color: "#FAD7A0" };
-      return { labelKey: "high", message: "Your stress levels appear high. We encourage you to speak with a mental health professional and review your current commitments and support systems.", color: "#F1948A" };
+      if (score <= 13) return { labelKey: "low", message: "Your perceived stress is low. You seem to be managing well. Keep up your self-care practices!", color: ASSESSMENT_COLORS.low };
+      if (score <= 26) return { labelKey: "moderate", message: "You are experiencing moderate stress. Focus on boundaries, rest, and relaxation techniques. Consider mindfulness or journaling.", color: ASSESSMENT_COLORS.moderate };
+      return { labelKey: "high", message: "Your stress levels appear high. We encourage you to speak with a mental health professional and review your current commitments and support systems.", color: ASSESSMENT_COLORS.high };
     },
   },
 ];
@@ -165,7 +168,7 @@ export default function SelfAssessmentQuiz() {
   if (!selectedQuiz) {
     return (
       <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-border" style={{ background: "linear-gradient(135deg, rgba(169,204,227,0.2), rgba(168,197,160,0.1))" }}>
+        <div className="px-5 py-4 border-b border-border bg-gradient-to-br from-toolkit-sky/20 to-toolkit-sage/10">
           <div className="flex items-center gap-2">
             <span className="text-2xl">📋</span>
             <div>
@@ -184,9 +187,9 @@ export default function SelfAssessmentQuiz() {
               <div className="text-3xl">{t(`mentalToolkit.quiz.quizzes.${quiz.id}.emoji`)}</div>
               <p className="font-semibold text-foreground text-sm">{t(`mentalToolkit.quiz.quizzes.${quiz.id}.name`)}</p>
               <p className="text-xs text-muted-foreground">{t(`mentalToolkit.quiz.quizzes.${quiz.id}.desc`)}</p>
-              <Button size="sm" className="w-full rounded-xl text-xs mt-2" style={{ background: "#C9B8E8", color: "#4A3F6B" }}>
+              <GradientButton solidColor={TOOLKIT.lavender} size="sm" className="w-full text-xs mt-2">
                 {t("mentalToolkit.quiz.startQuiz")}
-              </Button>
+              </GradientButton>
             </button>
           ))}
         </div>
@@ -227,7 +230,7 @@ export default function SelfAssessmentQuiz() {
           <div className="flex gap-3">
             <Button variant="outline" onClick={handleBack} className="flex-1 rounded-xl">← {t("common.back")}</Button>
             <Button variant="outline" onClick={handleRetake} className="flex-1 rounded-xl">{t("mentalToolkit.quiz.retake")}</Button>
-            <Button onClick={handleSave} className="flex-1 rounded-xl" style={{ background: "#A8C5A0", color: "#2d4a2a" }}>{t("mentalToolkit.quiz.saveResult")}</Button>
+            <GradientButton solidColor={ASSESSMENT_COLORS.minimal} onClick={handleSave} className="flex-1">{t("mentalToolkit.quiz.saveResult")}</GradientButton>
           </div>
         </div>
       </div>
@@ -265,7 +268,7 @@ export default function SelfAssessmentQuiz() {
                   ? "border-transparent font-medium text-foreground"
                   : "border-border bg-background hover:bg-muted text-foreground"
               }`}
-              style={selectedOption === opt.value ? { background: "#C9B8E8", borderColor: "#C9B8E8", color: "#4A3F6B" } : {}}
+              style={selectedOption === opt.value ? { background: TOOLKIT.lavender, borderColor: TOOLKIT.lavender, color: TOOLKIT.plum } : {}}
             >
               {opt.label}
             </button>
@@ -274,13 +277,13 @@ export default function SelfAssessmentQuiz() {
 
         <div className="flex gap-3">
           <Button variant="outline" onClick={handleBack} className="rounded-xl">← Back</Button>
-          <Button
+          <GradientButton
             disabled={selectedOption === null}
             onClick={handleNext}
-            className="flex-1 rounded-xl font-semibold"
-            style={{ background: "linear-gradient(135deg, #C9B8E8, #A8C5A0)", color: "#4A3F6B" }}
+            className="flex-1 font-semibold"
           >
             {currentQ + 1 >= selectedQuiz.questions.length ? "See Results →" : t("mentalToolkit.quiz.next")} →
+          </GradientButton>
           </Button>
         </div>
       </div>
