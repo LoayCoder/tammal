@@ -308,7 +308,7 @@ function StatPill({ icon, color, value, label }: { icon: React.ReactNode; color:
       <CardContent className="pt-4 pb-3 px-3 flex flex-col items-center text-center gap-1">
         <span style={{ color }}>{icon}</span>
         <span className="text-xl font-bold text-foreground">{value}</span>
-        <span className="text-[10px] text-muted-foreground leading-tight">{label}</span>
+        <span className="text-2xs text-muted-foreground leading-tight">{label}</span>
       </CardContent>
     </Card>
   );

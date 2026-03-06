@@ -165,12 +165,12 @@ export function MoodQuestionPickerDialog({
                       <p className="text-sm leading-snug line-clamp-2" dir="auto">{text}</p>
                       <div className="flex items-center gap-2 mt-1">
                         {q.category && (
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                            {isRTL && q.category.name_ar ? q.category.name_ar : q.category.name}
-                          </Badge>
-                        )}
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                          {t(`questions.types.${q.type}`)}
+                           <Badge variant="outline" className="text-2xs px-1.5 py-0">
+                             {isRTL && q.category.name_ar ? q.category.name_ar : q.category.name}
+                           </Badge>
+                         )}
+                         <Badge variant="outline" className="text-2xs px-1.5 py-0">
+                           {t(`questions.types.${q.type}`)}
                         </Badge>
                       </div>
                     </div>
