@@ -156,7 +156,7 @@ export default function PersonalCommandCenter() {
         open={enterpriseModalOpen}
         onOpenChange={setEnterpriseModalOpen}
         employeeId={employee.id}
-        defaultDepartmentId={employee.department_id ?? null}
+        defaultDepartmentId={null}
       />
     </div>
   );
