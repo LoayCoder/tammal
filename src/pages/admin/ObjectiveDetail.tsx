@@ -52,7 +52,7 @@ export default function ObjectiveDetail() {
   const { hasRole: isTenantAdmin } = useHasRole('tenant_admin');
   const { hasRole: isManager } = useHasRole('manager');
   const { isRepresentative } = useIsRepresentative();
-  const canManage = isSuperAdmin || isTenantAdmin || isManager;
+  const canManage = isSuperAdmin || isTenantAdmin || isManager || isRepresentative;
   const canUnlock = canManage; // only managers/admins can unlock
   const { objectives, isPending: objLoading, lockObjective, unlockObjective } = useObjectives();
   const {

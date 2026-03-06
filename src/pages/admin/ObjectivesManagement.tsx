@@ -13,6 +13,8 @@ import { useObjectives, type Objective } from '@/hooks/workload/useObjectives';
 import { ObjectiveDialog } from '@/components/workload/ObjectiveDialog';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { useNavigate } from 'react-router-dom';
+import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
+import { useIsRepresentative } from '@/hooks/workload/useIsRepresentative';
 
 const statusColors: Record<string, string> = {
   on_track: 'bg-chart-2/15 text-chart-2 border-chart-2/30',

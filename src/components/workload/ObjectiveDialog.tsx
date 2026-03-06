@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { EmployeePicker } from '@/components/workload/EmployeePicker';
 import type { Objective } from '@/hooks/workload/useObjectives';
 
 const schema = z.object({
@@ -27,6 +28,8 @@ const schema = z.object({
   status: z.enum(['on_track', 'at_risk', 'delayed', 'completed']),
   start_date: z.string().min(1),
   end_date: z.string().optional().or(z.literal('')),
+  owner_user_id: z.string().nullable().optional(),
+  accountable_user_id: z.string().nullable().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -49,6 +52,7 @@ export function ObjectiveDialog({ open, onOpenChange, objective, onSubmit, isSub
       title: '', title_ar: '', description: '', description_ar: '',
       year: new Date().getFullYear(), quarter: 'Q1', status: 'on_track',
       start_date: new Date().toISOString().split('T')[0], end_date: '',
+      owner_user_id: null, accountable_user_id: null,
     },
   });
 
@@ -60,12 +64,15 @@ export function ObjectiveDialog({ open, onOpenChange, objective, onSubmit, isSub
         year: objective.year, quarter: objective.quarter as any,
         status: objective.status as any,
         start_date: objective.start_date, end_date: objective.end_date || '',
+        owner_user_id: objective.owner_user_id || null,
+        accountable_user_id: (objective as any).accountable_user_id || null,
       });
     } else {
       form.reset({
         title: '', title_ar: '', description: '', description_ar: '',
         year: new Date().getFullYear(), quarter: 'Q1', status: 'on_track',
         start_date: new Date().toISOString().split('T')[0], end_date: '',
+        owner_user_id: null, accountable_user_id: null,
       });
     }
   }, [objective, form]);
@@ -77,6 +84,8 @@ export function ObjectiveDialog({ open, onOpenChange, objective, onSubmit, isSub
       description: data.description || null,
       description_ar: data.description_ar || null,
       end_date: data.end_date || null,
+      owner_user_id: data.owner_user_id || null,
+      accountable_user_id: data.accountable_user_id || null,
     });
   };
 
@@ -98,6 +107,22 @@ export function ObjectiveDialog({ open, onOpenChange, objective, onSubmit, isSub
             <FormField control={form.control} name="description" render={({ field }) => (
               <FormItem><FormLabel>{t('workload.objectives.description')}</FormLabel><FormControl><Textarea {...field} rows={2} /></FormControl><FormMessage /></FormItem>
             )} />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField control={form.control} name="owner_user_id" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('workload.assignment.owner')}</FormLabel>
+                  <FormControl><EmployeePicker value={field.value} onChange={field.onChange} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="accountable_user_id" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('workload.assignment.accountable')}</FormLabel>
+                  <FormControl><EmployeePicker value={field.value} onChange={field.onChange} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+            </div>
             <div className="grid grid-cols-3 gap-4">
               <FormField control={form.control} name="year" render={({ field }) => (
                 <FormItem><FormLabel>{t('workload.objectives.year')}</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
