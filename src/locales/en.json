@@ -3773,6 +3773,8 @@
   "tasks": {
     "createTask": "Create Task",
     "saveDraft": "Save Draft",
+    "advancedSettings": "Advanced Settings",
+    "reminderHint": "You will be notified before the selected date.",
     "createdBy": "Created by",
     "createSuccess": "Task created successfully",
     "createError": "Failed to create task",

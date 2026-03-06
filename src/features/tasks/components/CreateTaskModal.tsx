@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
@@ -12,7 +12,10 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { CalendarIcon, Clock, Save, Send } from 'lucide-react';
+import {
+  Collapsible, CollapsibleContent, CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { CalendarIcon, Clock, Save, Send, Bell, ChevronDown, Settings2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -52,6 +55,7 @@ export function CreateTaskModal({
   const { t } = useTranslation();
   const { tenantId } = useTenantId();
   const { createTaskAsync, isCreating } = useEnterpriseTasks();
+  const formId = useId();
 
   // Form state
   const [title, setTitle] = useState('');
@@ -71,6 +75,7 @@ export function CreateTaskModal({
   const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [files, setFiles] = useState<LocalFile[]>([]);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const resetForm = useCallback(() => {
     setTitle(''); setTitleAr(''); setDescription(''); setStatus('draft');
@@ -78,7 +83,7 @@ export function CreateTaskModal({
     setStartDate(undefined); setReminderDate(undefined); setEstimatedMinutes('');
     setAssigneeId(employeeId); setReviewerId(null); setApproverId(null);
     setDepartmentId(defaultDepartmentId ?? null); setChecklistItems([]);
-    setSelectedTagIds([]); setFiles([]);
+    setSelectedTagIds([]); setFiles([]); setAdvancedOpen(false);
   }, [employeeId, defaultDepartmentId]);
 
   const handleSubmit = useCallback(async (asDraft: boolean) => {
@@ -109,6 +114,15 @@ export function CreateTaskModal({
       onOpenChange(false);
     } catch {}
   }, [title, titleAr, description, assigneeId, priority, visibility, dueDate, startDate, estimatedMinutes, departmentId, defaultInitiativeId, defaultObjectiveId, reviewerId, approverId, reminderDate, selectedTagIds, employeeId, createTaskAsync, resetForm, onOpenChange]);
+
+  // Generate unique IDs for accessibility
+  const titleId = `${formId}-title`;
+  const titleArId = `${formId}-title-ar`;
+  const descId = `${formId}-desc`;
+  const statusId = `${formId}-status`;
+  const priorityId = `${formId}-priority`;
+  const estMinId = `${formId}-est-min`;
+  const visibilityId = `${formId}-visibility`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -144,18 +158,22 @@ export function CreateTaskModal({
                 }
               }} />
               <Separator />
+
               <div className="space-y-1.5">
-                <Label>{t('tasks.fields.title')} *</Label>
+                <Label htmlFor={titleId}>{t('tasks.fields.title')} *</Label>
                 <Input
+                  id={titleId}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder={t('tasks.fields.titlePlaceholder')}
+                  aria-required="true"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label>{t('tasks.fields.titleAr')}</Label>
+                <Label htmlFor={titleArId}>{t('tasks.fields.titleAr')}</Label>
                 <Input
+                  id={titleArId}
                   value={titleAr}
                   onChange={(e) => setTitleAr(e.target.value)}
                   placeholder={t('tasks.fields.titleArPlaceholder')}
@@ -164,8 +182,9 @@ export function CreateTaskModal({
               </div>
 
               <div className="space-y-1.5">
-                <Label>{t('tasks.fields.description')}</Label>
+                <Label htmlFor={descId}>{t('tasks.fields.description')}</Label>
                 <Textarea
+                  id={descId}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder={t('tasks.fields.descriptionPlaceholder')}
@@ -184,9 +203,9 @@ export function CreateTaskModal({
             <div className="space-y-4">
               {/* Status */}
               <div className="space-y-1.5">
-                <Label>{t('tasks.fields.status')}</Label>
+                <Label htmlFor={statusId}>{t('tasks.fields.status')}</Label>
                 <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger id={statusId}><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {STATUSES.map(s => (
                       <SelectItem key={s} value={s}>{t(`tasks.status.${s}`)}</SelectItem>
@@ -197,9 +216,9 @@ export function CreateTaskModal({
 
               {/* Priority */}
               <div className="space-y-1.5">
-                <Label>{t('tasks.fields.priority')}</Label>
+                <Label htmlFor={priorityId}>{t('tasks.fields.priority')}</Label>
                 <Select value={String(priority)} onValueChange={(v) => setPriority(Number(v))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger id={priorityId}><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {PRIORITIES.map(p => (
                       <SelectItem key={p.value} value={String(p.value)}>
@@ -258,37 +277,75 @@ export function CreateTaskModal({
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="flex items-center gap-1.5">
+                  <Label htmlFor={estMinId} className="flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5" />
                     {t('tasks.fields.estimatedMinutes')}
                   </Label>
                   <Input
+                    id={estMinId}
                     type="number"
                     value={estimatedMinutes}
                     onChange={(e) => setEstimatedMinutes(e.target.value)}
                     placeholder="60"
                     className="h-9"
+                    min={0}
+                    aria-label={t('tasks.fields.estimatedMinutes')}
                   />
                 </div>
               </div>
 
               <Separator />
 
-              {/* Visibility */}
-              <div className="space-y-1.5">
-                <Label>{t('tasks.fields.visibility')}</Label>
-                <Select value={visibility} onValueChange={setVisibility}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {VISIBILITIES.map(v => (
-                      <SelectItem key={v} value={v}>{t(`tasks.visibility.${v}`)}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
               {/* Tags */}
               <TaskTagPicker selectedTagIds={selectedTagIds} onChange={setSelectedTagIds} />
+
+              <Separator />
+
+              {/* Advanced Settings */}
+              <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="w-full justify-between text-xs font-medium text-muted-foreground hover:text-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <Settings2 className="h-3.5 w-3.5" />
+                      {t('tasks.advancedSettings')}
+                    </span>
+                    <ChevronDown className={`h-3.5 w-3.5 transition-transform ${advancedOpen ? 'rotate-180' : ''}`} />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-4 pt-3">
+                  {/* Visibility */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor={visibilityId}>{t('tasks.fields.visibility')}</Label>
+                    <Select value={visibility} onValueChange={setVisibility}>
+                      <SelectTrigger id={visibilityId}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {VISIBILITIES.map(v => (
+                          <SelectItem key={v} value={v}>{t(`tasks.visibility.${v}`)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Reminder Date */}
+                  <div className="space-y-1.5">
+                    <Label className="flex items-center gap-1.5">
+                      <Bell className="h-3.5 w-3.5" />
+                      {t('tasks.fields.reminderDate')}
+                    </Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full justify-start text-start font-normal h-9 text-sm">
+                          {reminderDate ? format(reminderDate, 'PPP') : t('tasks.fields.selectDate')}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar mode="single" selected={reminderDate} onSelect={setReminderDate} />
+                      </PopoverContent>
+                    </Popover>
+                    <p className="text-xs text-muted-foreground">{t('tasks.reminderHint')}</p>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
           </ScrollArea>
         </div>
