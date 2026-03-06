@@ -11,6 +11,7 @@ import {
   AlertsTab,
   ComparisonTab,
 } from '@/features/org-dashboard';
+import { OrgWorkloadIndicator } from '@/features/org-dashboard/components/OrgWorkloadIndicator';
 
 export function OrgDashboard() {
   const { t } = useTranslation();

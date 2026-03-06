@@ -685,7 +685,14 @@
       "4-7": "٤-٧ أيام",
       "8-14": "٨-١٤ يوم",
       "15+": "١٥+ يوم"
-    }
+    },
+    "workloadHealth": "صحة عبء العمل",
+    "avgDailyLoad": "متوسط الحمل اليومي",
+    "atRiskEmployees": "موظفون معرّضون للخطر",
+    "offHoursWorkers": "عاملون خارج الدوام",
+    "totalWorkforce": "إجمالي القوى العاملة",
+    "overloadedEmployees": "أكثر الموظفين حملاً",
+    "hoursPerDay": "متوسط الساعات / يوم حسب الإدارة"
   },
   "synthesis": {
     "checkinPulse": "نبض التسجيل اليومي",
