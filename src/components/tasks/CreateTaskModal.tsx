@@ -27,6 +27,7 @@ interface CreateTaskModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   employeeId: string;
+  employeeName?: string;
   defaultDepartmentId?: string | null;
   defaultInitiativeId?: string | null;
   defaultObjectiveId?: string | null;
