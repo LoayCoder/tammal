@@ -217,7 +217,7 @@ export default function TaskCalendar() {
         </Card>
       )}
 
-      <CreateTaskModal open={createOpen} onOpenChange={setCreateOpen} />
+      {employee && <CreateTaskModal open={createOpen} onOpenChange={setCreateOpen} employeeId={employee.id} employeeName={employee.full_name} />}
     </div>
   );
 }
