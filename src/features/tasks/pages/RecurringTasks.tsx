@@ -152,7 +152,7 @@ export default function RecurringTasks() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>{t('common.cancel')}</Button>
-              <Button onClick={() => upsert.mutate()} disabled={!form.title || upsert.isPending}>{editId ? t('common.save') : t('common.create')}</Button>
+              <Button onClick={handleUpsert} disabled={!form.title || upsertTemplate.isPending}>{editId ? t('common.save') : t('common.create')}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
