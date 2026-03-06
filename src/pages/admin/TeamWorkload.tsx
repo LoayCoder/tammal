@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge, GENERIC_TASK_STATUS_CONFIG } from '@/shared/status-badge';
@@ -52,6 +53,7 @@ export default function TeamWorkload() {
   const { metrics: riskMetrics, isPending: riskLoading } = useInitiativeRisk();
 
   const [addOpen, setAddOpen] = useState(false);
+  const [enterpriseModalOpen, setEnterpriseModalOpen] = useState(false);
   const [filters, setFilters] = useState<TaskFilters>({
     status: 'all', priority: 'all', employeeId: 'all', sourceType: 'all', search: '',
   });
