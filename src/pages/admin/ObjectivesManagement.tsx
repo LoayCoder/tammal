@@ -33,7 +33,9 @@ export default function ObjectivesManagement() {
   const { isRepresentative } = useIsRepresentative();
   const canManage = isSuperAdmin || isTenantAdmin || isManager || isRepresentative;
   const {
-
+    objectives, isPending, createObjective, updateObjective, deleteObjective,
+    isCreating, isUpdating, isDeleting,
+  } = useObjectives();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selected, setSelected] = useState<Objective | null>(null);
