@@ -3839,5 +3839,19 @@
       "monthly": "شهري",
       "quarterly": "ربع سنوي"
     }
+  },
+  "dependencies": {
+    "title": "التبعيات",
+    "add": "إضافة",
+    "added": "تمت إضافة التبعية",
+    "blockedBy": "محظور بواسطة",
+    "blocking": "يحظر",
+    "empty": "لا توجد تبعيات مرتبطة بهذه المهمة.",
+    "unresolvedBlockers": "هذه المهمة لديها عوائق لم تُحل",
+    "searchPlaceholder": "ابحث عن مهام للربط...",
+    "types": {
+      "blocks": "يحظر",
+      "related": "مرتبط"
+    }
   }
 }

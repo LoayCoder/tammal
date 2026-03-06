@@ -3997,5 +3997,19 @@
       "monthly": "Monthly",
       "quarterly": "Quarterly"
     }
+  },
+  "dependencies": {
+    "title": "Dependencies",
+    "add": "Add",
+    "added": "Dependency added",
+    "blockedBy": "Blocked by",
+    "blocking": "Blocking",
+    "empty": "No dependencies linked to this task.",
+    "unresolvedBlockers": "This task has unresolved blockers",
+    "searchPlaceholder": "Search tasks to link...",
+    "types": {
+      "blocks": "Blocks",
+      "related": "Related"
+    }
   }
 }
