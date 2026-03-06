@@ -50,7 +50,10 @@
     "sectionError": "خطأ في القسم",
     "sectionErrorDescription": "حدث خطأ غير متوقع في هذا القسم. الأجزاء الأخرى من الصفحة لا تزال تعمل.",
     "habitRemoved": "تم حذف العادة",
-    "pointsEarned": "🎉 +{{points}} {{label}}!"
+    "pointsEarned": "🎉 +{{points}} {{label}}!",
+    "allStatuses": "جميع الحالات",
+    "allPriorities": "جميع الأولويات",
+    "view": "عرض"
   },
   "nav": {
     "dashboard": "لوحة التحكم",
