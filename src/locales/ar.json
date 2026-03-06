@@ -3595,6 +3595,93 @@
       "tenantIsolation": "عزل المستأجرين",
       "capacity": "حسابات السعة"
     }
+  },
+  "tasks": {
+    "createTask": "إنشاء مهمة",
+    "saveDraft": "حفظ كمسودة",
+    "createdBy": "أنشئ بواسطة",
+    "createSuccess": "تم إنشاء المهمة بنجاح",
+    "createError": "فشل في إنشاء المهمة",
+    "updateSuccess": "تم تحديث المهمة بنجاح",
+    "updateError": "فشل في تحديث المهمة",
+    "deleteSuccess": "تم حذف المهمة بنجاح",
+    "deleteError": "فشل في حذف المهمة",
+    "fields": {
+      "title": "عنوان المهمة",
+      "titlePlaceholder": "أدخل عنوان المهمة...",
+      "titleAr": "العنوان (عربي)",
+      "titleArPlaceholder": "أدخل عنوان المهمة...",
+      "description": "الوصف",
+      "descriptionPlaceholder": "أضف وصف المهمة، الأهداف، أو ملاحظات التنفيذ...",
+      "status": "الحالة",
+      "priority": "الأولوية",
+      "startDate": "تاريخ البدء",
+      "dueDate": "تاريخ الاستحقاق",
+      "reminderDate": "التذكير",
+      "selectDate": "اختر تاريخ",
+      "estimatedMinutes": "الوقت المقدر (دقيقة)",
+      "visibility": "الرؤية"
+    },
+    "status": {
+      "draft": "مسودة",
+      "open": "مفتوحة",
+      "in_progress": "قيد التنفيذ",
+      "under_review": "قيد المراجعة",
+      "pending_approval": "بانتظار الموافقة",
+      "completed": "مكتملة",
+      "rejected": "مرفوضة",
+      "archived": "مؤرشفة"
+    },
+    "priority": {
+      "critical": "حرجة",
+      "high": "عالية",
+      "medium": "متوسطة",
+      "low": "منخفضة"
+    },
+    "visibility": {
+      "private": "خاص",
+      "department": "القسم",
+      "cross_department": "بين الأقسام",
+      "organization": "على مستوى المؤسسة"
+    },
+    "members": {
+      "assignee": "المكلف",
+      "reviewer": "المراجع",
+      "approver": "المعتمد",
+      "observer": "المراقب",
+      "addSuccess": "تم إضافة العضو",
+      "addError": "فشل في إضافة العضو",
+      "removeError": "فشل في إزالة العضو"
+    },
+    "checklist": {
+      "title": "قائمة المهام الفرعية",
+      "addPlaceholder": "أضف عنصر...",
+      "addSuccess": "تم إضافة العنصر",
+      "addError": "فشل في إضافة العنصر",
+      "updateError": "فشل في تحديث العنصر",
+      "deleteError": "فشل في حذف العنصر"
+    },
+    "comments": {
+      "addSuccess": "تم إضافة التعليق",
+      "addError": "فشل في إضافة التعليق",
+      "deleteError": "فشل في حذف التعليق"
+    },
+    "tags": {
+      "title": "العلامات",
+      "existing": "العلامات الموجودة",
+      "createNew": "إنشاء علامة جديدة",
+      "namePlaceholder": "اسم العلامة...",
+      "create": "إنشاء علامة",
+      "createSuccess": "تم إنشاء العلامة",
+      "createError": "فشل في إنشاء العلامة"
+    },
+    "attachments": {
+      "title": "المرفقات",
+      "dragDrop": "اسحب وأفلت الملفات أو انقر للتصفح",
+      "uploadSuccess": "تم رفع الملف",
+      "uploadError": "فشل في رفع الملف",
+      "deleteError": "فشل في حذف الملف"
+    }
   }
 }
 

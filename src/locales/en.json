@@ -3753,6 +3753,93 @@
       "tenantIsolation": "Tenant Isolation",
       "capacity": "Capacity Calculations"
     }
+  },
+  "tasks": {
+    "createTask": "Create Task",
+    "saveDraft": "Save Draft",
+    "createdBy": "Created by",
+    "createSuccess": "Task created successfully",
+    "createError": "Failed to create task",
+    "updateSuccess": "Task updated successfully",
+    "updateError": "Failed to update task",
+    "deleteSuccess": "Task deleted successfully",
+    "deleteError": "Failed to delete task",
+    "fields": {
+      "title": "Task Title",
+      "titlePlaceholder": "Enter task title...",
+      "titleAr": "Title (Arabic)",
+      "titleArPlaceholder": "أدخل عنوان المهمة...",
+      "description": "Description",
+      "descriptionPlaceholder": "Add task description, objectives, or execution notes...",
+      "status": "Status",
+      "priority": "Priority",
+      "startDate": "Start Date",
+      "dueDate": "Due Date",
+      "reminderDate": "Reminder",
+      "selectDate": "Select date",
+      "estimatedMinutes": "Estimated Time (min)",
+      "visibility": "Visibility"
+    },
+    "status": {
+      "draft": "Draft",
+      "open": "Open",
+      "in_progress": "In Progress",
+      "under_review": "Under Review",
+      "pending_approval": "Pending Approval",
+      "completed": "Completed",
+      "rejected": "Rejected",
+      "archived": "Archived"
+    },
+    "priority": {
+      "critical": "Critical",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "visibility": {
+      "private": "Private",
+      "department": "Department",
+      "cross_department": "Cross-Department",
+      "organization": "Organization-wide"
+    },
+    "members": {
+      "assignee": "Assignee",
+      "reviewer": "Reviewer",
+      "approver": "Approver",
+      "observer": "Observer",
+      "addSuccess": "Member added",
+      "addError": "Failed to add member",
+      "removeError": "Failed to remove member"
+    },
+    "checklist": {
+      "title": "Checklist",
+      "addPlaceholder": "Add checklist item...",
+      "addSuccess": "Item added",
+      "addError": "Failed to add item",
+      "updateError": "Failed to update item",
+      "deleteError": "Failed to delete item"
+    },
+    "comments": {
+      "addSuccess": "Comment added",
+      "addError": "Failed to add comment",
+      "deleteError": "Failed to delete comment"
+    },
+    "tags": {
+      "title": "Tags",
+      "existing": "Existing tags",
+      "createNew": "Create new tag",
+      "namePlaceholder": "Tag name...",
+      "create": "Create Tag",
+      "createSuccess": "Tag created",
+      "createError": "Failed to create tag"
+    },
+    "attachments": {
+      "title": "Attachments",
+      "dragDrop": "Drag & drop files or click to browse",
+      "uploadSuccess": "File uploaded",
+      "uploadError": "Failed to upload file",
+      "deleteError": "Failed to delete file"
+    }
   }
 }
 
