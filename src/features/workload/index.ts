@@ -37,5 +37,5 @@ export { useTaskQueue } from '@/hooks/workload/useTaskQueue';
 export { useUnifiedTasks } from '@/hooks/workload/useUnifiedTasks';
 export { useWorkloadAnalytics } from '@/hooks/workload/useWorkloadAnalytics';
 export { useWorkloadHeatmap } from '@/hooks/workload/useWorkloadHeatmap';
-export { useWorkloadIntelligence } from '@/hooks/workload/useWorkloadIntelligence';
+export { useDelayPredictions, useRedistributionSuggestions, useRunEscalationCheck, useRunSlaMonitor, useRunAnalyticsSnapshot, useRunAIPredictions } from '@/hooks/workload/useWorkloadIntelligence';
 export { useWorkloadMetrics } from '@/hooks/workload/useWorkloadMetrics';
