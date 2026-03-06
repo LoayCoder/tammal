@@ -103,8 +103,8 @@ export const PrayerHistory = React.memo(function PrayerHistory() {
               </div>
             ) : (
               <>
-                {/* Chart with Rawatib overlay */}
-                <div className="h-64">
+                {/* Chart with Completed / Missed / Rawatib overlay */}
+                <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
@@ -123,23 +123,32 @@ export const PrayerHistory = React.memo(function PrayerHistory() {
                         tickFormatter={(v) => `${v}%`}
                       />
                       <Tooltip
-                        formatter={(value: number, name: string) => [
-                          `${value}%`,
-                          name === 'pct'
-                            ? t('spiritual.prayer.history.completionRate')
-                            : t('spiritual.prayer.history.rawatibRate'),
-                        ]}
+                        formatter={(value: number, name: string) => {
+                          const labels: Record<string, string> = {
+                            pct: t('spiritual.prayer.history.completionRate'),
+                            missedPct: t('spiritual.prayer.history.missedRate'),
+                            rawatibPct: t('spiritual.prayer.history.rawatibRate'),
+                            rawatibMissedPct: t('spiritual.prayer.history.rawatibMissedRate'),
+                          };
+                          return [`${value}%`, labels[name] ?? name];
+                        }}
                         contentStyle={{ borderRadius: 8, border: 'none' }}
                       />
                       <Legend
-                        formatter={(value) =>
-                          value === 'pct'
-                            ? t('spiritual.prayer.history.completionRate')
-                            : t('spiritual.prayer.history.rawatibRate')
-                        }
+                        formatter={(value) => {
+                          const labels: Record<string, string> = {
+                            pct: t('spiritual.prayer.history.completionRate'),
+                            missedPct: t('spiritual.prayer.history.missedRate'),
+                            rawatibPct: t('spiritual.prayer.history.rawatibRate'),
+                            rawatibMissedPct: t('spiritual.prayer.history.rawatibMissedRate'),
+                          };
+                          return labels[value] ?? value;
+                        }}
                       />
                       <Bar dataKey="pct" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="missedPct" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="rawatibPct" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="rawatibMissedPct" fill="hsl(var(--chart-5))" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -178,6 +187,11 @@ export const PrayerHistory = React.memo(function PrayerHistory() {
                           <p className="text-[10px] text-muted-foreground">
                             {s.completed}/{s.total}
                           </p>
+                          {s.missed > 0 && (
+                            <p className="text-[10px] text-destructive font-medium">
+                              {t('spiritual.prayer.history.missedCount', { count: s.missed })}
+                            </p>
+                          )}
                         </CardContent>
                       </Card>
                     ))}
