@@ -102,16 +102,36 @@ Deno.serve(async (req) => {
 
       if (existing && existing.length > 0) continue;
 
+      const escalationReason = `Task "${task.title}" is ${daysOverdue} days overdue. Auto-escalated to ${applicableLevel.target}.`;
+
       const { error: insertErr } = await supabase
         .from("escalation_events")
         .insert({
           tenant_id: task.tenant_id,
           task_id: task.id,
           escalation_level: applicableLevel.level,
-          reason: `Task "${task.title}" is ${daysOverdue} days overdue. Auto-escalated to ${applicableLevel.target}.`,
+          reason: escalationReason,
         });
 
-      if (!insertErr) escalationsCreated++;
+      if (!insertErr) {
+        escalationsCreated++;
+
+        // Also create an in-app notification for the assignee
+        if (task.assignee_id) {
+          await supabase.from("task_notifications").insert({
+            tenant_id: task.tenant_id,
+            recipient_id: task.assignee_id,
+            task_id: task.id,
+            type: "overdue",
+            title: `Task overdue: ${task.title}`,
+            body: escalationReason,
+            metadata: {
+              escalation_level: applicableLevel.level,
+              days_overdue: daysOverdue,
+            },
+          });
+        }
+      }
     }
 
     return new Response(
