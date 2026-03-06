@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -17,12 +16,14 @@ import {
 import {
   Lock, MessageSquare, ListChecks,
   Activity, Paperclip, Clock, CalendarDays, ChevronLeft,
-  Send, Trash2, Plus, Upload, FileIcon, X,
+  Plus, Upload, FileIcon, X, Trash2,
 } from 'lucide-react';
 import { useTaskChecklists } from '@/hooks/tasks/useTaskChecklists';
 import { TaskDependenciesPanel } from '@/components/tasks/TaskDependenciesPanel';
 import { TaskTimeTrackingPanel } from '@/components/tasks/TaskTimeTrackingPanel';
 import { TaskAIPanel } from '@/components/tasks/TaskAIPanel';
+import { TaskCommentsPanel } from '@/components/tasks/TaskCommentsPanel';
+import { TaskActivityTimeline } from '@/components/tasks/TaskActivityTimeline';
 import { useTaskComments } from '@/hooks/tasks/useTaskComments';
 import { useTaskActivity } from '@/hooks/tasks/useTaskActivity';
 import { useTaskAttachments } from '@/hooks/tasks/useTaskAttachments';
