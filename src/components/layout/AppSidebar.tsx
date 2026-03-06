@@ -296,6 +296,9 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     if (isMentalToolkitActive) {
       initial.add(t('nav.wellness'));
     }
+    if (location.pathname.startsWith('/spiritual')) {
+      initial.add('__spiritual__');
+    }
     return initial;
   });
 
