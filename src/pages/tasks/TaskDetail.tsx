@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useTaskChecklists } from '@/hooks/tasks/useTaskChecklists';
 import { TaskDependenciesPanel } from '@/components/tasks/TaskDependenciesPanel';
+import { TaskTimeTrackingPanel } from '@/components/tasks/TaskTimeTrackingPanel';
 import { useTaskComments } from '@/hooks/tasks/useTaskComments';
 import { useTaskActivity } from '@/hooks/tasks/useTaskActivity';
 import { useTaskAttachments } from '@/hooks/tasks/useTaskAttachments';
@@ -272,6 +273,9 @@ export default function TaskDetail() {
 
       {/* Dependencies */}
       {id && <TaskDependenciesPanel taskId={id} />}
+
+      {/* Time Tracking */}
+      {id && <TaskTimeTrackingPanel taskId={id} />}
 
       {/* Tabs: Comments, Checklist, Attachments, Activity */}
       <Card className="border-0">
