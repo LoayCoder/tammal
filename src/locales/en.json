@@ -2792,6 +2792,15 @@
       "scheduled": "Scheduled",
       "blocked": "Blocked"
     },
+    "assignment": {
+      "owner": "Owner",
+      "accountable": "Accountable",
+      "assignee": "Assignee",
+      "division": "Division",
+      "department": "Department",
+      "selectEmployee": "Select employee",
+      "none": "None"
+    },
     "objectives": {
       "pageTitle": "Strategic Objectives",
       "pageDesc": "Manage organization-wide OKRs and strategic goals",
