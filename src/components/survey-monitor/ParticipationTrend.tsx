@@ -5,8 +5,6 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import type { TrendPoint } from '@/hooks/analytics/useSurveyMonitor';
 import { format, parseISO } from 'date-fns';
 import { CHART_TOOLTIP_STYLE } from '@/config/chart-styles';
-import type { TrendPoint } from '@/hooks/analytics/useSurveyMonitor';
-import { format, parseISO } from 'date-fns';
 
 interface Props {
   trendData: TrendPoint[];
