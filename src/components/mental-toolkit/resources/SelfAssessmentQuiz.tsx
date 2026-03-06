@@ -284,7 +284,6 @@ export default function SelfAssessmentQuiz() {
           >
             {currentQ + 1 >= selectedQuiz.questions.length ? "See Results →" : t("mentalToolkit.quiz.next")} →
           </GradientButton>
-          </Button>
         </div>
       </div>
     </div>
