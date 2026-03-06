@@ -45,7 +45,7 @@ const VISIBILITIES = ['private', 'department', 'cross_department', 'organization
 interface LocalFile { file: File; }
 
 export function CreateTaskModal({
-  open, onOpenChange, employeeId,
+  open, onOpenChange, employeeId, employeeName,
   defaultDepartmentId, defaultInitiativeId, defaultObjectiveId,
 }: CreateTaskModalProps) {
   const { t } = useTranslation();
@@ -115,7 +115,7 @@ export function CreateTaskModal({
         <DialogHeader className="p-4 pb-2">
           <DialogTitle className="text-lg">{t('tasks.createTask')}</DialogTitle>
           <p className="text-xs text-muted-foreground">
-            {t('tasks.createdBy')}: {employeeId} • {format(new Date(), 'dd MMM yyyy • HH:mm')}
+            {t('tasks.createdBy')}: {employeeName || t('common.unknown')} • {format(new Date(), 'dd MMM yyyy • HH:mm')}
           </p>
         </DialogHeader>
 
