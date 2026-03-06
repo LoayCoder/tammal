@@ -27,10 +27,8 @@ import { TaskActivityTimeline } from '@/features/tasks/components/TaskActivityTi
 import { useTaskComments } from '@/features/tasks/hooks/useTaskComments';
 import { useTaskActivity } from '@/features/tasks/hooks/useTaskActivity';
 import { useTaskAttachments } from '@/features/tasks/hooks/useTaskAttachments';
+import { useTaskDetail, useTaskUpdate } from '@/features/tasks/hooks/useTaskDetail';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useTenantId } from '@/hooks/org/useTenantId';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
