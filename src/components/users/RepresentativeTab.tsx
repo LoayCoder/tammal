@@ -10,8 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, Trash2, Loader2 } from 'lucide-react';
 import { useRepresentativeAdmin, type CreateRepresentativeInput } from '@/hooks/org/useRepresentativeAdmin';
 import { useOrgTree } from '@/hooks/org/useOrgTree';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { useEmployeesWithUser } from '@/hooks/org/useEmployeesList';
 
 interface RepresentativeTabProps {
   tenantId: string;
@@ -31,22 +30,7 @@ export function RepresentativeTab({ tenantId }: RepresentativeTabProps) {
   const [selectedSectionId, setSelectedSectionId] = useState('');
 
   // Get employees with user_id for assignment
-  const { data: employees = [] } = useQuery({
-    queryKey: ['employees-with-user', tenantId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('employees')
-        .select('id, full_name, email, user_id')
-        .eq('tenant_id', tenantId)
-        .eq('status', 'active')
-        .is('deleted_at', null)
-        .not('user_id', 'is', null)
-        .order('full_name');
-      if (error) throw error;
-      return data as Array<{ id: string; full_name: string; email: string; user_id: string }>;
-    },
-    enabled: !!tenantId,
-  });
+  const { data: employees = [] } = useEmployeesWithUser(tenantId);
 
   // Employee lookup map
   const employeeByUserId = useMemo(() => {
