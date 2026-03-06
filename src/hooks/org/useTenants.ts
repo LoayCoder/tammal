@@ -7,7 +7,7 @@ import type { Plan } from './usePlans';
 import { useAuditLog } from '@/hooks/audit/useAuditLog';
 import { logger } from '@/lib/logger';
 import { addDays } from 'date-fns';
-import type { SecuritySettings } from '@/components/tenants/TenantSecurityControl';
+import type { SecuritySettings } from '@/types/tenant';
 
 export type Tenant = Tables<'tenants'> & {
   plan?: Plan | null;

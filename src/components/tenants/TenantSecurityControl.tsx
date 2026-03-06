@@ -6,20 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-
-export interface SecuritySettings {
-  mfa_trust_duration_days: number;
-  session_timeout_minutes: number;
-  max_concurrent_sessions: number;
-  glass_break_active: boolean;
-}
-
-export const DEFAULT_SECURITY_SETTINGS: SecuritySettings = {
-  mfa_trust_duration_days: 15,
-  session_timeout_minutes: 15,
-  max_concurrent_sessions: 1,
-  glass_break_active: false,
-};
+export type { SecuritySettings } from '@/types/tenant';
+export { DEFAULT_SECURITY_SETTINGS } from '@/types/tenant';
+import type { SecuritySettings } from '@/types/tenant';
 
 interface TenantSecurityControlProps {
   settings: SecuritySettings;
