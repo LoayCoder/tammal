@@ -8189,6 +8189,12 @@ export type Database = {
         Args: { p_case_id: string; p_tenant_id: string }
         Returns: string
       }
+      check_approaching_deadlines: {
+        Args: never
+        Returns: {
+          notifications_created: number
+        }[]
+      }
       count_active_cases: { Args: { _first_aider_id: string }; Returns: number }
       current_tenant_id: { Args: never; Returns: string }
       date_trunc_utc: { Args: { ts: string }; Returns: string }
