@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -17,12 +16,14 @@ import {
 import {
   Lock, MessageSquare, ListChecks,
   Activity, Paperclip, Clock, CalendarDays, ChevronLeft,
-  Send, Trash2, Plus, Upload, FileIcon, X,
+  Plus, Upload, FileIcon, X, Trash2,
 } from 'lucide-react';
 import { useTaskChecklists } from '@/hooks/tasks/useTaskChecklists';
 import { TaskDependenciesPanel } from '@/components/tasks/TaskDependenciesPanel';
 import { TaskTimeTrackingPanel } from '@/components/tasks/TaskTimeTrackingPanel';
 import { TaskAIPanel } from '@/components/tasks/TaskAIPanel';
+import { TaskCommentsPanel } from '@/components/tasks/TaskCommentsPanel';
+import { TaskActivityTimeline } from '@/components/tasks/TaskActivityTimeline';
 import { useTaskComments } from '@/hooks/tasks/useTaskComments';
 import { useTaskActivity } from '@/hooks/tasks/useTaskActivity';
 import { useTaskAttachments } from '@/hooks/tasks/useTaskAttachments';
@@ -62,7 +63,6 @@ export default function TaskDetail() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [commentText, setCommentText] = useState('');
   const [tab, setTab] = useState('comments');
   const [newChecklistTitle, setNewChecklistTitle] = useState('');
   const [isEditingDesc, setIsEditingDesc] = useState(false);
@@ -84,7 +84,7 @@ export default function TaskDetail() {
   });
 
   const { checklists, isPending: checklistLoading, updateItem, createItem, removeItem } = useTaskChecklists(id);
-  const { comments, isPending: commentsLoading, addComment, removeComment } = useTaskComments(id);
+  const { comments, isPending: commentsLoading, addComment, removeComment, editComment } = useTaskComments(id);
   const { activities, isPending: activityLoading } = useTaskActivity(id);
   const { attachments, isPending: attachmentsLoading, uploadFile, removeFile, isUploading } = useTaskAttachments(id);
 
@@ -101,12 +101,6 @@ export default function TaskDetail() {
     },
     onError: () => toast.error(t('tasks.updateError')),
   });
-
-  const handleAddComment = () => {
-    if (!commentText.trim() || !employee || !id) return;
-    addComment({ task_id: id, user_id: employee.id, comment_text: commentText.trim() });
-    setCommentText('');
-  };
 
   const handleToggleChecklist = (itemId: string, currentStatus: string) => {
     updateItem({ id: itemId, status: currentStatus === 'completed' ? 'pending' : 'completed' });
@@ -301,51 +295,16 @@ export default function TaskDetail() {
             </TabsList>
 
             {/* Comments */}
-            <TabsContent value="comments" className="space-y-4">
-              <ScrollArea className="max-h-[400px]">
-                {commentsLoading ? <Skeleton className="h-20" /> : comments.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-8">{t('tasks.comments.empty')}</p>
-                ) : (
-                  <div className="space-y-3">
-                    {comments.map(c => (
-                      <div key={c.id} className="flex gap-3 p-3 rounded-lg bg-muted/30 group">
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-medium">{c.employee?.full_name ?? c.user_id.slice(0, 8)}</span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-muted-foreground">{format(new Date(c.created_at), 'PP p')}</span>
-                              {employee && c.user_id === employee.id && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                                  onClick={() => removeComment(c.id)}
-                                >
-                                  <Trash2 className="h-3 w-3 text-destructive" />
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                          <p className="text-sm mt-1">{c.comment_text}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </ScrollArea>
-              <div className="flex gap-2">
-                <Textarea
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  placeholder={t('tasks.comments.placeholder')}
-                  rows={2}
-                  className="flex-1"
-                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddComment(); } }}
-                />
-                <Button size="icon" onClick={handleAddComment} disabled={!commentText.trim()}>
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
+            <TabsContent value="comments">
+              <TaskCommentsPanel
+                comments={comments}
+                isLoading={commentsLoading}
+                currentEmployeeId={employee?.id}
+                onAdd={addComment}
+                onRemove={removeComment}
+                onEdit={editComment}
+                taskId={id!}
+              />
             </TabsContent>
 
             {/* Checklist */}
@@ -450,30 +409,7 @@ export default function TaskDetail() {
 
             {/* Activity Log */}
             <TabsContent value="activity">
-              {activityLoading ? <Skeleton className="h-20" /> : activities.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">{t('tasks.activity.empty')}</p>
-              ) : (
-                <ScrollArea className="max-h-[400px]">
-                  <div className="relative ps-6 space-y-4">
-                    <div className="absolute start-2 top-2 bottom-2 w-px bg-border" />
-                    {activities.map(a => (
-                      <div key={a.id} className="relative">
-                        <div className="absolute -start-[18px] top-1 h-3 w-3 rounded-full bg-primary border-2 border-background" />
-                        <div className="space-y-0.5">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium capitalize">{a.action.replace(/_/g, ' ')}</span>
-                            {a.employee?.full_name && <span className="text-xs text-muted-foreground">— {a.employee.full_name}</span>}
-                            <span className="text-xs text-muted-foreground">{format(new Date(a.created_at), 'PP p')}</span>
-                          </div>
-                          {a.details && Object.keys(a.details).length > 0 && (
-                            <p className="text-xs text-muted-foreground">{JSON.stringify(a.details)}</p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              )}
+              <TaskActivityTimeline activities={activities} isLoading={activityLoading} />
             </TabsContent>
           </Tabs>
         </CardContent>
