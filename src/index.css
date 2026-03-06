@@ -58,6 +58,26 @@ All colors MUST be HSL.
     --chart-4: 215 16% 46%;
     --chart-5: 215 19% 34%;
 
+    /* Mental Toolkit palette */
+    --toolkit-lavender: 263 52% 81%;
+    --toolkit-sage: 112 26% 70%;
+    --toolkit-plum: 249 18% 33%;
+    --toolkit-sky: 204 49% 81%;
+    --toolkit-gold: 37 82% 76%;
+    --toolkit-peach: 25 80% 80%;
+    --toolkit-warm: 42 82% 83%;
+    --toolkit-coral: 0 62% 67%;
+    --toolkit-amber: 41 86% 67%;
+    --toolkit-rose: 0 70% 74%;
+
+    /* Zone / severity colors */
+    --toolkit-zone-thriving: 112 26% 70%;
+    --toolkit-zone-watch: 41 86% 67%;
+    --toolkit-zone-at-risk: 0 62% 67%;
+
+    /* Org structure default */
+    --org-default: 217 91% 60%;
+
     --sidebar: 210 40% 98%;
 
     --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
@@ -120,6 +140,24 @@ All colors MUST be HSL.
     --chart-3: 215 20% 65%;
     --chart-4: 215 16% 46%;
     --chart-5: 215 19% 34%;
+
+    /* Mental Toolkit palette (dark) */
+    --toolkit-lavender: 263 40% 68%;
+    --toolkit-sage: 112 22% 55%;
+    --toolkit-plum: 263 30% 75%;
+    --toolkit-sky: 204 40% 65%;
+    --toolkit-gold: 37 70% 60%;
+    --toolkit-peach: 25 65% 65%;
+    --toolkit-warm: 42 70% 68%;
+    --toolkit-coral: 0 55% 60%;
+    --toolkit-amber: 41 75% 58%;
+    --toolkit-rose: 0 60% 65%;
+
+    --toolkit-zone-thriving: 112 22% 55%;
+    --toolkit-zone-watch: 41 75% 58%;
+    --toolkit-zone-at-risk: 0 55% 60%;
+
+    --org-default: 217 91% 60%;
     --sidebar: 217 32% 17%;
     --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);

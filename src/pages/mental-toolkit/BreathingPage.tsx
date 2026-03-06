@@ -14,7 +14,7 @@ type Technique = "box" | "sigh" | "grounding";
 type SessionLength = 3 | 5 | 8;
 type PageState = "setup" | "active" | "complete";
 
-const PALETTE = { lavender: "#C9B8E8", sage: "#A8C5A0", plum: "#4A3F6B" };
+import { TOOLKIT } from "@/config/toolkit-colors";
 
 const TECHNIQUE_INFO: Record<Technique, { emoji: string; descKey: string }> = {
   box: { emoji: "📦", descKey: "mentalToolkit.breathing.boxDesc" },

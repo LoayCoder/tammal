@@ -20,11 +20,8 @@ import { useSpeechToText } from "@/hooks/ui/useSpeechToText";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
-const PALETTE = {
-  lavender: "#C9B8E8",
-  sage: "#A8C5A0",
-  plum: "#4A3F6B",
-};
+import { TOOLKIT } from "@/config/toolkit-colors";
+
 
 const STEPS = ["stepIdentify", "stepChallenge", "stepReframe"] as const;
 

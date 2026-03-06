@@ -12,20 +12,8 @@ import {
   ReferenceLine, PieChart as RechartsPie, Pie, Cell, Legend,
 } from "recharts";
 import { format, subDays } from "date-fns";
+import { TOOLKIT, ZONE_COLORS, DONUT_COLORS } from "@/config/toolkit-colors";
 
-const PALETTE = {
-  lavender: "#C9B8E8",
-  sage: "#A8C5A0",
-  plum: "#4A3F6B",
-};
-
-const ZONE_COLORS: Record<string, string> = {
-  thriving: "#A8C5A0",
-  watch: "#F5C563",
-  atRisk: "#E57373",
-};
-
-const DONUT_COLORS = ["#C9B8E8", "#A8C5A0", "#7EC8E3", "#F5C563", "#E57373"];
 const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
 export function PersonalMoodDashboard() {
@@ -95,7 +83,7 @@ export function PersonalMoodDashboard() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="glass-stat border-0 rounded-2xl">
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
-            <Flame className="h-6 w-6" style={{ color: PALETTE.lavender }} />
+            <Flame className="h-6 w-6 text-toolkit-lavender" />
             <span className="text-2xl font-bold text-foreground">{dashboard.streak}</span>
             <span className="text-xs text-muted-foreground">
               {t("mentalToolkit.moodDashboard.currentStreak")}
@@ -110,11 +98,13 @@ export function PersonalMoodDashboard() {
             <span
               className="text-xs font-medium px-2 py-0.5 rounded-full"
               style={{
-                backgroundColor: ZONE_COLORS[dashboard.burnoutZone] + "22",
-                color: ZONE_COLORS[dashboard.burnoutZone],
+                backgroundColor: ZONE_COLORS[dashboard.burnoutZone],
+                opacity: 0.15,
               }}
             >
-              {t(`mentalToolkit.moodDashboard.${dashboard.burnoutZone}`)}
+              <span style={{ color: ZONE_COLORS[dashboard.burnoutZone], opacity: 1 }}>
+                {t(`mentalToolkit.moodDashboard.${dashboard.burnoutZone}`)}
+              </span>
             </span>
             <span className="text-xs text-muted-foreground">
               {t("mentalToolkit.moodDashboard.avgMood7d")}
@@ -124,7 +114,7 @@ export function PersonalMoodDashboard() {
 
         <Card className="glass-stat border-0 rounded-2xl">
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
-            <CalendarCheck className="h-6 w-6" style={{ color: PALETTE.sage }} />
+            <CalendarCheck className="h-6 w-6 text-toolkit-sage" />
             <span className="text-2xl font-bold text-foreground">
               {dashboard.monthlyCheckins}
               <span className="text-sm font-normal text-muted-foreground">/{dashboard.daysInMonth}</span>
@@ -163,7 +153,7 @@ export function PersonalMoodDashboard() {
       <Card className="glass-card border-0 rounded-2xl">
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" style={{ color: PALETTE.lavender }} />
+            <BarChart3 className="h-4 w-4 text-toolkit-lavender" />
             {t("mentalToolkit.moodDashboard.moodTrend")}
           </CardTitle>
         </CardHeader>
@@ -173,8 +163,8 @@ export function PersonalMoodDashboard() {
               <AreaChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                 <defs>
                   <linearGradient id="dashMoodGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={PALETTE.lavender} stopOpacity={0.4} />
-                    <stop offset="95%" stopColor={PALETTE.lavender} stopOpacity={0} />
+                    <stop offset="5%" stopColor={TOOLKIT.lavender} stopOpacity={0.4} />
+                    <stop offset="95%" stopColor={TOOLKIT.lavender} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="label" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
@@ -200,9 +190,9 @@ export function PersonalMoodDashboard() {
                     ) : null
                   }
                 />
-                <Area type="monotone" dataKey="score" stroke={PALETTE.lavender} fill="url(#dashMoodGrad)" strokeWidth={2} dot={{ r: 3, fill: PALETTE.lavender }} connectNulls />
+                <Area type="monotone" dataKey="score" stroke={TOOLKIT.lavender} fill="url(#dashMoodGrad)" strokeWidth={2} dot={{ r: 3, fill: TOOLKIT.lavender }} connectNulls />
                 {dashboard.hasOrgData && (
-                  <Area type="monotone" dataKey="orgAvg" stroke={PALETTE.sage} fill="none" strokeWidth={1.5} strokeDasharray="5 3" dot={false} connectNulls />
+                  <Area type="monotone" dataKey="orgAvg" stroke={TOOLKIT.sage} fill="none" strokeWidth={1.5} strokeDasharray="5 3" dot={false} connectNulls />
                 )}
                 <ReferenceLine y={3} stroke="hsl(var(--border))" strokeDasharray="3 3" />
               </AreaChart>
@@ -211,11 +201,11 @@ export function PersonalMoodDashboard() {
           {dashboard.hasOrgData && (
             <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground justify-center">
               <span className="flex items-center gap-1">
-                <span className="inline-block w-3 h-0.5 rounded" style={{ backgroundColor: PALETTE.lavender }} />
+                <span className="inline-block w-3 h-0.5 rounded bg-toolkit-lavender" />
                 {t("mentalToolkit.moodDashboard.yourMood")}
               </span>
               <span className="flex items-center gap-1">
-                <span className="inline-block w-3 h-0.5 rounded border-dashed border-t-2" style={{ borderColor: PALETTE.sage }} />
+                <span className="inline-block w-3 h-0.5 rounded border-dashed border-t-2 border-toolkit-sage" />
                 {t("mentalToolkit.moodDashboard.orgAverage")}
               </span>
             </div>
@@ -228,7 +218,7 @@ export function PersonalMoodDashboard() {
         <Card className="glass-card border-0 rounded-2xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <PieChart className="h-4 w-4" style={{ color: PALETTE.sage }} />
+              <PieChart className="h-4 w-4 text-toolkit-sage" />
               {t("mentalToolkit.moodDashboard.moodDistribution")}
             </CardTitle>
           </CardHeader>
@@ -258,7 +248,7 @@ export function PersonalMoodDashboard() {
         <Card className="glass-card border-0 rounded-2xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <Grid3X3 className="h-4 w-4" style={{ color: PALETTE.plum }} />
+              <Grid3X3 className="h-4 w-4 text-toolkit-plum" />
               {t("mentalToolkit.moodDashboard.weeklyActivity")}
             </CardTitle>
           </CardHeader>
@@ -276,8 +266,8 @@ export function PersonalMoodDashboard() {
                     <div
                       className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium"
                       style={{
-                        backgroundColor: count === 0 ? "hsl(var(--muted))" : `rgba(201, 184, 232, ${0.2 + intensity * 0.8})`,
-                        color: count > 0 ? PALETTE.plum : "hsl(var(--muted-foreground))",
+                        backgroundColor: count === 0 ? "hsl(var(--muted))" : `hsl(var(--toolkit-lavender) / ${0.2 + intensity * 0.8})`,
+                        color: count > 0 ? TOOLKIT.plum : "hsl(var(--muted-foreground))",
                       }}
                     >
                       {count}
@@ -294,7 +284,7 @@ export function PersonalMoodDashboard() {
       <Card className="glass-card border-0 rounded-2xl">
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
-            <ClipboardList className="h-4 w-4" style={{ color: PALETTE.lavender }} />
+            <ClipboardList className="h-4 w-4 text-toolkit-lavender" />
             {t("mentalToolkit.moodDashboard.surveyStats")}
           </CardTitle>
         </CardHeader>
@@ -321,7 +311,7 @@ export function PersonalMoodDashboard() {
         <Card className="glass-card border-0 rounded-2xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <RefreshCw className="h-4 w-4" style={{ color: PALETTE.sage }} />
+              <RefreshCw className="h-4 w-4 text-toolkit-sage" />
               {t("mentalToolkit.moodDashboard.reframeActivity")}
             </CardTitle>
           </CardHeader>
@@ -340,7 +330,7 @@ export function PersonalMoodDashboard() {
                 <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.reframeStreak")}</p>
               </div>
             </div>
-            <Link to="/mental-toolkit/thought-reframer" className="mt-3 block text-center text-sm font-medium hover:underline" style={{ color: PALETTE.sage }}>
+            <Link to="/mental-toolkit/thought-reframer" className="mt-3 block text-center text-sm font-medium text-toolkit-sage hover:underline">
               {t("mentalToolkit.moodDashboard.goToReframer")} <ArrowRight className="inline h-4 w-4 ms-1 rtl:-scale-x-100" />
             </Link>
           </CardContent>
@@ -349,7 +339,7 @@ export function PersonalMoodDashboard() {
         <Card className="glass-card border-0 rounded-2xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <Wind className="h-4 w-4" style={{ color: PALETTE.lavender }} />
+              <Wind className="h-4 w-4 text-toolkit-lavender" />
               {t("mentalToolkit.moodDashboard.breathingActivity")}
             </CardTitle>
           </CardHeader>
@@ -369,11 +359,11 @@ export function PersonalMoodDashboard() {
               </div>
             </div>
             {dashboard.breathingStats.avgMoodImprovement !== 0 && (
-              <p className="text-center text-xs mt-2" style={{ color: dashboard.breathingStats.avgMoodImprovement > 0 ? PALETTE.sage : PALETTE.plum }}>
+              <p className="text-center text-xs mt-2" style={{ color: dashboard.breathingStats.avgMoodImprovement > 0 ? TOOLKIT.sage : TOOLKIT.plum }}>
                 {dashboard.breathingStats.avgMoodImprovement > 0 ? "+" : ""}{dashboard.breathingStats.avgMoodImprovement} avg mood change
               </p>
             )}
-            <Link to="/mental-toolkit/breathing" className="mt-3 block text-center text-sm font-medium hover:underline" style={{ color: PALETTE.lavender }}>
+            <Link to="/mental-toolkit/breathing" className="mt-3 block text-center text-sm font-medium text-toolkit-lavender hover:underline">
               {t("mentalToolkit.moodDashboard.goToBreathing")} <ArrowRight className="inline h-4 w-4 ms-1 rtl:-scale-x-100" />
             </Link>
           </CardContent>
