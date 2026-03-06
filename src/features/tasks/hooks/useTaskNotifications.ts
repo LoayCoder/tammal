@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useTenantId } from '@/hooks/org/useTenantId';
+import { usePushNotifications } from '@/hooks/ui/usePushNotifications';
 import { useEffect } from 'react';
 
 export interface TaskNotification {
@@ -22,6 +23,7 @@ export function useTaskNotifications() {
   const { employee } = useCurrentEmployee();
   const { tenantId } = useTenantId();
   const queryClient = useQueryClient();
+  const { isGranted, sendServiceWorkerNotification, sendNotification } = usePushNotifications();
 
   const query = useQuery({
     queryKey: ['task-notifications', employee?.id],
@@ -40,7 +42,7 @@ export function useTaskNotifications() {
     enabled: !!employee?.id && !!tenantId,
   });
 
-  // Realtime subscription
+  // Realtime subscription + push notification bridge
   useEffect(() => {
     if (!employee?.id) return;
 
@@ -54,8 +56,22 @@ export function useTaskNotifications() {
           table: 'task_notifications',
           filter: `recipient_id=eq.${employee.id}`,
         },
-        () => {
+        (payload) => {
           queryClient.invalidateQueries({ queryKey: ['task-notifications'] });
+
+          // Bridge to browser push notification if permission granted
+          if (isGranted && payload.new) {
+            const n = payload.new as TaskNotification;
+            const opts: NotificationOptions = {
+              body: n.body ?? undefined,
+              tag: `task-${n.task_id}`,
+              data: { taskId: n.task_id },
+            };
+            // Prefer SW notification (works in background), fall back to basic
+            sendServiceWorkerNotification(n.title, opts).catch(() => {
+              sendNotification(n.title, opts);
+            });
+          }
         }
       )
       .subscribe();
@@ -63,7 +79,7 @@ export function useTaskNotifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [employee?.id, queryClient]);
+  }, [employee?.id, queryClient, isGranted, sendServiceWorkerNotification, sendNotification]);
 
   const markRead = useMutation({
     mutationFn: async (id: string) => {
