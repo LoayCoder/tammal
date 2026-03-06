@@ -57,8 +57,6 @@ export default function TaskDetail() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { employee } = useCurrentEmployee();
-  const { tenantId } = useTenantId();
-  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [tab, setTab] = useState('comments');
@@ -66,39 +64,13 @@ export default function TaskDetail() {
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [editDesc, setEditDesc] = useState('');
 
-  // Fetch single task
-  const { data: task, isPending: taskLoading } = useQuery({
-    queryKey: ['task-detail', id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('unified_tasks')
-        .select('*, employee:employees!unified_tasks_employee_id_fkey(full_name)')
-        .eq('id', id!)
-        .single();
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!id,
-  });
+  const { task, taskLoading } = useTaskDetail(id);
+  const updateTask = useTaskUpdate(id);
 
   const { checklists, isPending: checklistLoading, updateItem, createItem, removeItem } = useTaskChecklists(id);
   const { comments, isPending: commentsLoading, addComment, removeComment, editComment } = useTaskComments(id);
   const { activities, isPending: activityLoading } = useTaskActivity(id);
   const { attachments, isPending: attachmentsLoading, uploadFile, removeFile, isUploading } = useTaskAttachments(id);
-
-  // Inline update mutation
-  const updateTask = useMutation({
-    mutationFn: async (updates: Record<string, unknown>) => {
-      const { error } = await supabase.from('unified_tasks').update(updates).eq('id', id!);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['task-detail', id] });
-      queryClient.invalidateQueries({ queryKey: ['unified-tasks'] });
-      toast.success(t('tasks.updateSuccess'));
-    },
-    onError: () => toast.error(t('tasks.updateError')),
-  });
 
   const handleToggleChecklist = (itemId: string, currentStatus: string) => {
     updateItem({ id: itemId, status: currentStatus === 'completed' ? 'pending' : 'completed' });
