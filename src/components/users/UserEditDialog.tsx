@@ -45,7 +45,7 @@ import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { AvatarCropperDialog } from '@/components/ui/avatar-cropper-dialog';
 import { Camera, Trash2, KeyRound, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { useAvatarUpload } from '@/hooks/admin/useAvatarUpload';
 import { toast } from 'sonner';
 import { readFile } from '@/lib/cropImage';
 import type { UserWithRoles } from '@/hooks/org/useUsers';
@@ -82,7 +82,7 @@ export function UserEditDialog({
 }: UserEditDialogProps) {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const { upload: uploadAvatar, isUploading } = useAvatarUpload();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
@@ -174,33 +174,14 @@ export function UserEditDialog({
   const handleCropComplete = async (croppedBlob: Blob) => {
     if (!user) return;
 
-    setIsUploading(true);
-    try {
-      const fileName = `${user.user_id}-${Date.now()}.jpeg`;
-      const filePath = fileName;
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, croppedBlob, { 
-          upsert: true,
-          contentType: 'image/jpeg'
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
+    const publicUrl = await uploadAvatar(user.user_id, croppedBlob);
+    if (publicUrl) {
       setAvatarUrl(publicUrl);
       toast.success(t('profile.avatarUpdated'));
-    } catch (error) {
-      logger.error('UserEditDialog', 'Error uploading avatar', error);
+    } else {
       toast.error(t('profile.avatarUpdateError'));
-    } finally {
-      setIsUploading(false);
-      setImageToCrop(null);
     }
+    setImageToCrop(null);
   };
 
   const handleRemoveAvatar = () => {
