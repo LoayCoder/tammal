@@ -6612,6 +6612,153 @@ export type Database = {
           },
         ]
       }
+      task_templates: {
+        Row: {
+          approver_id: string | null
+          assignee_id: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          department_id: string | null
+          description: string | null
+          description_ar: string | null
+          estimated_minutes: number | null
+          id: string
+          initiative_id: string | null
+          is_active: boolean
+          last_run_at: string | null
+          next_run_at: string | null
+          objective_id: string | null
+          priority: string
+          recurrence_day_of_month: number | null
+          recurrence_day_of_week: number | null
+          recurrence_pattern: string
+          recurrence_time: string | null
+          reviewer_id: string | null
+          source_type: string
+          tenant_id: string
+          title: string
+          title_ar: string | null
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          approver_id?: string | null
+          assignee_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          department_id?: string | null
+          description?: string | null
+          description_ar?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          initiative_id?: string | null
+          is_active?: boolean
+          last_run_at?: string | null
+          next_run_at?: string | null
+          objective_id?: string | null
+          priority?: string
+          recurrence_day_of_month?: number | null
+          recurrence_day_of_week?: number | null
+          recurrence_pattern?: string
+          recurrence_time?: string | null
+          reviewer_id?: string | null
+          source_type?: string
+          tenant_id: string
+          title: string
+          title_ar?: string | null
+          updated_at?: string
+          visibility?: string
+        }
+        Update: {
+          approver_id?: string | null
+          assignee_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          department_id?: string | null
+          description?: string | null
+          description_ar?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          initiative_id?: string | null
+          is_active?: boolean
+          last_run_at?: string | null
+          next_run_at?: string | null
+          objective_id?: string | null
+          priority?: string
+          recurrence_day_of_month?: number | null
+          recurrence_day_of_week?: number | null
+          recurrence_pattern?: string
+          recurrence_time?: string | null
+          reviewer_id?: string | null
+          source_type?: string
+          tenant_id?: string
+          title?: string
+          title_ar?: string | null
+          updated_at?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_templates_approver_id_fkey"
+            columns: ["approver_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_templates_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_templates_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_templates_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "initiatives"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_templates_objective_id_fkey"
+            columns: ["objective_id"]
+            isOneToOne: false
+            referencedRelation: "strategic_objectives"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_templates_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_templates_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_ai_budget_config: {
         Row: {
           current_month_usage: number
