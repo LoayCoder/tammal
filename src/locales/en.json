@@ -102,6 +102,7 @@
     "escalationSettings": "Escalation & Governance",
     "systemHealth": "System Health",
     "myTasks": "My Tasks",
+    "taskCalendar": "Task Calendar",
     "approvalQueue": "Approval Queue",
     "managerTaskOverview": "Team Tasks",
     "overdueTasks": "Overdue Tasks",
@@ -3861,6 +3862,16 @@
       "maxSizeError": "File exceeds 10MB limit"
     },
     "myTasks": "My Tasks",
+    "create": "New Task",
+    "calendar": {
+      "title": "Task Calendar",
+      "description": "View your tasks organized by due date",
+      "today": "Today",
+      "month": "Month",
+      "week": "Week",
+      "more": "more",
+      "unscheduled": "unscheduled"
+    },
     "myTasksDesc": "View and manage all your assigned tasks",
     "searchPlaceholder": "Search tasks...",
     "notFound": "Task not found",

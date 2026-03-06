@@ -102,6 +102,7 @@
     "escalationSettings": "التصعيد والحوكمة",
     "systemHealth": "صحة النظام",
     "myTasks": "مهامي",
+    "taskCalendar": "تقويم المهام",
     "approvalQueue": "طابور الموافقات",
     "managerTaskOverview": "مهام الفريق",
     "overdueTasks": "المهام المتأخرة",
@@ -3703,6 +3704,16 @@
       "maxSizeError": "الملف يتجاوز حد 10 ميجابايت"
     },
     "myTasks": "مهامي",
+    "create": "مهمة جديدة",
+    "calendar": {
+      "title": "تقويم المهام",
+      "description": "عرض مهامك حسب تاريخ الاستحقاق",
+      "today": "اليوم",
+      "month": "شهر",
+      "week": "أسبوع",
+      "more": "المزيد",
+      "unscheduled": "بدون موعد"
+    },
     "myTasksDesc": "عرض وإدارة جميع المهام المكلفة لك",
     "searchPlaceholder": "البحث في المهام...",
     "notFound": "المهمة غير موجودة",

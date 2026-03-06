@@ -85,6 +85,7 @@ const RedemptionManagement = lazy(() => import("@/pages/admin/RedemptionManageme
 const AIGovernance = lazy(() => import("@/pages/admin/AIGovernance"));
 const EscalationSettings = lazy(() => import("@/pages/admin/EscalationSettings"));
 const MyTasks = lazy(() => import("@/pages/tasks/MyTasks"));
+const TaskCalendar = lazy(() => import("@/pages/tasks/TaskCalendar"));
 const TaskDetail = lazy(() => import("@/pages/tasks/TaskDetail"));
 const ApprovalQueue = lazy(() => import("@/pages/tasks/ApprovalQueue"));
 const OverdueTasks = lazy(() => import("@/pages/tasks/OverdueTasks"));
@@ -185,6 +186,7 @@ const App = () => (
               {/* ── Workload (employee-facing) ── */}
               <Route path="/my-workload" element={<PersonalCommandCenter />} />
               <Route path="/my-tasks" element={<MyTasks />} />
+              <Route path="/tasks/calendar" element={<TaskCalendar />} />
               <Route path="/tasks/:id" element={<TaskDetail />} />
               <Route path="/approval-queue" element={<ApprovalQueue />} />
               <Route path="/admin/workload/overdue" element={<ManagerOrAdminRoute><OverdueTasks /></ManagerOrAdminRoute>} />
