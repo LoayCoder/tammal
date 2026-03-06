@@ -6,11 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { CheckCircle2, Clock, AlertTriangle, CircleDot, MoreHorizontal, Pencil, Trash2, CalendarClock } from 'lucide-react';
-import { useRepresentativeTasks } from '@/hooks/workload/useRepresentativeTasks';
+import { useRepresentativeTasks } from '@/features/workload';
 import { EditTaskDialog } from './EditTaskDialog';
 import { DeleteTaskDialog } from './DeleteTaskDialog';
 import { ExtendDueDateDialog } from './ExtendDueDateDialog';
-import type { ManageTaskPayload } from '@/hooks/workload/useRepresentativeTasks';
+import type { ManageTaskPayload } from '@/features/workload/hooks/useRepresentativeTasks';
 
 interface BatchDetailDialogProps {
   open: boolean;

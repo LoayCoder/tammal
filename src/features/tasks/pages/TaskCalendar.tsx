@@ -12,7 +12,7 @@ import {
   ChevronLeft, ChevronRight, CalendarDays, Plus,
 } from 'lucide-react';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
-import { useUnifiedTasks } from '@/hooks/workload/useUnifiedTasks';
+import { useUnifiedTasks } from '@/features/workload';
 import { CreateTaskModal } from '@/features/tasks/components/CreateTaskModal';
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,

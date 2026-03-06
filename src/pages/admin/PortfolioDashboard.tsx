@@ -4,10 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useObjectives } from '@/hooks/workload/useObjectives';
-import { useInitiatives } from '@/hooks/workload/useInitiatives';
-import { useWorkloadAnalytics } from '@/hooks/workload/useWorkloadAnalytics';
-import { useDelayPredictions } from '@/hooks/workload/useWorkloadIntelligence';
+import { useObjectives, useInitiatives, useWorkloadAnalytics, useDelayPredictions } from '@/features/workload';
 import {
   Target, TrendingUp, AlertTriangle, Layers, Brain, Clock,
 } from 'lucide-react';

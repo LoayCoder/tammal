@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
-import type { DepartmentEmployee } from '@/hooks/workload/useDepartmentTasks';
+import type { DepartmentEmployee } from '@/features/workload/hooks/useDepartmentTasks';
 
 interface AddTeamTaskDialogProps {
   open: boolean;

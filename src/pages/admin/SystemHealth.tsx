@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useSystemHealth } from '@/hooks/workload/useSystemHealth';
+import { useSystemHealth } from '@/features/workload';
 import { type HealthCheckKey } from '@/services/governance-health.service';
 import { RefreshCw, ShieldCheck, AlertTriangle, XCircle, Activity } from 'lucide-react';
 

@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { useIsRepresentative } from '@/hooks/workload/useIsRepresentative';
+import { useIsRepresentative } from '@/features/workload';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface ManagerOrAdminRouteProps {

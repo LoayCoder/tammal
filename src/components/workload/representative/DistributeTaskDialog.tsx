@@ -8,8 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { useOrgTree } from '@/hooks/org/useOrgTree';
 import { Loader2, User } from 'lucide-react';
-import type { RepresentativeAssignment, DistributeTaskPayload } from '@/hooks/workload/useRepresentativeTasks';
-import { useRepresentativeTasks } from '@/hooks/workload/useRepresentativeTasks';
+import type { RepresentativeAssignment, DistributeTaskPayload } from '@/features/workload/hooks/useRepresentativeTasks';
+import { useRepresentativeTasks } from '@/features/workload';
 
 interface DistributeTaskDialogProps {
   open: boolean;

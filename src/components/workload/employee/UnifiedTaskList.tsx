@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { MoreHorizontal, Pencil, Trash2, ExternalLink, Lock, MessageSquare, CheckCircle2, ShieldCheck, CalendarDays, Clock } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import type { UnifiedTask } from '@/hooks/workload/useUnifiedTasks';
+import type { UnifiedTask } from '@/features/workload/hooks/useUnifiedTasks';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface UnifiedTaskListProps {
