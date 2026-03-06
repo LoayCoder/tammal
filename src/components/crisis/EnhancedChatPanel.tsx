@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useEnhancedChat, EnhancedMessage } from '@/hooks/crisis/useEnhancedChat';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { format, isToday, isYesterday } from 'date-fns';
-import { supabase } from '@/integrations/supabase/client';
+import { uploadVoiceNote } from '@/hooks/crisis/useVoiceNoteUpload';
 import {
   Send, Smile, Reply, Check, CheckCheck, Mic, MicOff, X,
 } from 'lucide-react';
@@ -126,15 +126,9 @@ export default function EnhancedChatPanel({ caseId, tenantId }: Props) {
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
         stream.getTracks().forEach(track => track.stop());
 
-        // Upload to storage
-        const fileName = `voice-${Date.now()}.webm`;
-        const filePath = `${caseId}/${fileName}`;
-        const { error: uploadError } = await supabase
-          .storage
-          .from('support-attachments')
-          .upload(filePath, blob);
-
-        if (!uploadError) {
+        const filePath = await uploadVoiceNote(caseId, blob);
+        if (filePath) {
+          const fileName = `voice-${Date.now()}.webm`;
           await sendMessage.mutateAsync({
             case_id: caseId,
             tenant_id: tenantId,
