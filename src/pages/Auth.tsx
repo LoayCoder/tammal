@@ -105,7 +105,7 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+    <div className="min-h-screen flex flex-col bg-background">
       <PWAInstallBanner />
       <div className="flex justify-end gap-2 p-4">
         <LanguageSelector />
