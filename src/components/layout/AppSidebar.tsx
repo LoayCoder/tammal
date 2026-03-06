@@ -579,8 +579,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
 
               {/* Spiritual Wellbeing — rendered right after Wellness */}
               {isWellnessGroup && spiritualEnabled && (
-                <SidebarGroup className="px-0 py-0">
-                  {isCollapsed ? (
+                 <SidebarGroup className="px-0 py-0">
                   {isCollapsed ? (
                     <div className="flex justify-center py-2">
                       <Tooltip>
