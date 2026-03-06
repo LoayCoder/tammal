@@ -60,7 +60,7 @@ export function CheckinPulseCard({ data, isLoading }: Props) {
               <div className="flex items-center gap-1.5">
                 {m.customIcon ?? <m.icon className="h-3.5 w-3.5 text-muted-foreground" />}
                 <span className="text-lg font-semibold">{m.value}</span>
-                {m.highlight && <Badge variant="destructive" className="text-[10px] px-1 py-0">!</Badge>}
+                {m.highlight && <Badge variant="destructive" className="text-2xs px-1 py-0">!</Badge>}
               </div>
             )}
           </div>

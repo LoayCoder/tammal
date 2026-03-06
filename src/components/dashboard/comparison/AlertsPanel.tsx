@@ -53,7 +53,7 @@ export function AlertsPanel({ alerts, isLoading }: Props) {
                     <div className="flex-1 min-w-0 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-medium text-sm">{t(alert.patternKey)}</span>
-                        <Badge variant="outline" className="text-[10px]">
+                        <Badge variant="outline" className="text-2xs">
                           {t('synthesis.confidenceLabel')}: {alert.confidence}%
                         </Badge>
                       </div>

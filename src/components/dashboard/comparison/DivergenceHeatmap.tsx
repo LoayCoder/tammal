@@ -38,7 +38,7 @@ function HeatmapGrid({ data, isAr }: { data: DepartmentBAIItem[]; isAr: boolean 
                 <div className={`rounded-lg border p-3 text-center transition-colors ${CELL_COLORS[dept.classification]}`}>
                   <p className="text-xs font-medium truncate">{isAr ? (dept.nameAr || dept.name) : dept.name}</p>
                   <p className="text-xl font-bold mt-1">{(dept.baiScore * 100).toFixed(0)}%</p>
-                  <p className="text-[10px] opacity-70">{t(`synthesis.risk.${dept.classification}`)}</p>
+                  <p className="text-2xs opacity-70">{t(`synthesis.risk.${dept.classification}`)}</p>
                 </div>
               </TooltipTrigger>
               <TooltipContent>
