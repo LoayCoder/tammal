@@ -180,7 +180,7 @@ export default function MyTasks() {
         onOpenChange={setCreateOpen}
         employeeId={employee.id}
         employeeName={employee.full_name}
-        defaultDepartmentId={employee.department_id ?? null}
+        defaultDepartmentId={null}
       />
     </div>
   );

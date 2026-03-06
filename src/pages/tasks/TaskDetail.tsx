@@ -12,8 +12,8 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
-  ArrowStart, CheckCircle2, ShieldCheck, Lock, MessageSquare, ListChecks,
-  Activity, Paperclip, Users, Clock, CalendarDays, ChevronStart,
+  ArrowLeft, CheckCircle2, ShieldCheck, Lock, MessageSquare, ListChecks,
+  Activity, Paperclip, Users, Clock, CalendarDays, ChevronLeft,
   Send, Trash2,
 } from 'lucide-react';
 import { useUnifiedTasks, type UnifiedTask } from '@/hooks/workload/useUnifiedTasks';
@@ -64,7 +64,7 @@ export default function TaskDetail() {
         .eq('id', id!)
         .single();
       if (error) throw error;
-      return data as UnifiedTask;
+      return { ...data, comments: (data.comments as unknown as any[]) ?? [] } as unknown as UnifiedTask;
     },
     enabled: !!id,
   });
@@ -98,7 +98,7 @@ export default function TaskDetail() {
     <div className="space-y-6">
       {/* Back nav */}
       <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="gap-1.5">
-        <ChevronStart className="h-4 w-4 rtl:rotate-180" />{t('common.back')}
+        <ChevronLeft className="h-4 w-4 rtl:rotate-180" />{t('common.back')}
       </Button>
 
       {/* Header */}
