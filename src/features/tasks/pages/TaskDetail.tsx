@@ -132,7 +132,7 @@ export default function TaskDetail() {
                 <Badge className={`${statusClass} pointer-events-none`}>{t(`tasks.status.${task.status}`)}</Badge>
               </SelectTrigger>
               <SelectContent>
-                {getValidNextStatuses(task.status).map(s => (
+                {getValidNextStatuses(task.status, !!task.reviewer_id).map(s => (
                   <SelectItem key={s} value={s}>{t(`tasks.status.${s}`)}</SelectItem>
                 ))}
               </SelectContent>

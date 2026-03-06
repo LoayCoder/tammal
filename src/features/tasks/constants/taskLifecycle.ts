@@ -29,9 +29,21 @@ export const VALID_TRANSITIONS: Record<string, TaskStatus[]> = {
   planned:           ['open', 'in_progress', 'archived'],
 };
 
-/** Returns valid next statuses for a given current status, always including the current status itself. */
-export function getValidNextStatuses(currentStatus: string): TaskStatus[] {
-  const transitions = VALID_TRANSITIONS[currentStatus] ?? [];
+/** Transitions for in_progress when reviewer is not assigned (skip under_review). */
+const IN_PROGRESS_NO_REVIEWER: TaskStatus[] = ['under_review', 'pending_approval', 'completed', 'archived'];
+
+/**
+ * Returns valid next statuses for a given current status.
+ * @param currentStatus - The current task status
+ * @param hasReviewer - Whether the task has a reviewer_id assigned
+ */
+export function getValidNextStatuses(currentStatus: string, hasReviewer?: boolean): TaskStatus[] {
+  let transitions: TaskStatus[];
+  if (currentStatus === 'in_progress' && hasReviewer === false) {
+    transitions = IN_PROGRESS_NO_REVIEWER;
+  } else {
+    transitions = VALID_TRANSITIONS[currentStatus] ?? [];
+  }
   // Include current status so the select always shows the active value
   return [currentStatus as TaskStatus, ...transitions];
 }
