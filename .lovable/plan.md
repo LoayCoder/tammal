@@ -1,45 +1,87 @@
+# Enterprise Task Management — Architecture Audit
 
+## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
-# Workload Feature Co-location — Barrel Migration
+---
 
-## What
-Move all 26 workload hooks from `src/hooks/workload/` into `src/features/workload/hooks/` and update every import across the codebase to use the feature module path.
+## 1. Folder Architecture — ✅ PASS
 
-## Scope
-- **26 hook files** to move
-- **24 consumer files** (186 import references) to update
-- **1 barrel file** (`src/features/workload/index.ts`) to repoint
+The project follows a clean modular structure:
 
-## Steps
-
-### 1. Create `src/features/workload/hooks/` and move all 26 files
-Each file moves as-is with zero internal changes (their imports reference `@/integrations/supabase/client`, `@/hooks/org/`, `@/hooks/audit/`, `@/services/` — none reference sibling workload hooks by relative path, so no internal rewiring needed).
-
-### 2. Update barrel file `src/features/workload/index.ts`
-Change all re-export paths from `@/hooks/workload/useX` to `./hooks/useX`.
-
-### 3. Update 24 consumer files
-Replace every `from '@/hooks/workload/...'` with `from '@/features/workload'` (barrel import) where possible, or `from '@/features/workload/hooks/...'` for type-only imports that need specific named types.
-
-Key consumers:
-- `src/pages/admin/` (WorkloadDashboard, ObjectiveDetail, StrategicObjectives, etc.)
-- `src/pages/employee/` (PersonalCommandCenter, MyTasks, etc.)
-- `src/components/workload/` (team, representative, dashboard sub-components)
-- `src/features/tasks/` (TaskCalendar, CreateTaskModal)
-
-### 4. Delete `src/hooks/workload/` directory
-After all imports are migrated, remove the empty directory.
-
-### Result
 ```text
-src/features/workload/
-  index.ts              ← barrel (re-exports from ./hooks/)
-  hooks/
-    useActions.ts
-    useAlignmentMetrics.ts
-    useApprovals.ts
-    ... (26 files total)
+src/
+  ai/          — Isolated AI client, prompts, guards, quality
+  components/  — UI components
+  config/      — Centralized constants
+  features/    — Feature modules (tasks, approvals, workload, etc.)
+  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
+  services/    — Pure async business services (no UI imports)
+  types/       — Shared type definitions
 ```
 
-All workload logic fully co-located under `src/features/workload/`. No functional changes — purely structural.
+**Layer separation checks:**
+- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
+- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
+- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
+- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
 
+---
+
+## 2. Feature Isolation — ✅ PASS
+
+| Module | Location | Status |
+|---|---|---|
+| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
+| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
+| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
+| AI Governance | `src/features/ai-governance/` | ✅ |
+| AI Generator | `src/features/ai-generator/` | ✅ |
+| Org Dashboard | `src/features/org-dashboard/` | ✅ |
+| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+
+**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
+
+---
+
+## 3. Backend Architecture — ✅ PASS
+
+- **35 edge functions** properly separate API routes from client code
+- **Services layer** (`src/services/`) handles business logic
+- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
+- Database access centralized through the Supabase client
+
+---
+
+## 4. Supabase Integration — ✅ PASS
+
+- **Client centralized** in `src/integrations/supabase/client.ts`
+- **RLS enabled** on all task-related tables with `authenticated` role enforcement
+- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
+
+---
+
+## 5. Warnings
+
+### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
+
+Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
+`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
+
+### ⚠️ WARNING (low priority): Workload feature is a thin barrel
+
+`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
+
+---
+
+## Summary
+
+| Category | Result |
+|---|---|
+| Folder Architecture | ✅ PASS |
+| Feature Isolation | ✅ PASS |
+| Backend Architecture | ✅ PASS |
+| Supabase Integration | ✅ PASS |
+| Layer Separation | ✅ PASS (resolved) |
+| Workload Consolidation | ⚠️ Low-priority migration |
+
+**No FAIL conditions found.** Architecture is production-ready.

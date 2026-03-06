@@ -3,7 +3,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import type { DepartmentEmployee } from '@/hooks/workload/useDepartmentTasks';
+import type { DepartmentEmployee } from '@/features/workload/hooks/useDepartmentTasks';
 
 export interface TaskFilters {
   status: string;

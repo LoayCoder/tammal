@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/select';
 import { EmployeePicker } from '@/components/workload/EmployeePicker';
 import { useOrgTree } from '@/hooks/org/useOrgTree';
-import type { Initiative } from '@/hooks/workload/useInitiatives';
+import type { Initiative } from '@/features/workload/hooks/useInitiatives';
 
 const schema = z.object({
   title: z.string().min(1).max(200),

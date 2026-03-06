@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
-import { useUnifiedTasks } from '@/hooks/workload/useUnifiedTasks';
+import { useUnifiedTasks } from '@/features/workload';
 import { useGamification } from '@/hooks/wellness/useGamification';
 import { useMoodHistory } from '@/hooks/wellness/useMoodHistory';
 import { CapacityGauge } from '@/components/workload/employee/CapacityGauge';

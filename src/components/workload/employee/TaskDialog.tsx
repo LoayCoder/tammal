@@ -11,9 +11,9 @@ import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Lock, MessageSquare, ShieldCheck, Upload, AlertCircle } from 'lucide-react';
-import type { UnifiedTask, UnifiedTaskInsert, UnifiedTaskUpdate, TaskComment } from '@/hooks/workload/useUnifiedTasks';
+import type { UnifiedTask, UnifiedTaskInsert, UnifiedTaskUpdate, TaskComment } from '@/features/workload/hooks/useUnifiedTasks';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useTaskEvidenceUpload } from '@/hooks/workload/useTaskEvidenceUpload';
+import { useTaskEvidenceUpload } from '@/features/workload';
 import { toast } from 'sonner';
 
 interface TaskDialogProps {

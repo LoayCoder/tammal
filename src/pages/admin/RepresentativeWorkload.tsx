@@ -19,15 +19,15 @@ import {
   Target, Crosshair, Pencil, Trash2, ArrowRight, Rocket, FolderOpen,
   Lock, Unlock,
 } from 'lucide-react';
-import { useRepresentativeTasks } from '@/hooks/workload/useRepresentativeTasks';
+import { useRepresentativeTasks, useObjectives, useInitiatives, useActions } from '@/features/workload';
+import type { Objective } from '@/features/workload/hooks/useObjectives';
+import type { Initiative } from '@/features/workload/hooks/useInitiatives';
+import type { ObjAction } from '@/features/workload/hooks/useActions';
 import { DistributeTaskDialog } from '@/components/workload/representative/DistributeTaskDialog';
 import { BatchDetailDialog } from '@/components/workload/representative/BatchDetailDialog';
 import { BulkImportDialog } from '@/components/workload/representative/BulkImportDialog';
 import { downloadTemplate } from '@/components/workload/representative/csvTemplate';
 import { useOrgTree } from '@/hooks/org/useOrgTree';
-import { useObjectives, type Objective } from '@/hooks/workload/useObjectives';
-import { useInitiatives, type Initiative } from '@/hooks/workload/useInitiatives';
-import { useActions, type ObjAction } from '@/hooks/workload/useActions';
 import { ObjectiveDialog } from '@/components/workload/ObjectiveDialog';
 import { InitiativeDialog } from '@/components/workload/InitiativeDialog';
 import { ActionDialog } from '@/components/workload/ActionDialog';

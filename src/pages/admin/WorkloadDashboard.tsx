@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useWorkloadAnalytics, type TeamMemberLoad } from '@/hooks/workload/useWorkloadAnalytics';
-import { useWorkloadMetrics } from '@/hooks/workload/useWorkloadMetrics';
+import { useWorkloadAnalytics, useWorkloadMetrics } from '@/features/workload';
+import type { TeamMemberLoad } from '@/features/workload/hooks/useWorkloadAnalytics';
 import {
   Users, AlertTriangle, Clock, Target, TrendingUp, Moon, Activity, Shield,
 } from 'lucide-react';

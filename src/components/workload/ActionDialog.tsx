@@ -17,7 +17,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { EmployeePicker } from '@/components/workload/EmployeePicker';
-import type { ObjAction } from '@/hooks/workload/useActions';
+import type { ObjAction } from '@/features/workload/hooks/useActions';
 
 const schema = z.object({
   title: z.string().min(1).max(200),

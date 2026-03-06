@@ -13,16 +13,16 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useObjectives, type Objective } from '@/hooks/workload/useObjectives';
-import { useInitiatives, type Initiative } from '@/hooks/workload/useInitiatives';
-import { useActions, type ObjAction } from '@/hooks/workload/useActions';
+import { useObjectives, useInitiatives, useActions, useIsRepresentative } from '@/features/workload';
+import type { Objective } from '@/features/workload/hooks/useObjectives';
+import type { Initiative } from '@/features/workload/hooks/useInitiatives';
+import type { ObjAction } from '@/features/workload/hooks/useActions';
 import { InitiativeDialog } from '@/components/workload/InitiativeDialog';
 import { ActionDialog } from '@/components/workload/ActionDialog';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useAuditLog } from '@/hooks/audit/useAuditLog';
 import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
-import { useIsRepresentative } from '@/hooks/workload/useIsRepresentative';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {

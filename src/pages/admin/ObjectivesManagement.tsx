@@ -9,12 +9,12 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useObjectives, type Objective } from '@/hooks/workload/useObjectives';
+import { useObjectives, useIsRepresentative } from '@/features/workload';
+import type { Objective } from '@/features/workload/hooks/useObjectives';
 import { ObjectiveDialog } from '@/components/workload/ObjectiveDialog';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { useNavigate } from 'react-router-dom';
 import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
-import { useIsRepresentative } from '@/hooks/workload/useIsRepresentative';
 
 const statusColors: Record<string, string> = {
   on_track: 'bg-chart-2/15 text-chart-2 border-chart-2/30',

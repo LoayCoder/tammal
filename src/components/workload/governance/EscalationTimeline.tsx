@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useEscalationEvents } from '@/hooks/workload/useEscalationEvents';
+import { useEscalationEvents } from '@/features/workload';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle, ArrowUp, Clock } from 'lucide-react';

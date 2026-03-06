@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Upload, CheckCircle2, XCircle } from 'lucide-react';
 import { parseCsv, type CsvRow } from './csvTemplate';
 import { useResolveEmployeeEmails } from '@/hooks/org/useEmployeesList';
-import type { BulkTaskPayload } from '@/hooks/workload/useRepresentativeTasks';
+import type { BulkTaskPayload } from '@/features/workload/hooks/useRepresentativeTasks';
 
 interface BulkImportDialogProps {
   open: boolean;

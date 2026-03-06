@@ -5,17 +5,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useObjectives } from '@/hooks/workload/useObjectives';
-import { useInitiatives } from '@/hooks/workload/useInitiatives';
-import { useWorkloadAnalytics } from '@/hooks/workload/useWorkloadAnalytics';
-import { useWorkloadMetrics } from '@/hooks/workload/useWorkloadMetrics';
-import { useExecutionVelocity } from '@/hooks/workload/useExecutionVelocity';
-import { useWorkloadHeatmap } from '@/hooks/workload/useWorkloadHeatmap';
-import { useInitiativeRisk } from '@/hooks/workload/useInitiativeRisk';
-import { useBurnoutPredictions } from '@/hooks/workload/useBurnoutPredictions';
-import { useRedistributionRecommendations } from '@/hooks/workload/useRedistributionRecommendations';
-import { useOrgIntelligenceScore } from '@/hooks/workload/useOrgIntelligenceScore';
-import { useRunAnalyticsSnapshot, useRunAIPredictions } from '@/hooks/workload/useWorkloadIntelligence';
+import {
+  useObjectives, useInitiatives, useWorkloadAnalytics, useWorkloadMetrics,
+  useExecutionVelocity, useWorkloadHeatmap, useInitiativeRisk,
+  useBurnoutPredictions, useRedistributionRecommendations,
+  useOrgIntelligenceScore, useRunAnalyticsSnapshot, useRunAIPredictions,
+} from '@/features/workload';
 import { toast } from 'sonner';
 import {
   Target, TrendingUp, AlertTriangle, Users, Activity, Shield,

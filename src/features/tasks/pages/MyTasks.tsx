@@ -10,7 +10,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
-import { useUnifiedTasks } from '@/hooks/workload/useUnifiedTasks';
+import { useUnifiedTasks } from '@/features/workload';
 import { UnifiedTaskList } from '@/components/workload/employee/UnifiedTaskList';
 import { TaskDialog } from '@/components/workload/employee/TaskDialog';
 import { CreateTaskModal } from '@/features/tasks/components/CreateTaskModal';
