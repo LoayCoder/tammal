@@ -4,13 +4,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useTenantId } from '@/hooks/org/useTenantId';
 import { AlertTriangle, CalendarDays, Clock, Eye, Flame } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/shared/empty/EmptyState';
+import { useOverdueTasks } from '@/features/tasks/hooks/useOverdueTasks';
 
 function getEscalationLevel(daysOverdue: number): { level: number; className: string; label: string } {
   if (daysOverdue >= 14) return { level: 3, className: 'bg-destructive text-destructive-foreground', label: 'Level 3' };
@@ -22,26 +20,7 @@ function getEscalationLevel(daysOverdue: number): { level: number; className: st
 export default function OverdueTasks() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { tenantId } = useTenantId();
-  const todayStr = new Date().toISOString().split('T')[0];
-
-  const { data: overdueTasks = [], isPending } = useQuery({
-    queryKey: ['overdue-tasks', tenantId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('unified_tasks')
-        .select('*, employee:employees!unified_tasks_employee_id_fkey(full_name)')
-        .eq('tenant_id', tenantId!)
-        .is('deleted_at', null)
-        .eq('archived', false)
-        .not('status', 'in', '("completed","verified","archived","rejected")')
-        .lt('due_date', new Date().toISOString())
-        .order('due_date', { ascending: true });
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!tenantId,
-  });
+  const { overdueTasks, isPending } = useOverdueTasks();
 
   const stats = useMemo(() => {
     const level1 = overdueTasks.filter(t => { const d = differenceInDays(new Date(), new Date(t.due_date)); return d >= 3 && d < 7; }).length;

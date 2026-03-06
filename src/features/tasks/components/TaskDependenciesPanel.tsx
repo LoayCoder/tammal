@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTaskDependencies } from '@/features/tasks/hooks/useTaskDependencies';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useTenantId } from '@/hooks/org/useTenantId';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,31 +20,13 @@ const STATUS_BADGE: Record<string, string> = {
 
 export function TaskDependenciesPanel({ taskId }: { taskId: string }) {
   const { t } = useTranslation();
-  const { tenantId } = useTenantId();
   const navigate = useNavigate();
-  const { blockers, dependents, isPending, addDependency, removeDependency, isAdding, hasUnresolvedBlockers } = useTaskDependencies(taskId);
+  const { blockers, dependents, isPending, addDependency, removeDependency, isAdding, hasUnresolvedBlockers, useSearchTasks } = useTaskDependencies(taskId);
   const [search, setSearch] = useState('');
   const [depType, setDepType] = useState<string>('blocks');
   const [showAdd, setShowAdd] = useState(false);
 
-  // Search available tasks
-  const { data: searchResults = [] } = useQuery({
-    queryKey: ['task-dep-search', tenantId, search],
-    queryFn: async () => {
-      if (!search.trim() || search.length < 2) return [];
-      const { data, error } = await supabase
-        .from('unified_tasks')
-        .select('id, title, status, priority')
-        .eq('tenant_id', tenantId!)
-        .is('deleted_at', null)
-        .neq('id', taskId)
-        .ilike('title', `%${search}%`)
-        .limit(10);
-      if (error) throw error;
-      return data ?? [];
-    },
-    enabled: !!tenantId && search.length >= 2,
-  });
+  const { data: searchResults = [] } = useSearchTasks(search);
 
   const existingIds = new Set([...blockers.map(b => b.depends_on_task_id), ...dependents.map(d => d.task_id)]);
   const filteredResults = searchResults.filter(r => !existingIds.has(r.id));

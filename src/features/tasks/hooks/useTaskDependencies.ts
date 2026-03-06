@@ -86,6 +86,26 @@ export function useTaskDependencies(taskId: string | undefined) {
       return task && task.status !== 'completed';
     });
 
+  const useSearchTasks = (search: string) => {
+    return useQuery({
+      queryKey: ['task-dep-search', tenantId, search],
+      queryFn: async () => {
+        if (!search.trim() || search.length < 2) return [];
+        const { data, error } = await supabase
+          .from('unified_tasks')
+          .select('id, title, status, priority')
+          .eq('tenant_id', tenantId!)
+          .is('deleted_at', null)
+          .neq('id', taskId!)
+          .ilike('title', `%${search}%`)
+          .limit(10);
+        if (error) throw error;
+        return data ?? [];
+      },
+      enabled: !!tenantId && search.length >= 2,
+    });
+  };
+
   return {
     blockers,
     dependents,
@@ -94,5 +114,6 @@ export function useTaskDependencies(taskId: string | undefined) {
     removeDependency: removeDependency.mutate,
     isAdding: addDependency.isPending,
     hasUnresolvedBlockers,
+    useSearchTasks,
   };
 }
