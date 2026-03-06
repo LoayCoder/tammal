@@ -49,6 +49,8 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 212 26% 83%;
     --sidebar-ring: 200 98% 39%;
+    --sidebar-active-bg: 220 80% 95%;
+    --sidebar-hover-bg: 220 20% 97%;
 
     --chart-1: 198 93% 59%;
     --chart-2: 213 93% 67%;
@@ -111,6 +113,8 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 228 84% 4%;
     --sidebar-border: 215 19% 34%;
     --sidebar-ring: 198 93% 59%;
+    --sidebar-active-bg: 217 40% 18%;
+    --sidebar-hover-bg: 217 32% 14%;
     --chart-1: 199 95% 73%;
     --chart-2: 211 96% 78%;
     --chart-3: 215 20% 65%;
