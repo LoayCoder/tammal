@@ -3918,11 +3918,5 @@
       "progress": "Progress",
       "estimated": "estimated"
     }
-  },
-  "common": {
-    "allStatuses": "All Statuses",
-    "allPriorities": "All Priorities",
-    "back": "Back",
-    "view": "View"
   }
 }
