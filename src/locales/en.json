@@ -3843,7 +3843,86 @@
       "uploadSuccess": "File uploaded",
       "uploadError": "Failed to upload file",
       "deleteError": "Failed to delete file"
+    },
+    "myTasks": "My Tasks",
+    "myTasksDesc": "View and manage all your assigned tasks",
+    "searchPlaceholder": "Search tasks...",
+    "notFound": "Task not found",
+    "pending": "pending",
+    "approve": "Approve",
+    "reject": "Reject",
+    "overdue": "overdue",
+    "approvalQueue": "Approval Queue",
+    "approvalQueueDesc": "Review and approve tasks awaiting your decision",
+    "approvalEmpty": "No pending approvals",
+    "approvalEmptyDesc": "You have no tasks waiting for your review or approval",
+    "overdueTasks": "Overdue Tasks",
+    "overdueTasksDesc": "Monitor all overdue tasks across the organization",
+    "noOverdue": "No overdue tasks",
+    "noOverdueDesc": "All tasks are on track — no overdue items found",
+    "stats": {
+      "active": "Active",
+      "completed": "Completed",
+      "verified": "Verified",
+      "overdue": "Overdue",
+      "pendingReview": "Pending Review",
+      "totalOverdue": "Total Overdue"
+    },
+    "tabs": {
+      "active": "Active",
+      "overdue": "Overdue",
+      "completed": "Completed",
+      "verified": "Verified"
+    },
+    "escalation": {
+      "level1": "Level 1 (3+ days)",
+      "level2": "Level 2 (7+ days)",
+      "level3": "Level 3 (14+ days)"
+    },
+    "comments": {
+      "title": "Comments",
+      "empty": "No comments yet",
+      "placeholder": "Add a comment...",
+      "addSuccess": "Comment added",
+      "addError": "Failed to add comment",
+      "deleteError": "Failed to delete comment"
+    },
+    "activity": {
+      "title": "Activity Log",
+      "empty": "No activity recorded"
+    },
+    "checklist": {
+      "title": "Checklist",
+      "empty": "No checklist items",
+      "addPlaceholder": "Add checklist item...",
+      "addSuccess": "Item added",
+      "addError": "Failed to add item",
+      "updateError": "Failed to update item",
+      "deleteError": "Failed to delete item"
+    },
+    "fields": {
+      "title": "Task Title",
+      "titlePlaceholder": "Enter task title...",
+      "titleAr": "Title (Arabic)",
+      "titleArPlaceholder": "أدخل عنوان المهمة...",
+      "description": "Description",
+      "descriptionPlaceholder": "Add task description, objectives, or execution notes...",
+      "status": "Status",
+      "priority": "Priority",
+      "startDate": "Start Date",
+      "dueDate": "Due Date",
+      "reminderDate": "Reminder",
+      "selectDate": "Select date",
+      "estimatedMinutes": "Estimated Time (min)",
+      "visibility": "Visibility",
+      "progress": "Progress",
+      "estimated": "estimated"
     }
+  },
+  "common": {
+    "allStatuses": "All Statuses",
+    "allPriorities": "All Priorities",
+    "back": "Back",
+    "view": "View"
   }
 }
-
