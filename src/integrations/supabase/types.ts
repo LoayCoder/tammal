@@ -6315,14 +6315,14 @@ export type Database = {
             foreignKeyName: "task_dependencies_depends_on_task_id_fkey"
             columns: ["depends_on_task_id"]
             isOneToOne: false
-            referencedRelation: "objective_actions"
+            referencedRelation: "unified_tasks"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "task_dependencies_task_id_fkey"
             columns: ["task_id"]
             isOneToOne: false
-            referencedRelation: "objective_actions"
+            referencedRelation: "unified_tasks"
             referencedColumns: ["id"]
           },
           {
