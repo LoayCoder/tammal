@@ -1,0 +1,1 @@
+UPDATE unified_tasks SET deleted_at = now(), updated_at = now(), status = 'archived' WHERE status = 'todo' AND deleted_at IS NULL;
