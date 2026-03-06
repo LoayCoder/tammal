@@ -18,15 +18,15 @@ import {
   Activity, Paperclip, Clock, CalendarDays, ChevronLeft,
   Plus, Upload, FileIcon, X, Trash2,
 } from 'lucide-react';
-import { useTaskChecklists } from '@/hooks/tasks/useTaskChecklists';
-import { TaskDependenciesPanel } from '@/components/tasks/TaskDependenciesPanel';
-import { TaskTimeTrackingPanel } from '@/components/tasks/TaskTimeTrackingPanel';
-import { TaskAIPanel } from '@/components/tasks/TaskAIPanel';
-import { TaskCommentsPanel } from '@/components/tasks/TaskCommentsPanel';
-import { TaskActivityTimeline } from '@/components/tasks/TaskActivityTimeline';
-import { useTaskComments } from '@/hooks/tasks/useTaskComments';
-import { useTaskActivity } from '@/hooks/tasks/useTaskActivity';
-import { useTaskAttachments } from '@/hooks/tasks/useTaskAttachments';
+import { useTaskChecklists } from '@/features/tasks/hooks/useTaskChecklists';
+import { TaskDependenciesPanel } from '@/features/tasks/components/TaskDependenciesPanel';
+import { TaskTimeTrackingPanel } from '@/features/tasks/components/TaskTimeTrackingPanel';
+import { TaskAIPanel } from '@/features/tasks/components/TaskAIPanel';
+import { TaskCommentsPanel } from '@/features/tasks/components/TaskCommentsPanel';
+import { TaskActivityTimeline } from '@/features/tasks/components/TaskActivityTimeline';
+import { useTaskComments } from '@/features/tasks/hooks/useTaskComments';
+import { useTaskActivity } from '@/features/tasks/hooks/useTaskActivity';
+import { useTaskAttachments } from '@/features/tasks/hooks/useTaskAttachments';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';

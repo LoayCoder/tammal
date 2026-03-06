@@ -16,7 +16,7 @@ import { CalendarIcon, Clock, Save, Send } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
-import { useEnterpriseTasks } from '@/hooks/tasks/useEnterpriseTasks';
+import { useEnterpriseTasks } from '@/features/tasks/hooks/useEnterpriseTasks';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { TaskChecklist, type ChecklistItem } from './TaskChecklist';
 import { TaskTagPicker } from './TaskTagPicker';
