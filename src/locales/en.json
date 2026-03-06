@@ -3856,6 +3856,7 @@
     "myTasksDesc": "View and manage all your assigned tasks",
     "searchPlaceholder": "Search tasks...",
     "notFound": "Task not found",
+    "noDescription": "No description added yet. Click Edit to add one.",
     "pending": "pending",
     "approve": "Approve",
     "reject": "Reject",
