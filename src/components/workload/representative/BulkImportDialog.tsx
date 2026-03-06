@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Upload, CheckCircle2, XCircle } from 'lucide-react';
 import { parseCsv, type CsvRow } from './csvTemplate';
-import { supabase } from '@/integrations/supabase/client';
-import { useTenantId } from '@/hooks/org/useTenantId';
+import { useResolveEmployeeEmails } from '@/hooks/org/useEmployeesList';
 import type { BulkTaskPayload } from '@/hooks/workload/useRepresentativeTasks';
 
 interface BulkImportDialogProps {
@@ -24,7 +23,7 @@ interface ParsedRow extends CsvRow {
 
 export function BulkImportDialog({ open, onOpenChange, onSubmit, isSubmitting }: BulkImportDialogProps) {
   const { t } = useTranslation();
-  const { tenantId } = useTenantId();
+  const { resolve } = useResolveEmployeeEmails();
   const fileRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [resolving, setResolving] = useState(false);
@@ -46,15 +45,7 @@ export function BulkImportDialog({ open, onOpenChange, onSubmit, isSubmitting }:
     // Resolve emails → employee IDs
     setResolving(true);
     const emails = [...new Set(parsed.map(r => r.employee_email?.toLowerCase()).filter(Boolean))];
-    const { data: employees } = await supabase
-      .from('employees')
-      .select('id, email')
-      .eq('tenant_id', tenantId!)
-      .eq('status', 'active')
-      .is('deleted_at', null)
-      .in('email', emails);
-
-    const emailMap = new Map((employees ?? []).map(e => [e.email.toLowerCase(), e.id]));
+    const emailMap = await resolve(emails);
 
     const resolved: ParsedRow[] = parsed.map(row => {
       if (!row.employee_email?.trim()) {
