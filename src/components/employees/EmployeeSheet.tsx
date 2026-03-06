@@ -41,18 +41,7 @@ export function EmployeeSheet({
   const { divisions } = useDivisions();
   const { sites: sections } = useSites();
 
-  // Fetch user IDs with manager+ roles
-  const { data: managerUserIds } = useQuery({
-    queryKey: ['manager-eligible-user-ids'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('user_id')
-        .in('role', ['manager', 'tenant_admin', 'super_admin']);
-      if (error) throw error;
-      return [...new Set((data || []).map(r => r.user_id))];
-    },
-  });
+  const { data: managerUserIds } = useManagerEligibleUserIds();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [employeeNumber, setEmployeeNumber] = useState("");
