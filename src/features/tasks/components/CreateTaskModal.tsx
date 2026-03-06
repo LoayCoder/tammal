@@ -253,7 +253,7 @@ export function CreateTaskModal({
                   </Label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-start font-normal h-9 text-sm">
+                      <Button variant="outline" className="w-full justify-start text-start font-normal h-9 text-sm" aria-label={startDate ? `${t('tasks.fields.startDate')}: ${format(startDate, 'PPP')}` : t('tasks.fields.startDate')}>
                         {startDate ? format(startDate, 'PPP') : t('tasks.fields.selectDate')}
                       </Button>
                     </PopoverTrigger>
@@ -268,7 +268,7 @@ export function CreateTaskModal({
                   </Label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-start font-normal h-9 text-sm">
+                      <Button variant="outline" className="w-full justify-start text-start font-normal h-9 text-sm" aria-label={dueDate ? `${t('tasks.fields.dueDate')}: ${format(dueDate, 'PPP')}` : t('tasks.fields.dueDate')}>
                         {dueDate ? format(dueDate, 'PPP') : t('tasks.fields.selectDate')}
                       </Button>
                     </PopoverTrigger>
@@ -334,7 +334,7 @@ export function CreateTaskModal({
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full justify-start text-start font-normal h-9 text-sm">
+                        <Button variant="outline" className="w-full justify-start text-start font-normal h-9 text-sm" aria-label={reminderDate ? `${t('tasks.fields.reminderDate')}: ${format(reminderDate, 'PPP')}` : t('tasks.fields.reminderDate')}>
                           {reminderDate ? format(reminderDate, 'PPP') : t('tasks.fields.selectDate')}
                         </Button>
                       </PopoverTrigger>
