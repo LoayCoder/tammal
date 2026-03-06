@@ -105,6 +105,7 @@
     "approvalQueue": "طابور الموافقات",
     "managerTaskOverview": "مهام الفريق",
     "overdueTasks": "المهام المتأخرة",
+    "taskAnalytics": "تحليلات الأداء",
     "recognitionAwards": "التقدير والجوائز",
     "recognition": "التقدير",
     "aiPlatform": "منصة الذكاء الاصطناعي",
@@ -3794,5 +3795,22 @@
       "estimated": "مقدر",
       "assignee": "المكلف"
     }
+  },
+  "taskAnalytics": {
+    "title": "تحليلات أداء المهام",
+    "subtitle": "تتبع معدلات الإنجاز وسرعة الفريق ومقاييس الإنتاجية",
+    "totalTasks": "إجمالي المهام",
+    "completionRate": "معدل الإنجاز",
+    "avgProgress": "متوسط التقدم",
+    "inProgress": "قيد التنفيذ",
+    "dailyTrend": "اتجاه المهام اليومي",
+    "statusDistribution": "توزيع الحالات",
+    "priorityBreakdown": "توزيع الأولويات",
+    "topPerformers": "أفضل المنجزين",
+    "created": "تم إنشاؤها",
+    "completed": "مكتملة",
+    "last7": "آخر 7 أيام",
+    "last14": "آخر 14 يوم",
+    "last30": "آخر 30 يوم"
   }
 }
