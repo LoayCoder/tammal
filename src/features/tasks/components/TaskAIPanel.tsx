@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Brain, Users, Clock, AlertTriangle, Sparkles } from 'lucide-react';
+import { Brain, Users, Clock, AlertTriangle, Sparkles, ArrowUpDown, ListChecks, GitBranch } from 'lucide-react';
 import { useTaskAI } from '@/features/tasks/hooks/useTaskAI';
 
 interface TaskAIPanelProps {
@@ -18,9 +18,38 @@ const RISK_COLORS: Record<string, string> = {
   critical: 'bg-destructive/10 text-destructive',
 };
 
+const PRIORITY_COLORS: Record<string, string> = {
+  low: 'bg-chart-1/10 text-chart-1',
+  medium: 'bg-chart-4/10 text-chart-4',
+  high: 'bg-chart-5/10 text-chart-5',
+  critical: 'bg-destructive/10 text-destructive',
+};
+
+const DEP_TYPE_COLORS: Record<string, string> = {
+  blocks: 'bg-destructive/10 text-destructive',
+  blocked_by: 'bg-chart-5/10 text-chart-5',
+  related: 'bg-chart-2/10 text-chart-2',
+};
+
 export function TaskAIPanel({ taskId }: TaskAIPanelProps) {
   const { t } = useTranslation();
-  const { suggestAssignee, estimateCompletion, predictRisk, isLoading } = useTaskAI(taskId);
+  const {
+    suggestAssignee,
+    estimateCompletion,
+    predictRisk,
+    suggestPriority,
+    suggestChecklist,
+    suggestDependencies,
+    isLoading,
+  } = useTaskAI(taskId);
+
+  const hasAnyData =
+    suggestAssignee.data ||
+    estimateCompletion.data ||
+    predictRisk.data ||
+    suggestPriority.data ||
+    suggestChecklist.data ||
+    suggestDependencies.data;
 
   return (
     <Card className="border-0 bg-gradient-to-b from-primary/5 to-transparent">
@@ -33,35 +62,29 @@ export function TaskAIPanel({ taskId }: TaskAIPanelProps) {
       <CardContent className="space-y-4">
         {/* Action buttons */}
         <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 text-xs"
-            onClick={() => suggestAssignee.mutate()}
-            disabled={isLoading}
-          >
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => suggestAssignee.mutate()} disabled={isLoading}>
             <Users className="h-3.5 w-3.5" />
             {t('taskAI.suggestAssignee')}
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 text-xs"
-            onClick={() => estimateCompletion.mutate()}
-            disabled={isLoading}
-          >
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => estimateCompletion.mutate()} disabled={isLoading}>
             <Clock className="h-3.5 w-3.5" />
             {t('taskAI.estimateTime')}
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 text-xs"
-            onClick={() => predictRisk.mutate()}
-            disabled={isLoading}
-          >
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => predictRisk.mutate()} disabled={isLoading}>
             <AlertTriangle className="h-3.5 w-3.5" />
             {t('taskAI.predictRisk')}
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => suggestPriority.mutate()} disabled={isLoading}>
+            <ArrowUpDown className="h-3.5 w-3.5" />
+            {t('taskAI.suggestPriority')}
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => suggestChecklist.mutate()} disabled={isLoading}>
+            <ListChecks className="h-3.5 w-3.5" />
+            {t('taskAI.suggestChecklist')}
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => suggestDependencies.mutate()} disabled={isLoading}>
+            <GitBranch className="h-3.5 w-3.5" />
+            {t('taskAI.suggestDependencies')}
           </Button>
         </div>
 
@@ -118,9 +141,7 @@ export function TaskAIPanel({ taskId }: TaskAIPanelProps) {
               {estimateCompletion.data.risk_factors.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-1">
                   {estimateCompletion.data.risk_factors.map((rf, i) => (
-                    <Badge key={i} variant="outline" className="text-xs">
-                      {rf}
-                    </Badge>
+                    <Badge key={i} variant="outline" className="text-xs">{rf}</Badge>
                   ))}
                 </div>
               )}
@@ -161,8 +182,91 @@ export function TaskAIPanel({ taskId }: TaskAIPanelProps) {
           </div>
         )}
 
+        {/* Priority Suggestion */}
+        {suggestPriority.data && (
+          <div className="space-y-2">
+            <h4 className="text-xs font-semibold flex items-center gap-1.5">
+              <ArrowUpDown className="h-3.5 w-3.5 text-primary" />
+              {t('taskAI.prioritySuggestion')}
+            </h4>
+            <div className="p-3 rounded-lg bg-muted/30 space-y-2">
+              <div className="flex items-center justify-between">
+                <Badge className={`${PRIORITY_COLORS[suggestPriority.data.suggested_priority]} text-xs`}>
+                  {suggestPriority.data.suggested_priority.toUpperCase()}
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  {t('taskAI.confidence')}: {suggestPriority.data.confidence}%
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">{suggestPriority.data.reasoning}</p>
+              {suggestPriority.data.factors.length > 0 && (
+                <div className="space-y-1 mt-1">
+                  {suggestPriority.data.factors.map((f, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">{f.factor}</Badge>
+                      <Badge className={`${PRIORITY_COLORS[f.weight]} text-xs`}>{f.weight}</Badge>
+                      <span className="text-xs text-muted-foreground">{f.detail}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Checklist Suggestions */}
+        {suggestChecklist.data && (
+          <div className="space-y-2">
+            <h4 className="text-xs font-semibold flex items-center gap-1.5">
+              <ListChecks className="h-3.5 w-3.5 text-chart-2" />
+              {t('taskAI.checklistSuggestion')}
+            </h4>
+            <div className="p-3 rounded-lg bg-muted/30 space-y-2">
+              <p className="text-xs text-muted-foreground">{suggestChecklist.data.reasoning}</p>
+              <ul className="space-y-1.5">
+                {suggestChecklist.data.items.map((item, i) => (
+                  <li key={i} className="flex items-center justify-between p-2 rounded bg-background/50">
+                    <span className="text-xs">{item.title}</span>
+                    <Badge variant="outline" className="text-xs shrink-0 ms-2">
+                      ~{item.estimated_minutes}m
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {/* Dependency Suggestions */}
+        {suggestDependencies.data?.suggestions && (
+          <div className="space-y-2">
+            <h4 className="text-xs font-semibold flex items-center gap-1.5">
+              <GitBranch className="h-3.5 w-3.5 text-chart-4" />
+              {t('taskAI.dependencySuggestion')}
+            </h4>
+            <div className="p-3 rounded-lg bg-muted/30 space-y-2">
+              {suggestDependencies.data.suggestions.length === 0 ? (
+                <p className="text-xs text-muted-foreground">{t('taskAI.noDependencies')}</p>
+              ) : (
+                suggestDependencies.data.suggestions.map((d, i) => (
+                  <div key={i} className="p-2 rounded bg-background/50 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium">{d.task_title}</span>
+                      <Badge className={`${DEP_TYPE_COLORS[d.dependency_type]} text-xs`}>
+                        {d.dependency_type}
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs">{d.confidence}%</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{d.reason}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Empty state */}
-        {!isLoading && !suggestAssignee.data && !estimateCompletion.data && !predictRisk.data && (
+        {!isLoading && !hasAnyData && (
           <p className="text-xs text-muted-foreground text-center py-2">
             {t('taskAI.empty')}
           </p>

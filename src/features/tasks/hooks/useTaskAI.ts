@@ -31,55 +31,63 @@ export interface RiskPrediction {
   summary: string;
 }
 
-export function useTaskAI(taskId: string | undefined) {
+export interface PrioritySuggestion {
+  suggested_priority: 'low' | 'medium' | 'high' | 'critical';
+  confidence: number;
+  reasoning: string;
+  factors: { factor: string; weight: 'low' | 'medium' | 'high'; detail: string }[];
+}
+
+export interface ChecklistSuggestion {
+  items: { title: string; estimated_minutes: number }[];
+  reasoning: string;
+}
+
+export interface DependencySuggestion {
+  task_id: string;
+  task_title: string;
+  dependency_type: 'blocks' | 'blocked_by' | 'related';
+  confidence: number;
+  reason: string;
+}
+
+function useAIMutation<T>(taskId: string | undefined, action: string) {
   const { t } = useTranslation();
-
-  const suggestAssignee = useMutation({
+  return useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke('task-ai-engine', {
-        body: { action: 'suggest_assignee', task_id: taskId },
+        body: { action, task_id: taskId },
       });
       if (error) throw error;
-      return data?.data as { suggestions: AssigneeSuggestion[] };
+      return data?.data as T;
     },
     onError: (e: any) => {
       toast.error(e?.message || t('taskAI.error'));
     },
   });
+}
 
-  const estimateCompletion = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('task-ai-engine', {
-        body: { action: 'estimate_completion', task_id: taskId },
-      });
-      if (error) throw error;
-      return data?.data as CompletionEstimate;
-    },
-    onError: (e: any) => {
-      toast.error(e?.message || t('taskAI.error'));
-    },
-  });
-
-  const predictRisk = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('task-ai-engine', {
-        body: { action: 'predict_risk', task_id: taskId },
-      });
-      if (error) throw error;
-      return data?.data as RiskPrediction;
-    },
-    onError: (e: any) => {
-      toast.error(e?.message || t('taskAI.error'));
-    },
-  });
+export function useTaskAI(taskId: string | undefined) {
+  const suggestAssignee = useAIMutation<{ suggestions: AssigneeSuggestion[] }>(taskId, 'suggest_assignee');
+  const estimateCompletion = useAIMutation<CompletionEstimate>(taskId, 'estimate_completion');
+  const predictRisk = useAIMutation<RiskPrediction>(taskId, 'predict_risk');
+  const suggestPriority = useAIMutation<PrioritySuggestion>(taskId, 'suggest_priority');
+  const suggestChecklist = useAIMutation<ChecklistSuggestion>(taskId, 'suggest_checklist');
+  const suggestDependencies = useAIMutation<{ suggestions: DependencySuggestion[] }>(taskId, 'suggest_dependencies');
 
   return {
     suggestAssignee,
     estimateCompletion,
     predictRisk,
+    suggestPriority,
+    suggestChecklist,
+    suggestDependencies,
     isLoading:
       suggestAssignee.isPending ||
       estimateCompletion.isPending ||
-      predictRisk.isPending,
+      predictRisk.isPending ||
+      suggestPriority.isPending ||
+      suggestChecklist.isPending ||
+      suggestDependencies.isPending,
   };
 }
