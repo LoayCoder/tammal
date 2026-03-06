@@ -229,7 +229,7 @@ export default function ManagerTaskOverview() {
                     variant="ghost"
                     size="sm"
                     className="w-full gap-1.5 text-xs"
-                    onClick={() => navigate(`/my-tasks?employee=${member.employeeId}`)}
+                    onClick={() => navigate(`/admin/workload/team?employee=${member.employeeId}`)}
                   >
                     <Eye className="h-3.5 w-3.5" />{t('tasks.managerOverview.viewTasks')}
                   </Button>
