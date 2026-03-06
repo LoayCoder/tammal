@@ -3845,12 +3845,18 @@
       "dragDrop": "Drag & drop files or click to browse",
       "uploadSuccess": "File uploaded",
       "uploadError": "Failed to upload file",
-      "deleteError": "Failed to delete file"
+      "deleteError": "Failed to delete file",
+      "empty": "No attachments yet",
+      "upload": "Upload File",
+      "uploading": "Uploading...",
+      "maxSize": "Max 10MB per file",
+      "maxSizeError": "File exceeds 10MB limit"
     },
     "myTasks": "My Tasks",
     "myTasksDesc": "View and manage all your assigned tasks",
     "searchPlaceholder": "Search tasks...",
     "notFound": "Task not found",
+    "noDescription": "No description added yet. Click Edit to add one.",
     "pending": "pending",
     "approve": "Approve",
     "reject": "Reject",
@@ -3919,7 +3925,8 @@
       "estimatedMinutes": "Estimated Time (min)",
       "visibility": "Visibility",
       "progress": "Progress",
-      "estimated": "estimated"
+      "estimated": "estimated",
+      "assignee": "Assignee"
     }
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,23 +8,29 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
-  ArrowLeft, CheckCircle2, ShieldCheck, Lock, MessageSquare, ListChecks,
-  Activity, Paperclip, Users, Clock, CalendarDays, ChevronLeft,
-  Send, Trash2,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
+import {
+  Lock, MessageSquare, ListChecks,
+  Activity, Paperclip, Clock, CalendarDays, ChevronLeft,
+  Send, Trash2, Plus, Upload, FileIcon, X,
 } from 'lucide-react';
-import { useUnifiedTasks, type UnifiedTask } from '@/hooks/workload/useUnifiedTasks';
 import { useTaskChecklists } from '@/hooks/tasks/useTaskChecklists';
 import { useTaskComments } from '@/hooks/tasks/useTaskComments';
 import { useTaskActivity } from '@/hooks/tasks/useTaskActivity';
+import { useTaskAttachments } from '@/hooks/tasks/useTaskAttachments';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
+
+const STATUS_OPTIONS = ['draft', 'open', 'in_progress', 'under_review', 'pending_approval', 'completed', 'rejected', 'archived'] as const;
 
 const STATUS_COLORS: Record<string, string> = {
   draft: 'bg-muted text-muted-foreground',
@@ -33,7 +39,6 @@ const STATUS_COLORS: Record<string, string> = {
   under_review: 'bg-chart-4/10 text-chart-4',
   pending_approval: 'bg-chart-5/10 text-chart-5',
   completed: 'bg-chart-1/10 text-chart-1',
-  verified: 'bg-primary/10 text-primary',
   rejected: 'bg-destructive/10 text-destructive',
   archived: 'bg-muted text-muted-foreground',
 };
@@ -51,8 +56,14 @@ export default function TaskDetail() {
   const navigate = useNavigate();
   const { employee } = useCurrentEmployee();
   const { tenantId } = useTenantId();
+  const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [commentText, setCommentText] = useState('');
   const [tab, setTab] = useState('comments');
+  const [newChecklistTitle, setNewChecklistTitle] = useState('');
+  const [isEditingDesc, setIsEditingDesc] = useState(false);
+  const [editDesc, setEditDesc] = useState('');
 
   // Fetch single task
   const { data: task, isPending: taskLoading } = useQuery({
@@ -60,18 +71,33 @@ export default function TaskDetail() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('unified_tasks')
-        .select('*')
+        .select('*, employee:employees!unified_tasks_employee_id_fkey(full_name)')
         .eq('id', id!)
         .single();
       if (error) throw error;
-      return { ...data, comments: (data.comments as unknown as any[]) ?? [] } as unknown as UnifiedTask;
+      return data;
     },
     enabled: !!id,
   });
 
-  const { checklists, isPending: checklistLoading, updateItem } = useTaskChecklists(id);
+  const { checklists, isPending: checklistLoading, updateItem, createItem, removeItem } = useTaskChecklists(id);
   const { comments, isPending: commentsLoading, addComment, removeComment } = useTaskComments(id);
   const { activities, isPending: activityLoading } = useTaskActivity(id);
+  const { attachments, isPending: attachmentsLoading, uploadFile, removeFile, isUploading } = useTaskAttachments(id);
+
+  // Inline update mutation
+  const updateTask = useMutation({
+    mutationFn: async (updates: Record<string, unknown>) => {
+      const { error } = await supabase.from('unified_tasks').update(updates).eq('id', id!);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['task-detail', id] });
+      queryClient.invalidateQueries({ queryKey: ['unified-tasks'] });
+      toast.success(t('tasks.updateSuccess'));
+    },
+    onError: () => toast.error(t('tasks.updateError')),
+  });
 
   const handleAddComment = () => {
     if (!commentText.trim() || !employee || !id) return;
@@ -81,6 +107,35 @@ export default function TaskDetail() {
 
   const handleToggleChecklist = (itemId: string, currentStatus: string) => {
     updateItem({ id: itemId, status: currentStatus === 'completed' ? 'pending' : 'completed' });
+  };
+
+  const handleAddChecklistItem = () => {
+    if (!newChecklistTitle.trim() || !id) return;
+    createItem({ task_id: id, title: newChecklistTitle.trim(), sort_order: checklists.length });
+    setNewChecklistTitle('');
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !id || !employee) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error(t('tasks.attachments.maxSizeError'));
+      return;
+    }
+    uploadFile({ task_id: id, file, uploaded_by: employee.id });
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleSaveDescription = () => {
+    updateTask.mutate({ description: editDesc });
+    setIsEditingDesc(false);
+  };
+
+  const formatFileSize = (bytes: number | null) => {
+    if (!bytes) return '';
+    if (bytes < 1024) return `${bytes}B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
   };
 
   if (taskLoading) {
@@ -109,10 +164,43 @@ export default function TaskDetail() {
             {task.is_locked && <Lock className="h-4 w-4 text-chart-4" />}
           </div>
           {task.title_ar && <p className="text-sm text-muted-foreground" dir="rtl">{task.title_ar}</p>}
+
+          {/* Inline status & priority controls */}
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge className={statusClass}>{t(`tasks.status.${task.status}`)}</Badge>
-            <Badge variant="outline" className={priorityInfo.className}>P{task.priority} — {priorityInfo.label}</Badge>
+            <Select
+              value={task.status}
+              onValueChange={(v) => updateTask.mutate({ status: v })}
+              disabled={task.is_locked}
+            >
+              <SelectTrigger className="w-[170px] h-8 text-xs">
+                <Badge className={`${statusClass} pointer-events-none`}>{t(`tasks.status.${task.status}`)}</Badge>
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map(s => (
+                  <SelectItem key={s} value={s}>{t(`tasks.status.${s}`)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={String(task.priority)}
+              onValueChange={(v) => updateTask.mutate({ priority: parseInt(v) })}
+              disabled={task.is_locked}
+            >
+              <SelectTrigger className="w-[130px] h-8 text-xs">
+                <Badge variant="outline" className={priorityInfo.className}>P{task.priority} — {priorityInfo.label}</Badge>
+              </SelectTrigger>
+              <SelectContent>
+                {[0, 1, 2, 3].map(p => (
+                  <SelectItem key={p} value={String(p)}>P{p} — {PRIORITY_LABELS[p].label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             <Badge variant="outline">{task.source_type}</Badge>
+            {(task as any).employee?.full_name && (
+              <Badge variant="secondary">{(task as any).employee.full_name}</Badge>
+            )}
           </div>
         </div>
 
@@ -143,24 +231,57 @@ export default function TaskDetail() {
         </CardContent>
       </Card>
 
-      {/* Description */}
-      {task.description && (
-        <Card className="border-0">
-          <CardHeader className="pb-2"><CardTitle className="text-sm">{t('tasks.fields.description')}</CardTitle></CardHeader>
-          <CardContent><p className="text-sm text-muted-foreground whitespace-pre-wrap">{task.description}</p></CardContent>
-        </Card>
-      )}
+      {/* Description — click to edit */}
+      <Card className="border-0">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm">{t('tasks.fields.description')}</CardTitle>
+            {!isEditingDesc && !task.is_locked && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs h-7"
+                onClick={() => { setEditDesc(task.description ?? ''); setIsEditingDesc(true); }}
+              >
+                {t('common.edit')}
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isEditingDesc ? (
+            <div className="space-y-2">
+              <Textarea
+                value={editDesc}
+                onChange={(e) => setEditDesc(e.target.value)}
+                rows={4}
+              />
+              <div className="flex gap-2 justify-end">
+                <Button variant="ghost" size="sm" onClick={() => setIsEditingDesc(false)}>{t('common.cancel')}</Button>
+                <Button size="sm" onClick={handleSaveDescription} disabled={updateTask.isPending}>{t('common.save')}</Button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+              {task.description || t('tasks.noDescription')}
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Tabs: Comments, Checklist, Activity */}
+      {/* Tabs: Comments, Checklist, Attachments, Activity */}
       <Card className="border-0">
         <CardContent className="p-4">
           <Tabs value={tab} onValueChange={setTab}>
-            <TabsList className="mb-4">
+            <TabsList className="mb-4 flex-wrap">
               <TabsTrigger value="comments" className="gap-1.5 text-xs">
                 <MessageSquare className="h-3.5 w-3.5" />{t('tasks.comments.title')} ({comments.length})
               </TabsTrigger>
               <TabsTrigger value="checklist" className="gap-1.5 text-xs">
                 <ListChecks className="h-3.5 w-3.5" />{t('tasks.checklist.title')} ({checklists.length})
+              </TabsTrigger>
+              <TabsTrigger value="attachments" className="gap-1.5 text-xs">
+                <Paperclip className="h-3.5 w-3.5" />{t('tasks.attachments.title')} ({attachments.length})
               </TabsTrigger>
               <TabsTrigger value="activity" className="gap-1.5 text-xs">
                 <Activity className="h-3.5 w-3.5" />{t('tasks.activity.title')} ({activities.length})
@@ -175,11 +296,23 @@ export default function TaskDetail() {
                 ) : (
                   <div className="space-y-3">
                     {comments.map(c => (
-                      <div key={c.id} className="flex gap-3 p-3 rounded-lg bg-muted/30">
+                      <div key={c.id} className="flex gap-3 p-3 rounded-lg bg-muted/30 group">
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
                             <span className="text-xs font-medium">{c.employee?.full_name ?? c.user_id.slice(0, 8)}</span>
-                            <span className="text-xs text-muted-foreground">{format(new Date(c.created_at), 'PP p')}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-muted-foreground">{format(new Date(c.created_at), 'PP p')}</span>
+                              {employee && c.user_id === employee.id && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() => removeComment(c.id)}
+                                >
+                                  <Trash2 className="h-3 w-3 text-destructive" />
+                                </Button>
+                              )}
+                            </div>
                           </div>
                           <p className="text-sm mt-1">{c.comment_text}</p>
                         </div>
@@ -195,6 +328,7 @@ export default function TaskDetail() {
                   placeholder={t('tasks.comments.placeholder')}
                   rows={2}
                   className="flex-1"
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddComment(); } }}
                 />
                 <Button size="icon" onClick={handleAddComment} disabled={!commentText.trim()}>
                   <Send className="h-4 w-4" />
@@ -203,13 +337,13 @@ export default function TaskDetail() {
             </TabsContent>
 
             {/* Checklist */}
-            <TabsContent value="checklist">
+            <TabsContent value="checklist" className="space-y-4">
               {checklistLoading ? <Skeleton className="h-20" /> : checklists.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">{t('tasks.checklist.empty')}</p>
+                <p className="text-sm text-muted-foreground text-center py-4">{t('tasks.checklist.empty')}</p>
               ) : (
                 <div className="space-y-2">
                   {checklists.map(item => (
-                    <div key={item.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/30">
+                    <div key={item.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/30 group">
                       <Checkbox
                         checked={item.status === 'completed'}
                         onCheckedChange={() => handleToggleChecklist(item.id, item.status)}
@@ -220,10 +354,86 @@ export default function TaskDetail() {
                       {item.due_date && (
                         <span className="text-xs text-muted-foreground">{format(new Date(item.due_date), 'PP')}</span>
                       )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removeItem(item.id)}
+                      >
+                        <X className="h-3 w-3 text-destructive" />
+                      </Button>
                     </div>
                   ))}
                 </div>
               )}
+              {/* Add checklist item */}
+              <div className="flex gap-2">
+                <Input
+                  value={newChecklistTitle}
+                  onChange={(e) => setNewChecklistTitle(e.target.value)}
+                  placeholder={t('tasks.checklist.addPlaceholder')}
+                  className="flex-1 h-9"
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleAddChecklistItem(); }}
+                />
+                <Button size="sm" onClick={handleAddChecklistItem} disabled={!newChecklistTitle.trim()} className="gap-1">
+                  <Plus className="h-3.5 w-3.5" />{t('common.add')}
+                </Button>
+              </div>
+            </TabsContent>
+
+            {/* Attachments */}
+            <TabsContent value="attachments" className="space-y-4">
+              {attachmentsLoading ? <Skeleton className="h-20" /> : attachments.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">{t('tasks.attachments.empty')}</p>
+              ) : (
+                <div className="space-y-2">
+                  {attachments.map(att => (
+                    <div key={att.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 group">
+                      <FileIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <a
+                          href={att.file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-medium hover:underline truncate block"
+                        >
+                          {att.file_name}
+                        </a>
+                        <span className="text-xs text-muted-foreground">
+                          {formatFileSize(att.file_size)} · {format(new Date(att.created_at), 'PP')}
+                        </span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                        onClick={() => removeFile(att.id)}
+                      >
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                >
+                  <Upload className="h-3.5 w-3.5" />
+                  {isUploading ? t('tasks.attachments.uploading') : t('tasks.attachments.upload')}
+                </Button>
+                <p className="text-xs text-muted-foreground mt-1">{t('tasks.attachments.maxSize')}</p>
+              </div>
             </TabsContent>
 
             {/* Activity Log */}
