@@ -41,7 +41,7 @@ export function EarlyWarningPanel({ warnings, isLoading }: Props) {
           <AlertTriangle className="h-4 w-4 text-chart-4" />
           {t('orgDashboard.earlyWarnings')}
           {warnings.length > 0 && (
-            <Badge variant="secondary" className="text-[10px]">{warnings.length}</Badge>
+            <Badge variant="secondary" className="text-2xs">{warnings.length}</Badge>
           )}
         </CardTitle>
       </CardHeader>
@@ -63,10 +63,10 @@ export function EarlyWarningPanel({ warnings, isLoading }: Props) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <Badge variant={w.severity === 'high' ? 'destructive' : 'secondary'} className="text-[10px]">
+                      <Badge variant={w.severity === 'high' ? 'destructive' : 'secondary'} className="text-2xs">
                         {t(`orgDashboard.severity.${w.severity}`)}
                       </Badge>
-                      <span className="text-[10px] text-muted-foreground">{t(config.label)}</span>
+                      <span className="text-2xs text-muted-foreground">{t(config.label)}</span>
                     </div>
                     <p className="text-sm">{w.message}</p>
                   </div>

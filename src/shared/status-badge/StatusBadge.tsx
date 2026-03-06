@@ -45,7 +45,7 @@ export function StatusBadge({
       variant={entry.variant ?? 'outline'}
       className={cn(
         showIcon && Icon && 'gap-1',
-        size === 'sm' && 'text-[10px] px-1.5 py-0',
+        size === 'sm' && 'text-2xs px-1.5 py-0',
         entry.className,
       )}
     >

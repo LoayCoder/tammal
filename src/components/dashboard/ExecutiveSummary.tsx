@@ -107,7 +107,7 @@ export function ExecutiveSummary({ healthScore, periodComparison, warnings, isLo
             </p>
             {topWarnings.length > 0 ? topWarnings.map(w => (
               <div key={w.id} className="flex items-start gap-2">
-                <Badge variant={w.severity === 'high' ? 'destructive' : 'secondary'} className="text-[10px] shrink-0 mt-0.5">
+                <Badge variant={w.severity === 'high' ? 'destructive' : 'secondary'} className="text-2xs shrink-0 mt-0.5">
                   {w.severity}
                 </Badge>
                 <span className="text-xs leading-tight">{w.message}</span>

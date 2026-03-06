@@ -57,7 +57,7 @@ export function CategoryTrendCards({ risks, trends, isLoading }: Props) {
                   <span className="text-sm font-medium truncate max-w-[120px]">
                     {isRTL && cat.nameAr ? cat.nameAr : cat.name}
                   </span>
-                  <Badge variant={style.variant} className="text-[10px]">
+                  <Badge variant={style.variant} className="text-2xs">
                     {t(style.label)}
                   </Badge>
                 </div>
