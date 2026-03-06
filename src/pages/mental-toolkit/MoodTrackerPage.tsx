@@ -10,20 +10,8 @@ import {
 } from "recharts";
 import { format, subDays } from "date-fns";
 
-const PALETTE = {
-  lavender: "#C9B8E8",
-  sage: "#A8C5A0",
-  plum: "#4A3F6B",
-  warmWhite: "#FAF8F5",
-};
+import { TOOLKIT, ZONE_COLORS, DONUT_COLORS } from "@/config/toolkit-colors";
 
-const ZONE_COLORS: Record<string, string> = {
-  thriving: "#A8C5A0",
-  watch: "#F5C563",
-  atRisk: "#E57373",
-};
-
-const DONUT_COLORS = ["#C9B8E8", "#A8C5A0", "#7EC8E3", "#F5C563", "#E57373"];
 
 const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
