@@ -7,7 +7,8 @@ import {
   User, Heart, Settings, Package, Brain, SmilePlus, RefreshCw, Wind,
   BookOpen, Music, CheckSquare, BookMarked, Phone, ClipboardCheck,
   ChevronRight, Shield, HeartHandshake, Inbox, Moon, BookOpenCheck, UtensilsCrossed, CalendarDays,
-  Activity, Target, Gauge, Users2, Plug, Trophy, Award, Star, Vote, Coins, Gift, UserCog, Briefcase, BarChart
+  Activity, Target, Gauge, Users2, Plug, Trophy, Award, Star, Vote, Coins, Gift, UserCog, Briefcase, BarChart,
+  ListChecks, AlertTriangle
 } from 'lucide-react';
 import {
   Sidebar,
@@ -187,6 +188,8 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       icon: Target,
       items: [
         { title: t('nav.myWorkload'), url: "/my-workload", icon: ClipboardList, access: 'employee' },
+        { title: t('nav.myTasks'), url: "/my-tasks", icon: ListChecks, access: 'employee' },
+        { title: t('nav.approvalQueue'), url: "/approval-queue", icon: CheckSquare, access: 'employee' },
         { title: t('nav.objectives'), url: "/admin/workload/objectives", icon: Target, access: 'all' },
         { title: t('nav.workloadDashboard'), url: "/admin/workload/dashboard", icon: Gauge, access: 'admin' },
         { title: t('nav.teamWorkload'), url: "/admin/workload/team", icon: Users2, access: 'admin' },
@@ -194,6 +197,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         { title: t('nav.representativeWorkload'), url: "/admin/workload/representative", icon: UserCog, access: 'all' },
         { title: t('nav.portfolio'), url: "/admin/workload/portfolio", icon: Briefcase, access: 'admin' },
         { title: t('nav.executive'), url: "/admin/workload/executive", icon: BarChart, access: 'admin' },
+        { title: t('nav.overdueTasks'), url: "/admin/workload/overdue", icon: AlertTriangle, access: 'admin' },
         { title: t('nav.escalationSettings'), url: "/admin/workload/escalation", icon: Shield, access: 'admin' },
         { title: t('nav.systemHealth'), url: "/admin/workload/system-health", icon: Shield, access: 'admin' },
       ]

@@ -50,7 +50,10 @@
     "sectionError": "خطأ في القسم",
     "sectionErrorDescription": "حدث خطأ غير متوقع في هذا القسم. الأجزاء الأخرى من الصفحة لا تزال تعمل.",
     "habitRemoved": "تم حذف العادة",
-    "pointsEarned": "🎉 +{{points}} {{label}}!"
+    "pointsEarned": "🎉 +{{points}} {{label}}!",
+    "allStatuses": "جميع الحالات",
+    "allPriorities": "جميع الأولويات",
+    "view": "عرض"
   },
   "nav": {
     "dashboard": "لوحة التحكم",
@@ -98,6 +101,9 @@
     "executive": "لوحة القيادة التنفيذية",
     "escalationSettings": "التصعيد والحوكمة",
     "systemHealth": "صحة النظام",
+    "myTasks": "مهامي",
+    "approvalQueue": "طابور الموافقات",
+    "overdueTasks": "المهام المتأخرة",
     "recognitionAwards": "التقدير والجوائز",
     "recognition": "التقدير",
     "aiPlatform": "منصة الذكاء الاصطناعي",
@@ -3682,7 +3688,80 @@
       "uploadSuccess": "تم رفع الملف",
       "uploadError": "فشل في رفع الملف",
       "deleteError": "فشل في حذف الملف"
+    },
+    "myTasks": "مهامي",
+    "myTasksDesc": "عرض وإدارة جميع المهام المكلفة لك",
+    "searchPlaceholder": "البحث في المهام...",
+    "notFound": "المهمة غير موجودة",
+    "pending": "قيد الانتظار",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "overdue": "متأخرة",
+    "approvalQueue": "طابور الموافقات",
+    "approvalQueueDesc": "مراجعة واعتماد المهام التي تنتظر قرارك",
+    "approvalEmpty": "لا توجد موافقات معلقة",
+    "approvalEmptyDesc": "لا توجد مهام تنتظر مراجعتك أو موافقتك",
+    "overdueTasks": "المهام المتأخرة",
+    "overdueTasksDesc": "مراقبة جميع المهام المتأخرة عبر المؤسسة",
+    "noOverdue": "لا توجد مهام متأخرة",
+    "noOverdueDesc": "جميع المهام على المسار الصحيح — لم يتم العثور على مهام متأخرة",
+    "stats": {
+      "active": "نشطة",
+      "completed": "مكتملة",
+      "verified": "موثقة",
+      "overdue": "متأخرة",
+      "pendingReview": "بانتظار المراجعة",
+      "totalOverdue": "إجمالي المتأخرة"
+    },
+    "tabs": {
+      "active": "نشطة",
+      "overdue": "متأخرة",
+      "completed": "مكتملة",
+      "verified": "موثقة"
+    },
+    "escalation": {
+      "level1": "المستوى 1 (3+ أيام)",
+      "level2": "المستوى 2 (7+ أيام)",
+      "level3": "المستوى 3 (14+ أيام)"
+    },
+    "comments": {
+      "title": "التعليقات",
+      "empty": "لا توجد تعليقات بعد",
+      "placeholder": "أضف تعليقاً...",
+      "addSuccess": "تم إضافة التعليق",
+      "addError": "فشل في إضافة التعليق",
+      "deleteError": "فشل في حذف التعليق"
+    },
+    "activity": {
+      "title": "سجل النشاط",
+      "empty": "لا يوجد نشاط مسجل"
+    },
+    "checklist": {
+      "title": "قائمة المهام الفرعية",
+      "empty": "لا توجد عناصر في القائمة",
+      "addPlaceholder": "أضف عنصر...",
+      "addSuccess": "تم إضافة العنصر",
+      "addError": "فشل في إضافة العنصر",
+      "updateError": "فشل في تحديث العنصر",
+      "deleteError": "فشل في حذف العنصر"
+    },
+    "fields": {
+      "title": "عنوان المهمة",
+      "titlePlaceholder": "أدخل عنوان المهمة...",
+      "titleAr": "العنوان (عربي)",
+      "titleArPlaceholder": "أدخل عنوان المهمة...",
+      "description": "الوصف",
+      "descriptionPlaceholder": "أضف وصف المهمة، الأهداف، أو ملاحظات التنفيذ...",
+      "status": "الحالة",
+      "priority": "الأولوية",
+      "startDate": "تاريخ البدء",
+      "dueDate": "تاريخ الاستحقاق",
+      "reminderDate": "التذكير",
+      "selectDate": "اختر تاريخ",
+      "estimatedMinutes": "الوقت المقدر (دقيقة)",
+      "visibility": "الرؤية",
+      "progress": "التقدم",
+      "estimated": "مقدر"
     }
   }
 }
-
