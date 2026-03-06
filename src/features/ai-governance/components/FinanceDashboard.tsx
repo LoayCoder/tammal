@@ -4,6 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import type { CostDailyRow } from '@/features/ai-governance/hooks/useCostBreakdown';
+import { CHART_AXIS_TICK, CHART_TOOLTIP_STYLE, CHART_GRID_STROKE } from '@/config/chart-styles';
 
 interface Props {
   costData: CostDailyRow[];
@@ -65,10 +66,10 @@ export function FinanceDashboard({ costData, budgetConfig, isLoading }: Props) {
         <CardContent>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={trendData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', color: 'hsl(var(--popover-foreground))' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} />
+              <XAxis dataKey="date" tick={CHART_AXIS_TICK} />
+              <YAxis tick={CHART_AXIS_TICK} />
+              <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
               <Line type="monotone" dataKey="cost" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
@@ -82,10 +83,10 @@ export function FinanceDashboard({ costData, budgetConfig, isLoading }: Props) {
             {providerChart.length > 0 ? (
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={providerChart}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="provider" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', color: 'hsl(var(--popover-foreground))' }} />
+                   <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} />
+                  <XAxis dataKey="provider" tick={CHART_AXIS_TICK} />
+                  <YAxis tick={CHART_AXIS_TICK} />
+                  <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
                   <Bar dataKey="cost" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -98,10 +99,10 @@ export function FinanceDashboard({ costData, budgetConfig, isLoading }: Props) {
             {featureChart.length > 0 ? (
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={featureChart}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="feature" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', color: 'hsl(var(--popover-foreground))' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} />
+                  <XAxis dataKey="feature" tick={CHART_AXIS_TICK} />
+                  <YAxis tick={CHART_AXIS_TICK} />
+                  <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
                   <Bar dataKey="cost" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>

@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { TrendPoint } from '@/hooks/analytics/useSurveyMonitor';
 import { format, parseISO } from 'date-fns';
+import { CHART_TOOLTIP_STYLE } from '@/config/chart-styles';
+import type { TrendPoint } from '@/hooks/analytics/useSurveyMonitor';
+import { format, parseISO } from 'date-fns';
 
 interface Props {
   trendData: TrendPoint[];
@@ -48,13 +51,7 @@ export function ParticipationTrend({ trendData, isLoading }: Props) {
             <YAxis yAxisId="left" domain={[0, 'auto']} className="text-xs fill-muted-foreground" />
             <YAxis yAxisId="right" orientation="right" domain={[0, 100]} unit="%" className="text-xs fill-muted-foreground" />
             <Tooltip
-              contentStyle={{
-                backgroundColor: 'hsl(var(--popover))',
-                borderColor: 'hsl(var(--border))',
-                color: 'hsl(var(--popover-foreground))',
-                borderRadius: 12,
-                boxShadow: '0 8px 32px hsl(var(--primary) / 0.1)',
-              }}
+              contentStyle={CHART_TOOLTIP_STYLE}
             />
             <Line
               yAxisId="left"
