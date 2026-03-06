@@ -296,6 +296,9 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     if (isMentalToolkitActive) {
       initial.add(t('nav.wellness'));
     }
+    if (location.pathname.startsWith('/spiritual')) {
+      initial.add('__spiritual__');
+    }
     return initial;
   });
 
@@ -600,71 +603,114 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                       </Tooltip>
                     </div>
                   ) : (
-                    <SidebarGroupContent>
-                      <SidebarMenu className="gap-0.5 px-1">
-                        {isPrayerEnabled && (
-                          <SidebarMenuItem>
+                    <Collapsible
+                      open={openGroups.has('__spiritual__')}
+                      onOpenChange={() => toggleGroup('__spiritual__')}
+                      className="group/collapsible"
+                    >
+                      <CollapsibleTrigger asChild>
+                        <button
+                          className={cn(
+                            "flex h-10 w-full items-center gap-3 rounded-xl px-3 text-sm transition-all duration-200",
+                            location.pathname.startsWith('/spiritual')
+                              ? "text-sidebar-primary font-medium"
+                              : "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                          )}
+                        >
+                          <Moon className="h-5 w-5 shrink-0" />
+                          <span className="flex-1 text-start truncate">{t('spiritual.nav.title')}</span>
+                          {location.pathname.startsWith('/spiritual') && (
+                            <span className="h-1.5 w-1.5 rounded-full bg-sidebar-primary shrink-0" />
+                          )}
+                          <ChevronRight className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 rtl:-scale-x-100" />
+                        </button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <div className="ms-7 mt-0.5 flex flex-col gap-0.5">
+                          {isPrayerEnabled && (
                             <NavLink
                               to="/spiritual/prayer"
-                              className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-sidebar-foreground transition-all duration-200 hover:bg-[hsl(var(--sidebar-hover-bg))]"
-                              activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                              className={cn(
+                                "flex h-9 items-center gap-3 rounded-lg px-2.5 text-sm transition-colors",
+                                "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                              )}
+                              activeClassName="text-sidebar-primary font-medium"
                               onClick={handleNavClick}
                             >
-                              <Moon className="h-5 w-5 shrink-0" />
+                              <span className={cn(
+                                "h-1.5 w-1.5 rounded-full shrink-0",
+                                location.pathname === '/spiritual/prayer' ? "bg-sidebar-primary" : "bg-muted-foreground/40"
+                              )} />
                               <span>{t('spiritual.nav.prayerTracker')}</span>
                             </NavLink>
-                          </SidebarMenuItem>
-                        )}
-                        {preferences?.quran_enabled && (
-                          <SidebarMenuItem>
+                          )}
+                          {preferences?.quran_enabled && (
                             <NavLink
                               to="/spiritual/quran"
-                              className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-sidebar-foreground transition-all duration-200 hover:bg-[hsl(var(--sidebar-hover-bg))]"
-                              activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                              className={cn(
+                                "flex h-9 items-center gap-3 rounded-lg px-2.5 text-sm transition-colors",
+                                "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                              )}
+                              activeClassName="text-sidebar-primary font-medium"
                               onClick={handleNavClick}
                             >
-                              <BookOpenCheck className="h-5 w-5 shrink-0" />
+                              <span className={cn(
+                                "h-1.5 w-1.5 rounded-full shrink-0",
+                                location.pathname === '/spiritual/quran' ? "bg-sidebar-primary" : "bg-muted-foreground/40"
+                              )} />
                               <span>{t('spiritual.nav.quranReader')}</span>
                             </NavLink>
-                          </SidebarMenuItem>
-                        )}
-                        {preferences?.fasting_enabled && (
-                          <SidebarMenuItem>
+                          )}
+                          {preferences?.fasting_enabled && (
                             <NavLink
                               to="/spiritual/sunnah"
-                              className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-sidebar-foreground transition-all duration-200 hover:bg-[hsl(var(--sidebar-hover-bg))]"
-                              activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                              className={cn(
+                                "flex h-9 items-center gap-3 rounded-lg px-2.5 text-sm transition-colors",
+                                "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                              )}
+                              activeClassName="text-sidebar-primary font-medium"
                               onClick={handleNavClick}
                             >
-                              <Star className="h-5 w-5 shrink-0" />
+                              <span className={cn(
+                                "h-1.5 w-1.5 rounded-full shrink-0",
+                                location.pathname === '/spiritual/sunnah' ? "bg-sidebar-primary" : "bg-muted-foreground/40"
+                              )} />
                               <span>{t('spiritual.nav.sunnahTracker')}</span>
                             </NavLink>
-                          </SidebarMenuItem>
-                        )}
-                        <SidebarMenuItem>
+                          )}
                           <NavLink
                             to="/spiritual/calendar"
-                            className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-sidebar-foreground transition-all duration-200 hover:bg-[hsl(var(--sidebar-hover-bg))]"
-                            activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                            className={cn(
+                              "flex h-9 items-center gap-3 rounded-lg px-2.5 text-sm transition-colors",
+                              "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                            )}
+                            activeClassName="text-sidebar-primary font-medium"
                             onClick={handleNavClick}
                           >
-                            <CalendarDays className="h-5 w-5 shrink-0" />
+                            <span className={cn(
+                              "h-1.5 w-1.5 rounded-full shrink-0",
+                              location.pathname === '/spiritual/calendar' ? "bg-sidebar-primary" : "bg-muted-foreground/40"
+                            )} />
                             <span>{t('spiritual.nav.calendar')}</span>
                           </NavLink>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
                           <NavLink
                             to="/spiritual/insights"
-                            className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-sidebar-foreground transition-all duration-200 hover:bg-[hsl(var(--sidebar-hover-bg))]"
-                            activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                            className={cn(
+                              "flex h-9 items-center gap-3 rounded-lg px-2.5 text-sm transition-colors",
+                              "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                            )}
+                            activeClassName="text-sidebar-primary font-medium"
                             onClick={handleNavClick}
                           >
-                            <Sparkles className="h-5 w-5 shrink-0" />
+                            <span className={cn(
+                              "h-1.5 w-1.5 rounded-full shrink-0",
+                              location.pathname === '/spiritual/insights' ? "bg-sidebar-primary" : "bg-muted-foreground/40"
+                            )} />
                             <span>{t('spiritual.nav.insights')}</span>
                           </NavLink>
-                        </SidebarMenuItem>
-                      </SidebarMenu>
-                    </SidebarGroupContent>
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
                   )}
                 </SidebarGroup>
               )}
