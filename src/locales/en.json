@@ -3920,11 +3920,15 @@
       "placeholder": "Add a comment...",
       "addSuccess": "Comment added",
       "addError": "Failed to add comment",
-      "deleteError": "Failed to delete comment"
+      "deleteError": "Failed to delete comment",
+      "editSuccess": "Comment updated",
+      "editError": "Failed to update comment",
+      "edited": "edited"
     },
     "activity": {
       "title": "Activity Log",
-      "empty": "No activity recorded"
+      "empty": "No activity recorded",
+      "all": "All"
     },
     "checklist": {
       "title": "Checklist",
