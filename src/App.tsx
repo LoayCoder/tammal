@@ -91,6 +91,7 @@ const TaskPerformanceAnalytics = lazy(() => import("@/features/tasks/pages/TaskP
 const RecurringTasks = lazy(() => import("@/features/tasks/pages/RecurringTasks"));
 const TaskTemplates = lazy(() => import("@/features/tasks/pages/TaskTemplates"));
 const ComponentShowcase = lazy(() => import("@/pages/dev/ComponentShowcase"));
+const DesignSystemPage = lazy(() => import("@/pages/dev/DesignSystemPage"));
 const queryClient = new QueryClient();
 
 const PageFallback = () => (
@@ -237,6 +238,7 @@ const App = () => (
 
               {/* ── Dev / QA routes ── */}
               <Route path="/dev/components" element={<ComponentShowcase />} />
+              <Route path="/dev/design-system" element={<DesignSystemPage />} />
             </Route>
             </Route>
             <Route path="*" element={<NotFound />} />
