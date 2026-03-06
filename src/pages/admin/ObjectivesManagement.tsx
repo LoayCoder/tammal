@@ -27,10 +27,12 @@ export default function ObjectivesManagement() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { tenantId } = useTenantId();
+  const { isSuperAdmin } = useUserPermissions();
+  const { hasRole: isTenantAdmin } = useHasRole('tenant_admin');
+  const { hasRole: isManager } = useHasRole('manager');
+  const { isRepresentative } = useIsRepresentative();
+  const canManage = isSuperAdmin || isTenantAdmin || isManager || isRepresentative;
   const {
-    objectives, isPending, createObjective, updateObjective, deleteObjective,
-    isCreating, isUpdating, isDeleting,
-  } = useObjectives();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -61,7 +63,7 @@ export default function ObjectivesManagement() {
             <p className="text-muted-foreground text-sm">{t('workload.objectives.pageDesc')}</p>
           </div>
         </div>
-        <Button onClick={handleCreate}><Plus className="me-2 h-4 w-4" />{t('workload.objectives.add')}</Button>
+        {canManage && <Button onClick={handleCreate}><Plus className="me-2 h-4 w-4" />{t('workload.objectives.add')}</Button>}
       </div>
 
       {isPending ? (
@@ -88,9 +90,11 @@ export default function ObjectivesManagement() {
                     </div>
                     <CardTitle className="text-lg leading-snug">{obj.title}</CardTitle>
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(obj)}><Pencil className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(obj.id)}><Trash2 className="h-4 w-4" /></Button>
+                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
+                    {canManage && <>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(obj)}><Pencil className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(obj.id)}><Trash2 className="h-4 w-4" /></Button>
+                    </>}
                   </div>
                 </div>
               </CardHeader>

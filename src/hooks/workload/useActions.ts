@@ -38,6 +38,7 @@ export interface ActionInsert {
   tenant_id: string;
   initiative_id: string;
   assignee_id?: string | null;
+  accountable_user_id?: string | null;
   title: string;
   title_ar?: string | null;
   description?: string | null;
