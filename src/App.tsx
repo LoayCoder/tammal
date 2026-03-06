@@ -238,6 +238,7 @@ const App = () => (
 
               {/* ── Dev / QA routes ── */}
               <Route path="/dev/components" element={<ComponentShowcase />} />
+              <Route path="/dev/design-system" element={<DesignSystemPage />} />
             </Route>
             </Route>
             <Route path="*" element={<NotFound />} />
