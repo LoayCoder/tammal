@@ -56,7 +56,7 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
       title: task?.title ?? '',
       description: task?.description ?? '',
       priority: task?.priority ?? 3,
-      status: task?.status ?? 'todo',
+      status: task?.status ?? 'draft',
       estimated_minutes: task?.estimated_minutes ?? null,
       due_date: task?.due_date ? task.due_date.split('T')[0] : '',
       scheduled_start: task?.scheduled_start ? task.scheduled_start.split('T')[0] : '',
@@ -116,7 +116,7 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
         title: data.title,
         description: data.description || null,
         priority: Number(data.priority),
-        status: 'todo',
+        status: 'draft',
         estimated_minutes: data.estimated_minutes ? Number(data.estimated_minutes) : null,
         due_date: data.due_date || null,
         source_type: 'manual',
@@ -244,7 +244,7 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
                 type="checkbox"
                 id="blocked-toggle"
                 checked={watchedStatus === 'blocked'}
-                onChange={(e) => setValue('status', e.target.checked ? 'blocked' : 'todo')}
+                onChange={(e) => setValue('status', e.target.checked ? 'blocked' : 'draft')}
                 className="rounded"
                 disabled={isVerified}
               />

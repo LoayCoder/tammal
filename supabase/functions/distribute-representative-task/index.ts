@@ -148,7 +148,7 @@ Deno.serve(async (req) => {
         locked_by: user.id,
         locked_at: new Date().toISOString(),
         created_by: user.id,
-        status: 'todo',
+        status: 'open',
       }));
 
       const { error: insertErr } = await supabase.from('unified_tasks').insert(rows);
@@ -195,7 +195,7 @@ Deno.serve(async (req) => {
       locked_by: user.id,
       locked_at: new Date().toISOString(),
       created_by: user.id,
-      status: 'todo',
+      status: 'open',
     });
 
     if (insertErr) {

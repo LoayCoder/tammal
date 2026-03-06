@@ -85,7 +85,7 @@ export default function TaskConnectors() {
           estimated_minutes: estIdx >= 0 ? parseInt(cols[estIdx]) || null : null,
           due_date: dueIdx >= 0 && cols[dueIdx] ? cols[dueIdx] : null,
           source_type: 'external' as const,
-          status: 'todo' as const,
+          status: 'draft' as const,
         };
       });
 
