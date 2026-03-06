@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTenantId } from '@/hooks/org/useTenantId';
-import { useCurrentEmployee } from '@/hooks/org/useCurrentEmployee';
+import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 
