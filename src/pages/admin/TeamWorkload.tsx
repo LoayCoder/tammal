@@ -448,6 +448,14 @@ export default function TeamWorkload() {
           isCreating={isCreating}
         />
       )}
+
+      {user?.id && (
+        <CreateTaskModal
+          open={enterpriseModalOpen}
+          onOpenChange={setEnterpriseModalOpen}
+          employeeId={user.id}
+        />
+      )}
     </div>
   );
 }
