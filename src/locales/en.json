@@ -2790,6 +2790,11 @@
     }
   },
   "workload": {
+    "views": {
+      "tasks": "Tasks",
+      "calendar": "Calendar",
+      "approvals": "Approvals"
+    },
     "nav": {
       "title": "Workload Intelligence",
       "objectives": "Strategic Objectives",

@@ -2778,6 +2778,7 @@
     }
   },
   "workload": {
+    "views": { "tasks": "المهام", "calendar": "التقويم", "approvals": "الموافقات" },
     "nav": { "title": "ذكاء أعباء العمل", "objectives": "الأهداف الاستراتيجية", "tasks": "المهام الموحدة" },
     "status": { "onTrack": "على المسار", "on_track": "على المسار", "atRisk": "معرض للخطر", "at_risk": "معرض للخطر", "delayed": "متأخر", "completed": "مكتمل", "planned": "مخطط", "inProgress": "قيد التنفيذ", "in_progress": "قيد التنفيذ", "onHold": "معلق", "on_hold": "معلق", "scheduled": "مجدول", "blocked": "محظور" },
     "assignment": { "owner": "المالك", "accountable": "المسؤول", "assignee": "المكلف", "division": "القطاع", "department": "الإدارة", "selectEmployee": "اختر موظف", "none": "لا يوجد" },
