@@ -44,64 +44,35 @@ export default function RecurringTasks() {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<TemplateForm>(defaultForm);
 
-  const upsert = useMutation({
-    mutationFn: async () => {
-      const now = new Date();
-      const nextRun = calculateNextRun(form.recurrence_pattern, form.recurrence_day_of_week, form.recurrence_day_of_month, form.recurrence_time, now);
+  const handleUpsert = () => {
+    const now = new Date();
+    const nextRun = calculateNextRun(form.recurrence_pattern, form.recurrence_day_of_week, form.recurrence_day_of_month, form.recurrence_time, now);
 
-      const payload: any = {
-        tenant_id: tenantId!,
-        title: form.title,
-        title_ar: form.title_ar || null,
-        description: form.description || null,
-        priority: form.priority,
-        recurrence_pattern: form.recurrence_pattern,
-        recurrence_day_of_week: ['weekly', 'biweekly'].includes(form.recurrence_pattern) ? form.recurrence_day_of_week : null,
-        recurrence_day_of_month: ['monthly', 'quarterly'].includes(form.recurrence_pattern) ? form.recurrence_day_of_month : null,
-        recurrence_time: form.recurrence_time,
-        estimated_minutes: form.estimated_minutes,
-        next_run_at: nextRun.toISOString(),
-        created_by: employee?.id,
-        assignee_id: employee?.id,
-        updated_at: now.toISOString(),
-      };
+    const payload: any = {
+      tenant_id: tenantId!,
+      title: form.title,
+      title_ar: form.title_ar || null,
+      description: form.description || null,
+      priority: form.priority,
+      recurrence_pattern: form.recurrence_pattern,
+      recurrence_day_of_week: ['weekly', 'biweekly'].includes(form.recurrence_pattern) ? form.recurrence_day_of_week : null,
+      recurrence_day_of_month: ['monthly', 'quarterly'].includes(form.recurrence_pattern) ? form.recurrence_day_of_month : null,
+      recurrence_time: form.recurrence_time,
+      estimated_minutes: form.estimated_minutes,
+      next_run_at: nextRun.toISOString(),
+      created_by: employee?.id,
+      assignee_id: employee?.id,
+      updated_at: now.toISOString(),
+    };
 
-      if (editId) {
-        const { error } = await supabase.from('task_templates').update(payload).eq('id', editId);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from('task_templates').insert(payload);
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['task-templates'] });
-      toast.success(editId ? t('common.save') : t('common.create'));
-      setOpen(false);
-      setEditId(null);
-      setForm(defaultForm);
-    },
-    onError: (e: any) => toast.error(e.message),
-  });
-
-  const toggleActive = useMutation({
-    mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
-      const { error } = await supabase.from('task_templates').update({ is_active: active, updated_at: new Date().toISOString() }).eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['task-templates'] }),
-  });
-
-  const softDelete = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from('task_templates').update({ deleted_at: new Date().toISOString() }).eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['task-templates'] });
-      toast.success(t('common.delete'));
-    },
-  });
+    upsertTemplate.mutate({ editId, payload }, {
+      onSuccess: () => {
+        setOpen(false);
+        setEditId(null);
+        setForm(defaultForm);
+      },
+    });
+  };
 
   const openEdit = (tpl: any) => {
     setEditId(tpl.id);
