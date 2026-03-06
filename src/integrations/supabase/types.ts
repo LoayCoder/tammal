@@ -7171,6 +7171,7 @@ export type Database = {
           status: string
           synced_at: string | null
           tags: string[] | null
+          template_id: string | null
           tenant_id: string
           title: string
           title_ar: string | null
@@ -7216,6 +7217,7 @@ export type Database = {
           status?: string
           synced_at?: string | null
           tags?: string[] | null
+          template_id?: string | null
           tenant_id: string
           title: string
           title_ar?: string | null
@@ -7261,6 +7263,7 @@ export type Database = {
           status?: string
           synced_at?: string | null
           tags?: string[] | null
+          template_id?: string | null
           tenant_id?: string
           title?: string
           title_ar?: string | null
@@ -7322,6 +7325,13 @@ export type Database = {
             columns: ["section_id"]
             isOneToOne: false
             referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_tasks_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "task_templates"
             referencedColumns: ["id"]
           },
           {
