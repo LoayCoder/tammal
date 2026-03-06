@@ -2953,7 +2953,10 @@
     "runAI": "تشغيل توقعات الذكاء الاصطناعي",
     "aiRunning": "جارٍ معالجة الذكاء الاصطناعي...",
     "aiPredictionsSuccess": "اكتملت توقعات الذكاء الاصطناعي",
-    "aiPredictionsFailed": "فشلت توقعات الذكاء الاصطناعي"
+    "aiPredictionsFailed": "فشلت توقعات الذكاء الاصطناعي",
+    "trendUp": "↑ اتجاه صاعد",
+    "trendDown": "↓ اتجاه هابط",
+    "trendStable": "→ مستقر"
   },
   "teamWorkload": {
     "pageTitle": "مركز قيادة الفريق",
