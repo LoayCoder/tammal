@@ -1,87 +1,49 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+# Merge Team Task Overview + Team Workload into "Team Command Center"
 
-## 1. Folder Architecture — ✅ PASS
+## Current State
+Two separate pages serve overlapping purposes:
+- `/tasks/team` (ManagerTaskOverview) -- member cards with task summaries, risk badges, progress bars
+- `/admin/workload/team` (TeamWorkload) -- KPIs, charts, flat task table, quadrants, risk alerts
 
-The project follows a clean modular structure:
+## Proposed Unified Page: Team Command Center
 
-```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
-```
+**Route**: Keep `/admin/workload/team` as the canonical route. Redirect `/tasks/team` to it.
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+**Layout** (top to bottom):
 
----
+1. **Header** -- "Team Command Center" title + Quick Assign / Create Task buttons
+2. **KPI Row** -- Merge stats from both pages (team size, active, completed, overdue, at-risk)
+3. **Workload Distribution chart + Execution Metrics** -- Keep from TeamWorkload
+4. **Risk Alerts banner** -- Keep from TeamWorkload (conditional)
+5. **Team Members Accordion** -- The core change:
+   - Each employee is a collapsible `Accordion` item
+   - **Trigger row**: Employee name, role, risk badge, mini-stats (active/completed/overdue/progress bar)
+   - **Expanded content**: Filtered task table for that employee (status, priority, due date, actions)
+   - Search + sort controls above the accordion (filter by name, sort by overdue/active/progress)
+6. **Objective Alignment** -- Keep at bottom
 
-## 2. Feature Isolation — ✅ PASS
+## Technical Implementation
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+### Files Modified
+- **`src/pages/admin/TeamWorkload.tsx`** -- Rewrite to merge both pages. Replace the flat `DataTable` with an `Accordion` that groups tasks by `employee_id`. Each accordion item shows the member summary (from ManagerTaskOverview's card design) as the trigger, and their tasks as collapsible content.
+- **`src/features/tasks/pages/ManagerTaskOverview.tsx`** -- Keep file but make it redirect to `/admin/workload/team`
+- **`src/App.tsx`** -- Update `/tasks/team` route to redirect to `/admin/workload/team`
+- **`src/components/layout/AppSidebar.tsx`** -- Remove duplicate nav entry for Manager Task Overview, keep single "Team Command Center" entry
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
+### Data Strategy
+- Use both `useManagerTaskOverview()` (for direct reports + their tasks) and existing `useDepartmentTasks()` hooks
+- Group `filteredTasks` by `employee_id` into a `Map<string, Task[]>`
+- Each accordion item renders per-employee task rows with lock/unlock/delete actions
+- Filters (status, priority, source, search) apply globally, then tasks are distributed into per-employee groups
 
----
+### Removed Sections
+- Quadrants grid (redundant with per-employee risk badges in accordion)
+- Initiative Risk Indicators (low value, clutters page)
 
-## 3. Backend Architecture — ✅ PASS
+### Kept Sections
+- KPI cards, Workload Distribution chart, Execution Metrics, Risk Alerts, Objective Alignment
+- All task actions (lock, unlock, delete)
+- Quick Assign + Create Task dialogs
 
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
-
----
-
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
-
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
-
-## Summary
-
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
-
-**No FAIL conditions found.** Architecture is production-ready.
