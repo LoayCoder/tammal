@@ -84,6 +84,10 @@ const RedemptionCatalog = lazy(() => import("@/pages/recognition/RedemptionCatal
 const RedemptionManagement = lazy(() => import("@/pages/admin/RedemptionManagement"));
 const AIGovernance = lazy(() => import("@/pages/admin/AIGovernance"));
 const EscalationSettings = lazy(() => import("@/pages/admin/EscalationSettings"));
+const MyTasks = lazy(() => import("@/pages/tasks/MyTasks"));
+const TaskDetail = lazy(() => import("@/pages/tasks/TaskDetail"));
+const ApprovalQueue = lazy(() => import("@/pages/tasks/ApprovalQueue"));
+const OverdueTasks = lazy(() => import("@/pages/tasks/OverdueTasks"));
 const ComponentShowcase = lazy(() => import("@/pages/dev/ComponentShowcase"));
 const queryClient = new QueryClient();
 
@@ -176,6 +180,10 @@ const App = () => (
 
               {/* ── Workload (employee-facing) ── */}
               <Route path="/my-workload" element={<PersonalCommandCenter />} />
+              <Route path="/my-tasks" element={<MyTasks />} />
+              <Route path="/tasks/:id" element={<TaskDetail />} />
+              <Route path="/approval-queue" element={<ApprovalQueue />} />
+              <Route path="/admin/workload/overdue" element={<ManagerOrAdminRoute><OverdueTasks /></ManagerOrAdminRoute>} />
 
               {/* ── Recognition (employee-facing) ── */}
               <Route element={<PageErrorBoundary routeGroup="recognition"><Outlet /></PageErrorBoundary>}>
