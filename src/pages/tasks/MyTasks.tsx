@@ -21,7 +21,13 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 const STATUSES = ['all', 'draft', 'open', 'in_progress', 'under_review', 'pending_approval', 'completed', 'verified', 'rejected', 'archived'] as const;
-const PRIORITIES = ['all', '0', '1', '2', '3'] as const;
+const PRIORITY_OPTIONS = [
+  { value: 'all', labelKey: '' },
+  { value: '0', labelKey: 'tasks.priority.critical' },
+  { value: '1', labelKey: 'tasks.priority.high' },
+  { value: '2', labelKey: 'tasks.priority.medium' },
+  { value: '3', labelKey: 'tasks.priority.low' },
+];
 
 export default function MyTasks() {
   const { t } = useTranslation();
