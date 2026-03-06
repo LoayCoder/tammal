@@ -497,6 +497,13 @@
     "pendingTickets": "التذاكر المعلقة",
     "recentActivity": "النشاط الأخير",
     "quickActions": "مركز الدعم",
+    "workloadWidget": {
+      "title": "أعمالي",
+      "viewAll": "عرض الكل",
+      "upcoming": "المهام القادمة",
+      "completionRate": "نسبة الإنجاز",
+      "pendingApprovals": "الموافقات"
+    },
     "crisisSupportDesc": "احصل على مساعدة فورية أو الوصول لجهات الطوارئ",
     "firstAiderDesc": "عرض وإدارة حالات المسعف النفسي",
     "brandingPreview": "علامتك التجارية",

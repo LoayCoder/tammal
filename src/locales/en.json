@@ -497,6 +497,13 @@
     "pendingTickets": "Pending Tickets",
     "recentActivity": "Recent Activity",
     "quickActions": "Support Hub",
+    "workloadWidget": {
+      "title": "My Workload",
+      "viewAll": "View All",
+      "upcoming": "Upcoming Tasks",
+      "completionRate": "Completion Rate",
+      "pendingApprovals": "Approvals"
+    },
     "crisisSupportDesc": "Get immediate help or access emergency contacts",
     "firstAiderDesc": "View and manage mental health first aider cases",
     "brandingPreview": "Your Branding",
