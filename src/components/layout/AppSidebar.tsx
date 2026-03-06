@@ -119,34 +119,6 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     isMentalToolkitActive && ['/mental-toolkit/articles', '/mental-toolkit/assessment'].some(p => location.pathname.startsWith(p))
   );
 
-  // Track which top-level groups are open (collapsible)
-  const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
-    const initial = new Set<string>();
-    // Auto-open the group containing the active route
-    menuItems.forEach(group => {
-      if (group.items.some(item => {
-        if (item.url === '/') return location.pathname === '/';
-        return location.pathname.startsWith(item.url);
-      })) {
-        initial.add(group.label);
-      }
-    });
-    // Also open wellness if mental toolkit is active
-    if (isMentalToolkitActive) {
-      const wellnessLabel = t('nav.wellness');
-      initial.add(wellnessLabel);
-    }
-    return initial;
-  });
-
-  const toggleGroup = useCallback((label: string) => {
-    setOpenGroups(prev => {
-      const next = new Set(prev);
-      if (next.has(label)) next.delete(label);
-      else next.add(label);
-      return next;
-    });
-  }, []);
 
   const mentalToolkitSections: ToolSection[] = [
     {
