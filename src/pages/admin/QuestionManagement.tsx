@@ -191,7 +191,7 @@ export default function QuestionManagement() {
                     </div>
                     <div>
                       <p className="text-lg font-bold leading-none">{counts.published}</p>
-                      <p className="text-[10px] text-muted-foreground">{t('batches.statusPublished')}</p>
+                      <p className="text-2xs text-muted-foreground">{t('batches.statusPublished')}</p>
                     </div>
                   </div>
                 )}
@@ -202,7 +202,7 @@ export default function QuestionManagement() {
                     </div>
                     <div>
                       <p className="text-lg font-bold leading-none">{counts.draft}</p>
-                      <p className="text-[10px] text-muted-foreground">{t('batches.statusDraft')}</p>
+                      <p className="text-2xs text-muted-foreground">{t('batches.statusDraft')}</p>
                     </div>
                   </div>
                 )}
@@ -213,7 +213,7 @@ export default function QuestionManagement() {
                     </div>
                     <div>
                       <p className="text-lg font-bold leading-none">{counts.inactive}</p>
-                      <p className="text-[10px] text-muted-foreground">{t('batches.statusInactive')}</p>
+                      <p className="text-2xs text-muted-foreground">{t('batches.statusInactive')}</p>
                     </div>
                   </div>
                 )}
@@ -224,7 +224,7 @@ export default function QuestionManagement() {
                     </div>
                     <div>
                       <p className="text-lg font-bold leading-none">{counts.validated}</p>
-                      <p className="text-[10px] text-muted-foreground">{t('batches.statusValidated')}</p>
+                      <p className="text-2xs text-muted-foreground">{t('batches.statusValidated')}</p>
                     </div>
                   </div>
                 )}

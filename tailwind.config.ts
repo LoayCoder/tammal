@@ -138,6 +138,9 @@ export default {
   				'monospace'
   			]
   		},
+  		fontSize: {
+  			'2xs': ['0.625rem', { lineHeight: '0.875rem' }],
+  		},
   		boxShadow: {
   			'2xs': 'var(--shadow-2xs)',
   			xs: 'var(--shadow-xs)',

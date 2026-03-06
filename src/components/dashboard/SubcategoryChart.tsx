@@ -5,6 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell,
 } from 'recharts';
 import type { SubcategoryScore } from '@/hooks/analytics/useOrgAnalytics';
+import { CHART_AXIS_TICK, CHART_TOOLTIP_STYLE, CHART_GRID_STROKE } from '@/config/chart-styles';
 
 interface SubcategoryChartProps {
   data: SubcategoryScore[];
@@ -36,29 +37,24 @@ export function SubcategoryChart({ data, isLoading }: SubcategoryChartProps) {
         ) : (
           <ResponsiveContainer width="100%" height={Math.max(280, chartData.length * 36)}>
             <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} horizontal={false} />
               <XAxis
                 type="number"
                 domain={[0, 5]}
-                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                tick={CHART_AXIS_TICK}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
                 type="category"
                 dataKey="name"
-                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                tick={CHART_AXIS_TICK}
                 axisLine={false}
                 tickLine={false}
                 width={140}
               />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                  fontSize: 12,
-                }}
+                contentStyle={CHART_TOOLTIP_STYLE}
                 formatter={(value: number, _name: string, props: any) => [
                   `${value}/5 (${props.payload.responses} ${t('orgDashboard.responses')})`,
                   props.payload.category,

@@ -72,7 +72,7 @@ export function TaskCommentsPanel({
                   {showDateSep && (
                     <div className="flex items-center gap-3 py-3">
                       <div className="flex-1 h-px bg-border" />
-                      <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+                      <span className="text-2xs text-muted-foreground font-medium uppercase tracking-wider">
                         {format(new Date(c.created_at), 'PP')}
                       </span>
                       <div className="flex-1 h-px bg-border" />
@@ -80,7 +80,7 @@ export function TaskCommentsPanel({
                   )}
                   <div className={`flex gap-3 p-3 rounded-lg group transition-colors hover:bg-muted/40 ${isOwn ? 'bg-primary/5' : 'bg-muted/20'}`}>
                     <Avatar className="h-8 w-8 shrink-0">
-                      <AvatarFallback className="text-[10px]">
+                      <AvatarFallback className="text-2xs">
                         {getInitials(c.employee?.full_name)}
                       </AvatarFallback>
                     </Avatar>
@@ -90,9 +90,9 @@ export function TaskCommentsPanel({
                           {c.employee?.full_name ?? c.user_id.slice(0, 8)}
                         </span>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] text-muted-foreground">{format(new Date(c.created_at), 'p')}</span>
+                          <span className="text-2xs text-muted-foreground">{format(new Date(c.created_at), 'p')}</span>
                           {c.updated_at !== c.created_at && (
-                            <span className="text-[10px] text-muted-foreground italic">({t('tasks.comments.edited')})</span>
+                            <span className="text-2xs text-muted-foreground italic">({t('tasks.comments.edited')})</span>
                           )}
                           {isOwn && !isEditing && (
                             <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">

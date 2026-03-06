@@ -166,7 +166,7 @@ export function FrameworkDialog({ open, onOpenChange, framework, onSave }: Frame
             >
               <Upload className={`h-5 w-5 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
               <span className="text-xs text-muted-foreground">{t('aiGenerator.dragOrClick')}</span>
-              <span className="text-[10px] text-muted-foreground/70">PDF, DOCX, DOC, TXT, MD</span>
+              <span className="text-2xs text-muted-foreground/70">PDF, DOCX, DOC, TXT, MD</span>
             </div>
             <input
               ref={fileRef}
@@ -179,10 +179,10 @@ export function FrameworkDialog({ open, onOpenChange, framework, onSave }: Frame
             {pendingFiles.length > 0 && (
               <div className="space-y-1 mt-1.5">
                 {pendingFiles.map((f, i) => (
-                  <div key={i} className="flex items-center gap-1.5 p-1.5 rounded-md bg-muted/30 border border-border/30 text-[11px]">
+                  <div key={i} className="flex items-center gap-1.5 p-1.5 rounded-md bg-muted/30 border border-border/30 text-xs">
                     <FileText className="h-3.5 w-3.5 text-primary shrink-0" />
                     <span className="flex-1 truncate">{f.name}</span>
-                    <Badge variant="outline" className="text-[9px] px-1 py-0 h-4">{(f.size / 1024).toFixed(0)}KB</Badge>
+                    <Badge variant="outline" className="text-2xs px-1 py-0 h-4">{(f.size / 1024).toFixed(0)}KB</Badge>
                     <button type="button" onClick={() => removeFile(i)} className="p-1 hover:bg-destructive/10 rounded">
                       <X className="h-3.5 w-3.5 text-destructive" />
                     </button>

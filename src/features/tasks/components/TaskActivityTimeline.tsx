@@ -71,7 +71,7 @@ export function TaskActivityTimeline({ activities, isLoading }: TaskActivityTime
           <Button
             variant={filter === null ? 'default' : 'outline'}
             size="sm"
-            className="h-6 text-[10px] px-2"
+            className="h-6 text-2xs px-2"
             onClick={() => setFilter(null)}
           >
             {t('tasks.activity.all')} ({activities.length})
@@ -81,7 +81,7 @@ export function TaskActivityTimeline({ activities, isLoading }: TaskActivityTime
               key={type}
               variant={filter === type ? 'default' : 'outline'}
               size="sm"
-              className="h-6 text-[10px] px-2 capitalize"
+              className="h-6 text-2xs px-2 capitalize"
               onClick={() => setFilter(filter === type ? null : type)}
             >
               {type.replace(/_/g, ' ')} ({activities.filter(a => a.action === type).length})
@@ -102,7 +102,7 @@ export function TaskActivityTimeline({ activities, isLoading }: TaskActivityTime
               <div key={a.id}>
                 {showDateSep && (
                   <div className="flex items-center gap-3 py-2 -ms-8 ps-8">
-                    <Badge variant="outline" className="text-[10px] font-medium">
+                    <Badge variant="outline" className="text-2xs font-medium">
                       {format(new Date(a.created_at), 'PP')}
                     </Badge>
                   </div>
@@ -123,7 +123,7 @@ export function TaskActivityTimeline({ activities, isLoading }: TaskActivityTime
                         <p className="text-xs text-muted-foreground">{detailText}</p>
                       )}
                     </div>
-                    <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">
+                    <span className="text-2xs text-muted-foreground whitespace-nowrap shrink-0">
                       {format(new Date(a.created_at), 'p')}
                     </span>
                   </div>

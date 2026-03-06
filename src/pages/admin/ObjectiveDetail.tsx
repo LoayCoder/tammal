@@ -138,7 +138,7 @@ export default function ObjectiveDetail() {
             <div className="text-end">
               <span className="text-3xl font-bold">{Number(objective.progress).toFixed(0)}%</span>
               <Progress value={Number(objective.progress)} className="w-32 h-2 mt-1" />
-              <p className="text-[10px] text-muted-foreground mt-0.5">{t('workload.lock.autoCalculated')}</p>
+              <p className="text-2xs text-muted-foreground mt-0.5">{t('workload.lock.autoCalculated')}</p>
             </div>
           </div>
         </div>

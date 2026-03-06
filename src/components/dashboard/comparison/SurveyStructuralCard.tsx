@@ -56,7 +56,7 @@ export function SurveyStructuralCard({ data, isLoading }: Props) {
               <div className="flex items-center gap-1.5">
                 <m.icon className="h-3.5 w-3.5 text-muted-foreground" />
                 <span className="text-lg font-semibold truncate">{m.value}</span>
-                {m.highlight && <Badge variant="destructive" className="text-[10px] px-1 py-0">{data?.riskCategoryCount}</Badge>}
+                {m.highlight && <Badge variant="destructive" className="text-2xs px-1 py-0">{data?.riskCategoryCount}</Badge>}
               </div>
             )}
           </div>

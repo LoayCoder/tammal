@@ -349,7 +349,7 @@ export default function MoodTrackerPage() {
                       const intensity = count / max;
                       return (
                         <div key={dayKey} className="flex flex-col items-center gap-1">
-                          <span className="text-[10px] text-muted-foreground">
+                          <span className="text-2xs text-muted-foreground">
                             {t(`wellness.days.${dayKey}`)}
                           </span>
                           <div

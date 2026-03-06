@@ -224,7 +224,7 @@ export function DashboardPrayerWidget() {
                   ? '«أَرَأَيْتُمْ لَوْ أَنَّ نَهْرًا بِبَابِ أَحَدِكُمْ يَغْتَسِلُ مِنْهُ كُلَّ يَوْمٍ خَمْسَ مَرَّاتٍ، هَلْ يَبْقَى مِنْ دَرَنِهِ شَيْءٌ؟» قَالُوا: لاَ يَبْقَى مِنْ دَرَنِهِ شَيْءٌ. قَالَ: «فَذَلِكَ مَثَلُ الصَّلَوَاتِ الْخَمْسِ، يَمْحُو اللَّهُ بِهِنَّ الْخَطَايَا»'
                   : '"If there was a river at the door of anyone of you and he took a bath in it five times a day, would any dirt remain on him?" They said, "No." He ﷺ said, "That is the example of the five prayers with which Allah erases sins."'}
               </p>
-              <p className="text-[10px] text-muted-foreground/70">
+              <p className="text-2xs text-muted-foreground/70">
                 {i18n.language === 'ar' ? '— متفق عليه' : '— Agreed upon (Bukhari & Muslim)'}
               </p>
             </div>
@@ -257,7 +257,7 @@ export function DashboardPrayerWidget() {
                   {isMissed ? '✕' : null}
                   {!logged && isActive ? <Timer className="h-3 w-3" /> : null}
                 </div>
-                <span className="text-[10px] text-muted-foreground leading-none">
+                <span className="text-2xs text-muted-foreground leading-none">
                   {t(`spiritual.prayer.names.${name.toLowerCase()}`).slice(0, 3)}
                 </span>
                 {/* Rawatib dots */}

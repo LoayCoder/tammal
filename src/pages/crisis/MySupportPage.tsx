@@ -131,7 +131,7 @@ function CaseCardList({ cases, onSelect }: { cases: any[]; onSelect: (id: string
               <div className="mt-3 p-3 rounded-lg bg-muted/50 border border-border">
                 <div className="flex items-center gap-1.5 mb-1">
                   <FileText className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-[10px] font-medium text-muted-foreground uppercase">{t('crisisSupport.mySupport.sharedNotes')}</span>
+                  <span className="text-2xs font-medium text-muted-foreground uppercase">{t('crisisSupport.mySupport.sharedNotes')}</span>
                 </div>
                 <p className="text-xs text-foreground">{c.summary}</p>
               </div>
