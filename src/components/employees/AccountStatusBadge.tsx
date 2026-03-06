@@ -1,6 +1,6 @@
 import { StatusBadge, ACCOUNT_STATUS_CONFIG } from '@/shared/status-badge';
-
-export type AccountStatus = 'not_invited' | 'invited' | 'active' | 'suspended' | 'inactive';
+export type { AccountStatus } from '@/types/employee';
+import type { AccountStatus } from '@/types/employee';
 
 interface AccountStatusBadgeProps {
   status: AccountStatus;

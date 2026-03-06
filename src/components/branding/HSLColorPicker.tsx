@@ -2,12 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-export interface HSLColor {
-  h: number;
-  s: number;
-  l: number;
-}
+export type { HSLColor } from '@/types/branding';
+import type { HSLColor } from '@/types/branding';
 
 interface HSLColorPickerProps {
   label: string;
