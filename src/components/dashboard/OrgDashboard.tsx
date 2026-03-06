@@ -37,6 +37,8 @@ export function OrgDashboard() {
 
       <StatCards cards={statCards} isLoading={isLoading} />
 
+      <ErrorBoundary><OrgWorkloadIndicator /></ErrorBoundary>
+
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="glass-tabs border-0 h-auto">
           <TabsTrigger value="overview" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">{t('orgDashboard.tabs.overview')}</TabsTrigger>
