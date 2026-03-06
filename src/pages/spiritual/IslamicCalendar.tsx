@@ -219,7 +219,7 @@ export default function IslamicCalendar() {
                     } ${event || hasHoliday ? 'bg-accent/40' : ''} ${white || sunnah ? 'bg-chart-2/10' : ''}`}
                   >
                     <div className="text-sm font-medium">{new Date(day.gregorian).getDate()}</div>
-                    <div className="text-[10px] text-muted-foreground">{day.hijri.day}</div>
+                    <div className="text-2xs text-muted-foreground">{day.hijri.day}</div>
                     <div className="flex justify-center gap-0.5 mt-0.5 flex-wrap">
                       {(event || hasHoliday) && <Star className="h-3 w-3 text-chart-4 fill-chart-4" />}
                       {(white || sunnah || event?.isFastingDay || day.hijri.month.number === 9) && (
@@ -227,7 +227,7 @@ export default function IslamicCalendar() {
                       )}
                     </div>
                     {calendarView === 'week' && (event || hasHoliday) && (
-                      <p className="text-[9px] text-chart-4 font-medium mt-0.5 leading-tight truncate">
+                      <p className="text-2xs text-chart-4 font-medium mt-0.5 leading-tight truncate">
                         {event ? (isRTL ? event.ar : event.en) : day.hijri.holidays?.[0]}
                       </p>
                     )}
@@ -264,13 +264,13 @@ export default function IslamicCalendar() {
                   <div className="flex items-center gap-3">
                     <div className="text-center min-w-[3rem] bg-accent/30 rounded-lg p-1.5">
                       <div className="text-sm font-bold">{new Date(day.gregorian).getDate()}</div>
-                      <div className="text-[10px] text-muted-foreground">
+                       <div className="text-2xs text-muted-foreground">
                         {isRTL ? day.hijri.month.ar : day.hijri.month.en} {day.hijri.day}
                       </div>
                     </div>
                     <div>
                       <p className="text-sm font-medium">{label}</p>
-                      {desc && <p className="text-[11px] text-muted-foreground leading-tight">{desc}</p>}
+                      {desc && <p className="text-xs text-muted-foreground leading-tight">{desc}</p>}
                     </div>
                   </div>
                   {day.event?.isFastingDay && (
@@ -308,7 +308,7 @@ export default function IslamicCalendar() {
                     <UtensilsCrossed className="h-4 w-4 text-chart-2" />
                     <div>
                       <p className="text-sm font-medium">{isRTL ? 'صيام رمضان (فرض)' : 'Ramadan Fasting (Obligatory)'}</p>
-                      <p className="text-[11px] text-muted-foreground">
+                       <p className="text-xs text-muted-foreground">
                         {isRTL ? `${fastingData.ramadanCount} يوم هذا الشهر` : `${fastingData.ramadanCount} days this month`}
                       </p>
                     </div>
@@ -333,14 +333,14 @@ export default function IslamicCalendar() {
                     <div className="flex items-center gap-3">
                       <div className="text-center min-w-[2.5rem]">
                         <div className="text-sm font-bold">{gregDate.getDate()}</div>
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-2xs text-muted-foreground">
                           {isRTL ? WEEKDAYS_AR[gregDate.getDay()] : WEEKDAYS_EN[gregDate.getDay()]}
                         </div>
                       </div>
                       <div>
                         <p className="text-sm font-medium">{isRTL ? day.event!.ar : day.event!.en}</p>
                         {day.event?.descEn && (
-                          <p className="text-[11px] text-muted-foreground">{isRTL ? day.event.descAr : day.event.descEn}</p>
+                          <p className="text-xs text-muted-foreground">{isRTL ? day.event.descAr : day.event.descEn}</p>
                         )}
                       </div>
                     </div>
@@ -358,7 +358,7 @@ export default function IslamicCalendar() {
                     <UtensilsCrossed className="h-4 w-4 text-chart-2" />
                     <div>
                       <p className="text-sm font-medium">{isRTL ? 'أيام البيض (١٣-١٤-١٥)' : 'White Days (13th-14th-15th)'}</p>
-                      <p className="text-[11px] text-muted-foreground">
+                       <p className="text-xs text-muted-foreground">
                         {isRTL ? 'صيام ثلاثة أيام من كل شهر كصيام الدهر' : 'Fasting 3 days monthly equals fasting the whole year'}
                       </p>
                     </div>
@@ -374,7 +374,7 @@ export default function IslamicCalendar() {
                     <UtensilsCrossed className="h-4 w-4 text-chart-2" />
                     <div>
                       <p className="text-sm font-medium">{isRTL ? 'صيام الإثنين والخميس' : 'Monday & Thursday Fasting'}</p>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {isRTL
                           ? `${fastingData.sunnahMondays} إثنين · ${fastingData.sunnahThursdays} خميس هذا الشهر`
                           : `${fastingData.sunnahMondays} Mondays · ${fastingData.sunnahThursdays} Thursdays this month`}

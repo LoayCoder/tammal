@@ -66,11 +66,11 @@ export function FrameworkDocuments({ frameworkId }: FrameworkDocumentsProps) {
               <FileText className="h-3.5 w-3.5 text-primary shrink-0" />
               <span className="flex-1 truncate">{doc.file_name}</span>
               {doc.extracted_text ? (
-                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 bg-green-500/10 text-green-600 border-green-500/30 shadow-[0_0_4px_hsl(142_71%_45%/0.2)]">
+                <Badge variant="outline" className="text-2xs px-1.5 py-0 h-4 bg-green-500/10 text-green-600 border-green-500/30 shadow-[0_0_4px_hsl(142_71%_45%/0.2)]">
                   {t('aiGenerator.extracted')}
                 </Badge>
               ) : (
-                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 bg-amber-500/10 text-amber-600 border-amber-500/30 animate-pulse">
+                <Badge variant="outline" className="text-2xs px-1.5 py-0 h-4 bg-amber-500/10 text-amber-600 border-amber-500/30 animate-pulse">
                   {t('aiGenerator.pending')}
                 </Badge>
               )}

@@ -507,7 +507,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                               )} />
                               <span className="truncate">{item.title}</span>
                               {item.badge && (
-                                <span className="ms-auto inline-flex items-center rounded-lg bg-sidebar-primary px-1.5 py-0.5 text-[11px] font-medium text-sidebar-primary-foreground">
+                                <span className="ms-auto inline-flex items-center rounded-lg bg-sidebar-primary px-1.5 py-0.5 text-xs font-medium text-sidebar-primary-foreground">
                                   {item.badge}
                                 </span>
                               )}

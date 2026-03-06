@@ -27,7 +27,7 @@ export function TaskMembersPicker({
         <label className="text-sm font-medium flex items-center gap-1.5">
           <User className="h-3.5 w-3.5" />
           {t('tasks.members.assignee')}
-          <Badge variant="destructive" className="text-[10px] h-4 px-1">*</Badge>
+          <Badge variant="destructive" className="text-2xs h-4 px-1">*</Badge>
         </label>
         <EmployeePicker value={assigneeId} onChange={onAssigneeChange} departmentId={departmentId} disabled={disabled} />
       </div>

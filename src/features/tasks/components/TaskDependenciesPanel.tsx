@@ -95,7 +95,7 @@ export function TaskDependenciesPanel({ taskId }: { taskId: string }) {
                     disabled={isAdding}
                   >
                     <span className="truncate">{task.title}</span>
-                    <Badge className={`${STATUS_BADGE[task.status] ?? 'bg-muted text-muted-foreground'} text-[10px] shrink-0`}>{task.status}</Badge>
+                    <Badge className={`${STATUS_BADGE[task.status] ?? 'bg-muted text-muted-foreground'} text-2xs shrink-0`}>{task.status}</Badge>
                   </button>
                 ))}
               </div>
@@ -116,7 +116,7 @@ export function TaskDependenciesPanel({ taskId }: { taskId: string }) {
                   <button className="text-xs text-start flex-1 truncate hover:underline" onClick={() => navigate(`/tasks/${task?.id}`)}>
                     {task?.title ?? dep.depends_on_task_id.slice(0, 8)}
                   </button>
-                  <Badge variant="outline" className="text-[10px]">{dep.dependency_type}</Badge>
+                   <Badge variant="outline" className="text-2xs">{dep.dependency_type}</Badge>
                   <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => removeDependency(dep.id)}>
                     <X className="h-3 w-3 text-destructive" />
                   </Button>
@@ -138,7 +138,7 @@ export function TaskDependenciesPanel({ taskId }: { taskId: string }) {
                   <button className="text-xs text-start flex-1 truncate hover:underline" onClick={() => navigate(`/tasks/${task?.id}`)}>
                     {task?.title ?? dep.task_id.slice(0, 8)}
                   </button>
-                  <Badge variant="outline" className="text-[10px]">{dep.dependency_type}</Badge>
+                  <Badge variant="outline" className="text-2xs">{dep.dependency_type}</Badge>
                   <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => removeDependency(dep.id)}>
                     <X className="h-3 w-3 text-destructive" />
                   </Button>

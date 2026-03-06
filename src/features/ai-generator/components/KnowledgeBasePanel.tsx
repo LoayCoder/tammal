@@ -186,7 +186,7 @@ export function KnowledgeBasePanel({
                 <div className="flex flex-col items-center gap-1.5">
                   <Upload className="h-6 w-6 text-muted-foreground/50" />
                   <span className="text-xs text-muted-foreground">{t('aiGenerator.dragOrClick')}</span>
-                  <span className="text-[10px] text-muted-foreground/60">{t('aiGenerator.maxFileSize')}</span>
+                  <span className="text-2xs text-muted-foreground/60">{t('aiGenerator.maxFileSize')}</span>
                 </div>
               )}
             </div>
@@ -204,7 +204,7 @@ export function KnowledgeBasePanel({
                       <FileText className={`h-4 w-4 shrink-0 ${doc.is_active ? 'text-primary' : 'text-muted-foreground'}`} />
                       <div className="min-w-0">
                         <p className="truncate text-xs font-medium">{doc.file_name}</p>
-                        <p className="text-[10px] text-muted-foreground">
+                        <p className="text-2xs text-muted-foreground">
                           {formatSize(doc.file_size)}
                           {doc.is_active
                             ? ` • ${t('aiGenerator.documentActive')}`

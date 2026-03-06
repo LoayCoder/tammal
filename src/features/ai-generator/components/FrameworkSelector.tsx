@@ -221,12 +221,12 @@ export function FrameworkSelector({
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="text-sm font-medium text-foreground truncate">{displayName}</span>
                             {fw.is_default && (
-                              <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 shrink-0">
+                              <Badge variant="outline" className="text-2xs px-1.5 py-0 h-4 shrink-0">
                                 {t('aiGenerator.defaultArea')}
                               </Badge>
                             )}
                             {selected && (
-                              <Badge variant="default" className="text-[9px] px-1.5 py-0 h-4 shrink-0 gap-0.5">
+                              <Badge variant="default" className="text-2xs px-1.5 py-0 h-4 shrink-0 gap-0.5">
                                 <Check className="h-2.5 w-2.5" />
                                 {t('common.selected')}
                               </Badge>

@@ -32,7 +32,7 @@ export default function NotificationBell() {
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <Badge variant="destructive" className="absolute -top-1 -end-1 h-5 min-w-5 text-[10px] px-1 flex items-center justify-center">
+            <Badge variant="destructive" className="absolute -top-1 -end-1 h-5 min-w-5 text-2xs px-1 flex items-center justify-center">
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
           )}
@@ -70,7 +70,7 @@ export default function NotificationBell() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{n.title}</p>
                     {n.body && <p className="text-xs text-muted-foreground line-clamp-2">{n.body}</p>}
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{format(new Date(n.created_at), 'MMM d, h:mm a')}</p>
+                    <p className="text-2xs text-muted-foreground mt-0.5">{format(new Date(n.created_at), 'MMM d, h:mm a')}</p>
                   </div>
                   {!n.is_read && <div className="w-2 h-2 rounded-full bg-primary shrink-0 mt-2" />}
                 </button>

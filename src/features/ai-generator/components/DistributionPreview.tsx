@@ -44,7 +44,7 @@ export function DistributionPreview({ subcategories, questionCount }: Distributi
                 <td className="py-1.5 pe-2 truncate max-w-[120px]">{getLabel(sub)}</td>
                 {states.map(s => (
                   <td key={s.key} className="text-center py-1.5 px-1">
-                    <span className={`inline-flex items-center justify-center h-5 w-5 rounded text-[10px] font-semibold ${s.color}`}>
+                    <span className={`inline-flex items-center justify-center h-5 w-5 rounded text-2xs font-semibold ${s.color}`}>
                       {perState}
                     </span>
                   </td>
@@ -54,7 +54,7 @@ export function DistributionPreview({ subcategories, questionCount }: Distributi
           </tbody>
         </table>
       </div>
-      <p className="text-[10px] text-muted-foreground">
+      <p className="text-2xs text-muted-foreground">
         ≈ {perSub} × {subcategories.length} = {perSub * subcategories.length} questions (target)
       </p>
     </div>

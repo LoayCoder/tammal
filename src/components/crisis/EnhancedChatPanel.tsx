@@ -171,7 +171,7 @@ export default function EnhancedChatPanel({ caseId, tenantId }: Props) {
             <div key={group.date}>
               {/* Date separator */}
               <div className="flex items-center justify-center my-3">
-                <span className="text-[10px] text-muted-foreground bg-muted px-3 py-0.5 rounded-full">
+                <span className="text-2xs text-muted-foreground bg-muted px-3 py-0.5 rounded-full">
                   {formatDateSeparator(new Date(group.date))}
                 </span>
               </div>
@@ -196,7 +196,7 @@ export default function EnhancedChatPanel({ caseId, tenantId }: Props) {
                     <div className="relative max-w-[80%] group">
                       {/* Reply reference */}
                       {repliedMsg && (
-                        <div className={`text-[10px] px-3 py-1 mb-0.5 rounded-t-lg border-s-2 border-primary/40 ${isMe ? 'bg-primary/10' : 'bg-muted/60'} text-muted-foreground truncate`}>
+                        <div className={`text-2xs px-3 py-1 mb-0.5 rounded-t-lg border-s-2 border-primary/40 ${isMe ? 'bg-primary/10' : 'bg-muted/60'} text-muted-foreground truncate`}>
                           <Reply className="h-2.5 w-2.5 inline me-1" />
                           {repliedMsg.message.substring(0, 60)}
                         </div>
@@ -213,7 +213,7 @@ export default function EnhancedChatPanel({ caseId, tenantId }: Props) {
                           <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
                         )}
                         <div className={`flex items-center gap-1 mt-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
-                          <span className={`text-[10px] ${isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                          <span className={`text-2xs ${isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                             {format(new Date(msg.created_at), 'h:mm a')}
                           </span>
                           {isMe && (

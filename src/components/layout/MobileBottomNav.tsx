@@ -37,7 +37,7 @@ export function MobileBottomNav() {
               }`}
             >
               <item.icon className="h-5 w-5" />
-              <span className="text-[10px] font-medium leading-tight">{t(item.translationKey)}</span>
+              <span className="text-2xs font-medium leading-tight">{t(item.translationKey)}</span>
             </button>
           );
         })}
@@ -46,7 +46,7 @@ export function MobileBottomNav() {
           className="flex flex-col items-center justify-center gap-0.5 min-w-[44px] min-h-[44px] rounded-xl text-muted-foreground transition-colors"
         >
           <Menu className="h-5 w-5" />
-          <span className="text-[10px] font-medium leading-tight">{t('common.more')}</span>
+          <span className="text-2xs font-medium leading-tight">{t('common.more')}</span>
         </button>
       </div>
     </nav>

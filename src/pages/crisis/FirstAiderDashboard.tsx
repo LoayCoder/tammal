@@ -258,14 +258,14 @@ function CaseList({ cases, isPending, onSelect, actions }: { cases: any[]; isPen
                 <div>
                   <p className="font-medium text-sm">{t(`crisisSupport.intents.${c.intent}`)}</p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <Badge variant={c.risk_level === 'high' ? 'destructive' : c.risk_level === 'moderate' ? 'secondary' : 'outline'} className="text-[10px]">
-                      {c.risk_level}
-                    </Badge>
-                    {c.urgency_level && (
-                      <Badge variant="outline" className="text-[10px]">U{c.urgency_level}</Badge>
-                    )}
-                    <span className="text-xs text-muted-foreground">{format(new Date(c.created_at), 'MMM d, h:mm a')}</span>
-                    {c.anonymity_mode === 'anonymous' && <Badge variant="outline" className="text-[10px]">{t('crisisSupport.request.anonymous')}</Badge>}
+                     <Badge variant={c.risk_level === 'high' ? 'destructive' : c.risk_level === 'moderate' ? 'secondary' : 'outline'} className="text-2xs">
+                       {c.risk_level}
+                     </Badge>
+                     {c.urgency_level && (
+                       <Badge variant="outline" className="text-2xs">U{c.urgency_level}</Badge>
+                     )}
+                     <span className="text-xs text-muted-foreground">{format(new Date(c.created_at), 'MMM d, h:mm a')}</span>
+                     {c.anonymity_mode === 'anonymous' && <Badge variant="outline" className="text-2xs">{t('crisisSupport.request.anonymous')}</Badge>}
                   </div>
                 </div>
               </div>

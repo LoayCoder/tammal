@@ -387,7 +387,7 @@ export default function CrisisRequestPage() {
                           <div className="flex items-center gap-2">
                             <p className="font-medium text-sm text-foreground">{match.display_name}</p>
                             {idx === 0 && (
-                              <Badge variant="default" className="text-[10px] px-1.5 py-0">
+                              <Badge variant="default" className="text-2xs px-1.5 py-0">
                                 {t('crisisSupport.request.bestMatch')}
                               </Badge>
                             )}
@@ -405,7 +405,7 @@ export default function CrisisRequestPage() {
                                 {match.languages.join(', ')}
                               </span>
                             )}
-                            <Badge variant={match.status === 'online' ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0">
+                            <Badge variant={match.status === 'online' ? 'default' : 'secondary'} className="text-2xs px-1.5 py-0">
                               {match.status === 'online' ? `🟢 ${t('crisisSupport.status.online')}` : `⚫ ${t('crisisSupport.status.offline')}`}
                             </Badge>
                           </div>
@@ -434,7 +434,7 @@ export default function CrisisRequestPage() {
                             </div>
                             <div>
                               <h3 className="font-semibold text-foreground">{selectedMatch.display_name}</h3>
-                              <Badge variant={selectedMatch.status === 'online' ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0 mt-1">
+                              <Badge variant={selectedMatch.status === 'online' ? 'default' : 'secondary'} className="text-2xs px-1.5 py-0 mt-1">
                                 {selectedMatch.status === 'online' ? `🟢 ${t('crisisSupport.status.online')}` : `⚫ ${t('crisisSupport.status.offline')}`}
                               </Badge>
                             </div>
@@ -477,7 +477,7 @@ export default function CrisisRequestPage() {
                               <p className="text-xs text-muted-foreground mb-1.5">{t('crisisSupport.request.specializations')}</p>
                               <div className="flex flex-wrap gap-1">
                                 {selectedMatch.specializations.map(spec => (
-                                  <Badge key={spec} variant="outline" className="text-[10px] px-1.5 py-0">
+                                  <Badge key={spec} variant="outline" className="text-2xs px-1.5 py-0">
                                     {spec.replace('_', ' ')}
                                   </Badge>
                                 ))}

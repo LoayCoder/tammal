@@ -86,7 +86,7 @@ export function CategoryMoodMatrix({ data, isLoading }: Props) {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div
-                                className="mx-auto w-10 h-10 rounded flex items-center justify-center text-[10px] font-medium cursor-default transition-transform hover:scale-110"
+                                className="mx-auto w-10 h-10 rounded flex items-center justify-center text-2xs font-medium cursor-default transition-transform hover:scale-110"
                                 style={{ backgroundColor: getIntensityColor(count, maxCount), color: count > maxCount * 0.4 ? 'hsl(var(--card))' : 'hsl(var(--foreground))' }}
                               >
                                 {count || '—'}

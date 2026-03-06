@@ -99,7 +99,7 @@ export function BatchDetailDialog({ open, onOpenChange, batchId, batchTitle }: B
                           <span className="flex items-center gap-1">
                             {task.due_date ? new Date(task.due_date).toLocaleDateString() : '—'}
                             {hasExtensions && (
-                              <Badge variant="outline" className="text-[10px] px-1 py-0">
+                              <Badge variant="outline" className="text-2xs px-1 py-0">
                                 +{task.due_date_history.length}
                               </Badge>
                             )}

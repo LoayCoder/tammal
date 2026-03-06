@@ -93,7 +93,7 @@ export default function SecureAttachmentUploader({ caseId, tenantId, expiryDays 
         />
         <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
         <p className="text-sm text-muted-foreground">{t('crisisSupport.attachments.dropzone')}</p>
-        <p className="text-[10px] text-muted-foreground mt-1">{t('crisisSupport.attachments.maxSize')}</p>
+        <p className="text-2xs text-muted-foreground mt-1">{t('crisisSupport.attachments.maxSize')}</p>
 
         {uploading && (
           <div className="mt-3">
@@ -103,7 +103,7 @@ export default function SecureAttachmentUploader({ caseId, tenantId, expiryDays 
       </div>
 
       {/* Encryption badge */}
-      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-2xs text-muted-foreground">
         <Shield className="h-3 w-3 text-primary" />
         {t('crisisSupport.attachments.encrypted')}
         <span className="mx-1">•</span>
@@ -122,13 +122,13 @@ export default function SecureAttachmentUploader({ caseId, tenantId, expiryDays 
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{att.filename}</p>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-2xs text-muted-foreground">
                     {formatFileSize(att.size_bytes)} • {t('crisisSupport.attachments.expiresIn', {
                       time: formatDistanceToNow(new Date(att.expires_at)),
                     })}
                   </p>
                 </div>
-                <Badge variant="outline" className="text-[10px] shrink-0">
+                <Badge variant="outline" className="text-2xs shrink-0">
                   <Shield className="h-2.5 w-2.5 me-1" />
                   {t('crisisSupport.attachments.secure')}
                 </Badge>
