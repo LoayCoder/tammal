@@ -201,7 +201,7 @@ export default function ThoughtReframerPage() {
                   <span className="text-lg">{s.icon}</span>
                   <div>
                     <p className="text-lg font-bold text-foreground leading-tight">{s.value}</p>
-                    <p className="text-[10px] text-muted-foreground leading-tight">{s.label}</p>
+                    <p className="text-2xs text-muted-foreground leading-tight">{s.label}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -230,7 +230,7 @@ export default function ThoughtReframerPage() {
                         >
                           {i + 1}
                         </div>
-                        <span className="text-[10px] text-muted-foreground mt-1 text-center max-w-[64px]">
+                        <span className="text-2xs text-muted-foreground mt-1 text-center max-w-[64px]">
                           {t(`mentalToolkit.thoughtReframer.${s}`)}
                         </span>
                       </div>

@@ -27,7 +27,7 @@ function FrameworkDocCount({ frameworkId }: { frameworkId: string }) {
   const { documents } = useFrameworkDocuments(frameworkId);
   if (!documents || documents.length === 0) return null;
   return (
-    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 gap-0.5">
+    <Badge variant="secondary" className="text-2xs px-1.5 py-0 h-4 gap-0.5">
       <FileText className="h-2.5 w-2.5" />
       {documents.length}
     </Badge>

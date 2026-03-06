@@ -195,7 +195,7 @@ export default function TaskCalendar() {
                         <button
                           key={task.id}
                           onClick={() => navigate(`/tasks/${task.id}`)}
-                          className={`w-full text-start rounded px-1.5 py-0.5 text-[10px] leading-tight truncate flex items-center gap-1 transition-colors hover:ring-1 hover:ring-ring ${
+                          className={`w-full text-start rounded px-1.5 py-0.5 text-2xs leading-tight truncate flex items-center gap-1 transition-colors hover:ring-1 hover:ring-ring ${
                             STATUS_COLORS[task.status] ?? STATUS_COLORS.draft
                           }`}
                         >
@@ -204,7 +204,7 @@ export default function TaskCalendar() {
                         </button>
                       ))}
                       {overflow > 0 && (
-                        <p className="text-[10px] text-muted-foreground text-center">
+                        <p className="text-2xs text-muted-foreground text-center">
                           +{overflow} {t('tasks.calendar.more')}
                         </p>
                       )}

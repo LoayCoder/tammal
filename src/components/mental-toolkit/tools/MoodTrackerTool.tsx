@@ -100,7 +100,7 @@ export default function MoodTrackerTool() {
               }`}
             >
               <span className="text-2xl sm:text-3xl">{e.emoji}</span>
-              <span className="text-[10px] text-muted-foreground hidden sm:block">{e.label}</span>
+              <span className="text-2xs text-muted-foreground hidden sm:block">{e.label}</span>
             </button>
           ))}
         </div>

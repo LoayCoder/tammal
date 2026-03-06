@@ -64,7 +64,7 @@ export default function SessionWorkspace({ caseId, sessionId, tenantId, isFirstA
             <h2 className="font-semibold text-lg">{t('crisisSupport.session.workspace')}</h2>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               {currentSession?.channel && (
-                <Badge variant="outline" className="text-[10px]">
+                <Badge variant="outline" className="text-2xs">
                   {currentSession.channel === 'voice' ? <Phone className="h-3 w-3 me-1" /> :
                    currentSession.channel === 'video' ? <Video className="h-3 w-3 me-1" /> :
                    <MessageSquare className="h-3 w-3 me-1" />}
@@ -72,7 +72,7 @@ export default function SessionWorkspace({ caseId, sessionId, tenantId, isFirstA
                 </Badge>
               )}
               {sessionDuration !== null && (
-                <Badge variant="secondary" className="text-[10px]">
+                <Badge variant="secondary" className="text-2xs">
                   <Clock className="h-3 w-3 me-1" />
                   {sessionDuration} min
                 </Badge>
@@ -174,7 +174,7 @@ export default function SessionWorkspace({ caseId, sessionId, tenantId, isFirstA
                 <p>📅 {format(new Date(currentSession.scheduled_start), 'MMM d, yyyy h:mm a')}</p>
               )}
               <p>📡 {currentSession.channel}</p>
-              <Badge variant={currentSession.status === 'active' ? 'default' : 'secondary'} className="text-[10px]">
+              <Badge variant={currentSession.status === 'active' ? 'default' : 'secondary'} className="text-2xs">
                 {currentSession.status}
               </Badge>
             </CardContent>
