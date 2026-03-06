@@ -13,7 +13,7 @@ import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useUnifiedTasks } from '@/hooks/workload/useUnifiedTasks';
 import { UnifiedTaskList } from '@/components/workload/employee/UnifiedTaskList';
 import { TaskDialog } from '@/components/workload/employee/TaskDialog';
-import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
+import { CreateTaskModal } from '@/features/tasks/components/CreateTaskModal';
 import {
   Plus, Search, ListChecks, CalendarDays, CheckCircle2, AlertTriangle,
   Clock, Filter,

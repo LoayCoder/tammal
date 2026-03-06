@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useTaskDependencies } from '@/hooks/tasks/useTaskDependencies';
+import { useTaskDependencies } from '@/features/tasks/hooks/useTaskDependencies';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTenantId } from '@/hooks/org/useTenantId';

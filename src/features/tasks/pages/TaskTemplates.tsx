@@ -18,7 +18,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Plus, Pencil, Trash2, FileText, Search, CheckSquare } from 'lucide-react';
-import { useTaskTemplates, type CreateTemplateInput } from '@/hooks/tasks/useTaskTemplates';
+import { useTaskTemplates, type CreateTemplateInput } from '@/features/tasks/hooks/useTaskTemplates';
 
 const PRIORITIES = [
   { value: 'low', label: 'tasks.priority.low' },

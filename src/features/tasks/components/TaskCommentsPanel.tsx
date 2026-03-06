@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Send, Trash2, Pencil, X, Check, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
-import type { TaskComment } from '@/hooks/tasks/useTaskComments';
+import type { TaskComment } from '@/features/tasks/hooks/useTaskComments';
 
 interface TaskCommentsPanelProps {
   comments: TaskComment[];

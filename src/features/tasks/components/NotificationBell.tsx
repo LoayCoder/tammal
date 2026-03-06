@@ -11,7 +11,7 @@ import {
   Bell, CheckCircle2, MessageSquare, AlertTriangle, UserPlus,
   ShieldCheck, XCircle, Clock, CheckCheck,
 } from 'lucide-react';
-import { useTaskNotifications, type TaskNotification } from '@/hooks/tasks/useTaskNotifications';
+import { useTaskNotifications, type TaskNotification } from '@/features/tasks/hooks/useTaskNotifications';
 import { formatDistanceToNow } from 'date-fns';
 
 const TYPE_ICONS: Record<string, typeof Bell> = {

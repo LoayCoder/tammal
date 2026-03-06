@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useUnifiedTasks } from '@/hooks/workload/useUnifiedTasks';
-import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
+import { CreateTaskModal } from '@/features/tasks/components/CreateTaskModal';
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   addMonths, subMonths, addWeeks, subWeeks,

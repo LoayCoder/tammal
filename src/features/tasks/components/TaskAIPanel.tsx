@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Brain, Users, Clock, AlertTriangle, Sparkles } from 'lucide-react';
-import { useTaskAI } from '@/hooks/tasks/useTaskAI';
+import { useTaskAI } from '@/features/tasks/hooks/useTaskAI';
 
 interface TaskAIPanelProps {
   taskId: string;
