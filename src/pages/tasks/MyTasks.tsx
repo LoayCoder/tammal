@@ -136,8 +136,8 @@ export default function MyTasks() {
         <Select value={priorityFilter} onValueChange={setPriorityFilter}>
           <SelectTrigger className="w-[140px] h-9"><SelectValue /></SelectTrigger>
           <SelectContent>
-            {PRIORITIES.map(p => (
-              <SelectItem key={p} value={p}>{p === 'all' ? t('common.allPriorities') : t(`tasks.priority.p${p}`)}</SelectItem>
+            {PRIORITY_OPTIONS.map(p => (
+              <SelectItem key={p.value} value={p.value}>{p.value === 'all' ? t('common.allPriorities') : t(p.labelKey)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
