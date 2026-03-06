@@ -187,6 +187,11 @@ export const PrayerHistory = React.memo(function PrayerHistory() {
                           <p className="text-[10px] text-muted-foreground">
                             {s.completed}/{s.total}
                           </p>
+                          {s.missed > 0 && (
+                            <p className="text-[10px] text-destructive font-medium">
+                              {t('spiritual.prayer.history.missedCount', { count: s.missed })}
+                            </p>
+                          )}
                         </CardContent>
                       </Card>
                     ))}

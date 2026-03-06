@@ -2629,7 +2629,10 @@
         "rawatib": "Sunnah Rak'ahs (Rawatib)",
         "rakaahsBefore": "Rak'ahs Before",
         "rakaahsAfter": "Rak'ahs After",
-        "rawatibRate": "Rawatib Rate"
+        "rawatibRate": "Rawatib Rate",
+        "missedRate": "Missed Rate",
+        "rawatibMissedRate": "Rawatib Missed",
+        "missedCount": "{{count}} missed"
       }
     },
     "quran": {

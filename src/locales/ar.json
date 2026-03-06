@@ -2617,7 +2617,10 @@
         "rawatib": "ركعات السنن الرواتب",
         "rakaahsBefore": "ركعات قبلية",
         "rakaahsAfter": "ركعات بعدية",
-        "rawatibRate": "نسبة الرواتب"
+        "rawatibRate": "نسبة الرواتب",
+        "missedRate": "نسبة الفوائت",
+        "rawatibMissedRate": "رواتب فائتة",
+        "missedCount": "{{count}} فائتة"
       }
     },
     "quran": {
