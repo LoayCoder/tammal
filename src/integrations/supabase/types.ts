@@ -7131,6 +7131,68 @@ export type Database = {
           },
         ]
       }
+      unified_task_dependencies: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          dependency_type: string
+          depends_on_task_id: string
+          id: string
+          task_id: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          dependency_type?: string
+          depends_on_task_id: string
+          id?: string
+          task_id: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          dependency_type?: string
+          depends_on_task_id?: string
+          id?: string
+          task_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unified_task_dependencies_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_task_dependencies_depends_on_task_id_fkey"
+            columns: ["depends_on_task_id"]
+            isOneToOne: false
+            referencedRelation: "unified_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_task_dependencies_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "unified_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_task_dependencies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       unified_tasks: {
         Row: {
           actual_minutes: number | null
