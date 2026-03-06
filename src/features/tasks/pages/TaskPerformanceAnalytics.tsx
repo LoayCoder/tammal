@@ -25,11 +25,20 @@ export default function TaskPerformanceAnalytics() {
     if (!tasks?.length) return null;
 
     const total = tasks.length;
-    const completed = tasks.filter((t: any) => t.status === 'completed').length;
+    const completedTasks = tasks.filter((t: any) => t.status === 'completed');
+    const completed = completedTasks.length;
     const inProgress = tasks.filter((t: any) => t.status === 'in_progress').length;
     const overdue = tasks.filter((t: any) => t.status === 'rejected' || t.status === 'archived').length;
     const avgProgress = Math.round(tasks.reduce((sum: number, t: any) => sum + (t.progress ?? 0), 0) / total);
     const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    // Average completion time (created_at → updated_at for completed tasks) in hours
+    const completionTimes = completedTasks
+      .filter((t: any) => t.created_at && t.updated_at)
+      .map((t: any) => (new Date(t.updated_at).getTime() - new Date(t.created_at).getTime()) / (1000 * 60 * 60));
+    const avgCompletionHours = completionTimes.length > 0
+      ? Math.round(completionTimes.reduce((a: number, b: number) => a + b, 0) / completionTimes.length * 10) / 10
+      : null;
 
     // Status distribution
     const statusCounts: Record<string, number> = {};
@@ -78,7 +87,14 @@ export default function TaskPerformanceAnalytics() {
       .sort((a, b) => b.completed - a.completed)
       .slice(0, 10);
 
-    return { total, completed, inProgress, overdue, avgProgress, completionRate, statusData, priorityData, trendData, topPerformers };
+    // Format avg completion time for display
+    const avgCompletionDisplay = avgCompletionHours !== null
+      ? avgCompletionHours >= 24
+        ? `${Math.round(avgCompletionHours / 24 * 10) / 10}d`
+        : `${Math.round(avgCompletionHours)}h`
+      : '—';
+
+    return { total, completed, inProgress, overdue, avgProgress, completionRate, avgCompletionDisplay, statusData, priorityData, trendData, topPerformers };
   }, [tasks, sinceDate]);
 
   const STATUS_COLORS = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))', 'hsl(var(--muted-foreground))'];
@@ -93,8 +109,8 @@ export default function TaskPerformanceAnalytics() {
     return (
       <div className="p-6 space-y-6">
         <Skeleton className="h-8 w-64" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-28" />)}
         </div>
         <Skeleton className="h-80" />
       </div>
@@ -126,11 +142,12 @@ export default function TaskPerformanceAnalytics() {
       ) : (
         <>
           {/* KPI Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <KPICard icon={Target} label={t('taskAnalytics.totalTasks')} value={metrics.total} />
             <KPICard icon={CheckCircle} label={t('taskAnalytics.completionRate')} value={`${metrics.completionRate}%`} />
             <KPICard icon={TrendingUp} label={t('taskAnalytics.avgProgress')} value={`${metrics.avgProgress}%`} />
-            <KPICard icon={Clock} label={t('taskAnalytics.inProgress')} value={metrics.inProgress} />
+            <KPICard icon={Clock} label={t('taskAnalytics.avgCompletionTime')} value={metrics.avgCompletionDisplay} />
+            <KPICard icon={AlertTriangle} label={t('taskAnalytics.inProgress')} value={metrics.inProgress} />
           </div>
 
           {/* Charts Row 1 */}
