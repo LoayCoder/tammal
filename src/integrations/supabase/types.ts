@@ -1062,6 +1062,66 @@ export type Database = {
           },
         ]
       }
+      approval_flows: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          description: string | null
+          entity_type: string
+          id: string
+          is_active: boolean
+          name: string
+          name_ar: string | null
+          steps: Json
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          entity_type?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          name_ar?: string | null
+          steps?: Json
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          entity_type?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          name_ar?: string | null
+          steps?: Json
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_flows_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_flows_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       approvals: {
         Row: {
           approved_by: string | null
@@ -5928,6 +5988,7 @@ export type Database = {
         Row: {
           action: string
           created_at: string
+          deleted_at: string | null
           details: Json | null
           id: string
           performed_by: string
@@ -5937,6 +5998,7 @@ export type Database = {
         Insert: {
           action: string
           created_at?: string
+          deleted_at?: string | null
           details?: Json | null
           id?: string
           performed_by: string
@@ -5946,6 +6008,7 @@ export type Database = {
         Update: {
           action?: string
           created_at?: string
+          deleted_at?: string | null
           details?: Json | null
           id?: string
           performed_by?: string
