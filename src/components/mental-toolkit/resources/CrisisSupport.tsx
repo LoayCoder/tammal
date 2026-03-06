@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Phone, Search } from "lucide-react";
+import { REGION_COLORS, TOOLKIT } from "@/config/toolkit-colors";
 
 interface Contact {
   id: string;
@@ -25,13 +26,6 @@ const CONTACTS: Contact[] = [
 
 const REGION_KEYS = ["all", "global", "us", "uk", "middleEast"] as const;
 
-const REGION_COLORS: Record<string, string> = {
-  global: "#A9CCE3",
-  us: "#A8C5A0",
-  uk: "#C9B8E8",
-  middleEast: "#FAD7A0",
-};
-
 export default function CrisisSupport() {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
@@ -46,12 +40,12 @@ export default function CrisisSupport() {
   return (
     <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
       {/* Emergency Banner */}
-      <div className="px-5 py-3 flex items-center gap-2" style={{ background: "#fee2e2" }}>
+      <div className="px-5 py-3 flex items-center gap-2 bg-destructive/10">
         <span className="text-lg">🚨</span>
-        <p className="text-sm font-medium" style={{ color: "#991b1b" }}>{t("mentalToolkit.crisis.banner")}</p>
+        <p className="text-sm font-medium text-destructive">{t("mentalToolkit.crisis.banner")}</p>
       </div>
 
-      <div className="px-5 py-4 border-b border-border" style={{ background: "linear-gradient(135deg, rgba(254,202,202,0.2), rgba(250,248,245,0.8))" }}>
+      <div className="px-5 py-4 border-b border-border bg-gradient-to-br from-destructive/5 to-background">
         <div className="flex items-center gap-2">
           <span className="text-2xl">🆘</span>
           <div>
@@ -85,7 +79,7 @@ export default function CrisisSupport() {
                   ? "border-transparent text-foreground"
                   : "border-border bg-background text-muted-foreground hover:bg-muted"
               }`}
-              style={regionFilter === region && region !== "all" ? { background: REGION_COLORS[region], color: "#4A3F6B" } : regionFilter === region ? { background: "#e5e7eb", color: "#374151" } : {}}
+              style={regionFilter === region && region !== "all" ? { background: REGION_COLORS[region], color: TOOLKIT.plum } : regionFilter === region ? { background: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))' } : {}}
             >
               {t(`mentalToolkit.crisis.regions.${region}`)}
             </button>
@@ -101,7 +95,7 @@ export default function CrisisSupport() {
                   <p className="font-semibold text-foreground text-sm">{contact.name}</p>
                   {contact.note && <p className="text-xs text-muted-foreground mt-0.5">{contact.note}</p>}
                 </div>
-                <Badge className="text-xs rounded-full border-0 shrink-0 text-foreground" style={{ background: (REGION_COLORS[contact.region] || "#e5e7eb") + "80" }}>
+                <Badge className="text-xs rounded-full border-0 shrink-0 text-foreground" style={{ background: (REGION_COLORS[contact.region] || 'hsl(var(--muted))') + "80" }}>
                   {t(`mentalToolkit.crisis.regions.${contact.region}`)}
                 </Badge>
               </div>
@@ -112,7 +106,7 @@ export default function CrisisSupport() {
                 </div>
                 {contact.phone.includes("-") || /^\d/.test(contact.phone) ? (
                   <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`}>
-                    <Button size="sm" className="rounded-xl gap-1.5" style={{ background: "#ef4444", color: "#fff" }}>
+                    <Button size="sm" variant="destructive" className="rounded-xl gap-1.5">
                       <Phone className="h-3 w-3" />
                       {t("mentalToolkit.crisis.callNow")}
                     </Button>
