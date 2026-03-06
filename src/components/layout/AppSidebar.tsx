@@ -188,7 +188,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       icon: Target,
       items: [
         { title: t('nav.myWorkload'), url: "/my-workload", icon: ClipboardList, access: 'employee' },
-        { title: t('nav.managerTaskOverview'), url: "/tasks/team", icon: Users2, access: 'admin' },
+        
         { title: t('nav.objectives'), url: "/admin/workload/objectives", icon: Target, access: 'all' },
         { title: t('nav.workloadDashboard'), url: "/admin/workload/dashboard", icon: Gauge, access: 'admin' },
         { title: t('nav.teamWorkload'), url: "/admin/workload/team", icon: Users2, access: 'admin' },
