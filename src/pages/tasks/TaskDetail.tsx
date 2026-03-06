@@ -22,6 +22,7 @@ import {
 import { useTaskChecklists } from '@/hooks/tasks/useTaskChecklists';
 import { TaskDependenciesPanel } from '@/components/tasks/TaskDependenciesPanel';
 import { TaskTimeTrackingPanel } from '@/components/tasks/TaskTimeTrackingPanel';
+import { TaskAIPanel } from '@/components/tasks/TaskAIPanel';
 import { useTaskComments } from '@/hooks/tasks/useTaskComments';
 import { useTaskActivity } from '@/hooks/tasks/useTaskActivity';
 import { useTaskAttachments } from '@/hooks/tasks/useTaskAttachments';
@@ -276,6 +277,9 @@ export default function TaskDetail() {
 
       {/* Time Tracking */}
       {id && <TaskTimeTrackingPanel taskId={id} />}
+
+      {/* AI Insights */}
+      {id && <TaskAIPanel taskId={id} />}
 
       {/* Tabs: Comments, Checklist, Attachments, Activity */}
       <Card className="border-0">
