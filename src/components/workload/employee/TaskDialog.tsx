@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Lock, MessageSquare, ShieldCheck, Upload, AlertCircle } from 'lucide-react';
 import type { UnifiedTask, UnifiedTaskInsert, UnifiedTaskUpdate, TaskComment } from '@/hooks/workload/useUnifiedTasks';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { supabase } from '@/integrations/supabase/client';
+import { useTaskEvidenceUpload } from '@/hooks/workload/useTaskEvidenceUpload';
 import { toast } from 'sonner';
 
 interface TaskDialogProps {
@@ -37,8 +37,8 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
   const [closureComment, setClosureComment] = useState('');
   const [progress, setProgress] = useState(task?.progress ?? 0);
   const [closureError, setClosureError] = useState(false);
-  const [evidence, setEvidence] = useState<Array<{ id: string; file_url: string; status: string }>>([]);
-  const [uploading, setUploading] = useState(false);
+  const { evidence, uploading, loadEvidence, uploadEvidence } = useTaskEvidenceUpload(tenantId);
+  
 
   useEffect(() => {
     setProgress(task?.progress ?? 0);
@@ -46,19 +46,10 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
     setClosureError(false);
     if (task?.id) {
       loadEvidence(task.id);
-    } else {
-      setEvidence([]);
     }
   }, [task?.id, open]);
 
-  const loadEvidence = async (taskId: string) => {
-    const { data } = await supabase
-      .from('task_evidence')
-      .select('id, file_url, status')
-      .eq('action_id', taskId)
-      .is('deleted_at', null);
-    setEvidence(data ?? []);
-  };
+  // loadEvidence is now handled by the hook
 
   const { register, handleSubmit, setValue, watch, reset } = useForm({
     defaultValues: {
@@ -152,33 +143,14 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
 
   const handleEvidenceUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length || !task) return;
-    setUploading(true);
-    try {
-      const file = e.target.files[0];
-      const filePath = `${tenantId}/${task.id}/${crypto.randomUUID()}-${file.name}`;
-      const { error: uploadError } = await supabase.storage.from('support-attachments').upload(filePath, file);
-      if (uploadError) throw uploadError;
-
-      const { data: urlData } = supabase.storage.from('support-attachments').getPublicUrl(filePath);
-
-      const { error: insertError } = await supabase.from('task_evidence').insert({
-        tenant_id: tenantId,
-        action_id: task.id,
-        uploaded_by: employeeId,
-        file_url: urlData.publicUrl,
-        file_type: file.type || 'application/octet-stream',
-        status: 'pending',
-      });
-      if (insertError) throw insertError;
-
+    const file = e.target.files[0];
+    const success = await uploadEvidence(task.id, employeeId, file);
+    if (success) {
       toast.success(t('workload.tasks.evidenceUploaded'));
-      await loadEvidence(task.id);
-    } catch {
+    } else {
       toast.error(t('workload.tasks.evidenceUploadError'));
-    } finally {
-      setUploading(false);
-      e.target.value = '';
     }
+    e.target.value = '';
   };
 
   const handleMarkVerified = () => {
