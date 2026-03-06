@@ -151,6 +151,13 @@ export default function PersonalCommandCenter() {
         onAddComment={addComment}
         currentEmployeeName={employee.full_name}
       />
+
+      <CreateTaskModal
+        open={enterpriseModalOpen}
+        onOpenChange={setEnterpriseModalOpen}
+        employeeId={employee.id}
+        defaultDepartmentId={employee.department_id ?? null}
+      />
     </div>
   );
 }
