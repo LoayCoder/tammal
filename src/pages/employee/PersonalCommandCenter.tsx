@@ -156,6 +156,7 @@ export default function PersonalCommandCenter() {
         open={enterpriseModalOpen}
         onOpenChange={setEnterpriseModalOpen}
         employeeId={employee.id}
+        employeeName={employee.full_name}
         defaultDepartmentId={null}
       />
     </div>

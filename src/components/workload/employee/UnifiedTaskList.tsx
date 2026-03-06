@@ -16,6 +16,7 @@ interface UnifiedTaskListProps {
 
 const SOURCE_LABELS: Record<string, { label: string; className: string }> = {
   manual: { label: 'Manual', className: 'bg-primary/10 text-primary' },
+  enterprise: { label: 'Enterprise', className: 'bg-chart-5/10 text-chart-5' },
   manager_assigned: { label: 'Assigned', className: 'bg-chart-3/10 text-chart-3' },
   representative_assigned: { label: 'Rep. Assigned', className: 'bg-chart-5/10 text-chart-5' },
   objective: { label: 'OKR', className: 'bg-chart-1/10 text-chart-1' },
@@ -33,12 +34,18 @@ const PRIORITY_COLORS: Record<number, string> = {
   5: 'bg-secondary text-secondary-foreground',
 };
 
-const STATUS_BADGE: Record<string, { className: string; icon: typeof CheckCircle2 | null }> = {
-  todo: { className: 'bg-muted text-muted-foreground', icon: null },
-  in_progress: { className: 'bg-chart-2/10 text-chart-2', icon: null },
-  completed: { className: 'bg-chart-1/10 text-chart-1', icon: CheckCircle2 },
-  verified: { className: 'bg-primary/10 text-primary', icon: ShieldCheck },
-  blocked: { className: 'bg-destructive/10 text-destructive', icon: null },
+const STATUS_BADGE: Record<string, { className: string; icon: typeof CheckCircle2 | null; label: string }> = {
+  draft: { className: 'bg-muted text-muted-foreground', icon: null, label: 'Draft' },
+  open: { className: 'bg-chart-2/10 text-chart-2', icon: null, label: 'Open' },
+  todo: { className: 'bg-muted text-muted-foreground', icon: null, label: 'Planned' },
+  in_progress: { className: 'bg-chart-2/10 text-chart-2', icon: null, label: 'In Progress' },
+  under_review: { className: 'bg-chart-4/10 text-chart-4', icon: null, label: 'Under Review' },
+  pending_approval: { className: 'bg-chart-5/10 text-chart-5', icon: null, label: 'Pending Approval' },
+  completed: { className: 'bg-chart-1/10 text-chart-1', icon: CheckCircle2, label: 'Completed' },
+  verified: { className: 'bg-primary/10 text-primary', icon: ShieldCheck, label: 'Verified' },
+  rejected: { className: 'bg-destructive/10 text-destructive', icon: null, label: 'Rejected' },
+  blocked: { className: 'bg-destructive/10 text-destructive', icon: null, label: 'Blocked' },
+  archived: { className: 'bg-muted text-muted-foreground', icon: null, label: 'Archived' },
 };
 
 export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedTaskListProps) {
@@ -101,7 +108,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
                 </Badge>
                 <Badge variant="outline" className={`text-[10px] px-1.5 py-0 gap-0.5 ${statusInfo.className}`}>
                   {StatusIcon && <StatusIcon className="h-3 w-3" />}
-                  {t(`workload.status.${task.status === 'todo' ? 'planned' : task.status === 'in_progress' ? 'inProgress' : task.status === 'completed' ? 'completed' : task.status === 'verified' ? 'completed' : 'blocked'}`)}
+                  {statusInfo.label}
                 </Badge>
                 {commentCount > 0 && (
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 gap-0.5">
