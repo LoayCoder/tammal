@@ -189,6 +189,7 @@ const App = () => (
               <Route path="/admin/workload/overdue" element={<ManagerOrAdminRoute><OverdueTasks /></ManagerOrAdminRoute>} />
               <Route path="/tasks/team" element={<ManagerOrAdminRoute><ManagerTaskOverview /></ManagerOrAdminRoute>} />
               <Route path="/tasks/analytics" element={<ManagerOrAdminRoute><TaskPerformanceAnalytics /></ManagerOrAdminRoute>} />
+              <Route path="/tasks/recurring" element={<ManagerOrAdminRoute><RecurringTasks /></ManagerOrAdminRoute>} />
 
               {/* ── Recognition (employee-facing) ── */}
               <Route element={<PageErrorBoundary routeGroup="recognition"><Outlet /></PageErrorBoundary>}>
