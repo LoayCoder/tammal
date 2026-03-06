@@ -21,6 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
 import { TOOLKIT } from "@/config/toolkit-colors";
+import { ToolkitPageHeader, ToolkitCard, GradientButton } from "@/components/mental-toolkit/shared";
 
 
 const STEPS = ["stepIdentify", "stepChallenge", "stepReframe"] as const;
@@ -196,7 +197,7 @@ export default function ThoughtReframerPage() {
               { label: t("mentalToolkit.thoughtReframer.statsMonth"), value: stats.thisMonth, icon: "📅" },
               { label: t("mentalToolkit.thoughtReframer.statsStreak"), value: `${stats.streak}d`, icon: "🔥" },
             ].map((s) => (
-              <Card key={s.label} className="glass-stat border-0 rounded-2xl">
+              <ToolkitCard key={s.label} variant="stat">
                 <CardContent className="py-3 px-3 flex items-center gap-2">
                   <span className="text-lg">{s.icon}</span>
                   <div>
@@ -204,13 +205,13 @@ export default function ThoughtReframerPage() {
                     <p className="text-2xs text-muted-foreground leading-tight">{s.label}</p>
                   </div>
                 </CardContent>
-              </Card>
+              </ToolkitCard>
             ))}
           </div>
         )}
 
         {/* Wizard */}
-        <Card className="glass-card border-0 rounded-2xl overflow-hidden">
+        <ToolkitCard className="overflow-hidden">
           <CardContent className="p-0">
             {/* Step Indicator */}
             {!showSummary && (
@@ -377,12 +378,11 @@ export default function ThoughtReframerPage() {
                       <ArrowLeft className="h-4 w-4 me-1 rtl:-scale-x-100" />
                       {t("mentalToolkit.thoughtReframer.backBtn")}
                     </Button>
-                    <Button disabled={!reframedThought.trim()} onClick={() => setShowSummary(true)}
-                      className="flex-1 rounded-xl"
-                      style={{ background: `linear-gradient(135deg, ${TOOLKIT.lavender}, ${TOOLKIT.sage})`, color: TOOLKIT.plum }}>
+                    <GradientButton disabled={!reframedThought.trim()} onClick={() => setShowSummary(true)}
+                      className="flex-1">
                       <Sparkles className="h-4 w-4 me-1" />
                       {t("mentalToolkit.thoughtReframer.seeSummary")}
-                    </Button>
+                    </GradientButton>
                   </div>
                 </div>
               )}
@@ -411,11 +411,10 @@ export default function ThoughtReframerPage() {
                     <Button variant="outline" onClick={resetWizard} className="flex-1 rounded-xl">
                       {t("mentalToolkit.thoughtReframer.startOver")}
                     </Button>
-                    <Button onClick={handleSave} disabled={isSaving || noEmployee}
-                      className="flex-1 rounded-xl font-semibold"
-                      style={{ background: `linear-gradient(135deg, ${TOOLKIT.sage}, ${TOOLKIT.lavender})`, color: TOOLKIT.plum }}>
+                    <GradientButton onClick={handleSave} disabled={isSaving || noEmployee}
+                      className="flex-1 font-semibold">
                       {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : t("mentalToolkit.thoughtReframer.saveReframe")}
-                    </Button>
+                    </GradientButton>
                   </div>
                   {noEmployee && (
                     <p className="text-xs text-destructive text-center">
@@ -426,7 +425,7 @@ export default function ThoughtReframerPage() {
               )}
             </div>
           </CardContent>
-        </Card>
+        </ToolkitCard>
 
         {/* Reframe Journal */}
         <div className="space-y-3">

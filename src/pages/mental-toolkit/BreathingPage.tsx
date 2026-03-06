@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Wind, Activity, Timer, Flame, TrendingUp, ArrowRight, Clock, RotateCcw } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import BreathingGroundingTool from "@/components/mental-toolkit/tools/BreathingGroundingTool";
@@ -9,6 +9,7 @@ import { useBreathingSessions, type BreathingSession } from "@/hooks/wellness/us
 import { useMoodDefinitions } from "@/hooks/wellness/useMoodDefinitions";
 import { useCurrentEmployee } from "@/hooks/auth/useCurrentEmployee";
 import { format } from "date-fns";
+import { ToolkitPageHeader, ToolkitCard, GradientButton } from "@/components/mental-toolkit/shared";
 
 type Technique = "box" | "sigh" | "grounding";
 type SessionLength = 3 | 5 | 8;
@@ -111,7 +112,7 @@ export default function BreathingPage() {
 
         {/* ── SETUP STATE ── */}
         {pageState === "setup" && (
-          <Card className="glass-card border-0 rounded-2xl">
+          <ToolkitCard>
             <CardContent className="p-5 space-y-5">
               {/* Technique Selector */}
               <div>
@@ -178,21 +179,20 @@ export default function BreathingPage() {
 
               {/* Start Button */}
               <div className="text-center pt-2">
-                <Button
+                <GradientButton
                   onClick={handleStartSession}
-                  className="rounded-xl px-10 py-3 text-base"
-                  style={{ background: `linear-gradient(135deg, ${TOOLKIT.lavender}, ${TOOLKIT.sage})`, color: TOOLKIT.plum }}
+                  className="px-10 py-3 text-base"
                 >
                   {t("mentalToolkit.breathing.start")}
-                </Button>
+                </GradientButton>
               </div>
             </CardContent>
-          </Card>
+          </ToolkitCard>
         )}
 
         {/* ── ACTIVE SESSION ── */}
         {pageState === "active" && (
-          <Card className="glass-card border-0 rounded-2xl">
+          <ToolkitCard>
             <CardContent className="p-5">
               <BreathingGroundingTool
                 technique={technique}
@@ -201,12 +201,12 @@ export default function BreathingPage() {
                 onCancel={resetToSetup}
               />
             </CardContent>
-          </Card>
+          </ToolkitCard>
         )}
 
         {/* ── COMPLETION STATE ── */}
         {pageState === "complete" && (
-          <Card className="glass-card border-0 rounded-2xl">
+          <ToolkitCard>
             <CardContent className="p-6 text-center space-y-5 animate-in fade-in duration-500">
               <div className="text-5xl">🌿</div>
               <h2 className="text-xl font-bold text-foreground">{t("mentalToolkit.breathing.complete")}</h2>
@@ -248,24 +248,24 @@ export default function BreathingPage() {
                 </Button>
               </div>
             </CardContent>
-          </Card>
+          </ToolkitCard>
         )}
 
         {/* ── SESSION HISTORY ── */}
         <div>
           <h3 className="text-base font-semibold text-foreground mb-3">{t("mentalToolkit.breathing.viewHistory")}</h3>
           {sessions.length === 0 ? (
-            <Card className="glass-card border-0 rounded-2xl border-dashed">
+            <ToolkitCard variant="dashed">
               <CardContent className="py-10 text-center space-y-2">
                 <Wind className="h-10 w-10 mx-auto text-muted-foreground" />
                 <p className="text-sm font-medium text-foreground">{t("mentalToolkit.breathing.noSessionsYet")}</p>
                 <p className="text-xs text-muted-foreground">{t("mentalToolkit.breathing.noSessionsDesc")}</p>
               </CardContent>
-            </Card>
+            </ToolkitCard>
           ) : (
             <div className="space-y-2">
               {sessions.slice(0, 10).map((s: BreathingSession) => (
-                <Card key={s.id} className="glass-card border-0 rounded-xl">
+                <ToolkitCard key={s.id} className="rounded-xl">
                   <CardContent className="py-3 px-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className="text-xl">{TECHNIQUE_INFO[s.technique as Technique]?.emoji || "🌬️"}</span>
@@ -292,7 +292,7 @@ export default function BreathingPage() {
                       {s.completed && <span className="text-xs" style={{ color: TOOLKIT.sage }}>✓</span>}
                     </div>
                   </CardContent>
-                </Card>
+                </ToolkitCard>
               ))}
             </div>
           )}
@@ -304,12 +304,12 @@ export default function BreathingPage() {
 
 function StatPill({ icon, color, value, label }: { icon: React.ReactNode; color: string; value: string | number; label: string }) {
   return (
-    <Card className="glass-stat border-0 rounded-2xl">
+    <ToolkitCard variant="stat">
       <CardContent className="pt-4 pb-3 px-3 flex flex-col items-center text-center gap-1">
         <span style={{ color }}>{icon}</span>
         <span className="text-xl font-bold text-foreground">{value}</span>
         <span className="text-2xs text-muted-foreground leading-tight">{label}</span>
       </CardContent>
-    </Card>
+    </ToolkitCard>
   );
 }
