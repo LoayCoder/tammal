@@ -5924,6 +5924,241 @@ export type Database = {
           },
         ]
       }
+      task_activity_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          performed_by: string
+          task_id: string
+          tenant_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          performed_by: string
+          task_id: string
+          tenant_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          performed_by?: string
+          task_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_activity_logs_performed_by_fkey"
+            columns: ["performed_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_activity_logs_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "unified_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_activity_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_attachments: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          task_id: string
+          tenant_id: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          task_id: string
+          tenant_id: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          task_id?: string
+          tenant_id?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_attachments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "unified_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_attachments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_checklists: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          deleted_at: string | null
+          due_date: string | null
+          id: string
+          sort_order: number
+          status: string
+          task_id: string
+          tenant_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          due_date?: string | null
+          id?: string
+          sort_order?: number
+          status?: string
+          task_id: string
+          tenant_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          due_date?: string | null
+          id?: string
+          sort_order?: number
+          status?: string
+          task_id?: string
+          tenant_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_checklists_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_checklists_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "unified_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_checklists_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_comments: {
+        Row: {
+          attachments: Json | null
+          comment_text: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          task_id: string
+          tenant_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          comment_text: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          task_id: string
+          tenant_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          comment_text?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          task_id?: string
+          tenant_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "unified_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_comments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_connectors: {
         Row: {
           config: Json | null
@@ -6107,6 +6342,58 @@ export type Database = {
           },
         ]
       }
+      task_members: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          id: string
+          role: string
+          task_id: string
+          tenant_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          role?: string
+          task_id: string
+          tenant_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          role?: string
+          task_id?: string
+          tenant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_members_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "unified_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_members_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_queue_items: {
         Row: {
           action_id: string
@@ -6167,6 +6454,93 @@ export type Database = {
           },
           {
             foreignKeyName: "task_queue_items_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_tag_links: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          id: string
+          tag_id: string
+          task_id: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          tag_id: string
+          task_id: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          tag_id?: string
+          task_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_tag_links_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "task_tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_tag_links_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "unified_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_tag_links_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_tags: {
+        Row: {
+          color: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          name: string
+          name_ar: string | null
+          tenant_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          name: string
+          name_ar?: string | null
+          tenant_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          name?: string
+          name_ar?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_tags_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -6549,11 +6923,16 @@ export type Database = {
       unified_tasks: {
         Row: {
           actual_minutes: number | null
+          approver_id: string | null
+          archived: boolean
+          archived_at: string | null
+          assignee_id: string | null
           comments: Json
           connector_id: string | null
           created_at: string
           created_by: string | null
           deleted_at: string | null
+          department_id: string | null
           description: string | null
           due_date: string | null
           due_date_history: Json | null
@@ -6561,15 +6940,21 @@ export type Database = {
           estimated_minutes: number | null
           external_url: string | null
           id: string
+          initiative_id: string | null
           is_locked: boolean
           is_work_hours: boolean
           locked_at: string | null
           locked_by: string | null
           metadata: Json | null
+          objective_id: string | null
           priority: number
           progress: number
+          recurrence_rule: string | null
+          reminder_date: string | null
+          reviewer_id: string | null
           scheduled_end: string | null
           scheduled_start: string | null
+          section_id: string | null
           source_id: string | null
           source_type: string
           status: string
@@ -6579,14 +6964,20 @@ export type Database = {
           title: string
           title_ar: string | null
           updated_at: string
+          visibility: string
         }
         Insert: {
           actual_minutes?: number | null
+          approver_id?: string | null
+          archived?: boolean
+          archived_at?: string | null
+          assignee_id?: string | null
           comments?: Json
           connector_id?: string | null
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
+          department_id?: string | null
           description?: string | null
           due_date?: string | null
           due_date_history?: Json | null
@@ -6594,15 +6985,21 @@ export type Database = {
           estimated_minutes?: number | null
           external_url?: string | null
           id?: string
+          initiative_id?: string | null
           is_locked?: boolean
           is_work_hours?: boolean
           locked_at?: string | null
           locked_by?: string | null
           metadata?: Json | null
+          objective_id?: string | null
           priority?: number
           progress?: number
+          recurrence_rule?: string | null
+          reminder_date?: string | null
+          reviewer_id?: string | null
           scheduled_end?: string | null
           scheduled_start?: string | null
+          section_id?: string | null
           source_id?: string | null
           source_type?: string
           status?: string
@@ -6612,14 +7009,20 @@ export type Database = {
           title: string
           title_ar?: string | null
           updated_at?: string
+          visibility?: string
         }
         Update: {
           actual_minutes?: number | null
+          approver_id?: string | null
+          archived?: boolean
+          archived_at?: string | null
+          assignee_id?: string | null
           comments?: Json
           connector_id?: string | null
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
+          department_id?: string | null
           description?: string | null
           due_date?: string | null
           due_date_history?: Json | null
@@ -6627,15 +7030,21 @@ export type Database = {
           estimated_minutes?: number | null
           external_url?: string | null
           id?: string
+          initiative_id?: string | null
           is_locked?: boolean
           is_work_hours?: boolean
           locked_at?: string | null
           locked_by?: string | null
           metadata?: Json | null
+          objective_id?: string | null
           priority?: number
           progress?: number
+          recurrence_rule?: string | null
+          reminder_date?: string | null
+          reviewer_id?: string | null
           scheduled_end?: string | null
           scheduled_start?: string | null
+          section_id?: string | null
           source_id?: string | null
           source_type?: string
           status?: string
@@ -6645,13 +7054,63 @@ export type Database = {
           title?: string
           title_ar?: string | null
           updated_at?: string
+          visibility?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "unified_tasks_approver_id_fkey"
+            columns: ["approver_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_tasks_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_tasks_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "unified_tasks_employee_id_fkey"
             columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_tasks_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "initiatives"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_tasks_objective_id_fkey"
+            columns: ["objective_id"]
+            isOneToOne: false
+            referencedRelation: "strategic_objectives"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_tasks_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_tasks_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
             referencedColumns: ["id"]
           },
           {
