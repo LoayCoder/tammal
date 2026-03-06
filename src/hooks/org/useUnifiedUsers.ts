@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useEmployees, type Employee, type EmployeeFilters } from './useEmployees';
-import type { AccountStatus } from '@/components/employees/AccountStatusBadge';
+import type { AccountStatus } from '@/types/employee';
 
 export interface UnifiedEmployee extends Employee {
   accountStatus: AccountStatus;

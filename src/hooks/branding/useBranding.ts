@@ -4,7 +4,7 @@ import { tenantAssetsService } from '@/services/tenantAssets';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { logger } from '@/lib/logger';
-import type { HSLColor } from '@/components/branding/HSLColorPicker';
+import type { HSLColor } from '@/types/branding';
 
 export type AssetType = 'logo' | 'logo_light' | 'logo_dark' | 'favicon' | 'icon_light' | 'icon_dark' | 'pwa_icon' | 'pwa_icon_light' | 'pwa_icon_dark';
 
