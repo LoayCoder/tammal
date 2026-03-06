@@ -298,7 +298,7 @@ export default function BreathingPage() {
 function StatPill({ icon, color, value, label }: { icon: React.ReactNode; color: string; value: string | number; label: string }) {
   return (
     <ToolkitCard variant="stat">
-      <CardContent className="pt-4 pb-3 px-3 flex flex-col items-center text-center gap-1">
+      <CardContent className="p-4 flex flex-col items-center text-center gap-1">
         <span style={{ color }}>{icon}</span>
         <span className="text-xl font-bold text-foreground">{value}</span>
         <span className="text-2xs text-muted-foreground leading-tight">{label}</span>
