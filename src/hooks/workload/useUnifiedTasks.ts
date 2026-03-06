@@ -117,14 +117,20 @@ export function useUnifiedTasks(employeeId?: string) {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('unified_tasks').update({ deleted_at: new Date().toISOString() }).eq('id', id);
+      const { error, count } = await supabase
+        .from('unified_tasks')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['unified-tasks'] });
       toast.success(t('workload.tasks.deleteSuccess'));
     },
-    onError: () => toast.error(t('workload.tasks.deleteError')),
+    onError: (err: any) => {
+      console.error('Delete task failed:', err?.message, err?.code, err);
+      toast.error(t('workload.tasks.deleteError'));
+    },
   });
 
   const lockMutation = useMutation({
