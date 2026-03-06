@@ -197,7 +197,7 @@ export const QuranHistory = React.memo(function QuranHistory() {
                         <Badge key={s.name} variant="secondary" className="gap-1.5 py-1">
                           {s.name}
                           <span className="text-muted-foreground">×{s.count}</span>
-                          <span className="text-muted-foreground text-[10px]">({s.totalMinutes} {t('spiritual.quran.history.minutes')})</span>
+                          <span className="text-muted-foreground text-2xs">({s.totalMinutes} {t('spiritual.quran.history.minutes')})</span>
                         </Badge>
                       ))}
                     </div>
@@ -220,7 +220,7 @@ function StatCard({ icon, value, label }: { icon: React.ReactNode; value: React.
         <div className="rounded-full bg-primary/10 p-1.5">{icon}</div>
         <div>
           <p className="text-lg font-bold leading-tight">{value}</p>
-          <p className="text-[10px] text-muted-foreground">{label}</p>
+          <p className="text-2xs text-muted-foreground">{label}</p>
         </div>
       </CardContent>
     </Card>

@@ -181,9 +181,9 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
         {/* Task metadata for edit mode */}
         {isEdit && task && (
           <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-            <Badge variant="outline" className="text-[10px]">{t('workload.tasks.source')}: {task.source_type}</Badge>
-            {task.created_by && <Badge variant="outline" className="text-[10px]">{t('workload.tasks.createdBy')}: {task.created_by}</Badge>}
-            <Badge variant="outline" className="text-[10px]">{new Date(task.created_at).toLocaleDateString()}</Badge>
+             <Badge variant="outline" className="text-2xs">{t('workload.tasks.source')}: {task.source_type}</Badge>
+             {task.created_by && <Badge variant="outline" className="text-2xs">{t('workload.tasks.createdBy')}: {task.created_by}</Badge>}
+             <Badge variant="outline" className="text-2xs">{new Date(task.created_at).toLocaleDateString()}</Badge>
           </div>
         )}
 
@@ -300,7 +300,7 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
                     return (
                       <div key={ev.id} className="flex items-center justify-between text-xs bg-muted/50 rounded p-2">
                         <span className="truncate max-w-[200px]">{fileName}</span>
-                        <Badge variant="outline" className={`text-[10px] ${ev.status === 'approved' ? 'text-chart-1' : ev.status === 'rejected' ? 'text-destructive' : 'text-muted-foreground'}`}>
+                        <Badge variant="outline" className={`text-2xs ${ev.status === 'approved' ? 'text-chart-1' : ev.status === 'rejected' ? 'text-destructive' : 'text-muted-foreground'}`}>
                           {ev.status}
                         </Badge>
                       </div>

@@ -84,7 +84,7 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
             <div key={item.label} className="flex flex-col items-center gap-1 rounded-lg bg-muted/50 p-2">
               <item.icon className={`h-4 w-4 ${item.color}`} />
               <span className="text-lg font-bold">{item.value}</span>
-              <span className="text-[10px] text-muted-foreground text-center leading-tight">{item.label}</span>
+              <span className="text-2xs text-muted-foreground text-center leading-tight">{item.label}</span>
             </div>
           ))}
         </div>
@@ -108,7 +108,7 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
                   <span className={`h-2 w-2 shrink-0 rounded-full ${PRIORITY_COLORS[task.priority] ?? 'bg-muted-foreground'}`} />
                   <span className="flex-1 truncate text-sm">{task.title}</span>
                   {task.due_date && (
-                    <Badge variant="outline" className="text-[10px] shrink-0">
+                    <Badge variant="outline" className="text-2xs shrink-0">
                       {format(new Date(task.due_date), 'MMM d')}
                     </Badge>
                   )}

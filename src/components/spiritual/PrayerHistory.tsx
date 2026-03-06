@@ -184,11 +184,11 @@ export const PrayerHistory = React.memo(function PrayerHistory() {
                           <p className="text-xl font-bold" style={{ color: PRAYER_COLORS[s.prayerName] }}>
                             {s.pct}%
                           </p>
-                          <p className="text-[10px] text-muted-foreground">
+                          <p className="text-2xs text-muted-foreground">
                             {s.completed}/{s.total}
                           </p>
                           {s.missed > 0 && (
-                            <p className="text-[10px] text-destructive font-medium">
+                            <p className="text-2xs text-destructive font-medium">
                               {t('spiritual.prayer.history.missedCount', { count: s.missed })}
                             </p>
                           )}
@@ -216,7 +216,7 @@ export const PrayerHistory = React.memo(function PrayerHistory() {
                                   <span className="font-medium">{s.beforePct}%</span>
                                 </div>
                                 <Progress value={s.beforePct} className="h-1.5" />
-                                <p className="text-[10px] text-muted-foreground text-end">
+                                 <p className="text-2xs text-muted-foreground text-end">
                                   {s.beforeCompleted}/{s.beforeTotal}
                                 </p>
                               </div>
@@ -228,7 +228,7 @@ export const PrayerHistory = React.memo(function PrayerHistory() {
                                   <span className="font-medium">{s.afterPct}%</span>
                                 </div>
                                 <Progress value={s.afterPct} className="h-1.5" />
-                                <p className="text-[10px] text-muted-foreground text-end">
+                                <p className="text-2xs text-muted-foreground text-end">
                                   {s.afterCompleted}/{s.afterTotal}
                                 </p>
                               </div>

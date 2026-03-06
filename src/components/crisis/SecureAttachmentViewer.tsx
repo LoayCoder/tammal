@@ -123,7 +123,7 @@ export default function SecureAttachmentViewer({ caseId, isFirstAider }: Props) 
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{att.filename}</p>
-                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                  <div className="flex items-center gap-2 text-2xs text-muted-foreground">
                     <span>{formatFileSize(att.size_bytes)}</span>
                     <span>•</span>
                     {isExpired ? (
@@ -168,7 +168,7 @@ export default function SecureAttachmentViewer({ caseId, isFirstAider }: Props) 
               {isFirstAider && accessLog.length > 0 && (
                 <div className="mt-2">
                   <button
-                    className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                    className="flex items-center gap-1 text-2xs text-muted-foreground hover:text-foreground transition-colors"
                     onClick={() => setExpandedLogs(expandedLogs === att.id ? null : att.id)}
                   >
                     <Users className="h-3 w-3" />
@@ -180,7 +180,7 @@ export default function SecureAttachmentViewer({ caseId, isFirstAider }: Props) 
                   {expandedLogs === att.id && (
                     <div className="mt-1 space-y-0.5 ps-4">
                       {accessLog.map((log, i) => (
-                        <p key={i} className="text-[10px] text-muted-foreground">
+                        <p key={i} className="text-2xs text-muted-foreground">
                           {log.action} — {format(new Date(log.at), 'MMM d, h:mm a')}
                         </p>
                       ))}

@@ -82,7 +82,7 @@ export function TopControlBar({
                 <SelectItem key={model.model_key} value={model.model_key}>
                   <div className="flex items-center gap-2">
                     <span>{model.display_name}</span>
-                    <Badge variant="outline" className={`text-[10px] px-1 py-0 ${tierColors[model.accuracy_tier] || ''}`}>
+                    <Badge variant="outline" className={`text-2xs px-1 py-0 ${tierColors[model.accuracy_tier] || ''}`}>
                       {model.accuracy_tier}
                     </Badge>
                   </div>

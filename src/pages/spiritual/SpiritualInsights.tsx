@@ -113,21 +113,21 @@ function ReportCard({ report, onDelete }: { report: SpiritualReport; onDelete: (
             <div className="text-center p-2 rounded-md bg-muted/50">
               <Moon className="h-4 w-4 mx-auto mb-1 text-primary" />
               <p className="text-lg font-bold">{data.prayerStats.consistency}%</p>
-              <p className="text-[10px] text-muted-foreground">{t('spiritual.insights.prayerConsistency')}</p>
+              <p className="text-2xs text-muted-foreground">{t('spiritual.insights.prayerConsistency')}</p>
             </div>
           )}
           {data.quranStats && (
             <div className="text-center p-2 rounded-md bg-muted/50">
               <BookOpenCheck className="h-4 w-4 mx-auto mb-1 text-primary" />
               <p className="text-lg font-bold">{data.quranStats.totalMinutes}</p>
-              <p className="text-[10px] text-muted-foreground">{t('spiritual.insights.quranMinutes')}</p>
+              <p className="text-2xs text-muted-foreground">{t('spiritual.insights.quranMinutes')}</p>
             </div>
           )}
           {data.fastingStats && (
             <div className="text-center p-2 rounded-md bg-muted/50">
               <UtensilsCrossed className="h-4 w-4 mx-auto mb-1 text-primary" />
               <p className="text-lg font-bold">{data.fastingStats.completed}</p>
-              <p className="text-[10px] text-muted-foreground">{t('spiritual.insights.fastsCompleted')}</p>
+              <p className="text-2xs text-muted-foreground">{t('spiritual.insights.fastsCompleted')}</p>
             </div>
           )}
         </div>

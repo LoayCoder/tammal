@@ -64,7 +64,7 @@ function SurahList({
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-xs text-muted-foreground">{s.englishNameTranslation}</span>
                   <span className="text-xs text-muted-foreground">• {s.numberOfAyahs} ayahs</span>
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                  <Badge variant="outline" className="text-2xs px-1.5 py-0">
                     {s.revelationType}
                   </Badge>
                 </div>
@@ -247,7 +247,7 @@ function SurahViewer({ surahNumber, onBack, onStopAndSave, elapsedSeconds, forma
               key={v.numberInSurah}
               className="flex items-start gap-3 py-2.5 border-b border-border/40 last:border-b-0 px-2"
             >
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/8 text-[10px] font-semibold text-primary/60 mt-0.5">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/8 text-2xs font-semibold text-primary/60 mt-0.5">
                 {v.numberInSurah}
               </span>
               <p className="text-sm text-muted-foreground leading-relaxed flex-1">
