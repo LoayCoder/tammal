@@ -1,87 +1,66 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+# Collapsible Menu Groups with Clean Sub-item Style
 
-## 1. Folder Architecture — ✅ PASS
+## Problem
+Currently, menu groups (SaaS Management, Survey System, etc.) render as static section labels with flat item lists below. The user wants each group to behave like the "My Task" reference — a collapsible trigger row with icon + label + chevron, and sub-items that expand underneath **without** the vertical line/dot connector.
 
-The project follows a clean modular structure:
+## Reference Style
+From the attached image:
+- Group trigger: icon + label + dot indicator + up/down chevron
+- Sub-items: indented, with small circle bullets (gray = inactive, blue filled = active)
+- No vertical connecting line between sub-items
+- Clean, minimal spacing
 
-```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
+## Changes
+
+### `src/components/layout/AppSidebar.tsx`
+
+**Convert each menu group to a `Collapsible` component:**
+
+Currently:
+```
+[Section Label: "SaaS Management"]    ← static text header
+  [Item] Tenant Management
+  [Item] Plan Management
+  [Item] Subscription Management
 ```
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+After:
+```
+[▼ 🏢 SaaS Management]               ← collapsible trigger (icon + label + chevron)
+    · Tenant Management               ← sub-item with small dot, no line
+    · Plan Management
+    · Subscription Management
+```
 
----
+**Implementation details:**
+1. Replace the static `<div className="px-3 pt-4 pb-1">` section label with a `Collapsible` + `CollapsibleTrigger` that includes the group icon, label, optional activity dot, and a rotating chevron
+2. Wrap the `SidebarMenu` items inside `CollapsibleContent`
+3. Sub-items: Remove `border-s border-sidebar-border` line styling from the mental toolkit sections too — use simple indentation with small dot bullets instead
+4. Active dot: filled blue circle; inactive: gray outline circle
+5. Track open/closed state per group using a `Set<string>` state, auto-opening groups that contain the active route
+6. Single-item groups (like Dashboard/Overview) remain as direct nav links without collapsible wrapper
 
-## 2. Feature Isolation — ✅ PASS
+**Sub-item style (no line, with dots):**
+```tsx
+<div className="ms-7 mt-0.5 flex flex-col gap-0.5">
+  {items.map(item => (
+    <NavLink className="flex h-9 items-center gap-3 rounded-lg px-2.5 text-sm">
+      <span className={cn(
+        "h-1.5 w-1.5 rounded-full shrink-0",
+        isActive ? "bg-sidebar-primary" : "bg-muted-foreground/40"
+      )} />
+      <span>{item.title}</span>
+    </NavLink>
+  ))}
+</div>
+```
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+**Collapsed mode**: No changes needed — already shows group icon with hover popup.
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
+### Files Modified
+| File | Change |
+|------|--------|
+| `src/components/layout/AppSidebar.tsx` | Convert groups to collapsible triggers; update sub-item style to dots without lines; manage open state per group |
 
----
-
-## 3. Backend Architecture — ✅ PASS
-
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
-
----
-
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
-
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
-
-## Summary
-
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
-
-**No FAIL conditions found.** Architecture is production-ready.
