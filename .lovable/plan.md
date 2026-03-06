@@ -1,87 +1,75 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+# Merge 4 Pages into Unified "My Workload" Hub
 
-## 1. Folder Architecture — ✅ PASS
+## What Changes
 
-The project follows a clean modular structure:
+Consolidate **My Tasks** (`/my-tasks`), **My Workload** (`/my-workload`), **Approval Queue** (`/approval-queue`), and **Task Calendar** (`/tasks/calendar`) into a single page at `/my-workload`.
+
+## Layout Design
 
 ```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
+┌─────────────────────────────────────────────────────┐
+│  Header: "My Workload" title + Create Task button   │
+├─────────────────────────────────────────────────────┤
+│  Stats Row: Active | Completed | Overdue | Approvals│
+│             Streak | Capacity Gauge (collapsible)   │
+├─────────────────────────────────────────────────────┤
+│  View Switcher (icon toggle):                       │
+│  [📋 Tasks] [📅 Calendar] [✅ Approvals]            │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  TASKS VIEW (default):                              │
+│    Search + Status/Priority filters                 │
+│    Tabs: My Day | Active | Overdue | Completed      │
+│    → UnifiedTaskList                                │
+│                                                     │
+│  CALENDAR VIEW:                                     │
+│    Month/Week toggle + nav controls                 │
+│    → Full calendar grid (existing TaskCalendar)     │
+│                                                     │
+│  APPROVALS VIEW:                                    │
+│    Pending count badge                              │
+│    → Approval cards with approve/reject actions     │
+│                                                     │
+└─────────────────────────────────────────────────────┘
 ```
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+## Implementation Steps
 
----
+### 1. Create unified page component
+- New file: `src/pages/employee/PersonalCommandCenter.tsx` (rewrite existing)
+- Top-level state: `activeView` = `'tasks' | 'calendar' | 'approvals'`
+- Shared data: single `useUnifiedTasks` + `useApprovalQueue` + `useGamification` calls
+- Stats bar merges both task stats and approval pending count
 
-## 2. Feature Isolation — ✅ PASS
+### 2. Extract view sections into sub-components
+- `src/features/workload/components/WorkloadTasksView.tsx` — search, filters, tabbed task list (merges MyTasks + PersonalCommandCenter task logic)
+- `src/features/workload/components/WorkloadCalendarView.tsx` — extracted from TaskCalendar (calendar grid + controls, no page header)
+- `src/features/workload/components/WorkloadApprovalsView.tsx` — extracted from ApprovalQueue (cards list, no page header)
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+### 3. View switcher UI
+- Three icon buttons (ToggleGroup) below stats: Tasks (ListChecks), Calendar (CalendarDays), Approvals (CheckSquare)
+- Approval button shows a count badge when pending > 0
+- Persists selection in local state (no URL change needed)
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
+### 4. Update routing
+- Remove `/my-tasks`, `/tasks/calendar`, `/approval-queue` routes from `App.tsx`
+- Keep `/my-workload` pointing to the rewritten `PersonalCommandCenter`
+- Add redirects from old paths to `/my-workload` for bookmarks
 
----
+### 5. Update sidebar navigation
+- Remove "My Tasks", "Task Calendar", "Approval Queue" items from AppSidebar
+- Keep single "My Workload" entry
 
-## 3. Backend Architecture — ✅ PASS
+### 6. Localization
+- Add new keys: `workload.views.tasks`, `workload.views.calendar`, `workload.views.approvals`
+- Update in both `en.json` and `ar.json`
 
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
+## Technical Notes
+- All views share the same `useUnifiedTasks` query — no duplicate fetches
+- Approval queue uses its own `useApprovalQueue` hook (different query — reviewer/approver tasks)
+- Calendar view is self-contained with its own date state
+- RTL: uses ToggleGroup + logical properties, no direction ternaries
+- Capacity gauge stays as a collapsible card above the view switcher
 
----
-
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
-
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
-
-## Summary
-
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
-
-**No FAIL conditions found.** Architecture is production-ready.
