@@ -12,6 +12,7 @@ import { format, subDays, startOfDay, eachDayOfInterval } from 'date-fns';
 import { useMemo, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTaskPerformanceAnalytics } from '@/features/tasks/hooks/useTaskPerformanceAnalytics';
+import { CHART_AXIS_TICK, CHART_TOOLTIP_STYLE, CHART_GRID_STROKE } from '@/config/chart-styles';
 
 type RangeKey = '7' | '14' | '30';
 
@@ -158,10 +159,10 @@ export default function TaskPerformanceAnalytics() {
               <CardContent>
                 <ResponsiveContainer width="100%" height={280}>
                   <AreaChart data={metrics.trendData}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                    <XAxis dataKey="date" className="text-xs" tick={{ fill: 'hsl(var(--muted-foreground))' }} />
-                    <YAxis tick={{ fill: 'hsl(var(--muted-foreground))' }} />
-                    <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} />
+                    <XAxis dataKey="date" tick={CHART_AXIS_TICK} />
+                    <YAxis tick={CHART_AXIS_TICK} />
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
                     <Area type="monotone" dataKey="created" stackId="1" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" fillOpacity={0.3} name={t('taskAnalytics.created')} />
                     <Area type="monotone" dataKey="completed" stackId="2" fill="hsl(var(--chart-2))" stroke="hsl(var(--chart-2))" fillOpacity={0.3} name={t('taskAnalytics.completed')} />
                     <Legend />
@@ -197,10 +198,10 @@ export default function TaskPerformanceAnalytics() {
               <CardContent>
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={metrics.priorityData}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                    <XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))' }} />
-                    <YAxis tick={{ fill: 'hsl(var(--muted-foreground))' }} />
-                    <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} />
+                    <XAxis dataKey="name" tick={CHART_AXIS_TICK} />
+                    <YAxis tick={CHART_AXIS_TICK} />
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
                     <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                       {metrics.priorityData.map((entry: any, i: number) => (
                         <Cell key={i} fill={PRIORITY_COLORS[entry.name] || 'hsl(var(--muted-foreground))'} />
@@ -217,10 +218,10 @@ export default function TaskPerformanceAnalytics() {
               <CardContent>
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={metrics.topPerformers} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                    <XAxis type="number" tick={{ fill: 'hsl(var(--muted-foreground))' }} />
-                    <YAxis type="category" dataKey="name" width={120} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
-                    <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} />
+                    <XAxis type="number" tick={CHART_AXIS_TICK} />
+                    <YAxis type="category" dataKey="name" width={120} tick={{ ...CHART_AXIS_TICK, fontSize: 12 }} />
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
                     <Bar dataKey="completed" fill="hsl(var(--chart-2))" radius={[0, 4, 4, 0]} name={t('taskAnalytics.completed')} />
                     <Bar dataKey="total" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} name={t('taskAnalytics.totalTasks')} opacity={0.4} />
                     <Legend />

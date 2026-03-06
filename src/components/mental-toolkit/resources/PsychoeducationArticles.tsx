@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock } from "lucide-react";
+import { TOOLKIT_CATEGORY_COLORS } from "@/config/toolkit-colors";
 
 interface Article {
   id: string;
@@ -190,14 +191,7 @@ Resilience does not mean you will not feel pain or struggle. It means you develo
   },
 ];
 
-const CATEGORY_COLORS: Record<string, string> = {
-  anxiety: "#C9B8E8",
-  mood: "#A9CCE3",
-  stress: "#F5CBA7",
-  cbt: "#FAD7A0",
-  skills: "#A8C5A0",
-  growth: "#F9E4B7",
-};
+const CATEGORY_COLORS: Record<string, string> = TOOLKIT_CATEGORY_COLORS;
 
 export default function PsychoeducationArticles() {
   const { t } = useTranslation();
@@ -234,7 +228,7 @@ export default function PsychoeducationArticles() {
 
   return (
     <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-      <div className="px-5 py-4 border-b border-border" style={{ background: "linear-gradient(135deg, rgba(249,228,183,0.3), rgba(201,184,232,0.1))" }}>
+      <div className="px-5 py-4 border-b border-border bg-gradient-to-br from-toolkit-gold/20 to-toolkit-lavender/10">
         <div className="flex items-center gap-2">
           <span className="text-2xl">📚</span>
           <div>

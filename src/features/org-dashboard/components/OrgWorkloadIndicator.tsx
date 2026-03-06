@@ -150,7 +150,7 @@ export function OrgWorkloadIndicator() {
                   />
                   <Tooltip
                     formatter={(v: number) => [`${v}h`, t('orgDashboard.hoursPerDay')]}
-                    contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,.12)' }}
+                    contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 2px 8px hsl(var(--foreground) / 0.12)' }}
                   />
                   <Bar dataKey="avgHours" radius={[0, 6, 6, 0]} barSize={18}>
                     {deptData.map((entry, idx) => (
