@@ -3672,6 +3672,10 @@
     "deleteSuccess": "Task deleted successfully",
     "extendSuccess": "Due date extended successfully",
     "manageError": "Failed to manage task",
+    "tabs": {
+      "strategic": "Strategic Objectives",
+      "distribution": "Task Distribution"
+    },
     "admin": {
       "title": "Representatives",
       "description": "Manage representative assignments for task distribution",
