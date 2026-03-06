@@ -387,23 +387,16 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent className="pt-1 px-2">
-        {filteredGroups.map((group) => {
+              {filteredGroups.map((group) => {
           const isWellnessGroup = group.label === t('nav.wellness');
           const isGroupActive = group.items.some(item => isItemActive(item.url))
             || (isWellnessGroup && location.pathname.startsWith('/mental-toolkit'));
+          const isSingleItem = group.items.length === 1 && !isWellnessGroup;
+          const isGroupOpen = openGroups.has(group.label);
 
           return (
             <React.Fragment key={group.label}>
               <SidebarGroup className="px-0 py-0">
-                {/* Section label */}
-                {!isCollapsed && (
-                  <div className="px-3 pt-4 pb-1">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      {group.label}
-                    </span>
-                  </div>
-                )}
-
                 {/* Collapsed: show group icon with hover popup */}
                 {isCollapsed && (
                   <div
@@ -441,94 +434,153 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                   </div>
                 )}
 
-                {/* Expanded: show items */}
-                {!isCollapsed && (
+                {/* Expanded: single-item groups render as direct links */}
+                {!isCollapsed && isSingleItem && (
                   <SidebarGroupContent>
                     <SidebarMenu className="gap-0.5 px-1">
-                      {group.items.map((item) => (
-                        <SidebarMenuItem key={item.title}>
-                          <NavLink
-                            to={item.url}
-                            end={item.url === '/'}
-                            className={cn(
-                              "flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition-all duration-200",
-                              "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
-                            )}
-                            activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
-                            onClick={handleNavClick}
-                          >
-                            <item.icon className="h-5 w-5 shrink-0" />
-                            <span className="truncate">{item.title}</span>
-                            {item.badge && (
-                              <span className="ms-auto inline-flex items-center rounded-lg bg-sidebar-primary px-1.5 py-0.5 text-[11px] font-medium text-sidebar-primary-foreground">
-                                {item.badge}
-                              </span>
-                            )}
-                          </NavLink>
-                        </SidebarMenuItem>
-                      ))}
+                      <SidebarMenuItem>
+                        <NavLink
+                          to={group.items[0].url}
+                          end={group.items[0].url === '/'}
+                          className={cn(
+                            "flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition-all duration-200",
+                            "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                          )}
+                          activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                          onClick={handleNavClick}
+                        >
+                          <group.icon className="h-5 w-5 shrink-0" />
+                          <span className="truncate">{group.items[0].title}</span>
+                        </NavLink>
+                      </SidebarMenuItem>
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                )}
 
-                      {/* Mental Toolkit collapsible sections inside Wellness */}
-                      {isWellnessGroup && mentalToolkitSections.map((section, sectionIdx) => {
-                        const { open, setOpen } = sectionStates[sectionIdx];
-                        const isSectionActive = section.items.some(i => location.pathname.startsWith(i.url));
+                {/* Expanded: multi-item groups render as collapsible */}
+                {!isCollapsed && !isSingleItem && (
+                  <Collapsible
+                    open={isGroupOpen}
+                    onOpenChange={() => toggleGroup(group.label)}
+                    className="group/collapsible"
+                  >
+                    {/* Group trigger row */}
+                    <CollapsibleTrigger asChild>
+                      <button
+                        className={cn(
+                          "flex h-10 w-full items-center gap-3 rounded-xl px-3 text-sm transition-all duration-200",
+                          isGroupActive
+                            ? "text-sidebar-primary font-medium"
+                            : "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                        )}
+                      >
+                        <group.icon className="h-5 w-5 shrink-0" />
+                        <span className="flex-1 text-start truncate">{group.label}</span>
+                        {isGroupActive && (
+                          <span className="h-1.5 w-1.5 rounded-full bg-sidebar-primary shrink-0" />
+                        )}
+                        <ChevronRight className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 rtl:-scale-x-100" />
+                      </button>
+                    </CollapsibleTrigger>
 
-                        return (
-                          <Collapsible
-                            key={section.label}
-                            open={open}
-                            onOpenChange={setOpen}
-                            className="group/collapsible"
-                          >
-                            <SidebarMenuItem>
+                    {/* Sub-items with dot bullets */}
+                    <CollapsibleContent>
+                      <div className="ms-7 mt-0.5 flex flex-col gap-0.5">
+                        {group.items.map((item) => {
+                          const active = isItemActive(item.url);
+                          return (
+                            <NavLink
+                              key={item.url}
+                              to={item.url}
+                              end={item.url === '/'}
+                              className={cn(
+                                "flex h-9 items-center gap-3 rounded-lg px-2.5 text-sm transition-colors",
+                                "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                              )}
+                              activeClassName="text-sidebar-primary font-medium"
+                              onClick={handleNavClick}
+                            >
+                              <span className={cn(
+                                "h-1.5 w-1.5 rounded-full shrink-0",
+                                active ? "bg-sidebar-primary" : "bg-muted-foreground/40"
+                              )} />
+                              <span className="truncate">{item.title}</span>
+                              {item.badge && (
+                                <span className="ms-auto inline-flex items-center rounded-lg bg-sidebar-primary px-1.5 py-0.5 text-[11px] font-medium text-sidebar-primary-foreground">
+                                  {item.badge}
+                                </span>
+                              )}
+                            </NavLink>
+                          );
+                        })}
+
+                        {/* Mental Toolkit nested sections inside Wellness */}
+                        {isWellnessGroup && mentalToolkitSections.map((section, sectionIdx) => {
+                          const { open, setOpen } = sectionStates[sectionIdx];
+                          const isSectionActive = section.items.some(i => location.pathname.startsWith(i.url));
+
+                          return (
+                            <Collapsible
+                              key={section.label}
+                              open={open}
+                              onOpenChange={setOpen}
+                              className="group/nested"
+                            >
                               <CollapsibleTrigger asChild>
                                 <button
                                   className={cn(
-                                    "flex h-10 w-full items-center gap-3 rounded-xl px-3 text-sm transition-all duration-200",
+                                    "flex h-9 w-full items-center gap-3 rounded-lg px-2.5 text-sm transition-all duration-200",
                                     isSectionActive
-                                      ? "bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                                      ? "text-sidebar-primary font-medium"
                                       : "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
                                   )}
                                 >
+                                  <span className={cn(
+                                    "h-1.5 w-1.5 rounded-full shrink-0",
+                                    isSectionActive ? "bg-sidebar-primary" : "bg-muted-foreground/40"
+                                  )} />
                                   <span className="flex-1 text-start text-xs font-medium">{section.label}</span>
-                                  <ChevronRight className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 rtl:-scale-x-100" />
+                                  <ChevronRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-data-[state=open]/nested:rotate-90 rtl:-scale-x-100" />
                                 </button>
                               </CollapsibleTrigger>
                               <CollapsibleContent>
-                                <div className="ms-4 mt-0.5 flex flex-col gap-0.5 border-s border-sidebar-border ps-3">
-                                  {section.items.map((item) => (
-                                    <NavLink
-                                      key={item.url}
-                                      to={item.url}
-                                      className="flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm text-sidebar-foreground transition-colors hover:bg-[hsl(var(--sidebar-hover-bg))]"
-                                      activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
-                                      onClick={handleNavClick}
-                                    >
-                                      <item.icon className="h-4 w-4 shrink-0" />
-                                      <span className="truncate">{item.title}</span>
-                                    </NavLink>
-                                  ))}
+                                <div className="ms-4 mt-0.5 flex flex-col gap-0.5">
+                                  {section.items.map((item) => {
+                                    const subActive = location.pathname.startsWith(item.url);
+                                    return (
+                                      <NavLink
+                                        key={item.url}
+                                        to={item.url}
+                                        className={cn(
+                                          "flex h-8 items-center gap-2 rounded-lg px-2.5 text-sm transition-colors",
+                                          "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                                        )}
+                                        activeClassName="text-sidebar-primary font-medium"
+                                        onClick={handleNavClick}
+                                      >
+                                        <span className={cn(
+                                          "h-1 w-1 rounded-full shrink-0",
+                                          subActive ? "bg-sidebar-primary" : "bg-muted-foreground/30"
+                                        )} />
+                                        <span className="truncate">{item.title}</span>
+                                      </NavLink>
+                                    );
+                                  })}
                                 </div>
                               </CollapsibleContent>
-                            </SidebarMenuItem>
-                          </Collapsible>
-                        );
-                      })}
-                    </SidebarMenu>
-                  </SidebarGroupContent>
+                            </Collapsible>
+                          );
+                        })}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 )}
               </SidebarGroup>
 
               {/* Spiritual Wellbeing — rendered right after Wellness */}
               {isWellnessGroup && spiritualEnabled && (
                 <SidebarGroup className="px-0 py-0">
-                  {!isCollapsed && (
-                    <div className="px-3 pt-4 pb-1">
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        {t('spiritual.nav.title')}
-                      </span>
-                    </div>
-                  )}
+                  {isCollapsed ? (
                   {isCollapsed ? (
                     <div className="flex justify-center py-2">
                       <Tooltip>
