@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { SmilePlus, Flame, TrendingUp, CalendarCheck, Activity, BarChart3, PieChart, Grid3X3, ClipboardList, RefreshCw, ArrowRight, Wind } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePersonalMoodDashboard } from "@/hooks/analytics/usePersonalMoodDashboard";
 import {
@@ -11,7 +11,7 @@ import {
 import { format, subDays } from "date-fns";
 
 import { TOOLKIT, ZONE_COLORS, DONUT_COLORS } from "@/config/toolkit-colors";
-
+import { ToolkitPageHeader, ToolkitCard } from "@/components/mental-toolkit/shared";
 
 const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
@@ -77,24 +77,12 @@ export default function MoodTrackerPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="glass-card border-0 rounded-none border-b border-border/50 px-4 py-5 sm:px-6">
-        <div className="max-w-4xl mx-auto flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 bg-primary/10"
-          >
-            <SmilePlus className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">
-              {t("mentalToolkit.moodDashboard.pageTitle")}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {t("mentalToolkit.moodDashboard.pageSubtitle")}
-            </p>
-          </div>
-        </div>
-      </div>
+      <ToolkitPageHeader
+        icon={<SmilePlus className="h-5 w-5 text-primary" />}
+        title={t("mentalToolkit.moodDashboard.pageTitle")}
+        subtitle={t("mentalToolkit.moodDashboard.pageSubtitle")}
+        maxWidth="4xl"
+      />
 
       <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 space-y-6">
         {noData ? (
