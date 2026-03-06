@@ -685,7 +685,14 @@
       "4-7": "4-7 days",
       "8-14": "8-14 days",
       "15+": "15+ days"
-    }
+    },
+    "workloadHealth": "Workload Health",
+    "avgDailyLoad": "Avg Daily Load",
+    "atRiskEmployees": "At-Risk Employees",
+    "offHoursWorkers": "Off-Hours Workers",
+    "totalWorkforce": "Total Workforce",
+    "overloadedEmployees": "Top Loaded Employees",
+    "hoursPerDay": "Avg Hours / Day by Department"
   },
   "synthesis": {
     "checkinPulse": "Check-In Pulse",

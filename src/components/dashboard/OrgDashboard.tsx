@@ -11,6 +11,7 @@ import {
   AlertsTab,
   ComparisonTab,
 } from '@/features/org-dashboard';
+import { OrgWorkloadIndicator } from '@/features/org-dashboard/components/OrgWorkloadIndicator';
 
 export function OrgDashboard() {
   const { t } = useTranslation();
@@ -35,6 +36,8 @@ export function OrgDashboard() {
       <OrgFilterBar value={orgFilter} onChange={setOrgFilter} />
 
       <StatCards cards={statCards} isLoading={isLoading} />
+
+      <ErrorBoundary><OrgWorkloadIndicator /></ErrorBoundary>
 
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="glass-tabs border-0 h-auto">
