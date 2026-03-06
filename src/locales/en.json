@@ -3115,7 +3115,10 @@
     "runAI": "Run AI Predictions",
     "aiRunning": "AI Processing...",
     "aiPredictionsSuccess": "AI predictions completed",
-    "aiPredictionsFailed": "AI predictions failed"
+    "aiPredictionsFailed": "AI predictions failed",
+    "trendUp": "↑ trending up",
+    "trendDown": "↓ trending down",
+    "trendStable": "→ stable"
   },
   "teamWorkload": {
     "pageTitle": "Team Command Center",
