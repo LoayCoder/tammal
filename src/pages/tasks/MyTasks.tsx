@@ -16,7 +16,7 @@ import { TaskDialog } from '@/components/workload/employee/TaskDialog';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import {
   Plus, Search, ListChecks, CalendarDays, CheckCircle2, AlertTriangle,
-  Clock, ShieldCheck, Filter,
+  Clock, Filter,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
