@@ -6567,6 +6567,7 @@ export type Database = {
           locked_by: string | null
           metadata: Json | null
           priority: number
+          progress: number
           scheduled_end: string | null
           scheduled_start: string | null
           source_id: string | null
@@ -6599,6 +6600,7 @@ export type Database = {
           locked_by?: string | null
           metadata?: Json | null
           priority?: number
+          progress?: number
           scheduled_end?: string | null
           scheduled_start?: string | null
           source_id?: string | null
@@ -6631,6 +6633,7 @@ export type Database = {
           locked_by?: string | null
           metadata?: Json | null
           priority?: number
+          progress?: number
           scheduled_end?: string | null
           scheduled_start?: string | null
           source_id?: string | null

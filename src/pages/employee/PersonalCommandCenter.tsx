@@ -13,7 +13,7 @@ import { CapacityGauge } from '@/components/workload/employee/CapacityGauge';
 import { UnifiedTaskList } from '@/components/workload/employee/UnifiedTaskList';
 import { TaskDialog } from '@/components/workload/employee/TaskDialog';
 import {
-  Plus, ListChecks, CalendarDays, CheckCircle2, AlertTriangle, Flame, Star,
+  Plus, ListChecks, CalendarDays, CheckCircle2, AlertTriangle, Flame, Star, ShieldCheck,
 } from 'lucide-react';
 
 export default function PersonalCommandCenter() {
@@ -29,20 +29,16 @@ export default function PersonalCommandCenter() {
 
   const stats = useMemo(() => {
     const todayStr = new Date().toISOString().split('T')[0];
-    const active = tasks.filter(t => t.status !== 'done');
-    const done = tasks.filter(t => t.status === 'done');
+    const active = tasks.filter(t => t.status !== 'completed' && t.status !== 'verified');
+    const completed = tasks.filter(t => t.status === 'completed');
+    const verified = tasks.filter(t => t.status === 'verified');
     const overdue = active.filter(t => t.due_date && t.due_date.split('T')[0] < todayStr);
     const scheduledMinutes = active.reduce((sum, t) => sum + (t.estimated_minutes ?? 0), 0);
-    return { active, done, overdue, scheduledMinutes, total: tasks.length };
+    return { active, completed, verified, overdue, scheduledMinutes, total: tasks.length };
   }, [tasks]);
-
-  const handleToggle = (task: any) => {
-    updateTask({ id: task.id, status: task.status === 'done' ? 'todo' : 'done' });
-  };
 
   const handleEdit = (task: any) => { setEditingTask(task); setDialogOpen(true); };
   const handleAdd = () => { setEditingTask(null); setDialogOpen(true); };
-  const handleStatusChange = (task: any, status: string) => { updateTask({ id: task.id, status }); };
   const handleComment = (task: any) => { setEditingTask(task); setDialogOpen(true); };
 
   if (empLoading) {
@@ -81,7 +77,7 @@ export default function PersonalCommandCenter() {
         <Card className="glass-stat border-0">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-chart-1/10"><CheckCircle2 className="h-5 w-5 text-chart-1" /></div>
-            <div><div className="text-xl font-bold">{stats.done.length}</div><p className="text-muted-foreground text-xs">{t('commandCenter.completed')}</p></div>
+            <div><div className="text-xl font-bold">{stats.completed.length}</div><p className="text-muted-foreground text-xs">{t('commandCenter.completed')}</p></div>
           </CardContent>
         </Card>
         <Card className="glass-stat border-0">
@@ -114,21 +110,27 @@ export default function PersonalCommandCenter() {
             <TabsList className="mb-4">
               <TabsTrigger value="today" className="gap-1.5 text-xs"><CalendarDays className="h-3.5 w-3.5" />{t('commandCenter.myDay')}</TabsTrigger>
               <TabsTrigger value="all" className="gap-1.5 text-xs"><ListChecks className="h-3.5 w-3.5" />{t('commandCenter.allTasks')}</TabsTrigger>
-              <TabsTrigger value="done" className="gap-1.5 text-xs"><CheckCircle2 className="h-3.5 w-3.5" />{t('commandCenter.completedTab')}</TabsTrigger>
+              <TabsTrigger value="completed" className="gap-1.5 text-xs"><CheckCircle2 className="h-3.5 w-3.5" />{t('commandCenter.completedTab')}</TabsTrigger>
+              <TabsTrigger value="verified" className="gap-1.5 text-xs"><ShieldCheck className="h-3.5 w-3.5" />{t('commandCenter.verifiedTab')}</TabsTrigger>
             </TabsList>
             <TabsContent value="today">
               {tasksLoading ? <Skeleton className="h-40" /> : (
-                <UnifiedTaskList tasks={stats.active} onEdit={handleEdit} onDelete={deleteTask} onToggle={handleToggle} onStatusChange={handleStatusChange} onComment={handleComment} />
+                <UnifiedTaskList tasks={stats.active} onEdit={handleEdit} onDelete={deleteTask} onComment={handleComment} />
               )}
             </TabsContent>
             <TabsContent value="all">
               {tasksLoading ? <Skeleton className="h-40" /> : (
-                <UnifiedTaskList tasks={tasks} onEdit={handleEdit} onDelete={deleteTask} onToggle={handleToggle} onStatusChange={handleStatusChange} onComment={handleComment} />
+                <UnifiedTaskList tasks={tasks} onEdit={handleEdit} onDelete={deleteTask} onComment={handleComment} />
               )}
             </TabsContent>
-            <TabsContent value="done">
+            <TabsContent value="completed">
               {tasksLoading ? <Skeleton className="h-40" /> : (
-                <UnifiedTaskList tasks={stats.done} onEdit={handleEdit} onDelete={deleteTask} onToggle={handleToggle} onStatusChange={handleStatusChange} onComment={handleComment} />
+                <UnifiedTaskList tasks={stats.completed} onEdit={handleEdit} onDelete={deleteTask} onComment={handleComment} />
+              )}
+            </TabsContent>
+            <TabsContent value="verified">
+              {tasksLoading ? <Skeleton className="h-40" /> : (
+                <UnifiedTaskList tasks={stats.verified} onEdit={handleEdit} onDelete={deleteTask} onComment={handleComment} />
               )}
             </TabsContent>
           </Tabs>

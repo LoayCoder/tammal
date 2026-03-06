@@ -2878,7 +2878,25 @@
       "estimatedMinutes": "Est. Minutes",
       "statusTodo": "To Do",
       "statusInProgress": "In Progress",
-      "statusBlocked": "Blocked"
+      "statusBlocked": "Blocked",
+      "statusCompleted": "Completed",
+      "statusVerified": "Verified",
+      "progress": "Progress",
+      "progressLabel": "{{value}}%",
+      "startDate": "Start Date",
+      "source": "Source",
+      "createdBy": "Created By",
+      "closureComment": "Closure Comment",
+      "closureCommentPlaceholder": "Describe what was accomplished...",
+      "closureCommentRequired": "A closure comment is required to complete this task",
+      "evidence": "Evidence",
+      "uploadEvidence": "Upload Evidence",
+      "noEvidence": "No evidence uploaded yet",
+      "evidenceRequired": "Upload evidence to verify this task",
+      "evidenceUploaded": "Evidence uploaded successfully",
+      "evidenceUploadError": "Failed to upload evidence",
+      "verified": "Verified",
+      "completedNotVerified": "Completed — awaiting verification"
     },
     "lock": {
       "lock": "Lock",
@@ -2928,6 +2946,7 @@
     "myDay": "My Day",
     "allTasks": "All Tasks",
     "completedTab": "Done",
+    "verifiedTab": "Verified",
     "openExternal": "Open in Source"
   },
   "adminWorkload": {

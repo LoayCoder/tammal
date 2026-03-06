@@ -1,0 +1,1 @@
+ALTER TABLE unified_tasks ADD COLUMN progress integer NOT NULL DEFAULT 0;

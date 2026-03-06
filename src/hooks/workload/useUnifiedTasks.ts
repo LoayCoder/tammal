@@ -30,6 +30,7 @@ export interface UnifiedTask {
   is_work_hours: boolean;
   priority: number;
   status: string;
+  progress: number;
   external_url: string | null;
   tags: string[];
   metadata: Record<string, unknown>;
@@ -63,6 +64,7 @@ export interface UnifiedTaskUpdate extends Partial<UnifiedTaskInsert> {
   actual_minutes?: number | null;
   scheduled_start?: string | null;
   scheduled_end?: string | null;
+  progress?: number;
 }
 
 export function useUnifiedTasks(employeeId?: string) {

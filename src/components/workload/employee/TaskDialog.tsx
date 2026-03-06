@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -7,10 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Lock, MessageSquare } from 'lucide-react';
+import { Lock, MessageSquare, ShieldCheck, Upload, AlertCircle } from 'lucide-react';
 import type { UnifiedTask, UnifiedTaskInsert, UnifiedTaskUpdate, TaskComment } from '@/hooks/workload/useUnifiedTasks';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface TaskDialogProps {
   open: boolean;
@@ -30,6 +34,31 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
   const isEdit = !!task;
   const isLocked = task?.is_locked ?? false;
   const [commentText, setCommentText] = useState('');
+  const [closureComment, setClosureComment] = useState('');
+  const [progress, setProgress] = useState(task?.progress ?? 0);
+  const [closureError, setClosureError] = useState(false);
+  const [evidence, setEvidence] = useState<Array<{ id: string; file_url: string; status: string }>>([]);
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    setProgress(task?.progress ?? 0);
+    setClosureComment('');
+    setClosureError(false);
+    if (task?.id) {
+      loadEvidence(task.id);
+    } else {
+      setEvidence([]);
+    }
+  }, [task?.id, open]);
+
+  const loadEvidence = async (taskId: string) => {
+    const { data } = await supabase
+      .from('task_evidence')
+      .select('id, file_url, status')
+      .eq('action_id', taskId)
+      .is('deleted_at', null);
+    setEvidence(data ?? []);
+  };
 
   const { register, handleSubmit, setValue, watch, reset } = useForm({
     defaultValues: {
@@ -39,19 +68,55 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
       status: task?.status ?? 'todo',
       estimated_minutes: task?.estimated_minutes ?? null,
       due_date: task?.due_date ? task.due_date.split('T')[0] : '',
+      scheduled_start: task?.scheduled_start ? task.scheduled_start.split('T')[0] : '',
     },
   });
 
+  // Compute derived status from progress
+  const computeStatus = (prog: number, currentStatus: string) => {
+    if (currentStatus === 'verified') return 'verified';
+    if (currentStatus === 'blocked') return 'blocked';
+    if (prog >= 100) return 'completed';
+    if (prog > 0) return 'in_progress';
+    return 'todo';
+  };
+
+  const watchedStatus = watch('status');
+
   const onSubmit = (data: any) => {
+    const derivedStatus = computeStatus(progress, data.status);
+
+    // Require closure comment when completing
+    if (derivedStatus === 'completed' && progress >= 100 && !closureComment.trim() && isEdit) {
+      setClosureError(true);
+      return;
+    }
+
     if (isEdit && task) {
+      // Add closure comment as a task comment
+      if (derivedStatus === 'completed' && closureComment.trim() && onAddComment) {
+        onAddComment({
+          id: task.id,
+          comment: {
+            id: crypto.randomUUID(),
+            employee_id: employeeId,
+            employee_name: currentEmployeeName || 'User',
+            text: `📋 ${t('workload.tasks.closureComment')}: ${closureComment.trim()}`,
+            created_at: new Date().toISOString(),
+          },
+        });
+      }
+
       onUpdate({
         id: task.id,
         title: data.title,
         description: data.description || null,
         priority: Number(data.priority),
-        status: data.status,
+        status: derivedStatus,
+        progress,
         estimated_minutes: data.estimated_minutes ? Number(data.estimated_minutes) : null,
         due_date: data.due_date || null,
+        scheduled_start: data.scheduled_start || null,
       });
     } else {
       onCreate({
@@ -60,7 +125,7 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
         title: data.title,
         description: data.description || null,
         priority: Number(data.priority),
-        status: data.status,
+        status: 'todo',
         estimated_minutes: data.estimated_minutes ? Number(data.estimated_minutes) : null,
         due_date: data.due_date || null,
         source_type: 'manual',
@@ -85,20 +150,71 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
     setCommentText('');
   };
 
-  const statusOptions = ['todo', 'in_progress', 'done', 'blocked'];
+  const handleEvidenceUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length || !task) return;
+    setUploading(true);
+    try {
+      const file = e.target.files[0];
+      const filePath = `${tenantId}/${task.id}/${crypto.randomUUID()}-${file.name}`;
+      const { error: uploadError } = await supabase.storage.from('support-attachments').upload(filePath, file);
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage.from('support-attachments').getPublicUrl(filePath);
+
+      const { error: insertError } = await supabase.from('task_evidence').insert({
+        tenant_id: tenantId,
+        action_id: task.id,
+        uploaded_by: employeeId,
+        file_url: urlData.publicUrl,
+        file_type: file.type || 'application/octet-stream',
+        status: 'pending',
+      });
+      if (insertError) throw insertError;
+
+      toast.success(t('workload.tasks.evidenceUploaded'));
+      await loadEvidence(task.id);
+    } catch {
+      toast.error(t('workload.tasks.evidenceUploadError'));
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleMarkVerified = () => {
+    if (!task) return;
+    onUpdate({ id: task.id, status: 'verified' } as UnifiedTaskUpdate);
+    onOpenChange(false);
+  };
+
   const priorityOptions = [1, 2, 3, 4, 5];
   const comments = task?.comments ?? [];
+  const hasApprovedEvidence = evidence.some(e => e.status === 'approved');
+  const hasAnyEvidence = evidence.length > 0;
+  const isCompleted = task?.status === 'completed';
+  const isVerified = task?.status === 'verified';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {isEdit ? t('commandCenter.editTask') : t('commandCenter.addTask')}
             {isLocked && <Lock className="h-4 w-4 text-chart-4" />}
+            {isVerified && <ShieldCheck className="h-4 w-4 text-primary" />}
           </DialogTitle>
           <DialogDescription>{isEdit ? t('commandCenter.editTaskDesc') : t('commandCenter.addTaskDesc')}</DialogDescription>
         </DialogHeader>
+
+        {/* Task metadata for edit mode */}
+        {isEdit && task && (
+          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+            <Badge variant="outline" className="text-[10px]">{t('workload.tasks.source')}: {task.source_type}</Badge>
+            {task.created_by && <Badge variant="outline" className="text-[10px]">{t('workload.tasks.createdBy')}: {task.created_by}</Badge>}
+            <Badge variant="outline" className="text-[10px]">{new Date(task.created_at).toLocaleDateString()}</Badge>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label>{t('commandCenter.taskTitle')}</Label>
@@ -122,26 +238,134 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
             </div>
             <div className="space-y-2">
               <Label>{t('common.status')}</Label>
-              <Select value={watch('status')} onValueChange={(v) => setValue('status', v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {statusOptions.map(s => (
-                    <SelectItem key={s} value={s}>{t(`workload.status.${s === 'todo' ? 'planned' : s === 'in_progress' ? 'inProgress' : s === 'done' ? 'completed' : 'blocked'}`)}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-2 h-10 px-3 rounded-md border bg-muted/30 text-sm">
+                {t(`workload.status.${computeStatus(progress, watchedStatus) === 'todo' ? 'planned' : computeStatus(progress, watchedStatus) === 'in_progress' ? 'inProgress' : computeStatus(progress, watchedStatus) === 'completed' ? 'completed' : computeStatus(progress, watchedStatus) === 'verified' ? 'completed' : 'blocked'}`)}
+              </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+
+          {/* Progress Slider */}
+          {isEdit && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>{t('workload.tasks.progress')}</Label>
+                <span className="text-sm font-bold text-primary">{progress}%</span>
+              </div>
+              <Slider
+                value={[progress]}
+                onValueChange={([v]) => {
+                  setProgress(v);
+                  setClosureError(false);
+                }}
+                max={100}
+                step={5}
+                disabled={isVerified}
+              />
+              <Progress value={progress} className="h-2" />
+            </div>
+          )}
+
+          {/* Blocked toggle */}
+          {isEdit && (
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="blocked-toggle"
+                checked={watchedStatus === 'blocked'}
+                onChange={(e) => setValue('status', e.target.checked ? 'blocked' : 'todo')}
+                className="rounded"
+                disabled={isVerified}
+              />
+              <Label htmlFor="blocked-toggle" className="text-sm text-destructive">{t('workload.status.blocked')}</Label>
+            </div>
+          )}
+
+          <div className="grid grid-cols-3 gap-3">
             <div className="space-y-2">
               <Label>{t('commandCenter.estMinutes')}</Label>
               <Input type="number" {...register('estimated_minutes')} min={0} disabled={isLocked} />
+            </div>
+            <div className="space-y-2">
+              <Label>{t('workload.tasks.startDate')}</Label>
+              <Input type="date" {...register('scheduled_start')} disabled={isLocked} />
             </div>
             <div className="space-y-2">
               <Label>{t('commandCenter.dueDate')}</Label>
               <Input type="date" {...register('due_date')} disabled={isLocked} />
             </div>
           </div>
+
+          {/* Closure Comment - only when completing */}
+          {isEdit && progress >= 100 && !isVerified && (
+            <div className="space-y-2 border-t pt-3">
+              <Label className="flex items-center gap-1.5">
+                {t('workload.tasks.closureComment')} <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                value={closureComment}
+                onChange={(e) => { setClosureComment(e.target.value); setClosureError(false); }}
+                placeholder={t('workload.tasks.closureCommentPlaceholder')}
+                rows={2}
+              />
+              {closureError && (
+                <p className="text-xs text-destructive flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" /> {t('workload.tasks.closureCommentRequired')}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Evidence Section */}
+          {isEdit && task && (isCompleted || isVerified) && (
+            <div className="space-y-2 border-t pt-3">
+              <Label className="flex items-center gap-1.5">
+                <Upload className="h-3.5 w-3.5" /> {t('workload.tasks.evidence')}
+              </Label>
+              {evidence.length > 0 ? (
+                <div className="space-y-1">
+                  {evidence.map(ev => {
+                    const fileName = ev.file_url.split('/').pop() || 'file';
+                    return (
+                      <div key={ev.id} className="flex items-center justify-between text-xs bg-muted/50 rounded p-2">
+                        <span className="truncate max-w-[200px]">{fileName}</span>
+                        <Badge variant="outline" className={`text-[10px] ${ev.status === 'approved' ? 'text-chart-1' : ev.status === 'rejected' ? 'text-destructive' : 'text-muted-foreground'}`}>
+                          {ev.status}
+                        </Badge>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">{t('workload.tasks.noEvidence')}</p>
+              )}
+              {!isVerified && (
+                <div>
+                  <input
+                    type="file"
+                    id="evidence-upload"
+                    className="hidden"
+                    onChange={handleEvidenceUpload}
+                  />
+                  <Button type="button" variant="outline" size="sm" onClick={() => document.getElementById('evidence-upload')?.click()} disabled={uploading}>
+                    <Upload className="h-3.5 w-3.5 me-1.5" />
+                    {uploading ? '...' : t('workload.tasks.uploadEvidence')}
+                  </Button>
+                </div>
+              )}
+              {/* Mark as verified button */}
+              {isCompleted && hasApprovedEvidence && (
+                <Button type="button" variant="default" size="sm" className="gap-1.5" onClick={handleMarkVerified}>
+                  <ShieldCheck className="h-3.5 w-3.5" /> {t('workload.tasks.verified')}
+                </Button>
+              )}
+              {isCompleted && !hasApprovedEvidence && (
+                <p className="text-xs text-chart-4 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {hasAnyEvidence ? t('workload.tasks.completedNotVerified') : t('workload.tasks.evidenceRequired')}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Comments Section */}
           {isEdit && (
@@ -183,11 +407,8 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.cancel')}</Button>
-            {(!isLocked || !isEdit) && (
+            {!isVerified && (
               <Button type="submit" disabled={isSubmitting}>{isEdit ? t('common.save') : t('common.create')}</Button>
-            )}
-            {isLocked && isEdit && (
-              <Button type="submit" disabled={isSubmitting}>{t('workload.lock.updateStatus')}</Button>
             )}
           </div>
         </form>
