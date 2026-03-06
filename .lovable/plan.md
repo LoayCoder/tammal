@@ -1,87 +1,91 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+# Upgrade Executive Dashboard — Premium SaaS Redesign
 
-## 1. Folder Architecture — ✅ PASS
+## Overview
 
-The project follows a clean modular structure:
+Restructure the 566-line `ExecutiveDashboard.tsx` into a modular, visually elevated executive command center. The redesign applies the design prompt's principles: semantic KPI colors, depth via shadows, gauge charts, delivery performance visuals, and a tighter visual hierarchy — all while keeping the existing data hooks and glass-morphism system intact.
+
+## Key Changes
+
+### 1. Split into Sub-Components (Maintainability)
+Extract the monolithic file into focused sections:
+- `src/features/workload/components/executive/TammalIndexCard.tsx` — gauge + component breakdown
+- `src/features/workload/components/executive/ExecutiveKPIRow.tsx` — 4 semantic-colored KPI cards (Success/Info/Warning/Error style with circular icon backgrounds)
+- `src/features/workload/components/executive/StrategicProgressCard.tsx` — semi-circle gauge for overall progress (objectives + initiatives combined)
+- `src/features/workload/components/executive/DepartmentWorkloadCard.tsx` — horizontal bar chart
+- `src/features/workload/components/executive/DeliveryPerformanceCard.tsx` — 4-metric grid with mini radial indicators
+- `src/features/workload/components/executive/WorkforceHealthCard.tsx` — heatmap pie + initiative risk list
+- `src/features/workload/components/executive/BurnoutPredictionsCard.tsx` — AI predictions grid
+- `src/features/workload/components/executive/RedistributionCard.tsx` — smart redistribution list
+- `src/features/workload/components/executive/AlignmentOverviewCard.tsx` — 3-stat summary
+
+### 2. Visual Upgrades (Design Prompt Alignment)
+
+**KPI Cards — Semantic Color System:**
+- Replace uniform `glass-stat` cards with 4 primary KPIs using colored left-border accents and tinted icon circles:
+  - Strategic Progress → `#4CAF50` (success green) icon circle
+  - Utilization → `#2A6FF3` (primary blue) icon circle  
+  - Burnout Risk → `#F44336` (error red) icon circle
+  - Completion Rate → `#FF9800` (warning orange) icon circle
+- Add a small comparison/trend indicator text below each value (e.g., "↑ 5% from last week")
+
+**TAMMAL Index — True Gauge:**
+- Replace the current half-pie with a proper semi-circle gauge using `startAngle={180}` `endAngle={0}` with a background track ring
+- Center the score text using proper absolute positioning (fix current `marginTop: 60` hack)
+- Add segmented color zones on the gauge track (red < 40, orange 40-70, green > 70)
+
+**Strategic Progress — Semi-Circle Gauge:**
+- Convert the radial bar into a clean semi-circle gauge showing combined objective+initiative progress
+- Show percentage in center, status breakdown as colored legend pills below
+
+**Delivery Performance — Visual Metrics:**
+- Add small circular progress indicators (mini donuts) next to each metric value
+- Use semantic colors: velocity=blue, completion=green, overdue=red
+
+**Spacing & Hierarchy:**
+- Apply `gap-8` (32px) between major sections instead of current `gap-6`
+- Section headers get subtle bottom borders for separation
+- Cards get soft drop-shadow via `shadow-sm` layered with glass effect
+
+### 3. Layout Restructure
 
 ```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
+┌─────────────────────────────────────────────────────┐
+│  Header: Title + Desc + [AI Predictions] [Snapshot] │
+├─────────────────────────────────────────────────────┤
+│  TAMMAL Index Gauge (full-width, prominent)         │
+├─────────────────────────────────────────────────────┤
+│  4 KPI Cards (semantic colors, 4-col grid)          │
+├─────────────────────────────────────────────────────┤
+│  [Strategic Gauge]  |  [Department Workload Chart]  │
+├─────────────────────────────────────────────────────┤
+│  Delivery Performance (4-metric row, full-width)    │
+├─────────────────────────────────────────────────────┤
+│  [Workforce Heatmap Pie]  |  [Initiative Risk]     │
+├─────────────────────────────────────────────────────┤
+│  AI Burnout Predictions (3-col grid, full-width)    │
+├─────────────────────────────────────────────────────┤
+│  Smart Redistribution (full-width list)             │
+├─────────────────────────────────────────────────────┤
+│  Organization Alignment (3-stat summary)            │
+└─────────────────────────────────────────────────────┘
 ```
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+### 4. Rewrite Main Page
+- `ExecutiveDashboard.tsx` becomes a thin orchestrator: hooks + state at top, then renders each sub-component with props
+- Reduces from ~566 lines to ~120 lines
 
----
+### 5. No New Dependencies
+- All visuals use existing Recharts + Tailwind + glass classes
+- Semantic colors defined as inline styles or CSS variables
 
-## 2. Feature Isolation — ✅ PASS
+### 6. Localization
+- No new keys needed — reuses existing `executive.*` translations
+- Add 2-3 keys for trend indicators: `executive.trend.up`, `executive.trend.down`, `executive.trend.stable`
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+## Files Changed
+- `src/pages/admin/ExecutiveDashboard.tsx` — rewrite as thin orchestrator
+- 9 new files in `src/features/workload/components/executive/`
+- `src/locales/en.json` + `src/locales/ar.json` — add trend keys
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
-
----
-
-## 3. Backend Architecture — ✅ PASS
-
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
-
----
-
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
-
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
-
-## Summary
-
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
-
-**No FAIL conditions found.** Architecture is production-ready.
