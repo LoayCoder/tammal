@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge, GENERIC_TASK_STATUS_CONFIG } from '@/shared/status-badge';
@@ -52,6 +53,7 @@ export default function TeamWorkload() {
   const { metrics: riskMetrics, isPending: riskLoading } = useInitiativeRisk();
 
   const [addOpen, setAddOpen] = useState(false);
+  const [enterpriseModalOpen, setEnterpriseModalOpen] = useState(false);
   const [filters, setFilters] = useState<TaskFilters>({
     status: 'all', priority: 'all', employeeId: 'all', sourceType: 'all', search: '',
   });
@@ -224,10 +226,16 @@ export default function TeamWorkload() {
           <h1 className="text-2xl font-bold tracking-tight">{t('teamWorkload.pageTitle')}</h1>
           <p className="text-muted-foreground text-sm">{t('teamWorkload.pageDesc')}</p>
         </div>
-        <Button onClick={() => setAddOpen(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          {t('teamWorkload.assignTask')}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setAddOpen(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            {t('teamWorkload.quickAssign')}
+          </Button>
+          <Button onClick={() => setEnterpriseModalOpen(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            {t('tasks.createTask')}
+          </Button>
+        </div>
       </div>
 
       {/* KPI */}
@@ -438,6 +446,14 @@ export default function TeamWorkload() {
           createdBy={user.id}
           onSubmit={createTask}
           isCreating={isCreating}
+        />
+      )}
+
+      {user?.id && (
+        <CreateTaskModal
+          open={enterpriseModalOpen}
+          onOpenChange={setEnterpriseModalOpen}
+          employeeId={user.id}
         />
       )}
     </div>

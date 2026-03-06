@@ -3105,6 +3105,7 @@
     "allTasks": "tasks",
     "noTasksFound": "No tasks found",
     "assignTask": "Assign Task",
+    "quickAssign": "Quick Assign",
     "assignTaskDesc": "Assign a new task to a team member",
     "assignTo": "Assign To",
     "selectEmployee": "Select employee",

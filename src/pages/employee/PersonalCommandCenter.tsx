@@ -12,6 +12,7 @@ import { useMoodHistory } from '@/hooks/wellness/useMoodHistory';
 import { CapacityGauge } from '@/components/workload/employee/CapacityGauge';
 import { UnifiedTaskList } from '@/components/workload/employee/UnifiedTaskList';
 import { TaskDialog } from '@/components/workload/employee/TaskDialog';
+import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import {
   Plus, ListChecks, CalendarDays, CheckCircle2, AlertTriangle, Flame, Star, ShieldCheck,
 } from 'lucide-react';
@@ -24,6 +25,7 @@ export default function PersonalCommandCenter() {
   const { avgMood7d } = useMoodHistory(employee?.id ?? null);
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [enterpriseModalOpen, setEnterpriseModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<any>(null);
   const [tab, setTab] = useState('today');
 
@@ -62,7 +64,7 @@ export default function PersonalCommandCenter() {
           <h1 className="text-2xl font-bold tracking-tight">{t('commandCenter.pageTitle')}</h1>
           <p className="text-muted-foreground text-sm">{t('commandCenter.pageDesc')}</p>
         </div>
-        <Button onClick={handleAdd} className="gap-2">
+        <Button onClick={() => setEnterpriseModalOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" />{t('commandCenter.addTask')}
         </Button>
       </div>
@@ -148,6 +150,13 @@ export default function PersonalCommandCenter() {
         isSubmitting={isCreating || isUpdating}
         onAddComment={addComment}
         currentEmployeeName={employee.full_name}
+      />
+
+      <CreateTaskModal
+        open={enterpriseModalOpen}
+        onOpenChange={setEnterpriseModalOpen}
+        employeeId={employee.id}
+        defaultDepartmentId={null}
       />
     </div>
   );

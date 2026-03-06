@@ -2947,6 +2947,7 @@
     "allTasks": "مهمة",
     "noTasksFound": "لا توجد مهام",
     "assignTask": "تعيين مهمة",
+    "quickAssign": "تعيين سريع",
     "assignTaskDesc": "تعيين مهمة جديدة لأحد أعضاء الفريق",
     "assignTo": "تعيين إلى",
     "selectEmployee": "اختر موظف",
