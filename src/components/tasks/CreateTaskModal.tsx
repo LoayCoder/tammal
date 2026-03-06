@@ -22,6 +22,7 @@ import { TaskChecklist, type ChecklistItem } from './TaskChecklist';
 import { TaskTagPicker } from './TaskTagPicker';
 import { TaskMembersPicker } from './TaskMembersPicker';
 import { TaskAttachments } from './TaskAttachments';
+import { TaskTemplatePicker } from './TaskTemplatePicker';
 
 interface CreateTaskModalProps {
   open: boolean;
@@ -125,6 +126,23 @@ export function CreateTaskModal({
           {/* Left Panel - Primary Info */}
           <ScrollArea className="flex-1 p-4 space-y-4 md:border-e">
             <div className="space-y-4">
+              <TaskTemplatePicker onSelect={(tpl) => {
+                setTitle(tpl.title);
+                if (tpl.title_ar) setTitleAr(tpl.title_ar);
+                if (tpl.description) setDescription(tpl.description);
+                if (tpl.priority) setPriority(tpl.priority === 'critical' ? 0 : tpl.priority === 'high' ? 1 : tpl.priority === 'low' ? 3 : 2);
+                if (tpl.visibility) setVisibility(tpl.visibility);
+                if (tpl.estimated_minutes) setEstimatedMinutes(String(tpl.estimated_minutes));
+                if (tpl.department_id) setDepartmentId(tpl.department_id);
+                if (tpl.checklist_items?.length) {
+                  setChecklistItems(tpl.checklist_items.map((item: any, idx: number) => ({
+                    id: `tpl-${idx}`,
+                    title: typeof item === 'string' ? item : item.title || '',
+                    status: 'pending' as const,
+                  })));
+                }
+              }} />
+              <Separator />
               <div className="space-y-1.5">
                 <Label>{t('tasks.fields.title')} *</Label>
                 <Input

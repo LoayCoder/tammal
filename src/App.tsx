@@ -91,6 +91,7 @@ const OverdueTasks = lazy(() => import("@/pages/tasks/OverdueTasks"));
 const ManagerTaskOverview = lazy(() => import("@/pages/tasks/ManagerTaskOverview"));
 const TaskPerformanceAnalytics = lazy(() => import("@/pages/tasks/TaskPerformanceAnalytics"));
 const RecurringTasks = lazy(() => import("@/pages/tasks/RecurringTasks"));
+const TaskTemplates = lazy(() => import("@/pages/tasks/TaskTemplates"));
 const ComponentShowcase = lazy(() => import("@/pages/dev/ComponentShowcase"));
 const queryClient = new QueryClient();
 
@@ -190,6 +191,7 @@ const App = () => (
               <Route path="/tasks/team" element={<ManagerOrAdminRoute><ManagerTaskOverview /></ManagerOrAdminRoute>} />
               <Route path="/tasks/analytics" element={<ManagerOrAdminRoute><TaskPerformanceAnalytics /></ManagerOrAdminRoute>} />
               <Route path="/tasks/recurring" element={<ManagerOrAdminRoute><RecurringTasks /></ManagerOrAdminRoute>} />
+              <Route path="/tasks/templates" element={<ManagerOrAdminRoute><TaskTemplates /></ManagerOrAdminRoute>} />
 
               {/* ── Recognition (employee-facing) ── */}
               <Route element={<PageErrorBoundary routeGroup="recognition"><Outlet /></PageErrorBoundary>}>

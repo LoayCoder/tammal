@@ -4043,5 +4043,26 @@
     },
     "error": "AI analysis failed. Please try again.",
     "empty": "Click a button above to get AI-powered insights for this task."
+  },
+  "taskTemplates": {
+    "title": "Task Templates",
+    "subtitle": "Create reusable templates to speed up task creation",
+    "create": "New Template",
+    "edit": "Edit Template",
+    "templateName": "Template Name",
+    "templateNameAr": "Template Name (Arabic)",
+    "useTemplate": "Use Template",
+    "selectTemplate": "Choose a template...",
+    "checklistHint": "Checklist Items (one per line)",
+    "checklistPlaceholder": "Review requirements\nImplement changes\nWrite tests",
+    "empty": "No task templates yet. Create your first one!",
+    "created": "Template created successfully",
+    "updated": "Template updated successfully",
+    "deleted": "Template deleted",
+    "createError": "Failed to create template",
+    "updateError": "Failed to update template",
+    "deleteError": "Failed to delete template",
+    "deleteConfirm": "Delete Template?",
+    "deleteDescription": "This template will be removed. Existing tasks created from it won't be affected."
   }
 }
