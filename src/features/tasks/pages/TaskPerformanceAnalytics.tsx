@@ -25,11 +25,20 @@ export default function TaskPerformanceAnalytics() {
     if (!tasks?.length) return null;
 
     const total = tasks.length;
-    const completed = tasks.filter((t: any) => t.status === 'completed').length;
+    const completedTasks = tasks.filter((t: any) => t.status === 'completed');
+    const completed = completedTasks.length;
     const inProgress = tasks.filter((t: any) => t.status === 'in_progress').length;
     const overdue = tasks.filter((t: any) => t.status === 'rejected' || t.status === 'archived').length;
     const avgProgress = Math.round(tasks.reduce((sum: number, t: any) => sum + (t.progress ?? 0), 0) / total);
     const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    // Average completion time (created_at → updated_at for completed tasks) in hours
+    const completionTimes = completedTasks
+      .filter((t: any) => t.created_at && t.updated_at)
+      .map((t: any) => (new Date(t.updated_at).getTime() - new Date(t.created_at).getTime()) / (1000 * 60 * 60));
+    const avgCompletionHours = completionTimes.length > 0
+      ? Math.round(completionTimes.reduce((a: number, b: number) => a + b, 0) / completionTimes.length * 10) / 10
+      : null;
 
     // Status distribution
     const statusCounts: Record<string, number> = {};
