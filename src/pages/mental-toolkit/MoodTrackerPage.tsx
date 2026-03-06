@@ -87,7 +87,7 @@ export default function MoodTrackerPage() {
       <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 space-y-6">
         {noData ? (
           <Card className="glass-card border-0 rounded-2xl border-dashed">
-            <CardContent className="py-12 text-center space-y-2">
+            <CardContent className="py-10 text-center space-y-2">
               <SmilePlus className="h-12 w-12 mx-auto text-muted-foreground" />
               <p className="text-lg font-semibold text-foreground">
                 {t("mentalToolkit.moodDashboard.noDataYet")}
@@ -103,7 +103,7 @@ export default function MoodTrackerPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {/* Streak */}
               <Card className="glass-stat border-0 rounded-2xl">
-                <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
+                <CardContent className="p-4 flex flex-col items-center text-center gap-1">
                   <Flame className="h-6 w-6" style={{ color: TOOLKIT.lavender }} />
                   <span className="text-2xl font-bold text-foreground">{dashboard.streak}</span>
                   <span className="text-xs text-muted-foreground">
@@ -114,7 +114,7 @@ export default function MoodTrackerPage() {
 
               {/* 7-Day Avg */}
               <Card className="glass-stat border-0 rounded-2xl">
-                <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
+                <CardContent className="p-4 flex flex-col items-center text-center gap-1">
                   <TrendingUp
                     className="h-6 w-6"
                     style={{ color: ZONE_COLORS[dashboard.burnoutZone] }}
@@ -139,7 +139,7 @@ export default function MoodTrackerPage() {
 
               {/* Monthly */}
               <Card className="glass-stat border-0 rounded-2xl">
-                <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
+                <CardContent className="p-4 flex flex-col items-center text-center gap-1">
                   <CalendarCheck className="h-6 w-6" style={{ color: TOOLKIT.sage }} />
                   <span className="text-2xl font-bold text-foreground">
                     {dashboard.monthlyCheckins}
@@ -155,7 +155,7 @@ export default function MoodTrackerPage() {
 
               {/* Today */}
               <Card className="glass-stat border-0 rounded-2xl">
-                <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
+                <CardContent className="p-4 flex flex-col items-center text-center gap-1">
                   {todayDef ? (
                     <>
                       <span className="text-3xl">{todayDef.emoji}</span>
