@@ -55,7 +55,25 @@ export default {
   				accent: 'hsl(var(--sidebar-accent))',
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
-  				ring: 'hsl(var(--sidebar-ring))'
+  			ring: 'hsl(var(--sidebar-ring))'
+  			},
+  			toolkit: {
+  				lavender: 'hsl(var(--toolkit-lavender))',
+  				sage: 'hsl(var(--toolkit-sage))',
+  				plum: 'hsl(var(--toolkit-plum))',
+  				sky: 'hsl(var(--toolkit-sky))',
+  				gold: 'hsl(var(--toolkit-gold))',
+  				peach: 'hsl(var(--toolkit-peach))',
+  				warm: 'hsl(var(--toolkit-warm))',
+  				coral: 'hsl(var(--toolkit-coral))',
+  				amber: 'hsl(var(--toolkit-amber))',
+  				rose: 'hsl(var(--toolkit-rose))',
+  				'zone-thriving': 'hsl(var(--toolkit-zone-thriving))',
+  				'zone-watch': 'hsl(var(--toolkit-zone-watch))',
+  				'zone-at-risk': 'hsl(var(--toolkit-zone-at-risk))',
+  			},
+  			org: {
+  				DEFAULT: 'hsl(var(--org-default))',
   			}
   		},
   		borderRadius: {
