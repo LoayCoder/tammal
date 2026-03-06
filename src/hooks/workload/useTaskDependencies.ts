@@ -1,3 +1,7 @@
+/**
+ * @deprecated Use src/features/tasks/hooks/useTaskDependencies.ts instead.
+ * This legacy hook now delegates to unified_task_dependencies for consistency.
+ */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -25,7 +29,7 @@ export function useTaskDependencies(taskId?: string) {
     queryKey,
     queryFn: async () => {
       let query = supabase
-        .from('task_dependencies')
+        .from('unified_task_dependencies')
         .select('*')
         .eq('tenant_id', tenantId!)
         .is('deleted_at', null);
@@ -47,7 +51,7 @@ export function useTaskDependencies(taskId?: string) {
       dependency_type?: string;
     }) => {
       const { data, error } = await supabase
-        .from('task_dependencies')
+        .from('unified_task_dependencies')
         .insert({ tenant_id: tenantId!, ...item })
         .select()
         .single();
@@ -64,7 +68,7 @@ export function useTaskDependencies(taskId?: string) {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('task_dependencies')
+        .from('unified_task_dependencies')
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', id);
       if (error) throw error;
@@ -76,14 +80,9 @@ export function useTaskDependencies(taskId?: string) {
     onError: () => toast.error(t('workload.dependencies.deleteError', 'Failed to remove dependency')),
   });
 
-  /**
-   * Check if a task has unresolved blocking dependencies.
-   */
   const hasBlockers = (actionId: string): boolean => {
     return (depsQuery.data ?? []).some(
-      d =>
-        d.task_id === actionId &&
-        d.dependency_type === 'depends_on',
+      d => d.task_id === actionId && d.dependency_type === 'depends_on',
     );
   };
 
