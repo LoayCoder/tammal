@@ -58,7 +58,7 @@ export function NotificationBell() {
           {unreadCount > 0 && (
             <Badge
               variant="destructive"
-              className="absolute -top-1 -end-1 h-5 min-w-5 px-1 text-[10px] flex items-center justify-center"
+              className="absolute -top-1 -end-1 h-5 min-w-5 px-1 text-2xs flex items-center justify-center"
             >
               {unreadCount > 99 ? '99+' : unreadCount}
             </Badge>
@@ -105,9 +105,9 @@ export function NotificationBell() {
                         {n.title}
                       </p>
                       {n.body && (
-                        <p className="text-[11px] text-muted-foreground line-clamp-1">{n.body}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-1">{n.body}</p>
                       )}
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-2xs text-muted-foreground">
                         {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
                       </p>
                     </div>

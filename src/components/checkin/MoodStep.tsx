@@ -74,7 +74,7 @@ export const MoodStep = React.forwardRef<HTMLDivElement, MoodStepProps>(function
               >
                 {mood.emoji}
               </span>
-              <span className={`text-[10px] sm:text-xs font-semibold leading-tight text-center ${isSelected ? mood.text : 'text-muted-foreground'}`}>
+              <span className={`text-2xs sm:text-xs font-semibold leading-tight text-center ${isSelected ? mood.text : 'text-muted-foreground'}`}>
                 {mood.label}
               </span>
             </button>

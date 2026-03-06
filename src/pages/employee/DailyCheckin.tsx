@@ -151,7 +151,7 @@ export default function DailyCheckin() {
           {steps.map((s, i) => (
             <span
               key={s}
-              className={`text-[10px] font-medium transition-colors duration-300 ${
+              className={`text-2xs font-medium transition-colors duration-300 ${
                 i <= currentStepIndex ? 'text-primary' : 'text-muted-foreground/50'
               }`}
             >

@@ -141,7 +141,7 @@ export default function PersonalCommandCenter() {
           <ToggleGroupItem value="approvals" className="gap-1.5 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm px-4 relative">
             <CheckSquare className="h-3.5 w-3.5" />{t('workload.views.approvals')}
             {pendingCount > 0 && (
-              <Badge className="h-4 min-w-[16px] px-1 text-[10px] absolute -top-1.5 -end-1.5">{pendingCount}</Badge>
+              <Badge className="h-4 min-w-[16px] px-1 text-2xs absolute -top-1.5 -end-1.5">{pendingCount}</Badge>
             )}
           </ToggleGroupItem>
         </ToggleGroup>
