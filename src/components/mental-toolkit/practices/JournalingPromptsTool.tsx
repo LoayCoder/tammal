@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { TOOLKIT_CATEGORY_COLORS } from "@/config/toolkit-colors";
 
 interface JournalEntry {
   id: string;
@@ -50,13 +51,6 @@ const PROMPTS = [
   { text: "If your emotions today could speak, what would they say?", category: "emotionalCheckin" },
 ];
 
-const CATEGORY_COLORS: Record<string, string> = {
-  gratitude: "#A8C5A0",
-  selfCompassion: "#C9B8E8",
-  values: "#FAD7A0",
-  emotionalCheckin: "#A9CCE3",
-};
-
 function getDayOfYear(d: Date) {
   const start = new Date(d.getFullYear(), 0, 0);
   return Math.floor((d.getTime() - start.getTime()) / 86400000);
@@ -96,7 +90,7 @@ export default function JournalingPromptsTool() {
 
   return (
     <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-      <div className="px-5 py-4 border-b border-border" style={{ background: "linear-gradient(135deg, rgba(168,197,160,0.2), rgba(250,248,245,0.8))" }}>
+      <div className="px-5 py-4 border-b border-border bg-toolkit-sage/15">
         <div className="flex items-center gap-2">
           <span className="text-2xl">📔</span>
           <div>
@@ -108,12 +102,12 @@ export default function JournalingPromptsTool() {
 
       <div className="p-5 space-y-5">
         {/* Today's Prompt Card */}
-        <div className="rounded-2xl p-4 space-y-2" style={{ background: "rgba(168,197,160,0.15)", border: "1px solid #A8C5A0" }}>
+        <div className="rounded-2xl p-4 space-y-2 bg-toolkit-sage/15 border border-toolkit-sage">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("mentalToolkit.journaling.todaysPrompt")}</span>
             <Badge
               className="text-xs rounded-full border-0 text-foreground"
-              style={{ background: CATEGORY_COLORS[todayPrompt.category] + "60" }}
+              style={{ background: TOOLKIT_CATEGORY_COLORS[todayPrompt.category] }}
             >
               {t(`mentalToolkit.journaling.categories.${todayPrompt.category}`)}
             </Badge>
@@ -140,8 +134,7 @@ export default function JournalingPromptsTool() {
             <Button
               onClick={handleSave}
               disabled={!response.trim()}
-              className="w-full rounded-xl font-semibold"
-              style={{ background: "#A8C5A0", color: "#2d4a2a" }}
+              className="w-full rounded-xl font-semibold bg-toolkit-sage text-toolkit-plum hover:opacity-90"
             >
               {t("mentalToolkit.journaling.saveEntry")}
             </Button>
@@ -163,7 +156,7 @@ export default function JournalingPromptsTool() {
                     <div key={entry.id} className="rounded-xl p-3 bg-muted/40 space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-muted-foreground">{entry.date}</span>
-                        <Badge className="text-xs rounded-full border-0 text-foreground" style={{ background: CATEGORY_COLORS[entry.category] + "50" }}>
+                        <Badge className="text-xs rounded-full border-0 text-foreground" style={{ background: TOOLKIT_CATEGORY_COLORS[entry.category] }}>
                           {t(`mentalToolkit.journaling.categories.${entry.category}`)}
                         </Badge>
                       </div>

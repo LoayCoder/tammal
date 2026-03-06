@@ -53,11 +53,9 @@ export default function ThoughtReframerTool() {
     toast.success(t("mentalToolkit.thoughtReframer.saveSuccess"));
   };
 
-  const progressWidth = `${((step - 1) / 2) * 100}%`;
-
   return (
     <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-      <div className="px-5 py-4 border-b border-border" style={{ background: "linear-gradient(135deg, rgba(201,184,232,0.15), rgba(250,248,245,0.8))" }}>
+      <div className="px-5 py-4 border-b border-border bg-toolkit-lavender/10">
         <div className="flex items-center gap-2">
           <span className="text-2xl">🔄</span>
           <div>
@@ -77,8 +75,8 @@ export default function ThoughtReframerTool() {
             </div>
             <div className="h-2 rounded-full bg-muted overflow-hidden">
               <div
-                className="h-full rounded-full transition-all duration-500"
-                style={{ width: `${(step / 3) * 100}%`, background: "linear-gradient(90deg, #C9B8E8, #A8C5A0)" }}
+                className="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-toolkit-lavender to-toolkit-sage"
+                style={{ width: `${(step / 3) * 100}%` }}
               />
             </div>
           </div>
@@ -98,8 +96,7 @@ export default function ThoughtReframerTool() {
             <Button
               disabled={!negativeThought.trim()}
               onClick={() => setStep(2)}
-              className="w-full rounded-xl"
-              style={{ background: "#C9B8E8", color: "#4A3F6B" }}
+              className="w-full rounded-xl bg-toolkit-lavender text-toolkit-plum hover:opacity-90"
             >
               Continue →
             </Button>
@@ -125,8 +122,7 @@ export default function ThoughtReframerTool() {
               <Button variant="outline" onClick={() => setStep(1)} className="flex-1 rounded-xl">← Back</Button>
               <Button
                 onClick={() => setStep(3)}
-                className="flex-1 rounded-xl"
-                style={{ background: "#C9B8E8", color: "#4A3F6B" }}
+                className="flex-1 rounded-xl bg-toolkit-lavender text-toolkit-plum hover:opacity-90"
               >Continue →</Button>
             </div>
           </div>
@@ -136,7 +132,7 @@ export default function ThoughtReframerTool() {
         {step === 3 && !showSummary && (
           <div className="space-y-3">
             {/* Show original */}
-            <div className="rounded-xl p-3 text-sm" style={{ background: "rgba(201,184,232,0.15)", borderLeft: "3px solid #C9B8E8" }}>
+            <div className="rounded-xl p-3 text-sm bg-toolkit-lavender/15 border-s-[3px] border-toolkit-lavender">
               <p className="text-xs text-muted-foreground mb-1">{t("mentalToolkit.thoughtReframer.originalLabel")}</p>
               <p className="text-foreground">{negativeThought}</p>
             </div>
@@ -153,8 +149,7 @@ export default function ThoughtReframerTool() {
               <Button
                 disabled={!reframedThought.trim()}
                 onClick={() => setShowSummary(true)}
-                className="flex-1 rounded-xl"
-                style={{ background: "linear-gradient(135deg, #C9B8E8, #A8C5A0)", color: "#4A3F6B" }}
+                className="flex-1 rounded-xl bg-gradient-to-r from-toolkit-lavender to-toolkit-sage text-toolkit-plum hover:opacity-90"
               >See Summary</Button>
             </div>
           </div>
@@ -165,19 +160,18 @@ export default function ThoughtReframerTool() {
           <div className="space-y-4 animate-in fade-in duration-300">
             <h3 className="font-semibold text-center text-foreground">{t("mentalToolkit.thoughtReframer.summaryTitle")} ✨</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="rounded-2xl p-4 space-y-2" style={{ background: "rgba(201,184,232,0.2)", border: "1px solid #C9B8E8" }}>
-                <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#4A3F6B" }}>{t("mentalToolkit.thoughtReframer.originalLabel")}</p>
+              <div className="rounded-2xl p-4 space-y-2 bg-toolkit-lavender/20 border border-toolkit-lavender">
+                <p className="text-xs font-semibold uppercase tracking-wide text-toolkit-plum">{t("mentalToolkit.thoughtReframer.originalLabel")}</p>
                 <p className="text-sm text-foreground">{negativeThought}</p>
               </div>
-              <div className="rounded-2xl p-4 space-y-2" style={{ background: "rgba(168,197,160,0.2)", border: "1px solid #A8C5A0" }}>
-                <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#2d6b3f" }}>{t("mentalToolkit.thoughtReframer.reframedLabel")}</p>
+              <div className="rounded-2xl p-4 space-y-2 bg-toolkit-sage/20 border border-toolkit-sage">
+                <p className="text-xs font-semibold uppercase tracking-wide text-toolkit-sage">{t("mentalToolkit.thoughtReframer.reframedLabel")}</p>
                 <p className="text-sm text-foreground">{reframedThought}</p>
               </div>
             </div>
             <Button
               onClick={handleSave}
-              className="w-full rounded-xl font-semibold"
-              style={{ background: "linear-gradient(135deg, #A8C5A0, #C9B8E8)", color: "#4A3F6B" }}
+              className="w-full rounded-xl font-semibold bg-gradient-to-r from-toolkit-sage to-toolkit-lavender text-toolkit-plum hover:opacity-90"
             >
               {t("mentalToolkit.thoughtReframer.saveStart")}
             </Button>
@@ -197,7 +191,7 @@ export default function ThoughtReframerTool() {
                     <div key={entry.id} className="rounded-xl p-3 bg-muted/50 space-y-2">
                       <p className="text-xs text-muted-foreground">{entry.date}</p>
                       <p className="text-xs text-foreground line-clamp-2">{entry.negativeThought}</p>
-                      <p className="text-xs font-medium" style={{ color: "#2d6b3f" }}>→ {entry.reframedThought}</p>
+                      <p className="text-xs font-medium text-toolkit-sage">→ {entry.reframedThought}</p>
                     </div>
                   ))}
                 </div>

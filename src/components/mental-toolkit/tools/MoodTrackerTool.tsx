@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format, subDays } from "date-fns";
 import { Slider } from "@/components/ui/slider";
@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { toast } from "sonner";
+import { TOOLKIT } from "@/config/toolkit-colors";
 
 interface MoodEntry {
   date: string;
@@ -75,7 +76,7 @@ export default function MoodTrackerTool() {
   return (
     <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-border" style={{ background: "linear-gradient(135deg, rgba(201,184,232,0.2), rgba(168,197,160,0.1))" }}>
+      <div className="px-5 py-4 border-b border-border bg-toolkit-lavender/15">
         <div className="flex items-center gap-2">
           <span className="text-2xl">📊</span>
           <div>
@@ -94,7 +95,7 @@ export default function MoodTrackerTool() {
               onClick={() => setSelectedScore(e.score)}
               className={`flex-1 flex flex-col items-center gap-1 py-3 rounded-2xl border-2 transition-all duration-200 ${
                 selectedScore === e.score
-                  ? "border-[#C9B8E8] bg-[#C9B8E8]/20 scale-105"
+                  ? "border-toolkit-lavender bg-toolkit-lavender/20 scale-105"
                   : "border-border bg-background hover:bg-muted"
               }`}
             >
@@ -108,7 +109,7 @@ export default function MoodTrackerTool() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">{t("mentalToolkit.moodTracker.score")}</span>
-            <span className="text-lg font-bold" style={{ color: "#4A3F6B" }}>{selectedEmoji.emoji} {selectedEmoji.label}</span>
+            <span className="text-lg font-bold text-toolkit-plum">{selectedEmoji.emoji} {selectedEmoji.label}</span>
           </div>
           <Slider
             min={1}
@@ -137,8 +138,7 @@ export default function MoodTrackerTool() {
         {/* Log Button */}
         <Button
           onClick={handleLog}
-          className="w-full rounded-xl font-semibold"
-          style={{ background: "linear-gradient(135deg, #C9B8E8, #A8C5A0)", color: "#4A3F6B" }}
+          className="w-full rounded-xl font-semibold bg-gradient-to-r from-toolkit-lavender to-toolkit-sage text-toolkit-plum hover:opacity-90"
         >
           {alreadyLogged ? "✓ Update Today's Mood" : t("mentalToolkit.moodTracker.logMood")}
         </Button>
@@ -166,7 +166,7 @@ export default function MoodTrackerTool() {
                   />
                   <Bar dataKey="score" radius={[6, 6, 0, 0]} maxBarSize={32}>
                     {chartData.map((entry, index) => (
-                      <Cell key={index} fill={entry.score > 0 ? "#C9B8E8" : "hsl(var(--muted))"} />
+                      <Cell key={index} fill={entry.score > 0 ? TOOLKIT.lavender : "hsl(var(--muted))"} />
                     ))}
                   </Bar>
                 </BarChart>

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { TOOLKIT, TOOLKIT_CATEGORY_COLORS } from "@/config/toolkit-colors";
 
 interface Meditation {
   id: string;
@@ -21,15 +22,6 @@ const MEDITATIONS: Meditation[] = [
   { id: "5", title: "Self-Compassion", duration: 300, targetKey: "mood", emoji: "💛", description: "A loving-kindness practice to cultivate gentleness and warmth toward yourself." },
   { id: "6", title: "Morning Clarity", duration: 240, targetKey: "energy", emoji: "🌅", description: "An energising morning intention-setting session to start your day with purpose." },
 ];
-
-const TARGET_COLORS: Record<string, string> = {
-  anxiety: "#C9B8E8",
-  sleep: "#A9CCE3",
-  focus: "#FAD7A0",
-  stress: "#F5CBA7",
-  mood: "#F9E4B7",
-  energy: "#A8C5A0",
-};
 
 function formatTime(seconds: number) {
   const m = Math.floor(seconds / 60).toString().padStart(2, "0");
@@ -108,7 +100,7 @@ export default function MeditationLibraryTool() {
 
   return (
     <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-      <div className="px-5 py-4 border-b border-border" style={{ background: "linear-gradient(135deg, rgba(169,204,227,0.2), rgba(201,184,232,0.1))" }}>
+      <div className="px-5 py-4 border-b border-border bg-toolkit-sky/15">
         <div className="flex items-center gap-2">
           <span className="text-2xl">🧘</span>
           <div>
@@ -125,12 +117,12 @@ export default function MeditationLibraryTool() {
             <button onClick={handleClose} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
               ← Back to library
             </button>
-            <div className="rounded-2xl p-5 space-y-4" style={{ background: "linear-gradient(135deg, rgba(201,184,232,0.15), rgba(169,204,227,0.15))" }}>
+            <div className="rounded-2xl p-5 space-y-4 bg-gradient-to-br from-toolkit-lavender/15 to-toolkit-sky/15">
               <div className="text-center space-y-1">
                 <div className="text-4xl">{selected.emoji}</div>
                 <h3 className="font-bold text-lg text-foreground">{selected.title}</h3>
                 <p className="text-sm text-muted-foreground">{selected.description}</p>
-                <Badge className="text-xs rounded-full border-0 text-foreground" style={{ background: TARGET_COLORS[selected.targetKey] + "80" }}>
+                <Badge className="text-xs rounded-full border-0 text-foreground" style={{ background: TOOLKIT_CATEGORY_COLORS[selected.targetKey] }}>
                   {t(`mentalToolkit.meditation.targets.${selected.targetKey}`)}
                 </Badge>
               </div>
@@ -148,9 +140,9 @@ export default function MeditationLibraryTool() {
               {/* Controls */}
               <div className="flex justify-center">
                 {playing ? (
-                  <Button onClick={handlePause} className="rounded-full w-14 h-14 text-xl" style={{ background: "#C9B8E8", color: "#4A3F6B" }}>⏸</Button>
+                  <Button onClick={handlePause} className="rounded-full w-14 h-14 text-xl bg-toolkit-lavender text-toolkit-plum hover:opacity-90">⏸</Button>
                 ) : (
-                  <Button onClick={handlePlay} className="rounded-full w-14 h-14 text-xl" style={{ background: "linear-gradient(135deg, #C9B8E8, #A8C5A0)", color: "#4A3F6B" }}>▶️</Button>
+                  <Button onClick={handlePlay} className="rounded-full w-14 h-14 text-xl bg-gradient-to-r from-toolkit-lavender to-toolkit-sage text-toolkit-plum hover:opacity-90">▶️</Button>
                 )}
               </div>
 
@@ -174,7 +166,7 @@ export default function MeditationLibraryTool() {
                   <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{med.description}</p>
                 </div>
                 <div className="flex gap-2 flex-wrap">
-                  <Badge className="text-xs rounded-full border-0 text-foreground px-2" style={{ background: TARGET_COLORS[med.targetKey] + "70" }}>
+                  <Badge className="text-xs rounded-full border-0 text-foreground px-2" style={{ background: TOOLKIT_CATEGORY_COLORS[med.targetKey] }}>
                     {t(`mentalToolkit.meditation.targets.${med.targetKey}`)}
                   </Badge>
                   <Badge variant="outline" className="text-xs rounded-full">

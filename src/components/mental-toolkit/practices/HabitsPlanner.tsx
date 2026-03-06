@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -25,7 +25,6 @@ const YESTERDAY = format(new Date(Date.now() - 86400000), "yyyy-MM-dd");
 function loadHabits(): Habit[] {
   try {
     const raw: Habit[] = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
-    // Recalculate streak on load
     return raw.map((h) => {
       if (h.lastCheckedDate === TODAY) return h;
       if (h.lastCheckedDate !== YESTERDAY) return { ...h, streak: 0, completedToday: false };
@@ -90,7 +89,7 @@ export default function HabitsPlanner() {
 
   return (
     <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-      <div className="px-5 py-4 border-b border-border" style={{ background: "linear-gradient(135deg, rgba(168,197,160,0.2), rgba(250,216,160,0.1))" }}>
+      <div className="px-5 py-4 border-b border-border bg-toolkit-sage/15">
         <div className="flex items-center gap-2">
           <span className="text-2xl">✅</span>
           <div>
@@ -117,8 +116,7 @@ export default function HabitsPlanner() {
               onClick={addHabit}
               disabled={!newName.trim() || habits.length >= 5}
               size="icon"
-              className="rounded-xl w-10 h-10 shrink-0"
-              style={{ background: "#A8C5A0", color: "#2d4a2a" }}
+              className="rounded-xl w-10 h-10 shrink-0 bg-toolkit-sage text-toolkit-plum hover:opacity-90"
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -140,7 +138,7 @@ export default function HabitsPlanner() {
               <div
                 key={habit.id}
                 className={`rounded-2xl border p-4 space-y-3 transition-all ${
-                  habit.completedToday ? "border-[#A8C5A0] bg-[#A8C5A0]/10" : "border-border bg-background"
+                  habit.completedToday ? "border-toolkit-sage bg-toolkit-sage/10" : "border-border bg-background"
                 }`}
               >
                 {/* Main row */}
@@ -154,13 +152,13 @@ export default function HabitsPlanner() {
                     <p className={`text-sm font-medium truncate ${habit.completedToday ? "line-through text-muted-foreground" : "text-foreground"}`}>
                       {habit.name}
                     </p>
-                    {habit.completedToday && <p className="text-xs" style={{ color: "#2d6b3f" }}>{t("mentalToolkit.habits.completedToday")}</p>}
+                    {habit.completedToday && <p className="text-xs text-toolkit-sage">{t("mentalToolkit.habits.completedToday")}</p>}
                   </div>
                   {/* Streak */}
                   {habit.streak > 0 && (
-                    <div className="flex items-center gap-1 rounded-full px-2 py-0.5" style={{ background: "rgba(168,197,160,0.3)" }}>
-                      <Flame className="h-3 w-3" style={{ color: "#e67e22" }} />
-                      <span className="text-xs font-bold" style={{ color: "#2d4a2a" }}>
+                    <div className="flex items-center gap-1 rounded-full px-2 py-0.5 bg-toolkit-sage/30">
+                      <Flame className="h-3 w-3 text-toolkit-amber" />
+                      <span className="text-xs font-bold text-toolkit-plum">
                         {t("mentalToolkit.habits.streak", { n: habit.streak })}
                       </span>
                     </div>
