@@ -59,18 +59,24 @@ function eachDay(from: string, to: string): string[] {
 export interface DailyData {
   date: string;
   completed: number;
+  missed: number;
   total: number;
   pct: number;
+  missedPct: number;
   rawatibCompleted: number;
+  rawatibMissed: number;
   rawatibTotal: number;
   rawatibPct: number;
+  rawatibMissedPct: number;
 }
 
 export interface PrayerStat {
   prayerName: string;
   completed: number;
+  missed: number;
   total: number;
   pct: number;
+  missedPct: number;
 }
 
 export interface RawatibStat {
@@ -126,16 +132,22 @@ export function usePrayerHistory() {
     const dailyData: DailyData[] = days.map((date) => {
       const dayLogs = logsByDate.get(date) ?? [];
       const completed = dayLogs.filter((l) => l.status.startsWith('completed')).length;
+      const missed = dayLogs.filter((l) => l.status === 'missed').length;
       const daySunnah = sunnahByDate.get(date) ?? [];
-      const rawatibCompleted = daySunnah.length;
+      const rawatibCompleted = daySunnah.filter((l) => l.completed).length;
+      const rawatibMissed = DAILY_RAWATIB_TOTAL - rawatibCompleted;
       return {
         date,
         completed,
+        missed,
         total: 6,
         pct: Math.round((completed / 6) * 100),
+        missedPct: Math.round((missed / 6) * 100),
         rawatibCompleted,
+        rawatibMissed: rawatibMissed > 0 ? rawatibMissed : 0,
         rawatibTotal: DAILY_RAWATIB_TOTAL,
         rawatibPct: DAILY_RAWATIB_TOTAL > 0 ? Math.round((rawatibCompleted / DAILY_RAWATIB_TOTAL) * 100) : 0,
+        rawatibMissedPct: DAILY_RAWATIB_TOTAL > 0 ? Math.round((Math.max(0, rawatibMissed) / DAILY_RAWATIB_TOTAL) * 100) : 0,
       };
     });
 
@@ -143,8 +155,13 @@ export function usePrayerHistory() {
     const prayerStats: PrayerStat[] = PRAYER_NAMES.map((name) => {
       const matching = logs.filter((l) => l.prayer_name === name);
       const completed = matching.filter((l) => l.status.startsWith('completed')).length;
+      const missed = matching.filter((l) => l.status === 'missed').length;
       const total = days.length;
-      return { prayerName: name, completed, total, pct: total > 0 ? Math.round((completed / total) * 100) : 0 };
+      return {
+        prayerName: name, completed, missed, total,
+        pct: total > 0 ? Math.round((completed / total) * 100) : 0,
+        missedPct: total > 0 ? Math.round((missed / total) * 100) : 0,
+      };
     });
 
     // Per-prayer Rawatib stats
