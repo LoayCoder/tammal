@@ -77,7 +77,7 @@ export default function TeamWorkload() {
 
   const empMap = useMemo(() => {
     const m: Record<string, { name: string; role: string | null; department: string | null }> = {};
-    employees.forEach(e => { m[e.id] = { name: e.full_name, role: e.role_title ?? null, department: e.department ?? null }; });
+    employees.forEach(e => { m[e.id] = { name: e.full_name, role: e.role_title ?? null, department: null }; });
     return m;
   }, [employees]);
 
@@ -123,7 +123,7 @@ export default function TeamWorkload() {
         id: emp.id,
         name: emp.full_name,
         role: emp.role_title ?? null,
-        department: emp.department ?? null,
+        department: null,
         active: active.length,
         completed: completed.length,
         overdue: overdue.length,
