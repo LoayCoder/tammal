@@ -223,7 +223,7 @@ export default function ThoughtReframerPage() {
                           className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300"
                           style={{
                             background: i <= step
-                              ? `linear-gradient(135deg, ${PALETTE.lavender}, ${PALETTE.sage})`
+                              ? `linear-gradient(135deg, ${TOOLKIT.lavender}, ${TOOLKIT.sage})`
                               : "hsl(var(--muted))",
                             color: i <= step ? "#fff" : "hsl(var(--muted-foreground))",
                           }}
@@ -238,7 +238,7 @@ export default function ThoughtReframerPage() {
                         <div
                           className="w-12 h-0.5 mx-1 mt-[-12px] rounded transition-all duration-300"
                           style={{
-                            backgroundColor: i < step ? PALETTE.lavender : "hsl(var(--border))",
+                            backgroundColor: i < step ? TOOLKIT.lavender : "hsl(var(--border))",
                           }}
                         />
                       )}
@@ -252,9 +252,9 @@ export default function ThoughtReframerPage() {
               {/* Step 1: Identify */}
               {step === 0 && !showSummary && (
                 <div className="space-y-3 animate-in fade-in duration-300">
-                  <div className="rounded-xl p-4" style={{ background: `${PALETTE.lavender}15` }}>
+                  <div className="rounded-xl p-4" style={{ background: `${TOOLKIT.lavender}15` }}>
                     <div className="flex items-start gap-2 mb-2">
-                      <Brain className="h-5 w-5 mt-0.5 shrink-0" style={{ color: PALETTE.plum }} />
+                      <Brain className="h-5 w-5 mt-0.5 shrink-0" style={{ color: TOOLKIT.plum }} />
                       <label className="text-sm font-medium text-foreground flex-1">
                         {t("mentalToolkit.thoughtReframer.step1Prompt")}
                       </label>
@@ -272,7 +272,7 @@ export default function ThoughtReframerPage() {
                     disabled={!negativeThought.trim()}
                     onClick={() => setStep(1)}
                     className="w-full rounded-xl"
-                    style={{ background: PALETTE.lavender, color: PALETTE.plum }}
+                    style={{ background: TOOLKIT.lavender, color: TOOLKIT.plum }}
                   >
                     {t("mentalToolkit.thoughtReframer.continueBtn")}
                     <ArrowRight className="h-4 w-4 ms-1 rtl:-scale-x-100" />
@@ -284,9 +284,9 @@ export default function ThoughtReframerPage() {
               {step === 1 && !showSummary && (
                 <div className="space-y-3 animate-in fade-in duration-300">
                   {(["q1", "q2", "q3"] as const).map((key, i) => (
-                    <div key={key} className="rounded-xl p-3 border border-border/50" style={{ background: `${PALETTE.lavender}08` }}>
+                    <div key={key} className="rounded-xl p-3 border border-border/50" style={{ background: `${TOOLKIT.lavender}08` }}>
                       <div className="flex items-start gap-2 mb-2">
-                        <HelpCircle className="h-4 w-4 mt-0.5 shrink-0" style={{ color: PALETTE.lavender }} />
+                        <HelpCircle className="h-4 w-4 mt-0.5 shrink-0" style={{ color: TOOLKIT.lavender }} />
                         <label className="text-sm font-medium text-foreground flex-1">
                           {t(`mentalToolkit.thoughtReframer.${key}`)}
                         </label>
@@ -306,7 +306,7 @@ export default function ThoughtReframerPage() {
                       {t("mentalToolkit.thoughtReframer.backBtn")}
                     </Button>
                     <Button onClick={() => setStep(2)} className="flex-1 rounded-xl"
-                      style={{ background: PALETTE.lavender, color: PALETTE.plum }}>
+                      style={{ background: TOOLKIT.lavender, color: TOOLKIT.plum }}>
                       {t("mentalToolkit.thoughtReframer.continueBtn")}
                       <ArrowRight className="h-4 w-4 ms-1 rtl:-scale-x-100" />
                     </Button>
@@ -319,8 +319,8 @@ export default function ThoughtReframerPage() {
                 <div className="space-y-3 animate-in fade-in duration-300">
                   {/* Original thought card */}
                   <div className="rounded-xl p-3" style={{
-                    background: `${PALETTE.lavender}15`,
-                    borderInlineStartColor: PALETTE.lavender,
+                    background: `${TOOLKIT.lavender}15`,
+                    borderInlineStartColor: TOOLKIT.lavender,
                     borderInlineStartWidth: "3px",
                     borderInlineStartStyle: "solid",
                   }}>
@@ -328,9 +328,9 @@ export default function ThoughtReframerPage() {
                     <p className="text-sm text-foreground italic">"{negativeThought}"</p>
                   </div>
 
-                  <div className="rounded-xl p-4" style={{ background: `${PALETTE.sage}12` }}>
+                  <div className="rounded-xl p-4" style={{ background: `${TOOLKIT.sage}12` }}>
                     <div className="flex items-start gap-2 mb-2">
-                      <Sparkles className="h-5 w-5 mt-0.5 shrink-0" style={{ color: PALETTE.sage }} />
+                      <Sparkles className="h-5 w-5 mt-0.5 shrink-0" style={{ color: TOOLKIT.sage }} />
                       <label className="text-sm font-medium text-foreground flex-1">
                         {t("mentalToolkit.thoughtReframer.step3Prompt")}
                       </label>
@@ -379,7 +379,7 @@ export default function ThoughtReframerPage() {
                     </Button>
                     <Button disabled={!reframedThought.trim()} onClick={() => setShowSummary(true)}
                       className="flex-1 rounded-xl"
-                      style={{ background: `linear-gradient(135deg, ${PALETTE.lavender}, ${PALETTE.sage})`, color: PALETTE.plum }}>
+                      style={{ background: `linear-gradient(135deg, ${TOOLKIT.lavender}, ${TOOLKIT.sage})`, color: TOOLKIT.plum }}>
                       <Sparkles className="h-4 w-4 me-1" />
                       {t("mentalToolkit.thoughtReframer.seeSummary")}
                     </Button>
@@ -394,13 +394,13 @@ export default function ThoughtReframerPage() {
                     {t("mentalToolkit.thoughtReframer.summaryTitle")} ✨
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="rounded-2xl p-4 space-y-2" style={{ background: `${PALETTE.lavender}20`, border: `1px solid ${PALETTE.lavender}` }}>
-                      <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: PALETTE.plum }}>
+                    <div className="rounded-2xl p-4 space-y-2" style={{ background: `${TOOLKIT.lavender}20`, border: `1px solid ${TOOLKIT.lavender}` }}>
+                      <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: TOOLKIT.plum }}>
                         {t("mentalToolkit.thoughtReframer.originalLabel")}
                       </p>
                       <p className="text-sm text-foreground">{negativeThought}</p>
                     </div>
-                    <div className="rounded-2xl p-4 space-y-2" style={{ background: `${PALETTE.sage}20`, border: `1px solid ${PALETTE.sage}` }}>
+                    <div className="rounded-2xl p-4 space-y-2" style={{ background: `${TOOLKIT.sage}20`, border: `1px solid ${TOOLKIT.sage}` }}>
                       <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#2d6b3f" }}>
                         {t("mentalToolkit.thoughtReframer.reframedLabel")}
                       </p>
@@ -413,7 +413,7 @@ export default function ThoughtReframerPage() {
                     </Button>
                     <Button onClick={handleSave} disabled={isSaving || noEmployee}
                       className="flex-1 rounded-xl font-semibold"
-                      style={{ background: `linear-gradient(135deg, ${PALETTE.sage}, ${PALETTE.lavender})`, color: PALETTE.plum }}>
+                      style={{ background: `linear-gradient(135deg, ${TOOLKIT.sage}, ${TOOLKIT.lavender})`, color: TOOLKIT.plum }}>
                       {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : t("mentalToolkit.thoughtReframer.saveReframe")}
                     </Button>
                   </div>
@@ -431,7 +431,7 @@ export default function ThoughtReframerPage() {
         {/* Reframe Journal */}
         <div className="space-y-3">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <BookOpen className="h-4 w-4" style={{ color: PALETTE.lavender }} />
+            <BookOpen className="h-4 w-4" style={{ color: TOOLKIT.lavender }} />
             {t("mentalToolkit.thoughtReframer.journalTitle")}
           </h2>
 
@@ -494,7 +494,7 @@ export default function ThoughtReframerPage() {
                           <p className="text-xs font-medium text-muted-foreground">{t("mentalToolkit.thoughtReframer.challengeAnswers")}</p>
                           {(["q1", "q2", "q3"] as const).map((key) =>
                             ca[key] ? (
-                              <div key={key} className="rounded-lg p-2" style={{ background: `${PALETTE.lavender}08` }}>
+                              <div key={key} className="rounded-lg p-2" style={{ background: `${TOOLKIT.lavender}08` }}>
                                 <p className="text-xs font-medium text-muted-foreground">{t(`mentalToolkit.thoughtReframer.${key}`)}</p>
                                 <p className="text-xs text-foreground mt-0.5">{ca[key]}</p>
                               </div>

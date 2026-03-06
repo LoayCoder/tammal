@@ -116,7 +116,7 @@ export default function MoodTrackerPage() {
               {/* Streak */}
               <Card className="glass-stat border-0 rounded-2xl">
                 <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
-                  <Flame className="h-6 w-6" style={{ color: PALETTE.lavender }} />
+                  <Flame className="h-6 w-6" style={{ color: TOOLKIT.lavender }} />
                   <span className="text-2xl font-bold text-foreground">{dashboard.streak}</span>
                   <span className="text-xs text-muted-foreground">
                     {t("mentalToolkit.moodDashboard.currentStreak")}
@@ -152,7 +152,7 @@ export default function MoodTrackerPage() {
               {/* Monthly */}
               <Card className="glass-stat border-0 rounded-2xl">
                 <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
-                  <CalendarCheck className="h-6 w-6" style={{ color: PALETTE.sage }} />
+                  <CalendarCheck className="h-6 w-6" style={{ color: TOOLKIT.sage }} />
                   <span className="text-2xl font-bold text-foreground">
                     {dashboard.monthlyCheckins}
                     <span className="text-sm font-normal text-muted-foreground">
@@ -194,7 +194,7 @@ export default function MoodTrackerPage() {
             <Card className="glass-card border-0 rounded-2xl">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4" style={{ color: PALETTE.lavender }} />
+                  <BarChart3 className="h-4 w-4" style={{ color: TOOLKIT.lavender }} />
                   {t("mentalToolkit.moodDashboard.moodTrend")}
                 </CardTitle>
               </CardHeader>
@@ -204,8 +204,8 @@ export default function MoodTrackerPage() {
                     <AreaChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                       <defs>
                         <linearGradient id="moodGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={PALETTE.lavender} stopOpacity={0.4} />
-                          <stop offset="95%" stopColor={PALETTE.lavender} stopOpacity={0} />
+                          <stop offset="5%" stopColor={TOOLKIT.lavender} stopOpacity={0.4} />
+                          <stop offset="95%" stopColor={TOOLKIT.lavender} stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <XAxis
@@ -244,17 +244,17 @@ export default function MoodTrackerPage() {
                       <Area
                         type="monotone"
                         dataKey="score"
-                        stroke={PALETTE.lavender}
+                        stroke={TOOLKIT.lavender}
                         fill="url(#moodGrad)"
                         strokeWidth={2}
-                        dot={{ r: 3, fill: PALETTE.lavender }}
+                        dot={{ r: 3, fill: TOOLKIT.lavender }}
                         connectNulls
                       />
                       {dashboard.hasOrgData && (
                         <Area
                           type="monotone"
                           dataKey="orgAvg"
-                          stroke={PALETTE.sage}
+                          stroke={TOOLKIT.sage}
                           fill="none"
                           strokeWidth={1.5}
                           strokeDasharray="5 3"
@@ -269,11 +269,11 @@ export default function MoodTrackerPage() {
                 {dashboard.hasOrgData && (
                   <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground justify-center">
                     <span className="flex items-center gap-1">
-                      <span className="inline-block w-3 h-0.5 rounded" style={{ backgroundColor: PALETTE.lavender }} />
+                       <span className="inline-block w-3 h-0.5 rounded" style={{ backgroundColor: TOOLKIT.lavender }} />
                       {t("mentalToolkit.moodDashboard.yourMood")}
                     </span>
                     <span className="flex items-center gap-1">
-                      <span className="inline-block w-3 h-0.5 rounded border-dashed border-t-2" style={{ borderColor: PALETTE.sage }} />
+                      <span className="inline-block w-3 h-0.5 rounded border-dashed border-t-2" style={{ borderColor: TOOLKIT.sage }} />
                       {t("mentalToolkit.moodDashboard.orgAverage")}
                     </span>
                   </div>
@@ -292,7 +292,7 @@ export default function MoodTrackerPage() {
               <Card className="glass-card border-0 rounded-2xl">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base flex items-center gap-2">
-                    <PieChart className="h-4 w-4" style={{ color: PALETTE.sage }} />
+                    <PieChart className="h-4 w-4" style={{ color: TOOLKIT.sage }} />
                     {t("mentalToolkit.moodDashboard.moodDistribution")}
                   </CardTitle>
                 </CardHeader>
@@ -337,7 +337,7 @@ export default function MoodTrackerPage() {
               <Card className="glass-card border-0 rounded-2xl">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base flex items-center gap-2">
-                    <Grid3X3 className="h-4 w-4" style={{ color: PALETTE.plum }} />
+                    <Grid3X3 className="h-4 w-4" style={{ color: TOOLKIT.plum }} />
                     {t("mentalToolkit.moodDashboard.weeklyActivity")}
                   </CardTitle>
                 </CardHeader>
@@ -359,7 +359,7 @@ export default function MoodTrackerPage() {
                                 count === 0
                                   ? "hsl(var(--muted))"
                                   : `rgba(201, 184, 232, ${0.2 + intensity * 0.8})`,
-                              color: count > 0 ? PALETTE.plum : "hsl(var(--muted-foreground))",
+                              color: count > 0 ? TOOLKIT.plum : "hsl(var(--muted-foreground))",
                             }}
                           >
                             {count}
@@ -376,7 +376,7 @@ export default function MoodTrackerPage() {
             <Card className="glass-card border-0 rounded-2xl">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <ClipboardList className="h-4 w-4" style={{ color: PALETTE.lavender }} />
+                  <ClipboardList className="h-4 w-4" style={{ color: TOOLKIT.lavender }} />
                   {t("mentalToolkit.moodDashboard.surveyStats")}
                 </CardTitle>
               </CardHeader>
@@ -414,7 +414,7 @@ export default function MoodTrackerPage() {
             <Card className="rounded-2xl">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <RefreshCw className="h-4 w-4" style={{ color: PALETTE.sage }} />
+                  <RefreshCw className="h-4 w-4" style={{ color: TOOLKIT.sage }} />
                   {t("mentalToolkit.moodDashboard.reframeActivity")}
                 </CardTitle>
               </CardHeader>
@@ -435,7 +435,7 @@ export default function MoodTrackerPage() {
                 </div>
                 <Link to="/mental-toolkit/thought-reframer"
                   className="mt-3 block text-center text-sm font-medium hover:underline"
-                  style={{ color: PALETTE.sage }}>
+                  style={{ color: TOOLKIT.sage }}>
                   {t("mentalToolkit.moodDashboard.goToReframer")} <ArrowRight className="inline h-4 w-4 ms-1 rtl:-scale-x-100" />
                 </Link>
               </CardContent>
@@ -445,7 +445,7 @@ export default function MoodTrackerPage() {
             <Card className="rounded-2xl">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Wind className="h-4 w-4" style={{ color: PALETTE.lavender }} />
+                  <Wind className="h-4 w-4" style={{ color: TOOLKIT.lavender }} />
                   {t("mentalToolkit.moodDashboard.breathingActivity")}
                 </CardTitle>
               </CardHeader>
@@ -465,13 +465,13 @@ export default function MoodTrackerPage() {
                   </div>
                 </div>
                 {dashboard.breathingStats.avgMoodImprovement !== 0 && (
-                  <p className="text-center text-xs mt-2" style={{ color: dashboard.breathingStats.avgMoodImprovement > 0 ? PALETTE.sage : PALETTE.plum }}>
+                  <p className="text-center text-xs mt-2" style={{ color: dashboard.breathingStats.avgMoodImprovement > 0 ? TOOLKIT.sage : TOOLKIT.plum }}>
                     {dashboard.breathingStats.avgMoodImprovement > 0 ? "+" : ""}{dashboard.breathingStats.avgMoodImprovement} avg mood change
                   </p>
                 )}
                 <Link to="/mental-toolkit/breathing"
                   className="mt-3 block text-center text-sm font-medium hover:underline"
-                  style={{ color: PALETTE.lavender }}>
+                  style={{ color: TOOLKIT.lavender }}>
                   {t("mentalToolkit.moodDashboard.goToBreathing")} <ArrowRight className="inline h-4 w-4 ms-1 rtl:-scale-x-100" />
                 </Link>
               </CardContent>
