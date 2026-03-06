@@ -16,6 +16,12 @@ export { useTaskNotifications } from './hooks/useTaskNotifications';
 export { useTaskTags } from './hooks/useTaskTags';
 export { useTaskTemplates } from './hooks/useTaskTemplates';
 export { useTaskTimeTracking } from './hooks/useTaskTimeTracking';
+export { useApprovalQueue } from './hooks/useApprovalQueue';
+export { useTaskDetail, useTaskUpdate } from './hooks/useTaskDetail';
+export { useOverdueTasks } from './hooks/useOverdueTasks';
+export { useManagerTaskOverview } from './hooks/useManagerTaskOverview';
+export { useRecurringTasks } from './hooks/useRecurringTasks';
+export { useTaskPerformanceAnalytics } from './hooks/useTaskPerformanceAnalytics';
 
 // Components
 export { CreateTaskModal } from './components/CreateTaskModal';
