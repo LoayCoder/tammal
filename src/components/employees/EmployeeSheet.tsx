@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +11,7 @@ import { useDepartments } from "@/hooks/org/useDepartments";
 import { useBranches } from "@/hooks/org/useBranches";
 import { useDivisions } from "@/hooks/org/useDivisions";
 import { useSites } from "@/hooks/org/useSites";
-import { supabase } from "@/integrations/supabase/client";
+import { useManagerEligibleUserIds } from "@/hooks/org/useManagerEligibleUserIds";
 
 interface EmployeeSheetProps {
   open: boolean;
@@ -42,18 +41,7 @@ export function EmployeeSheet({
   const { divisions } = useDivisions();
   const { sites: sections } = useSites();
 
-  // Fetch user IDs with manager+ roles
-  const { data: managerUserIds } = useQuery({
-    queryKey: ['manager-eligible-user-ids'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('user_id')
-        .in('role', ['manager', 'tenant_admin', 'super_admin']);
-      if (error) throw error;
-      return [...new Set((data || []).map(r => r.user_id))];
-    },
-  });
+  const { data: managerUserIds } = useManagerEligibleUserIds();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [employeeNumber, setEmployeeNumber] = useState("");

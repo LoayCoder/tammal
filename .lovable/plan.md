@@ -1,8 +1,6 @@
-
-
 # Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 2 WARNINGS**
+## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
 ---
 
@@ -64,27 +62,14 @@ src/
 
 ## 5. Warnings
 
-### ⚠️ WARNING 1: Direct Supabase imports in 5 UI components
+### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
 
-These components bypass the hook/service layer:
+Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
+`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
 
-| File | Justification |
-|---|---|
-| `components/employees/EmployeeSheet.tsx` | Should use a hook |
-| `components/profile/SessionManagementDialog.tsx` | Auth SDK — acceptable |
-| `components/profile/MFASetupDialog.tsx` | Auth SDK — acceptable |
-| `components/profile/ChangeEmailDialog.tsx` | Auth SDK — acceptable |
-| `components/profile/ChangePasswordDialog.tsx` | Auth SDK — acceptable |
-
-**Actionable:** Only `EmployeeSheet.tsx` needs refactoring — the 4 profile dialogs use `supabase.auth.*` directly, which is architecturally acceptable for auth-specific UI.
-
-**Fix:** Extract the Supabase data calls in `EmployeeSheet.tsx` into a dedicated hook (e.g., `useEmployeeSheet`).
-
-### ⚠️ WARNING 2: Workload feature is a thin barrel
+### ⚠️ WARNING (low priority): Workload feature is a thin barrel
 
 `src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
-**Fix (optional, low priority):** Gradually move workload hooks into `src/features/workload/hooks/` and update imports.
 
 ---
 
@@ -96,8 +81,7 @@ These components bypass the hook/service layer:
 | Feature Isolation | ✅ PASS |
 | Backend Architecture | ✅ PASS |
 | Supabase Integration | ✅ PASS |
-| Layer Separation | ⚠️ 1 component to refactor |
+| Layer Separation | ✅ PASS (resolved) |
 | Workload Consolidation | ⚠️ Low-priority migration |
 
-**No FAIL conditions found.** The architecture is production-ready and follows enterprise SaaS best practices.
-
+**No FAIL conditions found.** Architecture is production-ready.
