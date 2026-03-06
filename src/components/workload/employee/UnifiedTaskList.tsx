@@ -108,7 +108,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
                 </Badge>
                 <Badge variant="outline" className={`text-[10px] px-1.5 py-0 gap-0.5 ${statusInfo.className}`}>
                   {StatusIcon && <StatusIcon className="h-3 w-3" />}
-                  {t(`workload.status.${task.status === 'todo' ? 'planned' : task.status === 'in_progress' ? 'inProgress' : task.status === 'completed' ? 'completed' : task.status === 'verified' ? 'completed' : 'blocked'}`)}
+                  {statusInfo.label}
                 </Badge>
                 {commentCount > 0 && (
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 gap-0.5">
