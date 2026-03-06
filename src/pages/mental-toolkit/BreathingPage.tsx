@@ -102,10 +102,10 @@ export default function BreathingPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <StatPill icon={<Activity className="h-4 w-4" />} color={PALETTE.lavender} value={stats.totalSessions} label={t("mentalToolkit.breathing.totalSessions")} />
-            <StatPill icon={<Timer className="h-4 w-4" />} color={PALETTE.sage} value={stats.totalMinutes} label={t("mentalToolkit.breathing.totalMinutes")} />
-            <StatPill icon={<Flame className="h-4 w-4" />} color={PALETTE.lavender} value={`${stats.currentStreak}d`} label={t("mentalToolkit.moodDashboard.currentStreak")} />
-            <StatPill icon={<TrendingUp className="h-4 w-4" />} color={PALETTE.sage} value={stats.avgMoodImprovement > 0 ? `+${stats.avgMoodImprovement}` : `${stats.avgMoodImprovement}`} label={t("mentalToolkit.breathing.avgImprovement")} />
+            <StatPill icon={<Activity className="h-4 w-4" />} color={TOOLKIT.lavender} value={stats.totalSessions} label={t("mentalToolkit.breathing.totalSessions")} />
+            <StatPill icon={<Timer className="h-4 w-4" />} color={TOOLKIT.sage} value={stats.totalMinutes} label={t("mentalToolkit.breathing.totalMinutes")} />
+            <StatPill icon={<Flame className="h-4 w-4" />} color={TOOLKIT.lavender} value={`${stats.currentStreak}d`} label={t("mentalToolkit.moodDashboard.currentStreak")} />
+            <StatPill icon={<TrendingUp className="h-4 w-4" />} color={TOOLKIT.sage} value={stats.avgMoodImprovement > 0 ? `+${stats.avgMoodImprovement}` : `${stats.avgMoodImprovement}`} label={t("mentalToolkit.breathing.avgImprovement")} />
           </div>
         )}
 
@@ -124,7 +124,7 @@ export default function BreathingPage() {
                       className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all border flex items-center gap-2 ${
                         technique === tech ? "border-transparent shadow-sm" : "border-border bg-background text-muted-foreground hover:bg-muted"
                       }`}
-                      style={technique === tech ? { background: PALETTE.lavender, color: PALETTE.plum } : {}}
+                      style={technique === tech ? { background: TOOLKIT.lavender, color: TOOLKIT.plum } : {}}
                     >
                       <span>{TECHNIQUE_INFO[tech].emoji}</span>
                       {tech === "box" ? t("mentalToolkit.breathing.boxBreathing")
@@ -149,7 +149,7 @@ export default function BreathingPage() {
                           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
                             sessionLength === len ? "border-transparent shadow-sm" : "border-border bg-background text-muted-foreground hover:bg-muted"
                           }`}
-                          style={sessionLength === len ? { background: PALETTE.sage, color: "#2d4a2a" } : {}}
+                          style={sessionLength === len ? { background: TOOLKIT.sage, color: TOOLKIT.plum } : {}}
                         >
                           {t(`mentalToolkit.breathing.${labelKey}`)}
                         </button>
@@ -181,7 +181,7 @@ export default function BreathingPage() {
                 <Button
                   onClick={handleStartSession}
                   className="rounded-xl px-10 py-3 text-base"
-                  style={{ background: `linear-gradient(135deg, ${PALETTE.lavender}, ${PALETTE.sage})`, color: PALETTE.plum }}
+                  style={{ background: `linear-gradient(135deg, ${TOOLKIT.lavender}, ${TOOLKIT.sage})`, color: TOOLKIT.plum }}
                 >
                   {t("mentalToolkit.breathing.start")}
                 </Button>
@@ -233,7 +233,7 @@ export default function BreathingPage() {
 
               {/* Encouragement */}
               {moodChange !== null && (
-                <p className="text-sm font-medium" style={{ color: moodChange > 0 ? PALETTE.sage : moodChange === 0 ? PALETTE.lavender : PALETTE.plum }}>
+                <p className="text-sm font-medium" style={{ color: moodChange > 0 ? TOOLKIT.sage : moodChange === 0 ? TOOLKIT.lavender : TOOLKIT.plum }}>
                   {moodChange > 0
                     ? t("mentalToolkit.breathing.encouragementImproved")
                     : moodChange === 0
@@ -243,7 +243,7 @@ export default function BreathingPage() {
               )}
 
               <div className="flex gap-3 justify-center pt-2">
-                <Button onClick={handleSaveAndReset} className="rounded-xl" style={{ background: PALETTE.sage, color: "#2d4a2a" }}>
+                <Button onClick={handleSaveAndReset} className="rounded-xl" style={{ background: TOOLKIT.sage, color: TOOLKIT.plum }}>
                   <RotateCcw className="h-4 w-4 me-1" /> {t("mentalToolkit.breathing.practiceAgain")}
                 </Button>
               </div>
@@ -283,13 +283,13 @@ export default function BreathingPage() {
                     <div className="flex items-center gap-2">
                       {s.mood_before != null && s.mood_after != null && (
                         <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{
-                          backgroundColor: s.mood_after >= s.mood_before ? `${PALETTE.sage}33` : `${PALETTE.lavender}33`,
-                          color: s.mood_after >= s.mood_before ? PALETTE.sage : PALETTE.plum,
+                          backgroundColor: s.mood_after >= s.mood_before ? `${TOOLKIT.sage}33` : `${TOOLKIT.lavender}33`,
+                          color: s.mood_after >= s.mood_before ? TOOLKIT.sage : TOOLKIT.plum,
                         }}>
                           {s.mood_after > s.mood_before ? "+" : ""}{s.mood_after - s.mood_before}
                         </span>
                       )}
-                      {s.completed && <span className="text-xs" style={{ color: PALETTE.sage }}>✓</span>}
+                      {s.completed && <span className="text-xs" style={{ color: TOOLKIT.sage }}>✓</span>}
                     </div>
                   </CardContent>
                 </Card>
