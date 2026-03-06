@@ -142,11 +142,12 @@ export default function TaskPerformanceAnalytics() {
       ) : (
         <>
           {/* KPI Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <KPICard icon={Target} label={t('taskAnalytics.totalTasks')} value={metrics.total} />
             <KPICard icon={CheckCircle} label={t('taskAnalytics.completionRate')} value={`${metrics.completionRate}%`} />
             <KPICard icon={TrendingUp} label={t('taskAnalytics.avgProgress')} value={`${metrics.avgProgress}%`} />
-            <KPICard icon={Clock} label={t('taskAnalytics.inProgress')} value={metrics.inProgress} />
+            <KPICard icon={Clock} label={t('taskAnalytics.avgCompletionTime')} value={metrics.avgCompletionDisplay} />
+            <KPICard icon={AlertTriangle} label={t('taskAnalytics.inProgress')} value={metrics.inProgress} />
           </div>
 
           {/* Charts Row 1 */}
