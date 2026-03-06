@@ -202,7 +202,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       items: [
         { title: t('crisisSupport.nav.crisisSupport'), url: "/crisis-support", icon: Phone, access: 'employee' },
         { title: t('crisisSupport.nav.mySupport'), url: "/my-support", icon: Inbox, access: 'employee' },
-        { title: t('crisisSupport.nav.firstAider'), url: "/crisis-support", icon: HeartHandshake, access: 'employee' },
+        { title: t('crisisSupport.nav.firstAider'), url: "/first-aider", icon: HeartHandshake, access: 'employee' },
         { title: t('crisisSupport.admin.title'), url: "/admin/crisis-settings", icon: Shield, access: 'admin' },
       ]
     },
