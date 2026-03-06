@@ -198,6 +198,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         { title: t('nav.representativeWorkload'), url: "/admin/workload/representative", icon: UserCog, access: 'all' },
         { title: t('nav.portfolio'), url: "/admin/workload/portfolio", icon: Briefcase, access: 'admin' },
         { title: t('nav.executive'), url: "/admin/workload/executive", icon: BarChart, access: 'admin' },
+        { title: t('nav.taskAnalytics'), url: "/tasks/analytics", icon: BarChart, access: 'admin' },
         { title: t('nav.overdueTasks'), url: "/admin/workload/overdue", icon: AlertTriangle, access: 'admin' },
         { title: t('nav.escalationSettings'), url: "/admin/workload/escalation", icon: Shield, access: 'admin' },
         { title: t('nav.systemHealth'), url: "/admin/workload/system-health", icon: Shield, access: 'admin' },

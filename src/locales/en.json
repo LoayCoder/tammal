@@ -105,6 +105,7 @@
     "approvalQueue": "Approval Queue",
     "managerTaskOverview": "Team Tasks",
     "overdueTasks": "Overdue Tasks",
+    "taskAnalytics": "Performance Analytics",
     "recognitionAwards": "Recognition & Awards",
     "recognition": "Recognition",
     "aiPlatform": "AI Platform",
@@ -3952,5 +3953,22 @@
       "estimated": "estimated",
       "assignee": "Assignee"
     }
+  },
+  "taskAnalytics": {
+    "title": "Task Performance Analytics",
+    "subtitle": "Track completion rates, team velocity, and productivity metrics",
+    "totalTasks": "Total Tasks",
+    "completionRate": "Completion Rate",
+    "avgProgress": "Avg. Progress",
+    "inProgress": "In Progress",
+    "dailyTrend": "Daily Task Trend",
+    "statusDistribution": "Status Distribution",
+    "priorityBreakdown": "Priority Breakdown",
+    "topPerformers": "Top Performers",
+    "created": "Created",
+    "completed": "Completed",
+    "last7": "Last 7 days",
+    "last14": "Last 14 days",
+    "last30": "Last 30 days"
   }
 }
