@@ -15,6 +15,7 @@ export interface Objective {
   year: number;
   quarter: string;
   owner_user_id: string | null;
+  accountable_user_id: string | null;
   progress: number;
   status: string;
   start_date: string;
@@ -36,6 +37,7 @@ export interface ObjectiveInsert {
   year?: number;
   quarter?: string;
   owner_user_id?: string | null;
+  accountable_user_id?: string | null;
   status?: string;
   start_date?: string;
   end_date?: string | null;

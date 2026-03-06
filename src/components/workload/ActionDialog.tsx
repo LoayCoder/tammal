@@ -16,6 +16,7 @@ import { Switch } from '@/components/ui/switch';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { EmployeePicker } from '@/components/workload/EmployeePicker';
 import type { ObjAction } from '@/hooks/workload/useActions';
 
 const schema = z.object({
@@ -28,6 +29,8 @@ const schema = z.object({
   work_hours_only: z.boolean(),
   planned_start: z.string().optional().or(z.literal('')),
   planned_end: z.string().optional().or(z.literal('')),
+  assignee_id: z.string().nullable().optional(),
+  accountable_user_id: z.string().nullable().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -51,6 +54,7 @@ export function ActionDialog({ open, onOpenChange, action, initiativeId, onSubmi
       title: '', title_ar: '', description: '', priority: 3,
       estimated_hours: 1, status: 'planned', work_hours_only: true,
       planned_start: '', planned_end: '',
+      assignee_id: null, accountable_user_id: null,
     },
   });
 
@@ -62,12 +66,15 @@ export function ActionDialog({ open, onOpenChange, action, initiativeId, onSubmi
         estimated_hours: Number(action.estimated_hours), status: action.status as any,
         work_hours_only: action.work_hours_only,
         planned_start: action.planned_start || '', planned_end: action.planned_end || '',
+        assignee_id: action.assignee_id || null,
+        accountable_user_id: (action as any).accountable_user_id || null,
       });
     } else {
       form.reset({
         title: '', title_ar: '', description: '', priority: 3,
         estimated_hours: 1, status: 'planned', work_hours_only: true,
         planned_start: '', planned_end: '',
+        assignee_id: null, accountable_user_id: null,
       });
     }
   }, [action, form]);
@@ -80,12 +87,14 @@ export function ActionDialog({ open, onOpenChange, action, initiativeId, onSubmi
       description: data.description || null,
       planned_start: data.planned_start || null,
       planned_end: data.planned_end || null,
+      assignee_id: data.assignee_id || null,
+      accountable_user_id: data.accountable_user_id || null,
     });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
           <DialogTitle>{isEditing ? t('workload.actions.edit') : t('workload.actions.add')}</DialogTitle>
           <DialogDescription>{isEditing ? t('workload.actions.editDesc') : t('workload.actions.addDesc')}</DialogDescription>
@@ -101,6 +110,22 @@ export function ActionDialog({ open, onOpenChange, action, initiativeId, onSubmi
             <FormField control={form.control} name="description" render={({ field }) => (
               <FormItem><FormLabel>{t('workload.actions.description')}</FormLabel><FormControl><Textarea {...field} rows={2} /></FormControl><FormMessage /></FormItem>
             )} />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField control={form.control} name="assignee_id" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('workload.assignment.assignee')}</FormLabel>
+                  <FormControl><EmployeePicker value={field.value} onChange={field.onChange} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="accountable_user_id" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('workload.assignment.accountable')}</FormLabel>
+                  <FormControl><EmployeePicker value={field.value} onChange={field.onChange} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+            </div>
             <div className="grid grid-cols-3 gap-4">
               <FormField control={form.control} name="priority" render={({ field }) => (
                 <FormItem><FormLabel>{t('workload.actions.priority')}</FormLabel>
