@@ -139,6 +139,7 @@ export function CreateTaskModal({
                     id: `tpl-${idx}`,
                     title: typeof item === 'string' ? item : item.title || '',
                     status: 'pending' as const,
+                    sort_order: idx,
                   })));
                 }
               }} />
