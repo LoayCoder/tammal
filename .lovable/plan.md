@@ -1,87 +1,64 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+# Add Workload Indicator to Organization Wellness Page
 
-## 1. Folder Architecture — ✅ PASS
+## What Changes
 
-The project follows a clean modular structure:
+Add a **Workload Health** section to the Organization Wellness dashboard (`OrgDashboard`) that surfaces team workload metrics alongside the existing wellness/mood analytics. This creates a unified view connecting employee wellbeing with work capacity.
+
+## Where It Goes
+
+Insert a new `OrgWorkloadIndicator` card **between the StatCards and the Tabs** in `OrgDashboard.tsx`. This positions workload context right after the top-level stats and before the deep-dive tabs.
 
 ```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
+┌──────────────────────────────────────────────┐
+│  Dashboard Header + Time Range               │
+│  Org Filter Bar                              │
+│  Stat Cards (6 existing)                     │
+├──────────────────────────────────────────────┤
+│  ┌── NEW: Workload Health Indicator ───────┐ │
+│  │  4-col summary:                         │ │
+│  │  Avg Load | At Risk | Off-Hours | Total │ │
+│  │                                         │ │
+│  │  Department bar chart (avg hours/day)   │ │
+│  │  Top 5 overloaded employees list        │ │
+│  └─────────────────────────────────────────┘ │
+├──────────────────────────────────────────────┤
+│  Tabs: Overview | Deep Analysis | Alerts...  │
+└──────────────────────────────────────────────┘
 ```
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+## Implementation Steps
 
----
+### 1. Create `OrgWorkloadIndicator` component
+- New file: `src/features/org-dashboard/components/OrgWorkloadIndicator.tsx`
+- Uses existing `useWorkloadAnalytics()` hook — already provides `teamLoad`, `avgLoadMinutes`, `atRiskCount`, `offHoursWorkers`, `totalEmployees`
+- **Top row**: 4 mini KPI cards with semantic colors:
+  - Avg Daily Load (blue) — `avgLoadMinutes` converted to hours
+  - At-Risk Employees (red) — `atRiskCount`
+  - Off-Hours Workers (amber) — `offHoursWorkers`
+  - Total Workforce (green) — `totalEmployees`
+- **Department breakdown**: Horizontal bar chart showing average estimated hours per department (aggregate `teamLoad` by department)
+- **Overloaded list**: Top 5 employees with highest `estimatedMinutes`, showing name + department + a mini progress bar (capacity vs 480min)
+- Glass-card styling consistent with existing dashboard cards
 
-## 2. Feature Isolation — ✅ PASS
+### 2. Integrate into `OrgDashboard.tsx`
+- Import `OrgWorkloadIndicator`
+- Render it between `<StatCards />` and the `<Tabs>` block
+- Wrap in `<ErrorBoundary>`
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+### 3. Localization
+- Add keys to `en.json` and `ar.json`:
+  - `orgDashboard.workloadHealth` (section title)
+  - `orgDashboard.avgDailyLoad`
+  - `orgDashboard.atRiskEmployees`
+  - `orgDashboard.offHoursWorkers`
+  - `orgDashboard.overloadedEmployees`
+  - `orgDashboard.hoursPerDay`
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
+## Technical Notes
+- Reuses `useWorkloadAnalytics` — no new queries or DB changes
+- Department aggregation done client-side from `teamLoad` array
+- RTL-safe: logical properties only, bar chart uses Recharts (direction-agnostic)
+- No new dependencies
 
----
-
-## 3. Backend Architecture — ✅ PASS
-
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
-
----
-
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
-
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
-
-## Summary
-
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
-
-**No FAIL conditions found.** Architecture is production-ready.
