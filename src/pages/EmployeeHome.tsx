@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { DashboardPrayerWidget } from '@/components/dashboard/DashboardPrayerWidget';
 import { DashboardIslamicCalendarWidget } from '@/components/dashboard/DashboardIslamicCalendarWidget';
+import { DashboardWorkloadWidget } from '@/components/dashboard/DashboardWorkloadWidget';
 import FirstAiderQuickConnect from '@/components/crisis/FirstAiderQuickConnect';
 
 const MOOD_EMOJIS: Record<string, string> = {
@@ -76,6 +77,9 @@ export default function EmployeeHome() {
             {gamLoading ? '...' : totalPoints} {t('home.points')}
           </Badge>
         </div>
+
+        {/* Workload Overview Widget */}
+        {employee && <DashboardWorkloadWidget employeeId={employee.id} />}
 
         {/* Inline Daily Check-in */}
         {employee && !todayEntry && employee.user_id && (
