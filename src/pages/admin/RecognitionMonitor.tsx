@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Activity, Users, Building2, Vote, CheckCircle, XCircle } from 'lucide-react';
+import { Activity, Users, Building2, Vote, CheckCircle, XCircle, ShieldCheck, Clock, ShieldX } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +32,7 @@ export default function RecognitionMonitor() {
 
   const {
     isPending,
+    allowAppeals,
     totalNominations,
     uniqueNominees,
     participatingDepts,
@@ -45,6 +46,11 @@ export default function RecognitionMonitor() {
     deptVotingStats,
     themeVotingStats,
     votingTimeline,
+    approvalStats,
+    pendingApprovals,
+    approvedNominations,
+    rejectedByManager,
+    deptApprovalStats,
   } = useRecognitionMonitor(selectedCycleId);
 
   return (
@@ -96,6 +102,15 @@ export default function RecognitionMonitor() {
             <Tabs defaultValue="nominations">
               <TabsList>
                 <TabsTrigger value="nominations">{t('recognition.monitor.nominationsTab')}</TabsTrigger>
+                {allowAppeals && (
+                  <TabsTrigger value="approvals">
+                    <ShieldCheck className="h-3.5 w-3.5 me-1" />
+                    {t('recognition.monitor.approvalsTab', 'Manager Approvals')}
+                    {pendingApprovals > 0 && (
+                      <Badge variant="destructive" className="ms-1.5 text-xs px-1.5 py-0">{pendingApprovals}</Badge>
+                    )}
+                  </TabsTrigger>
+                )}
                 <TabsTrigger value="voting">{t('recognition.monitor.votingTab')}</TabsTrigger>
               </TabsList>
 
@@ -185,6 +200,7 @@ export default function RecognitionMonitor() {
                           <TableHead>{t('recognition.monitor.division')}</TableHead>
                           <TableHead>{t('recognition.monitor.theme')}</TableHead>
                           <TableHead>{t('recognition.monitor.status')}</TableHead>
+                          {allowAppeals && <TableHead>{t('recognition.monitor.managerApproval', 'Manager Approval')}</TableHead>}
                           <TableHead>{t('recognition.monitor.date')}</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -202,17 +218,150 @@ export default function RecognitionMonitor() {
                             <TableCell>{n.nomineeDivisionName}</TableCell>
                             <TableCell>{n.themeName}</TableCell>
                             <TableCell><Badge variant="outline">{n.status}</Badge></TableCell>
+                            {allowAppeals && (
+                              <TableCell>
+                                <Badge variant={
+                                  n.managerApprovalStatus === 'approved' ? 'default' :
+                                  n.managerApprovalStatus === 'rejected' ? 'destructive' :
+                                  n.managerApprovalStatus === 'pending' ? 'secondary' : 'outline'
+                                }>
+                                  {n.managerApprovalStatus}
+                                </Badge>
+                              </TableCell>
+                            )}
                             <TableCell>{n.submittedAt ? format(new Date(n.submittedAt), 'MMM d, yyyy') : '—'}</TableCell>
                           </TableRow>
                         ))}
                         {recentNominations.length === 0 && (
-                          <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">{t('recognition.monitor.noData')}</TableCell></TableRow>
+                          <TableRow><TableCell colSpan={allowAppeals ? 9 : 8} className="text-center text-muted-foreground py-8">{t('recognition.monitor.noData')}</TableCell></TableRow>
                         )}
                       </TableBody>
                     </Table>
                   </CardContent>
                 </Card>
               </TabsContent>
+
+              {/* ── Approvals Tab ── */}
+              {allowAppeals && (
+                <TabsContent value="approvals" className={spacing.sectionGap}>
+                  {/* Approval KPIs */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <StatCard title={t('recognition.monitor.pendingApprovals', 'Pending Approvals')} value={pendingApprovals} icon={<Clock className="h-4 w-4 text-warning" />} />
+                    <StatCard title={t('recognition.monitor.approved', 'Approved')} value={approvedNominations} icon={<ShieldCheck className="h-4 w-4 text-chart-2" />} />
+                    <StatCard title={t('recognition.monitor.rejectedByManager', 'Rejected by Manager')} value={rejectedByManager} icon={<ShieldX className="h-4 w-4 text-destructive" />} />
+                    <StatCard
+                      title={t('recognition.monitor.approvalRate', 'Approval Rate')}
+                      value={
+                        (approvedNominations + rejectedByManager) > 0
+                          ? `${Math.round((approvedNominations / (approvedNominations + rejectedByManager)) * 100)}%`
+                          : '—'
+                      }
+                      icon={<CheckCircle className="h-4 w-4 text-primary" />}
+                    />
+                  </div>
+
+                  {/* Approval Status Pie Chart */}
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <Card>
+                      <CardHeader><CardTitle>{t('recognition.monitor.approvalStatusBreakdown', 'Approval Status Breakdown')}</CardTitle></CardHeader>
+                      <CardContent className="h-64 flex items-center justify-center">
+                        {approvalStats.length > 0 ? (
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie data={approvalStats} dataKey="count" nameKey="status" cx="50%" cy="50%" outerRadius={80} label={({ status, count }) => `${status}: ${count}`}>
+                                {approvalStats.map((entry, i) => (
+                                  <Cell key={i} fill={
+                                    entry.status === 'approved' ? 'hsl(var(--chart-2))' :
+                                    entry.status === 'rejected' ? 'hsl(var(--destructive))' :
+                                    entry.status === 'pending' ? 'hsl(var(--chart-4))' :
+                                    'hsl(var(--muted-foreground))'
+                                  } />
+                                ))}
+                              </Pie>
+                              <Tooltip />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        ) : (
+                          <p className="text-muted-foreground">{t('recognition.monitor.noData')}</p>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Info Card */}
+                    <Card>
+                      <CardHeader><CardTitle>{t('recognition.monitor.approvalInfo', 'How It Works')}</CardTitle></CardHeader>
+                      <CardContent className="space-y-3">
+                        <p className="text-sm text-muted-foreground">
+                          {t('recognition.monitor.approvalInfoDesc', 'When "Allow Appeals" is enabled for this cycle, every nomination requires explicit approval from the nominee\'s direct manager before it becomes valid for voting.')}
+                        </p>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary">pending</Badge>
+                            <span className="text-sm text-muted-foreground">{t('recognition.monitor.pendingDesc', 'Awaiting manager review')}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="default">approved</Badge>
+                            <span className="text-sm text-muted-foreground">{t('recognition.monitor.approvedDesc', 'Manager approved — eligible for voting')}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="destructive">rejected</Badge>
+                            <span className="text-sm text-muted-foreground">{t('recognition.monitor.rejectedDesc', 'Manager rejected — not eligible')}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Department Approval Breakdown */}
+                  <Card>
+                    <CardHeader><CardTitle>{t('recognition.monitor.deptApprovalBreakdown', 'Department Approval Breakdown')}</CardTitle></CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>{t('recognition.monitor.department')}</TableHead>
+                            <TableHead>{t('recognition.monitor.pendingApprovals', 'Pending')}</TableHead>
+                            <TableHead>{t('recognition.monitor.approved', 'Approved')}</TableHead>
+                            <TableHead>{t('recognition.monitor.rejectedByManager', 'Rejected')}</TableHead>
+                            <TableHead>{t('recognition.monitor.approvalRate', 'Approval Rate')}</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {deptApprovalStats.filter(d => d.pending + d.approved + d.rejected > 0).map(d => {
+                            const total = d.approved + d.rejected;
+                            const rate = total > 0 ? Math.round((d.approved / total) * 100) : null;
+                            return (
+                              <TableRow key={d.departmentId ?? 'unknown'}>
+                                <TableCell className="font-medium">{d.departmentName}</TableCell>
+                                <TableCell>
+                                  {d.pending > 0 ? <Badge variant="secondary">{d.pending}</Badge> : '0'}
+                                </TableCell>
+                                <TableCell>
+                                  {d.approved > 0 ? <Badge variant="default">{d.approved}</Badge> : '0'}
+                                </TableCell>
+                                <TableCell>
+                                  {d.rejected > 0 ? <Badge variant="destructive">{d.rejected}</Badge> : '0'}
+                                </TableCell>
+                                <TableCell>
+                                  {rate !== null ? (
+                                    <div className="flex items-center gap-2">
+                                      <Progress value={rate} className="flex-1 h-2" />
+                                      <span className="text-sm text-muted-foreground w-10 text-end">{rate}%</span>
+                                    </div>
+                                  ) : '—'}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                          {deptApprovalStats.filter(d => d.pending + d.approved + d.rejected > 0).length === 0 && (
+                            <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">{t('recognition.monitor.noData')}</TableCell></TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              )}
 
               {/* ── Voting Tab ── */}
               <TabsContent value="voting" className={spacing.sectionGap}>
@@ -334,7 +483,7 @@ export default function RecognitionMonitor() {
                 <Separator />
 
                 {/* Theme, Status, Endorsement */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className={cn("grid gap-4", allowAppeals ? "grid-cols-4" : "grid-cols-3")}>
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.theme')}</h4>
                     <p className="font-medium">{selectedNomination.themeName}</p>
@@ -347,6 +496,18 @@ export default function RecognitionMonitor() {
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.endorsementStatus')}</h4>
                     <Badge variant="secondary">{selectedNomination.endorsementStatus}</Badge>
                   </div>
+                  {allowAppeals && (
+                    <div>
+                      <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.managerApproval', 'Manager Approval')}</h4>
+                      <Badge variant={
+                        selectedNomination.managerApprovalStatus === 'approved' ? 'default' :
+                        selectedNomination.managerApprovalStatus === 'rejected' ? 'destructive' :
+                        selectedNomination.managerApprovalStatus === 'pending' ? 'secondary' : 'outline'
+                      }>
+                        {selectedNomination.managerApprovalStatus}
+                      </Badge>
+                    </div>
+                  )}
                 </div>
 
                 <Separator />

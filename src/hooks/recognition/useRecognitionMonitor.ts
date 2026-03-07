@@ -40,6 +40,21 @@ export interface RecentNomination {
   specificExamples: string[];
   impactMetrics: string[];
   endorsementStatus: string;
+  managerApprovalStatus: string;
+}
+
+export interface ApprovalStat {
+  status: string;
+  count: number;
+}
+
+export interface DeptApprovalStat {
+  departmentId: string | null;
+  departmentName: string;
+  pending: number;
+  approved: number;
+  rejected: number;
+  notRequired: number;
 }
 
 export interface DeptVotingStat {
@@ -57,13 +72,30 @@ export interface VoteTimelineDatum {
 export function useRecognitionMonitor(cycleId: string) {
   const { tenantId } = useTenantId();
 
+  // ── Cycle data (for allowAppeals check) ──
+  const { data: cycleData } = useQuery({
+    queryKey: ['recognition-monitor-cycle', cycleId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('award_cycles')
+        .select('id, fairness_config')
+        .eq('id', cycleId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!cycleId,
+  });
+
+  const allowAppeals = !!(cycleData?.fairness_config as any)?.auditSettings?.allowAppeals;
+
   // ── Nominations data ──
   const { data: nominations = [], isPending: nomLoading } = useQuery({
     queryKey: ['recognition-monitor-nominations', cycleId, tenantId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('nominations')
-        .select('id, nominee_id, nominator_id, nominator_role, theme_id, nominee_department_id, nominator_department_id, status, submitted_at, headline, justification, specific_examples, impact_metrics, endorsement_status')
+        .select('id, nominee_id, nominator_id, nominator_role, theme_id, nominee_department_id, nominator_department_id, status, submitted_at, headline, justification, specific_examples, impact_metrics, endorsement_status, manager_approval_status')
         .eq('cycle_id', cycleId)
         .is('deleted_at', null);
       if (error) throw error;
@@ -247,6 +279,7 @@ export function useRecognitionMonitor(cycleId: string) {
         specificExamples: toStringArray(n.specific_examples),
         impactMetrics: toStringArray(n.impact_metrics),
         endorsementStatus: n.endorsement_status ?? 'pending',
+        managerApprovalStatus: n.manager_approval_status ?? 'not_required',
       };
     });
 
@@ -281,6 +314,37 @@ export function useRecognitionMonitor(cycleId: string) {
   const votingTimeline: VoteTimelineDatum[] = Array.from(timelineMap, ([date, count]) => ({ date, count }))
     .sort((a, b) => a.date.localeCompare(b.date));
 
+  // ── Approval Stats (only meaningful when allowAppeals is true) ──
+  const approvalStatusMap = new Map<string, number>();
+  for (const n of nominations) {
+    const st = n.manager_approval_status ?? 'not_required';
+    approvalStatusMap.set(st, (approvalStatusMap.get(st) ?? 0) + 1);
+  }
+  const approvalStats: ApprovalStat[] = Array.from(approvalStatusMap, ([status, count]) => ({ status, count }));
+
+  const pendingApprovals = approvalStatusMap.get('pending') ?? 0;
+  const approvedNominations = approvalStatusMap.get('approved') ?? 0;
+  const rejectedByManager = approvalStatusMap.get('rejected') ?? 0;
+
+  // Department approval breakdown
+  const deptApprovalMap = new Map<string, { pending: number; approved: number; rejected: number; notRequired: number }>();
+  for (const n of nominations) {
+    const deptId = n.nominee_department_id ?? 'unknown';
+    if (!deptApprovalMap.has(deptId)) deptApprovalMap.set(deptId, { pending: 0, approved: 0, rejected: 0, notRequired: 0 });
+    const entry = deptApprovalMap.get(deptId)!;
+    const st = n.manager_approval_status ?? 'not_required';
+    if (st === 'pending') entry.pending++;
+    else if (st === 'approved') entry.approved++;
+    else if (st === 'rejected') entry.rejected++;
+    else entry.notRequired++;
+  }
+
+  const deptApprovalStats: DeptApprovalStat[] = departments.map(d => ({
+    departmentId: d.id,
+    departmentName: d.name,
+    ...(deptApprovalMap.get(d.id) ?? { pending: 0, approved: 0, rejected: 0, notRequired: 0 }),
+  }));
+
   // KPIs
   const totalNominations = nominations.length;
   const uniqueNominees = new Set(nominations.map(n => n.nominee_id)).size;
@@ -293,6 +357,7 @@ export function useRecognitionMonitor(cycleId: string) {
 
   return {
     isPending: nomLoading || voteLoading,
+    allowAppeals,
     totalNominations,
     uniqueNominees,
     participatingDepts,
@@ -307,5 +372,11 @@ export function useRecognitionMonitor(cycleId: string) {
     deptVotingStats,
     themeVotingStats,
     votingTimeline,
+    // Approval monitoring
+    approvalStats,
+    pendingApprovals,
+    approvedNominations,
+    rejectedByManager,
+    deptApprovalStats,
   };
 }
