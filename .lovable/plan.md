@@ -1,87 +1,42 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+# Fix Nomination Issues: Add Peer Quota & Allow Nominating Managers
 
-## 1. Folder Architecture — ✅ PASS
+## Problems Identified
 
-The project follows a clean modular structure:
+1. **No Peer Quota**: `useManagerQuota` enforces a 30% cap for managers nominating their direct reports, but peers have no limit at all. There should be a configurable peer nomination quota per theme.
 
-```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
-```
+2. **Cannot Nominate Manager**: The `eligibleEmployees` filter on line 59-61 of `NominationWizard.tsx` only excludes the current user (`e.user_id !== user?.id`) for non-self nominations. This means managers *should* appear in the list. The actual issue is likely that the employee list from `useEmployees` filters by tenant and the manager's `user_id` may be null (no linked account), making them invisible. However, even if all employees show, there's no explicit block preventing upward nominations — so this needs investigation.
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+Actually, re-reading the code: `eligibleEmployees` filters `employees.filter(e => e.user_id !== user?.id)` — this shows ALL employees with a `user_id` except the current user. The nominee selector then filters `e => !!e.user_id`. So if a manager's employee record has a linked `user_id`, they should appear. The issue may be that the user's own manager simply doesn't have a `user_id` linked, OR `useEmployees` returns a limited set.
 
----
+Let me confirm the `useEmployees` hook behavior before finalizing.
 
-## 2. Feature Isolation — ✅ PASS
+## Changes
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+### 1. Add Peer Quota — `src/hooks/recognition/useNominations.ts`
+- Create a new `usePeerQuota(themeId)` hook similar to `useManagerQuota`
+- Set a reasonable default: e.g., each peer can submit up to 3 nominations per theme (or make it configurable via `award_themes.max_peer_nominations_per_user` if we add a column)
+- For now, use a fixed limit (e.g., 3 per peer per theme) without a schema change, counted from existing nominations where `nominator_role = 'peer'`
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
+### 2. Show Peer Quota in Wizard — `src/components/recognition/NominationWizard.tsx`
+- When `nominatorRole === 'peer'`, display a `QuotaIndicator` showing peer usage
+- Block submission if peer quota is exhausted
 
----
+### 3. Fix Nominee List — `src/components/recognition/NominationWizard.tsx`
+- The current filter `employees.filter(e => e.user_id !== user?.id)` should already include managers
+- The real filter issue is `.filter(e => !!e.user_id)` on line 181 — employees without a linked user account are excluded because `nominee_id` stores a `user_id`, not an `employee_id`
+- This is by design (nominations reference `user_id`), so the fix is to ensure managers have linked user accounts — which is an operational/data issue, not a code bug
+- However, we should add a search/filter to the nominee dropdown to make it easier to find people (including managers) in large lists
 
-## 3. Backend Architecture — ✅ PASS
+### 4. Update `QuotaIndicator` — `src/components/recognition/QuotaIndicator.tsx`
+- Make it generic enough to display peer quota (remove the manager-specific `teamSize >= 5` note when used for peers)
+- Add a `type` prop (`'manager' | 'peer'`) to show contextual messaging
 
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
-
----
-
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
-
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
+### 5. Localization — `src/locales/en.json` & `src/locales/ar.json`
+- Add keys for peer quota labels: `peerQuota`, `peerQuotaExhausted`, `peerQuotaNote`
 
 ## Summary
+- Peer quota: hard-coded limit of 3 nominations per peer per theme (can later be made configurable via theme settings)
+- Manager nomination: the code already allows it — employees with linked accounts appear regardless of hierarchy. If the user's manager is missing, it's because their account isn't linked. No code change needed, but we can add a helpful empty-state message.
 
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
-
-**No FAIL conditions found.** Architecture is production-ready.
