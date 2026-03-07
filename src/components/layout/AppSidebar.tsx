@@ -169,6 +169,8 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         { title: t('nav.tenantManagement'), url: "/admin/tenants", icon: Building2 },
         { title: t('nav.planManagement'), url: "/admin/plans", icon: Layers },
         { title: t('nav.subscriptionManagement'), url: "/admin/subscriptions", icon: CreditCard },
+        { title: t('nav.componentSandbox', 'Component Sandbox'), url: "/dev/components", icon: Package },
+        { title: t('nav.designSystem', 'Design System'), url: "/dev/design-system", icon: Palette },
       ]
     },
     {
