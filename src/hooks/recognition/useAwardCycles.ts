@@ -136,6 +136,15 @@ export function useAwardCycles() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['award-cycles'] });
+      qc.invalidateQueries({ queryKey: ['nominations'] });
+      qc.invalidateQueries({ queryKey: ['my-nominations'] });
+      qc.invalidateQueries({ queryKey: ['received-nominations'] });
+      qc.invalidateQueries({ queryKey: ['votes'] });
+      qc.invalidateQueries({ queryKey: ['endorsements'] });
+      qc.invalidateQueries({ queryKey: ['award-themes'] });
+      qc.invalidateQueries({ queryKey: ['judging-criteria'] });
+      qc.invalidateQueries({ queryKey: ['theme-results'] });
+      qc.invalidateQueries({ queryKey: ['pending-approvals'] });
       toast.success(t('recognition.cycles.deleteSuccess'));
     },
     onError: () => toast.error(t('recognition.cycles.deleteError')),
