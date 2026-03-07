@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { tenantAssetsService } from '@/services/tenantAssets';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { logger } from '@/lib/logger';
@@ -58,24 +57,16 @@ export function useBranding(tenantId?: string) {
     }
 
     try {
-      // Parallel fetch for speed
-      const [brandingResponse, assetsResponse] = await Promise.all([
-        supabase
-          .from('tenants')
-          .select('branding_config')
-          .eq('id', tenantId)
-          .single(),
-        tenantAssetsService.getTenantAssets().catch(() => null)
-      ]);
-
-      const { data, error } = brandingResponse;
-      const assets = assetsResponse;
+      const { data, error } = await supabase
+        .from('tenants')
+        .select('branding_config')
+        .eq('id', tenantId)
+        .single();
 
       if (error) throw error;
 
       let newConfig = { ...DEFAULT_BRANDING };
 
-      // Apply legacy/jsonb config
       if (data?.branding_config) {
         const config = data.branding_config as unknown as BrandingConfig;
         newConfig = {
@@ -86,19 +77,6 @@ export function useBranding(tenantId?: string) {
             ...(config.colors || {})
           }
         };
-      }
-
-      // Apply strict isolated assets (Override if present)
-      if (assets) {
-        if (assets.logo_light_url) newConfig.logo_light_url = assets.logo_light_url;
-        if (assets.logo_dark_url) newConfig.logo_dark_url = assets.logo_dark_url;
-        if (assets.pwa_icon_light_url) newConfig.pwa_icon_light_url = assets.pwa_icon_light_url;
-        if (assets.pwa_icon_dark_url) newConfig.pwa_icon_dark_url = assets.pwa_icon_dark_url;
-
-        // Backwards compatibility filling
-        if (!newConfig.pwa_icon_url && assets.pwa_icon_light_url) {
-          newConfig.pwa_icon_url = assets.pwa_icon_light_url;
-        }
       }
 
       setBranding(newConfig);
@@ -153,7 +131,7 @@ export function useBranding(tenantId?: string) {
     try {
       let updatedConfig = { ...config };
 
-      // Upload each file type if provided
+      // Upload each file type if provided — all through brand-assets bucket
       if (files) {
         const fileTypes: AssetType[] = [
           'logo', 'logo_light', 'logo_dark',
@@ -161,35 +139,10 @@ export function useBranding(tenantId?: string) {
           'pwa_icon', 'pwa_icon_light', 'pwa_icon_dark'
         ];
 
-        const strictAssets: Partial<Record<AssetType, boolean>> = {
-          'logo_light': true,
-          'logo_dark': true,
-          'pwa_icon_light': true,
-          'pwa_icon_dark': true
-        };
-
         for (const type of fileTypes) {
           const file = files[type];
           if (file) {
-            let url: string | null = null;
-
-            // Should this asset use strict tenant isolation?
-            if (strictAssets[type]) {
-              try {
-                url = await tenantAssetsService.uploadAsset(tenantId, file, type as any);
-                // Update the strict table immediately
-                await tenantAssetsService.updateTenantAssets(tenantId, {
-                  [`${type}_url`]: url
-                });
-              } catch (e) {
-                console.error(`Failed to strictly upload ${type}`, e);
-                // Fallback? No, strict failure should probably be noted, but for now we log.
-              }
-            } else {
-              // Legacy upload
-              url = await uploadFile(file, type);
-            }
-
+            const url = await uploadFile(file, type);
             if (url) {
               const urlKey = `${type}_url` as keyof BrandingConfig;
               (updatedConfig as any)[urlKey] = url;
