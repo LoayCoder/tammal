@@ -47,6 +47,7 @@ interface SubmitVoteInput {
   criteria_scores: Record<string, number>;
   justifications: Record<string, string>;
   confidence_level: 'high' | 'medium' | 'low';
+  adjusted_weights: Record<string, { original: number; adjusted: number }>;
 }
 
 function calculateVoterWeight(params: {
@@ -176,18 +177,12 @@ export function useVoting(cycleId?: string) {
         }
       }
 
-      // Calculate weighted total
-      const criterionIds = Object.keys(input.criteria_scores);
-      const { data: criteria } = await supabase
-        .from('judging_criteria')
-        .select('id, weight')
-        .in('id', criterionIds);
-
-      const totalWeight = criteria?.reduce((sum, c) => sum + c.weight, 0) || 100;
-      const weightedTotal = criteria?.reduce((sum, c) => {
-        const score = input.criteria_scores[c.id] || 0;
-        return sum + (score * c.weight / totalWeight);
-      }, 0) || 0;
+      // Calculate weighted total using adjusted weights
+      const totalAdjustedWeight = Object.values(input.adjusted_weights).reduce((sum, w) => sum + w.adjusted, 0) || 100;
+      const weightedTotal = Object.entries(input.criteria_scores).reduce((sum, [criterionId, score]) => {
+        const w = input.adjusted_weights[criterionId]?.adjusted ?? 0;
+        return sum + (score * w / totalAdjustedWeight);
+      }, 0);
 
       const { count: pastVotes } = await supabase
         .from('votes')
@@ -251,7 +246,25 @@ export function useVoting(cycleId?: string) {
         .single();
       if (error) throw error;
 
-      // Award participation points for voting (inside mutationFn for proper error handling)
+      // Save vote criteria evaluations
+      const voteEvalRows = Object.entries(input.adjusted_weights).map(([criterionId, w]) => ({
+        tenant_id: tenantId,
+        vote_id: data.id,
+        criterion_id: criterionId,
+        original_weight: w.original,
+        adjusted_weight: w.adjusted,
+        rating: input.criteria_scores[criterionId] ?? 3,
+        justification: input.justifications[criterionId] || null,
+      }));
+
+      if (voteEvalRows.length > 0) {
+        const { error: evalErr } = await supabase
+          .from('vote_criteria_evaluations')
+          .insert(voteEvalRows);
+        if (evalErr) logger.warn('useVoting', 'Vote criteria eval insert failed:', evalErr.message);
+      }
+
+      // Award participation points for voting
       const { error: ptErr } = await supabase.from('points_transactions').insert({
         user_id: user!.id,
         tenant_id: tenantId,

@@ -18,6 +18,10 @@ export default function VotingBoothPage() {
   // Auto-select if only one voting cycle
   const effectiveCycleId = selectedCycleId || (votingCycles.length === 1 ? votingCycles[0].id : '');
 
+  const selectedCycle = cycles.find(c => c.id === effectiveCycleId);
+  const fairnessConfig = selectedCycle?.fairness_config as Record<string, any> | null;
+  const votingWeightAdjustmentLimit = (fairnessConfig?.votingWeightAdjustmentLimit as number) ?? 30;
+
   const {
     pendingBallots,
     completedCount,
@@ -74,6 +78,7 @@ export default function VotingBoothPage() {
                 ballots={pendingBallots}
                 completedCount={completedCount}
                 totalCount={totalCount}
+                votingWeightAdjustmentLimit={votingWeightAdjustmentLimit}
                 onSubmit={(data) => submitVote.mutate(data)}
                 isSubmitting={submitVote.isPending}
               />
