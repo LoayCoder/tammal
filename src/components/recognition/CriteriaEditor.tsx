@@ -56,7 +56,7 @@ export function CriteriaEditor({ themeId }: CriteriaEditorProps) {
             )}
           </p>
         </div>
-        <Button size="sm" variant="outline" onClick={() => setAdding(true)} disabled={adding}>
+        <Button size="sm" variant="outline" onClick={() => { setNewWeight(Math.min(0.25, remainingWeight)); setAdding(true); }} disabled={adding || totalWeight >= 0.995}>
           <Plus className="h-4 w-4 me-1" />
           {t('recognition.criteria.add')}
         </Button>
