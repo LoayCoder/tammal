@@ -1,87 +1,62 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+# Brand Management Gaps Analysis & Fix Plan
 
-## 1. Folder Architecture — ✅ PASS
+## Identified Gaps
 
-The project follows a clean modular structure:
+### 1. CRITICAL: Missing `tenant-assets` Storage Bucket
+The `tenantAssetsService` uploads to a bucket called `tenant-assets`, but this bucket **does not exist**. Only `brand-assets` exists. This causes the "Bucket not found" errors in console logs when saving logo_light, logo_dark, pwa_icon_light, pwa_icon_dark.
 
-```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
-```
+**Fix**: The `useBranding.ts` `saveBranding` function marks `logo_light`, `logo_dark`, `pwa_icon_light`, `pwa_icon_dark` as "strict assets" and routes them through `tenantAssetsService` which targets the non-existent `tenant-assets` bucket. Since `brand-assets` bucket already exists and works, we should route ALL uploads through `brand-assets` consistently.
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+### 2. CRITICAL: Missing `tenant_assets` Database Table
+The `tenantAssetsService.getTenantAssets()` queries `tenant_assets` table which returns 404: `"Could not find the table 'public.tenant_assets'"`. This table was never created.
 
----
+**Fix**: Either create the table, or simplify the architecture. Since the `branding_config` JSON column on `tenants` table already stores all asset URLs and works correctly, we should remove the dead `tenant_assets` table dependency and consolidate on the working `brand-assets` bucket + `tenants.branding_config` approach.
 
-## 2. Feature Isolation — ✅ PASS
+### 3. Upload Failure Silently Swallowed
+In `useBranding.ts` lines 151-156, strict upload failures are caught and logged but not surfaced — the save still reports "success" even though assets failed to upload. User sees "Branding saved successfully" but their logo_light/logo_dark uploads were silently lost.
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+### 4. Colors Not Applied in Real-Time on Save
+`useBrandingColors` hook in `MainLayout` applies colors on load, but after saving in `/admin/branding`, colors only update on page refresh since `MainLayout` uses its own `useBranding(tenantId)` instance.
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
+### 5. Hardcoded English Strings
+Lines 314, 321, 327, 331 in `AdminBranding.tsx` have hardcoded English: "PWA Icon (Light)", "PWA Icon (Dark)", "For strictly isolated light/dark theme" — not using i18n.
+
+### 6. `useTenantId` Hook Not Used
+`AdminBranding.tsx` manually fetches tenant_id with raw Supabase calls instead of using the centralized `useTenantId()` hook.
 
 ---
 
-## 3. Backend Architecture — ✅ PASS
+## Implementation Plan
 
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
+### Step 1: Remove Dead `tenantAssetsService` Dependency
+- **Edit** `src/hooks/branding/useBranding.ts`:
+  - Remove the import of `tenantAssetsService`
+  - Remove the parallel `tenantAssetsService.getTenantAssets()` call in `fetchBranding`
+  - Remove the `strictAssets` routing in `saveBranding` — all uploads go through the working `uploadFile` method (which uses `brand-assets` bucket)
+  - This eliminates both the missing bucket AND missing table errors
 
----
+### Step 2: Use `useTenantId` Hook
+- **Edit** `src/pages/admin/AdminBranding.tsx`:
+  - Replace manual tenant_id fetch with `useTenantId()` hook
+  - Remove the `useEffect` + raw Supabase query
 
-## 4. Supabase Integration — ✅ PASS
+### Step 3: Fix Hardcoded Strings
+- **Edit** `src/pages/admin/AdminBranding.tsx`: Replace hardcoded English with i18n keys
+- **Edit** translation files if needed
 
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
-
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
+### Step 4: Surface Upload Errors Properly
+- **Edit** `src/hooks/branding/useBranding.ts`: If any file upload fails, show error toast and stop save
 
 ---
 
-## Summary
+## Files Summary
 
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
+| Action | File |
+|--------|------|
+| Edit | `src/hooks/branding/useBranding.ts` |
+| Edit | `src/pages/admin/AdminBranding.tsx` |
 
-**No FAIL conditions found.** Architecture is production-ready.
+No database migrations needed. No new files. The `tenantAssets` service and hook files become unused (can be cleaned up later).
+
