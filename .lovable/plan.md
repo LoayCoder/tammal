@@ -1,87 +1,52 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+# Add Edit, Delete & Impact Alert to Award Cycles
 
-## 1. Folder Architecture — ✅ PASS
+## What We Are Building
 
-The project follows a clean modular structure:
+On the `/admin/recognition` page, each award cycle card will get **Edit** and **Delete** action buttons. When a cycle is already in an active phase (nominating, voting, calculating, announced), clicking edit or delete will show an **impact alert dialog** warning the admin about consequences before proceeding.
 
-```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
-```
+## Technical Plan
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+### 1. Add translations (en.json + ar.json)
+Add new keys under `recognition.cycles`:
+- `edit`, `delete`, `editCycle`
+- `confirmDelete`, `confirmDeleteDescription`
+- `impactAlert.title`, `impactAlert.editDescription`, `impactAlert.deleteDescription`
+- `impactAlert.nominatingWarning`, `impactAlert.votingWarning`, `impactAlert.calculatingWarning`, `impactAlert.announcedWarning`
+- `impactAlert.proceed`, `impactAlert.cancel`
 
----
+### 2. Update RecognitionManagement.tsx
+- Import `DropdownMenu` (from shadcn), `MoreVertical`, `Pencil`, `Trash2` icons
+- Import `ConfirmDialog` and `useConfirmDelete` from `@/shared/dialogs`
+- Import `Alert` components for impact warnings
+- Add state: `editingCycle` for the cycle being edited, plus `useConfirmDelete` for delete flow
+- Add a `DropdownMenu` to each cycle card header (kebab menu with Edit / Delete options)
+- Determine if cycle is "in-process" (`status !== 'configuring'`)
+- **Delete flow**: If in-process, show a `ConfirmDialog` with impact warning text describing what will be affected (nominations, votes, etc). If configuring, show a simple confirm. On confirm, call `deleteCycle.mutate(id)` (soft-delete)
+- **Edit flow**: If in-process, show an `AlertDialog` with impact warning first, then on proceed open the edit state. If configuring, go directly to edit
+- When `editingCycle` is set, render an inline edit form or reuse `CycleBuilder` in edit mode
 
-## 2. Feature Isolation — ✅ PASS
+### 3. Create CycleEditDialog component
+- New file: `src/components/recognition/CycleEditDialog.tsx`
+- A dialog/sheet that allows editing cycle name, dates, and audit days
+- Pre-populated with existing cycle data
+- On save, calls `updateCycle.mutate()`
+- If cycle is in-process, shows an `Alert` banner at the top warning about impact (e.g., "This cycle has active nominations. Changing dates may affect participants.")
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+### 4. Impact logic helper
+- Define `getImpactWarning(status, action)` — returns the appropriate warning message based on the cycle's current status:
+  - `nominating` → "Active nominations exist. Editing/deleting will affect nominees and endorsements."
+  - `voting` → "Voting is in progress. Changes will impact active ballots."
+  - `calculating` → "Results are being calculated. Modifications may corrupt results."
+  - `announced` → "Results have been published. Changes will affect announced winners."
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
+### Files to Create/Edit
 
----
+| Action | File |
+|--------|------|
+| Create | `src/components/recognition/CycleEditDialog.tsx` |
+| Edit | `src/pages/admin/RecognitionManagement.tsx` |
+| Edit | `src/locales/en.json` |
+| Edit | `src/locales/ar.json` |
 
-## 3. Backend Architecture — ✅ PASS
-
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
-
----
-
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
-
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
-
-## Summary
-
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
-
-**No FAIL conditions found.** Architecture is production-ready.
