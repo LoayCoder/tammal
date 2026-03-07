@@ -3238,6 +3238,7 @@
       "votingTimeline": "Voting Timeline",
       "noData": "No data available"
     },
+    "cycles": {
       "create": "New Award Cycle",
       "name": "Cycle Name",
       "empty": "No Award Cycles Yet",
