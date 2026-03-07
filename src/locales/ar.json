@@ -3240,6 +3240,20 @@
         "manager": "مدير",
         "peer": "زميل",
         "self": "ذاتي"
+      },
+      "managerApproval": "موافقة المدير",
+      "pendingManagerApproval": "بانتظار موافقة المدير",
+      "managerApproved": "وافق المدير",
+      "managerRejected": "رفض المدير",
+      "rejectionReason": "سبب الرفض",
+      "approveNomination": "موافقة",
+      "rejectNomination": "رفض",
+      "requiresManagerApproval": "هذا الترشيح يتطلب موافقة مدير المرشح",
+      "noPendingApprovals": "لا توجد ترشيحات بانتظار موافقتك",
+      "managerApprovalStatus": {
+        "pending": "بانتظار الموافقة",
+        "approved": "وافق المدير",
+        "rejected": "رفض المدير"
       }
     },
     "endorsements": {
