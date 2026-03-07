@@ -1,87 +1,85 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+# Cascade Soft-Delete on Award Cycle Deletion
 
-## 1. Folder Architecture — ✅ PASS
+## Problem
+When a cycle is deleted, only the `award_cycles` row gets soft-deleted. All child records — themes, nominations, votes, endorsements, criteria evaluations, vote criteria evaluations, results — remain active and continue appearing to other users (e.g. in My Nominations, Voting Booth, etc.).
 
-The project follows a clean modular structure:
+## Solution
+Create a database function + trigger that automatically cascade-soft-deletes all child records when a cycle's `deleted_at` is set.
 
-```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
+### 1. Database Migration — Cascade Soft-Delete Trigger
+
+Create a `CASCADE_SOFT_DELETE` function triggered on `award_cycles` update. When `deleted_at` changes from NULL to a timestamp, it soft-deletes all related rows:
+
+```sql
+CREATE OR REPLACE FUNCTION cascade_soft_delete_cycle()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+    -- Soft-delete themes
+    UPDATE award_themes SET deleted_at = NEW.deleted_at
+      WHERE cycle_id = NEW.id AND deleted_at IS NULL;
+
+    -- Soft-delete nominations
+    UPDATE nominations SET deleted_at = NEW.deleted_at
+      WHERE cycle_id = NEW.id AND deleted_at IS NULL;
+
+    -- Soft-delete votes
+    UPDATE votes SET deleted_at = NEW.deleted_at
+      WHERE cycle_id = NEW.id AND deleted_at IS NULL;
+
+    -- Soft-delete endorsements (via nomination_id)
+    UPDATE endorsements SET deleted_at = NEW.deleted_at
+      WHERE nomination_id IN (
+        SELECT id FROM nominations WHERE cycle_id = NEW.id
+      ) AND deleted_at IS NULL;
+
+    -- Soft-delete judging criteria (via theme_id)
+    UPDATE judging_criteria SET deleted_at = NEW.deleted_at
+      WHERE theme_id IN (
+        SELECT id FROM award_themes WHERE cycle_id = NEW.id
+      ) AND deleted_at IS NULL;
+
+    -- Soft-delete nomination_criteria_evaluations
+    UPDATE nomination_criteria_evaluations SET deleted_at = NEW.deleted_at
+      WHERE nomination_id IN (
+        SELECT id FROM nominations WHERE cycle_id = NEW.id
+      ) AND deleted_at IS NULL;
+
+    -- Soft-delete vote_criteria_evaluations
+    UPDATE vote_criteria_evaluations SET deleted_at = NEW.deleted_at
+      WHERE vote_id IN (
+        SELECT id FROM votes WHERE cycle_id = NEW.id
+      ) AND deleted_at IS NULL;
+
+    -- Soft-delete theme_results + nomination_rankings
+    UPDATE theme_results SET deleted_at = NEW.deleted_at
+      WHERE cycle_id = NEW.id AND deleted_at IS NULL;
+
+    UPDATE nomination_rankings SET deleted_at = NEW.deleted_at
+      WHERE theme_results_id IN (
+        SELECT id FROM theme_results WHERE cycle_id = NEW.id
+      ) AND deleted_at IS NULL;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_cascade_soft_delete_cycle
+  AFTER UPDATE ON award_cycles
+  FOR EACH ROW
+  EXECUTE FUNCTION cascade_soft_delete_cycle();
 ```
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+### 2. Frontend — Invalidate Related Caches on Cycle Delete
 
----
+In `useAwardCycles.ts`, expand the `deleteCycle.onSuccess` to also invalidate nomination, vote, endorsement, and theme query caches so the UI immediately reflects the cascade.
 
-## 2. Feature Isolation — ✅ PASS
+### 3. No Other File Changes Needed
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+All existing queries already filter by `.is('deleted_at', null)`, so once the cascade sets `deleted_at` on child rows, they automatically disappear from all views (My Nominations, Voting Booth, Monitor, Fairness Panel, etc.).
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
-
----
-
-## 3. Backend Architecture — ✅ PASS
-
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
-
----
-
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
-
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
-
-## Summary
-
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
-
-**No FAIL conditions found.** Architecture is production-ready.
