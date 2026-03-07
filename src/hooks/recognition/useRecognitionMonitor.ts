@@ -72,6 +72,23 @@ export interface VoteTimelineDatum {
 export function useRecognitionMonitor(cycleId: string) {
   const { tenantId } = useTenantId();
 
+  // ── Cycle data (for allowAppeals check) ──
+  const { data: cycleData } = useQuery({
+    queryKey: ['recognition-monitor-cycle', cycleId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('award_cycles')
+        .select('id, fairness_config')
+        .eq('id', cycleId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!cycleId,
+  });
+
+  const allowAppeals = !!(cycleData?.fairness_config as any)?.auditSettings?.allowAppeals;
+
   // ── Nominations data ──
   const { data: nominations = [], isPending: nomLoading } = useQuery({
     queryKey: ['recognition-monitor-nominations', cycleId, tenantId],
