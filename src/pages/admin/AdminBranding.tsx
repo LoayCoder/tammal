@@ -8,11 +8,11 @@ import { HSLColorPicker, type HSLColor } from '@/components/branding/HSLColorPic
 import { ImageUploader } from '@/components/branding/ImageUploader';
 import { BrandingPreview } from '@/components/branding/BrandingPreview';
 import { useBranding } from '@/hooks/branding/useBranding';
-import { supabase } from '@/integrations/supabase/client';
+import { useTenantId } from '@/hooks/org/useTenantId';
 
 export default function AdminBranding() {
   const { t } = useTranslation();
-  const [tenantId, setTenantId] = useState<string | undefined>();
+  const { tenantId, isPending: tenantPending } = useTenantId();
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoLightFile, setLogoLightFile] = useState<File | null>(null);
   const [logoDarkFile, setLogoDarkFile] = useState<File | null>(null);
@@ -24,25 +24,6 @@ export default function AdminBranding() {
   const [pwaIconDarkFile, setPwaIconDarkFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
-  // Fetch user's tenant ID
-  useEffect(() => {
-    async function fetchTenantId() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('tenant_id')
-          .eq('user_id', user.id)
-          .single();
-
-        if (data?.tenant_id) {
-          setTenantId(data.tenant_id);
-        }
-      }
-    }
-    fetchTenantId();
-  }, []);
-
   const {
     branding,
     setBranding,
@@ -51,7 +32,7 @@ export default function AdminBranding() {
     saveBranding,
     resetBranding,
     defaultBranding
-  } = useBranding(tenantId);
+  } = useBranding(tenantId ?? undefined);
 
   // Update logo preview when branding changes
   useEffect(() => {
@@ -128,7 +109,7 @@ export default function AdminBranding() {
     setLogoPreview(null);
   };
 
-  if (isPending) {
+  if (isPending || tenantPending) {
     return (
       <div className="space-y-6">
         <div>
@@ -311,25 +292,25 @@ export default function AdminBranding() {
 
                 <div>
                   <ImageUploader
-                    label="PWA Icon (Light)"
+                    label={t('branding.uploadPwaIconLight')}
                     value={branding.pwa_icon_light_url || undefined}
                     onChange={handlePwaIconLightChange}
                     accept="image/png"
                     maxSizeKB={1024}
                     previewSize="small"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">For strictly isolated light theme</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t('branding.pwaIconLightHint')}</p>
                 </div>
                 <div>
                   <ImageUploader
-                    label="PWA Icon (Dark)"
+                    label={t('branding.uploadPwaIconDark')}
                     value={branding.pwa_icon_dark_url || undefined}
                     onChange={handlePwaIconDarkChange}
                     accept="image/png"
                     maxSizeKB={1024}
                     previewSize="small"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">For strictly isolated dark theme</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t('branding.pwaIconDarkHint')}</p>
                 </div>
               </div>
             </CardContent>
