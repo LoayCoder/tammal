@@ -126,6 +126,34 @@ export function useAwardCycles() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const invalidateAllRecognition = () => {
+    qc.invalidateQueries({ queryKey: ['award-cycles'] });
+    qc.invalidateQueries({ queryKey: ['nominations'] });
+    qc.invalidateQueries({ queryKey: ['my-nominations'] });
+    qc.invalidateQueries({ queryKey: ['received-nominations'] });
+    qc.invalidateQueries({ queryKey: ['votes'] });
+    qc.invalidateQueries({ queryKey: ['endorsements'] });
+    qc.invalidateQueries({ queryKey: ['award-themes'] });
+    qc.invalidateQueries({ queryKey: ['judging-criteria'] });
+    qc.invalidateQueries({ queryKey: ['theme-results'] });
+    qc.invalidateQueries({ queryKey: ['pending-approvals'] });
+  };
+
+  const restoreCycle = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('award_cycles')
+        .update({ deleted_at: null })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidateAllRecognition();
+      toast.success(t('recognition.cycles.restoreSuccess'));
+    },
+    onError: () => toast.error(t('recognition.cycles.restoreError')),
+  });
+
   const deleteCycle = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -133,22 +161,20 @@ export function useAwardCycles() {
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', id);
       if (error) throw error;
+      return id;
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['award-cycles'] });
-      qc.invalidateQueries({ queryKey: ['nominations'] });
-      qc.invalidateQueries({ queryKey: ['my-nominations'] });
-      qc.invalidateQueries({ queryKey: ['received-nominations'] });
-      qc.invalidateQueries({ queryKey: ['votes'] });
-      qc.invalidateQueries({ queryKey: ['endorsements'] });
-      qc.invalidateQueries({ queryKey: ['award-themes'] });
-      qc.invalidateQueries({ queryKey: ['judging-criteria'] });
-      qc.invalidateQueries({ queryKey: ['theme-results'] });
-      qc.invalidateQueries({ queryKey: ['pending-approvals'] });
-      toast.success(t('recognition.cycles.deleteSuccess'));
+    onSuccess: (_data, deletedId) => {
+      invalidateAllRecognition();
+      toast.success(t('recognition.cycles.deleteSuccess'), {
+        action: {
+          label: t('recognition.cycles.undo'),
+          onClick: () => restoreCycle.mutate(deletedId),
+        },
+        duration: 8000,
+      });
     },
     onError: () => toast.error(t('recognition.cycles.deleteError')),
   });
 
-  return { cycles, isPending, createCycle, updateCycle, advanceStatus, deleteCycle };
+  return { cycles, isPending, createCycle, updateCycle, advanceStatus, deleteCycle, restoreCycle };
 }
