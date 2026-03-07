@@ -55,6 +55,8 @@ export default function RecognitionMonitor() {
     deptApprovalStats,
   } = useRecognitionMonitor(selectedCycleId);
 
+  const { themeFairness } = useFairnessSummary(selectedCycleId);
+
   return (
     <div>
       <PageHeader
@@ -114,6 +116,10 @@ export default function RecognitionMonitor() {
                   </TabsTrigger>
                 )}
                 <TabsTrigger value="voting">{t('recognition.monitor.votingTab')}</TabsTrigger>
+                <TabsTrigger value="fairness">
+                  <Scale className="h-3.5 w-3.5 me-1" />
+                  {t('recognition.monitor.fairnessTab')}
+                </TabsTrigger>
               </TabsList>
 
               {/* ── Nominations Tab ── */}
