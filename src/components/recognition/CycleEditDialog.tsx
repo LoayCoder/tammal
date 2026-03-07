@@ -33,14 +33,15 @@ const DEFAULT_FAIRNESS: FairnessSettings = {
 
 function parseFairnessConfig(config: Record<string, any> | null): FairnessSettings {
   if (!config) return { ...DEFAULT_FAIRNESS };
-  const bd = (config as FairnessConfig).biasDetection ?? {};
-  const au = (config as FairnessConfig).auditSettings ?? {};
+  const fc = config as Record<string, any>;
+  const bd = (fc.biasDetection ?? {}) as Record<string, any>;
+  const au = (fc.auditSettings ?? {}) as Record<string, any>;
   return {
-    cliqueThreshold: bd.cliqueThreshold ?? DEFAULT_FAIRNESS.cliqueThreshold,
-    demographicParityTarget: bd.demographicParityTarget ?? DEFAULT_FAIRNESS.demographicParityTarget,
-    visibilityBiasCorrection: bd.visibilityBiasCorrection ?? DEFAULT_FAIRNESS.visibilityBiasCorrection,
-    publishRawScores: au.publishRawScores ?? DEFAULT_FAIRNESS.publishRawScores,
-    allowAppeals: au.allowAppeals ?? DEFAULT_FAIRNESS.allowAppeals,
+    cliqueThreshold: (bd.cliqueThreshold as number) ?? DEFAULT_FAIRNESS.cliqueThreshold,
+    demographicParityTarget: (bd.demographicParityTarget as number) ?? DEFAULT_FAIRNESS.demographicParityTarget,
+    visibilityBiasCorrection: (bd.visibilityBiasCorrection as boolean) ?? DEFAULT_FAIRNESS.visibilityBiasCorrection,
+    publishRawScores: (au.publishRawScores as boolean) ?? DEFAULT_FAIRNESS.publishRawScores,
+    allowAppeals: (au.allowAppeals as boolean) ?? DEFAULT_FAIRNESS.allowAppeals,
   };
 }
 
