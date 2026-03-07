@@ -3,17 +3,70 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Trophy, Calendar, Users, Vote } from 'lucide-react';
-import { useAwardCycles } from '@/hooks/recognition/useAwardCycles';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Plus, Trophy, Calendar, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { useAwardCycles, type AwardCycle } from '@/hooks/recognition/useAwardCycles';
 import { CycleStatusBadge } from '@/components/recognition/CycleStatusBadge';
 import { CycleTimeline } from '@/components/recognition/CycleTimeline';
 import { CycleBuilder } from '@/components/recognition/CycleBuilder';
+import { CycleEditDialog } from '@/components/recognition/CycleEditDialog';
+import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
+import { useConfirmDelete } from '@/shared/dialogs/useConfirmDelete';
+import { isInProcessStatus, getImpactWarning } from '@/lib/recognition-utils';
 import { format } from 'date-fns';
 
 export default function RecognitionManagement() {
   const { t } = useTranslation();
-  const { cycles, isPending } = useAwardCycles();
+  const { cycles, isPending, deleteCycle } = useAwardCycles();
   const [showBuilder, setShowBuilder] = useState(false);
+  const [editingCycle, setEditingCycle] = useState<AwardCycle | null>(null);
+
+  // Impact alert state for in-process edit/delete
+  const [impactAction, setImpactAction] = useState<{ type: 'edit' | 'delete'; cycle: AwardCycle } | null>(null);
+
+  const { isOpen: isDeleteOpen, deleteId, requestDelete, setOpen: setDeleteOpen, confirm: confirmDeleteAction } = useConfirmDelete();
+
+  const handleEditClick = (cycle: AwardCycle) => {
+    if (isInProcessStatus(cycle.status)) {
+      setImpactAction({ type: 'edit', cycle });
+    } else {
+      setEditingCycle(cycle);
+    }
+  };
+
+  const handleDeleteClick = (cycle: AwardCycle) => {
+    if (isInProcessStatus(cycle.status)) {
+      setImpactAction({ type: 'delete', cycle });
+    } else {
+      requestDelete(cycle.id);
+    }
+  };
+
+  const handleImpactProceed = () => {
+    if (!impactAction) return;
+    if (impactAction.type === 'edit') {
+      setEditingCycle(impactAction.cycle);
+    } else {
+      requestDelete(impactAction.cycle.id);
+    }
+    setImpactAction(null);
+  };
+
+  const deleteDescription = deleteId
+    ? (() => {
+        const cycle = cycles.find((c) => c.id === deleteId);
+        if (cycle && isInProcessStatus(cycle.status)) {
+          const warning = getImpactWarning(cycle.status, t);
+          return `${t('recognition.cycles.confirmDeleteDescription')} ${warning ?? ''}`;
+        }
+        return t('recognition.cycles.confirmDeleteDescription');
+      })()
+    : t('recognition.cycles.confirmDeleteDescription');
 
   if (showBuilder) {
     return (
@@ -65,7 +118,29 @@ export default function RecognitionManagement() {
                     <CardTitle className="text-lg">{cycle.name}</CardTitle>
                     <CardDescription>{t('recognition.cycles.createdAt', { date: format(new Date(cycle.created_at), 'MMM d, yyyy') })}</CardDescription>
                   </div>
-                  <CycleStatusBadge status={cycle.status as any} />
+                  <div className="flex items-center gap-2">
+                    <CycleStatusBadge status={cycle.status as any} />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEditClick(cycle)}>
+                          <Pencil className="h-4 w-4 me-2" />
+                          {t('recognition.cycles.edit')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => handleDeleteClick(cycle)}
+                        >
+                          <Trash2 className="h-4 w-4 me-2" />
+                          {t('recognition.cycles.delete')}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -81,6 +156,43 @@ export default function RecognitionManagement() {
           ))}
         </div>
       )}
+
+      {/* Edit Dialog */}
+      <CycleEditDialog
+        cycle={editingCycle}
+        open={!!editingCycle}
+        onOpenChange={(open) => { if (!open) setEditingCycle(null); }}
+      />
+
+      {/* Delete Confirm */}
+      <ConfirmDialog
+        open={isDeleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={t('recognition.cycles.confirmDelete')}
+        description={deleteDescription}
+        onConfirm={() => confirmDeleteAction((id) => deleteCycle.mutate(id))}
+        loading={deleteCycle.isPending}
+        destructive
+      />
+
+      {/* Impact Alert for in-process cycles */}
+      <ConfirmDialog
+        open={!!impactAction}
+        onOpenChange={(open) => { if (!open) setImpactAction(null); }}
+        title={t('recognition.cycles.impactAlert.title')}
+        description={
+          impactAction
+            ? `${impactAction.type === 'edit'
+                ? t('recognition.cycles.impactAlert.editDescription')
+                : t('recognition.cycles.impactAlert.deleteDescription')
+              } ${getImpactWarning(impactAction.cycle.status, t) ?? ''}`
+            : ''
+        }
+        confirmLabel={t('recognition.cycles.impactAlert.proceed')}
+        cancelLabel={t('recognition.cycles.impactAlert.cancel')}
+        onConfirm={handleImpactProceed}
+        destructive={impactAction?.type === 'delete'}
+      />
     </div>
   );
 }
