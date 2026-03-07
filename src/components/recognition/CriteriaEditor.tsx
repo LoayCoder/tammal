@@ -23,6 +23,7 @@ export function CriteriaEditor({ themeId }: CriteriaEditorProps) {
   const [newDescription, setNewDescription] = useState('');
 
   const totalWeight = criteria.reduce((sum, c) => sum + Number(c.weight), 0);
+  const projectedTotal = totalWeight + newWeight;
 
   const handleAdd = () => {
     createCriterion.mutate({
