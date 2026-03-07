@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Activity, Users, Building2, Vote, CheckCircle, XCircle } from 'lucide-react';
+import { Activity, Users, Building2, Vote, CheckCircle, XCircle, ShieldCheck, Clock, ShieldX } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
