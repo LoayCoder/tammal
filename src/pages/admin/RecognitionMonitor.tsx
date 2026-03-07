@@ -102,6 +102,15 @@ export default function RecognitionMonitor() {
             <Tabs defaultValue="nominations">
               <TabsList>
                 <TabsTrigger value="nominations">{t('recognition.monitor.nominationsTab')}</TabsTrigger>
+                {allowAppeals && (
+                  <TabsTrigger value="approvals">
+                    <ShieldCheck className="h-3.5 w-3.5 me-1" />
+                    {t('recognition.monitor.approvalsTab', 'Manager Approvals')}
+                    {pendingApprovals > 0 && (
+                      <Badge variant="destructive" className="ms-1.5 text-xs px-1.5 py-0">{pendingApprovals}</Badge>
+                    )}
+                  </TabsTrigger>
+                )}
                 <TabsTrigger value="voting">{t('recognition.monitor.votingTab')}</TabsTrigger>
               </TabsList>
 
