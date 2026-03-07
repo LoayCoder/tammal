@@ -483,7 +483,7 @@ export default function RecognitionMonitor() {
                 <Separator />
 
                 {/* Theme, Status, Endorsement */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className={cn("grid gap-4", allowAppeals ? "grid-cols-4" : "grid-cols-3")}>
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.theme')}</h4>
                     <p className="font-medium">{selectedNomination.themeName}</p>
@@ -496,6 +496,18 @@ export default function RecognitionMonitor() {
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.endorsementStatus')}</h4>
                     <Badge variant="secondary">{selectedNomination.endorsementStatus}</Badge>
                   </div>
+                  {allowAppeals && (
+                    <div>
+                      <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.managerApproval', 'Manager Approval')}</h4>
+                      <Badge variant={
+                        selectedNomination.managerApprovalStatus === 'approved' ? 'default' :
+                        selectedNomination.managerApprovalStatus === 'rejected' ? 'destructive' :
+                        selectedNomination.managerApprovalStatus === 'pending' ? 'secondary' : 'outline'
+                      }>
+                        {selectedNomination.managerApprovalStatus}
+                      </Badge>
+                    </div>
+                  )}
                 </div>
 
                 <Separator />
