@@ -78,7 +78,7 @@ export function useRecognitionMonitor(cycleId: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('nominations')
-        .select('id, nominee_id, nominator_id, nominator_role, theme_id, nominee_department_id, nominator_department_id, status, submitted_at, headline, justification, specific_examples, impact_metrics, endorsement_status')
+        .select('id, nominee_id, nominator_id, nominator_role, theme_id, nominee_department_id, nominator_department_id, status, submitted_at, headline, justification, specific_examples, impact_metrics, endorsement_status, manager_approval_status')
         .eq('cycle_id', cycleId)
         .is('deleted_at', null);
       if (error) throw error;
@@ -262,6 +262,7 @@ export function useRecognitionMonitor(cycleId: string) {
         specificExamples: toStringArray(n.specific_examples),
         impactMetrics: toStringArray(n.impact_metrics),
         endorsementStatus: n.endorsement_status ?? 'pending',
+        managerApprovalStatus: n.manager_approval_status ?? 'not_required',
       };
     });
 
