@@ -7,27 +7,31 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, Trophy, Calendar, MoreVertical, Pencil, Trash2 } from 'lucide-react';
-import { useAwardCycles, type AwardCycle } from '@/hooks/recognition/useAwardCycles';
+import { Plus, Trophy, Calendar, MoreVertical, Pencil, Trash2, ChevronRight } from 'lucide-react';
+import { useAwardCycles, type AwardCycle, type CycleStatus } from '@/hooks/recognition/useAwardCycles';
 import { CycleStatusBadge } from '@/components/recognition/CycleStatusBadge';
 import { CycleTimeline } from '@/components/recognition/CycleTimeline';
 import { CycleBuilder } from '@/components/recognition/CycleBuilder';
 import { CycleEditDialog } from '@/components/recognition/CycleEditDialog';
 import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
 import { useConfirmDelete } from '@/shared/dialogs/useConfirmDelete';
-import { isInProcessStatus, getImpactWarning } from '@/lib/recognition-utils';
+import { isInProcessStatus, getImpactWarning, getNextStatus } from '@/lib/recognition-utils';
 import { format } from 'date-fns';
 
 export default function RecognitionManagement() {
   const { t } = useTranslation();
-  const { cycles, isPending, deleteCycle } = useAwardCycles();
+  const { cycles, isPending, deleteCycle, advanceStatus } = useAwardCycles();
   const [showBuilder, setShowBuilder] = useState(false);
   const [editingCycle, setEditingCycle] = useState<AwardCycle | null>(null);
 
   // Impact alert state for in-process edit/delete
   const [impactAction, setImpactAction] = useState<{ type: 'edit' | 'delete'; cycle: AwardCycle } | null>(null);
+
+  // Advance status confirmation
+  const [advanceTarget, setAdvanceTarget] = useState<{ cycle: AwardCycle; nextStatus: CycleStatus } | null>(null);
 
   const { isOpen: isDeleteOpen, deleteId, requestDelete, setOpen: setDeleteOpen, confirm: confirmDeleteAction } = useConfirmDelete();
 
@@ -55,6 +59,23 @@ export default function RecognitionManagement() {
       requestDelete(impactAction.cycle.id);
     }
     setImpactAction(null);
+  };
+
+  const handleAdvanceClick = (cycle: AwardCycle) => {
+    const nextStatus = getNextStatus(cycle.status);
+    if (nextStatus) {
+      setAdvanceTarget({ cycle, nextStatus });
+    }
+  };
+
+  const handleAdvanceConfirm = () => {
+    if (!advanceTarget) return;
+    advanceStatus.mutate({
+      id: advanceTarget.cycle.id,
+      currentStatus: advanceTarget.cycle.status,
+      newStatus: advanceTarget.nextStatus,
+    });
+    setAdvanceTarget(null);
   };
 
   const deleteDescription = deleteId
@@ -110,50 +131,74 @@ export default function RecognitionManagement() {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {cycles.map((cycle) => (
-            <Card key={cycle.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{cycle.name}</CardTitle>
-                    <CardDescription>{t('recognition.cycles.createdAt', { date: format(new Date(cycle.created_at), 'MMM d, yyyy') })}</CardDescription>
+          {cycles.map((cycle) => {
+            const nextStatus = getNextStatus(cycle.status);
+            return (
+              <Card key={cycle.id} className="hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{cycle.name}</CardTitle>
+                      <CardDescription>{t('recognition.cycles.createdAt', { date: format(new Date(cycle.created_at), 'MMM d, yyyy') })}</CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CycleStatusBadge status={cycle.status as any} />
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {nextStatus && (
+                            <>
+                              <DropdownMenuItem onClick={() => handleAdvanceClick(cycle)}>
+                                <ChevronRight className="h-4 w-4 me-2" />
+                                {t('recognition.cycles.advanceTo', { status: t(`recognition.status.${nextStatus}`) })}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                            </>
+                          )}
+                          <DropdownMenuItem onClick={() => handleEditClick(cycle)}>
+                            <Pencil className="h-4 w-4 me-2" />
+                            {t('recognition.cycles.edit')}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => handleDeleteClick(cycle)}
+                          >
+                            <Trash2 className="h-4 w-4 me-2" />
+                            {t('recognition.cycles.delete')}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CycleStatusBadge status={cycle.status as any} />
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEditClick(cycle)}>
-                          <Pencil className="h-4 w-4 me-2" />
-                          {t('recognition.cycles.edit')}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive focus:text-destructive"
-                          onClick={() => handleDeleteClick(cycle)}
-                        >
-                          <Trash2 className="h-4 w-4 me-2" />
-                          {t('recognition.cycles.delete')}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                </CardHeader>
+                <CardContent>
+                  <CycleTimeline cycle={cycle} />
+                  <div className="flex items-center justify-between mt-4">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3.5 w-3.5" />
+                        <span>{t('recognition.cycles.auditDaysLabel', { days: cycle.audit_review_days })}</span>
+                      </div>
+                    </div>
+                    {nextStatus && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleAdvanceClick(cycle)}
+                      >
+                        <ChevronRight className="h-3.5 w-3.5 me-1" />
+                        {t('recognition.cycles.advanceTo', { status: t(`recognition.status.${nextStatus}`) })}
+                      </Button>
+                    )}
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <CycleTimeline cycle={cycle} />
-                <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5" />
-                    <span>{t('recognition.cycles.auditDaysLabel', { days: cycle.audit_review_days })}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
 
@@ -192,6 +237,26 @@ export default function RecognitionManagement() {
         cancelLabel={t('recognition.cycles.impactAlert.cancel')}
         onConfirm={handleImpactProceed}
         destructive={impactAction?.type === 'delete'}
+      />
+
+      {/* Advance Status Confirm */}
+      <ConfirmDialog
+        open={!!advanceTarget}
+        onOpenChange={(open) => { if (!open) setAdvanceTarget(null); }}
+        title={t('recognition.cycles.confirmAdvance')}
+        description={
+          advanceTarget
+            ? t('recognition.cycles.confirmAdvanceDescription', {
+                status: t(`recognition.status.${advanceTarget.nextStatus}`),
+              })
+            : ''
+        }
+        confirmLabel={t('recognition.cycles.advanceTo', {
+          status: advanceTarget ? t(`recognition.status.${advanceTarget.nextStatus}`) : '',
+        })}
+        onConfirm={handleAdvanceConfirm}
+        loading={advanceStatus.isPending}
+        destructive={false}
       />
     </div>
   );

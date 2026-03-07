@@ -3219,6 +3219,9 @@
       "deleteSuccess": "Award cycle deleted",
       "deleteError": "Failed to delete award cycle",
       "statusAdvanced": "Cycle status advanced",
+      "advanceTo": "Advance to {{status}}",
+      "confirmAdvance": "Advance Cycle Status",
+      "confirmAdvanceDescription": "Are you sure you want to advance this cycle to \"{{status}}\"? This action will change the cycle phase and may enable new participant actions."
       "edit": "Edit Cycle",
       "delete": "Delete Cycle",
       "editCycle": "Edit Award Cycle",
