@@ -3328,7 +3328,8 @@
       "updateSuccess": "Criterion updated",
       "updateError": "Failed to update criterion",
       "deleteSuccess": "Criterion removed",
-      "deleteError": "Failed to remove criterion"
+      "deleteError": "Failed to remove criterion",
+      "edit": "Edit"
     },
     "timeline": {
       "nominationStart": "Nominations Open",
