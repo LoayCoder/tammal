@@ -18,7 +18,8 @@ export function CriteriaEditor({ themeId }: CriteriaEditorProps) {
   const { criteria, isPending: isLoading, createCriterion, updateCriterion, deleteCriterion } = useJudgingCriteria(themeId);
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState('');
-  const [newWeight, setNewWeight] = useState(0.25);
+  const remainingWeight = Math.max(0.05, 1 - criteria.reduce((sum, c) => sum + Number(c.weight), 0));
+  const [newWeight, setNewWeight] = useState(Math.min(0.25, remainingWeight));
   const [newDescription, setNewDescription] = useState('');
 
   const totalWeight = criteria.reduce((sum, c) => sum + Number(c.weight), 0);
