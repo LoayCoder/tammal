@@ -146,7 +146,7 @@ export default function MyNominationsPage() {
                     nomination={n}
                     nomineeName={employeeMap[n.nominee_id]}
                     nominatorName={employeeMap[n.nominator_id]}
-                    onApprove={id => approveNomination.mutate(id)}
+                    onApprove={(id, adj) => approveNomination.mutate({ id, criteriaAdjustments: adj })}
                     onReject={(id, reason) => rejectNomination.mutate({ id, reason })}
                     isApproving={approveNomination.isPending}
                     isRejecting={rejectNomination.isPending}

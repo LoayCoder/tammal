@@ -3177,7 +3177,25 @@
       "demographicParity": "هدف التكافؤ الديموغرافي",
       "visibilityBias": "تصحيح تحيز الظهور",
       "publishRawScores": "نشر الدرجات الخام",
-      "allowAppeals": "السماح بالطعون"
+      "allowAppeals": "السماح بالطعون",
+      "votingWeightAdjustmentLimit": "حد تعديل أوزان التصويت",
+      "votingWeightAdjustmentLimitDesc": "مقدار ما يمكن للمصوتين تعديله من الأوزان الافتراضية للمعايير أثناء التصويت"
+    },
+    "criteriaEval": {
+      "title": "تقييم المعايير",
+      "desc": "وزّع الأوزان على معايير التقييم وقدّم مبرراً لكل معيار",
+      "weightDistribution": "توزيع الأوزان",
+      "mustEqual100": "يجب أن يساوي إجمالي أوزان المعايير 100%",
+      "justification": "المبرر",
+      "justificationPlaceholder": "اشرح سبب ترجيح هذا المعيار بهذا الشكل لهذا المرشح...",
+      "noCriteria": "لم يتم تحديد معايير تحكيم لهذا الموضوع بعد",
+      "original": "الأصلي",
+      "nomination": "الترشيح",
+      "manager": "المدير",
+      "votingAvg": "متوسط التصويت",
+      "fairnessSummary": "ملخص أوزان النزاهة",
+      "viewAdjustCriteria": "عرض وتعديل أوزان المعايير",
+      "hideCriteria": "إخفاء أوزان المعايير"
     },
     "nominations": {
       "nominate": "ترشيح",
@@ -3226,6 +3244,7 @@
       "steps": {
         "select_nominee": "المرشح",
         "justification": "المبررات",
+        "criteria_evaluation": "المعايير",
         "endorsements": "التزكيات",
         "review": "مراجعة"
       },
@@ -3303,7 +3322,10 @@
       "extremeScoreRequired": "التبرير مطلوب للدرجات القصوى (1 أو 5)",
       "extremeScoreJustification": "الدرجات 1 أو 5 تتطلب 50 حرفاً على الأقل من التبرير",
       "justificationPlaceholder": "اشرح سبب منحك هذه الدرجة القصوى...",
-      "charsMin": "حرف كحد أدنى"
+      "charsMin": "حرف كحد أدنى",
+      "adjustWeights": "تعديل أوزان المعايير",
+      "rateCriteria": "قيّم كل معيار",
+      "alreadyVoted": "لقد صوّتت بالفعل لهذا الترشيح"
     },
     "results": {
       "title": "نتائج التقدير",

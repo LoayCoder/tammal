@@ -3716,6 +3716,61 @@ export type Database = {
           },
         ]
       }
+      nomination_criteria_evaluations: {
+        Row: {
+          created_at: string | null
+          criterion_id: string
+          deleted_at: string | null
+          id: string
+          justification: string | null
+          nomination_id: string
+          tenant_id: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string | null
+          criterion_id: string
+          deleted_at?: string | null
+          id?: string
+          justification?: string | null
+          nomination_id: string
+          tenant_id: string
+          weight: number
+        }
+        Update: {
+          created_at?: string | null
+          criterion_id?: string
+          deleted_at?: string | null
+          id?: string
+          justification?: string | null
+          nomination_id?: string
+          tenant_id?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nomination_criteria_evaluations_criterion_id_fkey"
+            columns: ["criterion_id"]
+            isOneToOne: false
+            referencedRelation: "judging_criteria"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nomination_criteria_evaluations_nomination_id_fkey"
+            columns: ["nomination_id"]
+            isOneToOne: false
+            referencedRelation: "nominations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nomination_criteria_evaluations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       nominations: {
         Row: {
           ai_analysis: Json | null
@@ -3732,6 +3787,7 @@ export type Database = {
           manager_approval_status: string
           manager_approved_by: string | null
           manager_assessment: Json | null
+          manager_criteria_adjustments: Json | null
           manager_rejection_reason: string | null
           nominator_department_id: string | null
           nominator_id: string
@@ -3761,6 +3817,7 @@ export type Database = {
           manager_approval_status?: string
           manager_approved_by?: string | null
           manager_assessment?: Json | null
+          manager_criteria_adjustments?: Json | null
           manager_rejection_reason?: string | null
           nominator_department_id?: string | null
           nominator_id: string
@@ -3790,6 +3847,7 @@ export type Database = {
           manager_approval_status?: string
           manager_approved_by?: string | null
           manager_assessment?: Json | null
+          manager_criteria_adjustments?: Json | null
           manager_rejection_reason?: string | null
           nominator_department_id?: string | null
           nominator_id?: string
@@ -7687,6 +7745,67 @@ export type Database = {
             columns: ["validation_question_id"]
             isOneToOne: false
             referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vote_criteria_evaluations: {
+        Row: {
+          adjusted_weight: number
+          created_at: string | null
+          criterion_id: string
+          deleted_at: string | null
+          id: string
+          justification: string | null
+          original_weight: number
+          rating: number
+          tenant_id: string
+          vote_id: string
+        }
+        Insert: {
+          adjusted_weight: number
+          created_at?: string | null
+          criterion_id: string
+          deleted_at?: string | null
+          id?: string
+          justification?: string | null
+          original_weight: number
+          rating: number
+          tenant_id: string
+          vote_id: string
+        }
+        Update: {
+          adjusted_weight?: number
+          created_at?: string | null
+          criterion_id?: string
+          deleted_at?: string | null
+          id?: string
+          justification?: string | null
+          original_weight?: number
+          rating?: number
+          tenant_id?: string
+          vote_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vote_criteria_evaluations_criterion_id_fkey"
+            columns: ["criterion_id"]
+            isOneToOne: false
+            referencedRelation: "judging_criteria"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vote_criteria_evaluations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vote_criteria_evaluations_vote_id_fkey"
+            columns: ["vote_id"]
+            isOneToOne: false
+            referencedRelation: "votes"
             referencedColumns: ["id"]
           },
         ]

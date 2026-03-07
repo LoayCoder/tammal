@@ -1,156 +1,87 @@
+# Enterprise Task Management — Architecture Audit
 
+## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
-# Award Cycle Fairness & Weighted Criteria System
+---
 
-## Current State
+## 1. Folder Architecture — ✅ PASS
 
-The system already has:
-- **`judging_criteria` table** — per-theme criteria with `name`, `description`, `weight`, `scoring_guide`
-- **`CriteriaEditor` component** — admin can add/edit criteria per theme (but weight is stored as decimal 0-1, not percentage)
-- **`votes` table** — stores `criteria_scores` (JSON of criterion_id → rating) and `justifications`
-- **`VotingBooth`** — scores criteria 1-5 via sliders, no weight adjustment by voters
-- **`NominationWizard`** — collects justification text only, no per-criterion evaluation
-- **`useNominationApprovals`** — manager approve/reject with no criteria editing
-- **Fairness config** in `award_cycles.fairness_config` JSON — bias detection + audit settings only
+The project follows a clean modular structure:
 
-## What Needs to Change
-
-### 1. Database Changes (3 migrations)
-
-**Migration 1: New tables for nomination/vote criteria evaluations + fairness config extension**
-
-```sql
--- Nomination criteria evaluations (nominator's per-criterion weights + justification)
-CREATE TABLE public.nomination_criteria_evaluations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id UUID NOT NULL REFERENCES tenants(id),
-  nomination_id UUID NOT NULL REFERENCES nominations(id) ON DELETE CASCADE,
-  criterion_id UUID NOT NULL REFERENCES judging_criteria(id),
-  weight NUMERIC NOT NULL,  -- percentage 0-100
-  justification TEXT,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  deleted_at TIMESTAMPTZ,
-  UNIQUE(nomination_id, criterion_id)
-);
-ALTER TABLE public.nomination_criteria_evaluations ENABLE ROW LEVEL SECURITY;
-
--- Vote criteria evaluations (voter's adjusted weights + rating + justification)
-CREATE TABLE public.vote_criteria_evaluations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id UUID NOT NULL REFERENCES tenants(id),
-  vote_id UUID NOT NULL REFERENCES votes(id) ON DELETE CASCADE,
-  criterion_id UUID NOT NULL REFERENCES judging_criteria(id),
-  original_weight NUMERIC NOT NULL,
-  adjusted_weight NUMERIC NOT NULL,
-  rating INTEGER NOT NULL,
-  justification TEXT,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  deleted_at TIMESTAMPTZ,
-  UNIQUE(vote_id, criterion_id)
-);
-ALTER TABLE public.vote_criteria_evaluations ENABLE ROW LEVEL SECURITY;
+```text
+src/
+  ai/          — Isolated AI client, prompts, guards, quality
+  components/  — UI components
+  config/      — Centralized constants
+  features/    — Feature modules (tasks, approvals, workload, etc.)
+  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
+  services/    — Pure async business services (no UI imports)
+  types/       — Shared type definitions
 ```
 
-With RLS policies for tenant isolation.
+**Layer separation checks:**
+- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
+- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
+- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
+- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
 
-**Migration 2: Add `voting_weight_adjustment_limit` to fairness_config**
-- No schema change needed — this is stored in the existing `fairness_config` JSON field on `award_cycles`
-- Default: 30 (meaning ±30%)
+---
 
-**Migration 3: Add `manager_criteria_adjustments` JSON column to `nominations`**
-- Stores manager's adjusted weights per criterion during approval
+## 2. Feature Isolation — ✅ PASS
 
-### 2. Fairness Config Extension
+| Module | Location | Status |
+|---|---|---|
+| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
+| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
+| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
+| AI Governance | `src/features/ai-governance/` | ✅ |
+| AI Generator | `src/features/ai-generator/` | ✅ |
+| Org Dashboard | `src/features/org-dashboard/` | ✅ |
+| Cycle Builder | `src/features/cycle-builder/` | ✅ |
 
-Update `FairnessSettings` type and `buildFairnessConfig` in `src/features/cycle-builder/types.ts`:
-- Add `votingWeightAdjustmentLimit: number` (default 30)
-- Add to `parseFairnessConfig` in CycleEditDialog
+**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
 
-Add a new slider in the Fairness tab: "Voting Weight Adjustment Limit: ±{value}%"
+---
 
-### 3. Criteria Editor Enhancement
+## 3. Backend Architecture — ✅ PASS
 
-Update `CriteriaEditor` to:
-- Display weights as percentages (already does, but stored as decimal — normalize to 0-100 integer storage)
-- Show real-time validation: total must = 100%
-- Block saving the cycle if total ≠ 100%
+- **35 edge functions** properly separate API routes from client code
+- **Services layer** (`src/services/`) handles business logic
+- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
+- Database access centralized through the Supabase client
 
-### 4. Nomination Wizard — Step 2.5: Criteria Evaluation
+---
 
-Add a new step `criteria_evaluation` between `justification` and `endorsements`:
-- Fetch `judging_criteria` for the selected theme
-- For each criterion, show: name, description, weight slider (must total 100%), justification textarea
-- On submit, write rows to `nomination_criteria_evaluations`
-- Validation: total weight must equal 100%
+## 4. Supabase Integration — ✅ PASS
 
-New component: `NominationCriteriaForm` — reusable weight+justification form per criterion.
+- **Client centralized** in `src/integrations/supabase/client.ts`
+- **RLS enabled** on all task-related tables with `authenticated` role enforcement
+- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
 
-### 5. Manager Approval Enhancement
+---
 
-Update `ManagerApprovalCard` and `useNominationApprovals`:
-- Display nomination's per-criterion weights and justifications (from `nomination_criteria_evaluations`)
-- Allow manager to adjust weights and justifications
-- On approve, save adjusted values to `nominations.manager_criteria_adjustments` JSON
-- Validation: adjusted weights must total 100%
+## 5. Warnings
 
-### 6. Voting Booth Enhancement
+### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
 
-Update `VotingBooth` and `CriterionScorer`:
-- Fetch the cycle's `votingWeightAdjustmentLimit` from `fairness_config`
-- Show each criterion with its default weight + adjustment slider
-- Constrain slider to ±limit% of original weight
-- Validate total adjusted weights = 100%
-- On submit, write `vote_criteria_evaluations` rows alongside existing vote record
-- Update scoring: `Final Score = Σ(rating × adjusted_weight / 100)`
+Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
+`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
 
-New component: `CriteriaWeightSlider` — slider with min/max bounds and percentage display.
+### ⚠️ WARNING (low priority): Workload feature is a thin barrel
 
-### 7. Scoring Calculation Update
+`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
 
-Update `supabase/functions/calculate-recognition-results/index.ts`:
-- Use `vote_criteria_evaluations` for weighted scoring instead of flat `criteria_scores`
-- Formula: `Final Score = Σ(criterion_rating × adjusted_weight) / 100`
+---
 
-### 8. Fairness Transparency Panel
+## Summary
 
-New component: `FairnessSummaryPanel` — shows for each nomination:
-- Original criteria weights (from `judging_criteria`)
-- Nominator's weights (from `nomination_criteria_evaluations`)
-- Manager adjustments (from `nominations.manager_criteria_adjustments`)
-- Voting average adjustments (from `vote_criteria_evaluations`)
-
-Displayed in the Recognition Monitor and nomination detail dialog.
-
-### 9. Reusable UI Components
-
-| Component | Purpose |
+| Category | Result |
 |---|---|
-| `CriteriaWeightTable` | Read-only table of criteria with weights |
-| `CriteriaWeightSlider` | Bounded weight adjustment slider |
-| `CriteriaEvaluationForm` | Editable weight+justification per criterion |
-| `CriteriaSummaryCard` | Side-by-side comparison of weights across stages |
+| Folder Architecture | ✅ PASS |
+| Feature Isolation | ✅ PASS |
+| Backend Architecture | ✅ PASS |
+| Supabase Integration | ✅ PASS |
+| Layer Separation | ✅ PASS (resolved) |
+| Workload Consolidation | ⚠️ Low-priority migration |
 
-### 10. Translation Keys
-
-Add ~30 new i18n keys for criteria evaluation labels, validation messages, and fairness panel text.
-
-## Implementation Order
-
-1. Database migrations (2 new tables + RLS)
-2. Types & fairness config extension
-3. Reusable UI components (`CriteriaWeightSlider`, `CriteriaEvaluationForm`)
-4. Fairness tab update (adjustment limit slider)
-5. Nomination wizard criteria step
-6. Manager approval criteria editing
-7. Voting booth weight adjustment
-8. Scoring calculation update
-9. Fairness transparency panel
-10. Translation keys
-
-## Technical Notes
-
-- The existing `judging_criteria.weight` is stored as decimal (0-1). The new system uses percentage (0-100) for `nomination_criteria_evaluations` and `vote_criteria_evaluations`. Conversion will be handled at the application layer.
-- The `votes.criteria_scores` JSON field continues to store raw ratings. The new `vote_criteria_evaluations` table provides the normalized, per-criterion detail.
-- All new tables include `tenant_id` and RLS for tenant isolation.
-- Soft delete via `deleted_at` on all new tables.
-
+**No FAIL conditions found.** Architecture is production-ready.

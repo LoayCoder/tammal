@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { User, Calendar, CheckCircle, XCircle } from 'lucide-react';
+import { CriteriaEvaluationForm, isCriteriaWeightValid, type CriterionEvaluation } from './CriteriaEvaluationForm';
+import { User, Calendar, CheckCircle, XCircle, Scale } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Nomination } from '@/hooks/recognition/useNominations';
 
@@ -13,7 +15,8 @@ interface ManagerApprovalCardProps {
   nomination: Nomination;
   nomineeName?: string;
   nominatorName?: string;
-  onApprove: (id: string) => void;
+  criteriaEvaluations?: CriterionEvaluation[];
+  onApprove: (id: string, criteriaAdjustments?: Record<string, { weight: number; justification: string }>) => void;
   onReject: (id: string, reason: string) => void;
   isApproving?: boolean;
   isRejecting?: boolean;
@@ -23,6 +26,7 @@ export function ManagerApprovalCard({
   nomination,
   nomineeName,
   nominatorName,
+  criteriaEvaluations: initialCriteria,
   onApprove,
   onReject,
   isApproving,
@@ -31,6 +35,29 @@ export function ManagerApprovalCard({
   const { t } = useTranslation();
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [showCriteria, setShowCriteria] = useState(false);
+  const [adjustedCriteria, setAdjustedCriteria] = useState<CriterionEvaluation[]>([]);
+
+  useEffect(() => {
+    if (initialCriteria && initialCriteria.length > 0) {
+      setAdjustedCriteria(initialCriteria);
+    }
+  }, [initialCriteria]);
+
+  const hasCriteria = adjustedCriteria.length > 0;
+  const criteriaValid = !hasCriteria || isCriteriaWeightValid(adjustedCriteria);
+
+  const handleApprove = () => {
+    if (hasCriteria) {
+      const adjustments: Record<string, { weight: number; justification: string }> = {};
+      adjustedCriteria.forEach(c => {
+        adjustments[c.criterion_id] = { weight: c.weight, justification: c.justification };
+      });
+      onApprove(nomination.id, adjustments);
+    } else {
+      onApprove(nomination.id);
+    }
+  };
 
   return (
     <>
@@ -63,6 +90,30 @@ export function ManagerApprovalCard({
           )}
           <p className="text-sm text-muted-foreground line-clamp-3">{nomination.justification}</p>
 
+          {/* Criteria evaluation section */}
+          {hasCriteria && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => setShowCriteria(!showCriteria)}
+            >
+              <Scale className="h-4 w-4 me-1" />
+              {showCriteria
+                ? t('recognition.criteriaEval.hideCriteria')
+                : t('recognition.criteriaEval.viewAdjustCriteria')}
+            </Button>
+          )}
+
+          {showCriteria && hasCriteria && (
+            <div className="pt-2">
+              <CriteriaEvaluationForm
+                criteria={adjustedCriteria}
+                onChange={setAdjustedCriteria}
+              />
+            </div>
+          )}
+
           {nomination.submitted_at && (
             <span className="text-xs text-muted-foreground flex items-center gap-1">
               <Calendar className="h-3 w-3" />
@@ -73,8 +124,8 @@ export function ManagerApprovalCard({
           <div className="flex items-center gap-2 pt-2">
             <Button
               size="sm"
-              onClick={() => onApprove(nomination.id)}
-              disabled={isApproving || isRejecting}
+              onClick={handleApprove}
+              disabled={isApproving || isRejecting || !criteriaValid}
             >
               <CheckCircle className="h-4 w-4 me-1" />
               {t('recognition.nominations.approveNomination')}

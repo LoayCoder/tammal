@@ -3339,7 +3339,25 @@
       "demographicParity": "Demographic Parity Target",
       "visibilityBias": "Visibility Bias Correction",
       "publishRawScores": "Publish Raw Scores",
-      "allowAppeals": "Allow Appeals"
+      "allowAppeals": "Allow Appeals",
+      "votingWeightAdjustmentLimit": "Voting Weight Adjustment Limit",
+      "votingWeightAdjustmentLimitDesc": "How much voters can adjust the default criteria weights during voting"
+    },
+    "criteriaEval": {
+      "title": "Criteria Evaluation",
+      "desc": "Distribute weights across evaluation criteria and provide justification for each",
+      "weightDistribution": "Weight Distribution",
+      "mustEqual100": "Total criteria weight must equal 100%",
+      "justification": "Justification",
+      "justificationPlaceholder": "Explain why this criterion is weighted this way for this nominee...",
+      "noCriteria": "No judging criteria have been defined for this theme yet",
+      "original": "Original",
+      "nomination": "Nomination",
+      "manager": "Manager",
+      "votingAvg": "Voting Avg",
+      "fairnessSummary": "Fairness Weight Summary",
+      "viewAdjustCriteria": "View & Adjust Criteria Weights",
+      "hideCriteria": "Hide Criteria Weights"
     },
     "nominations": {
       "nominate": "Nominate",
@@ -3388,6 +3406,7 @@
       "steps": {
         "select_nominee": "Nominee",
         "justification": "Justification",
+        "criteria_evaluation": "Criteria",
         "endorsements": "Endorsements",
         "review": "Review"
       },
@@ -3465,7 +3484,10 @@
       "extremeScoreRequired": "Justification required for extreme scores (1 or 5)",
       "extremeScoreJustification": "Scores of 1 or 5 require at least 50 characters of justification",
       "justificationPlaceholder": "Explain why you gave this extreme score...",
-      "charsMin": "characters minimum"
+      "charsMin": "characters minimum",
+      "adjustWeights": "Adjust Criteria Weights",
+      "rateCriteria": "Rate Each Criterion",
+      "alreadyVoted": "You have already voted for this nomination"
     },
     "results": {
       "title": "Recognition Results",

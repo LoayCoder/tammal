@@ -64,17 +64,21 @@ export function useNominationApprovals() {
   });
 
   const approveNomination = useMutation({
-    mutationFn: async (nominationId: string) => {
+    mutationFn: async ({ id, criteriaAdjustments }: { id: string; criteriaAdjustments?: Record<string, { weight: number; justification: string }> }) => {
       if (!user?.id) throw new Error('Not authenticated');
+      const updateData: Record<string, any> = {
+        manager_approval_status: 'approved',
+        manager_approved_by: user.id,
+        manager_approval_at: new Date().toISOString(),
+        status: 'endorsed',
+      };
+      if (criteriaAdjustments) {
+        updateData.manager_criteria_adjustments = criteriaAdjustments;
+      }
       const { error } = await supabase
         .from('nominations')
-        .update({
-          manager_approval_status: 'approved',
-          manager_approved_by: user.id,
-          manager_approval_at: new Date().toISOString(),
-          status: 'endorsed',
-        })
-        .eq('id', nominationId);
+        .update(updateData)
+        .eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {

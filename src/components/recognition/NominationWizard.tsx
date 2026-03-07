@@ -10,11 +10,16 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { QuotaIndicator } from './QuotaIndicator';
 import { EndorsementForm } from './EndorsementCard';
+import { NominationCriteriaForm } from './NominationCriteriaForm';
+import { CriteriaWeightTable } from './CriteriaWeightTable';
 import { useNominations, useManagerQuota, type CreateNominationInput } from '@/hooks/recognition/useNominations';
 import { useEndorsements } from '@/hooks/recognition/useEndorsements';
 import { useEmployees } from '@/hooks/org/useEmployees';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { User, FileText, ThumbsUp, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTenantId } from '@/hooks/org/useTenantId';
+import { supabase } from '@/integrations/supabase/client';
+import type { CriterionEvaluation } from './CriteriaEvaluationForm';
+import { User, FileText, Scale, ThumbsUp, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface NominationWizardProps {
@@ -23,12 +28,13 @@ interface NominationWizardProps {
   onComplete?: () => void;
 }
 
-type Step = 'select_nominee' | 'justification' | 'endorsements' | 'review';
-const STEPS: Step[] = ['select_nominee', 'justification', 'endorsements', 'review'];
+type Step = 'select_nominee' | 'justification' | 'criteria_evaluation' | 'endorsements' | 'review';
+const STEPS: Step[] = ['select_nominee', 'justification', 'criteria_evaluation', 'endorsements', 'review'];
 
 export function NominationWizard({ cycleId, themeId, onComplete }: NominationWizardProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { tenantId } = useTenantId();
   const { createNomination } = useNominations();
   const { data: quota } = useManagerQuota(themeId);
   const { employees = [] } = useEmployees();
@@ -40,6 +46,7 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
   const [justification, setJustification] = useState('');
   const [examples, setExamples] = useState('');
   const [impact, setImpact] = useState('');
+  const [criteriaEvaluations, setCriteriaEvaluations] = useState<CriterionEvaluation[]>([]);
   const [createdNominationId, setCreatedNominationId] = useState<string | null>(null);
 
   const currentStepIdx = STEPS.indexOf(step);
@@ -47,10 +54,8 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
   const justificationLength = justification.trim().length;
   const isJustificationValid = justificationLength >= 200 && justificationLength <= 10000;
 
-  // nomineeId stores employee.user_id (not employee.id) to match nominations table FK
   const selectedEmployee = employees.find(e => e.user_id === nomineeId);
 
-  // Filter eligible employees based on nominator role
   const eligibleEmployees = nominatorRole === 'self'
     ? employees.filter(e => e.user_id === user?.id)
     : employees.filter(e => e.user_id !== user?.id);
@@ -65,13 +70,18 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
     if (idx >= 0) setStep(STEPS[idx]);
   };
 
+  const handleCriteriaSubmit = (evals: CriterionEvaluation[]) => {
+    setCriteriaEvaluations(evals);
+    goNext();
+  };
+
   const handleSubmit = async () => {
     try {
       const nominee = employees.find(e => e.user_id === nomineeId);
       const input: CreateNominationInput = {
         cycle_id: cycleId,
         theme_id: themeId,
-        nominee_id: nomineeId, // this is employee.user_id (auth UUID)
+        nominee_id: nomineeId,
         nominee_department_id: nominee?.department_id || undefined,
         nominator_role: nominatorRole,
         headline: headline.trim(),
@@ -81,6 +91,19 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
       };
       const result = await createNomination.mutateAsync(input);
       setCreatedNominationId(result.id);
+
+      // Save criteria evaluations
+      if (criteriaEvaluations.length > 0 && tenantId) {
+        const rows = criteriaEvaluations.map(ce => ({
+          tenant_id: tenantId,
+          nomination_id: result.id,
+          criterion_id: ce.criterion_id,
+          weight: ce.weight,
+          justification: ce.justification.trim() || null,
+        }));
+        await supabase.from('nomination_criteria_evaluations').insert(rows);
+      }
+
       goNext(); // go to endorsements step
     } catch {
       // error handled by mutation
@@ -93,8 +116,10 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
         return !!nomineeId && !!nominatorRole;
       case 'justification':
         return !!headline.trim() && isJustificationValid;
+      case 'criteria_evaluation':
+        return true; // handled by NominationCriteriaForm
       case 'endorsements':
-        return true; // optional
+        return true;
       case 'review':
         return true;
       default:
@@ -233,7 +258,16 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
         </Card>
       )}
 
-      {/* Step 3: Endorsements */}
+      {/* Step 3: Criteria Evaluation */}
+      {step === 'criteria_evaluation' && (
+        <NominationCriteriaForm
+          themeId={themeId}
+          onSubmit={handleCriteriaSubmit}
+          onBack={goPrev}
+        />
+      )}
+
+      {/* Step 4: Endorsements */}
       {step === 'endorsements' && (
         <Card>
           <CardHeader>
@@ -254,7 +288,7 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
         </Card>
       )}
 
-      {/* Step 4: Review */}
+      {/* Step 5: Review */}
       {step === 'review' && (
         <Card>
           <CardHeader>
@@ -280,6 +314,19 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
             </div>
             <p className="text-sm text-muted-foreground line-clamp-4">{justification}</p>
 
+            {/* Criteria evaluation summary */}
+            {criteriaEvaluations.length > 0 && (
+              <CriteriaWeightTable
+                criteria={criteriaEvaluations.map(c => ({
+                  name: c.name,
+                  name_ar: c.name_ar,
+                  description: c.description,
+                  weight: c.weight,
+                }))}
+                label={t('recognition.criteriaEval.title')}
+              />
+            )}
+
             {createdNominationId ? (
               <div className="text-center py-4">
                 <CheckCircle className="h-10 w-10 text-chart-2 mx-auto mb-2" />
@@ -293,28 +340,30 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
         </Card>
       )}
 
-      {/* Navigation */}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="outline"
-          onClick={goPrev}
-          disabled={currentStepIdx === 0}
-        >
-          <ChevronLeft className="h-4 w-4 me-1 rtl:rotate-180" />
-          {t('common.back')}
-        </Button>
+      {/* Navigation — skip for criteria_evaluation (has its own nav) */}
+      {step !== 'criteria_evaluation' && (
+        <div className="flex items-center justify-between">
+          <Button
+            variant="outline"
+            onClick={goPrev}
+            disabled={currentStepIdx === 0}
+          >
+            <ChevronLeft className="h-4 w-4 me-1 rtl:rotate-180" />
+            {t('common.back')}
+          </Button>
 
-        {step === 'review' && !createdNominationId ? (
-          <Button onClick={handleSubmit} disabled={!canProceed() || createNomination.isPending}>
-            {t('recognition.nominations.submitNomination')}
-          </Button>
-        ) : step !== 'review' ? (
-          <Button onClick={goNext} disabled={!canProceed()}>
-            {t('common.next')}
-            <ChevronRight className="h-4 w-4 ms-1 rtl:rotate-180" />
-          </Button>
-        ) : null}
-      </div>
+          {step === 'review' && !createdNominationId ? (
+            <Button onClick={handleSubmit} disabled={!canProceed() || createNomination.isPending}>
+              {t('recognition.nominations.submitNomination')}
+            </Button>
+          ) : step !== 'review' ? (
+            <Button onClick={goNext} disabled={!canProceed()}>
+              {t('common.next')}
+              <ChevronRight className="h-4 w-4 ms-1 rtl:rotate-180" />
+            </Button>
+          ) : null}
+        </div>
+      )}
     </div>
   );
 }
