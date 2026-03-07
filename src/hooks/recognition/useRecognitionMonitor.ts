@@ -24,9 +24,22 @@ export interface RoleStat {
 export interface RecentNomination {
   id: string;
   nomineeName: string;
+  nominatorName: string;
+  nominatorRole: string;
   themeName: string;
   status: string;
   submittedAt: string | null;
+  // Org placement
+  nomineeDepartmentName: string;
+  nomineeDivisionName: string;
+  nomineeSectionName: string;
+  nominatorDepartmentName: string;
+  // Detail fields
+  headline: string;
+  justification: string;
+  specificExamples: string[];
+  impactMetrics: string[];
+  endorsementStatus: string;
 }
 
 export interface DeptVotingStat {
@@ -50,7 +63,7 @@ export function useRecognitionMonitor(cycleId: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('nominations')
-        .select('id, nominee_id, nominator_role, theme_id, nominee_department_id, status, submitted_at, headline')
+        .select('id, nominee_id, nominator_id, nominator_role, theme_id, nominee_department_id, nominator_department_id, status, submitted_at, headline, justification, specific_examples, impact_metrics, endorsement_status')
         .eq('cycle_id', cycleId)
         .is('deleted_at', null);
       if (error) throw error;
@@ -74,12 +87,40 @@ export function useRecognitionMonitor(cycleId: string) {
     enabled: !!cycleId && !!tenantId,
   });
 
-  // ── Departments ──
+  // ── Departments (with division_id) ──
   const { data: departments = [] } = useQuery({
     queryKey: ['recognition-monitor-departments', tenantId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('departments')
+        .select('id, name, name_ar, division_id')
+        .is('deleted_at', null);
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!tenantId,
+  });
+
+  // ── Divisions ──
+  const { data: divisions = [] } = useQuery({
+    queryKey: ['recognition-monitor-divisions', tenantId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('divisions')
+        .select('id, name, name_ar')
+        .is('deleted_at', null);
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!tenantId,
+  });
+
+  // ── Sites (sections) ──
+  const { data: sites = [] } = useQuery({
+    queryKey: ['recognition-monitor-sites', tenantId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('sites')
         .select('id, name, name_ar')
         .is('deleted_at', null);
       if (error) throw error;
@@ -94,7 +135,7 @@ export function useRecognitionMonitor(cycleId: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('employees')
-        .select('id, user_id, department_id, full_name')
+        .select('id, user_id, department_id, section_id, full_name')
         .is('deleted_at', null)
         .eq('status', 'active');
       if (error) throw error;
@@ -118,9 +159,25 @@ export function useRecognitionMonitor(cycleId: string) {
     enabled: !!cycleId,
   });
 
-  // ── Computed stats ──
+  // ── Lookup maps ──
   const deptMap = new Map(departments.map(d => [d.id, d]));
+  const divMap = new Map(divisions.map(d => [d.id, d]));
+  const siteMap = new Map(sites.map(s => [s.id, s]));
   const themeMap = new Map(themes.map(t => [t.id, t]));
+  const empMap = new Map(employees.map(e => [e.user_id, e]));
+
+  // Helper: resolve org names for an employee by user_id
+  const resolveOrg = (userId: string) => {
+    const emp = empMap.get(userId);
+    const dept = emp?.department_id ? deptMap.get(emp.department_id) : null;
+    const div = dept?.division_id ? divMap.get(dept.division_id) : null;
+    const section = emp?.section_id ? siteMap.get(emp.section_id) : null;
+    return {
+      departmentName: dept?.name ?? '—',
+      divisionName: div?.name ?? '—',
+      sectionName: section?.name ?? '—',
+    };
+  };
 
   // Department nomination stats
   const deptNomMap = new Map<string, { nominations: Set<string>; nominees: Set<string> }>();
@@ -160,18 +217,38 @@ export function useRecognitionMonitor(cycleId: string) {
   }
   const roleSplit: RoleStat[] = Array.from(roleMap, ([role, count]) => ({ role, count }));
 
-  // Recent nominations (latest 10)
-  const empMap = new Map(employees.map(e => [e.user_id, e.full_name]));
+  // Parse JSON arrays safely
+  const toStringArray = (val: unknown): string[] => {
+    if (Array.isArray(val)) return val.map(String);
+    return [];
+  };
+
+  // Recent nominations (latest 10) — enriched
   const recentNominations: RecentNomination[] = [...nominations]
     .sort((a, b) => (b.submitted_at ?? b.id).localeCompare(a.submitted_at ?? a.id))
     .slice(0, 10)
-    .map(n => ({
-      id: n.id,
-      nomineeName: empMap.get(n.nominee_id) ?? 'Unknown',
-      themeName: themeMap.get(n.theme_id)?.name ?? 'Unknown',
-      status: n.status,
-      submittedAt: n.submitted_at,
-    }));
+    .map(n => {
+      const nomineeOrg = resolveOrg(n.nominee_id);
+      const nominatorOrg = resolveOrg(n.nominator_id);
+      return {
+        id: n.id,
+        nomineeName: empMap.get(n.nominee_id)?.full_name ?? 'Unknown',
+        nominatorName: empMap.get(n.nominator_id)?.full_name ?? 'Unknown',
+        nominatorRole: n.nominator_role,
+        themeName: themeMap.get(n.theme_id)?.name ?? 'Unknown',
+        status: n.status,
+        submittedAt: n.submitted_at,
+        nomineeDepartmentName: nomineeOrg.departmentName,
+        nomineeDivisionName: nomineeOrg.divisionName,
+        nomineeSectionName: nomineeOrg.sectionName,
+        nominatorDepartmentName: nominatorOrg.departmentName,
+        headline: n.headline ?? '',
+        justification: n.justification ?? '',
+        specificExamples: toStringArray(n.specific_examples),
+        impactMetrics: toStringArray(n.impact_metrics),
+        endorsementStatus: n.endorsement_status ?? 'pending',
+      };
+    });
 
   // Department voting stats
   const deptVoteMap = new Map<string, Set<string>>();
@@ -216,7 +293,6 @@ export function useRecognitionMonitor(cycleId: string) {
 
   return {
     isPending: nomLoading || voteLoading,
-    // KPIs
     totalNominations,
     uniqueNominees,
     participatingDepts,
@@ -224,7 +300,6 @@ export function useRecognitionMonitor(cycleId: string) {
     totalVotes,
     uniqueVoters,
     votingCompletion,
-    // Breakdowns
     deptNominationStats,
     themeDistribution,
     roleSplit,
