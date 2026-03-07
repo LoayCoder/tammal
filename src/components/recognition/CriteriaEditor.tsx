@@ -102,11 +102,14 @@ export function CriteriaEditor({ themeId }: CriteriaEditorProps) {
             </div>
             <div className="space-y-1">
               <Label>{t('recognition.criteria.weight')}: {(newWeight * 100).toFixed(0)}%</Label>
-              <Slider value={[newWeight * 100]} onValueChange={([v]) => setNewWeight(v / 100)} min={5} max={100} step={5} />
+              <Slider value={[newWeight * 100]} onValueChange={([v]) => setNewWeight(v / 100)} min={5} max={Math.round(remainingWeight * 100)} step={5} />
             </div>
+            {projectedTotal > 1.005 && (
+              <p className="text-xs text-destructive">{t('recognition.criteria.exceedsLimit')}</p>
+            )}
             <div className="flex gap-2 justify-end">
               <Button variant="outline" size="sm" onClick={() => setAdding(false)}>{t('common.cancel')}</Button>
-              <Button size="sm" onClick={handleAdd} disabled={!newName || createCriterion.isPending}>{t('common.save')}</Button>
+              <Button size="sm" onClick={handleAdd} disabled={!newName || createCriterion.isPending || projectedTotal > 1.005}>{t('common.save')}</Button>
             </div>
           </CardContent>
         </Card>
