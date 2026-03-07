@@ -29,10 +29,9 @@ export default function RecognitionResults() {
   const eligibleCycles = cycles.filter(c => ['calculating', 'voting', 'announced', 'archived'].includes(c.status));
 
   const selectedCycle = cycles.find(c => c.id === selectedCycleId);
-  const { results, rankings, resultsLoading } = useResults(selectedCycleId);
+  const { results, rankings, resultsLoading, calculateResults } = useResults(selectedCycleId);
   const { appeals } = useAppeals(selectedCycleId);
   const { themes } = useAwardThemes(selectedCycleId);
-  const { calculateResults } = useResults(selectedCycleId);
 
   // Fetch nominee names for rankings
   const nominationIds = rankings.map(r => r.nomination_id);

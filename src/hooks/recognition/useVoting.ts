@@ -101,7 +101,8 @@ export function useVoting(cycleId?: string) {
         .from('votes')
         .select('nomination_id')
         .eq('voter_id', user!.id)
-        .in('nomination_id', nominations.map(n => n.id));
+        .in('nomination_id', nominations.map(n => n.id))
+        .is('deleted_at', null);
 
       const votedSet = new Set(existingVotes?.map(v => v.nomination_id) || []);
 
@@ -146,7 +147,8 @@ export function useVoting(cycleId?: string) {
         .from('votes')
         .select('*')
         .eq('voter_id', user!.id)
-        .eq('cycle_id', cycleId);
+        .eq('cycle_id', cycleId)
+        .is('deleted_at', null);
       if (error) throw error;
       return (data || []) as unknown as Vote[];
     },

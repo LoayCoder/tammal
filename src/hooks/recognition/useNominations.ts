@@ -168,11 +168,21 @@ export function useManagerQuota(themeId?: string) {
     queryFn: async () => {
       if (!user?.id || !themeId) return { used: 0, total: Infinity, remaining: Infinity, teamSize: 0 };
 
-      // Count team members (direct reports)
+      // Get current user's employee record ID first
+      const { data: currentEmployee } = await supabase
+        .from('employees')
+        .select('id')
+        .eq('user_id', user.id)
+        .is('deleted_at', null)
+        .maybeSingle();
+
+      if (!currentEmployee) return { used: 0, total: Infinity, remaining: Infinity, teamSize: 0 };
+
+      // Count team members (direct reports) using employee record ID
       const { count: teamSize } = await supabase
         .from('employees')
         .select('id', { count: 'exact', head: true })
-        .eq('manager_id', user.id)
+        .eq('manager_id', currentEmployee.id)
         .is('deleted_at', null);
 
       const size = teamSize ?? 0;
