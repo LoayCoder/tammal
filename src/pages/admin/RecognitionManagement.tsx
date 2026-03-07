@@ -16,6 +16,7 @@ import { CycleStatusBadge } from '@/components/recognition/CycleStatusBadge';
 import { CycleTimeline } from '@/components/recognition/CycleTimeline';
 import { CycleBuilder } from '@/components/recognition/CycleBuilder';
 import { CycleEditDialog } from '@/components/recognition/CycleEditDialog';
+import { CycleDeleteDialog } from '@/components/recognition/CycleDeleteDialog';
 import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
 import { useConfirmDelete } from '@/shared/dialogs/useConfirmDelete';
 import { isInProcessStatus, getImpactWarning, getNextStatus } from '@/lib/recognition-utils';
@@ -78,16 +79,6 @@ export default function RecognitionManagement() {
     setAdvanceTarget(null);
   };
 
-  const deleteDescription = deleteId
-    ? (() => {
-        const cycle = cycles.find((c) => c.id === deleteId);
-        if (cycle && isInProcessStatus(cycle.status)) {
-          const warning = getImpactWarning(cycle.status, t);
-          return `${t('recognition.cycles.confirmDeleteDescription')} ${warning ?? ''}`;
-        }
-        return t('recognition.cycles.confirmDeleteDescription');
-      })()
-    : t('recognition.cycles.confirmDeleteDescription');
 
   if (showBuilder) {
     return (
@@ -209,15 +200,14 @@ export default function RecognitionManagement() {
         onOpenChange={(open) => { if (!open) setEditingCycle(null); }}
       />
 
-      {/* Delete Confirm */}
-      <ConfirmDialog
+      {/* Delete Confirm with Impact Counts */}
+      <CycleDeleteDialog
+        cycleId={deleteId}
+        cycleName={cycles.find(c => c.id === deleteId)?.name ?? ''}
         open={isDeleteOpen}
         onOpenChange={setDeleteOpen}
-        title={t('recognition.cycles.confirmDelete')}
-        description={deleteDescription}
         onConfirm={() => confirmDeleteAction((id) => deleteCycle.mutate(id))}
         loading={deleteCycle.isPending}
-        destructive
       />
 
       {/* Impact Alert for in-process cycles */}

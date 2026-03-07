@@ -3291,6 +3291,12 @@
         "announcedWarning": "Results have been published. Changes will affect announced winners.",
         "proceed": "Proceed Anyway",
         "cancel": "Cancel"
+      },
+      "deleteImpact": {
+        "heading": "The following data will be affected:",
+        "themes": "{{count}} award theme(s)",
+        "nominations": "{{count}} nomination(s)",
+        "votes": "{{count}} vote(s)"
       }
     },
     "cycleBuilder": {

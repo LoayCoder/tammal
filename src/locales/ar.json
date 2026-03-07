@@ -3129,6 +3129,12 @@
         "announcedWarning": "تم نشر النتائج. التغييرات ستؤثر على الفائزين المُعلنين.",
         "proceed": "المتابعة على أي حال",
         "cancel": "إلغاء"
+      },
+      "deleteImpact": {
+        "heading": "البيانات التالية ستتأثر:",
+        "themes": "{{count}} محور(محاور) جوائز",
+        "nominations": "{{count}} ترشيح(ات)",
+        "votes": "{{count}} تصويت(ات)"
       }
     },
     "cycleBuilder": {
