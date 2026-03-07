@@ -3319,6 +3319,7 @@
       "weight": "Weight",
       "totalWeight": "Total weight",
       "mustEqual100": "must equal 100%",
+      "exceedsLimit": "Total weight would exceed 100%. Reduce the weight before saving.",
       "createSuccess": "Criterion added",
       "createError": "Failed to add criterion",
       "updateSuccess": "Criterion updated",
