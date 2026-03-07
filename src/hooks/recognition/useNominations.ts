@@ -29,6 +29,10 @@ export interface Nomination {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+  manager_approval_status: string;
+  manager_approved_by: string | null;
+  manager_approval_at: string | null;
+  manager_rejection_reason: string | null;
 }
 
 export interface CreateNominationInput {
