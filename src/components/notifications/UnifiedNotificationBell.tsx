@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -96,6 +97,7 @@ export function UnifiedNotificationBell() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState<'all' | 'task' | 'crisis'>('all');
 
   const {
     notifications: taskNotifications,
@@ -120,6 +122,11 @@ export function UnifiedNotificationBell() {
   }, [taskNotifications, crisisNotifications]);
 
   const totalUnread = taskUnread + crisisUnread;
+
+  const filtered = useMemo(() => {
+    if (tab === 'all') return merged;
+    return merged.filter(n => n.source === tab);
+  }, [merged, tab]);
 
   const handleClick = (n: UnifiedNotification) => {
     if (!n.is_read) {
@@ -175,46 +182,64 @@ export function UnifiedNotificationBell() {
             </Button>
           )}
         </div>
-        <ScrollArea className="max-h-[360px]">
-          {merged.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              {t('notifications.empty')}
-            </p>
-          ) : (
-            <div className="divide-y">
-              {merged.map(n => {
-                const Icon = getIcon(n);
-                const colorClass = getColor(n);
+        <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="w-full">
+          <TabsList className="w-full rounded-none border-b h-9">
+            <TabsTrigger value="all" className="flex-1 text-xs h-7">
+              {t('notifications.all', 'All')}
+              {totalUnread > 0 && <Badge variant="secondary" className="ms-1 h-4 min-w-4 px-1 text-2xs">{totalUnread}</Badge>}
+            </TabsTrigger>
+            <TabsTrigger value="task" className="flex-1 text-xs h-7">
+              {t('notifications.tasks', 'Tasks')}
+              {taskUnread > 0 && <Badge variant="secondary" className="ms-1 h-4 min-w-4 px-1 text-2xs">{taskUnread}</Badge>}
+            </TabsTrigger>
+            <TabsTrigger value="crisis" className="flex-1 text-xs h-7">
+              {t('notifications.crisis', 'Crisis')}
+              {crisisUnread > 0 && <Badge variant="secondary" className="ms-1 h-4 min-w-4 px-1 text-2xs">{crisisUnread}</Badge>}
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value={tab} className="mt-0">
+            <ScrollArea className="max-h-[340px]">
+              {filtered.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  {t('notifications.empty')}
+                </p>
+              ) : (
+                <div className="divide-y">
+                  {filtered.map(n => {
+                    const Icon = getIcon(n);
+                    const colorClass = getColor(n);
 
-                return (
-                  <button
-                    key={`${n.source}-${n.id}`}
-                    onClick={() => handleClick(n)}
-                    className={`w-full text-start p-3 hover:bg-muted/50 transition-colors flex gap-3 ${
-                      !n.is_read ? 'bg-primary/5' : ''
-                    }`}
-                  >
-                    <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${colorClass}`} />
-                    <div className="flex-1 min-w-0 space-y-0.5">
-                      <p className={`text-xs line-clamp-2 ${!n.is_read ? 'font-medium' : 'text-muted-foreground'}`}>
-                        {n.title}
-                      </p>
-                      {n.body && (
-                        <p className="text-xs text-muted-foreground line-clamp-1">{n.body}</p>
-                      )}
-                      <p className="text-2xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
-                      </p>
-                    </div>
-                    {!n.is_read && (
-                      <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1.5" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </ScrollArea>
+                    return (
+                      <button
+                        key={`${n.source}-${n.id}`}
+                        onClick={() => handleClick(n)}
+                        className={`w-full text-start p-3 hover:bg-muted/50 transition-colors flex gap-3 ${
+                          !n.is_read ? 'bg-primary/5' : ''
+                        }`}
+                      >
+                        <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${colorClass}`} />
+                        <div className="flex-1 min-w-0 space-y-0.5">
+                          <p className={`text-xs line-clamp-2 ${!n.is_read ? 'font-medium' : 'text-muted-foreground'}`}>
+                            {n.title}
+                          </p>
+                          {n.body && (
+                            <p className="text-xs text-muted-foreground line-clamp-1">{n.body}</p>
+                          )}
+                          <p className="text-2xs text-muted-foreground">
+                            {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
+                          </p>
+                        </div>
+                        {!n.is_read && (
+                          <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1.5" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </ScrollArea>
+          </TabsContent>
+        </Tabs>
       </PopoverContent>
     </Popover>
   );
