@@ -8,12 +8,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { PageHeader, StatCard } from '@/components/system';
 import { spacing } from '@/theme/tokens';
 import { cn } from '@/lib/utils';
 import { useAwardCycles } from '@/hooks/recognition/useAwardCycles';
-import { useRecognitionMonitor } from '@/hooks/recognition/useRecognitionMonitor';
+import { useRecognitionMonitor, type RecentNomination } from '@/hooks/recognition/useRecognitionMonitor';
 import { format } from 'date-fns';
 
 const ROLE_COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))'];
@@ -22,12 +24,11 @@ export default function RecognitionMonitor() {
   const { t } = useTranslation();
   const { cycles, isPending: cyclesLoading } = useAwardCycles();
   const [selectedCycleId, setSelectedCycleId] = useState<string>('');
+  const [selectedNomination, setSelectedNomination] = useState<RecentNomination | null>(null);
 
   const eligibleCycles = cycles.filter(c =>
     ['nominating', 'voting', 'calculating', 'announced'].includes(c.status)
   );
-
-  const selectedCycle = cycles.find(c => c.id === selectedCycleId);
 
   const {
     isPending,
@@ -170,7 +171,7 @@ export default function RecognitionMonitor() {
                   </Card>
                 </div>
 
-                {/* Recent Nominations */}
+                {/* Recent Nominations — Enriched */}
                 <Card>
                   <CardHeader><CardTitle>{t('recognition.monitor.recentNominations')}</CardTitle></CardHeader>
                   <CardContent>
@@ -178,6 +179,10 @@ export default function RecognitionMonitor() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>{t('recognition.monitor.nominee')}</TableHead>
+                          <TableHead>{t('recognition.monitor.nominator')}</TableHead>
+                          <TableHead>{t('recognition.monitor.nominatorRole')}</TableHead>
+                          <TableHead>{t('recognition.monitor.department')}</TableHead>
+                          <TableHead>{t('recognition.monitor.division')}</TableHead>
                           <TableHead>{t('recognition.monitor.theme')}</TableHead>
                           <TableHead>{t('recognition.monitor.status')}</TableHead>
                           <TableHead>{t('recognition.monitor.date')}</TableHead>
@@ -185,15 +190,23 @@ export default function RecognitionMonitor() {
                       </TableHeader>
                       <TableBody>
                         {recentNominations.map(n => (
-                          <TableRow key={n.id}>
+                          <TableRow
+                            key={n.id}
+                            className="cursor-pointer hover:bg-muted/50"
+                            onClick={() => setSelectedNomination(n)}
+                          >
                             <TableCell className="font-medium">{n.nomineeName}</TableCell>
+                            <TableCell>{n.nominatorName}</TableCell>
+                            <TableCell><Badge variant="outline">{n.nominatorRole}</Badge></TableCell>
+                            <TableCell>{n.nomineeDepartmentName}</TableCell>
+                            <TableCell>{n.nomineeDivisionName}</TableCell>
                             <TableCell>{n.themeName}</TableCell>
                             <TableCell><Badge variant="outline">{n.status}</Badge></TableCell>
                             <TableCell>{n.submittedAt ? format(new Date(n.submittedAt), 'MMM d, yyyy') : '—'}</TableCell>
                           </TableRow>
                         ))}
                         {recentNominations.length === 0 && (
-                          <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">{t('recognition.monitor.noData')}</TableCell></TableRow>
+                          <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">{t('recognition.monitor.noData')}</TableCell></TableRow>
                         )}
                       </TableBody>
                     </Table>
@@ -283,6 +296,109 @@ export default function RecognitionMonitor() {
           </>
         )}
       </div>
+
+      {/* ── Nomination Detail Dialog ── */}
+      <Dialog open={!!selectedNomination} onOpenChange={(open) => !open && setSelectedNomination(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          {selectedNomination && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{t('recognition.monitor.nominationDetails')}</DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                {/* Nominee Info */}
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.nominee')}</h4>
+                  <p className="font-semibold text-lg">{selectedNomination.nomineeName}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedNomination.nomineeDivisionName} → {selectedNomination.nomineeDepartmentName} → {selectedNomination.nomineeSectionName}
+                  </p>
+                </div>
+
+                <Separator />
+
+                {/* Nominator Info */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.nominator')}</h4>
+                    <p className="font-medium">{selectedNomination.nominatorName}</p>
+                    <p className="text-sm text-muted-foreground">{selectedNomination.nominatorDepartmentName}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.nominatorRole')}</h4>
+                    <Badge variant="outline">{selectedNomination.nominatorRole}</Badge>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Theme, Status, Endorsement */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.theme')}</h4>
+                    <p className="font-medium">{selectedNomination.themeName}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.status')}</h4>
+                    <Badge variant="outline">{selectedNomination.status}</Badge>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.endorsementStatus')}</h4>
+                    <Badge variant="secondary">{selectedNomination.endorsementStatus}</Badge>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Headline */}
+                {selectedNomination.headline && (
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.headline')}</h4>
+                    <p className="font-medium">{selectedNomination.headline}</p>
+                  </div>
+                )}
+
+                {/* Justification */}
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.justification')}</h4>
+                  <p className="text-sm whitespace-pre-wrap">{selectedNomination.justification || '—'}</p>
+                </div>
+
+                {/* Specific Examples */}
+                {selectedNomination.specificExamples.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.specificExamples')}</h4>
+                    <ul className="list-disc list-inside space-y-1 text-sm">
+                      {selectedNomination.specificExamples.map((ex, i) => (
+                        <li key={i}>{ex}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Impact Metrics */}
+                {selectedNomination.impactMetrics.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.impactMetrics')}</h4>
+                    <ul className="list-disc list-inside space-y-1 text-sm">
+                      {selectedNomination.impactMetrics.map((m, i) => (
+                        <li key={i}>{m}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Date */}
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.date')}</h4>
+                  <p className="text-sm">{selectedNomination.submittedAt ? format(new Date(selectedNomination.submittedAt), 'MMM d, yyyy HH:mm') : '—'}</p>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
