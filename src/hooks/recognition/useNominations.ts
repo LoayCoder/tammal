@@ -175,7 +175,6 @@ export function useManagerQuota(themeId?: string) {
     queryFn: async () => {
       if (!user?.id || !themeId) return { used: 0, total: Infinity, remaining: Infinity, teamSize: 0 };
 
-      // Get current user's employee record ID first
       const { data: currentEmployee } = await supabase
         .from('employees')
         .select('id')
@@ -185,7 +184,6 @@ export function useManagerQuota(themeId?: string) {
 
       if (!currentEmployee) return { used: 0, total: Infinity, remaining: Infinity, teamSize: 0 };
 
-      // Count team members (direct reports) using employee record ID
       const { count: teamSize } = await supabase
         .from('employees')
         .select('id', { count: 'exact', head: true })
@@ -193,10 +191,8 @@ export function useManagerQuota(themeId?: string) {
         .is('deleted_at', null);
 
       const size = teamSize ?? 0;
-      // Quota only applies for teams of 5+
       const maxNominations = size >= 5 ? Math.floor(size * 0.3) : size;
 
-      // Count existing nominations by this manager for this theme
       const { count: used } = await supabase
         .from('nominations')
         .select('id', { count: 'exact', head: true })
@@ -211,6 +207,37 @@ export function useManagerQuota(themeId?: string) {
         total: maxNominations,
         remaining: Math.max(0, maxNominations - usedCount),
         teamSize: size,
+      };
+    },
+    enabled: !!user?.id && !!themeId && !!tenantId,
+  });
+}
+
+const PEER_QUOTA_LIMIT = 3;
+
+/** Peer quota hook: tracks how many nominations a peer has used for a theme */
+export function usePeerQuota(themeId?: string) {
+  const { user } = useAuth();
+  const { tenantId } = useTenantId();
+
+  return useQuery({
+    queryKey: ['peer-quota', user?.id, themeId, tenantId],
+    queryFn: async () => {
+      if (!user?.id || !themeId) return { used: 0, total: PEER_QUOTA_LIMIT, remaining: PEER_QUOTA_LIMIT };
+
+      const { count: used } = await supabase
+        .from('nominations')
+        .select('id', { count: 'exact', head: true })
+        .eq('nominator_id', user.id)
+        .eq('theme_id', themeId)
+        .eq('nominator_role', 'peer')
+        .is('deleted_at', null);
+
+      const usedCount = used ?? 0;
+      return {
+        used: usedCount,
+        total: PEER_QUOTA_LIMIT,
+        remaining: Math.max(0, PEER_QUOTA_LIMIT - usedCount),
       };
     },
     enabled: !!user?.id && !!themeId && !!tenantId,

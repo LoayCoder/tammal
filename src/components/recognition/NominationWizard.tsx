@@ -12,7 +12,7 @@ import { QuotaIndicator } from './QuotaIndicator';
 import { EndorsementForm } from './EndorsementCard';
 import { NominationCriteriaForm } from './NominationCriteriaForm';
 import { CriteriaWeightTable } from './CriteriaWeightTable';
-import { useNominations, useManagerQuota, type CreateNominationInput } from '@/hooks/recognition/useNominations';
+import { useNominations, useManagerQuota, usePeerQuota, type CreateNominationInput } from '@/hooks/recognition/useNominations';
 import { useEndorsements } from '@/hooks/recognition/useEndorsements';
 import { useEmployees } from '@/hooks/org/useEmployees';
 import { useAuth } from '@/hooks/auth/useAuth';
@@ -36,7 +36,8 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
   const { user } = useAuth();
   const { tenantId } = useTenantId();
   const { createNomination } = useNominations();
-  const { data: quota } = useManagerQuota(themeId);
+  const { data: managerQuota } = useManagerQuota(themeId);
+  const { data: peerQuota } = usePeerQuota(themeId);
   const { employees = [] } = useEmployees();
 
   const [step, setStep] = useState<Step>('select_nominee');
@@ -110,14 +111,19 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
     }
   };
 
+  const isQuotaExhausted =
+    (nominatorRole === 'manager' && managerQuota && managerQuota.remaining <= 0) ||
+    (nominatorRole === 'peer' && peerQuota && peerQuota.remaining <= 0);
+
   const canProceed = () => {
+    if (isQuotaExhausted && step === 'select_nominee') return false;
     switch (step) {
       case 'select_nominee':
         return !!nomineeId && !!nominatorRole;
       case 'justification':
         return !!headline.trim() && isJustificationValid;
       case 'criteria_evaluation':
-        return true; // handled by NominationCriteriaForm
+        return true;
       case 'endorsements':
         return true;
       case 'review':
@@ -142,8 +148,13 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
       </div>
 
       {/* Quota indicator for managers */}
-      {nominatorRole === 'manager' && quota && (
-        <QuotaIndicator used={quota.used} total={quota.total} teamSize={quota.teamSize} />
+      {nominatorRole === 'manager' && managerQuota && (
+        <QuotaIndicator type="manager" used={managerQuota.used} total={managerQuota.total} teamSize={managerQuota.teamSize} />
+      )}
+
+      {/* Quota indicator for peers */}
+      {nominatorRole === 'peer' && peerQuota && (
+        <QuotaIndicator type="peer" used={peerQuota.used} total={peerQuota.total} />
       )}
 
       {/* Step 1: Select Nominee */}
