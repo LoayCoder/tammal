@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,6 +26,11 @@ export function ImageUploader({
   const [preview, setPreview] = useState<string | null>(value || null);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Sync preview when the value prop changes (e.g. async branding load)
+  useEffect(() => {
+    if (value) setPreview(value);
+  }, [value]);
 
   const sizeClasses = {
     small: 'h-16 w-16',
