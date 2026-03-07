@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Activity, Users, Building2, Vote, CheckCircle, XCircle, ShieldCheck, Clock, ShieldX } from 'lucide-react';
+import { Activity, Users, Building2, Vote, CheckCircle, XCircle, ShieldCheck, Clock, ShieldX, Scale } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,8 @@ import { spacing } from '@/theme/tokens';
 import { cn } from '@/lib/utils';
 import { useAwardCycles } from '@/hooks/recognition/useAwardCycles';
 import { useRecognitionMonitor, type RecentNomination } from '@/hooks/recognition/useRecognitionMonitor';
+import { useFairnessSummary } from '@/hooks/recognition/useFairnessSummary';
+import { CriteriaSummaryCard } from '@/components/recognition/CriteriaSummaryCard';
 import { format } from 'date-fns';
 
 const ROLE_COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))'];
@@ -52,6 +54,8 @@ export default function RecognitionMonitor() {
     rejectedByManager,
     deptApprovalStats,
   } = useRecognitionMonitor(selectedCycleId);
+
+  const { themeFairness } = useFairnessSummary(selectedCycleId);
 
   return (
     <div>
@@ -112,6 +116,10 @@ export default function RecognitionMonitor() {
                   </TabsTrigger>
                 )}
                 <TabsTrigger value="voting">{t('recognition.monitor.votingTab')}</TabsTrigger>
+                <TabsTrigger value="fairness">
+                  <Scale className="h-3.5 w-3.5 me-1" />
+                  {t('recognition.monitor.fairnessTab')}
+                </TabsTrigger>
               </TabsList>
 
               {/* ── Nominations Tab ── */}
@@ -440,6 +448,34 @@ export default function RecognitionMonitor() {
                     </CardContent>
                   </Card>
                 </div>
+              </TabsContent>
+              {/* ── Fairness Tab ── */}
+              <TabsContent value="fairness" className={spacing.sectionGap}>
+                {themeFairness.length === 0 || themeFairness.every(tf => tf.nominees.length === 0) ? (
+                  <Card>
+                    <CardContent className="py-12 text-center text-muted-foreground">
+                      {t('recognition.monitor.fairnessEmpty')}
+                    </CardContent>
+                  </Card>
+                ) : (
+                  themeFairness.filter(tf => tf.nominees.length > 0).map(tf => (
+                    <Card key={tf.themeId}>
+                      <CardHeader>
+                        <CardTitle className="text-base">{tf.themeName}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {tf.nominees.map(nom => (
+                          <div key={nom.nominationId} className="space-y-2">
+                            <h4 className="text-sm font-medium text-muted-foreground">
+                              {t('recognition.monitor.fairnessNominee', { name: nom.nomineeName })}
+                            </h4>
+                            <CriteriaSummaryCard stages={nom.stages} />
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
               </TabsContent>
             </Tabs>
           </>
