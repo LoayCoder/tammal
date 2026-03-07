@@ -3,11 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 import { useAwardCycles, type AwardCycle } from '@/hooks/recognition/useAwardCycles';
 import { getImpactWarning } from '@/lib/recognition-utils';
+import { toast } from 'sonner';
 
 interface CycleEditDialogProps {
   cycle: AwardCycle | null;
@@ -25,6 +27,7 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
 
   const [form, setForm] = useState({
     name: '',
+    name_ar: '',
     nomination_start: '',
     nomination_end: '',
     peer_endorsement_end: '',
@@ -32,12 +35,14 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
     voting_end: '',
     announcement_date: '',
     audit_review_days: 3,
+    fairness_config: '{}',
   });
 
   useEffect(() => {
     if (cycle) {
       setForm({
         name: cycle.name,
+        name_ar: cycle.name_ar ?? '',
         nomination_start: cycle.nomination_start?.slice(0, 16) ?? '',
         nomination_end: cycle.nomination_end?.slice(0, 16) ?? '',
         peer_endorsement_end: cycle.peer_endorsement_end?.slice(0, 16) ?? '',
@@ -45,6 +50,7 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
         voting_end: cycle.voting_end?.slice(0, 16) ?? '',
         announcement_date: cycle.announcement_date?.slice(0, 16) ?? '',
         audit_review_days: cycle.audit_review_days ?? 3,
+        fairness_config: JSON.stringify(cycle.fairness_config ?? {}, null, 2),
       });
     }
   }, [cycle]);
@@ -55,8 +61,22 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
   const impactWarning = getImpactWarning(cycle.status, t);
 
   const handleSave = () => {
+    let parsedFairnessConfig: Record<string, unknown>;
+
+    try {
+      parsedFairnessConfig = JSON.parse(form.fairness_config || '{}') as Record<string, unknown>;
+    } catch {
+      toast.error(t('recognition.cycles.invalidFairnessConfig'));
+      return;
+    }
+
     updateCycle.mutate(
-      { id: cycle.id, ...form },
+      {
+        id: cycle.id,
+        ...form,
+        name_ar: form.name_ar || null,
+        fairness_config: parsedFairnessConfig,
+      },
       { onSuccess: () => onOpenChange(false) }
     );
   };
@@ -85,6 +105,11 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
             <Label>{t('recognition.cycles.name')}</Label>
             <Input value={form.name} onChange={(e) => updateField('name', e.target.value)} />
           </div>
+          <div className="space-y-1">
+            <Label>{t('recognition.cycles.nameAr')}</Label>
+            <Input value={form.name_ar} onChange={(e) => updateField('name_ar', e.target.value)} />
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label>{t('recognition.timeline.nominationStart')}</Label>
@@ -111,9 +136,20 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
               <Input type="datetime-local" value={form.announcement_date} onChange={(e) => updateField('announcement_date', e.target.value)} />
             </div>
           </div>
+
           <div className="space-y-1">
             <Label>{t('recognition.cycles.auditDays')}</Label>
-            <Input type="number" min={1} max={14} value={form.audit_review_days} onChange={(e) => updateField('audit_review_days', parseInt(e.target.value))} />
+            <Input type="number" min={1} max={14} value={form.audit_review_days} onChange={(e) => updateField('audit_review_days', parseInt(e.target.value, 10) || 1)} />
+          </div>
+
+          <div className="space-y-1">
+            <Label>{t('recognition.cycles.fairnessConfig')}</Label>
+            <Textarea
+              value={form.fairness_config}
+              onChange={(e) => updateField('fairness_config', e.target.value)}
+              className="font-mono"
+              rows={8}
+            />
           </div>
         </div>
 
