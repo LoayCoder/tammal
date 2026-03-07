@@ -192,6 +192,21 @@ export function useAdminRedemptionRequests() {
         .select()
         .single();
       if (error) throw error;
+
+      // Refund points when rejecting a redemption request
+      if (status === 'rejected' && data) {
+        const reqData = data as unknown as RedemptionRequest;
+        await supabase.from('points_transactions').insert({
+          user_id: reqData.user_id,
+          tenant_id: reqData.tenant_id,
+          amount: reqData.points_spent, // positive = credit back
+          source_type: 'system_adjustment',
+          status: 'credited',
+          source_id: reqData.id,
+          description: 'Refund for rejected redemption request',
+        });
+      }
+
       return data;
     },
     onSuccess: () => {

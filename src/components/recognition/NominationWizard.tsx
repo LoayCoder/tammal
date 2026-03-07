@@ -47,10 +47,13 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
   const justificationLength = justification.trim().length;
   const isJustificationValid = justificationLength >= 200 && justificationLength <= 10000;
 
-  const selectedEmployee = employees.find(e => e.id === nomineeId);
+  // nomineeId stores employee.user_id (not employee.id) to match nominations table FK
+  const selectedEmployee = employees.find(e => e.user_id === nomineeId);
 
-  // Filter out self from employee list (unless self-nomination)
-  const eligibleEmployees = employees.filter(e => e.user_id !== user?.id || nominatorRole === 'self');
+  // Filter eligible employees based on nominator role
+  const eligibleEmployees = nominatorRole === 'self'
+    ? employees.filter(e => e.user_id === user?.id)
+    : employees.filter(e => e.user_id !== user?.id);
 
   const goNext = () => {
     const idx = currentStepIdx + 1;
@@ -64,11 +67,11 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
 
   const handleSubmit = async () => {
     try {
-      const nominee = employees.find(e => e.id === nomineeId);
+      const nominee = employees.find(e => e.user_id === nomineeId);
       const input: CreateNominationInput = {
         cycle_id: cycleId,
         theme_id: themeId,
-        nominee_id: nomineeId,
+        nominee_id: nomineeId, // this is employee.user_id (auth UUID)
         nominee_department_id: nominee?.department_id || undefined,
         nominator_role: nominatorRole,
         headline: headline.trim(),
@@ -150,8 +153,8 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
                   <SelectValue placeholder={t('recognition.nominations.selectEmployee')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {eligibleEmployees.map(emp => (
-                    <SelectItem key={emp.id} value={emp.id}>
+              {eligibleEmployees.filter(e => !!e.user_id).map(emp => (
+                    <SelectItem key={emp.user_id!} value={emp.user_id!}>
                       {emp.full_name} {emp.department ? `(${emp.department})` : ''}
                     </SelectItem>
                   ))}
@@ -301,7 +304,7 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
           {t('common.back')}
         </Button>
 
-        {step === 'justification' ? (
+        {step === 'review' && !createdNominationId ? (
           <Button onClick={handleSubmit} disabled={!canProceed() || createNomination.isPending}>
             {t('recognition.nominations.submitNomination')}
           </Button>

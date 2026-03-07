@@ -44,6 +44,11 @@ Deno.serve(async (req) => {
       .single();
     if (cycleErr) throw cycleErr;
 
+    // Validate cycle status — only allow from 'voting' status
+    if (!['voting', 'calculating'].includes(cycle.status)) {
+      throw new Error(`Cannot calculate results: cycle is in '${cycle.status}' status. Must be 'voting'.`);
+    }
+
     await supabase.from('award_cycles').update({ status: 'calculating' }).eq('id', cycle_id);
 
     const fairnessConfig = (cycle.fairness_config || {}) as Record<string, any>;
@@ -164,7 +169,8 @@ Deno.serve(async (req) => {
       const fairnessReport: Record<string, any> = {};
 
       // Clique detection: check if nominator nominated someone who also nominated them
-      const cliqueThreshold = fairnessConfig.clique_threshold || 3;
+      const biasDetection = fairnessConfig.biasDetection || fairnessConfig.bias_detection || {};
+      const cliqueThreshold = biasDetection.cliqueThreshold || fairnessConfig.clique_threshold || 3;
       const cliqueWarnings: any[] = [];
       for (const nom of themeNominations) {
         // Find reverse nominations: where this nominee nominated the original nominator
@@ -204,7 +210,7 @@ Deno.serve(async (req) => {
       fairnessReport.anomalies = anomalies;
       fairnessReport.demographic_parity = { status: 'not_evaluated', note: 'Requires department/demographic data integration' };
 
-      if (fairnessConfig.visibility_bias) {
+      if (biasDetection.visibilityBias || fairnessConfig.visibility_bias) {
         fairnessReport.visibility_correction = { applied: true, method: 'remote_worker_boost' };
       }
 

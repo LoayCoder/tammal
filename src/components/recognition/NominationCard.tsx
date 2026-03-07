@@ -82,7 +82,7 @@ export function NominationCard({
               </span>
             )}
           </div>
-          {showActions && onDelete && nomination.status === 'draft' && (
+          {showActions && onDelete && ['draft', 'submitted'].includes(nomination.status) && (
             <Button variant="ghost" size="icon" onClick={onDelete}>
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>

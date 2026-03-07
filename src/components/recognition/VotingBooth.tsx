@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,6 +32,17 @@ export function VotingBooth({ ballots, completedCount, totalCount, onSubmit, isS
   const [confidence, setConfidence] = useState<'high' | 'medium' | 'low'>('medium');
 
   const ballot = ballots[currentIdx];
+
+  // Initialize scores to 3 when ballot changes (must be before early return)
+  useEffect(() => {
+    if (ballot && ballot.criteria.length > 0) {
+      const initial: Record<string, number> = {};
+      ballot.criteria.forEach(c => { initial[c.id] = 3; });
+      setScores(initial);
+      setJustifications({});
+      setConfidence('medium');
+    }
+  }, [ballot?.nomination_id]);
 
   if (!ballot) {
     return (
@@ -77,13 +88,6 @@ export function VotingBooth({ ballots, completedCount, totalCount, onSubmit, isS
       setCurrentIdx(prev => prev + 1);
     }
   };
-
-  // Initialize scores to 3 if empty
-  if (ballot.criteria.length > 0 && Object.keys(scores).length === 0) {
-    const initial: Record<string, number> = {};
-    ballot.criteria.forEach(c => { initial[c.id] = 3; });
-    setScores(initial);
-  }
 
   return (
     <div className="space-y-4">
