@@ -111,14 +111,19 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
     }
   };
 
+  const isQuotaExhausted =
+    (nominatorRole === 'manager' && managerQuota && managerQuota.remaining <= 0) ||
+    (nominatorRole === 'peer' && peerQuota && peerQuota.remaining <= 0);
+
   const canProceed = () => {
+    if (isQuotaExhausted && step === 'select_nominee') return false;
     switch (step) {
       case 'select_nominee':
         return !!nomineeId && !!nominatorRole;
       case 'justification':
         return !!headline.trim() && isJustificationValid;
       case 'criteria_evaluation':
-        return true; // handled by NominationCriteriaForm
+        return true;
       case 'endorsements':
         return true;
       case 'review':
