@@ -18,10 +18,12 @@ export function CriteriaEditor({ themeId }: CriteriaEditorProps) {
   const { criteria, isPending: isLoading, createCriterion, updateCriterion, deleteCriterion } = useJudgingCriteria(themeId);
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState('');
-  const [newWeight, setNewWeight] = useState(0.25);
+  const remainingWeight = Math.max(0.05, 1 - criteria.reduce((sum, c) => sum + Number(c.weight), 0));
+  const [newWeight, setNewWeight] = useState(Math.min(0.25, remainingWeight));
   const [newDescription, setNewDescription] = useState('');
 
   const totalWeight = criteria.reduce((sum, c) => sum + Number(c.weight), 0);
+  const projectedTotal = totalWeight + newWeight;
 
   const handleAdd = () => {
     createCriterion.mutate({
@@ -34,7 +36,7 @@ export function CriteriaEditor({ themeId }: CriteriaEditorProps) {
       onSuccess: () => {
         setAdding(false);
         setNewName('');
-        setNewWeight(0.25);
+        setNewWeight(Math.min(0.25, Math.max(0.05, 1 - (totalWeight + newWeight))));
         setNewDescription('');
       },
     });
@@ -54,7 +56,7 @@ export function CriteriaEditor({ themeId }: CriteriaEditorProps) {
             )}
           </p>
         </div>
-        <Button size="sm" variant="outline" onClick={() => setAdding(true)} disabled={adding}>
+        <Button size="sm" variant="outline" onClick={() => { setNewWeight(Math.min(0.25, remainingWeight)); setAdding(true); }} disabled={adding || totalWeight >= 0.995}>
           <Plus className="h-4 w-4 me-1" />
           {t('recognition.criteria.add')}
         </Button>
@@ -100,11 +102,14 @@ export function CriteriaEditor({ themeId }: CriteriaEditorProps) {
             </div>
             <div className="space-y-1">
               <Label>{t('recognition.criteria.weight')}: {(newWeight * 100).toFixed(0)}%</Label>
-              <Slider value={[newWeight * 100]} onValueChange={([v]) => setNewWeight(v / 100)} min={5} max={100} step={5} />
+              <Slider value={[newWeight * 100]} onValueChange={([v]) => setNewWeight(v / 100)} min={5} max={Math.round(remainingWeight * 100)} step={5} />
             </div>
+            {projectedTotal > 1.005 && (
+              <p className="text-xs text-destructive">{t('recognition.criteria.exceedsLimit')}</p>
+            )}
             <div className="flex gap-2 justify-end">
               <Button variant="outline" size="sm" onClick={() => setAdding(false)}>{t('common.cancel')}</Button>
-              <Button size="sm" onClick={handleAdd} disabled={!newName || createCriterion.isPending}>{t('common.save')}</Button>
+              <Button size="sm" onClick={handleAdd} disabled={!newName || createCriterion.isPending || projectedTotal > 1.005}>{t('common.save')}</Button>
             </div>
           </CardContent>
         </Card>
