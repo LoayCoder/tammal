@@ -79,16 +79,6 @@ export default function RecognitionManagement() {
     setAdvanceTarget(null);
   };
 
-  const deleteDescription = deleteId
-    ? (() => {
-        const cycle = cycles.find((c) => c.id === deleteId);
-        if (cycle && isInProcessStatus(cycle.status)) {
-          const warning = getImpactWarning(cycle.status, t);
-          return `${t('recognition.cycles.confirmDeleteDescription')} ${warning ?? ''}`;
-        }
-        return t('recognition.cycles.confirmDeleteDescription');
-      })()
-    : t('recognition.cycles.confirmDeleteDescription');
 
   if (showBuilder) {
     return (
