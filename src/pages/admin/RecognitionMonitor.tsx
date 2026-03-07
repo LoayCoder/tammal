@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Activity, Users, Building2, Vote, CheckCircle, XCircle, ShieldCheck, Clock, ShieldX } from 'lucide-react';
+import { Activity, Users, Building2, Vote, CheckCircle, XCircle, ShieldCheck, Clock, ShieldX, Scale } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,8 @@ import { spacing } from '@/theme/tokens';
 import { cn } from '@/lib/utils';
 import { useAwardCycles } from '@/hooks/recognition/useAwardCycles';
 import { useRecognitionMonitor, type RecentNomination } from '@/hooks/recognition/useRecognitionMonitor';
+import { useFairnessSummary } from '@/hooks/recognition/useFairnessSummary';
+import { CriteriaSummaryCard } from '@/components/recognition/CriteriaSummaryCard';
 import { format } from 'date-fns';
 
 const ROLE_COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))'];

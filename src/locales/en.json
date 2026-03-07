@@ -3247,7 +3247,10 @@
       "completion": "Completion",
       "themeVotingProgress": "Theme Voting Progress",
       "votingTimeline": "Voting Timeline",
-      "noData": "No data available"
+      "noData": "No data available",
+      "fairnessTab": "Fairness",
+      "fairnessEmpty": "No criteria evaluation data available for this cycle yet.",
+      "fairnessNominee": "Nominee: {{name}}"
     },
     "cycles": {
       "create": "New Award Cycle",

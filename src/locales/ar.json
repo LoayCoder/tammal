@@ -3085,7 +3085,10 @@
       "completion": "الاكتمال",
       "themeVotingProgress": "تقدم التصويت حسب المحور",
       "votingTimeline": "الجدول الزمني للتصويت",
-      "noData": "لا توجد بيانات"
+      "noData": "لا توجد بيانات",
+      "fairnessTab": "النزاهة",
+      "fairnessEmpty": "لا توجد بيانات تقييم معايير لهذه الدورة بعد.",
+      "fairnessNominee": "المرشح: {{name}}"
     },
     "cycles": {
       "create": "دورة جوائز جديدة",
