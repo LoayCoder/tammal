@@ -3108,6 +3108,9 @@
       "edit": "تعديل الدورة",
       "delete": "حذف الدورة",
       "editCycle": "تعديل دورة الجوائز",
+      "nameAr": "اسم الدورة (عربي)",
+      "fairnessConfig": "إعدادات العدالة (JSON)",
+      "invalidFairnessConfig": "يجب أن تكون إعدادات العدالة بصيغة JSON صحيحة",
       "confirmDelete": "حذف دورة الجوائز",
       "confirmDeleteDescription": "هل أنت متأكد من حذف هذه الدورة؟ لا يمكن التراجع عن هذا الإجراء.",
       "impactAlert": {
