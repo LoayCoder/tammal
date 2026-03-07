@@ -3728,7 +3728,11 @@ export type Database = {
           id: string
           impact_metrics: Json | null
           justification: string
+          manager_approval_at: string | null
+          manager_approval_status: string
+          manager_approved_by: string | null
           manager_assessment: Json | null
+          manager_rejection_reason: string | null
           nominator_department_id: string | null
           nominator_id: string
           nominator_role: string
@@ -3753,7 +3757,11 @@ export type Database = {
           id?: string
           impact_metrics?: Json | null
           justification: string
+          manager_approval_at?: string | null
+          manager_approval_status?: string
+          manager_approved_by?: string | null
           manager_assessment?: Json | null
+          manager_rejection_reason?: string | null
           nominator_department_id?: string | null
           nominator_id: string
           nominator_role?: string
@@ -3778,7 +3786,11 @@ export type Database = {
           id?: string
           impact_metrics?: Json | null
           justification?: string
+          manager_approval_at?: string | null
+          manager_approval_status?: string
+          manager_approved_by?: string | null
           manager_assessment?: Json | null
+          manager_rejection_reason?: string | null
           nominator_department_id?: string | null
           nominator_id?: string
           nominator_role?: string
