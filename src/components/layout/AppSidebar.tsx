@@ -488,7 +488,9 @@ export function AppSidebar({ branding }: AppSidebarProps) {
 
                     {/* Sub-items with dot bullets */}
                     <CollapsibleContent>
-                      <div className="ms-7 mt-1 flex flex-col gap-1">
+                      <div className="relative ms-7 mt-1 flex flex-col gap-1">
+                        {/* Vertical connector line */}
+                        <div className="absolute start-[0.5625rem] top-[1.125rem] bottom-[1.125rem] w-px bg-muted-foreground/20" />
                         {group.items.map((item) => {
                           const active = isItemActive(item.url);
                           return (
