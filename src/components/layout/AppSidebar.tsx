@@ -237,7 +237,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         { title: t('recognition.monitor.navTitle'), url: "/admin/recognition/monitor", icon: Activity, access: 'admin' },
         { title: t('recognition.results.navTitle'), url: "/admin/recognition/results", icon: BarChart3, access: 'admin' },
         { title: t('recognition.points.managementNav'), url: "/admin/recognition/redemption", icon: Gift, access: 'admin' },
-        { title: t('recognition.nominations.nominate'), url: "/recognition/nominate", icon: Award, access: 'employee' },
+        
         { title: t('recognition.nominations.myNominations'), url: "/recognition/my-nominations", icon: Star, access: 'employee' },
         { title: t('recognition.voting.title'), url: "/recognition/vote", icon: Vote, access: 'employee' },
         { title: t('recognition.points.myPoints'), url: "/recognition/points", icon: Coins, access: 'employee' },
