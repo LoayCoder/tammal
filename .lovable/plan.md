@@ -1,87 +1,50 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+# Fairness Summary Panel in Recognition Monitor
 
-## 1. Folder Architecture — ✅ PASS
+## Overview
+Add a new **"Fairness"** tab to the Recognition Monitor showing side-by-side weight comparisons across the three evaluation stages: original criteria → nomination weights → manager adjustments → voting averages.
 
-The project follows a clean modular structure:
+## Data Strategy
+
+Create a new hook `useFairnessSummary(cycleId)` that fetches and aggregates:
+
+1. **`judging_criteria`** — original weights per theme (already available via `useRecognitionMonitor` themes)
+2. **`nomination_criteria_evaluations`** — nominator-assigned weights per criterion per nomination
+3. **`nominations.manager_criteria_adjustments`** — manager-adjusted weights (JSON column)
+4. **`vote_criteria_evaluations`** — voter-adjusted weights, averaged across all voters per nomination
+
+The hook returns data grouped by **theme → nomination → criteria stages**, producing the `StagedWeight[]` shape already consumed by `CriteriaSummaryCard`.
+
+## UI Structure (new tab in RecognitionMonitor)
 
 ```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
+Tabs: [Nominations] [Approvals] [Voting] [Fairness ← NEW]
+
+Fairness tab:
+  ┌─ Theme: "Innovation Award" ─────────────────────────┐
+  │  ┌─ Nominee: Ahmed Ali ──────────────────────────┐  │
+  │  │  CriteriaSummaryCard (reused)                  │  │
+  │  │  Criterion | Original | Nomination | Manager | Voting Avg │
+  │  │  Teamwork  |   40%    |    35%     |   38%   |   37%      │
+  │  │  Impact    |   60%    |    65%     |   62%   |   63%      │
+  │  └────────────────────────────────────────────────┘  │
+  │  ┌─ Nominee: Sara Khan ──────────────────────────┐   │
+  │  │  ...                                          │   │
+  │  └───────────────────────────────────────────────┘   │
+  └──────────────────────────────────────────────────────┘
 ```
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+## Files to Create/Modify
 
----
-
-## 2. Feature Isolation — ✅ PASS
-
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
-
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
-
----
-
-## 3. Backend Architecture — ✅ PASS
-
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
-
----
-
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
-
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
-
-## Summary
-
-| Category | Result |
+| File | Action |
 |---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
+| `src/hooks/recognition/useFairnessSummary.ts` | **Create** — fetches criteria, nomination evals, manager adjustments, vote evals; aggregates into staged weights per theme/nomination |
+| `src/pages/admin/RecognitionMonitor.tsx` | **Edit** — add "Fairness" tab with `Scale` icon, render grouped `CriteriaSummaryCard` per theme/nomination |
+| `src/locales/en.json` | **Edit** — add ~5 translation keys for fairness tab |
+| `src/locales/ar.json` | **Edit** — Arabic translations |
 
-**No FAIL conditions found.** Architecture is production-ready.
+## Reuse
+
+The existing `CriteriaSummaryCard` component already renders the exact table layout needed — no new UI components required.
+
