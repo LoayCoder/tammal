@@ -32,6 +32,7 @@ export default function RecognitionMonitor() {
 
   const {
     isPending,
+    allowAppeals,
     totalNominations,
     uniqueNominees,
     participatingDepts,
@@ -45,6 +46,11 @@ export default function RecognitionMonitor() {
     deptVotingStats,
     themeVotingStats,
     votingTimeline,
+    approvalStats,
+    pendingApprovals,
+    approvedNominations,
+    rejectedByManager,
+    deptApprovalStats,
   } = useRecognitionMonitor(selectedCycleId);
 
   return (
