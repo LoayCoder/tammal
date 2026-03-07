@@ -449,6 +449,34 @@ export default function RecognitionMonitor() {
                   </Card>
                 </div>
               </TabsContent>
+              {/* ── Fairness Tab ── */}
+              <TabsContent value="fairness" className={spacing.sectionGap}>
+                {themeFairness.length === 0 || themeFairness.every(tf => tf.nominees.length === 0) ? (
+                  <Card>
+                    <CardContent className="py-12 text-center text-muted-foreground">
+                      {t('recognition.monitor.fairnessEmpty')}
+                    </CardContent>
+                  </Card>
+                ) : (
+                  themeFairness.filter(tf => tf.nominees.length > 0).map(tf => (
+                    <Card key={tf.themeId}>
+                      <CardHeader>
+                        <CardTitle className="text-base">{tf.themeName}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {tf.nominees.map(nom => (
+                          <div key={nom.nominationId} className="space-y-2">
+                            <h4 className="text-sm font-medium text-muted-foreground">
+                              {t('recognition.monitor.fairnessNominee', { name: nom.nomineeName })}
+                            </h4>
+                            <CriteriaSummaryCard stages={nom.stages} />
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </TabsContent>
             </Tabs>
           </>
         )}
