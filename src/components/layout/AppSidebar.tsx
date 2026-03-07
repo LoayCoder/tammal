@@ -234,6 +234,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       icon: Trophy,
       items: [
         { title: t('nav.recognition'), url: "/admin/recognition", icon: Trophy, access: 'admin' },
+        { title: t('recognition.monitor.navTitle'), url: "/admin/recognition/monitor", icon: Activity, access: 'admin' },
         { title: t('recognition.results.navTitle'), url: "/admin/recognition/results", icon: BarChart3, access: 'admin' },
         { title: t('recognition.points.managementNav'), url: "/admin/recognition/redemption", icon: Gift, access: 'admin' },
         { title: t('recognition.nominations.nominate'), url: "/recognition/nominate", icon: Award, access: 'employee' },

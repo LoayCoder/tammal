@@ -79,6 +79,7 @@ const NominatePage = lazy(() => import("@/pages/recognition/NominatePage"));
 const MyNominationsPage = lazy(() => import("@/pages/recognition/MyNominationsPage"));
 const VotingBoothPage = lazy(() => import("@/pages/recognition/VotingBoothPage"));
 const RecognitionResults = lazy(() => import("@/pages/admin/RecognitionResults"));
+const RecognitionMonitor = lazy(() => import("@/pages/admin/RecognitionMonitor"));
 const PointsDashboard = lazy(() => import("@/pages/recognition/PointsDashboard"));
 const RedemptionCatalog = lazy(() => import("@/pages/recognition/RedemptionCatalog"));
 const RedemptionManagement = lazy(() => import("@/pages/admin/RedemptionManagement"));
@@ -175,6 +176,7 @@ const App = () => (
                 <Route path="/admin/workload/executive" element={<AdminRoute><ExecutiveDashboard /></AdminRoute>} />
                 <Route path="/admin/recognition" element={<AdminRoute><RecognitionManagement /></AdminRoute>} />
                 <Route path="/admin/recognition/results" element={<AdminRoute><RecognitionResults /></AdminRoute>} />
+                <Route path="/admin/recognition/monitor" element={<AdminRoute><RecognitionMonitor /></AdminRoute>} />
                 <Route path="/admin/recognition/redemption" element={<AdminRoute><RedemptionManagement /></AdminRoute>} />
                 <Route path="/admin/ai-governance" element={<AdminRoute><AIGovernance /></AdminRoute>} />
                 <Route path="/admin/workload/escalation" element={<AdminRoute><EscalationSettings /></AdminRoute>} />
