@@ -210,15 +210,14 @@ export default function RecognitionManagement() {
         onOpenChange={(open) => { if (!open) setEditingCycle(null); }}
       />
 
-      {/* Delete Confirm */}
-      <ConfirmDialog
+      {/* Delete Confirm with Impact Counts */}
+      <CycleDeleteDialog
+        cycleId={deleteId}
+        cycleName={cycles.find(c => c.id === deleteId)?.name ?? ''}
         open={isDeleteOpen}
         onOpenChange={setDeleteOpen}
-        title={t('recognition.cycles.confirmDelete')}
-        description={deleteDescription}
         onConfirm={() => confirmDeleteAction((id) => deleteCycle.mutate(id))}
         loading={deleteCycle.isPending}
-        destructive
       />
 
       {/* Impact Alert for in-process cycles */}
