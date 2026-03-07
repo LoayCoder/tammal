@@ -40,6 +40,21 @@ export interface RecentNomination {
   specificExamples: string[];
   impactMetrics: string[];
   endorsementStatus: string;
+  managerApprovalStatus: string;
+}
+
+export interface ApprovalStat {
+  status: string;
+  count: number;
+}
+
+export interface DeptApprovalStat {
+  departmentId: string | null;
+  departmentName: string;
+  pending: number;
+  approved: number;
+  rejected: number;
+  notRequired: number;
 }
 
 export interface DeptVotingStat {
