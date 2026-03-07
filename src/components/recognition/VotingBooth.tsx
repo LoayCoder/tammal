@@ -33,6 +33,17 @@ export function VotingBooth({ ballots, completedCount, totalCount, onSubmit, isS
 
   const ballot = ballots[currentIdx];
 
+  // Initialize scores to 3 when ballot changes (must be before early return)
+  useEffect(() => {
+    if (ballot && ballot.criteria.length > 0) {
+      const initial: Record<string, number> = {};
+      ballot.criteria.forEach(c => { initial[c.id] = 3; });
+      setScores(initial);
+      setJustifications({});
+      setConfidence('medium');
+    }
+  }, [ballot?.nomination_id]);
+
   if (!ballot) {
     return (
       <Card>
@@ -77,17 +88,6 @@ export function VotingBooth({ ballots, completedCount, totalCount, onSubmit, isS
       setCurrentIdx(prev => prev + 1);
     }
   };
-
-  // Initialize scores to 3 when ballot changes
-  useEffect(() => {
-    if (ballot && ballot.criteria.length > 0) {
-      const initial: Record<string, number> = {};
-      ballot.criteria.forEach(c => { initial[c.id] = 3; });
-      setScores(initial);
-      setJustifications({});
-      setConfidence('medium');
-    }
-  }, [ballot?.nomination_id]);
 
   return (
     <div className="space-y-4">
