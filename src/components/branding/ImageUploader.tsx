@@ -27,6 +27,11 @@ export function ImageUploader({
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Sync preview when the value prop changes (e.g. async branding load)
+  useEffect(() => {
+    if (value) setPreview(value);
+  }, [value]);
+
   const sizeClasses = {
     small: 'h-16 w-16',
     medium: 'h-24 w-24',
