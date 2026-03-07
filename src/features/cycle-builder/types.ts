@@ -9,6 +9,7 @@ export interface FairnessSettings {
   visibilityBiasCorrection: boolean;
   publishRawScores: boolean;
   allowAppeals: boolean;
+  votingWeightAdjustmentLimit: number; // ±percentage (default 30)
 }
 
 export interface FairnessConfig {
@@ -21,6 +22,7 @@ export interface FairnessConfig {
     publishRawScores: boolean;
     allowAppeals: boolean;
   };
+  votingWeightAdjustmentLimit: number;
 }
 
 export type { CreateCycleInput };
@@ -31,6 +33,7 @@ export const DEFAULT_FAIRNESS: FairnessSettings = {
   visibilityBiasCorrection: true,
   publishRawScores: true,
   allowAppeals: true,
+  votingWeightAdjustmentLimit: 30,
 };
 
 export const DEFAULT_FORM: CreateCycleInput = {
@@ -55,6 +58,7 @@ export function buildFairnessConfig(fairness: FairnessSettings): FairnessConfig 
       publishRawScores: fairness.publishRawScores,
       allowAppeals: fairness.allowAppeals,
     },
+    votingWeightAdjustmentLimit: fairness.votingWeightAdjustmentLimit,
   };
 }
 

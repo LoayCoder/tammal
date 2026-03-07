@@ -1,18 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CriterionScorer } from './CriterionScorer';
+import { CriteriaWeightSlider } from './CriteriaWeightSlider';
 import { VotingProgress } from './VotingProgress';
 import type { Ballot } from '@/hooks/recognition/useVoting';
-import { ChevronRight, ChevronLeft, Send, CheckCircle } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Send, CheckCircle, AlertTriangle } from 'lucide-react';
 
 interface VotingBoothProps {
   ballots: Ballot[];
   completedCount: number;
   totalCount: number;
+  votingWeightAdjustmentLimit: number; // ±percentage
   onSubmit: (data: {
     nomination_id: string;
     theme_id: string;
@@ -20,29 +24,42 @@ interface VotingBoothProps {
     criteria_scores: Record<string, number>;
     justifications: Record<string, string>;
     confidence_level: 'high' | 'medium' | 'low';
+    adjusted_weights: Record<string, { original: number; adjusted: number }>;
   }) => void;
   isSubmitting: boolean;
 }
 
-export function VotingBooth({ ballots, completedCount, totalCount, onSubmit, isSubmitting }: VotingBoothProps) {
+export function VotingBooth({ ballots, completedCount, totalCount, votingWeightAdjustmentLimit, onSubmit, isSubmitting }: VotingBoothProps) {
   const { t } = useTranslation();
   const [currentIdx, setCurrentIdx] = useState(0);
   const [scores, setScores] = useState<Record<string, number>>({});
   const [justifications, setJustifications] = useState<Record<string, string>>({});
+  const [adjustedWeights, setAdjustedWeights] = useState<Record<string, number>>({});
   const [confidence, setConfidence] = useState<'high' | 'medium' | 'low'>('medium');
 
   const ballot = ballots[currentIdx];
 
-  // Initialize scores to 3 when ballot changes (must be before early return)
+  // Initialize scores and weights when ballot changes
   useEffect(() => {
     if (ballot && ballot.criteria.length > 0) {
-      const initial: Record<string, number> = {};
-      ballot.criteria.forEach(c => { initial[c.id] = 3; });
-      setScores(initial);
+      const initialScores: Record<string, number> = {};
+      const initialWeights: Record<string, number> = {};
+      ballot.criteria.forEach(c => {
+        initialScores[c.id] = 3;
+        initialWeights[c.id] = Math.round(c.weight * 100); // convert decimal to percentage
+      });
+      setScores(initialScores);
+      setAdjustedWeights(initialWeights);
       setJustifications({});
       setConfidence('medium');
     }
   }, [ballot?.nomination_id]);
+
+  const totalAdjustedWeight = useMemo(
+    () => Object.values(adjustedWeights).reduce((sum, w) => sum + w, 0),
+    [adjustedWeights]
+  );
+  const isWeightValid = Math.abs(totalAdjustedWeight - 100) < 0.5;
 
   if (!ballot) {
     return (
@@ -64,14 +81,26 @@ export function VotingBooth({ ballots, completedCount, totalCount, onSubmit, isS
     setJustifications(prev => ({ ...prev, [criterionId]: text }));
   };
 
+  const handleWeightChange = (criterionId: string, weight: number) => {
+    setAdjustedWeights(prev => ({ ...prev, [criterionId]: weight }));
+  };
+
   const canSubmit = ballot.criteria.every(c => {
     const score = scores[c.id];
     if (!score) return false;
     if ((score === 1 || score === 5) && (!justifications[c.id] || justifications[c.id].length < 50)) return false;
     return true;
-  });
+  }) && isWeightValid;
 
   const handleSubmit = () => {
+    const weightData: Record<string, { original: number; adjusted: number }> = {};
+    ballot.criteria.forEach(c => {
+      weightData[c.id] = {
+        original: Math.round(c.weight * 100),
+        adjusted: adjustedWeights[c.id] ?? Math.round(c.weight * 100),
+      };
+    });
+
     onSubmit({
       nomination_id: ballot.nomination_id,
       theme_id: ballot.theme_id,
@@ -79,10 +108,12 @@ export function VotingBooth({ ballots, completedCount, totalCount, onSubmit, isS
       criteria_scores: scores,
       justifications,
       confidence_level: confidence,
+      adjusted_weights: weightData,
     });
     // Reset and advance
     setScores({});
     setJustifications({});
+    setAdjustedWeights({});
     setConfidence('medium');
     if (currentIdx < ballots.length - 1) {
       setCurrentIdx(prev => prev + 1);
@@ -111,8 +142,42 @@ export function VotingBooth({ ballots, completedCount, totalCount, onSubmit, isS
             <p className="line-clamp-4">{ballot.justification}</p>
           </div>
 
+          {/* Weight adjustment section */}
+          {votingWeightAdjustmentLimit > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-semibold">{t('recognition.voting.adjustWeights')}</Label>
+                <Badge variant={isWeightValid ? 'default' : 'destructive'}>
+                  {t('recognition.criteria.totalWeight')}: {totalAdjustedWeight}%
+                </Badge>
+              </div>
+
+              {!isWeightValid && (
+                <Alert variant="destructive" className="py-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription className="text-xs">
+                    {t('recognition.criteriaEval.mustEqual100')}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {ballot.criteria.map(criterion => (
+                <CriteriaWeightSlider
+                  key={`w-${criterion.id}`}
+                  criterionName={criterion.name}
+                  criterionDescription={criterion.description}
+                  originalWeight={Math.round(criterion.weight * 100)}
+                  adjustedWeight={adjustedWeights[criterion.id] ?? Math.round(criterion.weight * 100)}
+                  adjustmentLimit={votingWeightAdjustmentLimit}
+                  onChange={(w) => handleWeightChange(criterion.id, w)}
+                />
+              ))}
+            </div>
+          )}
+
           {/* Criteria scorers */}
           <div className="space-y-3">
+            <Label className="text-sm font-semibold">{t('recognition.voting.rateCriteria')}</Label>
             {ballot.criteria.map(criterion => (
               <CriterionScorer
                 key={criterion.id}

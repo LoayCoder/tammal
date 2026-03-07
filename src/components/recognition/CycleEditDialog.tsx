@@ -29,6 +29,7 @@ const DEFAULT_FAIRNESS: FairnessSettings = {
   visibilityBiasCorrection: true,
   publishRawScores: true,
   allowAppeals: true,
+  votingWeightAdjustmentLimit: 30,
 };
 
 function parseFairnessConfig(config: Record<string, any> | null): FairnessSettings {
@@ -42,6 +43,7 @@ function parseFairnessConfig(config: Record<string, any> | null): FairnessSettin
     visibilityBiasCorrection: (bd.visibilityBiasCorrection as boolean) ?? DEFAULT_FAIRNESS.visibilityBiasCorrection,
     publishRawScores: (au.publishRawScores as boolean) ?? DEFAULT_FAIRNESS.publishRawScores,
     allowAppeals: (au.allowAppeals as boolean) ?? DEFAULT_FAIRNESS.allowAppeals,
+    votingWeightAdjustmentLimit: (fc.votingWeightAdjustmentLimit as number) ?? DEFAULT_FAIRNESS.votingWeightAdjustmentLimit,
   };
 }
 
@@ -204,6 +206,17 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
             <div className="flex items-center justify-between">
               <Label>{t('recognition.fairness.allowAppeals')}</Label>
               <Switch checked={fairness.allowAppeals} onCheckedChange={(v) => updateFairnessField('allowAppeals', v)} />
+            </div>
+            <div className="space-y-2">
+              <Label>{t('recognition.fairness.votingWeightAdjustmentLimit')}: ±{fairness.votingWeightAdjustmentLimit}%</Label>
+              <Slider
+                value={[fairness.votingWeightAdjustmentLimit]}
+                onValueChange={([v]) => updateFairnessField('votingWeightAdjustmentLimit', v)}
+                min={0}
+                max={50}
+                step={5}
+              />
+              <p className="text-xs text-muted-foreground">{t('recognition.fairness.votingWeightAdjustmentLimitDesc')}</p>
             </div>
           </TabsContent>
         </Tabs>

@@ -39,6 +39,17 @@ export const FairnessSettingsTab = React.memo(function FairnessSettingsTab({
         <Label>{t('recognition.fairness.allowAppeals')}</Label>
         <Switch checked={fairness.allowAppeals} onCheckedChange={(v) => updateFairness('allowAppeals', v)} />
       </div>
+      <div className="space-y-2">
+        <Label>{t('recognition.fairness.votingWeightAdjustmentLimit')}: ±{fairness.votingWeightAdjustmentLimit}%</Label>
+        <Slider
+          value={[fairness.votingWeightAdjustmentLimit]}
+          onValueChange={([v]) => updateFairness('votingWeightAdjustmentLimit', v)}
+          min={0}
+          max={50}
+          step={5}
+        />
+        <p className="text-xs text-muted-foreground">{t('recognition.fairness.votingWeightAdjustmentLimitDesc')}</p>
+      </div>
       <div className="flex justify-end">
         <Button onClick={onNext}>{t('common.next')}</Button>
       </div>
