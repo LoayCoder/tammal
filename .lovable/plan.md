@@ -1,87 +1,69 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+# Recognition Monitor Dashboard
 
-## 1. Folder Architecture — ✅ PASS
+## Problem
+There is no admin dashboard to monitor the nomination and voting processes in real-time. Admins cannot see which departments have participated, nomination counts per theme, voting progress, or identify departments that haven't engaged yet.
 
-The project follows a clean modular structure:
+## What We Are Building
+A new **Recognition Monitor** page (`/admin/recognition/monitor`) — similar in pattern to the existing Survey Monitor (`/admin/survey-monitor`) — that provides real-time visibility into nomination and voting activity for a selected award cycle.
 
-```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
-```
+## Page Layout
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+### Header
+- Page title + cycle selector dropdown (filtered to cycles in `nominating`, `voting`, `calculating`, or `announced` status)
 
----
+### KPI Stat Cards (top row)
+- **Total Nominations** — count of all submitted nominations for the cycle
+- **Unique Nominees** — distinct nominee count
+- **Departments Participating** — departments with at least one nomination
+- **Departments Missing** — departments with zero nominations
+- **Total Votes Cast** — count of votes for the cycle
+- **Voting Completion %** — votes cast / eligible ballots
 
-## 2. Feature Isolation — ✅ PASS
+### Tabs: Nominations | Voting
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+#### Nominations Tab
+1. **Department Breakdown Table** — each department row shows: name, nomination count, unique nominees, nomination rate (nominations / dept headcount)
+2. **Theme Distribution** — bar chart showing nomination count per award theme
+3. **Nominator Role Split** — pie/donut: manager vs peer vs self nominations
+4. **Recent Nominations List** — latest 10 nominations with nominee name, theme, status, date
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
+#### Voting Tab
+1. **Department Voting Progress** — each department: eligible voters, votes cast, completion %
+2. **Theme Voting Progress** — per-theme: total ballots, completed, pending
+3. **Voting Timeline** — line chart of votes cast per day
 
----
+## Technical Plan
 
-## 3. Backend Architecture — ✅ PASS
+### 1. New hook: `src/hooks/recognition/useRecognitionMonitor.ts`
+- Accepts `cycleId`
+- Queries `nominations` table aggregated by department and theme
+- Queries `votes` table aggregated by department and theme
+- Joins with `employees` for department resolution and `departments` for names
+- Returns: nomination stats, voting stats, department breakdowns, theme breakdowns
 
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
+### 2. New page: `src/pages/admin/RecognitionMonitor.tsx`
+- Cycle selector (reuses pattern from RecognitionResults)
+- Stat cards row using system `StatCard` or inline cards
+- Tabs for Nominations and Voting sections
+- Department tables, theme charts (recharts bar/donut)
 
----
+### 3. Route registration
+- Add route in `App.tsx`: `/admin/recognition/monitor`
+- Add sidebar link under SaaS Management / Recognition group
 
-## 4. Supabase Integration — ✅ PASS
+### 4. Translations
+- Add keys under `recognition.monitor.*` in `en.json` and `ar.json`
 
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
+### Files to Create/Edit
 
----
+| Action | File |
+|--------|------|
+| Create | `src/hooks/recognition/useRecognitionMonitor.ts` |
+| Create | `src/pages/admin/RecognitionMonitor.tsx` |
+| Edit | `src/App.tsx` (add route) |
+| Edit | Sidebar component (add nav link) |
+| Edit | `src/locales/en.json` |
+| Edit | `src/locales/ar.json` |
 
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
-
-## Summary
-
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
-
-**No FAIL conditions found.** Architecture is production-ready.
