@@ -488,7 +488,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
 
                     {/* Sub-items with dot bullets */}
                     <CollapsibleContent>
-                      <div className="ms-7 mt-0.5 flex flex-col gap-0.5">
+                      <div className="ms-7 mt-1 flex flex-col gap-1">
                         {group.items.map((item) => {
                           const active = isItemActive(item.url);
                           return (
@@ -504,7 +504,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                               onClick={handleNavClick}
                             >
                               <span className={cn(
-                                "h-1.5 w-1.5 rounded-full shrink-0",
+                                "h-2.5 w-2.5 rounded-full shrink-0",
                                 active ? "bg-sidebar-primary" : "bg-muted-foreground/40"
                               )} />
                               <span className="truncate">{item.title}</span>
@@ -539,7 +539,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                                   )}
                                 >
                                   <span className={cn(
-                                    "h-1.5 w-1.5 rounded-full shrink-0",
+                                    "h-2.5 w-2.5 rounded-full shrink-0",
                                     isSectionActive ? "bg-sidebar-primary" : "bg-muted-foreground/40"
                                   )} />
                                   <span className="flex-1 text-start text-xs font-medium">{section.label}</span>
@@ -547,7 +547,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                                 </button>
                               </CollapsibleTrigger>
                               <CollapsibleContent>
-                                <div className="ms-4 mt-0.5 flex flex-col gap-0.5">
+                                <div className="ms-4 mt-1 flex flex-col gap-1">
                                   {section.items.map((item) => {
                                     const subActive = location.pathname.startsWith(item.url);
                                     return (
@@ -562,7 +562,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                                         onClick={handleNavClick}
                                       >
                                         <span className={cn(
-                                          "h-1 w-1 rounded-full shrink-0",
+                                          "h-2 w-2 rounded-full shrink-0",
                                           subActive ? "bg-sidebar-primary" : "bg-muted-foreground/30"
                                         )} />
                                         <span className="truncate">{item.title}</span>
