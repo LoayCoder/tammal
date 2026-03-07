@@ -200,6 +200,7 @@ export default function RecognitionMonitor() {
                           <TableHead>{t('recognition.monitor.division')}</TableHead>
                           <TableHead>{t('recognition.monitor.theme')}</TableHead>
                           <TableHead>{t('recognition.monitor.status')}</TableHead>
+                          {allowAppeals && <TableHead>{t('recognition.monitor.managerApproval', 'Manager Approval')}</TableHead>}
                           <TableHead>{t('recognition.monitor.date')}</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -217,11 +218,22 @@ export default function RecognitionMonitor() {
                             <TableCell>{n.nomineeDivisionName}</TableCell>
                             <TableCell>{n.themeName}</TableCell>
                             <TableCell><Badge variant="outline">{n.status}</Badge></TableCell>
+                            {allowAppeals && (
+                              <TableCell>
+                                <Badge variant={
+                                  n.managerApprovalStatus === 'approved' ? 'default' :
+                                  n.managerApprovalStatus === 'rejected' ? 'destructive' :
+                                  n.managerApprovalStatus === 'pending' ? 'secondary' : 'outline'
+                                }>
+                                  {n.managerApprovalStatus}
+                                </Badge>
+                              </TableCell>
+                            )}
                             <TableCell>{n.submittedAt ? format(new Date(n.submittedAt), 'MMM d, yyyy') : '—'}</TableCell>
                           </TableRow>
                         ))}
                         {recentNominations.length === 0 && (
-                          <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">{t('recognition.monitor.noData')}</TableCell></TableRow>
+                          <TableRow><TableCell colSpan={allowAppeals ? 9 : 8} className="text-center text-muted-foreground py-8">{t('recognition.monitor.noData')}</TableCell></TableRow>
                         )}
                       </TableBody>
                     </Table>
