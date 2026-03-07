@@ -3166,7 +3166,8 @@
       "updateSuccess": "تم تحديث المعيار",
       "updateError": "فشل تحديث المعيار",
       "deleteSuccess": "تم حذف المعيار",
-      "deleteError": "فشل حذف المعيار"
+      "deleteError": "فشل حذف المعيار",
+      "edit": "تعديل"
     },
     "timeline": {
       "nominationStart": "فتح الترشيحات",

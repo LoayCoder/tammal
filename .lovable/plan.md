@@ -1,27 +1,87 @@
+# Enterprise Task Management — Architecture Audit
 
+## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
-# Inline Editing for Existing Criteria
+---
 
-## Overview
-Add click-to-edit capability on each criterion card so users can modify name, description, and weight in place, with Save/Cancel controls.
+## 1. Folder Architecture — ✅ PASS
 
-## Changes
+The project follows a clean modular structure:
 
-### `src/components/recognition/CriteriaEditor.tsx`
+```text
+src/
+  ai/          — Isolated AI client, prompts, guards, quality
+  components/  — UI components
+  config/      — Centralized constants
+  features/    — Feature modules (tasks, approvals, workload, etc.)
+  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
+  services/    — Pure async business services (no UI imports)
+  types/       — Shared type definitions
+```
 
-1. **Track editing state** — add `editingId: string | null` and local edit fields (`editName`, `editDescription`, `editWeight`).
+**Layer separation checks:**
+- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
+- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
+- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
+- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
 
-2. **Click-to-edit trigger** — add a `Pencil` icon button next to the delete button. Clicking it sets `editingId` and populates local state from the criterion.
+---
 
-3. **Inline edit form** — when `editingId === criterion.id`, render Input/Textarea/Slider instead of static text (same layout as the "add" form but pre-filled). The weight slider's max is capped to `remainingWeight + currentCriterionWeight` (the criterion's own weight is "freed up" when editing).
+## 2. Feature Isolation — ✅ PASS
 
-4. **Save/Cancel buttons** — Save calls `updateCriterion.mutate({ id, name, description, weight })` then clears `editingId`. Cancel just clears editing state.
+| Module | Location | Status |
+|---|---|---|
+| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
+| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
+| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
+| AI Governance | `src/features/ai-governance/` | ✅ |
+| AI Generator | `src/features/ai-generator/` | ✅ |
+| Org Dashboard | `src/features/org-dashboard/` | ✅ |
+| Cycle Builder | `src/features/cycle-builder/` | ✅ |
 
-5. **Validation** — Save disabled if name is empty or total weight (excluding the old weight, adding the new) exceeds 100%.
+**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
 
-### `src/locales/en.json` & `src/locales/ar.json`
-- Add `recognition.criteria.edit` key ("Edit" / "تعديل") if not present, plus `recognition.criteria.editSuccess` / `recognition.criteria.editError` if needed (already have `updateSuccess`/`updateError`).
+---
 
-### No database or hook changes needed
-`updateCriterion` mutation already exists in `useJudgingCriteria` and supports partial updates.
+## 3. Backend Architecture — ✅ PASS
 
+- **35 edge functions** properly separate API routes from client code
+- **Services layer** (`src/services/`) handles business logic
+- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
+- Database access centralized through the Supabase client
+
+---
+
+## 4. Supabase Integration — ✅ PASS
+
+- **Client centralized** in `src/integrations/supabase/client.ts`
+- **RLS enabled** on all task-related tables with `authenticated` role enforcement
+- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
+
+---
+
+## 5. Warnings
+
+### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
+
+Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
+`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
+
+### ⚠️ WARNING (low priority): Workload feature is a thin barrel
+
+`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
+
+---
+
+## Summary
+
+| Category | Result |
+|---|---|
+| Folder Architecture | ✅ PASS |
+| Feature Isolation | ✅ PASS |
+| Backend Architecture | ✅ PASS |
+| Supabase Integration | ✅ PASS |
+| Layer Separation | ✅ PASS (resolved) |
+| Workload Consolidation | ⚠️ Low-priority migration |
+
+**No FAIL conditions found.** Architecture is production-ready.

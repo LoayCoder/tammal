@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import { Plus, Trash2, GripVertical } from 'lucide-react';
-import { useJudgingCriteria, type CreateCriterionInput, type JudgingCriterion } from '@/hooks/recognition/useJudgingCriteria';
+import { Plus, Trash2, GripVertical, Pencil } from 'lucide-react';
+import { useJudgingCriteria, type JudgingCriterion } from '@/hooks/recognition/useJudgingCriteria';
 
 interface CriteriaEditorProps {
   themeId: string;
@@ -16,14 +16,44 @@ interface CriteriaEditorProps {
 export function CriteriaEditor({ themeId }: CriteriaEditorProps) {
   const { t } = useTranslation();
   const { criteria, isPending: isLoading, createCriterion, updateCriterion, deleteCriterion } = useJudgingCriteria(themeId);
+
+  // Add state
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState('');
   const remainingWeight = Math.max(0.05, 1 - criteria.reduce((sum, c) => sum + Number(c.weight), 0));
   const [newWeight, setNewWeight] = useState(Math.min(0.25, remainingWeight));
   const [newDescription, setNewDescription] = useState('');
 
+  // Edit state
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editWeight, setEditWeight] = useState(0);
+
   const totalWeight = criteria.reduce((sum, c) => sum + Number(c.weight), 0);
   const projectedTotal = totalWeight + newWeight;
+
+  const startEditing = (criterion: JudgingCriterion) => {
+    setEditingId(criterion.id);
+    setEditName(criterion.name);
+    setEditDescription(criterion.description ?? '');
+    setEditWeight(Number(criterion.weight));
+  };
+
+  const cancelEditing = () => {
+    setEditingId(null);
+  };
+
+  const handleSaveEdit = (criterion: JudgingCriterion) => {
+    updateCriterion.mutate({
+      id: criterion.id,
+      name: editName,
+      description: editDescription || null,
+      weight: editWeight,
+    }, {
+      onSuccess: () => setEditingId(null),
+    });
+  };
 
   const handleAdd = () => {
     createCriterion.mutate({
@@ -62,32 +92,83 @@ export function CriteriaEditor({ themeId }: CriteriaEditorProps) {
         </Button>
       </div>
 
-      {criteria.map((criterion) => (
-        <Card key={criterion.id} className="border">
-          <CardContent className="pt-4 pb-3">
-            <div className="flex items-start gap-3">
-              <GripVertical className="h-5 w-5 text-muted-foreground mt-1 shrink-0 cursor-grab" />
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-sm">{criterion.name}</span>
-                  <span className="text-xs text-muted-foreground">{(Number(criterion.weight) * 100).toFixed(0)}%</span>
+      {criteria.map((criterion) => {
+        const isEditing = editingId === criterion.id;
+        // Weight available for this criterion = remaining + its own current weight
+        const weightBudget = Math.max(0.05, 1 - (totalWeight - Number(criterion.weight)));
+        const editProjectedTotal = totalWeight - Number(criterion.weight) + editWeight;
+
+        return (
+          <Card key={criterion.id} className="border">
+            <CardContent className="pt-4 pb-3">
+              {isEditing ? (
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <Label>{t('recognition.criteria.name')}</Label>
+                    <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder={t('recognition.criteria.namePlaceholder')} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>{t('recognition.criteria.description')}</Label>
+                    <Textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={2} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>{t('recognition.criteria.weight')}: {(editWeight * 100).toFixed(0)}%</Label>
+                    <Slider
+                      value={[editWeight * 100]}
+                      onValueChange={([v]) => setEditWeight(v / 100)}
+                      min={5}
+                      max={Math.round(weightBudget * 100)}
+                      step={5}
+                    />
+                  </div>
+                  {editProjectedTotal > 1.005 && (
+                    <p className="text-xs text-destructive">{t('recognition.criteria.exceedsLimit')}</p>
+                  )}
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="outline" size="sm" onClick={cancelEditing}>{t('common.cancel')}</Button>
+                    <Button
+                      size="sm"
+                      onClick={() => handleSaveEdit(criterion)}
+                      disabled={!editName || updateCriterion.isPending || editProjectedTotal > 1.005}
+                    >
+                      {t('common.save')}
+                    </Button>
+                  </div>
                 </div>
-                {criterion.description && (
-                  <p className="text-xs text-muted-foreground">{criterion.description}</p>
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-destructive"
-                onClick={() => deleteCriterion.mutate(criterion.id)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+              ) : (
+                <div className="flex items-start gap-3">
+                  <GripVertical className="h-5 w-5 text-muted-foreground mt-1 shrink-0 cursor-grab" />
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-sm">{criterion.name}</span>
+                      <span className="text-xs text-muted-foreground">{(Number(criterion.weight) * 100).toFixed(0)}%</span>
+                    </div>
+                    {criterion.description && (
+                      <p className="text-xs text-muted-foreground">{criterion.description}</p>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => startEditing(criterion)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-destructive"
+                    onClick={() => deleteCriterion.mutate(criterion.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })}
 
       {adding && (
         <Card className="border-dashed border-2">
