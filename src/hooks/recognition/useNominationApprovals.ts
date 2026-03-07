@@ -72,6 +72,7 @@ export function useNominationApprovals() {
           manager_approval_status: 'approved',
           manager_approved_by: user.id,
           manager_approval_at: new Date().toISOString(),
+          status: 'endorsed',
         })
         .eq('id', nominationId);
       if (error) throw error;
