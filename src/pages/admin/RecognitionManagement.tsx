@@ -16,6 +16,7 @@ import { CycleStatusBadge } from '@/components/recognition/CycleStatusBadge';
 import { CycleTimeline } from '@/components/recognition/CycleTimeline';
 import { CycleBuilder } from '@/components/recognition/CycleBuilder';
 import { CycleEditDialog } from '@/components/recognition/CycleEditDialog';
+import { CycleDeleteDialog } from '@/components/recognition/CycleDeleteDialog';
 import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
 import { useConfirmDelete } from '@/shared/dialogs/useConfirmDelete';
 import { isInProcessStatus, getImpactWarning, getNextStatus } from '@/lib/recognition-utils';
