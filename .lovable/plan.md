@@ -1,62 +1,87 @@
+# Enterprise Task Management — Architecture Audit
 
-
-# UI Governance Framework — Implementation Plan
-
-## Overview
-
-Add infrastructure for design system versioning, a comprehensive component sandbox, governance documentation, and a changelog — all without modifying existing product functionality.
+## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
 ---
 
-## Deliverables
+## 1. Folder Architecture — ✅ PASS
 
-### 1. Design System Version File
-**Create** `src/theme/version.ts`
-- Export `DESIGN_SYSTEM` object with `version`, `lastUpdated`, `description`, and `protectedPaths` array listing `src/components/system`, `src/components/ui`, `src/theme`, `src/styles`.
+The project follows a clean modular structure:
 
-### 2. Enhanced Design System Documentation Page
-**Edit** `src/pages/dev/DesignSystemPage.tsx`
-- Add a **Version Banner** section at the top displaying version, date, and description from `version.ts`.
-- Add a **Spacing Rules** section rendering the token table with usage guidance (stat = p-4, interactive = p-5, standard = p-6).
-- Add a **UI Governance Rules** section with rendered markdown-style content covering:
-  - Component usage enforcement (always use system components, never raw card styling)
-  - Token protection rules (tokens only in `src/theme/tokens.ts`, no `p-[22px]`)
-  - Protected architecture layers (the 4 protected directories)
-  - Feature isolation rules (import from `@/components/system`, never redefine)
-  - UI update workflow (5-step process: isolate → sandbox → design-system → key pages → merge)
+```text
+src/
+  ai/          — Isolated AI client, prompts, guards, quality
+  components/  — UI components
+  config/      — Centralized constants
+  features/    — Feature modules (tasks, approvals, workload, etc.)
+  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
+  services/    — Pure async business services (no UI imports)
+  types/       — Shared type definitions
+```
 
-### 3. Expanded Component Sandbox
-**Edit** `src/pages/dev/ComponentShowcase.tsx`
-- Restructure into a comprehensive sandbox showing **all** system components with live examples:
-  - **System components**: PageHeader, StatCard, MetricCard, ChartCard, InsightCard, DashboardGrid, EmptyState, GradientButton
-  - **UI primitives**: Button variants/sizes, Badge variants, Avatar, Dialog, Tabs, Input/Textarea, Select, Switch, Checkbox, RadioGroup, Table
-- Each section shows: component name (Badge label), live rendered example, and a `<code>` block with the import path/usage snippet.
-- Keep existing StatusBadge preset sections.
-
-### 4. Design System Changelog
-**Create** `docs/design-system-changelog.md`
-- Initial entries documenting v1.0.0 (core tokens, system components, chart constants, toolkit palette, spacing standardization, governance framework).
-
-### 5. Route Registration
-No changes needed — `/dev/components` and `/dev/design-system` routes already exist in `App.tsx`.
+**Layer separation checks:**
+- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
+- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
+- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
+- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
 
 ---
 
-## Files Summary
+## 2. Feature Isolation — ✅ PASS
 
-| Action | File |
-|--------|------|
-| Create | `src/theme/version.ts` |
-| Create | `docs/design-system-changelog.md` |
-| Edit   | `src/pages/dev/DesignSystemPage.tsx` |
-| Edit   | `src/pages/dev/ComponentShowcase.tsx` |
+| Module | Location | Status |
+|---|---|---|
+| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
+| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
+| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
+| AI Governance | `src/features/ai-governance/` | ✅ |
+| AI Generator | `src/features/ai-generator/` | ✅ |
+| Org Dashboard | `src/features/org-dashboard/` | ✅ |
+| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+
+**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
 
 ---
 
-## Technical Notes
+## 3. Backend Architecture — ✅ PASS
 
-- No product behavior changes. No database changes.
-- All new sections use existing design tokens (`spacing`, `typography`, `cardVariants`) and system components.
-- Governance rules are rendered as structured UI content, not raw markdown, for consistency with the design system page aesthetic.
-- The sandbox imports all components from `@/components/system` and `@/components/ui` to serve as a living reference and regression-detection tool.
+- **35 edge functions** properly separate API routes from client code
+- **Services layer** (`src/services/`) handles business logic
+- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
+- Database access centralized through the Supabase client
 
+---
+
+## 4. Supabase Integration — ✅ PASS
+
+- **Client centralized** in `src/integrations/supabase/client.ts`
+- **RLS enabled** on all task-related tables with `authenticated` role enforcement
+- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
+
+---
+
+## 5. Warnings
+
+### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
+
+Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
+`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
+
+### ⚠️ WARNING (low priority): Workload feature is a thin barrel
+
+`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
+
+---
+
+## Summary
+
+| Category | Result |
+|---|---|
+| Folder Architecture | ✅ PASS |
+| Feature Isolation | ✅ PASS |
+| Backend Architecture | ✅ PASS |
+| Supabase Integration | ✅ PASS |
+| Layer Separation | ✅ PASS (resolved) |
+| Workload Consolidation | ⚠️ Low-priority migration |
+
+**No FAIL conditions found.** Architecture is production-ready.

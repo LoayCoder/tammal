@@ -6,10 +6,12 @@ import { Separator } from "@/components/ui/separator";
 import { StatCard, MetricCard, ChartCard, InsightCard, DashboardGrid, PageHeader } from "@/components/system";
 import { EmptyState } from "@/shared/empty/EmptyState";
 import { spacing, typography, cardVariants, layout, iconBox } from "@/theme/tokens";
+import { DESIGN_SYSTEM } from "@/theme/version";
 import { TOOLKIT, ZONE_COLORS } from "@/config/toolkit-colors";
 import {
   Palette, Type, Maximize, LayoutGrid, BarChart3,
-  TrendingUp, Lightbulb, AlertCircle, CheckCircle, Star
+  TrendingUp, Lightbulb, AlertCircle, CheckCircle, Star,
+  Shield, BookOpen, Info
 } from "lucide-react";
 
 /* ── Color swatch helper ──────────────────────────────────────── */
@@ -50,6 +52,18 @@ function Section({ title, icon, children }: { title: string; icon: React.ReactNo
   );
 }
 
+/* ── Governance rule card ─────────────────────────────────────── */
+function RuleCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <Card className={cardVariants.glass}>
+      <CardHeader className="pb-2">
+        <CardTitle className={typography.cardTitle}>{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2 text-sm text-muted-foreground">{children}</CardContent>
+    </Card>
+  );
+}
+
 export default function DesignSystemPage() {
   const { t } = useTranslation();
 
@@ -62,6 +76,23 @@ export default function DesignSystemPage() {
           Reference guide for colors, typography, spacing, and reusable components.
         </p>
       </div>
+
+      {/* ─── Version Banner ─── */}
+      <Card className="bg-primary/5 border-primary/20">
+        <CardContent className="flex flex-wrap items-center gap-x-6 gap-y-2 py-4">
+          <div className="flex items-center gap-2">
+            <Info className="h-4 w-4 text-primary" />
+            <span className="font-semibold text-foreground">Design System</span>
+          </div>
+          <Badge variant="secondary">v{DESIGN_SYSTEM.version}</Badge>
+          <span className="text-sm text-muted-foreground">
+            Last updated: {DESIGN_SYSTEM.lastUpdated}
+          </span>
+          <span className="text-sm text-muted-foreground hidden sm:inline">
+            — {DESIGN_SYSTEM.description}
+          </span>
+        </CardContent>
+      </Card>
 
       <Separator />
 
@@ -143,6 +174,31 @@ export default function DesignSystemPage() {
                 </code>
               </div>
             ))}
+          </CardContent>
+        </Card>
+
+        {/* Spacing rules table */}
+        <Card className={cardVariants.glass}>
+          <CardHeader><CardTitle className={typography.cardTitle}>Spacing Rules</CardTitle></CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border/50">
+                    <th className="text-start pb-2 font-medium text-muted-foreground">Token</th>
+                    <th className="text-start pb-2 font-medium text-muted-foreground">Value</th>
+                    <th className="text-start pb-2 font-medium text-muted-foreground">Usage</th>
+                  </tr>
+                </thead>
+                <tbody className="text-foreground">
+                  <tr className="border-b border-border/20"><td className="py-2"><code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">cardCompact</code></td><td className="py-2">p-4</td><td className="py-2 text-muted-foreground">Stat / KPI cards</td></tr>
+                  <tr className="border-b border-border/20"><td className="py-2"><code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">cardInteractive</code></td><td className="py-2">p-5</td><td className="py-2 text-muted-foreground">Forms, list items, journal entries</td></tr>
+                  <tr className="border-b border-border/20"><td className="py-2"><code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">cardStandard</code></td><td className="py-2">p-6</td><td className="py-2 text-muted-foreground">Standard feature / dashboard cards</td></tr>
+                  <tr className="border-b border-border/20"><td className="py-2"><code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">emptyState</code></td><td className="py-2">py-12</td><td className="py-2 text-muted-foreground">Empty-state vertical padding</td></tr>
+                  <tr><td className="py-2"><code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">pageWrapper</code></td><td className="py-2">px-4 py-6 sm:px-6</td><td className="py-2 text-muted-foreground">Page content wrapper</td></tr>
+                </tbody>
+              </table>
+            </div>
           </CardContent>
         </Card>
       </Section>
@@ -279,6 +335,67 @@ export default function DesignSystemPage() {
             </Card>
           ))}
         </div>
+      </Section>
+
+      <Separator />
+
+      {/* ─── 7. UI Governance Rules ─── */}
+      <Section title="UI Governance Rules" icon={<Shield className="h-5 w-5 text-primary" />}>
+        <div className="grid gap-4 md:grid-cols-2">
+          <RuleCard title="Component Usage">
+            <p>✅ Always use system components from <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">@/components/system</code></p>
+            <p>❌ Never create card containers using raw <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"<div className=\"p-6 rounded-lg\">"}</code></p>
+            <p>✅ Use <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"<StatCard />"}</code>, <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"<MetricCard />"}</code>, <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"<ChartCard />"}</code></p>
+            <p>✅ All page titles must use <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"<PageHeader />"}</code></p>
+            <p>✅ All dashboard layouts must use <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"<DashboardGrid />"}</code></p>
+          </RuleCard>
+
+          <RuleCard title="Token Protection">
+            <p>✅ Tokens live only in <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">src/theme/tokens.ts</code></p>
+            <p>✅ Use <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">spacing.cardStandard</code>, <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">typography.metric</code></p>
+            <p>❌ Never use arbitrary values: <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">p-[22px]</code>, <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">text-[13px]</code></p>
+            <p>❌ Feature modules must not define custom tokens</p>
+          </RuleCard>
+
+          <RuleCard title="Protected Architecture">
+            <p>The following directories are core UI infrastructure:</p>
+            {DESIGN_SYSTEM.protectedPaths.map((p) => (
+              <p key={p}>🔒 <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{p}</code></p>
+            ))}
+            <p className="text-muted-foreground pt-1">Feature modules may consume but should not modify these layers.</p>
+          </RuleCard>
+
+          <RuleCard title="Feature Isolation">
+            <p>✅ Import from system: <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"import { MetricCard } from '@/components/system'"}</code></p>
+            <p>❌ Never redefine system components inside feature modules</p>
+            <p>❌ Never create custom metric/stat/chart cards in features</p>
+            <p>✅ Feature modules live in <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">src/features/*</code> and consume system components</p>
+          </RuleCard>
+        </div>
+      </Section>
+
+      <Separator />
+
+      {/* ─── 8. UI Update Workflow ─── */}
+      <Section title="UI Update Workflow" icon={<BookOpen className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard} space-y-3`}>
+            {[
+              { step: 1, text: "Update component in isolation" },
+              { step: 2, text: "Verify in /dev/components (sandbox)" },
+              { step: 3, text: "Verify in /dev/design-system (documentation)" },
+              { step: 4, text: "Validate key pages (Dashboard, Tasks, Analytics)" },
+              { step: 5, text: "Merge changes" },
+            ].map(({ step, text }) => (
+              <div key={step} className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <span className="text-xs font-bold text-primary">{step}</span>
+                </div>
+                <span className="text-sm text-foreground">{text}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </Section>
     </div>
   );
