@@ -3218,7 +3218,23 @@
       "updateError": "Failed to update award cycle",
       "deleteSuccess": "Award cycle deleted",
       "deleteError": "Failed to delete award cycle",
-      "statusAdvanced": "Cycle status advanced"
+      "statusAdvanced": "Cycle status advanced",
+      "edit": "Edit Cycle",
+      "delete": "Delete Cycle",
+      "editCycle": "Edit Award Cycle",
+      "confirmDelete": "Delete Award Cycle",
+      "confirmDeleteDescription": "Are you sure you want to delete this award cycle? This action cannot be undone.",
+      "impactAlert": {
+        "title": "Impact Warning",
+        "editDescription": "This cycle is currently active. Editing may affect participants.",
+        "deleteDescription": "This cycle is currently active. Deleting will affect all participants and data.",
+        "nominatingWarning": "Active nominations exist. Changes will affect nominees and endorsements.",
+        "votingWarning": "Voting is in progress. Changes will impact active ballots.",
+        "calculatingWarning": "Results are being calculated. Modifications may corrupt results.",
+        "announcedWarning": "Results have been published. Changes will affect announced winners.",
+        "proceed": "Proceed Anyway",
+        "cancel": "Cancel"
+      }
     },
     "cycleBuilder": {
       "title": "Create Award Cycle",
