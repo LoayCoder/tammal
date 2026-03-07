@@ -83,6 +83,7 @@ const RecognitionMonitor = lazy(() => import("@/pages/admin/RecognitionMonitor")
 const PointsDashboard = lazy(() => import("@/pages/recognition/PointsDashboard"));
 const RedemptionCatalog = lazy(() => import("@/pages/recognition/RedemptionCatalog"));
 const RedemptionManagement = lazy(() => import("@/pages/admin/RedemptionManagement"));
+const NominationApprovalsPage = lazy(() => import("@/pages/recognition/NominationApprovalsPage"));
 const AIGovernance = lazy(() => import("@/pages/admin/AIGovernance"));
 const EscalationSettings = lazy(() => import("@/pages/admin/EscalationSettings"));
 const TaskDetail = lazy(() => import("@/features/tasks/pages/TaskDetail"));
@@ -202,6 +203,7 @@ const App = () => (
                 <Route path="/recognition/vote" element={<VotingBoothPage />} />
                 <Route path="/recognition/points" element={<PointsDashboard />} />
                 <Route path="/recognition/rewards" element={<RedemptionCatalog />} />
+                <Route path="/recognition/approvals" element={<NominationApprovalsPage />} />
               </Route>
 
               {/* ── Crisis routes ── */}

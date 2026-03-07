@@ -29,6 +29,10 @@ export interface Nomination {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+  manager_approval_status: string;
+  manager_approved_by: string | null;
+  manager_approval_at: string | null;
+  manager_rejection_reason: string | null;
 }
 
 export interface CreateNominationInput {
@@ -104,17 +108,19 @@ export function useNominations(cycleId?: string, themeId?: string) {
   });
 
   const createNomination = useMutation({
-    mutationFn: async (input: CreateNominationInput) => {
+    mutationFn: async (input: CreateNominationInput & { allowAppeals?: boolean }) => {
       if (!tenantId || !user?.id) throw new Error('Missing context');
+      const { allowAppeals, ...rest } = input;
       const { data, error } = await supabase
         .from('nominations')
         .insert({
-          ...input,
+          ...rest,
           tenant_id: tenantId,
           nominator_id: user.id,
           nominator_department_id: null,
           status: 'submitted',
           submitted_at: new Date().toISOString(),
+          manager_approval_status: allowAppeals ? 'pending' : 'not_required',
         })
         .select()
         .single();
@@ -125,6 +131,7 @@ export function useNominations(cycleId?: string, themeId?: string) {
       qc.invalidateQueries({ queryKey: ['nominations'] });
       qc.invalidateQueries({ queryKey: ['my-nominations'] });
       qc.invalidateQueries({ queryKey: ['manager-quota'] });
+      qc.invalidateQueries({ queryKey: ['nomination-approvals'] });
       toast.success(t('recognition.nominations.submitSuccess'));
     },
     onError: () => toast.error(t('recognition.nominations.submitError')),

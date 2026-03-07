@@ -3402,6 +3402,20 @@
         "manager": "Manager",
         "peer": "Peer",
         "self": "Self"
+      },
+      "managerApproval": "Manager Approval",
+      "pendingManagerApproval": "Pending Manager Approval",
+      "managerApproved": "Manager Approved",
+      "managerRejected": "Manager Rejected",
+      "rejectionReason": "Rejection Reason",
+      "approveNomination": "Approve",
+      "rejectNomination": "Reject",
+      "requiresManagerApproval": "This nomination requires approval from the nominee's manager",
+      "noPendingApprovals": "No nominations pending your approval",
+      "managerApprovalStatus": {
+        "pending": "Pending Approval",
+        "approved": "Manager Approved",
+        "rejected": "Manager Rejected"
       }
     },
     "endorsements": {

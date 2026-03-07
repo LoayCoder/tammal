@@ -28,6 +28,13 @@ const endorsementColors: Record<string, string> = {
   insufficient: 'bg-destructive/10 text-destructive',
 };
 
+const managerApprovalColors: Record<string, string> = {
+  not_required: '',
+  pending: 'bg-chart-4/10 text-chart-4',
+  approved: 'bg-chart-2/10 text-chart-2',
+  rejected: 'bg-destructive/10 text-destructive',
+};
+
 export function NominationCard({
   nomination,
   nomineeName,
@@ -68,6 +75,17 @@ export function NominationCard({
           </div>
         )}
         <p className="text-sm text-muted-foreground line-clamp-3">{nomination.justification}</p>
+
+        {nomination.manager_approval_status && nomination.manager_approval_status !== 'not_required' && (
+          <div className="space-y-1">
+            <Badge className={managerApprovalColors[nomination.manager_approval_status] || ''} variant="outline">
+              {t(`recognition.nominations.managerApprovalStatus.${nomination.manager_approval_status}`, nomination.manager_approval_status)}
+            </Badge>
+            {nomination.manager_approval_status === 'rejected' && nomination.manager_rejection_reason && (
+              <p className="text-xs text-destructive">{nomination.manager_rejection_reason}</p>
+            )}
+          </div>
+        )}
 
         <div className="flex items-center justify-between pt-1">
           <div className="flex items-center gap-3">
