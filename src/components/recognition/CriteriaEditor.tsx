@@ -36,7 +36,7 @@ export function CriteriaEditor({ themeId }: CriteriaEditorProps) {
       onSuccess: () => {
         setAdding(false);
         setNewName('');
-        setNewWeight(0.25);
+        setNewWeight(Math.min(0.25, Math.max(0.05, 1 - (totalWeight + newWeight))));
         setNewDescription('');
       },
     });
