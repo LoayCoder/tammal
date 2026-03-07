@@ -12,7 +12,7 @@ import { QuotaIndicator } from './QuotaIndicator';
 import { EndorsementForm } from './EndorsementCard';
 import { NominationCriteriaForm } from './NominationCriteriaForm';
 import { CriteriaWeightTable } from './CriteriaWeightTable';
-import { useNominations, useManagerQuota, type CreateNominationInput } from '@/hooks/recognition/useNominations';
+import { useNominations, useManagerQuota, usePeerQuota, type CreateNominationInput } from '@/hooks/recognition/useNominations';
 import { useEndorsements } from '@/hooks/recognition/useEndorsements';
 import { useEmployees } from '@/hooks/org/useEmployees';
 import { useAuth } from '@/hooks/auth/useAuth';
@@ -36,7 +36,8 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
   const { user } = useAuth();
   const { tenantId } = useTenantId();
   const { createNomination } = useNominations();
-  const { data: quota } = useManagerQuota(themeId);
+  const { data: managerQuota } = useManagerQuota(themeId);
+  const { data: peerQuota } = usePeerQuota(themeId);
   const { employees = [] } = useEmployees();
 
   const [step, setStep] = useState<Step>('select_nominee');
@@ -142,8 +143,13 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
       </div>
 
       {/* Quota indicator for managers */}
-      {nominatorRole === 'manager' && quota && (
-        <QuotaIndicator used={quota.used} total={quota.total} teamSize={quota.teamSize} />
+      {nominatorRole === 'manager' && managerQuota && (
+        <QuotaIndicator type="manager" used={managerQuota.used} total={managerQuota.total} teamSize={managerQuota.teamSize} />
+      )}
+
+      {/* Quota indicator for peers */}
+      {nominatorRole === 'peer' && peerQuota && (
+        <QuotaIndicator type="peer" used={peerQuota.used} total={peerQuota.total} />
       )}
 
       {/* Step 1: Select Nominee */}
