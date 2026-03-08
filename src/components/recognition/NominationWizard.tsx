@@ -367,8 +367,20 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onBac
               {allowAppeals && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">{t('recognition.nominations.managerApproval')}</span>
-                  <Badge variant="secondary">{t('recognition.nominations.managerApprovalStatus.pending')}</Badge>
+                  {selectedEmployee?.manager_id ? (
+                    <Badge variant="secondary">{t('recognition.nominations.managerApprovalStatus.pending')}</Badge>
+                  ) : (
+                    <Badge variant="outline">{t('recognition.nominations.managerApprovalStatus.not_required')}</Badge>
+                  )}
                 </div>
+              )}
+              {allowAppeals && !selectedEmployee?.manager_id && (
+                <Alert className="mt-2">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    {t('recognition.nominations.noManagerNote', 'This nominee has no manager assigned — manager approval will be skipped.')}
+                  </AlertDescription>
+                </Alert>
               )}
             </div>
             <p className="text-sm text-muted-foreground line-clamp-4">{justification}</p>

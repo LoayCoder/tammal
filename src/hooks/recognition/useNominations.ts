@@ -111,6 +111,19 @@ export function useNominations(cycleId?: string, themeId?: string) {
     mutationFn: async (input: CreateNominationInput & { allowAppeals?: boolean }) => {
       if (!tenantId || !user?.id) throw new Error('Missing context');
       const { allowAppeals, ...rest } = input;
+
+      // Check if nominee has a manager assigned
+      let approvalStatus: 'pending' | 'not_required' = 'not_required';
+      if (allowAppeals) {
+        const { data: nomineeEmp } = await supabase
+          .from('employees')
+          .select('manager_id')
+          .eq('user_id', rest.nominee_id)
+          .is('deleted_at', null)
+          .maybeSingle();
+        approvalStatus = nomineeEmp?.manager_id ? 'pending' : 'not_required';
+      }
+
       const { data, error } = await supabase
         .from('nominations')
         .insert({
@@ -120,7 +133,7 @@ export function useNominations(cycleId?: string, themeId?: string) {
           nominator_department_id: null,
           status: 'submitted',
           submitted_at: new Date().toISOString(),
-          manager_approval_status: allowAppeals ? 'pending' : 'not_required',
+          manager_approval_status: approvalStatus,
         })
         .select()
         .single();
