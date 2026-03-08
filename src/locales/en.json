@@ -3429,7 +3429,8 @@
         "select_nominee": "Nominee",
         "justification": "Justification",
         "criteria_evaluation": "Criteria",
-        "review": "Review"
+        "review": "Review",
+        "request_endorsements": "Endorsements"
       },
       "status": {
         "draft": "Draft",
