@@ -79,6 +79,9 @@ export default function EmployeeHome() {
           </Badge>
         </div>
 
+        {/* Pending Endorsement Requests */}
+        <DashboardEndorsementRequests />
+
         {/* Inline Daily Check-in */}
         {employee && !todayEntry && employee.user_id && (
           <InlineDailyCheckin employeeId={employee.id} tenantId={employee.tenant_id} userId={employee.user_id} />
@@ -127,8 +130,6 @@ export default function EmployeeHome() {
           </Link>
         )}
 
-        {/* Pending Endorsement Requests */}
-        <DashboardEndorsementRequests />
 
         {/* Mental Health Tools Hub */}
         <MentalHealthToolsHub />
