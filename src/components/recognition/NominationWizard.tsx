@@ -28,8 +28,8 @@ interface NominationWizardProps {
   onComplete?: () => void;
 }
 
-type Step = 'select_nominee' | 'justification' | 'criteria_evaluation' | 'endorsements' | 'review';
-const STEPS: Step[] = ['select_nominee', 'justification', 'criteria_evaluation', 'endorsements', 'review'];
+type Step = 'select_nominee' | 'justification' | 'criteria_evaluation' | 'review';
+const STEPS: Step[] = ['select_nominee', 'justification', 'criteria_evaluation', 'review'];
 
 export function NominationWizard({ cycleId, themeId, onComplete }: NominationWizardProps) {
   const { t } = useTranslation();
