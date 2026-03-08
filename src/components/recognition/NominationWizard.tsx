@@ -19,8 +19,9 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { supabase } from '@/integrations/supabase/client';
 import type { CriterionEvaluation } from './CriteriaEvaluationForm';
-import { User, FileText, Scale, ThumbsUp, CheckCircle, ChevronLeft, ChevronRight, Users } from 'lucide-react';
+import { User, FileText, Scale, ThumbsUp, CheckCircle, ChevronLeft, ChevronRight, Users, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface NominationWizardProps {
   cycleId: string;
@@ -41,6 +42,24 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onCom
   const { data: managerQuota } = useManagerQuota(themeId);
   const { data: peerQuota } = usePeerQuota(themeId);
   const { employees = [] } = useEmployees();
+
+  // Fetch existing nominations by current user in this cycle to prevent duplicates
+  const { data: existingNominations } = useQuery({
+    queryKey: ['user-cycle-nominations', cycleId, user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('nominations')
+        .select('nominee_id')
+        .eq('cycle_id', cycleId)
+        .eq('nominator_id', user!.id)
+        .is('deleted_at', null);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!cycleId && !!user?.id,
+  });
+
+  const alreadyNominatedIds = new Set(existingNominations?.map(n => n.nominee_id) ?? []);
 
   // Fetch cycle fairness_config to determine allowAppeals
   const { data: cycleConfig } = useQuery({
@@ -80,9 +99,12 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onCom
 
   const selectedEmployee = employees.find(e => e.user_id === nomineeId);
 
-  const eligibleEmployees = nominatorRole === 'self'
+  const eligibleEmployees = (nominatorRole === 'self'
     ? employees.filter(e => e.user_id === user?.id)
-    : employees.filter(e => e.user_id !== user?.id);
+    : employees.filter(e => e.user_id !== user?.id)
+  ).filter(e => !e.user_id || !alreadyNominatedIds.has(e.user_id));
+
+  const isPreselectedAlreadyNominated = !!preselectedNomineeId && alreadyNominatedIds.has(preselectedNomineeId);
 
   // Extract allowAppeals from cycle fairness_config
   const allowAppeals = (() => {
@@ -212,6 +234,15 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onCom
                 </SelectContent>
               </Select>
             </div>
+
+            {isPreselectedAlreadyNominated && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  {t('recognition.nominations.alreadyNominatedInCycle', 'You have already nominated this person in this cycle. Please select a different colleague.')}
+                </AlertDescription>
+              </Alert>
+            )}
 
             <div className="space-y-2">
               <Label>{t('recognition.nominations.nominee')}</Label>
