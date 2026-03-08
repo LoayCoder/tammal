@@ -235,6 +235,15 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onCom
               </Select>
             </div>
 
+            {isPreselectedAlreadyNominated && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  {t('recognition.nominations.alreadyNominatedInCycle', 'You have already nominated this person in this cycle. Please select a different colleague.')}
+                </AlertDescription>
+              </Alert>
+            )}
+
             <div className="space-y-2">
               <Label>{t('recognition.nominations.nominee')}</Label>
               <Select value={nomineeId} onValueChange={setNomineeId}>
