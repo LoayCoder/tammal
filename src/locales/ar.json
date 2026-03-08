@@ -3267,7 +3267,8 @@
         "select_nominee": "المرشح",
         "justification": "المبررات",
         "criteria_evaluation": "المعايير",
-        "review": "مراجعة"
+        "review": "مراجعة",
+        "request_endorsements": "التزكيات"
       },
       "status": {
         "draft": "مسودة",
