@@ -329,6 +329,7 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
                 <EndorsementRequestPicker
                   nominationId={createdNominationId}
                   nomineeId={nomineeId}
+                  managerApprovalPending={managerApprovalPending}
                   onComplete={onComplete}
                 />
               </div>
