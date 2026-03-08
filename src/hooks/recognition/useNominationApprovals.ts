@@ -52,6 +52,7 @@ export function useNominationApprovals() {
       const { data, error } = await supabase
         .from('nominations')
         .select('*')
+        .eq('tenant_id', tenantId)
         .in('nominee_id', reportUserIds)
         .eq('manager_approval_status', 'pending')
         .is('deleted_at', null)
