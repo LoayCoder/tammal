@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,13 +14,12 @@ import { EndorsementRequestPicker } from './EndorsementRequestPicker';
 import { NominationCriteriaForm } from './NominationCriteriaForm';
 import { CriteriaWeightTable } from './CriteriaWeightTable';
 import { useNominations, useManagerQuota, usePeerQuota, type CreateNominationInput } from '@/hooks/recognition/useNominations';
-import { useEndorsements } from '@/hooks/recognition/useEndorsements';
 import { useEmployees } from '@/hooks/org/useEmployees';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { supabase } from '@/integrations/supabase/client';
 import type { CriterionEvaluation } from './CriteriaEvaluationForm';
-import { User, FileText, Scale, ThumbsUp, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { User, FileText, Scale, ThumbsUp, CheckCircle, ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface NominationWizardProps {
@@ -28,8 +28,9 @@ interface NominationWizardProps {
   onComplete?: () => void;
 }
 
-type Step = 'select_nominee' | 'justification' | 'criteria_evaluation' | 'review';
-const STEPS: Step[] = ['select_nominee', 'justification', 'criteria_evaluation', 'review'];
+type Step = 'select_nominee' | 'justification' | 'criteria_evaluation' | 'review' | 'request_endorsements';
+const STEPS: Step[] = ['select_nominee', 'justification', 'criteria_evaluation', 'review', 'request_endorsements'];
+const VISIBLE_STEPS: Step[] = ['select_nominee', 'justification', 'criteria_evaluation', 'review'];
 
 export function NominationWizard({ cycleId, themeId, onComplete }: NominationWizardProps) {
   const { t } = useTranslation();
@@ -39,6 +40,22 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
   const { data: managerQuota } = useManagerQuota(themeId);
   const { data: peerQuota } = usePeerQuota(themeId);
   const { employees = [] } = useEmployees();
+
+  // Fetch cycle fairness_config to determine allowAppeals
+  const { data: cycleConfig } = useQuery({
+    queryKey: ['cycle-config', cycleId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('award_cycles')
+        .select('fairness_config')
+        .eq('id', cycleId)
+        .is('deleted_at', null)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!cycleId,
+  });
 
   const [step, setStep] = useState<Step>('select_nominee');
   const [nomineeId, setNomineeId] = useState('');
@@ -51,8 +68,12 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
   const [createdNominationId, setCreatedNominationId] = useState<string | null>(null);
   const [managerApprovalPending, setManagerApprovalPending] = useState(false);
 
+  // Progress bar only shows the 4 visible steps
+  const visibleStepIdx = VISIBLE_STEPS.indexOf(step as any);
   const currentStepIdx = STEPS.indexOf(step);
-  const progressPercent = ((currentStepIdx + 1) / STEPS.length) * 100;
+  const progressPercent = step === 'request_endorsements'
+    ? 100
+    : ((visibleStepIdx + 1) / VISIBLE_STEPS.length) * 100;
   const justificationLength = justification.trim().length;
   const isJustificationValid = justificationLength >= 200 && justificationLength <= 10000;
 
@@ -61,6 +82,12 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
   const eligibleEmployees = nominatorRole === 'self'
     ? employees.filter(e => e.user_id === user?.id)
     : employees.filter(e => e.user_id !== user?.id);
+
+  // Extract allowAppeals from cycle fairness_config
+  const allowAppeals = (() => {
+    const fc = cycleConfig?.fairness_config as any;
+    return fc?.auditSettings?.allowAppeals === true;
+  })();
 
   const goNext = () => {
     const idx = currentStepIdx + 1;
@@ -91,7 +118,7 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
         specific_examples: examples.trim() ? examples.split('\n').filter(Boolean) : undefined,
         impact_metrics: impact.trim() ? impact.split('\n').filter(Boolean) : undefined,
       };
-      const result = await createNomination.mutateAsync(input);
+      const result = await createNomination.mutateAsync({ ...input, allowAppeals });
       setCreatedNominationId(result.id);
       setManagerApprovalPending((result as any).manager_approval_status === 'pending');
 
@@ -107,7 +134,8 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
         await supabase.from('nomination_criteria_evaluations').insert(rows);
       }
 
-      goNext(); // go to endorsements step
+      // Auto-advance to endorsement step
+      setStep('request_endorsements');
     } catch {
       // error handled by mutation
     }
@@ -135,25 +163,27 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
 
   return (
     <div className="space-y-4">
-      {/* Progress */}
-      <div className="space-y-2">
-        <div className="flex justify-between text-xs text-muted-foreground">
-          {STEPS.map((s, i) => (
-            <span key={s} className={i <= currentStepIdx ? 'text-primary font-medium' : ''}>
-              {t(`recognition.nominations.steps.${s}`)}
-            </span>
-          ))}
+      {/* Progress — only show for main 4 steps */}
+      {step !== 'request_endorsements' && (
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs text-muted-foreground">
+            {VISIBLE_STEPS.map((s, i) => (
+              <span key={s} className={i <= visibleStepIdx ? 'text-primary font-medium' : ''}>
+                {t(`recognition.nominations.steps.${s}`)}
+              </span>
+            ))}
+          </div>
+          <Progress value={progressPercent} className="h-1.5" />
         </div>
-        <Progress value={progressPercent} className="h-1.5" />
-      </div>
+      )}
 
       {/* Quota indicator for managers */}
-      {nominatorRole === 'manager' && managerQuota && (
+      {nominatorRole === 'manager' && managerQuota && step === 'select_nominee' && (
         <QuotaIndicator type="manager" used={managerQuota.used} total={managerQuota.total} teamSize={managerQuota.teamSize} />
       )}
 
       {/* Quota indicator for peers */}
-      {nominatorRole === 'peer' && peerQuota && (
+      {nominatorRole === 'peer' && peerQuota && step === 'select_nominee' && (
         <QuotaIndicator type="peer" used={peerQuota.used} total={peerQuota.total} />
       )}
 
@@ -278,9 +308,7 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
         />
       )}
 
-      {/* Endorsements happen after submission via the "Endorse" tab */}
-
-      {/* Step 5: Review */}
+      {/* Step 4: Review */}
       {step === 'review' && (
         <Card>
           <CardHeader>
@@ -303,6 +331,12 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
                 <span className="text-muted-foreground">{t('recognition.nominations.headline')}</span>
                 <span className="font-medium text-end max-w-[60%]">{headline}</span>
               </div>
+              {allowAppeals && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">{t('recognition.nominations.managerApproval')}</span>
+                  <Badge variant="secondary">{t('recognition.nominations.status.pending')}</Badge>
+                </div>
+              )}
             </div>
             <p className="text-sm text-muted-foreground line-clamp-4">{justification}</p>
 
@@ -318,28 +352,39 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
                 label={t('recognition.criteriaEval.title')}
               />
             )}
-
-            {createdNominationId ? (
-              <div className="space-y-4">
-                <div className="text-center py-4">
-                  <CheckCircle className="h-10 w-10 text-chart-2 mx-auto mb-2" />
-                  <p className="font-medium">{t('recognition.nominations.submitted')}</p>
-                </div>
-                {/* Endorsement request picker */}
-                <EndorsementRequestPicker
-                  nominationId={createdNominationId}
-                  nomineeId={nomineeId}
-                  managerApprovalPending={managerApprovalPending}
-                  onComplete={onComplete}
-                />
-              </div>
-            ) : null}
           </CardContent>
         </Card>
       )}
 
-      {/* Navigation — skip for criteria_evaluation (has its own nav) */}
-      {step !== 'criteria_evaluation' && (
+      {/* Step 5: Request Endorsements (dedicated post-submission step) */}
+      {step === 'request_endorsements' && createdNominationId && (
+        <div className="space-y-4">
+          <div className="text-center py-4">
+            <CheckCircle className="h-10 w-10 text-chart-2 mx-auto mb-2" />
+            <p className="font-medium text-lg">{t('recognition.nominations.submitted')}</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {t('recognition.endorsements.endorsementStepDescription')}
+            </p>
+          </div>
+
+          <EndorsementRequestPicker
+            nominationId={createdNominationId}
+            nomineeId={nomineeId}
+            managerApprovalPending={managerApprovalPending}
+            onComplete={onComplete}
+          />
+
+          {/* Always show a Done button at the bottom */}
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={onComplete}>
+              {t('common.done')}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation — skip for criteria_evaluation (has its own nav) and request_endorsements */}
+      {step !== 'criteria_evaluation' && step !== 'request_endorsements' && (
         <div className="flex items-center justify-between">
           <Button
             variant="outline"
@@ -350,16 +395,16 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
             {t('common.back')}
           </Button>
 
-          {step === 'review' && !createdNominationId ? (
+          {step === 'review' ? (
             <Button onClick={handleSubmit} disabled={!canProceed() || createNomination.isPending}>
               {t('recognition.nominations.submitNomination')}
             </Button>
-          ) : step !== 'review' ? (
+          ) : (
             <Button onClick={goNext} disabled={!canProceed()}>
               {t('common.next')}
               <ChevronRight className="h-4 w-4 ms-1 rtl:rotate-180" />
             </Button>
-          ) : null}
+          )}
         </div>
       )}
     </div>

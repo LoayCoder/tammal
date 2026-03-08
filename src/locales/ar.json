@@ -3267,7 +3267,8 @@
         "select_nominee": "المرشح",
         "justification": "المبررات",
         "criteria_evaluation": "المعايير",
-        "review": "مراجعة"
+        "review": "مراجعة",
+        "request_endorsements": "التزكيات"
       },
       "status": {
         "draft": "مسودة",
@@ -3337,7 +3338,8 @@
       "requestsError": "فشل إرسال طلبات التزكية",
       "skipForNow": "تخطي الآن",
       "noColleaguesFound": "لم يتم العثور على زملاء",
-      "endorsementsPendingApproval": "سيتم إرسال طلبات التزكية بعد موافقة المدير"
+      "endorsementsPendingApproval": "سيتم إرسال طلبات التزكية بعد موافقة المدير",
+      "endorsementStepDescription": "الآن اختر الزملاء لتزكية هذا الترشيح"
     },
     "voting": {
       "title": "غرفة التصويت",

@@ -58,6 +58,7 @@ export function useEndorsements(nominationId?: string) {
       const { data: requests, error: reqErr } = await supabase
         .from('endorsement_requests')
         .select('nomination_id')
+        .eq('tenant_id', tenantId)
         .eq('requested_user_id', user.id)
         .eq('status', 'pending')
         .is('deleted_at', null);

@@ -98,7 +98,8 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, managerAppro
       toast.success(managerApprovalPending
         ? t('recognition.endorsements.endorsementsPendingApproval')
         : t('recognition.endorsements.requestsSent'));
-    } catch {
+    } catch (err) {
+      console.error('[EndorsementRequestPicker] Failed to send endorsement requests:', err);
       toast.error(t('recognition.endorsements.requestsError'));
     } finally {
       setSending(false);

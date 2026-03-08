@@ -52,6 +52,7 @@ export function useNominationApprovals() {
       const { data, error } = await supabase
         .from('nominations')
         .select('*')
+        .eq('tenant_id', tenantId)
         .in('nominee_id', reportUserIds)
         .eq('manager_approval_status', 'pending')
         .is('deleted_at', null)
@@ -60,7 +61,7 @@ export function useNominationApprovals() {
       if (error) throw error;
       return data as unknown as Nomination[];
     },
-    enabled: !!user?.id && !!tenantId,
+    enabled: !!user?.id && !!tenantId && !!tenantId,
   });
 
   const approveNomination = useMutation({
