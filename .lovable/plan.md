@@ -1,87 +1,32 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+## Plan: Allow Managers to Add Extra Endorsers When Approving
 
-## 1. Folder Architecture — ✅ PASS
+### What
+When a manager approves a nomination, allow them to optionally select additional colleagues as endorsers — reusing the existing `EndorsementRequestPicker` component. The picker appears inline on the approval card (toggled via a button), and any selected endorsers are submitted alongside the approval action.
 
-The project follows a clean modular structure:
+### Changes
 
-```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
-```
+**1. `ManagerApprovalCard.tsx`** — Add endorser picker section
+- Add a collapsible `EndorsementRequestPicker`-like section (reuse the employee list pattern) with a toggle button ("Add Additional Endorsers")
+- Track `additionalEndorserIds: Set<string>` in state
+- Pass these IDs to `onApprove` alongside criteria adjustments
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+**2. Update `onApprove` signature** — Both in `ManagerApprovalCard` props and `NominationApprovalsPage`
+- Extend to accept optional `additionalEndorserIds: string[]`
+- Pass through to the mutation
 
----
+**3. `useNominationApprovals.ts` — `approveNomination` mutation**
+- Accept optional `additionalEndorserIds: string[]`
+- After approval update, insert new rows into `endorsement_requests` for each additional endorser
+- Send `recognition_notifications` for the new endorsers (since approval is already done, notifications go immediately)
 
-## 2. Feature Isolation — ✅ PASS
+**4. Translations** — Add keys for the new UI
+- `en.json`: `"addAdditionalEndorsers"`, `"managerAddedEndorsers"`
+- `ar.json`: Arabic equivalents
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+### Technical Details
+- Reuse employee fetching via `useEmployees()` hook inside the card
+- Filter out: nominee, nominator, current user, and already-requested endorsers (fetch existing `endorsement_requests` for this nomination)
+- No DB schema changes needed — `endorsement_requests` table already supports `requested_by` which will be the manager's user_id
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
-
----
-
-## 3. Backend Architecture — ✅ PASS
-
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
-
----
-
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
-
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
-
-## Summary
-
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
-
-**No FAIL conditions found.** Architecture is production-ready.
