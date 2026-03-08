@@ -124,8 +124,6 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
         return !!headline.trim() && isJustificationValid;
       case 'criteria_evaluation':
         return true;
-      case 'endorsements':
-        return true;
       case 'review':
         return true;
       default:
@@ -278,26 +276,7 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
         />
       )}
 
-      {/* Step 4: Endorsements */}
-      {step === 'endorsements' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <ThumbsUp className="h-5 w-5" />
-              {t('recognition.endorsements.title')}
-            </CardTitle>
-            <CardDescription>{t('recognition.endorsements.desc')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              {t('recognition.endorsements.requestNote')}
-            </p>
-            <Button variant="outline" onClick={goNext}>
-              {t('recognition.nominations.skipForNow')}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+      {/* Endorsements happen after submission via the "Endorse" tab */}
 
       {/* Step 5: Review */}
       {step === 'review' && (
