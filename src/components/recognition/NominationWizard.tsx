@@ -334,7 +334,7 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
               {allowAppeals && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">{t('recognition.nominations.managerApproval')}</span>
-                  <Badge variant="secondary">{t('recognition.nominations.status.pending')}</Badge>
+                  <Badge variant="secondary">{t('recognition.nominations.managerApprovalStatus.pending')}</Badge>
                 </div>
               )}
             </div>
