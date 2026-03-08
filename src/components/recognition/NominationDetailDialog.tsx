@@ -11,7 +11,7 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Nomination } from '@/hooks/recognition/useNominations';
-import { FileText, ThumbsUp, User, Calendar, Tag, Trophy } from 'lucide-react';
+import { FileText, ThumbsUp, User, Calendar, Tag } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface NominationDetailDialogProps {
