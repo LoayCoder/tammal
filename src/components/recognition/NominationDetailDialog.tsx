@@ -30,7 +30,7 @@ export function NominationDetailDialog({
   nominatorName,
 }: NominationDetailDialogProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  
   const { user } = useAuth();
   const { endorsements, isPending, submitEndorsement, validCount } = useEndorsements(nomination?.id);
 
