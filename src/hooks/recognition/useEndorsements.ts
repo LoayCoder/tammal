@@ -122,6 +122,13 @@ export function useEndorsements(nominationId?: string) {
           .eq('id', input.nomination_id);
       }
 
+      // Mark endorsement request as completed
+      await supabase
+        .from('endorsement_requests')
+        .update({ status: 'completed', responded_at: new Date().toISOString() } as any)
+        .eq('nomination_id', input.nomination_id)
+        .eq('requested_user_id', user.id);
+
       return data;
     },
     onSuccess: () => {
