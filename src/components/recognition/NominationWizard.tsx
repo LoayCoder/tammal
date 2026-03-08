@@ -59,7 +59,7 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onCom
   });
 
   const [step, setStep] = useState<Step>('select_nominee');
-  const [nomineeId, setNomineeId] = useState('');
+  const [nomineeId, setNomineeId] = useState(preselectedNomineeId || '');
   const [nominatorRole, setNominatorRole] = useState<'manager' | 'peer' | 'self'>('peer');
   const [headline, setHeadline] = useState('');
   const [justification, setJustification] = useState('');

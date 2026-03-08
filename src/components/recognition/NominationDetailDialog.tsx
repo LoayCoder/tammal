@@ -194,6 +194,20 @@ export function NominationDetailDialog({
               />
             </>
           )}
+
+          {/* Nominate for different theme */}
+          <Separator />
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => {
+              navigate(`/recognition/nominate?cycle=${nomination.cycle_id}&nominee=${nomination.nominee_id}`);
+              onOpenChange(false);
+            }}
+          >
+            <Trophy className="h-4 w-4 me-2" />
+            {t('recognition.nominations.nominateForDifferentTheme', 'Nominate for a Different Theme')}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
