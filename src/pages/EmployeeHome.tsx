@@ -130,8 +130,6 @@ export default function EmployeeHome() {
           </Link>
         )}
 
-        {/* Pending Endorsement Requests */}
-        <DashboardEndorsementRequests />
 
         {/* Mental Health Tools Hub */}
         <MentalHealthToolsHub />
