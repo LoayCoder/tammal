@@ -19,8 +19,9 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { supabase } from '@/integrations/supabase/client';
 import type { CriterionEvaluation } from './CriteriaEvaluationForm';
-import { User, FileText, Scale, ThumbsUp, CheckCircle, ChevronLeft, ChevronRight, Users } from 'lucide-react';
+import { User, FileText, Scale, ThumbsUp, CheckCircle, ChevronLeft, ChevronRight, Users, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface NominationWizardProps {
   cycleId: string;
