@@ -49,6 +49,7 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
   const [impact, setImpact] = useState('');
   const [criteriaEvaluations, setCriteriaEvaluations] = useState<CriterionEvaluation[]>([]);
   const [createdNominationId, setCreatedNominationId] = useState<string | null>(null);
+  const [managerApprovalPending, setManagerApprovalPending] = useState(false);
 
   const currentStepIdx = STEPS.indexOf(step);
   const progressPercent = ((currentStepIdx + 1) / STEPS.length) * 100;
