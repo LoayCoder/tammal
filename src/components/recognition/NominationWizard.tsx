@@ -27,6 +27,7 @@ interface NominationWizardProps {
   cycleId: string;
   themeId: string;
   preselectedNomineeId?: string;
+  onBack?: () => void;
   onComplete?: () => void;
 }
 
@@ -34,7 +35,7 @@ type Step = 'select_nominee' | 'justification' | 'criteria_evaluation' | 'review
 const STEPS: Step[] = ['select_nominee', 'justification', 'criteria_evaluation', 'review', 'request_endorsements'];
 const VISIBLE_STEPS: Step[] = ['select_nominee', 'justification', 'criteria_evaluation', 'review'];
 
-export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onComplete }: NominationWizardProps) {
+export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onBack, onComplete }: NominationWizardProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { tenantId } = useTenantId();
@@ -420,8 +421,14 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onCom
         <div className="flex items-center justify-between">
           <Button
             variant="outline"
-            onClick={goPrev}
-            disabled={currentStepIdx === 0}
+            onClick={() => {
+              if (currentStepIdx === 0 && onBack) {
+                onBack();
+              } else {
+                goPrev();
+              }
+            }}
+            disabled={currentStepIdx === 0 && !onBack}
           >
             <ChevronLeft className="h-4 w-4 me-1 rtl:rotate-180" />
             {t('common.back')}
