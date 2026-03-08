@@ -123,6 +123,9 @@ export default function EmployeeHome() {
           </Link>
         )}
 
+        {/* Pending Endorsement Requests */}
+        <DashboardEndorsementRequests />
+
         {/* Spiritual Wellbeing Widgets */}
         <DashboardPrayerWidget />
         <DashboardIslamicCalendarWidget />
