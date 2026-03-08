@@ -121,6 +121,8 @@ export default function MyNominationsPage() {
                     nomination={n}
                     nomineeName={employeeMap[n.nominee_id]}
                     showActions
+                    onEdit={() => setEditingNomination(n)}
+                    onDelete={() => setDeletingId(n.id)}
                   />
                 </div>
               ))}
