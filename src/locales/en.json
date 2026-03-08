@@ -3460,6 +3460,8 @@
       "rejectNomination": "Reject",
       "requiresManagerApproval": "This nomination requires approval from the nominee's manager",
       "noPendingApprovals": "No nominations pending your approval",
+      "addAdditionalEndorsers": "Add Additional Endorsers",
+      "managerAddedEndorsers": "Manager added {{count}} endorser(s)",
       "managerApprovalStatus": {
         "pending": "Pending Approval",
         "approved": "Manager Approved",
