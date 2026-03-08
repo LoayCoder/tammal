@@ -48,23 +48,35 @@ export function useEndorsements(nominationId?: string) {
     enabled: !!nominationId && !!tenantId,
   });
 
-  // Nominations that need my endorsement (submitted, not yet endorsed by me)
+  // Nominations that need my endorsement — only those where I was specifically requested
   const { data: myEndorsementRequests = [], isPending: requestsPending } = useQuery({
     queryKey: ['my-endorsement-requests', user?.id, tenantId],
     queryFn: async () => {
       if (!user?.id || !tenantId) return [];
-      // Find submitted nominations where I haven't endorsed yet
+
+      // Find endorsement requests addressed to me
+      const { data: requests, error: reqErr } = await supabase
+        .from('endorsement_requests')
+        .select('nomination_id')
+        .eq('requested_user_id', user.id)
+        .eq('status', 'pending')
+        .is('deleted_at', null);
+      if (reqErr) throw reqErr;
+      if (!requests?.length) return [];
+
+      const nominationIds = requests.map(r => r.nomination_id);
+
+      // Fetch those nominations
       const { data: nominations, error: nomErr } = await supabase
         .from('nominations')
-        .select('id, nominee_id, theme_id, headline, justification, cycle_id')
-        .eq('endorsement_status', 'pending')
+        .select('id, nominee_id, nominator_id, theme_id, headline, justification, cycle_id')
+        .in('id', nominationIds)
         .in('status', ['submitted', 'endorsed'])
         .is('deleted_at', null);
       if (nomErr) throw nomErr;
       if (!nominations?.length) return [];
 
-      // Filter out nominations where I'm the nominee (can't endorse yourself)
-      // and where I've already endorsed
+      // Filter out ones I've already endorsed
       const { data: myEndorsements } = await supabase
         .from('peer_endorsements')
         .select('nomination_id')
@@ -72,7 +84,7 @@ export function useEndorsements(nominationId?: string) {
         .is('deleted_at', null);
       const endorsedSet = new Set(myEndorsements?.map(e => e.nomination_id) || []);
 
-      return nominations.filter(n => 
+      return nominations.filter(n =>
         n.nominee_id !== user.id && !endorsedSet.has(n.id)
       );
     },
@@ -109,6 +121,13 @@ export function useEndorsements(nominationId?: string) {
           .update({ endorsement_status: 'sufficient', status: 'endorsed' })
           .eq('id', input.nomination_id);
       }
+
+      // Mark endorsement request as completed
+      await supabase
+        .from('endorsement_requests')
+        .update({ status: 'completed', responded_at: new Date().toISOString() } as any)
+        .eq('nomination_id', input.nomination_id)
+        .eq('requested_user_id', user.id);
 
       return data;
     },

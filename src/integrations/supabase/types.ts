@@ -1961,6 +1961,57 @@ export type Database = {
           },
         ]
       }
+      endorsement_requests: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          id: string
+          nomination_id: string
+          requested_by: string
+          requested_user_id: string
+          responded_at: string | null
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          nomination_id: string
+          requested_by: string
+          requested_user_id: string
+          responded_at?: string | null
+          status?: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          nomination_id?: string
+          requested_by?: string
+          requested_user_id?: string
+          responded_at?: string | null
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "endorsement_requests_nomination_id_fkey"
+            columns: ["nomination_id"]
+            isOneToOne: false
+            referencedRelation: "nominations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "endorsement_requests_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       escalation_events: {
         Row: {
           created_at: string | null
