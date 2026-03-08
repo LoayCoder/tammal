@@ -49,6 +49,7 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
   const [impact, setImpact] = useState('');
   const [criteriaEvaluations, setCriteriaEvaluations] = useState<CriterionEvaluation[]>([]);
   const [createdNominationId, setCreatedNominationId] = useState<string | null>(null);
+  const [managerApprovalPending, setManagerApprovalPending] = useState(false);
 
   const currentStepIdx = STEPS.indexOf(step);
   const progressPercent = ((currentStepIdx + 1) / STEPS.length) * 100;
@@ -92,6 +93,7 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
       };
       const result = await createNomination.mutateAsync(input);
       setCreatedNominationId(result.id);
+      setManagerApprovalPending((result as any).manager_approval_status === 'pending');
 
       // Save criteria evaluations
       if (criteriaEvaluations.length > 0 && tenantId) {
@@ -327,6 +329,7 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
                 <EndorsementRequestPicker
                   nominationId={createdNominationId}
                   nomineeId={nomineeId}
+                  managerApprovalPending={managerApprovalPending}
                   onComplete={onComplete}
                 />
               </div>

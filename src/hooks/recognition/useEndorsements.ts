@@ -69,9 +69,10 @@ export function useEndorsements(nominationId?: string) {
       // Fetch those nominations
       const { data: nominations, error: nomErr } = await supabase
         .from('nominations')
-        .select('id, nominee_id, nominator_id, theme_id, headline, justification, cycle_id')
+        .select('id, nominee_id, nominator_id, theme_id, headline, justification, cycle_id, manager_approval_status')
         .in('id', nominationIds)
         .in('status', ['submitted', 'endorsed'])
+        .in('manager_approval_status', ['approved', 'not_required'])
         .is('deleted_at', null);
       if (nomErr) throw nomErr;
       if (!nominations?.length) return [];

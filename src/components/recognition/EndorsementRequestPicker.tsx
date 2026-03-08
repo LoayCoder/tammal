@@ -16,10 +16,11 @@ import { toast } from 'sonner';
 interface EndorsementRequestPickerProps {
   nominationId: string;
   nomineeId: string;
+  managerApprovalPending?: boolean;
   onComplete?: () => void;
 }
 
-export function EndorsementRequestPicker({ nominationId, nomineeId, onComplete }: EndorsementRequestPickerProps) {
+export function EndorsementRequestPicker({ nominationId, nomineeId, managerApprovalPending, onComplete }: EndorsementRequestPickerProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { tenantId } = useTenantId();
@@ -79,20 +80,24 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, onComplete }
       const { error } = await supabase.from('endorsement_requests').insert(rows as any);
       if (error) throw error;
 
-      // Create in-app notifications for each requested colleague
-      const headline = await getNominationHeadline(nominationId);
-      const notificationRows = Array.from(selectedIds).map(uid => ({
-        tenant_id: tenantId,
-        user_id: uid,
-        nomination_id: nominationId,
-        type: 'endorsement_requested',
-        title: t('notifications.endorsementRequested', { name: currentUserName }),
-        body: t('notifications.endorsementRequestedBody', { headline: headline || '—' }),
-      }));
-      await supabase.from('recognition_notifications').insert(notificationRows as any);
+      // Only send notifications if manager approval is not pending
+      if (!managerApprovalPending) {
+        const headline = await getNominationHeadline(nominationId);
+        const notificationRows = Array.from(selectedIds).map(uid => ({
+          tenant_id: tenantId,
+          user_id: uid,
+          nomination_id: nominationId,
+          type: 'endorsement_requested',
+          title: t('notifications.endorsementRequested', { name: currentUserName }),
+          body: t('notifications.endorsementRequestedBody', { headline: headline || '—' }),
+        }));
+        await supabase.from('recognition_notifications').insert(notificationRows as any);
+      }
 
       setSent(true);
-      toast.success(t('recognition.endorsements.requestsSent'));
+      toast.success(managerApprovalPending
+        ? t('recognition.endorsements.endorsementsPendingApproval')
+        : t('recognition.endorsements.requestsSent'));
     } catch {
       toast.error(t('recognition.endorsements.requestsError'));
     } finally {
@@ -107,7 +112,9 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, onComplete }
           <CheckCircle className="h-10 w-10 text-chart-2 mx-auto mb-2" />
           <p className="font-medium">{t('recognition.endorsements.requestsSent')}</p>
           <p className="text-sm text-muted-foreground mt-1">
-            {t('recognition.endorsements.requestsSentDesc', { count: selectedIds.size })}
+            {managerApprovalPending
+              ? t('recognition.endorsements.endorsementsPendingApproval')
+              : t('recognition.endorsements.requestsSentDesc', { count: selectedIds.size })}
           </p>
           {onComplete && (
             <Button variant="outline" className="mt-4" onClick={onComplete}>
