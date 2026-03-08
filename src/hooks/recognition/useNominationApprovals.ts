@@ -65,7 +65,7 @@ export function useNominationApprovals() {
   });
 
   const approveNomination = useMutation({
-    mutationFn: async ({ id, criteriaAdjustments }: { id: string; criteriaAdjustments?: Record<string, { weight: number; justification: string }> }) => {
+    mutationFn: async ({ id, criteriaAdjustments, additionalEndorserIds }: { id: string; criteriaAdjustments?: Record<string, { weight: number; justification: string }>; additionalEndorserIds?: string[] }) => {
       if (!user?.id) throw new Error('Not authenticated');
       const updateData: Record<string, any> = {
         manager_approval_status: 'approved',
@@ -82,7 +82,54 @@ export function useNominationApprovals() {
         .eq('id', id);
       if (error) throw error;
 
-      // Send endorsement notifications for any pending requests
+      // Get tenant_id and nomination details for notifications
+      const { data: currentEmp } = await supabase
+        .from('employees')
+        .select('tenant_id, full_name')
+        .eq('user_id', user.id)
+        .is('deleted_at', null)
+        .maybeSingle();
+
+      const { data: nom } = await supabase
+        .from('nominations')
+        .select('headline, nominator_id')
+        .eq('id', id)
+        .single();
+
+      let nominatorName = '';
+      if (nom?.nominator_id) {
+        const { data: emp } = await supabase
+          .from('employees')
+          .select('full_name')
+          .eq('user_id', nom.nominator_id)
+          .is('deleted_at', null)
+          .maybeSingle();
+        nominatorName = emp?.full_name || '';
+      }
+
+      // Insert additional endorsement requests from manager
+      if (additionalEndorserIds?.length && currentEmp?.tenant_id) {
+        const endorserRows = additionalEndorserIds.map(uid => ({
+          tenant_id: currentEmp.tenant_id,
+          nomination_id: id,
+          requested_user_id: uid,
+          requested_by: user.id,
+        }));
+        await supabase.from('endorsement_requests').insert(endorserRows as any);
+
+        // Send notifications immediately (nomination is already approved)
+        const endorserNotifs = additionalEndorserIds.map(uid => ({
+          tenant_id: currentEmp.tenant_id,
+          user_id: uid,
+          nomination_id: id,
+          type: 'endorsement_requested',
+          title: currentEmp.full_name ? `${currentEmp.full_name} requested your endorsement` : 'Endorsement requested',
+          body: nom?.headline ? `Please review and endorse the nomination for "${nom.headline}"` : '',
+        }));
+        await supabase.from('recognition_notifications').insert(endorserNotifs as any);
+      }
+
+      // Send endorsement notifications for any existing pending requests
       const { data: pendingRequests } = await supabase
         .from('endorsement_requests')
         .select('requested_user_id, nomination_id')
@@ -90,34 +137,13 @@ export function useNominationApprovals() {
         .eq('status', 'pending')
         .is('deleted_at', null);
 
-      if (pendingRequests?.length) {
-        // Get nomination headline and nominator name for notification
-        const { data: nom } = await supabase
-          .from('nominations')
-          .select('headline, nominator_id')
-          .eq('id', id)
-          .single();
+      if (pendingRequests?.length && currentEmp?.tenant_id) {
+        // Exclude the additional endorsers we just notified
+        const alreadyNotified = new Set(additionalEndorserIds || []);
+        const toNotify = pendingRequests.filter(r => !alreadyNotified.has(r.requested_user_id));
 
-        let nominatorName = '';
-        if (nom?.nominator_id) {
-          const { data: emp } = await supabase
-            .from('employees')
-            .select('full_name')
-            .eq('user_id', nom.nominator_id)
-            .is('deleted_at', null)
-            .maybeSingle();
-          nominatorName = emp?.full_name || '';
-        }
-
-        const { data: currentEmp } = await supabase
-          .from('employees')
-          .select('tenant_id')
-          .eq('user_id', user.id)
-          .is('deleted_at', null)
-          .maybeSingle();
-
-        if (currentEmp?.tenant_id) {
-          const notifRows = pendingRequests.map(r => ({
+        if (toNotify.length) {
+          const notifRows = toNotify.map(r => ({
             tenant_id: currentEmp.tenant_id,
             user_id: r.requested_user_id,
             nomination_id: id,

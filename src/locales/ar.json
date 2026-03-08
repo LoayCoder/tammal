@@ -3298,6 +3298,8 @@
       "rejectNomination": "رفض",
       "requiresManagerApproval": "هذا الترشيح يتطلب موافقة مدير المرشح",
       "noPendingApprovals": "لا توجد ترشيحات بانتظار موافقتك",
+      "addAdditionalEndorsers": "إضافة مزكّين إضافيين",
+      "managerAddedEndorsers": "أضاف المدير {{count}} مزكّ(ين)",
       "managerApprovalStatus": {
         "pending": "بانتظار الموافقة",
         "approved": "وافق المدير",
