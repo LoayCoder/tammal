@@ -16,10 +16,11 @@ import { toast } from 'sonner';
 interface EndorsementRequestPickerProps {
   nominationId: string;
   nomineeId: string;
+  managerApprovalPending?: boolean;
   onComplete?: () => void;
 }
 
-export function EndorsementRequestPicker({ nominationId, nomineeId, onComplete }: EndorsementRequestPickerProps) {
+export function EndorsementRequestPicker({ nominationId, nomineeId, managerApprovalPending, onComplete }: EndorsementRequestPickerProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { tenantId } = useTenantId();
