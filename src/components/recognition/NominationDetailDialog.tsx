@@ -30,8 +30,24 @@ export function NominationDetailDialog({
   nominatorName,
 }: NominationDetailDialogProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { endorsements, isPending, submitEndorsement, validCount } = useEndorsements(nomination?.id);
+
+  // Fetch theme name
+  const { data: themeName } = useQuery({
+    queryKey: ['award-theme-name', nomination?.theme_id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('award_themes')
+        .select('name')
+        .eq('id', nomination!.theme_id)
+        .is('deleted_at', null)
+        .single();
+      return data?.name || null;
+    },
+    enabled: !!nomination?.theme_id && open,
+  });
 
   // Resolve endorser names
   const endorserIds = endorsements.map(e => e.endorser_id);
