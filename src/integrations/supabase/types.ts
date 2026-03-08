@@ -5019,6 +5019,60 @@ export type Database = {
           },
         ]
       }
+      recognition_notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          deleted_at: string | null
+          id: string
+          is_read: boolean
+          nomination_id: string | null
+          tenant_id: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_read?: boolean
+          nomination_id?: string | null
+          tenant_id: string
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_read?: boolean
+          nomination_id?: string | null
+          tenant_id?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recognition_notifications_nomination_id_fkey"
+            columns: ["nomination_id"]
+            isOneToOne: false
+            referencedRelation: "nominations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recognition_notifications_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       redemption_options: {
         Row: {
           category: string
