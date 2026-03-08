@@ -35,7 +35,7 @@ type Step = 'select_nominee' | 'justification' | 'criteria_evaluation' | 'review
 const STEPS: Step[] = ['select_nominee', 'justification', 'criteria_evaluation', 'review', 'request_endorsements'];
 const VISIBLE_STEPS: Step[] = ['select_nominee', 'justification', 'criteria_evaluation', 'review'];
 
-export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onComplete }: NominationWizardProps) {
+export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onBack, onComplete }: NominationWizardProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { tenantId } = useTenantId();
