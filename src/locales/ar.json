@@ -3318,7 +3318,10 @@
         "pending": "قيد الانتظار",
         "sufficient": "كافية",
         "insufficient": "غير كافية"
-      }
+      },
+      "endorseTab": "تزكية",
+      "noEndorseRequests": "لا توجد ترشيحات تحتاج تزكيتك حالياً",
+      "noEndorsements": "لا توجد تزكيات بعد"
     },
     "voting": {
       "title": "غرفة التصويت",

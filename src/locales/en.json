@@ -3480,7 +3480,10 @@
         "pending": "Pending",
         "sufficient": "Sufficient",
         "insufficient": "Insufficient"
-      }
+      },
+      "endorseTab": "Endorse",
+      "noEndorseRequests": "No nominations need your endorsement right now",
+      "noEndorsements": "No endorsements yet"
     },
     "voting": {
       "title": "Voting Booth",
