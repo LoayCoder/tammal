@@ -421,8 +421,14 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onBac
         <div className="flex items-center justify-between">
           <Button
             variant="outline"
-            onClick={goPrev}
-            disabled={currentStepIdx === 0}
+            onClick={() => {
+              if (currentStepIdx === 0 && onBack) {
+                onBack();
+              } else {
+                goPrev();
+              }
+            }}
+            disabled={currentStepIdx === 0 && !onBack}
           >
             <ChevronLeft className="h-4 w-4 me-1 rtl:rotate-180" />
             {t('common.back')}

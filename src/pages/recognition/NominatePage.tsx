@@ -103,6 +103,7 @@ export default function NominatePage() {
             <NominationWizard
               cycleId={selectedCycleId}
               themeId={selectedThemeId}
+              onBack={() => setSelectedThemeId('')}
               onComplete={() => navigate('/recognition/my-nominations')}
             />
           )}
