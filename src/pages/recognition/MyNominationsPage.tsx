@@ -22,6 +22,7 @@ import type { Nomination } from '@/hooks/recognition/useNominations';
 export default function MyNominationsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { myNominations, receivedNominations, myPending, receivedPending, updateNomination, softDelete } = useNominations();
   const { hasRole: isManager } = useHasRole('manager');
   const { hasRole: isTenantAdmin } = useHasRole('tenant_admin');
