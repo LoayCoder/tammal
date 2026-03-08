@@ -181,6 +181,7 @@ export function useNominations(cycleId?: string, themeId?: string) {
     myPending,
     receivedPending,
     createNomination,
+    updateNomination,
     softDelete,
   };
 }

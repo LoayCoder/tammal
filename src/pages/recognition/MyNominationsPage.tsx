@@ -236,6 +236,37 @@ export default function MyNominationsPage() {
         nomineeName={selectedNomination ? employeeMap[selectedNomination.nominee_id] : undefined}
         nominatorName={selectedNomination ? employeeMap[selectedNomination.nominator_id] : undefined}
       />
+
+      {/* Edit dialog */}
+      <NominationEditDialog
+        nomination={editingNomination}
+        open={!!editingNomination}
+        onOpenChange={(open) => { if (!open) setEditingNomination(null); }}
+        onSave={(data) => {
+          updateNomination.mutate(data, { onSuccess: () => setEditingNomination(null) });
+        }}
+        isSaving={updateNomination.isPending}
+        nomineeName={editingNomination ? employeeMap[editingNomination.nominee_id] : undefined}
+      />
+
+      {/* Delete confirmation */}
+      <AlertDialog open={!!deletingId} onOpenChange={(open) => { if (!open) setDeletingId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('recognition.nominations.confirmDelete')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('recognition.nominations.confirmDeleteDesc')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => { if (deletingId) { softDelete.mutate(deletingId); setDeletingId(null); } }}
+            >
+              {t('recognition.nominations.confirmDelete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

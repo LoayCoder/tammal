@@ -106,10 +106,19 @@ export function NominationCard({
               </span>
             )}
           </div>
-          {showActions && onDelete && ['draft', 'submitted'].includes(nomination.status) && (
-            <Button variant="ghost" size="icon" onClick={onDelete}>
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
+          {showActions && canModify(nomination) && (
+            <div className="flex items-center gap-1">
+              {onEdit && (
+                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onEdit(); }}>
+                  <Pencil className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              )}
+              {onDelete && (
+                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              )}
+            </div>
           )}
         </div>
       </CardContent>
