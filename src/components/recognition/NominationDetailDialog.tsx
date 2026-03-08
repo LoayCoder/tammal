@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EndorsementForm, EndorsementListItem } from './EndorsementCard';
@@ -9,7 +11,7 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Nomination } from '@/hooks/recognition/useNominations';
-import { FileText, ThumbsUp, User, Calendar } from 'lucide-react';
+import { FileText, ThumbsUp, User, Calendar, Tag, Trophy } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface NominationDetailDialogProps {
