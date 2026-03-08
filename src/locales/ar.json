@@ -3261,7 +3261,6 @@
         "select_nominee": "المرشح",
         "justification": "المبررات",
         "criteria_evaluation": "المعايير",
-        "endorsements": "التزكيات",
         "review": "مراجعة"
       },
       "status": {
@@ -3318,7 +3317,10 @@
         "pending": "قيد الانتظار",
         "sufficient": "كافية",
         "insufficient": "غير كافية"
-      }
+      },
+      "endorseTab": "تزكية",
+      "noEndorseRequests": "لا توجد ترشيحات تحتاج تزكيتك حالياً",
+      "noEndorsements": "لا توجد تزكيات بعد"
     },
     "voting": {
       "title": "غرفة التصويت",
