@@ -11,8 +11,13 @@ interface NominationCardProps {
   nomineeName?: string;
   nominatorName?: string;
   onDelete?: () => void;
+  onEdit?: () => void;
   showActions?: boolean;
 }
+
+const canModify = (n: Nomination) =>
+  ['draft', 'submitted'].includes(n.status) &&
+  ['not_required', 'pending'].includes(n.manager_approval_status);
 
 const statusColors: Record<string, string> = {
   draft: 'bg-muted text-muted-foreground',
