@@ -137,6 +137,26 @@ export function useNominations(cycleId?: string, themeId?: string) {
     onError: () => toast.error(t('recognition.nominations.submitError')),
   });
 
+  const updateNomination = useMutation({
+    mutationFn: async ({ id, ...fields }: { id: string; headline?: string; justification?: string; specific_examples?: string[]; impact_metrics?: string[] }) => {
+      const { data, error } = await supabase
+        .from('nominations')
+        .update({ ...fields, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['nominations'] });
+      qc.invalidateQueries({ queryKey: ['my-nominations'] });
+      qc.invalidateQueries({ queryKey: ['received-nominations'] });
+      toast.success(t('recognition.nominations.editSuccess'));
+    },
+    onError: () => toast.error(t('recognition.nominations.editError')),
+  });
+
   const softDelete = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -161,6 +181,7 @@ export function useNominations(cycleId?: string, themeId?: string) {
     myPending,
     receivedPending,
     createNomination,
+    updateNomination,
     softDelete,
   };
 }

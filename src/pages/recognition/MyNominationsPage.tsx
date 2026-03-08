@@ -5,7 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { NominationCard } from '@/components/recognition/NominationCard';
+import { NominationEditDialog } from '@/components/recognition/NominationEditDialog';
 import { ManagerApprovalCard } from '@/components/recognition/ManagerApprovalCard';
 import { NominationDetailDialog } from '@/components/recognition/NominationDetailDialog';
 import { useNominations } from '@/hooks/recognition/useNominations';
@@ -20,13 +22,15 @@ import type { Nomination } from '@/hooks/recognition/useNominations';
 export default function MyNominationsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { myNominations, receivedNominations, myPending, receivedPending } = useNominations();
+  const { myNominations, receivedNominations, myPending, receivedPending, updateNomination, softDelete } = useNominations();
   const { hasRole: isManager } = useHasRole('manager');
   const { hasRole: isTenantAdmin } = useHasRole('tenant_admin');
   const { pendingApprovals, isPending: approvalsPending, approveNomination, rejectNomination } = useNominationApprovals();
   const { myEndorsementRequests, requestsPending } = useEndorsements();
   const [tab, setTab] = useState('sent');
   const [selectedNomination, setSelectedNomination] = useState<Nomination | null>(null);
+  const [editingNomination, setEditingNomination] = useState<Nomination | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const showApprovalsTab = isManager || isTenantAdmin;
 
@@ -117,6 +121,8 @@ export default function MyNominationsPage() {
                     nomination={n}
                     nomineeName={employeeMap[n.nominee_id]}
                     showActions
+                    onEdit={() => setEditingNomination(n)}
+                    onDelete={() => setDeletingId(n.id)}
                   />
                 </div>
               ))}
@@ -230,6 +236,37 @@ export default function MyNominationsPage() {
         nomineeName={selectedNomination ? employeeMap[selectedNomination.nominee_id] : undefined}
         nominatorName={selectedNomination ? employeeMap[selectedNomination.nominator_id] : undefined}
       />
+
+      {/* Edit dialog */}
+      <NominationEditDialog
+        nomination={editingNomination}
+        open={!!editingNomination}
+        onOpenChange={(open) => { if (!open) setEditingNomination(null); }}
+        onSave={(data) => {
+          updateNomination.mutate(data, { onSuccess: () => setEditingNomination(null) });
+        }}
+        isSaving={updateNomination.isPending}
+        nomineeName={editingNomination ? employeeMap[editingNomination.nominee_id] : undefined}
+      />
+
+      {/* Delete confirmation */}
+      <AlertDialog open={!!deletingId} onOpenChange={(open) => { if (!open) setDeletingId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('recognition.nominations.confirmDelete')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('recognition.nominations.confirmDeleteDesc')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => { if (deletingId) { softDelete.mutate(deletingId); setDeletingId(null); } }}
+            >
+              {t('recognition.nominations.confirmDelete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
