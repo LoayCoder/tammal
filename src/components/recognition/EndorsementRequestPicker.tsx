@@ -95,7 +95,9 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, managerAppro
       }
 
       setSent(true);
-      toast.success(t('recognition.endorsements.requestsSent'));
+      toast.success(managerApprovalPending
+        ? t('recognition.endorsements.endorsementsPendingApproval')
+        : t('recognition.endorsements.requestsSent'));
     } catch {
       toast.error(t('recognition.endorsements.requestsError'));
     } finally {
