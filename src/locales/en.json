@@ -3498,7 +3498,8 @@
       "requestsSentDesc": "{{count}} colleague(s) have been notified to endorse this nomination",
       "requestsError": "Failed to send endorsement requests",
       "skipForNow": "Skip for now",
-      "noColleaguesFound": "No colleagues found"
+      "noColleaguesFound": "No colleagues found",
+      "endorsementsPendingApproval": "Endorsement requests will be sent after manager approval"
     },
     "voting": {
       "title": "Voting Booth",

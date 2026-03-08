@@ -3336,7 +3336,8 @@
       "requestsSentDesc": "تم إبلاغ {{count}} زميل(ة) لتزكية هذا الترشيح",
       "requestsError": "فشل إرسال طلبات التزكية",
       "skipForNow": "تخطي الآن",
-      "noColleaguesFound": "لم يتم العثور على زملاء"
+      "noColleaguesFound": "لم يتم العثور على زملاء",
+      "endorsementsPendingApproval": "سيتم إرسال طلبات التزكية بعد موافقة المدير"
     },
     "voting": {
       "title": "غرفة التصويت",
