@@ -43,6 +43,24 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onCom
   const { data: peerQuota } = usePeerQuota(themeId);
   const { employees = [] } = useEmployees();
 
+  // Fetch existing nominations by current user in this cycle to prevent duplicates
+  const { data: existingNominations } = useQuery({
+    queryKey: ['user-cycle-nominations', cycleId, user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('nominations')
+        .select('nominee_id')
+        .eq('cycle_id', cycleId)
+        .eq('nominator_id', user!.id)
+        .is('deleted_at', null);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!cycleId && !!user?.id,
+  });
+
+  const alreadyNominatedIds = new Set(existingNominations?.map(n => n.nominee_id) ?? []);
+
   // Fetch cycle fairness_config to determine allowAppeals
   const { data: cycleConfig } = useQuery({
     queryKey: ['cycle-config', cycleId],
