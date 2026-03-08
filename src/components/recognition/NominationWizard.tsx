@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 interface NominationWizardProps {
   cycleId: string;
   themeId: string;
+  preselectedNomineeId?: string;
   onComplete?: () => void;
 }
 
