@@ -3338,7 +3338,8 @@
       "requestsError": "فشل إرسال طلبات التزكية",
       "skipForNow": "تخطي الآن",
       "noColleaguesFound": "لم يتم العثور على زملاء",
-      "endorsementsPendingApproval": "سيتم إرسال طلبات التزكية بعد موافقة المدير"
+      "endorsementsPendingApproval": "سيتم إرسال طلبات التزكية بعد موافقة المدير",
+      "endorsementStepDescription": "الآن اختر الزملاء لتزكية هذا الترشيح"
     },
     "voting": {
       "title": "غرفة التصويت",

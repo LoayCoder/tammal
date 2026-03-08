@@ -61,7 +61,7 @@ export function useNominationApprovals() {
       if (error) throw error;
       return data as unknown as Nomination[];
     },
-    enabled: !!user?.id && !!tenantId,
+    enabled: !!user?.id && !!tenantId && !!tenantId,
   });
 
   const approveNomination = useMutation({

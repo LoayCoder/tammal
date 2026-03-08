@@ -3500,7 +3500,8 @@
       "requestsError": "Failed to send endorsement requests",
       "skipForNow": "Skip for now",
       "noColleaguesFound": "No colleagues found",
-      "endorsementsPendingApproval": "Endorsement requests will be sent after manager approval"
+      "endorsementsPendingApproval": "Endorsement requests will be sent after manager approval",
+      "endorsementStepDescription": "Now select colleagues to endorse this nomination"
     },
     "voting": {
       "title": "Voting Booth",
