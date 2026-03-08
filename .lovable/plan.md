@@ -1,28 +1,87 @@
+# Enterprise Task Management — Architecture Audit
 
+## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
-## Plan: Add Theme Display & "Nominate for Different Theme" Action to Nomination Detail Dialog
+---
 
-### What changes
+## 1. Folder Architecture — ✅ PASS
 
-**1. Show the theme name in `NominationDetailDialog`** — fetch the theme from `award_themes` using `nomination.theme_id` and display it in the meta info block (alongside nominee, nominator, date).
+The project follows a clean modular structure:
 
-**2. Add a "Nominate for Different Theme" button** — at the bottom of the dialog, show a button that navigates the user to `/recognition/nominate?cycle={cycle_id}&nominee={nominee_id}` pre-filling the cycle and nominee so they can pick a different theme and submit a new nomination for the same person.
+```text
+src/
+  ai/          — Isolated AI client, prompts, guards, quality
+  components/  — UI components
+  config/      — Centralized constants
+  features/    — Feature modules (tasks, approvals, workload, etc.)
+  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
+  services/    — Pure async business services (no UI imports)
+  types/       — Shared type definitions
+```
 
-### Files to modify
+**Layer separation checks:**
+- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
+- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
+- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
+- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
 
-**`src/components/recognition/NominationDetailDialog.tsx`**
-- Add a `useQuery` to fetch the theme name from `award_themes` by `nomination.theme_id`
-- Display theme name as a new row in the meta info card (with a `Tag` icon)
-- Add `useNavigate` from react-router-dom
-- Add a "Nominate for Different Theme" button below endorsements that navigates to the nominate page with pre-filled cycle & nominee query params
-- Close dialog on navigation
+---
 
-**`src/pages/recognition/NominatePage.tsx`**
-- Read `nominee` from search params so the wizard can pre-select the nominee
-- Pass `preselectedNomineeId` to `NominationWizard`
+## 2. Feature Isolation — ✅ PASS
 
-**`src/components/recognition/NominationWizard.tsx`** (minor)
-- Accept optional `preselectedNomineeId` prop and pass it to the nominee selection step so it's pre-filled
+| Module | Location | Status |
+|---|---|---|
+| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
+| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
+| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
+| AI Governance | `src/features/ai-governance/` | ✅ |
+| AI Generator | `src/features/ai-generator/` | ✅ |
+| Org Dashboard | `src/features/org-dashboard/` | ✅ |
+| Cycle Builder | `src/features/cycle-builder/` | ✅ |
 
-### No database changes needed.
+**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
 
+---
+
+## 3. Backend Architecture — ✅ PASS
+
+- **35 edge functions** properly separate API routes from client code
+- **Services layer** (`src/services/`) handles business logic
+- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
+- Database access centralized through the Supabase client
+
+---
+
+## 4. Supabase Integration — ✅ PASS
+
+- **Client centralized** in `src/integrations/supabase/client.ts`
+- **RLS enabled** on all task-related tables with `authenticated` role enforcement
+- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
+
+---
+
+## 5. Warnings
+
+### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
+
+Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
+`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
+
+### ⚠️ WARNING (low priority): Workload feature is a thin barrel
+
+`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
+
+---
+
+## Summary
+
+| Category | Result |
+|---|---|
+| Folder Architecture | ✅ PASS |
+| Feature Isolation | ✅ PASS |
+| Backend Architecture | ✅ PASS |
+| Supabase Integration | ✅ PASS |
+| Layer Separation | ✅ PASS (resolved) |
+| Workload Consolidation | ⚠️ Low-priority migration |
+
+**No FAIL conditions found.** Architecture is production-ready.

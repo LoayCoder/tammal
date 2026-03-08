@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EndorsementForm, EndorsementListItem } from './EndorsementCard';
@@ -9,7 +11,7 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Nomination } from '@/hooks/recognition/useNominations';
-import { FileText, ThumbsUp, User, Calendar } from 'lucide-react';
+import { FileText, ThumbsUp, User, Calendar, Tag, Trophy } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface NominationDetailDialogProps {
@@ -28,8 +30,24 @@ export function NominationDetailDialog({
   nominatorName,
 }: NominationDetailDialogProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { endorsements, isPending, submitEndorsement, validCount } = useEndorsements(nomination?.id);
+
+  // Fetch theme name
+  const { data: themeName } = useQuery({
+    queryKey: ['award-theme-name', nomination?.theme_id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('award_themes')
+        .select('name')
+        .eq('id', nomination!.theme_id)
+        .is('deleted_at', null)
+        .single();
+      return data?.name || null;
+    },
+    enabled: !!nomination?.theme_id && open,
+  });
 
   // Resolve endorser names
   const endorserIds = endorsements.map(e => e.endorser_id);
@@ -69,6 +87,13 @@ export function NominationDetailDialog({
         <div className="space-y-4">
           {/* Meta info */}
           <div className="rounded-lg border border-border p-3 space-y-2">
+            {themeName && (
+              <div className="flex items-center gap-2 text-sm">
+                <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-muted-foreground">{t('recognition.nominations.theme')}:</span>
+                <Badge variant="secondary">{themeName}</Badge>
+              </div>
+            )}
             {nomineeName && (
               <div className="flex items-center gap-2 text-sm">
                 <User className="h-3.5 w-3.5 text-muted-foreground" />
@@ -169,6 +194,20 @@ export function NominationDetailDialog({
               />
             </>
           )}
+
+          {/* Nominate for different theme */}
+          <Separator />
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => {
+              navigate(`/recognition/nominate?cycle=${nomination.cycle_id}&nominee=${nomination.nominee_id}`);
+              onOpenChange(false);
+            }}
+          >
+            <Trophy className="h-4 w-4 me-2" />
+            {t('recognition.nominations.nominateForDifferentTheme', 'Nominate for a Different Theme')}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

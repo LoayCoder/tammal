@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 interface NominationWizardProps {
   cycleId: string;
   themeId: string;
+  preselectedNomineeId?: string;
   onComplete?: () => void;
 }
 
@@ -32,7 +33,7 @@ type Step = 'select_nominee' | 'justification' | 'criteria_evaluation' | 'review
 const STEPS: Step[] = ['select_nominee', 'justification', 'criteria_evaluation', 'review', 'request_endorsements'];
 const VISIBLE_STEPS: Step[] = ['select_nominee', 'justification', 'criteria_evaluation', 'review'];
 
-export function NominationWizard({ cycleId, themeId, onComplete }: NominationWizardProps) {
+export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onComplete }: NominationWizardProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { tenantId } = useTenantId();
@@ -58,7 +59,7 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
   });
 
   const [step, setStep] = useState<Step>('select_nominee');
-  const [nomineeId, setNomineeId] = useState('');
+  const [nomineeId, setNomineeId] = useState(preselectedNomineeId || '');
   const [nominatorRole, setNominatorRole] = useState<'manager' | 'peer' | 'self'>('peer');
   const [headline, setHeadline] = useState('');
   const [justification, setJustification] = useState('');
