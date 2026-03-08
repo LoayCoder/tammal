@@ -130,10 +130,6 @@ export default function EmployeeHome() {
         {/* Pending Endorsement Requests */}
         <DashboardEndorsementRequests />
 
-        {/* Spiritual Wellbeing Widgets */}
-        <DashboardPrayerWidget />
-        <DashboardIslamicCalendarWidget />
-
         {/* Mental Health Tools Hub */}
         <MentalHealthToolsHub />
 
