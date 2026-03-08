@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { QuotaIndicator } from './QuotaIndicator';
-import { EndorsementForm } from './EndorsementCard';
+import { EndorsementRequestPicker } from './EndorsementRequestPicker';
 import { NominationCriteriaForm } from './NominationCriteriaForm';
 import { CriteriaWeightTable } from './CriteriaWeightTable';
 import { useNominations, useManagerQuota, usePeerQuota, type CreateNominationInput } from '@/hooks/recognition/useNominations';
