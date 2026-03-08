@@ -1,87 +1,66 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
-
-## 1. Folder Architecture — ✅ PASS
-
-The project follows a clean modular structure:
-
-```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
-```
-
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
-
----
-
-## 2. Feature Isolation — ✅ PASS
-
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
-
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
-
----
-
-## 3. Backend Architecture — ✅ PASS
-
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
-
----
-
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
-
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
+# Add Edit & Delete for Nominations (Before Approval)
 
 ## Summary
 
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
+Users cannot currently edit or delete their nominations. The delete button exists in `NominationCard` but is never wired up in `MyNominationsPage`. No edit mutation or UI exists at all. Both actions should be allowed only **before** manager approval (when `manager_approval_status` is `pending` or `not_required` and `status` is `draft` or `submitted`).
 
-**No FAIL conditions found.** Architecture is production-ready.
+## Changes
+
+### 1. `useNominations.ts` — Add `updateNomination` mutation
+
+- New mutation that accepts `id` + partial fields (`headline`, `justification`, `specific_examples`, `impact_metrics`)
+- Guards: only update if nomination belongs to current user
+- Invalidates relevant query keys on success
+
+### 2. `NominationCard.tsx` — Add edit button
+
+- Add `onEdit` optional prop alongside existing `onDelete`
+- Show Edit and Delete buttons only when `manager_approval_status` is `not_required` or `pending` AND `status` is `draft` or `submitted`
+- Update the condition on line 103 to use this new editable check
+
+### 3. `NominationEditDialog.tsx` — New component
+
+- Dialog with form fields: headline, justification, specific examples, impact metrics
+- Pre-populated from the selected nomination
+- Calls `updateNomination` on save
+- Read-only display of nominee name (cannot change nominee after submission)
+
+### 4. `MyNominationsPage.tsx` — Wire up edit + delete
+
+- Import `useConfirmDelete` for delete confirmation flow
+- Pass `onDelete` to `NominationCard` (calls `softDelete` after confirmation)
+- Add `NominationEditDialog` with state management
+- Pass `onEdit` to `NominationCard` to open edit dialog
+- Stop click-to-detail propagation when action buttons are clicked
+
+### 5. Localization — `en.json` + `ar.json`
+
+Add keys:
+- `recognition.nominations.editNomination` / `editNominationDesc`
+- `recognition.nominations.editSuccess` / `editError`
+- `recognition.nominations.confirmDelete` / `confirmDeleteDesc`
+- `recognition.nominations.cannotEditApproved`
+
+## Editable condition logic
+
+```typescript
+const canModify = (n: Nomination) =>
+  ['draft', 'submitted'].includes(n.status) &&
+  ['not_required', 'pending'].includes(n.manager_approval_status);
+```
+
+Once a manager approves or rejects, or the nomination advances to `endorsed`/`shortlisted`, both edit and delete are locked.
+
+## Files
+
+| File | Action |
+|------|--------|
+| `src/hooks/recognition/useNominations.ts` | Add `updateNomination` mutation |
+| `src/components/recognition/NominationCard.tsx` | Add `onEdit` prop, refine action visibility |
+| `src/components/recognition/NominationEditDialog.tsx` | **New** — edit form dialog |
+| `src/pages/recognition/MyNominationsPage.tsx` | Wire edit + delete with confirmation |
+| `src/locales/en.json` | Add edit/delete i18n keys |
+| `src/locales/ar.json` | Add edit/delete i18n keys |
+
