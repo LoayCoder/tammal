@@ -100,6 +100,10 @@ export default function EmployeeHome() {
           </Card>
         )}
 
+        {/* Spiritual Wellbeing Widgets */}
+        <DashboardPrayerWidget />
+        <DashboardIslamicCalendarWidget />
+
         {/* Workload Overview Widget */}
         {employee && <DashboardWorkloadWidget employeeId={employee.id} />}
 
@@ -125,10 +129,6 @@ export default function EmployeeHome() {
 
         {/* Pending Endorsement Requests */}
         <DashboardEndorsementRequests />
-
-        {/* Spiritual Wellbeing Widgets */}
-        <DashboardPrayerWidget />
-        <DashboardIslamicCalendarWidget />
 
         {/* Mental Health Tools Hub */}
         <MentalHealthToolsHub />
