@@ -112,7 +112,9 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, managerAppro
           <CheckCircle className="h-10 w-10 text-chart-2 mx-auto mb-2" />
           <p className="font-medium">{t('recognition.endorsements.requestsSent')}</p>
           <p className="text-sm text-muted-foreground mt-1">
-            {t('recognition.endorsements.requestsSentDesc', { count: selectedIds.size })}
+            {managerApprovalPending
+              ? t('recognition.endorsements.endorsementsPendingApproval')
+              : t('recognition.endorsements.requestsSentDesc', { count: selectedIds.size })}
           </p>
           {onComplete && (
             <Button variant="outline" className="mt-4" onClick={onComplete}>

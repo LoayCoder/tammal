@@ -80,6 +80,53 @@ export function useNominationApprovals() {
         .update(updateData)
         .eq('id', id);
       if (error) throw error;
+
+      // Send endorsement notifications for any pending requests
+      const { data: pendingRequests } = await supabase
+        .from('endorsement_requests')
+        .select('requested_user_id, nomination_id')
+        .eq('nomination_id', id)
+        .eq('status', 'pending')
+        .is('deleted_at', null);
+
+      if (pendingRequests?.length) {
+        // Get nomination headline and nominator name for notification
+        const { data: nom } = await supabase
+          .from('nominations')
+          .select('headline, nominator_id')
+          .eq('id', id)
+          .single();
+
+        let nominatorName = '';
+        if (nom?.nominator_id) {
+          const { data: emp } = await supabase
+            .from('employees')
+            .select('full_name')
+            .eq('user_id', nom.nominator_id)
+            .is('deleted_at', null)
+            .maybeSingle();
+          nominatorName = emp?.full_name || '';
+        }
+
+        const { data: currentEmp } = await supabase
+          .from('employees')
+          .select('tenant_id')
+          .eq('user_id', user.id)
+          .is('deleted_at', null)
+          .maybeSingle();
+
+        if (currentEmp?.tenant_id) {
+          const notifRows = pendingRequests.map(r => ({
+            tenant_id: currentEmp.tenant_id,
+            user_id: r.requested_user_id,
+            nomination_id: id,
+            type: 'endorsement_requested',
+            title: nominatorName ? `${nominatorName} requested your endorsement` : 'Endorsement requested',
+            body: nom?.headline ? `Please review and endorse the nomination for "${nom.headline}"` : '',
+          }));
+          await supabase.from('recognition_notifications').insert(notifRows as any);
+        }
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['nomination-approvals'] });
