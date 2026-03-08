@@ -22,13 +22,15 @@ import type { Nomination } from '@/hooks/recognition/useNominations';
 export default function MyNominationsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { myNominations, receivedNominations, myPending, receivedPending } = useNominations();
+  const { myNominations, receivedNominations, myPending, receivedPending, updateNomination, softDelete } = useNominations();
   const { hasRole: isManager } = useHasRole('manager');
   const { hasRole: isTenantAdmin } = useHasRole('tenant_admin');
   const { pendingApprovals, isPending: approvalsPending, approveNomination, rejectNomination } = useNominationApprovals();
   const { myEndorsementRequests, requestsPending } = useEndorsements();
   const [tab, setTab] = useState('sent');
   const [selectedNomination, setSelectedNomination] = useState<Nomination | null>(null);
+  const [editingNomination, setEditingNomination] = useState<Nomination | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const showApprovalsTab = isManager || isTenantAdmin;
 
