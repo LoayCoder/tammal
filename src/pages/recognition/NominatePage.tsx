@@ -18,6 +18,7 @@ export default function NominatePage() {
 
   const preselectedCycleId = searchParams.get('cycle') || '';
   const preselectedThemeId = searchParams.get('theme') || '';
+  const preselectedNomineeId = searchParams.get('nominee') || '';
 
   const { cycles } = useAwardCycles();
   const activeCycles = cycles.filter(c => c.status === 'nominating');
