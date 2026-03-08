@@ -3346,7 +3346,9 @@
       "skipForNow": "تخطي الآن",
       "noColleaguesFound": "لم يتم العثور على زملاء",
       "endorsementsPendingApproval": "سيتم إرسال طلبات التزكية بعد موافقة المدير",
-      "endorsementStepDescription": "الآن اختر الزملاء لتزكية هذا الترشيح"
+      "endorsementStepDescription": "الآن اختر الزملاء لتزكية هذا الترشيح",
+      "endorseFor": "زكّ ترشيح {{name}}",
+      "dashboardEndorseAction": "انقر للتزكية"
     },
     "voting": {
       "title": "غرفة التصويت",

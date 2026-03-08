@@ -3508,7 +3508,9 @@
       "skipForNow": "Skip for now",
       "noColleaguesFound": "No colleagues found",
       "endorsementsPendingApproval": "Endorsement requests will be sent after manager approval",
-      "endorsementStepDescription": "Now select colleagues to endorse this nomination"
+      "endorsementStepDescription": "Now select colleagues to endorse this nomination",
+      "endorseFor": "Endorse {{name}}'s nomination",
+      "dashboardEndorseAction": "Tap to endorse"
     },
     "voting": {
       "title": "Voting Booth",
