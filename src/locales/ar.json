@@ -3320,7 +3320,17 @@
       },
       "endorseTab": "تزكية",
       "noEndorseRequests": "لا توجد ترشيحات تحتاج تزكيتك حالياً",
-      "noEndorsements": "لا توجد تزكيات بعد"
+      "noEndorsements": "لا توجد تزكيات بعد",
+      "requestEndorsements": "طلب تزكيات",
+      "requestEndorsementsDesc": "اختر الزملاء الذين تريد أن يزكوا هذا الترشيح",
+      "searchColleagues": "البحث عن زملاء...",
+      "selectedCount": "{{count}} مختار",
+      "sendRequests": "إرسال الطلبات",
+      "requestsSent": "تم إرسال طلبات التزكية",
+      "requestsSentDesc": "تم إبلاغ {{count}} زميل(ة) لتزكية هذا الترشيح",
+      "requestsError": "فشل إرسال طلبات التزكية",
+      "skipForNow": "تخطي الآن",
+      "noColleaguesFound": "لم يتم العثور على زملاء"
     },
     "voting": {
       "title": "غرفة التصويت",

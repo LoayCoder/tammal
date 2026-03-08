@@ -3482,7 +3482,17 @@
       },
       "endorseTab": "Endorse",
       "noEndorseRequests": "No nominations need your endorsement right now",
-      "noEndorsements": "No endorsements yet"
+      "noEndorsements": "No endorsements yet",
+      "requestEndorsements": "Request Endorsements",
+      "requestEndorsementsDesc": "Select colleagues you'd like to endorse this nomination",
+      "searchColleagues": "Search colleagues...",
+      "selectedCount": "{{count}} selected",
+      "sendRequests": "Send Requests",
+      "requestsSent": "Endorsement requests sent",
+      "requestsSentDesc": "{{count}} colleague(s) have been notified to endorse this nomination",
+      "requestsError": "Failed to send endorsement requests",
+      "skipForNow": "Skip for now",
+      "noColleaguesFound": "No colleagues found"
     },
     "voting": {
       "title": "Voting Booth",

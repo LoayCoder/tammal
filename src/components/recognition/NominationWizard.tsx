@@ -318,12 +318,17 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
             )}
 
             {createdNominationId ? (
-              <div className="text-center py-4">
-                <CheckCircle className="h-10 w-10 text-chart-2 mx-auto mb-2" />
-                <p className="font-medium">{t('recognition.nominations.submitted')}</p>
-                <Button variant="outline" className="mt-3" onClick={onComplete}>
-                  {t('common.done')}
-                </Button>
+              <div className="space-y-4">
+                <div className="text-center py-4">
+                  <CheckCircle className="h-10 w-10 text-chart-2 mx-auto mb-2" />
+                  <p className="font-medium">{t('recognition.nominations.submitted')}</p>
+                </div>
+                {/* Endorsement request picker */}
+                <EndorsementRequestPicker
+                  nominationId={createdNominationId}
+                  nomineeId={nomineeId}
+                  onComplete={onComplete}
+                />
               </div>
             ) : null}
           </CardContent>
