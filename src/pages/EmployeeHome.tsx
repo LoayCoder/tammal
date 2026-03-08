@@ -79,9 +79,6 @@ export default function EmployeeHome() {
           </Badge>
         </div>
 
-        {/* Workload Overview Widget */}
-        {employee && <DashboardWorkloadWidget employeeId={employee.id} />}
-
         {/* Inline Daily Check-in */}
         {employee && !todayEntry && employee.user_id && (
           <InlineDailyCheckin employeeId={employee.id} tenantId={employee.tenant_id} userId={employee.user_id} />
@@ -102,6 +99,9 @@ export default function EmployeeHome() {
             </CardContent>
           </Card>
         )}
+
+        {/* Workload Overview Widget */}
+        {employee && <DashboardWorkloadWidget employeeId={employee.id} />}
 
         {/* Pending Surveys Card */}
         {(sqLoading || pendingQuestions.length > 0) && (
