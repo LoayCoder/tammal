@@ -45,6 +45,7 @@ export function NominationCard({
   nomineeName,
   nominatorName,
   onDelete,
+  onEdit,
   showActions = false,
 }: NominationCardProps) {
   const { t } = useTranslation();
