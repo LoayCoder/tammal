@@ -87,6 +87,13 @@ export function NominationDetailDialog({
         <div className="space-y-4">
           {/* Meta info */}
           <div className="rounded-lg border border-border p-3 space-y-2">
+            {themeName && (
+              <div className="flex items-center gap-2 text-sm">
+                <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-muted-foreground">{t('recognition.nominations.theme')}:</span>
+                <Badge variant="secondary">{themeName}</Badge>
+              </div>
+            )}
             {nomineeName && (
               <div className="flex items-center gap-2 text-sm">
                 <User className="h-3.5 w-3.5 text-muted-foreground" />
