@@ -11,11 +11,14 @@ import {
 import {
   Bell, CheckCircle2, MessageSquare, AlertTriangle, UserPlus,
   ShieldCheck, XCircle, Clock, CheckCheck, ListChecks, Timer,
-  UserCheck, Check, X,
+  UserCheck, Check, X, Award, ThumbsUp,
 } from 'lucide-react';
 import { useTaskNotifications, type TaskNotification } from '@/features/tasks/hooks/useTaskNotifications';
 import { useCrisisNotifications, type CrisisNotification } from '@/hooks/crisis/useCrisisNotifications';
+import { useRecognitionNotifications, type RecognitionNotification } from '@/hooks/recognition/useRecognitionNotifications';
 import { formatDistanceToNow } from 'date-fns';
+
+type NotificationSource = 'task' | 'crisis' | 'recognition';
 
 interface UnifiedNotification {
   id: string;
@@ -24,7 +27,7 @@ interface UnifiedNotification {
   body: string | null;
   is_read: boolean;
   created_at: string;
-  source: 'task' | 'crisis';
+  source: NotificationSource;
   navigateTo: string;
 }
 
@@ -49,6 +52,11 @@ const CRISIS_ICONS: Record<string, typeof Bell> = {
   escalation: AlertTriangle,
 };
 
+const RECOGNITION_ICONS: Record<string, typeof Bell> = {
+  endorsement_requested: ThumbsUp,
+  nomination_endorsed: Award,
+};
+
 const TASK_COLORS: Record<string, string> = {
   assigned: 'text-chart-2',
   status_changed: 'text-chart-4',
@@ -65,6 +73,11 @@ const CRISIS_COLORS: Record<string, string> = {
   escalation: 'text-destructive',
   case_assigned: 'text-chart-5',
   case_declined: 'text-destructive',
+};
+
+const RECOGNITION_COLORS: Record<string, string> = {
+  endorsement_requested: 'text-chart-2',
+  nomination_endorsed: 'text-chart-1',
 };
 
 function normalizeTask(n: TaskNotification): UnifiedNotification {
@@ -93,11 +106,24 @@ function normalizeCrisis(n: CrisisNotification): UnifiedNotification {
   };
 }
 
+function normalizeRecognition(n: RecognitionNotification): UnifiedNotification {
+  return {
+    id: n.id,
+    type: n.type,
+    title: n.title,
+    body: n.body,
+    is_read: n.is_read,
+    created_at: n.created_at,
+    source: 'recognition',
+    navigateTo: '/recognition/my-nominations?tab=endorse',
+  };
+}
+
 export function UnifiedNotificationBell() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [tab, setTab] = useState<'all' | 'task' | 'crisis'>('all');
+  const [tab, setTab] = useState<'all' | NotificationSource>('all');
 
   const {
     notifications: taskNotifications,
@@ -109,19 +135,27 @@ export function UnifiedNotificationBell() {
   const {
     notifications: crisisNotifications,
     unreadCount: crisisUnread,
-    markAsRead,
-    markAllAsRead,
+    markAsRead: markCrisisRead,
+    markAllAsRead: markAllCrisisRead,
   } = useCrisisNotifications();
+
+  const {
+    notifications: recognitionNotifications,
+    unreadCount: recognitionUnread,
+    markAsRead: markRecognitionRead,
+    markAllAsRead: markAllRecognitionRead,
+  } = useRecognitionNotifications();
 
   const merged = useMemo(() => {
     const tasks = taskNotifications.map(normalizeTask);
     const crisis = crisisNotifications.map(normalizeCrisis);
-    return [...tasks, ...crisis].sort(
+    const recognition = recognitionNotifications.map(normalizeRecognition);
+    return [...tasks, ...crisis, ...recognition].sort(
       (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-  }, [taskNotifications, crisisNotifications]);
+  }, [taskNotifications, crisisNotifications, recognitionNotifications]);
 
-  const totalUnread = taskUnread + crisisUnread;
+  const totalUnread = taskUnread + crisisUnread + recognitionUnread;
 
   const filtered = useMemo(() => {
     if (tab === 'all') return merged;
@@ -131,7 +165,8 @@ export function UnifiedNotificationBell() {
   const handleClick = (n: UnifiedNotification) => {
     if (!n.is_read) {
       if (n.source === 'task') markTaskRead(n.id);
-      else markAsRead.mutate(n.id);
+      else if (n.source === 'crisis') markCrisisRead.mutate(n.id);
+      else markRecognitionRead.mutate(n.id);
     }
     setOpen(false);
     navigate(n.navigateTo);
@@ -139,17 +174,20 @@ export function UnifiedNotificationBell() {
 
   const handleMarkAllRead = () => {
     if (taskUnread > 0) markAllTaskRead();
-    if (crisisUnread > 0) markAllAsRead.mutate();
+    if (crisisUnread > 0) markAllCrisisRead.mutate();
+    if (recognitionUnread > 0) markAllRecognitionRead.mutate();
   };
 
   const getIcon = (n: UnifiedNotification) => {
     if (n.source === 'task') return TASK_ICONS[n.type] ?? Bell;
-    return CRISIS_ICONS[n.type] ?? Bell;
+    if (n.source === 'crisis') return CRISIS_ICONS[n.type] ?? Bell;
+    return RECOGNITION_ICONS[n.type] ?? Award;
   };
 
   const getColor = (n: UnifiedNotification) => {
     if (n.source === 'task') return TASK_COLORS[n.type] ?? 'text-muted-foreground';
-    return CRISIS_COLORS[n.type] ?? 'text-muted-foreground';
+    if (n.source === 'crisis') return CRISIS_COLORS[n.type] ?? 'text-muted-foreground';
+    return RECOGNITION_COLORS[n.type] ?? 'text-muted-foreground';
   };
 
   return (
@@ -195,6 +233,10 @@ export function UnifiedNotificationBell() {
             <TabsTrigger value="crisis" className="flex-1 text-xs h-7">
               {t('notifications.crisis', 'Crisis')}
               {crisisUnread > 0 && <Badge variant="secondary" className="ms-1 h-4 min-w-4 px-1 text-2xs">{crisisUnread}</Badge>}
+            </TabsTrigger>
+            <TabsTrigger value="recognition" className="flex-1 text-xs h-7">
+              {t('notifications.recognition', 'Recognition')}
+              {recognitionUnread > 0 && <Badge variant="secondary" className="ms-1 h-4 min-w-4 px-1 text-2xs">{recognitionUnread}</Badge>}
             </TabsTrigger>
           </TabsList>
           <TabsContent value={tab} className="mt-0">

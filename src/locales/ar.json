@@ -2466,6 +2466,12 @@
   "notifications": {
     "title": "الإشعارات",
     "markAllRead": "تحديد الكل كمقروء",
+    "all": "الكل",
+    "tasks": "المهام",
+    "crisis": "الأزمات",
+    "recognition": "التقدير",
+    "endorsementRequested": "{{name}} طلب تأييدك",
+    "endorsementRequestedBody": "يرجى مراجعة وتأييد الترشيح لـ \"{{headline}}\"",
     "empty": "لا توجد إشعارات بعد"
   },
   "crisisSupport": {

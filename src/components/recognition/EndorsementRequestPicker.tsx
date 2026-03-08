@@ -53,6 +53,19 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, onComplete }
     });
   };
 
+  // Get the current user's name for notification text
+  const currentUserName = employees.find(e => e.user_id === user?.id)?.full_name || '';
+
+  // Get nomination headline for notification body
+  const getNominationHeadline = async (nomId: string) => {
+    const { data } = await supabase
+      .from('nominations')
+      .select('headline')
+      .eq('id', nomId)
+      .single();
+    return data?.headline || '';
+  };
+
   const handleSend = async () => {
     if (!tenantId || !user?.id || selectedIds.size === 0) return;
     setSending(true);
@@ -65,6 +78,19 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, onComplete }
       }));
       const { error } = await supabase.from('endorsement_requests').insert(rows as any);
       if (error) throw error;
+
+      // Create in-app notifications for each requested colleague
+      const headline = await getNominationHeadline(nominationId);
+      const notificationRows = Array.from(selectedIds).map(uid => ({
+        tenant_id: tenantId,
+        user_id: uid,
+        nomination_id: nominationId,
+        type: 'endorsement_requested',
+        title: t('notifications.endorsementRequested', { name: currentUserName }),
+        body: t('notifications.endorsementRequestedBody', { headline: headline || '—' }),
+      }));
+      await supabase.from('recognition_notifications').insert(notificationRows as any);
+
       setSent(true);
       toast.success(t('recognition.endorsements.requestsSent'));
     } catch {
