@@ -1,87 +1,129 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+# End-to-End Nomination Workflow Audit
 
-## 1. Folder Architecture — ✅ PASS
-
-The project follows a clean modular structure:
+## Current Database State (Live Data)
 
 ```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
+CYCLE:   "Code Crafter" (status: nominating)
+         allowAppeals: TRUE (in fairness_config.auditSettings)
+
+THEMES:  "Award Themes 01" (2 criteria: Innovation 25%, Teamwork 75%)
+         "Award Themes 02" (0 criteria)
+
+EMPLOYEES (3 total):
+  Test User      → manager: LUAY
+  Abdullah        → manager: LUAY
+  LUAY           → manager: none
+
+NOMINATIONS (1):
+  "Test n0.1" by Test User → nominee Abdullah
+  status: submitted
+  manager_approval_status: not_required  ← BUG (should be "pending")
+  endorsement_status: pending
+
+ENDORSEMENT REQUESTS: 0 (never created)
+RECOGNITION NOTIFICATIONS: 0
+PEER ENDORSEMENTS: 0
+VOTES: 0
 ```
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+---
+
+## Bugs Found (7 issues)
+
+### BUG 1 — CRITICAL: `allowAppeals` never passed to mutation
+**Location**: `NominationWizard.tsx` line 94
+**Problem**: The wizard calls `createNomination.mutateAsync(input)` but never reads the cycle's `fairness_config.auditSettings.allowAppeals`. The `useNominations.createNomination` mutation accepts `allowAppeals` as an optional field, but it's never provided.
+**Effect**: Every nomination gets `manager_approval_status = 'not_required'`, completely bypassing manager approval even when the cycle requires it.
+**Evidence**: The "Code Crafter" cycle has `allowAppeals: true`, but the nomination has `manager_approval_status: not_required`.
+
+### BUG 2 — CRITICAL: Endorsement picker easily skipped
+**Location**: `NominationWizard.tsx` lines 322-336
+**Problem**: After submission, the `EndorsementRequestPicker` appears inside the review card below the success checkmark. There's no step indicator, no forced interaction. The outer navigation buttons disappear (line 353: `step === 'review' && !createdNominationId` hides submit). The only way to interact is via the picker's own "Send" or "Skip" buttons — but users can simply navigate away via browser back or sidebar.
+**Effect**: Zero endorsement requests created in the database.
+
+### BUG 3 — Manager approval query doesn't filter by tenant
+**Location**: `useNominationApprovals.ts` line 52-58
+**Problem**: The query fetches nominations by `nominee_id` but has no `.eq('tenant_id', ...)` filter (defense-in-depth violation per project standards).
+
+### BUG 4 — Endorsement requests query missing tenant filter
+**Location**: `useEndorsements.ts` line 58-63
+**Problem**: `endorsement_requests` query filters by `requested_user_id` and `status` but not `tenant_id`.
+
+### BUG 5 — Voting booth shows nominations before endorsement threshold
+**Location**: `useVoting.ts` line 89
+**Problem**: Ballot query filters by `.in('status', ['endorsed', 'shortlisted'])`. Since manager approval (BUG 1) is bypassed, nominations stay at `submitted` and never reach `endorsed`. However, if they did reach `endorsed` via manager approval alone (line 73 of `useNominationApprovals.ts`), they'd appear in voting without meeting the 2-endorsement threshold.
+**Note**: This is by design for manager-approved nominations, but the endorsement_status remains `pending` even after manager sets status to `endorsed`.
+
+### BUG 6 — Notification text is hardcoded English in approval hook
+**Location**: `useNominationApprovals.ts` lines 119-126
+**Problem**: When manager approves and triggers endorsement notifications, the title/body are hardcoded English strings (`"requested your endorsement"`, `"Please review and endorse..."`), not using `t()` because this runs inside a mutation function where `t` may not produce the recipient's language.
+
+### BUG 7 — Criteria weight mismatch between nomination and judging
+**Location**: `nomination_criteria_evaluations` data vs `judging_criteria` data
+**Observation**: Judging criteria store weights as decimals (0.25, 0.75) while nomination criteria evaluations store them as percentages (25, 75). This inconsistency will cause calculation errors in the fairness summary panel if not normalized.
 
 ---
 
-## 2. Feature Isolation — ✅ PASS
+## Complete Workflow Flow (Expected vs Actual)
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+```text
+EXPECTED FLOW (when allowAppeals = true):
+  1. Nominator selects nominee + writes justification    ✅ Works
+  2. Nominator evaluates criteria weights                ✅ Works
+  3. Nominator reviews & submits                         ✅ Works
+  4. Nomination created with manager_approval_status=pending  ❌ BUG 1
+  5. Nominator picks endorsers (saved but notifs deferred)    ❌ BUG 2
+  6. Manager sees nomination in Approvals tab             ❌ Never triggers
+  7. Manager approves → status='endorsed', notifs sent    ❌ Never triggers
+  8. Endorsers see request in Endorse tab                 ❌ Never triggers
+  9. 2+ endorsements → endorsement_status='sufficient'    ❌ Never triggers
+  10. Nomination appears in Voting Booth                  ❌ Never triggers
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
-
----
-
-## 3. Backend Architecture — ✅ PASS
-
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
-
----
-
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
+ACTUAL FLOW:
+  1-3. ✅ Nomination created successfully
+  4. manager_approval_status = 'not_required' (BUG 1)
+  5. User navigates away, no endorsement requests (BUG 2)
+  6-10. Pipeline stalled: status stays 'submitted', never reaches 'endorsed'
+```
 
 ---
 
-## 5. Warnings
+## Fix Plan
 
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
+### Fix 1: Pass `allowAppeals` to mutation (CRITICAL)
+**File**: `NominationWizard.tsx`
+- Add a query to fetch the selected cycle's `fairness_config`
+- Extract `allowAppeals` from `fairness_config.auditSettings.allowAppeals`
+- Pass it to `createNomination.mutateAsync({ ...input, allowAppeals })`
 
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
+### Fix 2: Make endorsement picking a dedicated wizard step
+**File**: `NominationWizard.tsx`
+- Add `'request_endorsements'` as a 5th step after `'review'`
+- After successful submission on review, auto-advance to endorsement step
+- Endorsement step shows `EndorsementRequestPicker` full-width
+- Remove embedded picker from review card
+- "Done" button calls `onComplete`
 
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
+### Fix 3: Add tenant_id defense-in-depth filters
+**Files**: `useNominationApprovals.ts`, `useEndorsements.ts`
+- Add `.eq('tenant_id', tenantId)` to nomination queries in both hooks
 
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
+### Fix 4: Add error logging to EndorsementRequestPicker
+**File**: `EndorsementRequestPicker.tsx`
+- Add `console.error` in catch block for debugging
 
----
+### Fix 5: Localization strings
+**Files**: `en.json`, `ar.json`
+- Add `endorsementStepTitle`, `endorsementStepDescription` keys
 
-## Summary
+| File | Change |
+|------|--------|
+| `src/components/recognition/NominationWizard.tsx` | Fetch cycle config, pass `allowAppeals`, add step 5 |
+| `src/hooks/recognition/useNominationApprovals.ts` | Add `tenant_id` filter |
+| `src/hooks/recognition/useEndorsements.ts` | Add `tenant_id` filter |
+| `src/components/recognition/EndorsementRequestPicker.tsx` | Add error logging |
+| `src/locales/en.json` | Add step title/description keys |
+| `src/locales/ar.json` | Add step title/description keys |
 
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
-
-**No FAIL conditions found.** Architecture is production-ready.
