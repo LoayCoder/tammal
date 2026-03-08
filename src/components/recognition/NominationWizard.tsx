@@ -27,6 +27,7 @@ interface NominationWizardProps {
   cycleId: string;
   themeId: string;
   preselectedNomineeId?: string;
+  onBack?: () => void;
   onComplete?: () => void;
 }
 
