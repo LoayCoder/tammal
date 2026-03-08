@@ -99,9 +99,12 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onCom
 
   const selectedEmployee = employees.find(e => e.user_id === nomineeId);
 
-  const eligibleEmployees = nominatorRole === 'self'
+  const eligibleEmployees = (nominatorRole === 'self'
     ? employees.filter(e => e.user_id === user?.id)
-    : employees.filter(e => e.user_id !== user?.id);
+    : employees.filter(e => e.user_id !== user?.id)
+  ).filter(e => !e.user_id || !alreadyNominatedIds.has(e.user_id));
+
+  const isPreselectedAlreadyNominated = !!preselectedNomineeId && alreadyNominatedIds.has(preselectedNomineeId);
 
   // Extract allowAppeals from cycle fairness_config
   const allowAppeals = (() => {
