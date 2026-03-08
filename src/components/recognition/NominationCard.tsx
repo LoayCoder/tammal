@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { User, Calendar, ThumbsUp, Trash2 } from 'lucide-react';
+import { User, Calendar, ThumbsUp, Trash2, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Nomination } from '@/hooks/recognition/useNominations';
 
