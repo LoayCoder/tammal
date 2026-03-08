@@ -80,17 +80,19 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, managerAppro
       const { error } = await supabase.from('endorsement_requests').insert(rows as any);
       if (error) throw error;
 
-      // Create in-app notifications for each requested colleague
-      const headline = await getNominationHeadline(nominationId);
-      const notificationRows = Array.from(selectedIds).map(uid => ({
-        tenant_id: tenantId,
-        user_id: uid,
-        nomination_id: nominationId,
-        type: 'endorsement_requested',
-        title: t('notifications.endorsementRequested', { name: currentUserName }),
-        body: t('notifications.endorsementRequestedBody', { headline: headline || '—' }),
-      }));
-      await supabase.from('recognition_notifications').insert(notificationRows as any);
+      // Only send notifications if manager approval is not pending
+      if (!managerApprovalPending) {
+        const headline = await getNominationHeadline(nominationId);
+        const notificationRows = Array.from(selectedIds).map(uid => ({
+          tenant_id: tenantId,
+          user_id: uid,
+          nomination_id: nominationId,
+          type: 'endorsement_requested',
+          title: t('notifications.endorsementRequested', { name: currentUserName }),
+          body: t('notifications.endorsementRequestedBody', { headline: headline || '—' }),
+        }));
+        await supabase.from('recognition_notifications').insert(notificationRows as any);
+      }
 
       setSent(true);
       toast.success(t('recognition.endorsements.requestsSent'));
