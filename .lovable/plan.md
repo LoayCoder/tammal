@@ -1,87 +1,61 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+# Wire Up the Endorsement Flow End-to-End
 
-## 1. Folder Architecture — ✅ PASS
-
-The project follows a clean modular structure:
+## How It Will Work (User Journey)
 
 ```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
+Nominator submits nomination
+  → Nomination saved with endorsement_status = 'pending'
+  → Nomination card appears in "Sent" tab
+
+Colleague visits My Nominations → "Endorse" tab (NEW)
+  → Sees nominations awaiting endorsement (from myEndorsementRequests query)
+  → Clicks a nomination → opens detail dialog
+  → Fills EndorsementForm (relationship, statement, context)
+  → Submits → endorsement count checked → if ≥2, nomination auto-advances to 'endorsed'
+
+Alternatively: Nominator clicks their own nomination card
+  → Opens detail view showing endorsement status + list of existing endorsements
 ```
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+## Changes
 
----
+### 1. Add "Endorse" Tab to `MyNominationsPage.tsx`
+- Add a 4th tab: "Endorse" with a `ThumbsUp` icon
+- Consume `useEndorsements().myEndorsementRequests` to populate it
+- Show nomination cards for items needing the current user's endorsement
+- Each card has an "Endorse" button that opens a detail dialog
 
-## 2. Feature Isolation — ✅ PASS
+### 2. Create `NominationDetailDialog.tsx`
+- A dialog that shows full nomination details (headline, justification, examples, impact metrics)
+- Shows existing endorsements via `EndorsementListItem`
+- If the current user hasn't endorsed yet and isn't the nominee/nominator, renders `EndorsementForm`
+- Reuse existing `EndorsementForm` and `EndorsementListItem` components from `EndorsementCard.tsx`
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+### 3. Make `NominationCard` Clickable
+- In both "Sent" and "Received" tabs, clicking a card opens `NominationDetailDialog`
+- "Sent" view shows endorsement progress (count badge)
+- "Received" view shows who endorsed
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
+### 4. Remove Wizard Step 4 (Endorsements)
+- The wizard's endorsement step is misleading — endorsements happen **after** submission by **other** people
+- Remove `'endorsements'` from `STEPS` array, making the flow: `select_nominee → justification → criteria_evaluation → review`
+- This matches the stated behavior: "Endorsements can be requested after submission"
 
----
+### 5. Resolve Employee Names
+- Fetch employee names for endorser IDs to display in `EndorsementListItem`
 
-## 3. Backend Architecture — ✅ PASS
+### 6. Localization
+- Add keys for the new "Endorse" tab, empty states, and dialog labels in `en.json` and `ar.json`
 
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
+## Files
 
----
+| File | Action |
+|------|--------|
+| `src/pages/recognition/MyNominationsPage.tsx` | Add "Endorse" tab, integrate detail dialog |
+| `src/components/recognition/NominationDetailDialog.tsx` | **New** — full nomination view + endorsement form |
+| `src/components/recognition/NominationWizard.tsx` | Remove `endorsements` step from STEPS array |
+| `src/locales/en.json` | Add endorsement tab/dialog keys |
+| `src/locales/ar.json` | Add endorsement tab/dialog keys |
 
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
-
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
-
-## Summary
-
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
-
-**No FAIL conditions found.** Architecture is production-ready.
