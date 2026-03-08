@@ -93,6 +93,7 @@ export function NominationWizard({ cycleId, themeId, onComplete }: NominationWiz
       };
       const result = await createNomination.mutateAsync(input);
       setCreatedNominationId(result.id);
+      setManagerApprovalPending((result as any).manager_approval_status === 'pending');
 
       // Save criteria evaluations
       if (criteriaEvaluations.length > 0 && tenantId) {
