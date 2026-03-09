@@ -133,7 +133,21 @@ export function FairnessReport({ report }: FairnessReportProps) {
             </div>
           )}
 
-          {parity.note && !parity.score && (
+          {parity.status === 'insufficient_data' && (
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">
+                {parity.department_count != null
+                  ? t('recognition.results.parityDeptCount', { count: parity.department_count, required: 2 })
+                  : parity.note}
+              </p>
+              {parity.nominee_count != null && (
+                <p className="text-xs text-muted-foreground">
+                  {t('recognition.results.parityNomineeCount', { count: parity.nominee_count })}
+                </p>
+              )}
+            </div>
+          )}
+          {parity.note && !parity.score && parity.status !== 'insufficient_data' && (
             <p className="text-xs text-muted-foreground">{parity.note}</p>
           )}
         </CardContent>

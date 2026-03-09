@@ -3581,6 +3581,8 @@
       "parityBalanced": "Balanced",
       "parityImbalanced": "Imbalanced",
       "insufficientData": "Insufficient data",
+      "parityDeptCount": "{{count}} of {{required}} required departments represented",
+      "parityNomineeCount": "{{count}} eligible nominee(s) found",
       "parityScore": "Parity score: {{score}} (target: {{target}})",
       "underrepresented": "Underrepresented",
       "overrepresented": "Overrepresented",
