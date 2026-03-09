@@ -15,14 +15,21 @@ serve(async (req) => {
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
+    // ── Auth guard ──────────────────────────────────────────────────
     const authHeader = req.headers.get("authorization") || "";
-    const token = authHeader.replace("Bearer ", "");
+    if (!authHeader.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { data: { user }, error: authError } = await createClient(
-      SUPABASE_URL,
-      Deno.env.get("SUPABASE_ANON_KEY")!
-    ).auth.getUser(token);
+      SUPABASE_URL, ANON_KEY
+    ).auth.getUser(authHeader.replace("Bearer ", ""));
 
     if (authError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -30,6 +37,65 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // ── Resolve tenant_id server-side ───────────────────────────────
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("tenant_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    const userTenantId = profile?.tenant_id;
+    if (!userTenantId) {
+      return new Response(JSON.stringify({ error: "User has no tenant" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // ── Check if user has crisis access (uploader, first aider, or crisis.manage permission) ──
+    const canAccessAttachment = async (attachment: any): Promise<boolean> => {
+      // Uploader always has access
+      if (attachment.uploader_user_id === user.id) return true;
+
+      // First aider assigned to this case
+      if (attachment.context === "crisis_case" && attachment.context_id) {
+        const { data: caseData } = await supabaseAdmin
+          .from("mh_crisis_cases")
+          .select("assigned_first_aider_id, employee_id")
+          .eq("id", attachment.context_id)
+          .maybeSingle();
+
+        if (caseData) {
+          // Case creator (employee)
+          const { data: emp } = await supabaseAdmin
+            .from("employees")
+            .select("user_id")
+            .eq("id", caseData.employee_id)
+            .maybeSingle();
+          if (emp?.user_id === user.id) return true;
+
+          // Assigned first aider
+          if (caseData.assigned_first_aider_id) {
+            const { data: fa } = await supabaseAdmin
+              .from("mh_first_aiders")
+              .select("user_id")
+              .eq("id", caseData.assigned_first_aider_id)
+              .maybeSingle();
+            if (fa?.user_id === user.id) return true;
+          }
+        }
+      }
+
+      // Admin with crisis.manage permission
+      const { data: hasPerm } = await supabaseAdmin.rpc("has_permission", {
+        _user_id: user.id,
+        _permission_code: "crisis.manage",
+      });
+      if (hasPerm) return true;
+
+      return false;
+    };
 
     const url = new URL(req.url);
     const action = url.searchParams.get("action");
@@ -39,10 +105,12 @@ serve(async (req) => {
       const formData = await req.formData();
       const file = formData.get("file") as File | null;
       const caseId = formData.get("case_id") as string;
-      const tenantId = formData.get("tenant_id") as string;
       const expiryDays = parseInt(formData.get("expiry_days") as string || "30");
 
-      if (!file || !caseId || !tenantId) {
+      // Ignore client-supplied tenant_id; use server-resolved one
+      const tenantId = userTenantId;
+
+      if (!file || !caseId) {
         return new Response(JSON.stringify({ error: "Missing required fields" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -125,12 +193,21 @@ serve(async (req) => {
         .from("mh_secure_attachments")
         .select("*")
         .eq("id", attachment_id)
+        .eq("tenant_id", userTenantId)
         .is("deleted_at", null)
         .single();
 
       if (fetchError || !attachment) {
         return new Response(JSON.stringify({ error: "Attachment not found" }), {
           status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Authorization check
+      if (!(await canAccessAttachment(attachment))) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
@@ -179,18 +256,38 @@ serve(async (req) => {
 
       const { data: attachment } = await supabaseAdmin
         .from("mh_secure_attachments")
-        .select("storage_path")
+        .select("*")
         .eq("id", attachment_id)
+        .eq("tenant_id", userTenantId)
         .is("deleted_at", null)
         .single();
 
-      if (attachment) {
-        await supabaseAdmin.storage.from("support-attachments").remove([attachment.storage_path]);
-        await supabaseAdmin
-          .from("mh_secure_attachments")
-          .update({ deleted_at: new Date().toISOString() })
-          .eq("id", attachment_id);
+      if (!attachment) {
+        return new Response(JSON.stringify({ error: "Attachment not found" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
+
+      // Authorization check — only uploader or crisis admin can revoke
+      if (attachment.uploader_user_id !== user.id) {
+        const { data: hasPerm } = await supabaseAdmin.rpc("has_permission", {
+          _user_id: user.id,
+          _permission_code: "crisis.manage",
+        });
+        if (!hasPerm) {
+          return new Response(JSON.stringify({ error: "Forbidden" }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+
+      await supabaseAdmin.storage.from("support-attachments").remove([attachment.storage_path]);
+      await supabaseAdmin
+        .from("mh_secure_attachments")
+        .update({ deleted_at: new Date().toISOString() })
+        .eq("id", attachment_id);
 
       return new Response(JSON.stringify({ success: true }), {
         status: 200,
