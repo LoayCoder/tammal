@@ -3578,6 +3578,12 @@
       "noAnomalies": "No voting anomalies detected",
       "anomalyCount": "{{count}} extreme scoring instances",
       "demographicParity": "Demographic Parity",
+      "parityBalanced": "Balanced",
+      "parityImbalanced": "Imbalanced",
+      "insufficientData": "Insufficient data",
+      "parityScore": "Parity score: {{score}} (target: {{target}})",
+      "underrepresented": "Underrepresented",
+      "overrepresented": "Overrepresented",
       "visibilityBias": "Visibility Bias Correction",
       "correctionApplied": "Correction applied for remote workers",
       "noCorrectionNeeded": "No correction needed"

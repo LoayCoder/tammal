@@ -223,7 +223,74 @@ Deno.serve(async (req) => {
         }
       }
       fairnessReport.anomalies = anomalies;
-      fairnessReport.demographic_parity = { status: 'not_evaluated', note: 'Requires department/demographic data integration' };
+      // Demographic parity calculation
+      const parityTarget = fairnessConfig.demographicParityTarget || fairnessConfig.demographic_parity_target || 0.8;
+      const deptNomineeCounts: Record<string, { name: string; nominees: number; winners: number }> = {};
+
+      for (const nom of themeNominations) {
+        const info = nomineeDeptMap[nom.nominee_id];
+        const deptKey = info?.department_id || 'unknown';
+        const deptName = info?.department_name || 'Unknown';
+        if (!deptNomineeCounts[deptKey]) {
+          deptNomineeCounts[deptKey] = { name: deptName, nominees: 0, winners: 0 };
+        }
+        deptNomineeCounts[deptKey].nominees++;
+      }
+
+      // Count winners (top 3) by department
+      const top3Ids = nomineeScores.slice(0, 3).map(ns => ns.nomination_id);
+      for (const nomId of top3Ids) {
+        const nom = themeNominations.find(n => n.id === nomId);
+        if (!nom) continue;
+        const info = nomineeDeptMap[nom.nominee_id];
+        const deptKey = info?.department_id || 'unknown';
+        if (deptNomineeCounts[deptKey]) {
+          deptNomineeCounts[deptKey].winners++;
+        }
+      }
+
+      const totalNominees = themeNominations.length;
+      const totalWinners = top3Ids.length;
+      const deptEntries = Object.entries(deptNomineeCounts);
+
+      if (deptEntries.length < 2 || totalWinners === 0) {
+        fairnessReport.demographic_parity = { status: 'insufficient_data', note: 'Not enough departments or winners to evaluate parity' };
+      } else {
+        const departments: Record<string, { nominees: number; winners: number; ratio: number }> = {};
+        const underrepresented: string[] = [];
+        const overrepresented: string[] = [];
+        let minRatio = Infinity;
+
+        for (const [, dept] of deptEntries) {
+          const nomShare = dept.nominees / totalNominees;
+          const winShare = totalWinners > 0 ? dept.winners / totalWinners : 0;
+          const ratio = nomShare > 0 ? Math.round((winShare / nomShare) * 100) / 100 : 0;
+
+          departments[dept.name] = { nominees: dept.nominees, winners: dept.winners, ratio };
+
+          if (dept.nominees > 0 && dept.winners === 0 && nomShare >= 0.15) {
+            underrepresented.push(dept.name);
+          } else if (ratio > 1.5) {
+            overrepresented.push(dept.name);
+          }
+          if (ratio < minRatio) minRatio = ratio;
+        }
+
+        const parityScore = Math.round(Math.min(minRatio, 1) * 100) / 100;
+        const status = parityScore >= parityTarget ? 'balanced' : 'imbalanced';
+
+        fairnessReport.demographic_parity = {
+          status,
+          score: parityScore,
+          target: parityTarget,
+          departments,
+          underrepresented,
+          overrepresented,
+          note: status === 'balanced'
+            ? 'Department representation is within acceptable range'
+            : 'Some departments are under or over-represented in results',
+        };
+      }
 
       if (biasDetection.visibilityBias || fairnessConfig.visibility_bias) {
         fairnessReport.visibility_correction = { applied: true, method: 'remote_worker_boost' };

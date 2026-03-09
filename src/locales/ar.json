@@ -3416,6 +3416,12 @@
       "noAnomalies": "لم يتم اكتشاف شذوذ في التصويت",
       "anomalyCount": "{{count}} حالات تقييم متطرف",
       "demographicParity": "التكافؤ الديموغرافي",
+      "parityBalanced": "متوازن",
+      "parityImbalanced": "غير متوازن",
+      "insufficientData": "بيانات غير كافية",
+      "parityScore": "درجة التكافؤ: {{score}} (الهدف: {{target}})",
+      "underrepresented": "ناقص التمثيل",
+      "overrepresented": "زائد التمثيل",
       "visibilityBias": "تصحيح تحيز الظهور",
       "correctionApplied": "تم تطبيق التصحيح للعاملين عن بُعد",
       "noCorrectionNeeded": "لا حاجة للتصحيح"
