@@ -72,6 +72,7 @@ export function useNominationApprovals() {
         manager_approved_by: user.id,
         manager_approval_at: new Date().toISOString(),
         status: 'endorsed',
+        endorsement_status: 'sufficient',
       };
       if (criteriaAdjustments) {
         updateData.manager_criteria_adjustments = criteriaAdjustments;
