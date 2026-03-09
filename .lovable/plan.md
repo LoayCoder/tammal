@@ -1,87 +1,42 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+## Bug: Users Can Nominate After Nomination Period Ends
 
-## 1. Folder Architecture — ✅ PASS
+### Root Cause
+The system only checks `cycle.status === 'nominating'` to determine if nominations are open. It never validates the actual `nomination_end` date. So even though nominations closed on Mar 8, 2026, the cycle status is still "nominating" and users can still submit.
 
-The project follows a clean modular structure:
+### Fix (2 locations)
 
-```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
+**1. `src/pages/recognition/NominatePage.tsx`** — Filter out cycles past their nomination deadline
+- Change the `activeCycles` filter from just checking status to also checking `nomination_end > now()`
+- Show a message when a cycle is in "nominating" status but the deadline has passed
+
+**2. `src/hooks/recognition/useNominations.ts`** — Server-side guard in `createNomination`
+- Before inserting, fetch the cycle's `nomination_end` date
+- If `nomination_end < now()`, throw an error and block the submission
+- This prevents submissions even if someone bypasses the UI
+
+### Implementation Detail
+
+```typescript
+// NominatePage.tsx — line 23
+const now = new Date().toISOString();
+const activeCycles = cycles.filter(
+  c => c.status === 'nominating' && c.nomination_end > now
+);
+
+// useNominations.ts — in createNomination mutationFn, before insert
+const { data: cycle } = await supabase
+  .from('award_cycles')
+  .select('nomination_end')
+  .eq('id', rest.cycle_id)
+  .single();
+
+if (cycle && new Date(cycle.nomination_end) < new Date()) {
+  throw new Error(t('recognition.nominations.periodClosed'));
+}
 ```
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+### Translation keys to add
+- `recognition.nominations.periodClosed` — "The nomination period for this cycle has ended"
 
----
-
-## 2. Feature Isolation — ✅ PASS
-
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
-
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
-
----
-
-## 3. Backend Architecture — ✅ PASS
-
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
-
----
-
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
-
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
-
-## Summary
-
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
-
-**No FAIL conditions found.** Architecture is production-ready.
