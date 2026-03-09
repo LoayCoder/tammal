@@ -45,8 +45,8 @@ Deno.serve(async (req) => {
     if (cycleErr) throw cycleErr;
 
     // Validate cycle status — only allow from 'voting' status
-    if (!['voting', 'calculating'].includes(cycle.status)) {
-      throw new Error(`Cannot calculate results: cycle is in '${cycle.status}' status. Must be 'voting'.`);
+    if (!['voting', 'calculating', 'announced'].includes(cycle.status)) {
+      throw new Error(`Cannot calculate results: cycle is in '${cycle.status}' status. Must be 'voting', 'calculating', or 'announced'.`);
     }
 
     await supabase.from('award_cycles').update({ status: 'calculating' }).eq('id', cycle_id);
@@ -76,14 +76,14 @@ Deno.serve(async (req) => {
     const uniqueNomineeIds = [...new Set(nominations.map(n => n.nominee_id))];
     const { data: employeeDepts } = await supabase
       .from('employees')
-      .select('id, department_id, departments:department_id(name)')
-      .in('id', uniqueNomineeIds)
+      .select('user_id, department_id, departments:department_id(name)')
+      .in('user_id', uniqueNomineeIds)
       .is('deleted_at', null);
 
     const nomineeDeptMap: Record<string, { department_id: string | null; department_name: string }> = {};
     for (const emp of (employeeDepts || [])) {
       const deptName = (emp.departments as any)?.name || 'Unknown';
-      nomineeDeptMap[emp.id] = { department_id: emp.department_id, department_name: deptName };
+      nomineeDeptMap[emp.user_id] = { department_id: emp.department_id, department_name: deptName };
     }
 
     // 4. Get all votes
