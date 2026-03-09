@@ -253,7 +253,7 @@ Deno.serve(async (req) => {
       const deptEntries = Object.entries(deptNomineeCounts);
 
       if (deptEntries.length < 2 || totalWinners === 0) {
-        fairnessReport.demographic_parity = { status: 'insufficient_data', note: 'Not enough departments or winners to evaluate parity' };
+        fairnessReport.demographic_parity = { status: 'insufficient_data', department_count: deptEntries.length, nominee_count: totalNominees, winner_count: totalWinners, note: 'Not enough departments or winners to evaluate parity' };
       } else {
         const departments: Record<string, { nominees: number; winners: number; ratio: number }> = {};
         const underrepresented: string[] = [];
