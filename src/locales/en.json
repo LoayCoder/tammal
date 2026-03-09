@@ -3421,6 +3421,7 @@
       "quotaNote": "Managers can nominate up to {{percent}}% of their team ({{teamSize}} members)",
       "peerQuotaNote": "Peers can submit up to {{limit}} nominations per theme",
       "noActiveCycles": "No active nomination cycles available right now",
+      "periodClosed": "The nomination period for this cycle has ended",
       "selectCycleTheme": "Select Cycle & Theme",
       "selectCycleThemeDesc": "Choose which award cycle and theme to nominate for",
       "cycle": "Award Cycle",

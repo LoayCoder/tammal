@@ -124,6 +124,17 @@ export function useNominations(cycleId?: string, themeId?: string) {
         approvalStatus = nomineeEmp?.manager_id ? 'pending' : 'not_required';
       }
 
+      // Guard: check nomination_end deadline
+      const { data: cycle } = await supabase
+        .from('award_cycles')
+        .select('nomination_end')
+        .eq('id', rest.cycle_id)
+        .single();
+
+      if (cycle && new Date(cycle.nomination_end) < new Date()) {
+        throw new Error(t('recognition.nominations.periodClosed'));
+      }
+
       const { data, error } = await supabase
         .from('nominations')
         .insert({
