@@ -21,6 +21,7 @@ import { DashboardIslamicCalendarWidget } from '@/components/dashboard/Dashboard
 import { DashboardWorkloadWidget } from '@/components/dashboard/DashboardWorkloadWidget';
 import FirstAiderQuickConnect from '@/components/crisis/FirstAiderQuickConnect';
 import { DashboardEndorsementRequests } from '@/components/dashboard/DashboardEndorsementRequests';
+import { DashboardVotingWidget } from '@/components/dashboard/DashboardVotingWidget';
 
 const MOOD_EMOJIS: Record<string, string> = {
   great: '😄', good: '🙂', okay: '😐', bad: '😟', terrible: '😢',
