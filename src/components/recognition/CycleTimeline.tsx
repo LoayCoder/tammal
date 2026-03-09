@@ -11,16 +11,29 @@ const PHASES = [
   { key: 'announcement_date', labelKey: 'recognition.timeline.announcement' },
 ] as const;
 
+const STATUS_PHASE_INDEX: Record<string, number> = {
+  configuring: -1,
+  nominating: 0,
+  voting: 3,
+  calculating: 4,
+  announced: 5,
+  archived: 5,
+};
+
 export function CycleTimeline({ cycle }: { cycle: AwardCycle }) {
   const { t } = useTranslation();
   const now = new Date();
+  const statusPhaseIdx = STATUS_PHASE_INDEX[cycle.status] ?? -1;
 
   return (
     <div className="flex flex-col gap-2">
       {PHASES.map((phase, idx) => {
         const date = new Date(cycle[phase.key as keyof AwardCycle] as string);
-        const isPast = date < now;
-        const isNext = !isPast && (idx === 0 || new Date(cycle[PHASES[idx - 1].key as keyof AwardCycle] as string) < now);
+        const isPast = date < now || idx <= statusPhaseIdx;
+        const prevPast = idx === 0
+          ? true
+          : new Date(cycle[PHASES[idx - 1].key as keyof AwardCycle] as string) < now || (idx - 1) <= statusPhaseIdx;
+        const isNext = !isPast && prevPast;
 
         return (
           <div key={phase.key} className="flex items-center gap-3">
