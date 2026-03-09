@@ -72,6 +72,21 @@ Deno.serve(async (req) => {
       .is('deleted_at', null);
     if (!nominations?.length) throw new Error('No eligible nominations');
 
+    // 3b. Fetch department info for all nominees
+    const uniqueNomineeIds = [...new Set(nominations.map(n => n.nominee_id))];
+    const { data: employeeDepts } = await supabase
+      .from('employees')
+      .select('id, department_id, departments:department_id(name)')
+      .in('id', uniqueNomineeIds)
+      .is('deleted_at', null);
+
+    const nomineeDeptMap: Record<string, { department_id: string | null; department_name: string }> = {};
+    for (const emp of (employeeDepts || [])) {
+      const deptName = (emp.departments as any)?.name || 'Unknown';
+      nomineeDeptMap[emp.id] = { department_id: emp.department_id, department_name: deptName };
+    }
+    if (!nominations?.length) throw new Error('No eligible nominations');
+
     // 4. Get all votes
     const { data: votes } = await supabase
       .from('votes')
