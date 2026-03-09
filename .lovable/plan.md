@@ -1,47 +1,87 @@
+# Enterprise Task Management — Architecture Audit
 
+## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
-## Fix: Timeline Not Reflecting Actual Cycle Status
+---
 
-### Problem
-`CycleTimeline` determines past/current phases purely by comparing dates to `now()`. When an admin manually advances a cycle (e.g., to "announced" before the endorsement deadline), the timeline still highlights the endorsement phase as "current" because its date hasn't passed yet.
+## 1. Folder Architecture — ✅ PASS
 
-### Solution
-Map the cycle's `status` to a phase index. A phase is "past" if either its date has passed OR the cycle status has already moved beyond it. The "next" (pulsing) phase is the one matching the current status.
+The project follows a clean modular structure:
 
-**Status-to-phase mapping:**
-| Status | Completed through phase index |
-|---|---|
-| configuring | -1 (none) |
-| nominating | 0 (nomination_start passed) |
-| voting | 3 (voting_start reached) |
-| calculating | 4 (voting_end reached) |
-| announced | 5 (announcement reached) |
-| archived | 5 (all done) |
-
-### File: `src/components/recognition/CycleTimeline.tsx`
-
-Replace the date-only logic with a status-aware approach:
-
-```typescript
-// Map cycle status to the minimum phase index that must be "past"
-const STATUS_PHASE_INDEX: Record<string, number> = {
-  configuring: -1,
-  nominating: 0,   // nomination_start is past
-  voting: 3,       // voting_start is past
-  calculating: 4,  // voting_end is past
-  announced: 5,    // announcement is past
-  archived: 5,
-};
-
-const statusPhaseIdx = STATUS_PHASE_INDEX[cycle.status] ?? -1;
-
-// A phase is past if: date < now OR cycle status has moved beyond it
-const isPast = date < now || idx <= statusPhaseIdx;
-// "Next" = first non-past phase
-const isNext = !isPast && (idx === 0 || /* previous is past */);
+```text
+src/
+  ai/          — Isolated AI client, prompts, guards, quality
+  components/  — UI components
+  config/      — Centralized constants
+  features/    — Feature modules (tasks, approvals, workload, etc.)
+  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
+  services/    — Pure async business services (no UI imports)
+  types/       — Shared type definitions
 ```
 
-This ensures that when an admin manually advances to "announced", all 6 timeline dots show as past (dark), with none pulsing — correctly reflecting reality.
+**Layer separation checks:**
+- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
+- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
+- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
+- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
 
-### No other files changed. No translations needed.
+---
 
+## 2. Feature Isolation — ✅ PASS
+
+| Module | Location | Status |
+|---|---|---|
+| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
+| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
+| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
+| AI Governance | `src/features/ai-governance/` | ✅ |
+| AI Generator | `src/features/ai-generator/` | ✅ |
+| Org Dashboard | `src/features/org-dashboard/` | ✅ |
+| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+
+**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
+
+---
+
+## 3. Backend Architecture — ✅ PASS
+
+- **35 edge functions** properly separate API routes from client code
+- **Services layer** (`src/services/`) handles business logic
+- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
+- Database access centralized through the Supabase client
+
+---
+
+## 4. Supabase Integration — ✅ PASS
+
+- **Client centralized** in `src/integrations/supabase/client.ts`
+- **RLS enabled** on all task-related tables with `authenticated` role enforcement
+- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
+
+---
+
+## 5. Warnings
+
+### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
+
+Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
+`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
+
+### ⚠️ WARNING (low priority): Workload feature is a thin barrel
+
+`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
+
+---
+
+## Summary
+
+| Category | Result |
+|---|---|
+| Folder Architecture | ✅ PASS |
+| Feature Isolation | ✅ PASS |
+| Backend Architecture | ✅ PASS |
+| Supabase Integration | ✅ PASS |
+| Layer Separation | ✅ PASS (resolved) |
+| Workload Consolidation | ⚠️ Low-priority migration |
+
+**No FAIL conditions found.** Architecture is production-ready.
