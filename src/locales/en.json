@@ -2372,6 +2372,12 @@
     "subtitle": "Here's how you're doing today",
     "dayStreak": "day streak",
     "points": "points",
+    "votingWidget": {
+      "title": "Voting is Open!",
+      "pending": "{{count}} ballots remaining",
+      "allDone": "All votes submitted",
+      "voteNow": "Vote Now"
+    },
     "checkinCard": "Daily Check-in",
     "checkinDesc": "Take a moment to share how you're feeling today",
     "checkinNow": "Check in now",

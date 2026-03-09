@@ -2372,6 +2372,12 @@
     "subtitle": "إليك كيف حالك اليوم",
     "dayStreak": "يوم متتالي",
     "points": "نقاط",
+    "votingWidget": {
+      "title": "التصويت مفتوح!",
+      "pending": "{{count}} بطاقات متبقية",
+      "allDone": "تم تقديم جميع الأصوات",
+      "voteNow": "صوّت الآن"
+    },
     "checkinCard": "التسجيل اليومي",
     "checkinDesc": "خذ لحظة لتشارك كيف تشعر اليوم",
     "checkinNow": "سجّل الآن",
