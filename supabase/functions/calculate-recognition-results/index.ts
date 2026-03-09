@@ -85,7 +85,6 @@ Deno.serve(async (req) => {
       const deptName = (emp.departments as any)?.name || 'Unknown';
       nomineeDeptMap[emp.id] = { department_id: emp.department_id, department_name: deptName };
     }
-    if (!nominations?.length) throw new Error('No eligible nominations');
 
     // 4. Get all votes
     const { data: votes } = await supabase
