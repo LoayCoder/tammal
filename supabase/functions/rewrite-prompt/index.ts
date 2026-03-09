@@ -12,13 +12,30 @@ serve(async (req) => {
   }
 
   try {
+    // ── Auth guard ──────────────────────────────────────────────────
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "No authorization header" }), {
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const { data: { user }, error: authError } = await authClient.auth.getUser();
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    // ── End auth guard ──────────────────────────────────────────────
 
     const { prompt, model = "google/gemini-3-flash-preview", useExpertKnowledge, selectedFrameworkIds = [], selectedFrameworks = [], documentSummaries = "" } = await req.json();
 
@@ -37,13 +54,12 @@ serve(async (req) => {
       });
     }
 
-    // Fetch framework descriptions from DB if IDs provided
+    // Fetch framework descriptions from DB if IDs provided (use service role for DB access)
     let expertContext = "";
     if (useExpertKnowledge) {
       if (selectedFrameworkIds && selectedFrameworkIds.length > 0) {
-        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-        const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-        const supabase = createClient(supabaseUrl, supabaseKey);
+        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
         const { data: frameworks } = await supabase
           .from("reference_frameworks")
@@ -60,7 +76,6 @@ serve(async (req) => {
           expertContext = `You have deep expertise in the following selected international standards and frameworks:\n${frameworkList}\n\nWhen rewriting, reference ONLY these selected frameworks where relevant and ensure the prompt is grounded in evidence-based psychometric principles aligned with them.`;
         }
       } else if (selectedFrameworks && selectedFrameworks.length > 0) {
-        // Legacy fallback for old framework keys
         const frameworkDescriptions: Record<string, string> = {
           ISO45003: "ISO 45003 (Psychological Health & Safety at Work)",
           ISO10018: "ISO 10018 & ISO 30414 (People Engagement & HR Reporting)",
