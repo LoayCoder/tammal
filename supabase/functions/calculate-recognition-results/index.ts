@@ -45,8 +45,8 @@ Deno.serve(async (req) => {
     if (cycleErr) throw cycleErr;
 
     // Validate cycle status — only allow from 'voting' status
-    if (!['voting', 'calculating'].includes(cycle.status)) {
-      throw new Error(`Cannot calculate results: cycle is in '${cycle.status}' status. Must be 'voting'.`);
+    if (!['voting', 'calculating', 'announced'].includes(cycle.status)) {
+      throw new Error(`Cannot calculate results: cycle is in '${cycle.status}' status. Must be 'voting', 'calculating', or 'announced'.`);
     }
 
     await supabase.from('award_cycles').update({ status: 'calculating' }).eq('id', cycle_id);
