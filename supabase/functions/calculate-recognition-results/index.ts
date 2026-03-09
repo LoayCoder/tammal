@@ -76,14 +76,14 @@ Deno.serve(async (req) => {
     const uniqueNomineeIds = [...new Set(nominations.map(n => n.nominee_id))];
     const { data: employeeDepts } = await supabase
       .from('employees')
-      .select('id, department_id, departments:department_id(name)')
-      .in('id', uniqueNomineeIds)
+      .select('user_id, department_id, departments:department_id(name)')
+      .in('user_id', uniqueNomineeIds)
       .is('deleted_at', null);
 
     const nomineeDeptMap: Record<string, { department_id: string | null; department_name: string }> = {};
     for (const emp of (employeeDepts || [])) {
       const deptName = (emp.departments as any)?.name || 'Unknown';
-      nomineeDeptMap[emp.id] = { department_id: emp.department_id, department_name: deptName };
+      nomineeDeptMap[emp.user_id] = { department_id: emp.department_id, department_name: deptName };
     }
 
     // 4. Get all votes

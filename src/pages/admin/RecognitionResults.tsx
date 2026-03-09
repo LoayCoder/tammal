@@ -82,7 +82,7 @@ export default function RecognitionResults() {
               ))}
             </SelectContent>
           </Select>
-          {selectedCycle && ['voting', 'calculating'].includes(selectedCycle.status) && (
+          {selectedCycle && ['voting', 'calculating', 'announced'].includes(selectedCycle.status) && (
             <Button onClick={handleCalculate} disabled={calculateResults.isPending}>
               <Calculator className="h-4 w-4 me-2" />
               {t('recognition.results.calculate')}
