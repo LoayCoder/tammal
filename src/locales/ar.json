@@ -3419,6 +3419,8 @@
       "parityBalanced": "متوازن",
       "parityImbalanced": "غير متوازن",
       "insufficientData": "بيانات غير كافية",
+      "parityDeptCount": "{{count}} من {{required}} إدارات مطلوبة ممثلة",
+      "parityNomineeCount": "{{count}} مرشح(ين) مؤهل(ين)",
       "parityScore": "درجة التكافؤ: {{score}} (الهدف: {{target}})",
       "underrepresented": "ناقص التمثيل",
       "overrepresented": "زائد التمثيل",
