@@ -20,7 +20,8 @@ export default function NominatePage() {
   const preselectedThemeId = searchParams.get('theme') || '';
 
   const { cycles } = useAwardCycles();
-  const activeCycles = cycles.filter(c => c.status === 'nominating');
+  const now = new Date().toISOString();
+  const activeCycles = cycles.filter(c => c.status === 'nominating' && c.nomination_end > now);
 
   const [selectedCycleId, setSelectedCycleId] = useState(preselectedCycleId);
   const [selectedThemeId, setSelectedThemeId] = useState(preselectedThemeId);
