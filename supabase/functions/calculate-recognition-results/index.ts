@@ -349,7 +349,6 @@ Deno.serve(async (req) => {
           confidence_interval: ns.confidence_interval,
         });
       }
-    }
 
       // Update nomination statuses after results are calculated
       const top3NominationIds = nomineeScores.slice(0, 3).map(ns => ns.nomination_id);
