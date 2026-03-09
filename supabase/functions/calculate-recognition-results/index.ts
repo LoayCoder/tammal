@@ -351,6 +351,26 @@ Deno.serve(async (req) => {
       }
     }
 
+      // Update nomination statuses after results are calculated
+      const top3NominationIds = nomineeScores.slice(0, 3).map(ns => ns.nomination_id);
+      if (top3NominationIds.length > 0) {
+        await supabase
+          .from('nominations')
+          .update({ status: 'shortlisted', endorsement_status: 'sufficient' })
+          .in('id', top3NominationIds);
+      }
+
+      // Ensure all eligible nominations in this theme have endorsement_status synced
+      const allNomIds = themeNominations.map(n => n.id);
+      if (allNomIds.length > 0) {
+        await supabase
+          .from('nominations')
+          .update({ endorsement_status: 'sufficient' })
+          .in('id', allNomIds)
+          .eq('endorsement_status', 'pending');
+      }
+    }
+
     // 9. Advance cycle status to 'announced'
     await supabase
       .from('award_cycles')
