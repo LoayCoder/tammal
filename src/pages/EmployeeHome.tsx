@@ -83,6 +83,9 @@ export default function EmployeeHome() {
         {/* Pending Endorsement Requests */}
         <DashboardEndorsementRequests />
 
+        {/* Voting Booth Widget */}
+        <DashboardVotingWidget />
+
         {/* Inline Daily Check-in */}
         {employee && !todayEntry && employee.user_id && (
           <InlineDailyCheckin employeeId={employee.id} tenantId={employee.tenant_id} userId={employee.user_id} />
