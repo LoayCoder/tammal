@@ -32,7 +32,7 @@ export function DashboardEndorsementRequests() {
   });
 
   if (requestsPending) {
-    return <Skeleton className="h-24 w-full rounded-2xl" />;
+    return <Skeleton className="h-24 w-full rounded-lg" />;
   }
 
   if (myEndorsementRequests.length === 0) return null;
