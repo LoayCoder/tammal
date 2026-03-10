@@ -3370,6 +3370,14 @@
       "votingWeightAdjustmentLimit": "Voting Weight Adjustment Limit",
       "votingWeightAdjustmentLimitDesc": "How much voters can adjust the default criteria weights during voting"
     },
+    "rewards": {
+      "description": "Configure how many points winners and their nominators receive when results are announced.",
+      "firstPlace": "1st Place Points",
+      "secondPlace": "2nd Place Points",
+      "thirdPlace": "3rd Place Points",
+      "nominatorBonus": "Nominator Bonus",
+      "nominatorBonusDesc": "Bonus points awarded to nominators of top 3 winners per theme."
+    },
     "criteriaEval": {
       "title": "Criteria Evaluation",
       "desc": "Distribute weights across evaluation criteria and provide justification for each",
