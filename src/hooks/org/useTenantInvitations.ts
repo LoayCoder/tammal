@@ -52,7 +52,7 @@ function generateInvitationCode(): string {
 }
 
 export function useTenantInvitations(tenantId?: string) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const { logEvent } = useAuditLog();
 
