@@ -65,7 +65,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
         const priorityClass = PRIORITY_COLORS[task.priority] ?? PRIORITY_COLORS[3];
         const isLocked = task.is_locked;
         const commentCount = task.comments?.length ?? 0;
-        const statusInfo = STATUS_BADGE[task.status] ?? STATUS_BADGE.todo;
+        const statusInfo = STATUS_BADGE[task.status] ?? STATUS_BADGE.draft;
         const StatusIcon = statusInfo.icon;
 
         return (
