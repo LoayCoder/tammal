@@ -38,6 +38,7 @@ export interface CreateInvitationInput {
   employee_id?: string;
   expiry_days?: number;
   delivery_channel?: 'email' | 'whatsapp';
+  tenant_name?: string;
 }
 
 // Generate 8-character alphanumeric code (excludes ambiguous chars: O, 0, I, 1, L)
