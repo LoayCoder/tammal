@@ -9,7 +9,7 @@ export const spacing = {
   cardStandard: 'p-6',
   emptyState: 'py-12',
   pageWrapper: 'px-4 py-6 sm:px-6',
-  sectionGap: 'space-y-6',
+  sectionGap: 'space-y-8',
   gridGap: 'gap-4',
 } as const;
 
