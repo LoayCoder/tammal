@@ -11,6 +11,7 @@ interface RedemptionEmailRequest {
   pointsSpent: number;
   fulfillmentInstructions: string;
   language?: string;
+  tenantName?: string;
 }
 
 const translations = {
