@@ -37,14 +37,11 @@ const PRIORITY_COLORS: Record<number, string> = {
 const STATUS_BADGE: Record<string, { className: string; icon: typeof CheckCircle2 | null; label: string }> = {
   draft: { className: 'bg-muted text-muted-foreground', icon: null, label: 'Draft' },
   open: { className: 'bg-chart-2/10 text-chart-2', icon: null, label: 'Open' },
-  todo: { className: 'bg-muted text-muted-foreground', icon: null, label: 'Planned' },
   in_progress: { className: 'bg-chart-2/10 text-chart-2', icon: null, label: 'In Progress' },
   under_review: { className: 'bg-chart-4/10 text-chart-4', icon: null, label: 'Under Review' },
   pending_approval: { className: 'bg-chart-5/10 text-chart-5', icon: null, label: 'Pending Approval' },
   completed: { className: 'bg-chart-1/10 text-chart-1', icon: CheckCircle2, label: 'Completed' },
-  verified: { className: 'bg-primary/10 text-primary', icon: ShieldCheck, label: 'Verified' },
   rejected: { className: 'bg-destructive/10 text-destructive', icon: null, label: 'Rejected' },
-  blocked: { className: 'bg-destructive/10 text-destructive', icon: null, label: 'Blocked' },
   archived: { className: 'bg-muted text-muted-foreground', icon: null, label: 'Archived' },
 };
 
