@@ -50,6 +50,11 @@ export function NominationCard({
 }: NominationCardProps) {
   const { t } = useTranslation();
 
+  const displayedEndorsementStatus =
+    ['endorsed', 'shortlisted'].includes(nomination.status)
+      ? 'sufficient'
+      : nomination.endorsement_status;
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -95,9 +100,9 @@ export function NominationCard({
 
         <div className="flex items-center justify-between pt-1">
           <div className="flex items-center gap-3">
-            <Badge className={endorsementColors[nomination.endorsement_status] || ''} variant="outline">
+            <Badge className={endorsementColors[displayedEndorsementStatus] || ''} variant="outline">
               <ThumbsUp className="h-3 w-3 me-1" />
-              {t(`recognition.endorsements.status.${nomination.endorsement_status}`, nomination.endorsement_status)}
+              {t(`recognition.endorsements.status.${displayedEndorsementStatus}`, displayedEndorsementStatus)}
             </Badge>
             {nomination.submitted_at && (
               <span className="text-xs text-muted-foreground flex items-center gap-1">
