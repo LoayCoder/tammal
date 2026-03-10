@@ -136,7 +136,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
                   </span>
                 )}
                 {task.due_date && (
-                  <span className={`flex items-center gap-1 ${task.due_date.split('T')[0] < new Date().toISOString().split('T')[0] && task.status !== 'completed' && task.status !== 'verified' ? 'text-destructive font-medium' : ''}`}>
+                  <span className={`flex items-center gap-1 ${task.due_date.split('T')[0] < new Date().toISOString().split('T')[0] && !isCompleted ? 'text-destructive font-medium' : ''}`}>
                     → {new Date(task.due_date).toLocaleDateString()}
                   </span>
                 )}

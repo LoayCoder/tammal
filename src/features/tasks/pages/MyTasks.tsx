@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const STATUSES = ['all', 'draft', 'open', 'in_progress', 'under_review', 'pending_approval', 'completed', 'verified', 'rejected', 'archived'] as const;
+const STATUSES = ['all', 'draft', 'open', 'in_progress', 'under_review', 'pending_approval', 'completed', 'rejected', 'archived'] as const;
 const PRIORITY_OPTIONS = [
   { value: 'all', labelKey: '' },
   { value: '0', labelKey: 'tasks.priority.critical' },

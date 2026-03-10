@@ -248,14 +248,18 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
             </div>
           )}
 
-          {/* Blocked toggle */}
+          {/* Blocked indicator via metadata */}
           {isEdit && (
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 id="blocked-toggle"
-                checked={watchedStatus === 'blocked'}
-                onChange={(e) => setValue('status', e.target.checked ? 'blocked' : 'draft')}
+                checked={!!(task?.metadata as Record<string, unknown>)?.is_blocked}
+                onChange={(e) => {
+                  if (task) {
+                    onUpdate({ id: task.id, metadata: { ...(task.metadata as Record<string, unknown> ?? {}), is_blocked: e.target.checked } } as UnifiedTaskUpdate);
+                  }
+                }}
                 className="rounded"
                 disabled={isVerified}
               />
