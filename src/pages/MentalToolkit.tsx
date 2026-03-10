@@ -21,7 +21,7 @@ export default function MentalToolkit() {
       <div className="glass-card border-0 rounded-none border-b border-border/50 px-4 py-6 sm:px-6">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-1">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-primary/10">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10">
               <span className="text-xl">🧠</span>
             </div>
             <div>

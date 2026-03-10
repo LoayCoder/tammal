@@ -94,7 +94,7 @@ export default function MoodPathwaySettings() {
     <div className="space-y-6 p-6">
       {/* Page header */}
       <div className="flex items-start gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 shrink-0">
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 shrink-0">
           <Brain className="h-6 w-6 text-primary" />
         </div>
         <div>

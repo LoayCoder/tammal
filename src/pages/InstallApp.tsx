@@ -59,7 +59,7 @@ export default function InstallApp() {
         {/* Hero Section */}
         <div className="text-center space-y-6 mb-8">
           <div className="flex justify-center">
-            <div className="rounded-2xl bg-primary/10 p-6">
+            <div className="rounded-lg bg-primary/10 p-6">
               <ThemeLogo
                 logoLightUrl={branding.logo_light_url}
                 logoDarkUrl={branding.logo_dark_url}

@@ -95,7 +95,7 @@ export default function DailyCheckin() {
   if (!employee) {
     return (
       <div className="container mx-auto max-w-md py-16 px-4">
-        <div className="text-center space-y-4 p-8 rounded-2xl border border-dashed border-destructive/30 bg-destructive/5">
+        <div className="text-center space-y-4 p-8 rounded-lg border border-dashed border-destructive/30 bg-destructive/5">
           <UserX className="h-12 w-12 mx-auto text-destructive/60" />
           <h2 className="text-lg font-semibold">{t('wellness.profileNotFound', 'Profile Not Found')}</h2>
           <p className="text-sm text-muted-foreground">{t('wellness.profileNotFoundDesc', 'Your employee profile could not be found. Please contact your administrator.')}</p>

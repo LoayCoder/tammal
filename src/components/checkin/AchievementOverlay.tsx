@@ -74,7 +74,7 @@ export function AchievementOverlay({ streak, points, aiTip, onDismiss }: Achieve
         {/* AI Tip */}
         {aiTip && (
           <div
-            className="w-full rounded-2xl border border-primary/20 bg-primary/5 p-4 animate-in fade-in slide-in-from-bottom-5 duration-500"
+            className="w-full rounded-lg border border-primary/20 bg-primary/5 p-4 animate-in fade-in slide-in-from-bottom-5 duration-500"
             style={{ animationDelay: '600ms' }}
           >
             <div className="flex items-start gap-3">

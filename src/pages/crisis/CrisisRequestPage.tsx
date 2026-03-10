@@ -139,7 +139,7 @@ export default function CrisisRequestPage() {
 
       <div className="max-w-2xl mx-auto px-4 py-6 sm:px-6 space-y-6">
         {/* Disclaimer */}
-        <div className="rounded-2xl border border-border bg-card p-4">
+        <div className="rounded-lg border border-border bg-card p-4">
           <div className="flex items-start gap-3">
             <Shield className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
             <div>
