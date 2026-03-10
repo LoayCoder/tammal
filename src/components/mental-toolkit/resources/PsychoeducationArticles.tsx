@@ -199,7 +199,7 @@ export default function PsychoeducationArticles() {
 
   if (selected) {
     return (
-      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden animate-in slide-in-from-bottom duration-300">
+      <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden animate-in slide-in-from-bottom duration-300">
         <div className="px-5 py-4 border-b border-border flex items-center gap-3">
           <button onClick={() => setSelected(null)} className="text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-5 w-5" />
