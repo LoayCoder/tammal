@@ -9,17 +9,17 @@ export const spacing = {
   cardStandard: 'p-6',
   emptyState: 'py-12',
   pageWrapper: 'px-4 py-6 sm:px-6',
-  sectionGap: 'space-y-6',
+  sectionGap: 'space-y-8',
   gridGap: 'gap-4',
 } as const;
 
 // ── Typography ───────────────────────────────────────────────────────
 export const typography = {
-  pageTitle: 'text-xl font-bold text-foreground',
+  pageTitle: 'text-2xl font-semibold text-foreground',
   sectionTitle: 'text-lg font-semibold text-foreground',
   cardTitle: 'text-base font-semibold text-foreground',
   metric: 'text-2xl font-bold text-foreground',
-  statLabel: 'text-xs font-medium text-muted-foreground',
+  statLabel: 'text-xs font-bold text-muted-foreground',
   subtitle: 'text-sm text-muted-foreground',
   caption: 'text-2xs text-muted-foreground',
 } as const;
