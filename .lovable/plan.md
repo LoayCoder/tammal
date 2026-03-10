@@ -1,37 +1,59 @@
 
 
-## Fix: Nomination Still Shows "Endorsed" After Award Announced
+## What Should Happen After Nominating alshehri.sa@hotmail.com — And What's Missing
 
-### Problem
-Nomination `93cb211b` is ranked #1 in an announced cycle, but its `status` is still `"endorsed"` instead of `"shortlisted"`. The edge function fix only applies to future calculations.
+### Current State
+- alshehri.sa@hotmail.com was nominated and the nomination is already **shortlisted** in an **announced** cycle
+- The nominee has **zero recognition notifications** — they were never told they were nominated
 
-### Two-Part Fix (same pattern as the endorsement fix)
+### The Problem
+The nomination workflow **never notifies the nominee** that they've been nominated. Notifications are only sent for:
+- Endorsement requests (to endorsers)
+- Manager approval flow
 
-**1. Fix existing stale data**
+The nominee only discovers they were nominated if they manually navigate to My Nominations → Received tab.
 
-Update nominations that have results calculated (exist in `nominee_rankings`) and belong to announced/archived cycles:
+### What Should Happen After Nomination
 
-```sql
-UPDATE nominations
-SET status = 'shortlisted'
-WHERE id IN (
-  SELECT nr.nomination_id FROM nominee_rankings nr
-  JOIN theme_results tr ON tr.id = nr.theme_results_id
-  JOIN award_cycles ac ON ac.id = tr.cycle_id
-  WHERE ac.status IN ('announced', 'archived')
-    AND nr.rank <= 3
-    AND nr.deleted_at IS NULL
-)
-AND status = 'endorsed'
-AND deleted_at IS NULL;
+```text
+Nomination Submitted
+  ├─ [MISSING] Notify nominee: "You've been nominated!"
+  ├─ If manager approval required → Manager gets approval card
+  │     ├─ Manager approves → status: endorsed
+  │     │     └─ [MISSING] Notify nominee: "Your nomination was approved"
+  │     └─ Manager rejects → [MISSING] Notify nominee: "Nomination not approved"
+  ├─ Endorsement requests sent to selected colleagues
+  └─ When cycle results announced
+        └─ [MISSING] Notify winners: "Congratulations! You won!"
 ```
 
-**2. UI safeguard in NominationCard.tsx**
+### Proposed Fix: Add Missing Notifications
 
-Add a defensive derivation: if the cycle is announced/archived, check the nomination's award context. But simpler: the `NominationCard` already has the `displayedEndorsementStatus` pattern. We should also derive `displayedStatus` — if `endorsement_status` is `'sufficient'` and status is `'endorsed'`, and the cycle is announced, show `'shortlisted'`.
+**1. Notify nominee on nomination submission** (`useNominations.ts`)
+After creating a nomination, insert a `recognition_notification` for the nominee:
+- Type: `nomination_received`
+- Title: "{nominator name} nominated you!"
+- Body: "You've been nominated for '{headline}'"
 
-However, `NominationCard` doesn't receive cycle status. The simpler approach: just fix the data and trust the edge function going forward. No additional UI safeguard needed since the root cause is now handled in the edge function.
+**2. Notify nominee on manager approval/rejection** (`useNominationApprovals.ts`)
+After manager approves or rejects, notify the nominee:
+- Approve type: `nomination_approved`
+- Reject type: `nomination_rejected`
 
-### Files Changed
-- **Database**: One `UPDATE` statement via insert tool to fix existing data
+**3. Notify winners on results announcement** (`calculate-recognition-results/index.ts`)
+After results are calculated, notify the top 3 nominees per theme:
+- Type: `award_won`
+- Title: "Congratulations! You placed #{rank}"
+
+**4. Register new notification types in the bell** (`UnifiedNotificationBell.tsx`)
+Add icons and colors for the new types: `nomination_received`, `nomination_approved`, `nomination_rejected`, `award_won`
+
+**5. Add i18n keys** for all new notification strings
+
+### Files to Change
+- `src/hooks/recognition/useNominations.ts` — send nominee notification on create
+- `src/hooks/recognition/useNominationApprovals.ts` — send nominee notification on approve/reject
+- `supabase/functions/calculate-recognition-results/index.ts` — send winner notifications
+- `src/components/notifications/UnifiedNotificationBell.tsx` — register new notification types
+- Translation files (en/ar)
 
