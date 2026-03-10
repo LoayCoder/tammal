@@ -281,7 +281,7 @@ export function PersonalMoodDashboard() {
       </div>
 
       {/* Survey Stats */}
-      <Card className="glass-card border-0 rounded-2xl">
+      <Card className="glass-card border-0 rounded-lg">
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
             <ClipboardList className="h-4 w-4 text-toolkit-lavender" />
