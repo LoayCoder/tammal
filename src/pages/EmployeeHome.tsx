@@ -84,6 +84,9 @@ export default function EmployeeHome() {
         {/* Pending Endorsement Requests */}
         <DashboardEndorsementRequests />
 
+        {/* Shortlisted Acknowledgment */}
+        <DashboardShortlistWidget />
+
         {/* Voting Booth Widget */}
         <DashboardVotingWidget />
 

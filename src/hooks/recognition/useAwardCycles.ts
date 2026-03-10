@@ -24,6 +24,8 @@ export interface AwardCycle {
   fairness_config: Record<string, any>;
   points_config: Record<string, number>;
   stats: Record<string, any>;
+  shortlist_count: number;
+  require_acknowledgment: boolean;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;

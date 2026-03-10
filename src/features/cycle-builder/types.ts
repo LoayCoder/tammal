@@ -45,6 +45,8 @@ export const DEFAULT_FORM: CreateCycleInput = {
   voting_end: '',
   audit_review_days: 3,
   announcement_date: '',
+  shortlist_count: 3,
+  require_acknowledgment: true,
 };
 
 export function buildFairnessConfig(fairness: FairnessSettings): FairnessConfig {
