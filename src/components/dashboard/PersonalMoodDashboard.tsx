@@ -29,7 +29,7 @@ export function PersonalMoodDashboard() {
             <Skeleton key={i} className="h-28 rounded-lg" />
           ))}
         </div>
-        <Skeleton className="h-56 rounded-2xl" />
+        <Skeleton className="h-56 rounded-lg" />
       </div>
     );
   }
