@@ -1,87 +1,95 @@
-# Enterprise Task Management — Architecture Audit
+## Deep Audit: Incomplete Workflows Found
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
-
----
-
-## 1. Folder Architecture — ✅ PASS
-
-The project follows a clean modular structure:
-
-```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
-```
-
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+After a thorough E2E audit of the codebase, I identified **6 incomplete or broken workflows** across the system.
 
 ---
 
-## 2. Feature Isolation — ✅ PASS
+### Issue 1: TaskDialog `computeStatus` returns deprecated `'todo'` status (CRITICAL)
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+**File**: `src/components/workload/employee/TaskDialog.tsx` (line 72)
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
+The `computeStatus()` function returns `'todo'` when progress is 0, but the DB trigger `validate_unified_task_status` **rejects** `'todo'` as invalid. This means updating a task with 0 progress will cause a database error.
+
+**Fix**: Change the fallback from `'todo'` to `'open'` (or preserve the existing status if editing).
 
 ---
 
-## 3. Backend Architecture — ✅ PASS
+### Issue 2: BatchDetailDialog counts deprecated statuses `'done'` and `'todo'` (MEDIUM)
 
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
+**File**: `src/components/workload/representative/BatchDetailDialog.tsx` (lines 41-44)
 
----
+Counts tasks with `status === 'done'` and `status === 'todo'` — neither are valid statuses in the current lifecycle. These counts will always be 0, making the summary inaccurate.
 
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
+**Fix**: Map `done` → `completed`, `todo` → `open`.
 
 ---
 
-## 5. Warnings
+### Issue 3: workloadAnalytics uses deprecated `'done'` status (MEDIUM)
 
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
+**Files**: `src/features/workload/hooks/useWorkloadAnalytics.ts` (lines 65-66), `src/pages/admin/RepresentativeWorkload.tsx` (line 101)
 
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
+Both filter by `status === 'done'` which no longer exists. Completed tasks have `status === 'completed'`, so active/done counts are wrong.
 
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
+**Fix**: Replace `'done'` with `'completed'` throughout.
 
 ---
 
-## Summary
+### Issue 4: Admin Redemption Requests table missing Employee Name column (LOW)
 
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
+**File**: `src/pages/admin/RedemptionManagement.tsx` (lines 139-168)
 
-**No FAIL conditions found.** Architecture is production-ready.
+The requests log shows Date, Reward, Points, Status — but no employee name. Admin has no way to see **who** redeemed a reward. The `user_id` is available but not resolved to a name.
+
+**Fix**: Join employees/profiles to resolve `user_id` → name, add an "Employee" column.
+
+---
+
+### Issue 5: Redemption email sender shows "Lovable" instead of tenant brand name (LOW)
+
+**File**: `supabase/functions/send-redemption-email/index.ts` (line 71)
+
+Hardcoded `from: "Lovable <onboarding@resend.dev>"`. Should use the tenant's brand name for a white-label experience. Same issue in `send-invitation-email`.
+
+**Fix**: Accept tenant name as parameter and use it in the `from` field.
+
+---
+
+### Issue 6: Invitation language hardcoded to `'en'` (LOW)
+
+**File**: `src/hooks/org/useTenantInvitations.ts` (line 115)
+
+Comment says `// Todo: Pass this from input` — the language is always `'en'` regardless of the admin's current locale.
+
+**Fix**: Pass `i18n.language` instead of hardcoded `'en'`.
+
+---
+
+### Implementation Plan
+
+**Critical fix (Issue 1)**:
+
+- `TaskDialog.tsx`: Change `computeStatus` to return current status or `'draft'` instead of `'todo'`
+
+**Medium fixes (Issues 2-3)**:
+
+- `BatchDetailDialog.tsx`: Replace `'done'` → `'completed'`, `'todo'` → `'open'`
+- `useWorkloadAnalytics.ts`: Replace `'done'` → `'completed'`
+- `RepresentativeWorkload.tsx`: Replace `'done'` → `'completed'`
+
+**Low fixes (Issues 4-6)**:
+
+- `RedemptionManagement.tsx`: Add employee name resolution query + column
+- `useAdminRedemptionRequests`: Adjust select to join employee name
+- `useTenantInvitations.ts`: Pass `i18n.language` for invitation email
+- `send-redemption-email/index.ts`: Accept and use tenant name in sender
+
+### Files to Modify
+
+- `src/components/workload/employee/TaskDialog.tsx`
+- `src/components/workload/representative/BatchDetailDialog.tsx`
+- `src/features/workload/hooks/useWorkloadAnalytics.ts`
+- `src/pages/admin/RepresentativeWorkload.tsx`
+- `src/pages/admin/RedemptionManagement.tsx`
+- `src/hooks/recognition/useRedemption.ts`
+- `src/hooks/org/useTenantInvitations.ts`
+- `supabase/functions/send-redemption-email/index.ts`
