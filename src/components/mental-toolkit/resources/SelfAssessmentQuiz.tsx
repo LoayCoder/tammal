@@ -216,7 +216,7 @@ export default function SelfAssessmentQuiz() {
           </div>
 
           {/* Message */}
-          <div className="rounded-2xl p-4 space-y-1" style={{ background: result.color + "20", border: `1px solid ${result.color}` }}>
+          <div className="rounded-lg p-4 space-y-1" style={{ background: result.color + "20", border: `1px solid ${result.color}` }}>
             <p className="text-sm text-foreground leading-relaxed">{result.message}</p>
           </div>
 
