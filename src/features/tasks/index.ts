@@ -25,7 +25,7 @@ export { useTaskPerformanceAnalytics } from './hooks/useTaskPerformanceAnalytics
 
 // Components
 export { CreateTaskModal } from './components/CreateTaskModal';
-export { NotificationBell } from './components/NotificationBell';
+
 export { TaskAIPanel } from './components/TaskAIPanel';
 export { TaskActivityTimeline } from './components/TaskActivityTimeline';
 export { TaskCommentsPanel } from './components/TaskCommentsPanel';
