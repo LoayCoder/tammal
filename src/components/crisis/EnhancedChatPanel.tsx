@@ -203,7 +203,7 @@ export default function EnhancedChatPanel({ caseId, tenantId }: Props) {
                       )}
 
                       {/* Message bubble */}
-                      <div className={`rounded-2xl px-4 py-2.5 ${isMe ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}>
+                      <div className={`rounded-lg px-4 py-2.5 ${isMe ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}>
                         {msg.message_type === 'voice_note' ? (
                           <div className="flex items-center gap-2">
                             <Mic className="h-4 w-4" />

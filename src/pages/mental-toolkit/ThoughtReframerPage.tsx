@@ -441,7 +441,7 @@ export default function ThoughtReframerPage() {
                 const isExpanded = expandedId === entry.id;
                 const ca = entry.challenge_answers as Record<string, string> | null;
                 return (
-                  <Card key={entry.id} className="rounded-2xl transition-shadow hover:shadow-md">
+                  <Card key={entry.id} className="rounded-lg transition-shadow hover:shadow-md">
                     <CardContent className="p-5 space-y-2">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">

@@ -47,7 +47,7 @@ export function MoodStatCards({ streak, avgMood7d, burnoutZone, monthlyCheckins,
         </CardContent>
       </Card>
 
-      <Card className="glass-stat border-0 rounded-2xl">
+      <Card className="glass-stat border-0 rounded-lg">
         <CardContent className="p-4 flex flex-col items-center text-center gap-1">
           {todayDef ? (
             <>
