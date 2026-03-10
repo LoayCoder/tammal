@@ -38,7 +38,7 @@ export function PersonalMoodDashboard() {
 
   if (noData) {
     return (
-      <Card className="glass-card border-0 rounded-2xl border-dashed">
+      <Card className="glass-card border-0 rounded-lg border-dashed">
         <CardContent className="py-12 text-center space-y-2">
           <SmilePlus className="h-12 w-12 mx-auto text-muted-foreground" />
           <p className="text-lg font-semibold text-foreground">
