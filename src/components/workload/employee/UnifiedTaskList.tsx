@@ -77,7 +77,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
             {/* Progress circle */}
             <div className="mt-1 shrink-0 flex flex-col items-center gap-0.5">
               <div className="relative h-9 w-9 rounded-full border-2 border-border flex items-center justify-center text-2xs font-bold">
-                {task.status === 'verified' ? (
+                {isVerified ? (
                   <ShieldCheck className="h-4 w-4 text-primary" />
                 ) : task.status === 'completed' ? (
                   <CheckCircle2 className="h-4 w-4 text-chart-1" />
