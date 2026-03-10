@@ -14,7 +14,7 @@ import type { AudienceEmployee } from '@/hooks/admin/useAudienceResolver';
 interface ScheduleListTableProps {
   schedules: QuestionSchedule[];
   isPending: boolean;
-  availableEmployees: Employee[];
+  availableEmployees: AudienceEmployee[];
   runningId: string | null;
   onOpenCreate: () => void;
   onRunNow: (id: string) => void;

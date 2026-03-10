@@ -10,8 +10,9 @@ import type { MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';
 
 interface TaggedQuestion {
   id: string;
-  text: string;
+  text?: string;
   text_ar?: string | null;
+  [key: string]: any;
 }
 
 interface MoodConfigCardProps {
