@@ -357,6 +357,22 @@ Deno.serve(async (req) => {
           .from('nominations')
           .update({ status: 'shortlisted', endorsement_status: 'sufficient' })
           .in('id', top3NominationIds);
+
+        // Send award_won notifications to top 3 nominees
+        for (let i = 0; i < Math.min(3, nomineeScores.length); i++) {
+          const ns = nomineeScores[i];
+          const nom = themeNominations.find(n => n.id === ns.nomination_id);
+          if (nom) {
+            await supabase.from('recognition_notifications').insert({
+              tenant_id: cycle.tenant_id,
+              user_id: nom.nominee_id,
+              nomination_id: nom.id,
+              type: 'award_won',
+              title: `Congratulations! You placed #${i + 1}`,
+              body: `You placed #${i + 1} in "${theme.name}"`,
+            });
+          }
+        }
       }
 
       // Ensure all eligible nominations in this theme have endorsement_status synced
