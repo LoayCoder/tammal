@@ -19,7 +19,7 @@ export const typography = {
   sectionTitle: 'text-lg font-semibold text-foreground',
   cardTitle: 'text-base font-semibold text-foreground',
   metric: 'text-2xl font-bold text-foreground',
-  statLabel: 'text-xs font-medium text-muted-foreground',
+  statLabel: 'text-xs font-bold text-muted-foreground',
   subtitle: 'text-sm text-muted-foreground',
   caption: 'text-2xs text-muted-foreground',
 } as const;
