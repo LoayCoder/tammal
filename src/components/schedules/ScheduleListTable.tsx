@@ -12,6 +12,7 @@ import { resolveAudience } from '@/hooks/admin/useAudienceResolver';
 interface Employee {
   id: string;
   full_name: string;
+  email: string;
   department?: string | null;
   department_id?: string | null;
 }

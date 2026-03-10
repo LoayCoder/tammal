@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Brain, Save, RotateCcw, Link2, Plus, X, Info, Edit2, ChevronUp, ChevronDown, Trash2, Settings2 } from 'lucide-react';
+import { Brain, Info } from 'lucide-react';
 import { useMoodQuestionConfig, type MoodQuestionConfig } from '@/hooks/wellness/useMoodQuestionConfig';
 import { useMoodDefinitions, type MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';
 import { useQuestions } from '@/hooks/questions/useQuestions';
@@ -16,8 +10,8 @@ import { useTenantIdQuery } from '@/hooks/admin/useTenantIdQuery';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { MoodQuestionPickerDialog } from '@/components/checkin/MoodQuestionPickerDialog';
 import { MoodDefinitionDialog } from '@/components/mood/MoodDefinitionDialog';
-import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { MoodDefinitionManager } from '@/components/mood/settings/MoodDefinitionManager';
+import { MoodConfigCard } from '@/components/mood/settings/MoodConfigCard';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -26,7 +20,6 @@ import {
 export default function MoodPathwaySettings() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
-  const queryClient = useQueryClient();
 
   const { user } = useAuth();
   const { data: tenantId } = useTenantIdQuery(user?.id);
@@ -44,7 +37,6 @@ export default function MoodPathwaySettings() {
   const { getTaggedQuestions, saveTags, unlinkQuestion, isSaving: savingTags } = useMoodTagging(questions);
   const isLoading = configsLoading || moodsLoading;
 
-  // Sync fetched configs into local state
   useEffect(() => {
     if (!configs.length) return;
     const map: Record<string, MoodQuestionConfig> = {};
@@ -63,36 +55,19 @@ export default function MoodPathwaySettings() {
     const config = localConfigs[moodLevel];
     if (!config || !tenantId) return;
     setSavingMood(moodLevel);
-    try {
-      await upsertConfig.mutateAsync({ ...config, tenant_id: tenantId });
-    } finally {
-      setSavingMood(null);
-    }
-  };
-
-  const handleSaveTags = async (selectedIds: string[], moodLevel: string) => {
-    await saveTags(selectedIds, moodLevel);
-  };
-
-  const handleUnlinkQuestion = async (questionId: string, moodLevel: string) => {
-    await unlinkQuestion(questionId, moodLevel);
+    try { await upsertConfig.mutateAsync({ ...config, tenant_id: tenantId }); }
+    finally { setSavingMood(null); }
   };
 
   const handleMoodDialogSave = (data: Partial<MoodDefinition>) => {
     if (!tenantId) return;
     const nextOrder = editingMood ? editingMood.sort_order : moods.length;
     upsertMood.mutate({
-      ...data,
-      tenant_id: tenantId,
-      key: data.key!,
+      ...data, tenant_id: tenantId, key: data.key!,
       sort_order: data.sort_order ?? nextOrder,
-      is_active: data.is_active ?? true,
-      is_default: data.is_default ?? false,
+      is_active: data.is_active ?? true, is_default: data.is_default ?? false,
     } as any, {
-      onSuccess: () => {
-        setMoodDialogOpen(false);
-        setEditingMood(null);
-      },
+      onSuccess: () => { setMoodDialogOpen(false); setEditingMood(null); },
     });
   };
 
@@ -112,12 +87,8 @@ export default function MoodPathwaySettings() {
 
   const handleDeleteMood = () => {
     if (!deletingMood) return;
-    deleteMood.mutate(deletingMood.id, {
-      onSettled: () => setDeletingMood(null),
-    });
+    deleteMood.mutate(deletingMood.id, { onSettled: () => setDeletingMood(null) });
   };
-
-  const canDeleteMood = moods.length > 2;
 
   return (
     <div className="space-y-6 p-6">
@@ -127,12 +98,8 @@ export default function MoodPathwaySettings() {
           <Brain className="h-6 w-6 text-primary" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {t('moodPathway.settingsTitle')}
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {t('moodPathway.settingsDesc')}
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('moodPathway.settingsTitle')}</h1>
+          <p className="text-muted-foreground text-sm mt-1">{t('moodPathway.settingsDesc')}</p>
         </div>
       </div>
 
@@ -142,275 +109,41 @@ export default function MoodPathwaySettings() {
         <p className="text-sm text-muted-foreground">{t('moodPathway.settingsInfo')}</p>
       </div>
 
-      {/* ==================== Mood Definitions Management ==================== */}
-      <Card className="glass-card border-0 rounded-xl">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Settings2 className="h-5 w-5 text-primary" />
-              <div>
-                <CardTitle className="text-base">{t('moodPathway.manageMoods')}</CardTitle>
-                <CardDescription className="text-xs mt-0.5">
-                  {t('moodPathway.manageMoodsDesc')}
-                </CardDescription>
-              </div>
-            </div>
-            <Button
-              size="sm"
-              className="gap-1.5"
-              onClick={() => { setEditingMood(null); setMoodDialogOpen(true); }}
-            >
-              <Plus className="h-3.5 w-3.5" />
-              {t('moodPathway.addMood')}
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {moodsLoading ? (
-            <div className="space-y-2">
-              {[1, 2, 3].map(i => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}
-            </div>
-          ) : moods.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              {t('common.noData')}
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {moods.map((mood, index) => {
-                const label = isRTL ? mood.label_ar : mood.label_en;
-                return (
-                  <div
-                    key={mood.id}
-                    className={`flex items-center gap-3 rounded-xl border p-3 transition-colors ${
-                      mood.is_active ? 'bg-card' : 'bg-muted/50 opacity-60'
-                    }`}
-                  >
-                    {/* Reorder buttons */}
-                    <div className="flex flex-col gap-0.5">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-5 w-5"
-                        onClick={() => handleMoveUp(index)}
-                        disabled={index === 0}
-                      >
-                        <ChevronUp className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-5 w-5"
-                        onClick={() => handleMoveDown(index)}
-                        disabled={index === moods.length - 1}
-                      >
-                        <ChevronDown className="h-3 w-3" />
-                      </Button>
-                    </div>
+      {/* Mood Definitions Management */}
+      <MoodDefinitionManager
+        moods={moods}
+        isLoading={moodsLoading}
+        isRTL={isRTL}
+        canDelete={moods.length > 2}
+        onAdd={() => { setEditingMood(null); setMoodDialogOpen(true); }}
+        onEdit={(mood) => { setEditingMood(mood); setMoodDialogOpen(true); }}
+        onDelete={setDeletingMood}
+        onToggle={(id, v) => toggleMood.mutate({ id, is_active: v })}
+        onMoveUp={handleMoveUp}
+        onMoveDown={handleMoveDown}
+      />
 
-                    {/* Emoji & label */}
-                    <span className="text-2xl">{mood.emoji}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className={`font-medium text-sm ${mood.color}`}>{label}</span>
-                        {mood.is_default && (
-                          <Badge variant="outline" className="text-2xs h-4 px-1.5">
-                            {t('moodPathway.defaultMoodBadge')}
-                          </Badge>
-                        )}
-                      </div>
-                      <span className="text-xs text-muted-foreground font-mono">{mood.key} • {t('moodPathway.score')}: {mood.score}</span>
-                    </div>
-
-                    {/* Toggle active */}
-                    <Switch
-                      checked={mood.is_active}
-                      onCheckedChange={v => toggleMood.mutate({ id: mood.id, is_active: v })}
-                    />
-
-                    {/* Edit */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => { setEditingMood(mood); setMoodDialogOpen(true); }}
-                    >
-                      <Edit2 className="h-3.5 w-3.5" />
-                    </Button>
-
-                    {/* Delete */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive"
-                      onClick={() => setDeletingMood(mood)}
-                      disabled={!canDeleteMood}
-                      title={!canDeleteMood ? t('moodPathway.minMoodsRequired') : undefined}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* ==================== Per-Mood Pathway Cards ==================== */}
+      {/* Per-Mood Pathway Cards */}
       {isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3].map(i => <Skeleton key={i} className="h-48 w-full rounded-2xl" />)}
         </div>
       ) : (
         <div className="space-y-4">
-          {moods.filter(m => m.is_active).map(moodDef => {
-            const moodLevel = moodDef.key;
-            const config = localConfigs[moodLevel];
-            const moodLabel = isRTL ? moodDef.label_ar : moodDef.label_en;
-            const isSaving = savingMood === moodLevel;
-            const taggedQuestions = getTaggedQuestions(moodLevel);
-
-            return (
-              <Card key={moodDef.id} className="glass-card border-0 rounded-xl overflow-hidden">
-                <CardHeader className="pb-3 border-b">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{moodDef.emoji}</span>
-                      <div>
-                        <CardTitle className={`text-base ${moodDef.color}`}>{moodLabel}</CardTitle>
-                        <CardDescription className="text-xs mt-0.5">
-                          {t('moodPathway.linkedQuestionsCount', { count: taggedQuestions.length })}
-                        </CardDescription>
-                      </div>
-                    </div>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="pt-4 space-y-4">
-                  {/* Enable toggle */}
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium">{t('moodPathway.enablePathway')}</Label>
-                    <Switch
-                      checked={config?.is_enabled ?? true}
-                      onCheckedChange={v => updateLocal(moodLevel, 'is_enabled', v)}
-                    />
-                  </div>
-
-                  {/* Enable free-text */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-sm font-medium">{t('moodPathway.enableFreeText')}</Label>
-                    </div>
-                    <Switch
-                      checked={config?.enable_free_text ?? false}
-                      onCheckedChange={v => updateLocal(moodLevel, 'enable_free_text', v)}
-                      disabled={!(config?.is_enabled ?? true)}
-                    />
-                  </div>
-
-                  {/* Questions per mood (stepper) */}
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium">{t('moodPathway.questionsPerMood')}</Label>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => updateLocal(moodLevel, 'max_questions', Math.max(1, (config?.max_questions ?? 2) - 1))}
-                        disabled={!(config?.is_enabled ?? true) || (config?.max_questions ?? 2) <= 1}
-                      >
-                        <ChevronDown className="h-4 w-4" />
-                      </Button>
-                      <span className="w-8 text-center text-sm font-semibold tabular-nums">
-                        {config?.max_questions ?? 2}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => updateLocal(moodLevel, 'max_questions', Math.min(10, (config?.max_questions ?? 2) + 1))}
-                        disabled={!(config?.is_enabled ?? true) || (config?.max_questions ?? 2) >= 10}
-                      >
-                        <ChevronUp className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Linked questions */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-sm font-medium">{t('moodPathway.linkedQuestions')}</Label>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-xs gap-1.5"
-                        onClick={() => setPickerOpen(moodLevel)}
-                        disabled={!(config?.is_enabled ?? true)}
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                        {t('moodPathway.browseQuestions')}
-                      </Button>
-                    </div>
-
-                    {taggedQuestions.length === 0 ? (
-                      <div className="rounded-lg border border-dashed p-4 text-center">
-                        <Link2 className="h-4 w-4 text-muted-foreground inline-block mb-1" />
-                        <p className="text-xs text-muted-foreground">{t('moodPathway.noLinkedQuestions')}</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        {taggedQuestions.map(q => {
-                          const text = isRTL && q.text_ar ? q.text_ar : q.text;
-                          return (
-                            <div key={q.id} className="flex items-start gap-2 rounded-lg border bg-muted/30 p-2.5">
-                              <p className="text-sm flex-1 line-clamp-2" dir="auto">{text}</p>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive"
-                                onClick={() => handleUnlinkQuestion(q.id, moodLevel)}
-                              >
-                                <X className="h-3.5 w-3.5" />
-                              </Button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* AI Recommendation Hint */}
-                  {(config?.is_enabled ?? true) && (
-                    <div className="space-y-1.5">
-                      <Label className="text-sm font-medium">{t('moodPathway.aiRecommendationHint')}</Label>
-                      <Textarea
-                        value={config?.custom_prompt_context || ''}
-                        onChange={e => updateLocal(moodLevel, 'custom_prompt_context', e.target.value || null)}
-                        placeholder={t('moodPathway.aiRecommendationHintPlaceholder')}
-                        rows={2}
-                        className="resize-none text-sm rounded-xl"
-                        dir="auto"
-                      />
-                      <p className="text-xs text-muted-foreground">{t('moodPathway.aiRecommendationHintDesc')}</p>
-                    </div>
-                  )}
-
-                  {/* Save button */}
-                  <div className="flex justify-end">
-                    <Button
-                      size="sm"
-                      onClick={() => handleSave(moodLevel)}
-                      disabled={isSaving}
-                      className="gap-1.5 h-8 px-4 rounded-lg text-xs"
-                    >
-                      {isSaving ? <RotateCcw className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-                      {t('moodPathway.saveSettings')}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+          {moods.filter(m => m.is_active).map(moodDef => (
+            <MoodConfigCard
+              key={moodDef.id}
+              moodDef={moodDef}
+              config={localConfigs[moodDef.key]}
+              taggedQuestions={getTaggedQuestions(moodDef.key)}
+              isRTL={isRTL}
+              isSaving={savingMood === moodDef.key}
+              onUpdateField={updateLocal}
+              onSave={handleSave}
+              onOpenPicker={setPickerOpen}
+              onUnlinkQuestion={unlinkQuestion}
+            />
+          ))}
         </div>
       )}
 
@@ -420,7 +153,7 @@ export default function MoodPathwaySettings() {
           open={!!pickerOpen}
           onOpenChange={open => { if (!open) setPickerOpen(null); }}
           moodLevel={pickerOpen}
-          onSave={handleSaveTags}
+          onSave={saveTags}
           isSaving={savingTags}
         />
       )}
@@ -444,18 +177,13 @@ export default function MoodPathwaySettings() {
             <AlertDialogDescription>
               {t('moodPathway.deleteMoodConfirm')}
               {deletingMood?.is_default && (
-                <span className="block mt-2 font-medium text-destructive">
-                  {t('moodPathway.deletingDefaultWarning')}
-                </span>
+                <span className="block mt-2 font-medium text-destructive">{t('moodPathway.deletingDefaultWarning')}</span>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteMood}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+            <AlertDialogAction onClick={handleDeleteMood} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
