@@ -2159,7 +2159,9 @@
     "error": "خطأ",
     "success": "نجاح",
     "loggedIn": "تم تسجيل الدخول بنجاح",
-    "accountCreated": "تم إنشاء الحساب بنجاح. يمكنك الآن تسجيل الدخول."
+    "accountCreated": "تم إنشاء الحساب بنجاح. يمكنك الآن تسجيل الدخول.",
+    "changesSaved": "تم حفظ التغييرات بنجاح",
+    "saveFailed": "فشل حفظ التغييرات"
   },
   "placeholders": {
     "email": "name@example.com",
