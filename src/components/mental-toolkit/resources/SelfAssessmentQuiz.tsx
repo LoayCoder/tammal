@@ -239,7 +239,7 @@ export default function SelfAssessmentQuiz() {
   // Question screen
   const progress = (currentQ / selectedQuiz.questions.length) * 100;
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden animate-in fade-in duration-300">
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden animate-in fade-in duration-300">
       <div className="px-5 py-4 border-b border-border">
         <div className="flex items-center justify-between mb-2">
           <h2 className="font-semibold text-foreground text-sm">{t(`mentalToolkit.quiz.quizzes.${selectedQuiz.id}.name`)}</h2>

@@ -89,7 +89,7 @@ export default function CrisisSupport() {
         {/* Contacts */}
         <div className="space-y-3">
           {filtered.map((contact) => (
-            <div key={contact.id} className="rounded-2xl border border-border bg-background p-4 space-y-2">
+            <div key={contact.id} className="rounded-lg border border-border bg-background p-4 space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-foreground text-sm">{contact.name}</p>
