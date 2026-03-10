@@ -2159,7 +2159,9 @@
     "error": "Error",
     "success": "Success",
     "loggedIn": "Logged in successfully",
-    "accountCreated": "Account created successfully. You can now log in."
+    "accountCreated": "Account created successfully. You can now log in.",
+    "changesSaved": "Changes saved successfully",
+    "saveFailed": "Failed to save changes"
   },
   "placeholders": {
     "email": "name@example.com",
