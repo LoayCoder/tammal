@@ -59,7 +59,8 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
   return (
     <div className="divide-y divide-border/50">
       {tasks.map((task) => {
-        const isCompleted = task.status === 'completed' || task.status === 'verified';
+        const isCompleted = task.status === 'completed';
+        const isVerified = !!(task.metadata as Record<string, unknown>)?.verified;
         const source = SOURCE_LABELS[task.source_type] ?? SOURCE_LABELS.manual;
         const priorityClass = PRIORITY_COLORS[task.priority] ?? PRIORITY_COLORS[3];
         const isLocked = task.is_locked;
