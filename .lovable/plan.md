@@ -1,87 +1,207 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+## UI Architecture Map
 
-## 1. Folder Architecture — ✅ PASS
-
-The project follows a clean modular structure:
+### Navigation Structure
 
 ```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
+MainLayout (SidebarProvider + AppSidebar + Header + MobileBottomNav)
+├── / ........................... Dashboard (role-based: OrgDashboard / EmployeeHome)
+│
+├── Employee
+│   ├── /employee/survey ........ EmployeeSurvey
+│   ├── /employee/wellness ...... DailyCheckin
+│   └── /my-workload ............ PersonalCommandCenter
+│
+├── Admin (35 pages)
+│   ├── Tenant .................. TenantManagement, TenantDashboard
+│   ├── Users ................... UnifiedUserManagement
+│   ├── Org ..................... OrgStructure
+│   ├── Surveys ................. QuestionManagement, CategoryManagement,
+│   │                            SubcategoryManagement, AIQuestionGenerator,
+│   │                            ScheduleManagement, SurveyMonitor, CheckinMonitor
+│   ├── Plans & Billing ......... PlanManagement, SubscriptionManagement
+│   ├── Branding & Docs ......... AdminBranding, DocumentSettings
+│   ├── Wellness ................ MoodPathwaySettings, CrisisSettings
+│   ├── Workload ................ WorkloadDashboard, TeamWorkload,
+│   │                            RepresentativeWorkload, ObjectivesManagement,
+│   │                            ObjectiveDetail, TaskConnectors,
+│   │                            PortfolioDashboard, ExecutiveDashboard,
+│   │                            EscalationSettings, SystemHealth
+│   ├── Recognition ............. RecognitionManagement, RecognitionResults,
+│   │                            RecognitionMonitor, RedemptionManagement
+│   ├── Governance .............. AIGovernance, AuditLogs
+│   └── Redirects ............... /admin/employees → /admin/user-management
+│                                 /admin/users → /admin/user-management
+│
+├── Tasks
+│   ├── /tasks/:id .............. TaskDetail
+│   ├── /admin/workload/overdue . OverdueTasks
+│   ├── /tasks/analytics ........ TaskPerformanceAnalytics
+│   ├── /tasks/recurring ........ RecurringTasks
+│   └── /tasks/templates ........ TaskTemplates
+│
+├── Recognition (Employee)
+│   ├── /recognition/nominate ... NominatePage
+│   ├── /recognition/my-nominations MyNominationsPage
+│   ├── /recognition/vote ....... VotingBoothPage
+│   ├── /recognition/points ..... PointsDashboard
+│   ├── /recognition/rewards .... RedemptionCatalog
+│   └── /recognition/approvals .. NominationApprovalsPage
+│
+├── Crisis
+│   ├── /crisis-support ......... CrisisRequestPage
+│   ├── /my-support ............. MySupportPage
+│   └── /first-aider ............ FirstAiderDashboard
+│
+├── Mental Toolkit (9 pages)
+│   ├── /mental-toolkit ......... MentalToolkit (hub)
+│   ├── mood-tracker, thought-reframer, breathing, journaling,
+│   │   meditation, habits, articles, assessment
+│
+├── Spiritual (6 pages)
+│   ├── prayer, quran, quran/read, sunnah, insights, calendar
+│
+├── Settings
+│   ├── /settings/profile ....... UserProfile
+│   └── /settings/usage ......... UsageBilling
+│
+├── Other
+│   ├── /support ................ Support
+│   ├── /install ................ InstallApp
+│   └── /dev/components, /dev/design-system (QA)
+│
+└── Auth (outside MainLayout)
+    ├── /auth ................... Auth
+    └── /auth/accept-invite ..... AcceptInvite
 ```
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+**Total: ~72 routable pages**
 
 ---
 
-## 2. Feature Isolation — ✅ PASS
+### Layout Components
 
-| Module | Location | Status |
+| Component | Location | Lines |
 |---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
-
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
+| MainLayout | components/layout/MainLayout.tsx | 51 |
+| AppSidebar | components/layout/AppSidebar.tsx | — |
+| Header | components/layout/Header.tsx | — |
+| MobileBottomNav | components/layout/MobileBottomNav.tsx | — |
+| SidebarPopup | components/layout/sidebar/SidebarPopup.tsx | — |
+| UserProfileSection | components/layout/sidebar/UserProfileSection.tsx | — |
 
 ---
 
-## 3. Backend Architecture — ✅ PASS
+### Design System / Shared Components
 
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
+**System layer** (`src/components/system/`): PageHeader, StatCard, MetricCard, ChartCard, InsightCard, DashboardGrid
 
----
+**Shared patterns** (`src/shared/`):
+- `data-table/` — Generic DataTable with ColumnDef
+- `dialogs/` — ConfirmDialog, useFormDialog, useConfirmDelete
+- `empty/` — EmptyState
+- `loading/` — Loading skeletons
+- `resilience/` — ErrorBoundary
+- `status-badge/` — Reusable status badges
 
-## 4. Supabase Integration — ✅ PASS
+**UI primitives** (`src/components/ui/`): 48 shadcn/radix components
 
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
+**Global utilities**: LanguageSelector, ThemeToggle, UserMenu, NavLink
 
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
+**Mental Toolkit shared**: ToolkitPageHeader, ToolkitCard, GradientButton
 
 ---
 
-## Summary
+### Major Component Groups
 
-| Category | Result |
+| Domain | Components | Key Modals/Dialogs |
+|---|---|---|
+| Workload | TaskDialog, UnifiedTaskList, CapacityGauge, TeamTaskFilters, AddTeamTaskDialog, EmployeePicker | CreateTaskModal, BatchDetailDialog, BulkImportDialog, DeleteTaskDialog, DistributeTaskDialog, EditTaskDialog, ExtendDueDateDialog, ObjectiveDialog, ActionDialog, InitiativeDialog |
+| Recognition | NominationWizard, VotingBooth, NominationCard, CycleBuilder, CycleTimeline, CriteriaEditor, RankingsTable, PointsBalanceCard, RedemptionCard, TransactionHistory, EndorsementCard, QuotaIndicator, WinnerAnnouncement, FairnessReport | NominationDetailDialog, NominationEditDialog, CycleEditDialog, CycleDeleteDialog, AppealForm |
+| Crisis | SessionWorkspace, EnhancedChatPanel, FirstAiderAvailabilityManager, FirstAiderQuickConnect, EmployeeBookingWidget, SecureAttachmentUploader/Viewer, CrisisAnalyticsTab | RiskMappingDialog |
+| Dashboard | OrgDashboard, PersonalMoodDashboard, ExecutiveSummary, 30+ chart/widget components | — |
+| Spiritual | PrayerCard, PrayerHistory, PrayerStatusBadge, QuranHistory, SpiritualPreferencesCard | ReadingSessionDialog |
+| Tasks (features/) | TaskAIPanel, TaskActivityTimeline, TaskAttachments, TaskChecklist, TaskCommentsPanel, TaskDependenciesPanel, TaskTimeTrackingPanel, TaskMembersPicker, TaskTagPicker, TaskTemplatePicker | CreateTaskModal |
+
+---
+
+### Quality Findings
+
+#### Duplicate Components
+
+| Issue | Files | Severity |
+|---|---|---|
+| **3x NotificationBell** | `components/notifications/UnifiedNotificationBell.tsx`, `features/tasks/components/NotificationBell.tsx`, `components/crisis/NotificationBell.tsx` | WARNING |
+| **3x User Management pages** | `EmployeeManagement.tsx` (215 lines), `UserManagement.tsx` (unreferenced), `UnifiedUserManagement.tsx` (535 lines) — only Unified is routed; other two are dead code | WARNING |
+
+#### Large Components (>300 lines)
+
+| File | Lines | Recommendation |
+|---|---|---|
+| `QuestionManagement.tsx` | 602 | Extract question table, form, filter sections |
+| `TeamWorkload.tsx` | 577 | Extract table, filters, stats into sub-components |
+| `UnifiedUserManagement.tsx` | 535 | Already tabbed; extract each tab to own component |
+| `RepresentativeWorkload.tsx` | 514 | Extract batch table, stats panel |
+| `MoodTrackerPage.tsx` | 472 | Extract chart sections, streak display |
+| `MoodPathwaySettings.tsx` | 466 | Extract pathway list, editor form |
+| `NominationWizard.tsx` | 463 | Multi-step wizard; extract step components |
+| `ScheduleManagement.tsx` | 461 | Extract schedule form, audience resolver UI |
+| `TaskDialog.tsx` | 405 | Extract metadata panels, form sections |
+| `IslamicCalendar.tsx` | 399 | Extract calendar grid, event list |
+| `CreateTaskModal.tsx` | 371 | Extract form sections |
+| `ComponentShowcase.tsx` | 349 | Dev tool — acceptable |
+| `OrgStructure.tsx` | 301 | Extract tree view, form panels |
+
+#### Dead Code
+
+| File | Issue |
 |---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
+| `src/pages/admin/EmployeeManagement.tsx` | Not routed — superseded by UnifiedUserManagement |
+| `src/pages/admin/UserManagement.tsx` | Not routed — superseded by UnifiedUserManagement |
+| `src/features/tasks/pages/ApprovalQueue.tsx` | Not routed — redirect sends to /my-workload |
+| `src/features/tasks/pages/TaskCalendar.tsx` | Not routed — redirect sends to /my-workload |
+| `src/features/tasks/pages/MyTasks.tsx` | Not routed — redirect sends to /my-workload |
 
-**No FAIL conditions found.** Architecture is production-ready.
+#### Naming Inconsistencies
+
+| Pattern | Examples |
+|---|---|
+| Mixed `Page` suffix | `MoodTrackerPage`, `BreathingPage` vs `MentalToolkit`, `PrayerTracker` |
+| Mixed `Management` suffix | `QuestionManagement`, `RecognitionManagement` vs `OrgStructure`, `AuditLogs` |
+| Feature vs Component overlap | Task components split between `components/workload/` and `features/tasks/` |
+
+#### Deep Nesting — OK
+No excessive nesting detected. Most components are 2-3 levels. Feature modules are well-scoped.
+
+---
+
+### UI Architecture Status
+
+```text
+╔══════════════════════════════════════════════╗
+║           UI ARCHITECTURE STATUS             ║
+║                                              ║
+║              ⚠ WARNING                       ║
+║                                              ║
+║  Pages ...................... 72   PASS       ║
+║  UI Primitives .............. 48   PASS       ║
+║  System Components .......... 6    PASS       ║
+║  Shared Patterns ............ 6    PASS       ║
+║  Layout Components .......... 6    PASS       ║
+║  ErrorBoundary Coverage ..... Yes  PASS       ║
+║  i18n Coverage .............. Yes  PASS       ║
+║  RTL Support ................ Yes  PASS       ║
+║                                              ║
+║  Duplicate Components ....... 2    WARNING    ║
+║  Dead Code Pages ............ 5    WARNING    ║
+║  Large Files (>300 lines) ... 13   WARNING    ║
+║  Naming Inconsistencies ..... 3    WARNING    ║
+║                                              ║
+║  Broken Workflows ........... 0    PASS       ║
+║  Missing Routes ............. 0    PASS       ║
+╚══════════════════════════════════════════════╝
+```
+
+**Summary**: Architecturally sound with good separation (system layer, shared patterns, feature modules, ErrorBoundary wrapping, full i18n/RTL). The warnings are housekeeping — 5 dead-code pages to delete, 3 duplicate NotificationBells to consolidate, and 13 large files that would benefit from extraction into sub-components. No structural failures.
+
