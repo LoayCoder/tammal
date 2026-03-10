@@ -1248,6 +1248,8 @@ export type Database = {
           nomination_start: string
           peer_endorsement_end: string
           points_config: Json
+          require_acknowledgment: boolean
+          shortlist_count: number
           stats: Json | null
           status: string
           tenant_id: string
@@ -1269,6 +1271,8 @@ export type Database = {
           nomination_start: string
           peer_endorsement_end: string
           points_config?: Json
+          require_acknowledgment?: boolean
+          shortlist_count?: number
           stats?: Json | null
           status?: string
           tenant_id: string
@@ -1290,6 +1294,8 @@ export type Database = {
           nomination_start?: string
           peer_endorsement_end?: string
           points_config?: Json
+          require_acknowledgment?: boolean
+          shortlist_count?: number
           stats?: Json | null
           status?: string
           tenant_id?: string
@@ -3956,6 +3962,7 @@ export type Database = {
       }
       nominee_rankings: {
         Row: {
+          acknowledged_at: string | null
           confidence_interval: Json | null
           created_at: string
           criterion_breakdown: Json
@@ -3972,6 +3979,7 @@ export type Database = {
           weighted_average_score: number | null
         }
         Insert: {
+          acknowledged_at?: string | null
           confidence_interval?: Json | null
           created_at?: string
           criterion_breakdown?: Json
@@ -3988,6 +3996,7 @@ export type Database = {
           weighted_average_score?: number | null
         }
         Update: {
+          acknowledged_at?: string | null
           confidence_interval?: Json | null
           created_at?: string
           criterion_breakdown?: Json
