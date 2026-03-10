@@ -3317,6 +3317,7 @@
       "basics": "Basics",
       "themes": "Themes",
       "fairness": "Fairness",
+      "rewards": "Rewards",
       "review": "Review",
       "createAndContinue": "Create & Continue",
       "reviewNote": "Your award cycle has been created. You can now close this wizard and manage it from the list."
@@ -3368,6 +3369,14 @@
       "allowAppeals": "Allow Appeals",
       "votingWeightAdjustmentLimit": "Voting Weight Adjustment Limit",
       "votingWeightAdjustmentLimitDesc": "How much voters can adjust the default criteria weights during voting"
+    },
+    "rewards": {
+      "description": "Configure how many points winners and their nominators receive when results are announced.",
+      "firstPlace": "1st Place Points",
+      "secondPlace": "2nd Place Points",
+      "thirdPlace": "3rd Place Points",
+      "nominatorBonus": "Nominator Bonus",
+      "nominatorBonusDesc": "Bonus points awarded to nominators of top 3 winners per theme."
     },
     "criteriaEval": {
       "title": "Criteria Evaluation",

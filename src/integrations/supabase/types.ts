@@ -1247,6 +1247,7 @@ export type Database = {
           nomination_end: string
           nomination_start: string
           peer_endorsement_end: string
+          points_config: Json
           stats: Json | null
           status: string
           tenant_id: string
@@ -1267,6 +1268,7 @@ export type Database = {
           nomination_end: string
           nomination_start: string
           peer_endorsement_end: string
+          points_config?: Json
           stats?: Json | null
           status?: string
           tenant_id: string
@@ -1287,6 +1289,7 @@ export type Database = {
           nomination_end?: string
           nomination_start?: string
           peer_endorsement_end?: string
+          points_config?: Json
           stats?: Json | null
           status?: string
           tenant_id?: string

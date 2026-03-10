@@ -22,6 +22,7 @@ export interface AwardCycle {
   audit_review_days: number;
   announcement_date: string;
   fairness_config: Record<string, any>;
+  points_config: Record<string, number>;
   stats: Record<string, any>;
   created_at: string;
   updated_at: string;

@@ -1,48 +1,87 @@
+# Enterprise Task Management — Architecture Audit
 
+## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
-## Missing Feature: Automatic Points Rewards for Winners
+---
 
-### Current State
-When the `calculate-recognition-results` edge function runs, it:
-- Calculates scores and ranks nominees
-- Sends `award_won` notifications to top 3
-- Updates nomination statuses to `shortlisted`
+## 1. Folder Architecture — ✅ PASS
 
-But it **never awards any points**. The database already supports the source types (`award_win`, `award_runner_up`, `award_finalist`) in the `points_transactions` validation trigger — they're just never inserted.
+The project follows a clean modular structure:
 
-There's also no configuration table or cycle-level setting for how many points each rank should receive.
-
-### Proposed Fix
-
-**1. Add points configuration to `award_cycles` table**
-
-Add a `points_config` JSONB column to `award_cycles` so admins can configure per-cycle reward amounts:
-
-```sql
-ALTER TABLE award_cycles
-ADD COLUMN points_config jsonb DEFAULT '{"first_place": 500, "second_place": 300, "third_place": 150, "nominator_bonus": 50}'::jsonb;
+```text
+src/
+  ai/          — Isolated AI client, prompts, guards, quality
+  components/  — UI components
+  config/      — Centralized constants
+  features/    — Feature modules (tasks, approvals, workload, etc.)
+  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
+  services/    — Pure async business services (no UI imports)
+  types/       — Shared type definitions
 ```
 
-**2. Award points in the edge function**
+**Layer separation checks:**
+- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
+- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
+- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
+- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
 
-After calculating results and inserting rankings, insert `points_transactions` for the top 3 nominees per theme:
+---
 
-- Rank 1 → `source_type: 'award_win'`, amount from `points_config.first_place` (default 500)
-- Rank 2 → `source_type: 'award_runner_up'`, amount from `points_config.second_place` (default 300)
-- Rank 3 → `source_type: 'award_finalist'`, amount from `points_config.third_place` (default 150)
-- Optionally: award `nominator_bonus` points to the nominators of top 3
+## 2. Feature Isolation — ✅ PASS
 
-**3. Add points config UI in the cycle edit dialog**
+| Module | Location | Status |
+|---|---|---|
+| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
+| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
+| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
+| AI Governance | `src/features/ai-governance/` | ✅ |
+| AI Generator | `src/features/ai-generator/` | ✅ |
+| Org Dashboard | `src/features/org-dashboard/` | ✅ |
+| Cycle Builder | `src/features/cycle-builder/` | ✅ |
 
-Add a "Rewards" section in the cycle configuration dialog where admins can set point values for 1st, 2nd, 3rd place and nominator bonus.
+**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
 
-**4. Update the Rewards page**
+---
 
-Show award-related point earnings distinctly (with award icons) so winners can see their prize points.
+## 3. Backend Architecture — ✅ PASS
 
-### Files to Change
-- **Database**: Add `points_config` column to `award_cycles`
-- **`supabase/functions/calculate-recognition-results/index.ts`**: Insert points after ranking
-- **Cycle edit dialog component**: Add rewards/points config fields
-- **`src/hooks/recognition/usePoints.ts`**: No change needed (already shows all transactions)
+- **35 edge functions** properly separate API routes from client code
+- **Services layer** (`src/services/`) handles business logic
+- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
+- Database access centralized through the Supabase client
 
+---
+
+## 4. Supabase Integration — ✅ PASS
+
+- **Client centralized** in `src/integrations/supabase/client.ts`
+- **RLS enabled** on all task-related tables with `authenticated` role enforcement
+- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
+
+---
+
+## 5. Warnings
+
+### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
+
+Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
+`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
+
+### ⚠️ WARNING (low priority): Workload feature is a thin barrel
+
+`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
+
+---
+
+## Summary
+
+| Category | Result |
+|---|---|
+| Folder Architecture | ✅ PASS |
+| Feature Isolation | ✅ PASS |
+| Backend Architecture | ✅ PASS |
+| Supabase Integration | ✅ PASS |
+| Layer Separation | ✅ PASS (resolved) |
+| Workload Consolidation | ⚠️ Low-priority migration |
+
+**No FAIL conditions found.** Architecture is production-ready.
