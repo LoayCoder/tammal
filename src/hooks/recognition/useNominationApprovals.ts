@@ -93,7 +93,7 @@ export function useNominationApprovals() {
 
       const { data: nom } = await supabase
         .from('nominations')
-        .select('headline, nominator_id')
+        .select('headline, nominator_id, nominee_id')
         .eq('id', id)
         .single();
 
@@ -106,6 +106,18 @@ export function useNominationApprovals() {
           .is('deleted_at', null)
           .maybeSingle();
         nominatorName = emp?.full_name || '';
+      }
+
+      // Notify the nominee that their nomination was approved
+      if (nom?.nominee_id && currentEmp?.tenant_id) {
+        await supabase.from('recognition_notifications').insert({
+          tenant_id: currentEmp.tenant_id,
+          user_id: nom.nominee_id,
+          nomination_id: id,
+          type: 'nomination_approved',
+          title: t('recognition.nominations.notifyNomineeApproved'),
+          body: t('recognition.nominations.notifyNomineeApprovedBody', { headline: nom.headline || '' }),
+        } as any);
       }
 
       // Insert additional endorsement requests from manager
