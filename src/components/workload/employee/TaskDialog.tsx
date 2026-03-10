@@ -65,11 +65,11 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
 
   // Compute derived status from progress
   const computeStatus = (prog: number, currentStatus: string) => {
-    if (currentStatus === 'verified') return 'verified';
-    if (currentStatus === 'blocked') return 'blocked';
     if (prog >= 100) return 'completed';
-    if (prog > 0) return 'in_progress';
-    return currentStatus === 'todo' ? 'open' : (currentStatus || 'open');
+    if (prog > 0 && ['draft', 'open'].includes(currentStatus)) return 'in_progress';
+    // Map legacy statuses
+    if (currentStatus === 'todo' || currentStatus === 'blocked') return 'open';
+    return currentStatus || 'open';
   };
 
   const watchedStatus = watch('status');
