@@ -137,7 +137,7 @@ export default function HabitsPlanner() {
             {habits.map((habit) => (
               <div
                 key={habit.id}
-                className={`rounded-2xl border p-4 space-y-3 transition-all ${
+                className={`rounded-lg border p-4 space-y-3 transition-all ${
                   habit.completedToday ? "border-toolkit-sage bg-toolkit-sage/10" : "border-border bg-background"
                 }`}
               >

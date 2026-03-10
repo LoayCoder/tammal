@@ -158,7 +158,7 @@ export default function MeditationLibraryTool() {
               <button
                 key={med.id}
                 onClick={() => { setSelected(med); setElapsed(0); setPlaying(false); }}
-                className="rounded-2xl p-4 text-start border border-border bg-background hover:bg-muted transition-all space-y-2 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                className="rounded-lg p-4 text-start border border-border bg-background hover:bg-muted transition-all space-y-2 shadow-sm hover:shadow-md hover:-translate-y-0.5"
               >
                 <div className="text-2xl">{med.emoji}</div>
                 <div>

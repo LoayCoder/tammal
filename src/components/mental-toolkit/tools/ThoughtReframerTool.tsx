@@ -164,7 +164,7 @@ export default function ThoughtReframerTool() {
                 <p className="text-xs font-semibold uppercase tracking-wide text-toolkit-plum">{t("mentalToolkit.thoughtReframer.originalLabel")}</p>
                 <p className="text-sm text-foreground">{negativeThought}</p>
               </div>
-              <div className="rounded-2xl p-4 space-y-2 bg-toolkit-sage/20 border border-toolkit-sage">
+              <div className="rounded-lg p-4 space-y-2 bg-toolkit-sage/20 border border-toolkit-sage">
                 <p className="text-xs font-semibold uppercase tracking-wide text-toolkit-sage">{t("mentalToolkit.thoughtReframer.reframedLabel")}</p>
                 <p className="text-sm text-foreground">{reframedThought}</p>
               </div>

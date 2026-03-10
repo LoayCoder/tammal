@@ -32,7 +32,7 @@ function VotingCycleCard({ cycleId, cycleName }: { cycleId: string; cycleName: s
     <Card className="glass-card border-0 ring-1 ring-primary/20">
       <CardContent className="flex flex-col gap-4 p-6">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-primary/10">
             <Vote className="h-7 w-7 text-primary" />
           </div>
           <div className="flex-1 min-w-0">

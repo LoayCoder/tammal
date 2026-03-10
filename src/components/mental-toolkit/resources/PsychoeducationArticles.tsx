@@ -243,7 +243,7 @@ export default function PsychoeducationArticles() {
           <button
             key={article.id}
             onClick={() => setSelected(article)}
-            className="w-full rounded-2xl border border-border bg-background hover:bg-muted text-start p-4 transition-all hover:shadow-md hover:-translate-y-0.5 space-y-2"
+            className="w-full rounded-lg border border-border bg-background hover:bg-muted text-start p-4 transition-all hover:shadow-md hover:-translate-y-0.5 space-y-2"
           >
             <div className="flex items-start justify-between gap-2">
               <p className="font-semibold text-foreground text-sm">{article.title}</p>
