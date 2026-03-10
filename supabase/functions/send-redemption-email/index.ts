@@ -41,7 +41,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, rewardName, pointsSpent, fulfillmentInstructions, language = "en" }: RedemptionEmailRequest = await req.json();
+    const { email, rewardName, pointsSpent, fulfillmentInstructions, language = "en", tenantName = "Tammal" }: RedemptionEmailRequest = await req.json();
     console.log("Sending redemption email to:", email, "Reward:", rewardName);
 
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
