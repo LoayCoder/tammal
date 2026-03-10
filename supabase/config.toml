@@ -98,3 +98,6 @@ verify_jwt = false
 
 [functions.task-ai-engine]
 verify_jwt = false
+
+[functions.send-redemption-email]
+verify_jwt = false

@@ -3,6 +3,17 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Coins, Gift, Clock, Coffee, Heart, ShoppingBag } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import type { RedemptionOption } from '@/hooks/recognition/useRedemption';
 
 interface RedemptionCardProps {
@@ -59,13 +70,33 @@ export function RedemptionCard({ option, balance, onRedeem, isRedeeming }: Redem
         )}
       </CardContent>
       <CardFooter>
-        <Button
-          className="w-full"
-          disabled={!canAfford || isRedeeming}
-          onClick={() => onRedeem(option.id, option.points_cost)}
-        >
-          {canAfford ? t('recognition.points.redeem') : t('recognition.points.insufficientPoints')}
-        </Button>
+        {canAfford ? (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button className="w-full" disabled={isRedeeming}>
+                {t('recognition.points.redeem')}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t('recognition.points.confirmRedeemTitle')}</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t('recognition.points.confirmRedeemDescription', { reward: name, points: option.points_cost })}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onRedeem(option.id, option.points_cost)}>
+                  {t('recognition.points.confirmRedeem')}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        ) : (
+          <Button className="w-full" disabled>
+            {t('recognition.points.insufficientPoints')}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

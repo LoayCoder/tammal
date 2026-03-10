@@ -18,6 +18,8 @@ export interface RedemptionOption {
   max_per_year: number | null;
   min_tenure_months: number | null;
   fulfillment_config: Record<string, any>;
+  fulfillment_instructions: string | null;
+  fulfillment_instructions_ar: string | null;
   created_at: string;
   deleted_at: string | null;
 }
@@ -60,7 +62,7 @@ export function useRedemptionCatalog() {
 }
 
 export function useRedemptionRequests() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { tenantId } = useTenantId();
   const qc = useQueryClient();
@@ -81,9 +83,8 @@ export function useRedemptionRequests() {
   });
 
   const redeem = useMutation({
-    mutationFn: async ({ optionId, pointsCost }: { optionId: string; pointsCost: number }) => {
+    mutationFn: async ({ optionId, pointsCost, option }: { optionId: string; pointsCost: number; option?: RedemptionOption }) => {
       if (!tenantId || !user?.id) throw new Error('Missing context');
-      // Use atomic server-side function for balance check + max_per_year + insert
       const { data, error } = await supabase.rpc('redeem_points', {
         p_user_id: user.id,
         p_tenant_id: tenantId,
@@ -91,7 +92,30 @@ export function useRedemptionRequests() {
         p_points_cost: pointsCost,
       });
       if (error) throw error;
-      return data; // returns the new request id
+
+      // Send redemption email (fire-and-forget)
+      if (option) {
+        const lang = i18n.language === 'ar' ? 'ar' : 'en';
+        const instructions = lang === 'ar' && option.fulfillment_instructions_ar
+          ? option.fulfillment_instructions_ar
+          : option.fulfillment_instructions || '';
+        const rewardName = lang === 'ar' && option.name_ar ? option.name_ar : option.name;
+
+        const userEmail = user.email;
+        if (userEmail) {
+          supabase.functions.invoke('send-redemption-email', {
+            body: {
+              email: userEmail,
+              rewardName,
+              pointsSpent: pointsCost,
+              fulfillmentInstructions: instructions,
+              language: lang,
+            },
+          }).catch(err => console.error('Email send failed:', err));
+        }
+      }
+
+      return data;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['redemption-requests'] });
@@ -179,42 +203,5 @@ export function useAdminRedemptionRequests() {
     enabled: !!tenantId,
   });
 
-  const updateRequest = useMutation({
-    mutationFn: async ({ id, status, hr_notes, rejection_reason }: { id: string; status: string; hr_notes?: string; rejection_reason?: string }) => {
-      const updates: Record<string, any> = { status };
-      if (hr_notes) updates.hr_notes = hr_notes;
-      if (rejection_reason) updates.rejection_reason = rejection_reason;
-      if (status === 'fulfilled') updates.fulfilled_at = new Date().toISOString();
-      const { data, error } = await supabase
-        .from('redemption_requests')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-      if (error) throw error;
-
-      // Refund points when rejecting a redemption request
-      if (status === 'rejected' && data) {
-        const reqData = data as unknown as RedemptionRequest;
-        await supabase.from('points_transactions').insert({
-          user_id: reqData.user_id,
-          tenant_id: reqData.tenant_id,
-          amount: reqData.points_spent, // positive = credit back
-          source_type: 'system_adjustment',
-          status: 'credited',
-          source_id: reqData.id,
-          description: 'Refund for rejected redemption request',
-        });
-      }
-
-      return data;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin-redemption-requests'] });
-      toast.success(t('recognition.points.requestUpdated'));
-    },
-    onError: () => toast.error(t('recognition.points.requestUpdateError')),
-  });
-
-  return { requests, isPending, updateRequest };
+  return { requests, isPending };
 }

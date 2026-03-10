@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAdminRedemptionOptions, useAdminRedemptionRequests } from '@/hooks/recognition/useRedemption';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Trash2, Check, X } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 
 const CATEGORIES = ['time_off', 'cash_equivalent', 'experience', 'charity', 'merchandise'];
@@ -20,9 +20,15 @@ const CATEGORIES = ['time_off', 'cash_equivalent', 'experience', 'charity', 'mer
 export default function RedemptionManagement() {
   const { t } = useTranslation();
   const { options, isPending: optLoading, createOption, deleteOption } = useAdminRedemptionOptions();
-  const { requests, isPending: reqLoading, updateRequest } = useAdminRedemptionRequests();
+  const { requests, isPending: reqLoading } = useAdminRedemptionRequests();
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ name: '', name_ar: '', description: '', description_ar: '', category: 'merchandise', points_cost: 100, is_active: true, max_per_year: null as number | null, min_tenure_months: null as number | null, fulfillment_config: {} });
+  const [form, setForm] = useState({
+    name: '', name_ar: '', description: '', description_ar: '',
+    category: 'merchandise', points_cost: 100, is_active: true,
+    max_per_year: null as number | null, min_tenure_months: null as number | null,
+    fulfillment_config: {},
+    fulfillment_instructions: '', fulfillment_instructions_ar: '',
+  });
 
   if (optLoading || reqLoading) {
     return <div className="space-y-4 p-6"><Skeleton className="h-10 w-48" /><Skeleton className="h-64 w-full" /></div>;
@@ -62,6 +68,24 @@ export default function RedemptionManagement() {
                   </Select>
                 </div>
                 <div><Label>{t('recognition.points.pointsCost')}</Label><Input type="number" value={form.points_cost} onChange={e => setForm(p => ({ ...p, points_cost: parseInt(e.target.value) || 0 }))} /></div>
+              </div>
+              <div>
+                <Label>{t('recognition.points.fulfillmentInstructions')}</Label>
+                <Textarea
+                  value={form.fulfillment_instructions}
+                  onChange={e => setForm(p => ({ ...p, fulfillment_instructions: e.target.value }))}
+                  placeholder={t('recognition.points.fulfillmentInstructionsPlaceholder')}
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label>{t('recognition.points.fulfillmentInstructionsAr')}</Label>
+                <Textarea
+                  value={form.fulfillment_instructions_ar}
+                  onChange={e => setForm(p => ({ ...p, fulfillment_instructions_ar: e.target.value }))}
+                  dir="rtl"
+                  rows={3}
+                />
               </div>
               <Button className="w-full" onClick={handleCreate} disabled={!form.name || createOption.isPending}>
                 {t('common.create')}
@@ -122,7 +146,6 @@ export default function RedemptionManagement() {
                     <TableHead>{t('recognition.points.reward')}</TableHead>
                     <TableHead className="text-end">{t('recognition.points.pointsSpent')}</TableHead>
                     <TableHead>{t('common.status')}</TableHead>
-                    <TableHead>{t('common.actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -132,26 +155,9 @@ export default function RedemptionManagement() {
                       <TableCell className="font-medium">{(req.redemption_options as any)?.name || req.option_id}</TableCell>
                       <TableCell className="text-end">{req.points_spent}</TableCell>
                       <TableCell>
-                        <Badge variant={req.status === 'fulfilled' ? 'default' : req.status === 'rejected' ? 'destructive' : 'secondary'}>
+                        <Badge variant={req.status === 'fulfilled' ? 'default' : 'secondary'}>
                           {t(`recognition.points.requestStatuses.${req.status}`, req.status)}
                         </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {req.status === 'pending' && (
-                          <div className="flex gap-1">
-                            <Button variant="ghost" size="icon" onClick={() => updateRequest.mutate({ id: req.id, status: 'approved' })}>
-                              <Check className="h-4 w-4 text-chart-2" />
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => updateRequest.mutate({ id: req.id, status: 'rejected', rejection_reason: 'Declined by admin' })}>
-                              <X className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                        )}
-                        {req.status === 'approved' && (
-                          <Button variant="ghost" size="sm" onClick={() => updateRequest.mutate({ id: req.id, status: 'fulfilled' })}>
-                            {t('recognition.points.markFulfilled')}
-                          </Button>
-                        )}
                       </TableCell>
                     </TableRow>
                   ))}
