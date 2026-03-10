@@ -160,7 +160,7 @@ export default function ThoughtReframerTool() {
           <div className="space-y-4 animate-in fade-in duration-300">
             <h3 className="font-semibold text-center text-foreground">{t("mentalToolkit.thoughtReframer.summaryTitle")} ✨</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="rounded-2xl p-4 space-y-2 bg-toolkit-lavender/20 border border-toolkit-lavender">
+              <div className="rounded-lg p-4 space-y-2 bg-toolkit-lavender/20 border border-toolkit-lavender">
                 <p className="text-xs font-semibold uppercase tracking-wide text-toolkit-plum">{t("mentalToolkit.thoughtReframer.originalLabel")}</p>
                 <p className="text-sm text-foreground">{negativeThought}</p>
               </div>
