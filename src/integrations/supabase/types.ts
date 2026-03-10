@@ -5093,6 +5093,8 @@ export type Database = {
           description: string | null
           description_ar: string | null
           fulfillment_config: Json
+          fulfillment_instructions: string | null
+          fulfillment_instructions_ar: string | null
           id: string
           is_active: boolean | null
           max_per_year: number | null
@@ -5109,6 +5111,8 @@ export type Database = {
           description?: string | null
           description_ar?: string | null
           fulfillment_config?: Json
+          fulfillment_instructions?: string | null
+          fulfillment_instructions_ar?: string | null
           id?: string
           is_active?: boolean | null
           max_per_year?: number | null
@@ -5125,6 +5129,8 @@ export type Database = {
           description?: string | null
           description_ar?: string | null
           fulfillment_config?: Json
+          fulfillment_instructions?: string | null
+          fulfillment_instructions_ar?: string | null
           id?: string
           is_active?: boolean | null
           max_per_year?: number | null
