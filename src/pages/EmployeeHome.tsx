@@ -123,7 +123,7 @@ export default function EmployeeHome() {
           <Link to="/employee/survey">
             <Card className="glass-card border-0 ring-1 ring-chart-2/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-2/40">
               <CardContent className="flex items-center gap-4 p-6">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-chart-2/10">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-chart-2/10">
                   <ClipboardList className="h-7 w-7 text-chart-2" />
                 </div>
                 <div className="flex-1 min-w-0">
