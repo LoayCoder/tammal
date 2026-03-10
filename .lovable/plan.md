@@ -1,87 +1,45 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+## Complete Redemption Workflow: Auto-Fulfill + Email
 
-## 1. Folder Architecture — ✅ PASS
+### What Changes
 
-The project follows a clean modular structure:
+**Current**: User redeems → status `pending` → admin approves → admin marks fulfilled.
+**New**: User redeems → status immediately `fulfilled` → email with claim instructions sent automatically. No admin approval needed.
 
-```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
-```
+### Database Changes
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+1. **Update `redeem_points` function**: Change the inserted `redemption_requests` status from `'pending'` to `'fulfilled'` and set `fulfilled_at = now()`.
 
----
+2. **Add `fulfillment_instructions` columns to `redemption_options`**:
+   - `fulfillment_instructions text` — English instructions shown in email
+   - `fulfillment_instructions_ar text` — Arabic instructions
 
-## 2. Feature Isolation — ✅ PASS
+### Edge Function: `send-redemption-email`
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+New edge function (follows the same pattern as `send-invitation-email` using Resend):
+- Receives: user email, reward name, points spent, fulfillment instructions, language
+- Sends a branded email with claim instructions
+- Gracefully skips if `RESEND_API_KEY` is not configured
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
+### Frontend Changes
 
----
+1. **`useRedemption.ts`** — After successful `redeem_points` RPC call, invoke the `send-redemption-email` edge function with the option details and user email. Update success toast to say "Redeemed successfully! Check your email."
 
-## 3. Backend Architecture — ✅ PASS
+2. **`RedemptionCard.tsx`** — Add a confirmation dialog before redeeming (AlertDialog: "Are you sure you want to redeem X for Y points?").
 
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
+3. **`RedemptionCatalog.tsx`** — No structural changes needed; the card already disables when `balance < points_cost`.
 
----
+4. **Admin `RedemptionManagement.tsx`**:
+   - Add `fulfillment_instructions` textarea to the create option dialog
+   - Remove the approve/reject/fulfill action buttons (no longer needed since auto-fulfilled)
+   - Keep the requests table as a read-only log showing fulfilled redemptions
 
-## 4. Supabase Integration — ✅ PASS
+5. **Translation files** — Add keys for confirmation dialog, email success message, fulfillment instructions label.
 
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
+### Files to Create/Modify
 
----
+- **Create**: `supabase/functions/send-redemption-email/index.ts`
+- **Migration**: Alter `redemption_options` + update `redeem_points` function
+- **Modify**: `src/hooks/recognition/useRedemption.ts`, `src/components/recognition/RedemptionCard.tsx`, `src/pages/admin/RedemptionManagement.tsx`, `src/locales/en.json`, `src/locales/ar.json`
 
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
-
-## Summary
-
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
-
-**No FAIL conditions found.** Architecture is production-ready.
