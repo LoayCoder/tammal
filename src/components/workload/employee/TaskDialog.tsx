@@ -69,7 +69,7 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
     if (currentStatus === 'blocked') return 'blocked';
     if (prog >= 100) return 'completed';
     if (prog > 0) return 'in_progress';
-    return 'todo';
+    return currentStatus === 'todo' ? 'open' : (currentStatus || 'open');
   };
 
   const watchedStatus = watch('status');

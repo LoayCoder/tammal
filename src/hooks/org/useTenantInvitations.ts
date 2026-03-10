@@ -108,11 +108,11 @@ export function useTenantInvitations(tenantId?: string) {
           body: {
             email: input.email,
             code,
-            tenantName: 'New Tenant', // We might need to fetch this or pass it in
+            tenantName: input.tenant_name ?? 'Organization',
             fullName: input.full_name,
             expiresAt: expiresAt.toISOString(),
             inviteUrl: `${window.location.origin}/auth/accept-invite?code=${code}`,
-            language: 'en', // Todo: Pass this from input
+            language: i18n.language === 'ar' ? 'ar' : 'en',
             tenant_id: input.tenant_id
           },
         });

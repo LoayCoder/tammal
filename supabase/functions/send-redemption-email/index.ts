@@ -69,7 +69,7 @@ const handler = async (req: Request): Promise<Response> => {
       method: "POST",
       headers: { Authorization: `Bearer ${resendApiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "Lovable <onboarding@resend.dev>",
+        from: `${tenantName} <onboarding@resend.dev>`,
         to: [email],
         subject: t.subject(rewardName),
         html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;direction:${direction}">

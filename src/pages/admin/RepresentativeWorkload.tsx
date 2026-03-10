@@ -98,7 +98,7 @@ export default function RepresentativeWorkload() {
       title: batchTasks[0]?.title ?? '',
       due_date: batchTasks[0]?.due_date,
       total: batchTasks.length,
-      done: batchTasks.filter(t => t.status === 'done').length,
+      done: batchTasks.filter(t => t.status === 'completed').length,
       inProgress: batchTasks.filter(t => t.status === 'in_progress').length,
       blocked: batchTasks.filter(t => t.status === 'blocked').length,
       createdAt: batchTasks[0]?.created_at,

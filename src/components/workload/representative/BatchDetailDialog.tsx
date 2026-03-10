@@ -38,10 +38,10 @@ export function BatchDetailDialog({ open, onOpenChange, batchId, batchTitle }: B
 
   const counts = {
     total: tasks.length,
-    done: tasks.filter(t => t.status === 'done').length,
+    done: tasks.filter(t => t.status === 'completed').length,
     in_progress: tasks.filter(t => t.status === 'in_progress').length,
     blocked: tasks.filter(t => t.status === 'blocked').length,
-    todo: tasks.filter(t => t.status === 'todo').length,
+    todo: tasks.filter(t => t.status === 'open' || t.status === 'draft').length,
   };
 
   const handleManage = async (payload: ManageTaskPayload) => {
