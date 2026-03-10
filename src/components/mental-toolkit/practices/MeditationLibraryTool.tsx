@@ -117,7 +117,7 @@ export default function MeditationLibraryTool() {
             <button onClick={handleClose} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
               ← Back to library
             </button>
-            <div className="rounded-2xl p-5 space-y-4 bg-gradient-to-br from-toolkit-lavender/15 to-toolkit-sky/15">
+            <div className="rounded-lg p-5 space-y-4 bg-gradient-to-br from-toolkit-lavender/15 to-toolkit-sky/15">
               <div className="text-center space-y-1">
                 <div className="text-4xl">{selected.emoji}</div>
                 <h3 className="font-bold text-lg text-foreground">{selected.title}</h3>
