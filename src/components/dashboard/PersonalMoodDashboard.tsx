@@ -150,7 +150,7 @@ export function PersonalMoodDashboard() {
       </div>
 
       {/* Mood Trend Chart */}
-      <Card className="glass-card border-0 rounded-2xl">
+      <Card className="glass-card border-0 rounded-lg">
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-toolkit-lavender" />
