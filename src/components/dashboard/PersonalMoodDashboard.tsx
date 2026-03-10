@@ -26,7 +26,7 @@ export function PersonalMoodDashboard() {
       <div className="space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-28 rounded-2xl" />
+            <Skeleton key={i} className="h-28 rounded-lg" />
           ))}
         </div>
         <Skeleton className="h-56 rounded-2xl" />
