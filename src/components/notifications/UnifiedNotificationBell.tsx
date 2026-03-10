@@ -55,6 +55,10 @@ const CRISIS_ICONS: Record<string, typeof Bell> = {
 const RECOGNITION_ICONS: Record<string, typeof Bell> = {
   endorsement_requested: ThumbsUp,
   nomination_endorsed: Award,
+  nomination_received: UserPlus,
+  nomination_approved: CheckCircle2,
+  nomination_rejected: XCircle,
+  award_won: Award,
 };
 
 const TASK_COLORS: Record<string, string> = {
