@@ -27,8 +27,8 @@ export default function MoodTrackerPage() {
           </div>
         </div>
         <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-2xl" />)}</div>
-          <Skeleton className="h-64 rounded-2xl" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-lg" />)}</div>
+          <Skeleton className="h-64 rounded-lg" />
         </div>
       </div>
     );
