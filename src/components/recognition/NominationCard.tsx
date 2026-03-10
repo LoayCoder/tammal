@@ -50,6 +50,11 @@ export function NominationCard({
 }: NominationCardProps) {
   const { t } = useTranslation();
 
+  const displayedEndorsementStatus =
+    ['endorsed', 'shortlisted'].includes(nomination.status)
+      ? 'sufficient'
+      : nomination.endorsement_status;
+
   return (
     <Card>
       <CardHeader className="pb-3">
