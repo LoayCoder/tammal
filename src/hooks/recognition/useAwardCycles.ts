@@ -42,6 +42,8 @@ export interface CreateCycleInput {
   audit_review_days?: number;
   announcement_date: string;
   fairness_config?: Record<string, any>;
+  shortlist_count?: number;
+  require_acknowledgment?: boolean;
 }
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
