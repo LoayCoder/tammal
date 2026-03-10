@@ -112,7 +112,7 @@ export function PersonalMoodDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-stat border-0 rounded-2xl">
+        <Card className="glass-stat border-0 rounded-lg">
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
             <CalendarCheck className="h-6 w-6 text-toolkit-sage" />
             <span className="text-2xl font-bold text-foreground">
