@@ -1,87 +1,40 @@
-# Enterprise Task Management — Architecture Audit
 
-## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
----
+## Fix: Stale Endorsement Status on Existing Nominations
 
-## 1. Folder Architecture — ✅ PASS
+### Root Cause
 
-The project follows a clean modular structure:
+The previous code fix to `useNominationApprovals.ts` only applies to **future** approvals. The existing nomination (`93cb211b...`) was approved **before** that fix, so its database record still has `endorsement_status: 'pending'` while `status: 'endorsed'`. This is a data inconsistency that no amount of code changes will fix — the stale row must be updated.
 
-```text
-src/
-  ai/          — Isolated AI client, prompts, guards, quality
-  components/  — UI components
-  config/      — Centralized constants
-  features/    — Feature modules (tasks, approvals, workload, etc.)
-  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
-  services/    — Pure async business services (no UI imports)
-  types/       — Shared type definitions
+### Two-Part Fix
+
+**1. Fix existing stale data (database update)**
+
+Update all nominations where `status` is `'endorsed'` or `'shortlisted'` but `endorsement_status` is still `'pending'`:
+
+```sql
+UPDATE nominations
+SET endorsement_status = 'sufficient'
+WHERE status IN ('endorsed', 'shortlisted')
+  AND endorsement_status = 'pending'
+  AND deleted_at IS NULL;
 ```
 
-**Layer separation checks:**
-- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
-- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
-- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
-- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
+**2. Add a UI safeguard in NominationCard (defensive code)**
 
----
+Derive the displayed endorsement status so that if the nomination is already endorsed/shortlisted, the badge always shows "sufficient" — even if the database is somehow inconsistent:
 
-## 2. Feature Isolation — ✅ PASS
+```typescript
+// In NominationCard, before rendering:
+const displayedEndorsementStatus =
+  ['endorsed', 'shortlisted'].includes(nomination.status)
+    ? 'sufficient'
+    : nomination.endorsement_status;
+```
 
-| Module | Location | Status |
-|---|---|---|
-| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
-| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
-| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
-| AI Governance | `src/features/ai-governance/` | ✅ |
-| AI Generator | `src/features/ai-generator/` | ✅ |
-| Org Dashboard | `src/features/org-dashboard/` | ✅ |
-| Cycle Builder | `src/features/cycle-builder/` | ✅ |
+Then use `displayedEndorsementStatus` for the badge color and label instead of `nomination.endorsement_status`.
 
-**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
+### Files Changed
+- **Database**: One `UPDATE` statement to fix existing data
+- **`src/components/recognition/NominationCard.tsx`**: Add derived endorsement status (~3 lines)
 
----
-
-## 3. Backend Architecture — ✅ PASS
-
-- **35 edge functions** properly separate API routes from client code
-- **Services layer** (`src/services/`) handles business logic
-- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
-- Database access centralized through the Supabase client
-
----
-
-## 4. Supabase Integration — ✅ PASS
-
-- **Client centralized** in `src/integrations/supabase/client.ts`
-- **RLS enabled** on all task-related tables with `authenticated` role enforcement
-- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
-
----
-
-## 5. Warnings
-
-### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
-
-Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
-`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
-
-### ⚠️ WARNING (low priority): Workload feature is a thin barrel
-
-`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
-
----
-
-## Summary
-
-| Category | Result |
-|---|---|
-| Folder Architecture | ✅ PASS |
-| Feature Isolation | ✅ PASS |
-| Backend Architecture | ✅ PASS |
-| Supabase Integration | ✅ PASS |
-| Layer Separation | ✅ PASS (resolved) |
-| Workload Consolidation | ⚠️ Low-priority migration |
-
-**No FAIL conditions found.** Architecture is production-ready.
