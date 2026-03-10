@@ -26,7 +26,7 @@ export function MoodStatCards({ streak, avgMood7d, burnoutZone, monthlyCheckins,
         </CardContent>
       </Card>
 
-      <Card className="glass-stat border-0 rounded-2xl">
+      <Card className="glass-stat border-0 rounded-lg">
         <CardContent className="p-4 flex flex-col items-center text-center gap-1">
           <TrendingUp className="h-6 w-6" style={{ color: ZONE_COLORS[burnoutZone] }} />
           <span className="text-2xl font-bold text-foreground">{avgMood7d}</span>
