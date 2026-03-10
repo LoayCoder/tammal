@@ -31,7 +31,7 @@ export function MoodToolsSuggestions({ surveyStats, reframeStats, breathingStats
         </CardContent>
       </Card>
 
-      <Card className="rounded-2xl">
+      <Card className="rounded-lg">
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
             <RefreshCw className="h-4 w-4" style={{ color: TOOLKIT.sage }} />
