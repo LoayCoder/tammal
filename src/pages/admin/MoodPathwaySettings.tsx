@@ -126,7 +126,7 @@ export default function MoodPathwaySettings() {
       {/* Per-Mood Pathway Cards */}
       {isLoading ? (
         <div className="space-y-4">
-          {[1, 2, 3].map(i => <Skeleton key={i} className="h-48 w-full rounded-2xl" />)}
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-48 w-full rounded-lg" />)}
         </div>
       ) : (
         <div className="space-y-4">
