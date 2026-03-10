@@ -162,7 +162,7 @@ export default function EmployeeHome() {
             <Link to="/crisis-support">
               <Card className="glass-card border-0 ring-1 ring-destructive/20 cursor-pointer transition-all hover:shadow-lg hover:ring-destructive/40">
                 <CardContent className="flex items-center gap-4 p-5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-destructive/10">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-destructive/10">
                     <Phone className="h-6 w-6 text-destructive" />
                   </div>
                   <div className="flex-1 min-w-0">
