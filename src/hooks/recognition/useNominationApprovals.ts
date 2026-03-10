@@ -190,6 +190,31 @@ export function useNominationApprovals() {
         })
         .eq('id', id);
       if (error) throw error;
+
+      // Notify the nominee that their nomination was rejected
+      const { data: nom } = await supabase
+        .from('nominations')
+        .select('headline, nominee_id')
+        .eq('id', id)
+        .single();
+
+      const { data: currentEmp } = await supabase
+        .from('employees')
+        .select('tenant_id')
+        .eq('user_id', user.id)
+        .is('deleted_at', null)
+        .maybeSingle();
+
+      if (nom?.nominee_id && currentEmp?.tenant_id) {
+        await supabase.from('recognition_notifications').insert({
+          tenant_id: currentEmp.tenant_id,
+          user_id: nom.nominee_id,
+          nomination_id: id,
+          type: 'nomination_rejected',
+          title: t('recognition.nominations.notifyNomineeRejected'),
+          body: t('recognition.nominations.notifyNomineeRejectedBody', { headline: nom.headline || '' }),
+        } as any);
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['nomination-approvals'] });

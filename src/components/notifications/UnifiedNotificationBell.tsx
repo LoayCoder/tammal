@@ -115,6 +115,9 @@ function normalizeCrisis(n: CrisisNotification): UnifiedNotification {
 }
 
 function normalizeRecognition(n: RecognitionNotification): UnifiedNotification {
+  const navigateTo = n.type === 'endorsement_requested'
+    ? '/recognition/my-nominations?tab=endorse'
+    : '/recognition/my-nominations?tab=received';
   return {
     id: n.id,
     type: n.type,
@@ -123,7 +126,7 @@ function normalizeRecognition(n: RecognitionNotification): UnifiedNotification {
     is_read: n.is_read,
     created_at: n.created_at,
     source: 'recognition',
-    navigateTo: '/recognition/my-nominations?tab=endorse',
+    navigateTo,
   };
 }
 

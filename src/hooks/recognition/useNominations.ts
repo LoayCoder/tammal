@@ -149,6 +149,28 @@ export function useNominations(cycleId?: string, themeId?: string) {
         .select()
         .single();
       if (error) throw error;
+
+      // Notify the nominee that they've been nominated
+      if (data && rest.nominee_id !== user.id) {
+        const { data: nominatorEmp } = await supabase
+          .from('employees')
+          .select('full_name')
+          .eq('user_id', user.id)
+          .is('deleted_at', null)
+          .maybeSingle();
+
+        const nominatorName = nominatorEmp?.full_name || t('recognition.nominations.role.peer');
+
+        await supabase.from('recognition_notifications').insert({
+          tenant_id: tenantId,
+          user_id: rest.nominee_id,
+          nomination_id: data.id,
+          type: 'nomination_received',
+          title: t('recognition.nominations.notifyNomineeReceived', { nominator: nominatorName }),
+          body: t('recognition.nominations.notifyNomineeReceivedBody', { headline: rest.headline }),
+        } as any);
+      }
+
       return data;
     },
     onSuccess: () => {
