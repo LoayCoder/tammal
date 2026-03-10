@@ -1,0 +1,1 @@
+ALTER TABLE public.award_cycles ADD COLUMN points_config jsonb NOT NULL DEFAULT '{"first_place": 5000, "second_place": 2000, "third_place": 1000, "nominator_bonus": 200}'::jsonb;
