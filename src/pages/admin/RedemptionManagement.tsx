@@ -141,18 +141,20 @@ export default function RedemptionManagement() {
             <CardContent className="pt-6">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>{t('recognition.points.date')}</TableHead>
-                    <TableHead>{t('recognition.points.reward')}</TableHead>
-                    <TableHead className="text-end">{t('recognition.points.pointsSpent')}</TableHead>
-                    <TableHead>{t('common.status')}</TableHead>
-                  </TableRow>
+                   <TableRow>
+                     <TableHead>{t('recognition.points.date')}</TableHead>
+                     <TableHead>{t('representative.employee')}</TableHead>
+                     <TableHead>{t('recognition.points.reward')}</TableHead>
+                     <TableHead className="text-end">{t('recognition.points.pointsSpent')}</TableHead>
+                     <TableHead>{t('common.status')}</TableHead>
+                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {requests.map(req => (
-                    <TableRow key={req.id}>
-                      <TableCell className="text-sm">{format(new Date(req.requested_at), 'MMM d, yyyy')}</TableCell>
-                      <TableCell className="font-medium">{(req.redemption_options as any)?.name || req.option_id}</TableCell>
+                     <TableRow key={req.id}>
+                       <TableCell className="text-sm">{format(new Date(req.requested_at), 'MMM d, yyyy')}</TableCell>
+                       <TableCell className="font-medium">{(req as any).employee_name ?? '—'}</TableCell>
+                       <TableCell className="font-medium">{(req.redemption_options as any)?.name || req.option_id}</TableCell>
                       <TableCell className="text-end">{req.points_spent}</TableCell>
                       <TableCell>
                         <Badge variant={req.status === 'fulfilled' ? 'default' : 'secondary'}>

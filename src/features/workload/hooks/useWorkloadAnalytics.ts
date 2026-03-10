@@ -62,8 +62,8 @@ export function useWorkloadAnalytics() {
 
       const result: TeamMemberLoad[] = (employees ?? []).map(emp => {
         const empTasks = (tasks ?? []).filter(t => t.employee_id === emp.id);
-        const active = empTasks.filter(t => t.status !== 'done');
-        const done = empTasks.filter(t => t.status === 'done');
+        const active = empTasks.filter(t => t.status !== 'completed' && t.status !== 'archived');
+        const done = empTasks.filter(t => t.status === 'completed');
         const overdue = active.filter(t => t.due_date && t.due_date.split('T')[0] < todayStr);
         const empOH = (offHours ?? []).filter(o => o.employee_id === emp.id);
 

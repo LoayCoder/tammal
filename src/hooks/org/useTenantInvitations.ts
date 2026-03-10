@@ -38,6 +38,7 @@ export interface CreateInvitationInput {
   employee_id?: string;
   expiry_days?: number;
   delivery_channel?: 'email' | 'whatsapp';
+  tenant_name?: string;
 }
 
 // Generate 8-character alphanumeric code (excludes ambiguous chars: O, 0, I, 1, L)
@@ -51,7 +52,7 @@ function generateInvitationCode(): string {
 }
 
 export function useTenantInvitations(tenantId?: string) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const { logEvent } = useAuditLog();
 
@@ -108,11 +109,11 @@ export function useTenantInvitations(tenantId?: string) {
           body: {
             email: input.email,
             code,
-            tenantName: 'New Tenant', // We might need to fetch this or pass it in
+            tenantName: input.tenant_name ?? 'Organization',
             fullName: input.full_name,
             expiresAt: expiresAt.toISOString(),
             inviteUrl: `${window.location.origin}/auth/accept-invite?code=${code}`,
-            language: 'en', // Todo: Pass this from input
+            language: i18n.language === 'ar' ? 'ar' : 'en',
             tenant_id: input.tenant_id
           },
         });

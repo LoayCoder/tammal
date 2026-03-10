@@ -192,13 +192,30 @@ export function useAdminRedemptionRequests() {
   const { data: requests = [], isPending } = useQuery({
     queryKey: ['admin-redemption-requests', tenantId],
     queryFn: async () => {
+      // Fetch requests
       const { data, error } = await supabase
         .from('redemption_requests')
         .select('*, redemption_options(*)')
         .is('deleted_at', null)
         .order('requested_at', { ascending: false });
       if (error) throw error;
-      return data as RedemptionRequest[];
+
+      // Resolve user_id → employee name
+      const userIds = [...new Set((data ?? []).map(r => r.user_id))];
+      const { data: employees } = userIds.length > 0
+        ? await supabase
+            .from('employees')
+            .select('user_id, full_name')
+            .in('user_id', userIds)
+            .is('deleted_at', null)
+        : { data: [] };
+
+      const nameMap = new Map((employees ?? []).map(e => [e.user_id, e.full_name]));
+
+      return (data ?? []).map(r => ({
+        ...r,
+        employee_name: nameMap.get(r.user_id) ?? null,
+      })) as (RedemptionRequest & { employee_name: string | null })[];
     },
     enabled: !!tenantId,
   });

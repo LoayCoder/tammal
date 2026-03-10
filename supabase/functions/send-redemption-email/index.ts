@@ -11,6 +11,7 @@ interface RedemptionEmailRequest {
   pointsSpent: number;
   fulfillmentInstructions: string;
   language?: string;
+  tenantName?: string;
 }
 
 const translations = {
@@ -40,7 +41,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, rewardName, pointsSpent, fulfillmentInstructions, language = "en" }: RedemptionEmailRequest = await req.json();
+    const { email, rewardName, pointsSpent, fulfillmentInstructions, language = "en", tenantName = "Tammal" }: RedemptionEmailRequest = await req.json();
     console.log("Sending redemption email to:", email, "Reward:", rewardName);
 
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
@@ -68,7 +69,7 @@ const handler = async (req: Request): Promise<Response> => {
       method: "POST",
       headers: { Authorization: `Bearer ${resendApiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "Lovable <onboarding@resend.dev>",
+        from: `${tenantName} <onboarding@resend.dev>`,
         to: [email],
         subject: t.subject(rewardName),
         html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;direction:${direction}">
