@@ -115,7 +115,7 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
     }
   }, [cycle]);
 
-  const updateField = useCallback((key: string, value: string | number) => {
+  const updateField = useCallback((key: string, value: string | number | boolean) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   }, []);
 
