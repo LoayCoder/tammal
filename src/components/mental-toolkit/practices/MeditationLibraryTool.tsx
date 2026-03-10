@@ -99,7 +99,7 @@ export default function MeditationLibraryTool() {
   const progress = selected ? (elapsed / selected.duration) * 100 : 0;
 
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       <div className="px-5 py-4 border-b border-border bg-toolkit-sky/15">
         <div className="flex items-center gap-2">
           <span className="text-2xl">🧘</span>
