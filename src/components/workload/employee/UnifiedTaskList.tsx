@@ -120,7 +120,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
               )}
 
               {/* Progress bar */}
-              {task.progress > 0 && task.status !== 'verified' && (
+              {task.progress > 0 && !isVerified && (
                 <Progress value={task.progress} className="h-1.5" />
               )}
 
