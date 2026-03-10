@@ -181,7 +181,7 @@ export default function SelfAssessmentQuiz() {
             <button
               key={quiz.id}
               onClick={() => handleStart(quiz)}
-              className="rounded-2xl border border-border bg-background hover:bg-muted text-start p-4 transition-all hover:shadow-md hover:-translate-y-0.5 space-y-2"
+              className="rounded-lg border border-border bg-background hover:bg-muted text-start p-4 transition-all hover:shadow-md hover:-translate-y-0.5 space-y-2"
             >
               <div className="text-3xl">{t(`mentalToolkit.quiz.quizzes.${quiz.id}.emoji`)}</div>
               <p className="font-semibold text-foreground text-sm">{t(`mentalToolkit.quiz.quizzes.${quiz.id}.name`)}</p>
