@@ -9,13 +9,7 @@ import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Packa
 import type { QuestionSchedule } from '@/hooks/questions/useQuestionSchedules';
 import { resolveAudience } from '@/hooks/admin/useAudienceResolver';
 
-interface Employee {
-  id: string;
-  full_name: string;
-  email: string;
-  department?: string | null;
-  department_id?: string | null;
-}
+import type { AudienceEmployee } from '@/hooks/admin/useAudienceResolver';
 
 interface ScheduleListTableProps {
   schedules: QuestionSchedule[];
