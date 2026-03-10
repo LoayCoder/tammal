@@ -155,7 +155,9 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
 
   const handleMarkVerified = () => {
     if (!task) return;
-    onUpdate({ id: task.id, status: 'verified' } as UnifiedTaskUpdate);
+    // Store verification in metadata instead of invalid status
+    onUpdate({ id: task.id, metadata: { ...(task.metadata as Record<string, unknown> ?? {}), verified: true } } as UnifiedTaskUpdate);
+    toast.success(t('workload.tasks.verified'));
     onOpenChange(false);
   };
 
@@ -164,7 +166,7 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
   const hasApprovedEvidence = evidence.some(e => e.status === 'approved');
   const hasAnyEvidence = evidence.length > 0;
   const isCompleted = task?.status === 'completed';
-  const isVerified = task?.status === 'verified';
+  const isVerified = !!(task?.metadata as Record<string, unknown>)?.verified;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
