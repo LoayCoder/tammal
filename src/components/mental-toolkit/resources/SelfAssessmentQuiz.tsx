@@ -166,7 +166,7 @@ export default function SelfAssessmentQuiz() {
   // Quiz selector
   if (!selectedQuiz) {
     return (
-      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+      <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-border bg-gradient-to-br from-toolkit-sky/20 to-toolkit-sage/10">
           <div className="flex items-center gap-2">
             <span className="text-2xl">📋</span>
