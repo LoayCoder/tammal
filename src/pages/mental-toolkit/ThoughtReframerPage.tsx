@@ -428,7 +428,7 @@ export default function ThoughtReframerPage() {
           </h2>
 
           {reframes.length === 0 ? (
-            <Card className="rounded-2xl border-dashed">
+            <Card className="rounded-lg border-dashed">
               <CardContent className="py-10 text-center space-y-2">
                 <RefreshCw className="h-10 w-10 mx-auto text-muted-foreground" />
                 <p className="text-sm font-medium text-foreground">{t("mentalToolkit.thoughtReframer.noReframesYet")}</p>
