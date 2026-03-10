@@ -308,7 +308,7 @@ export function PersonalMoodDashboard() {
 
       {/* Reframe + Breathing Activity */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="glass-card border-0 rounded-2xl">
+        <Card className="glass-card border-0 rounded-lg">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <RefreshCw className="h-4 w-4 text-toolkit-sage" />
