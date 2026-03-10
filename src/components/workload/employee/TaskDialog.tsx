@@ -213,7 +213,16 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
             <div className="space-y-2">
               <Label>{t('common.status')}</Label>
               <div className="flex items-center gap-2 h-10 px-3 rounded-md border bg-muted/30 text-sm">
-                {t(`workload.status.${computeStatus(progress, watchedStatus) === 'todo' ? 'planned' : computeStatus(progress, watchedStatus) === 'in_progress' ? 'inProgress' : computeStatus(progress, watchedStatus) === 'completed' ? 'completed' : computeStatus(progress, watchedStatus) === 'verified' ? 'completed' : 'blocked'}`)}
+                {t(`workload.status.${({
+                  draft: 'planned',
+                  open: 'planned',
+                  in_progress: 'inProgress',
+                  under_review: 'underReview',
+                  pending_approval: 'pendingApproval',
+                  completed: 'completed',
+                  rejected: 'rejected',
+                  archived: 'archived',
+                } as Record<string, string>)[computeStatus(progress, watchedStatus)] ?? 'planned'}`)}
               </div>
             </div>
           </div>
