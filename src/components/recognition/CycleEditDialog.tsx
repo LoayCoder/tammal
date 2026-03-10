@@ -21,7 +21,7 @@ interface CycleEditDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type EditTab = 'basics' | 'themes' | 'fairness';
+type EditTab = 'basics' | 'themes' | 'fairness' | 'rewards';
 
 const DEFAULT_FAIRNESS: FairnessSettings = {
   cliqueThreshold: 0.4,
