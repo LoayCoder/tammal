@@ -87,17 +87,30 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
         voting_end: cycle.voting_end?.slice(0, 16) ?? '',
         announcement_date: cycle.announcement_date?.slice(0, 16) ?? '',
         audit_review_days: cycle.audit_review_days ?? 3,
+        shortlist_count: cycle.shortlist_count ?? 3,
+        require_acknowledgment: cycle.require_acknowledgment ?? true,
       });
       setFairness(parseFairnessConfig(cycle.fairness_config));
-      const pc = (cycle as any).points_config as Record<string, number> | null;
-      if (pc) {
-        setPointsConfig({
-          first_place: pc.first_place ?? 5000,
-          second_place: pc.second_place ?? 2000,
-          third_place: pc.third_place ?? 1000,
-          nominator_bonus: pc.nominator_bonus ?? 200,
-        });
+      const pc = (cycle.points_config || {}) as Record<string, number>;
+      // Build points config supporting dynamic place_N keys
+      const scCount = cycle.shortlist_count ?? 3;
+      const newPc: Record<string, number> = { nominator_bonus: pc.nominator_bonus ?? 200 };
+      for (let i = 1; i <= scCount; i++) {
+        const key = `place_${i}`;
+        // Fallback to legacy keys for 1-3
+        if (pc[key] !== undefined) {
+          newPc[key] = pc[key];
+        } else if (i === 1) {
+          newPc[key] = pc.first_place ?? 5000;
+        } else if (i === 2) {
+          newPc[key] = pc.second_place ?? 2000;
+        } else if (i === 3) {
+          newPc[key] = pc.third_place ?? 1000;
+        } else {
+          newPc[key] = 0;
+        }
       }
+      setPointsConfig(newPc);
       setActiveTab('basics');
     }
   }, [cycle]);
