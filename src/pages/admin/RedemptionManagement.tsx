@@ -141,12 +141,13 @@ export default function RedemptionManagement() {
             <CardContent className="pt-6">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>{t('recognition.points.date')}</TableHead>
-                    <TableHead>{t('recognition.points.reward')}</TableHead>
-                    <TableHead className="text-end">{t('recognition.points.pointsSpent')}</TableHead>
-                    <TableHead>{t('common.status')}</TableHead>
-                  </TableRow>
+                   <TableRow>
+                     <TableHead>{t('recognition.points.date')}</TableHead>
+                     <TableHead>{t('representative.employee')}</TableHead>
+                     <TableHead>{t('recognition.points.reward')}</TableHead>
+                     <TableHead className="text-end">{t('recognition.points.pointsSpent')}</TableHead>
+                     <TableHead>{t('common.status')}</TableHead>
+                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {requests.map(req => (
