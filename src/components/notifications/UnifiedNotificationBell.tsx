@@ -82,6 +82,10 @@ const CRISIS_COLORS: Record<string, string> = {
 const RECOGNITION_COLORS: Record<string, string> = {
   endorsement_requested: 'text-chart-2',
   nomination_endorsed: 'text-chart-1',
+  nomination_received: 'text-chart-2',
+  nomination_approved: 'text-chart-1',
+  nomination_rejected: 'text-destructive',
+  award_won: 'text-chart-5',
 };
 
 function normalizeTask(n: TaskNotification): UnifiedNotification {
