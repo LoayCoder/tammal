@@ -69,6 +69,9 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
   });
 
   const [fairness, setFairness] = useState<FairnessSettings>({ ...DEFAULT_FAIRNESS });
+  const [pointsConfig, setPointsConfig] = useState({
+    first_place: 5000, second_place: 2000, third_place: 1000, nominator_bonus: 200,
+  });
 
   useEffect(() => {
     if (cycle) {
