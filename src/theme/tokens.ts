@@ -15,7 +15,7 @@ export const spacing = {
 
 // ── Typography ───────────────────────────────────────────────────────
 export const typography = {
-  pageTitle: 'text-xl font-bold text-foreground',
+  pageTitle: 'text-2xl font-semibold text-foreground',
   sectionTitle: 'text-lg font-semibold text-foreground',
   cardTitle: 'text-base font-semibold text-foreground',
   metric: 'text-2xl font-bold text-foreground',
