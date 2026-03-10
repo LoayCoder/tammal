@@ -387,7 +387,7 @@ export default function ThoughtReframerPage() {
                     {t("mentalToolkit.thoughtReframer.summaryTitle")} ✨
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="rounded-2xl p-4 space-y-2" style={{ background: `${TOOLKIT.lavender}20`, border: `1px solid ${TOOLKIT.lavender}` }}>
+                    <div className="rounded-lg p-4 space-y-2" style={{ background: `${TOOLKIT.lavender}20`, border: `1px solid ${TOOLKIT.lavender}` }}>
                       <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: TOOLKIT.plum }}>
                         {t("mentalToolkit.thoughtReframer.originalLabel")}
                       </p>
