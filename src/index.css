@@ -196,6 +196,7 @@
     --shadow-lg: 2px 4px 16px hsl(0 0% 0% / 0.3);
     --shadow-xl: 2px 6px 24px hsl(0 0% 0% / 0.35);
     --shadow-2xl: 2px 8px 32px hsl(0 0% 0% / 0.4);
+    --shadow-tooltip: 0px 4px 30px hsl(249 43% 32% / 0.15);
   }
 }
 
