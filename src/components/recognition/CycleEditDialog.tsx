@@ -66,10 +66,12 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
     voting_end: '',
     announcement_date: '',
     audit_review_days: 3,
+    shortlist_count: 3,
+    require_acknowledgment: true,
   });
 
   const [fairness, setFairness] = useState<FairnessSettings>({ ...DEFAULT_FAIRNESS });
-  const [pointsConfig, setPointsConfig] = useState({
+  const [pointsConfig, setPointsConfig] = useState<Record<string, number>>({
     first_place: 5000, second_place: 2000, third_place: 1000, nominator_bonus: 200,
   });
 
