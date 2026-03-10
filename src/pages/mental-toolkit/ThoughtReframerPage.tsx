@@ -393,7 +393,7 @@ export default function ThoughtReframerPage() {
                       </p>
                       <p className="text-sm text-foreground">{negativeThought}</p>
                     </div>
-                    <div className="rounded-2xl p-4 space-y-2" style={{ background: `${TOOLKIT.sage}20`, border: `1px solid ${TOOLKIT.sage}` }}>
+                    <div className="rounded-lg p-4 space-y-2" style={{ background: `${TOOLKIT.sage}20`, border: `1px solid ${TOOLKIT.sage}` }}>
                       <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#2d6b3f" }}>
                         {t("mentalToolkit.thoughtReframer.reframedLabel")}
                       </p>
