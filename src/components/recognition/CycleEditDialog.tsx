@@ -147,10 +147,11 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
         )}
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as EditTab)}>
-          <TabsList className="grid w-full grid-cols-3 mb-4">
+          <TabsList className="grid w-full grid-cols-4 mb-4">
             <TabsTrigger value="basics">{t('recognition.cycleBuilder.basics')}</TabsTrigger>
             <TabsTrigger value="themes">{t('recognition.cycleBuilder.themes')}</TabsTrigger>
             <TabsTrigger value="fairness">{t('recognition.cycleBuilder.fairness')}</TabsTrigger>
+            <TabsTrigger value="rewards">{t('recognition.cycleBuilder.rewards')}</TabsTrigger>
           </TabsList>
 
           {/* ── Basics Tab ── */}
