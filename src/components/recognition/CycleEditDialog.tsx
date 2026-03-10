@@ -87,6 +87,15 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
         audit_review_days: cycle.audit_review_days ?? 3,
       });
       setFairness(parseFairnessConfig(cycle.fairness_config));
+      const pc = (cycle as any).points_config as Record<string, number> | null;
+      if (pc) {
+        setPointsConfig({
+          first_place: pc.first_place ?? 5000,
+          second_place: pc.second_place ?? 2000,
+          third_place: pc.third_place ?? 1000,
+          nominator_bonus: pc.nominator_bonus ?? 200,
+        });
+      }
       setActiveTab('basics');
     }
   }, [cycle]);
