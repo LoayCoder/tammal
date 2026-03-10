@@ -256,22 +256,56 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
           {/* ── Rewards Tab ── */}
           <TabsContent value="rewards" className="space-y-4 mt-0">
             <p className="text-sm text-muted-foreground">{t('recognition.rewards.description')}</p>
+            
+            {/* Shortlist settings */}
+            <div className="space-y-2">
+              <Label>{t('recognition.shortlist.shortlistCount')}: {form.shortlist_count}</Label>
+              <Slider
+                value={[form.shortlist_count]}
+                onValueChange={([v]) => {
+                  updateField('shortlist_count', v);
+                  // Adjust points config to match new count
+                  setPointsConfig(prev => {
+                    const next = { ...prev };
+                    for (let i = 1; i <= v; i++) {
+                      if (next[`place_${i}`] === undefined) next[`place_${i}`] = 0;
+                    }
+                    // Remove keys above new count
+                    for (let i = v + 1; i <= 15; i++) {
+                      delete next[`place_${i}`];
+                    }
+                    return next;
+                  });
+                }}
+                min={1} max={15} step={1}
+              />
+              <p className="text-xs text-muted-foreground">{t('recognition.shortlist.shortlistCountDesc')}</p>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label>{t('recognition.shortlist.requireAcknowledgment')}</Label>
+              <Switch
+                checked={form.require_acknowledgment}
+                onCheckedChange={(v) => updateField('require_acknowledgment', v)}
+              />
+            </div>
+
+            {/* Dynamic points per rank */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label>{t('recognition.rewards.firstPlace')}</Label>
-                <Input type="number" min={0} value={pointsConfig.first_place} onChange={(e) => updatePointsField('first_place', parseInt(e.target.value, 10) || 0)} />
-              </div>
-              <div className="space-y-1">
-                <Label>{t('recognition.rewards.secondPlace')}</Label>
-                <Input type="number" min={0} value={pointsConfig.second_place} onChange={(e) => updatePointsField('second_place', parseInt(e.target.value, 10) || 0)} />
-              </div>
-              <div className="space-y-1">
-                <Label>{t('recognition.rewards.thirdPlace')}</Label>
-                <Input type="number" min={0} value={pointsConfig.third_place} onChange={(e) => updatePointsField('third_place', parseInt(e.target.value, 10) || 0)} />
-              </div>
+              {Array.from({ length: form.shortlist_count }, (_, i) => i + 1).map(rank => (
+                <div key={rank} className="space-y-1">
+                  <Label>{t('recognition.shortlist.placePoints', { rank })}</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={pointsConfig[`place_${rank}`] ?? 0}
+                    onChange={(e) => updatePointsField(`place_${rank}`, parseInt(e.target.value, 10) || 0)}
+                  />
+                </div>
+              ))}
               <div className="space-y-1">
                 <Label>{t('recognition.rewards.nominatorBonus')}</Label>
-                <Input type="number" min={0} value={pointsConfig.nominator_bonus} onChange={(e) => updatePointsField('nominator_bonus', parseInt(e.target.value, 10) || 0)} />
+                <Input type="number" min={0} value={pointsConfig.nominator_bonus ?? 200} onChange={(e) => updatePointsField('nominator_bonus', parseInt(e.target.value, 10) || 0)} />
               </div>
             </div>
             <p className="text-xs text-muted-foreground">{t('recognition.rewards.nominatorBonusDesc')}</p>
