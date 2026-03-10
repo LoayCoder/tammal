@@ -99,7 +99,7 @@ export default function EmployeeHome() {
         {todayEntry && (
           <Card className="glass-card border-0 ring-1 ring-chart-1/20">
             <CardContent className="flex items-center gap-4 p-6">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-chart-1/10 text-2xl">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-chart-1/10 text-2xl">
                 {MOOD_EMOJIS[todayEntry.level] || '✅'}
               </div>
               <div className="flex-1 min-w-0">
@@ -123,7 +123,7 @@ export default function EmployeeHome() {
           <Link to="/employee/survey">
             <Card className="glass-card border-0 ring-1 ring-chart-2/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-2/40">
               <CardContent className="flex items-center gap-4 p-6">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-chart-2/10">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-chart-2/10">
                   <ClipboardList className="h-7 w-7 text-chart-2" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -162,7 +162,7 @@ export default function EmployeeHome() {
             <Link to="/crisis-support">
               <Card className="glass-card border-0 ring-1 ring-destructive/20 cursor-pointer transition-all hover:shadow-lg hover:ring-destructive/40">
                 <CardContent className="flex items-center gap-4 p-5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-destructive/10">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-destructive/10">
                     <Phone className="h-6 w-6 text-destructive" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -176,7 +176,7 @@ export default function EmployeeHome() {
             <div onClick={() => setShowFirstAider(true)} className="cursor-pointer">
               <Card className="glass-card border-0 ring-1 ring-chart-1/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-1/40">
                 <CardContent className="flex items-center gap-4 p-5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-chart-1/10">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-chart-1/10">
                     <HeartHandshake className="h-6 w-6 text-chart-1" />
                   </div>
                   <div className="flex-1 min-w-0">

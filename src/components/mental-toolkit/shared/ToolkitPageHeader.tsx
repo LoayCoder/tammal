@@ -20,7 +20,7 @@ export default function ToolkitPageHeader({
   return (
     <div className="glass-card border-0 rounded-none border-b border-border/50 px-4 py-5 sm:px-6">
       <div className={`${maxWClass} mx-auto flex items-center gap-3`}>
-        <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 bg-primary/10">
+        <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-primary/10">
           {icon}
         </div>
         <div className="flex-1">

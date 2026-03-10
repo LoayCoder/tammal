@@ -89,7 +89,7 @@ export default function JournalingPromptsTool() {
   };
 
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       <div className="px-5 py-4 border-b border-border bg-toolkit-sage/15">
         <div className="flex items-center gap-2">
           <span className="text-2xl">📔</span>
@@ -102,7 +102,7 @@ export default function JournalingPromptsTool() {
 
       <div className="p-5 space-y-5">
         {/* Today's Prompt Card */}
-        <div className="rounded-2xl p-4 space-y-2 bg-toolkit-sage/15 border border-toolkit-sage">
+        <div className="rounded-lg p-4 space-y-2 bg-toolkit-sage/15 border border-toolkit-sage">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("mentalToolkit.journaling.todaysPrompt")}</span>
             <Badge

@@ -8,9 +8,9 @@ interface ToolkitCardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const variantClasses: Record<string, string> = {
-  default: "glass-card border-0 rounded-2xl",
-  stat: "glass-stat border-0 rounded-2xl",
-  dashed: "glass-card border-0 rounded-2xl border-dashed",
+  default: "glass-card border-0 rounded-lg",
+  stat: "glass-stat border-0 rounded-lg",
+  dashed: "glass-card border-0 rounded-lg border-dashed",
 };
 
 const ToolkitCard = React.forwardRef<HTMLDivElement, ToolkitCardProps>(

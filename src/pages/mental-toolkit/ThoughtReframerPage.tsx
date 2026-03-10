@@ -159,13 +159,13 @@ export default function ThoughtReframerPage() {
       <div className="min-h-screen bg-background">
         <div className="bg-card border-b border-border px-4 py-5 sm:px-6">
           <div className="max-w-2xl mx-auto flex items-center gap-3">
-            <Skeleton className="w-10 h-10 rounded-2xl" />
+            <Skeleton className="w-10 h-10 rounded-lg" />
             <div className="space-y-2"><Skeleton className="h-5 w-40" /><Skeleton className="h-4 w-60" /></div>
           </div>
         </div>
         <div className="max-w-2xl mx-auto px-4 py-6 sm:px-6 space-y-4">
-          <Skeleton className="h-20 rounded-2xl" />
-          <Skeleton className="h-64 rounded-2xl" />
+          <Skeleton className="h-20 rounded-lg" />
+          <Skeleton className="h-64 rounded-lg" />
         </div>
       </div>
     );
@@ -387,13 +387,13 @@ export default function ThoughtReframerPage() {
                     {t("mentalToolkit.thoughtReframer.summaryTitle")} ✨
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="rounded-2xl p-4 space-y-2" style={{ background: `${TOOLKIT.lavender}20`, border: `1px solid ${TOOLKIT.lavender}` }}>
+                    <div className="rounded-lg p-4 space-y-2" style={{ background: `${TOOLKIT.lavender}20`, border: `1px solid ${TOOLKIT.lavender}` }}>
                       <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: TOOLKIT.plum }}>
                         {t("mentalToolkit.thoughtReframer.originalLabel")}
                       </p>
                       <p className="text-sm text-foreground">{negativeThought}</p>
                     </div>
-                    <div className="rounded-2xl p-4 space-y-2" style={{ background: `${TOOLKIT.sage}20`, border: `1px solid ${TOOLKIT.sage}` }}>
+                    <div className="rounded-lg p-4 space-y-2" style={{ background: `${TOOLKIT.sage}20`, border: `1px solid ${TOOLKIT.sage}` }}>
                       <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#2d6b3f" }}>
                         {t("mentalToolkit.thoughtReframer.reframedLabel")}
                       </p>
@@ -428,7 +428,7 @@ export default function ThoughtReframerPage() {
           </h2>
 
           {reframes.length === 0 ? (
-            <Card className="rounded-2xl border-dashed">
+            <Card className="rounded-lg border-dashed">
               <CardContent className="py-10 text-center space-y-2">
                 <RefreshCw className="h-10 w-10 mx-auto text-muted-foreground" />
                 <p className="text-sm font-medium text-foreground">{t("mentalToolkit.thoughtReframer.noReframesYet")}</p>
@@ -441,7 +441,7 @@ export default function ThoughtReframerPage() {
                 const isExpanded = expandedId === entry.id;
                 const ca = entry.challenge_answers as Record<string, string> | null;
                 return (
-                  <Card key={entry.id} className="rounded-2xl transition-shadow hover:shadow-md">
+                  <Card key={entry.id} className="rounded-lg transition-shadow hover:shadow-md">
                     <CardContent className="p-5 space-y-2">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">

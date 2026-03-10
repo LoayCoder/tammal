@@ -75,7 +75,7 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
     }
   };
 
-  if (entryLoading) return <Skeleton className="h-48 w-full rounded-2xl" />;
+  if (entryLoading) return <Skeleton className="h-48 w-full rounded-lg" />;
   if (todayEntry) return null;
 
   return (

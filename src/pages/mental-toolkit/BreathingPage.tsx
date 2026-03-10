@@ -92,7 +92,7 @@ export default function BreathingPage() {
         {/* Stats Bar */}
         {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[1,2,3,4].map(i => <Skeleton key={i} className="h-20 rounded-2xl" />)}
+            {[1,2,3,4].map(i => <Skeleton key={i} className="h-20 rounded-lg" />)}
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

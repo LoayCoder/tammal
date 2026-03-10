@@ -24,7 +24,7 @@ export const EmptyState = React.memo(function EmptyState({
 }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
+      <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-muted">
         {icon ?? <Inbox className="h-7 w-7 text-muted-foreground" />}
       </div>
       <div className="space-y-1">

@@ -26,10 +26,10 @@ export function PersonalMoodDashboard() {
       <div className="space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-28 rounded-2xl" />
+            <Skeleton key={i} className="h-28 rounded-lg" />
           ))}
         </div>
-        <Skeleton className="h-56 rounded-2xl" />
+        <Skeleton className="h-56 rounded-lg" />
       </div>
     );
   }
@@ -38,7 +38,7 @@ export function PersonalMoodDashboard() {
 
   if (noData) {
     return (
-      <Card className="glass-card border-0 rounded-2xl border-dashed">
+      <Card className="glass-card border-0 rounded-lg border-dashed">
         <CardContent className="py-12 text-center space-y-2">
           <SmilePlus className="h-12 w-12 mx-auto text-muted-foreground" />
           <p className="text-lg font-semibold text-foreground">
@@ -81,7 +81,7 @@ export function PersonalMoodDashboard() {
     <div className="space-y-4">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="glass-stat border-0 rounded-2xl">
+        <Card className="glass-stat border-0 rounded-lg">
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
             <Flame className="h-6 w-6 text-toolkit-lavender" />
             <span className="text-2xl font-bold text-foreground">{dashboard.streak}</span>
@@ -91,7 +91,7 @@ export function PersonalMoodDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-stat border-0 rounded-2xl">
+        <Card className="glass-stat border-0 rounded-lg">
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
             <TrendingUp className="h-6 w-6" style={{ color: ZONE_COLORS[dashboard.burnoutZone] }} />
             <span className="text-2xl font-bold text-foreground">{dashboard.avgMood7d}</span>
@@ -112,7 +112,7 @@ export function PersonalMoodDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-stat border-0 rounded-2xl">
+        <Card className="glass-stat border-0 rounded-lg">
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
             <CalendarCheck className="h-6 w-6 text-toolkit-sage" />
             <span className="text-2xl font-bold text-foreground">
@@ -125,7 +125,7 @@ export function PersonalMoodDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-stat border-0 rounded-2xl">
+        <Card className="glass-stat border-0 rounded-lg">
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
             {todayDef ? (
               <>
@@ -150,7 +150,7 @@ export function PersonalMoodDashboard() {
       </div>
 
       {/* Mood Trend Chart */}
-      <Card className="glass-card border-0 rounded-2xl">
+      <Card className="glass-card border-0 rounded-lg">
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-toolkit-lavender" />
@@ -215,7 +215,7 @@ export function PersonalMoodDashboard() {
 
       {/* Distribution + Activity */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="glass-card border-0 rounded-2xl">
+        <Card className="glass-card border-0 rounded-lg">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <PieChart className="h-4 w-4 text-toolkit-sage" />
@@ -245,7 +245,7 @@ export function PersonalMoodDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card border-0 rounded-2xl">
+        <Card className="glass-card border-0 rounded-lg">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Grid3X3 className="h-4 w-4 text-toolkit-plum" />
@@ -281,7 +281,7 @@ export function PersonalMoodDashboard() {
       </div>
 
       {/* Survey Stats */}
-      <Card className="glass-card border-0 rounded-2xl">
+      <Card className="glass-card border-0 rounded-lg">
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
             <ClipboardList className="h-4 w-4 text-toolkit-lavender" />
@@ -308,7 +308,7 @@ export function PersonalMoodDashboard() {
 
       {/* Reframe + Breathing Activity */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="glass-card border-0 rounded-2xl">
+        <Card className="glass-card border-0 rounded-lg">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <RefreshCw className="h-4 w-4 text-toolkit-sage" />
@@ -336,7 +336,7 @@ export function PersonalMoodDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card border-0 rounded-2xl">
+        <Card className="glass-card border-0 rounded-lg">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Wind className="h-4 w-4 text-toolkit-lavender" />

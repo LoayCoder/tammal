@@ -130,7 +130,7 @@ export function DashboardShortlistWidget() {
       {entries.map((entry) => (
         <Card key={entry.ranking_id} className="glass-card border-0 ring-1 ring-chart-1/30 overflow-hidden">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-chart-1/10">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-chart-1/10">
               {getRankIcon(entry.rank)}
             </div>
             <div className="flex-1 min-w-0">

@@ -94,7 +94,7 @@ export default function MoodPathwaySettings() {
     <div className="space-y-6 p-6">
       {/* Page header */}
       <div className="flex items-start gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 shrink-0">
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 shrink-0">
           <Brain className="h-6 w-6 text-primary" />
         </div>
         <div>
@@ -126,7 +126,7 @@ export default function MoodPathwaySettings() {
       {/* Per-Mood Pathway Cards */}
       {isLoading ? (
         <div className="space-y-4">
-          {[1, 2, 3].map(i => <Skeleton key={i} className="h-48 w-full rounded-2xl" />)}
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-48 w-full rounded-lg" />)}
         </div>
       ) : (
         <div className="space-y-4">

@@ -88,7 +88,7 @@ export default function HabitsPlanner() {
   };
 
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       <div className="px-5 py-4 border-b border-border bg-toolkit-sage/15">
         <div className="flex items-center gap-2">
           <span className="text-2xl">✅</span>
@@ -137,7 +137,7 @@ export default function HabitsPlanner() {
             {habits.map((habit) => (
               <div
                 key={habit.id}
-                className={`rounded-2xl border p-4 space-y-3 transition-all ${
+                className={`rounded-lg border p-4 space-y-3 transition-all ${
                   habit.completedToday ? "border-toolkit-sage bg-toolkit-sage/10" : "border-border bg-background"
                 }`}
               >

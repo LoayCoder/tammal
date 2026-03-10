@@ -1,62 +1,60 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Orbitask Design System — All colors HSL */
 
 @layer base {
   :root {
-    --background: 209 40% 96%;
-    --foreground: 222 47% 11%;
+    --background: 0 0% 95%;
+    --foreground: 0 0% 19%;
 
-    --card: 210 40% 98%;
-    --card-foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 19%;
 
-    --popover: 214 31% 91%;
-    --popover-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 19%;
 
-    --primary: 200 98% 39%;
-    --primary-foreground: 204 100% 97%;
+    --primary: 220 89% 56%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 215 24% 26%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 28%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 215 20% 65%;
-    --muted-foreground: 222 47% 11%;
+    --muted: 0 0% 57%;
+    --muted-foreground: 0 0% 46%;
 
-    --accent: 210 40% 98%;
-    --accent-foreground: 215 19% 34%;
+    --accent: 187 100% 42%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 50%;
-    --destructive-foreground: 0 85% 97%;
+    --destructive: 4 90% 58%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 212 26% 83%;
-    --input: 212 26% 83%;
-    --ring: 200 98% 39%;
+    --border: 0 0% 89%;
+    --input: 0 0% 89%;
+    --ring: 220 89% 56%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 200 98% 39%;
-    --sidebar-primary-foreground: 204 100% 97%;
-    --sidebar-accent: 215 24% 26%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 212 26% 83%;
-    --sidebar-ring: 200 98% 39%;
-    --sidebar-active-bg: 220 80% 95%;
-    --sidebar-hover-bg: 220 20% 97%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 19%;
+    --sidebar-primary: 220 89% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 28%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 89%;
+    --sidebar-ring: 220 89% 56%;
+    --sidebar-active-bg: 220 89% 96%;
+    --sidebar-hover-bg: 0 0% 97%;
 
-    --chart-1: 198 93% 59%;
-    --chart-2: 213 93% 67%;
-    --chart-3: 215 20% 65%;
-    --chart-4: 215 16% 46%;
-    --chart-5: 215 19% 34%;
+    --chart-1: 220 89% 56%;
+    --chart-2: 187 100% 42%;
+    --chart-3: 36 100% 50%;
+    --chart-4: 0 0% 46%;
+    --chart-5: 0 0% 28%;
 
     /* Mental Toolkit palette */
     --toolkit-lavender: 263 52% 81%;
@@ -75,71 +73,87 @@ All colors MUST be HSL.
     --toolkit-zone-watch: 41 86% 67%;
     --toolkit-zone-at-risk: 0 62% 67%;
 
+    /* Status tint backgrounds */
+    --status-success-bg: 120 78% 96%;
+    --status-info-bg: 222 82% 96%;
+    --status-warning-bg: 37 100% 97%;
+    --status-error-bg: 349 100% 95%;
+
+    /* Semantic status */
+    --success: 122 39% 49%;
+    --success-foreground: 0 0% 100%;
+    --warning: 36 100% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 187 100% 42%;
+    --info-foreground: 0 0% 100%;
+
     /* Org structure default */
-    --org-default: 217 91% 60%;
+    --org-default: 220 89% 56%;
 
-    --sidebar: 210 40% 98%;
+    --sidebar: 0 0% 100%;
 
-    --font-sans: 'Roboto', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
     --font-serif: 'Lora', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-mono: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.03);
+    --shadow-xs: 1px 1px 3px hsl(210 11% 29% / 0.06);
+    --shadow-sm: 2px 2px 7px hsl(210 11% 29% / 0.08);
+    --shadow: 2px 2px 7px hsl(210 11% 29% / 0.08);
+    --shadow-md: 2px 2px 10px hsl(210 11% 29% / 0.1);
+    --shadow-lg: 2px 4px 16px hsl(210 11% 29% / 0.12);
+    --shadow-xl: 2px 6px 24px hsl(210 11% 29% / 0.14);
+    --shadow-2xl: 2px 8px 32px hsl(210 11% 29% / 0.18);
 
     --tracking-normal: 0em;
     --spacing: 0.25rem;
   }
 
   .dark {
-    --background: 222 47% 8%;
-    --foreground: 210 40% 98%;
+    --background: 0 0% 10%;
+    --foreground: 0 0% 95%;
 
-    --card: 217 32% 17%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 14%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 215 24% 26%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 16%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 198 93% 59%;
-    --primary-foreground: 204 80% 15%;
+    --primary: 220 89% 62%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 212 26% 83%;
-    --secondary-foreground: 228 84% 4%;
+    --secondary: 0 0% 75%;
+    --secondary-foreground: 0 0% 10%;
 
-    --muted: 215 16% 46%;
-    --muted-foreground: 210 40% 98%;
+    --muted: 0 0% 35%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 228 84% 4%;
-    --accent-foreground: 215 20% 65%;
+    --accent: 187 80% 45%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 85% 97%;
+    --destructive: 4 80% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 215 19% 34%;
-    --input: 215 19% 34%;
-    --ring: 198 93% 59%;
-    --sidebar-background: 222 47% 6%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 198 93% 59%;
-    --sidebar-primary-foreground: 204 80% 15%;
-    --sidebar-accent: 215 20% 65%;
-    --sidebar-accent-foreground: 228 84% 4%;
-    --sidebar-border: 215 19% 34%;
-    --sidebar-ring: 198 93% 59%;
-    --sidebar-active-bg: 217 40% 18%;
-    --sidebar-hover-bg: 217 32% 14%;
-    --chart-1: 199 95% 73%;
-    --chart-2: 211 96% 78%;
-    --chart-3: 215 20% 65%;
-    --chart-4: 215 16% 46%;
-    --chart-5: 215 19% 34%;
+    --border: 0 0% 22%;
+    --input: 0 0% 22%;
+    --ring: 220 89% 62%;
+
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 220 89% 62%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 60%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 22%;
+    --sidebar-ring: 220 89% 62%;
+    --sidebar-active-bg: 220 40% 18%;
+    --sidebar-hover-bg: 0 0% 14%;
+
+    --chart-1: 220 89% 65%;
+    --chart-2: 187 80% 50%;
+    --chart-3: 36 90% 55%;
+    --chart-4: 0 0% 50%;
+    --chart-5: 0 0% 35%;
 
     /* Mental Toolkit palette (dark) */
     --toolkit-lavender: 263 40% 68%;
@@ -157,16 +171,30 @@ All colors MUST be HSL.
     --toolkit-zone-watch: 41 75% 58%;
     --toolkit-zone-at-risk: 0 55% 60%;
 
-    --org-default: 217 91% 60%;
-    --sidebar: 217 32% 17%;
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    /* Status tint backgrounds (dark) */
+    --status-success-bg: 122 30% 15%;
+    --status-info-bg: 220 40% 16%;
+    --status-warning-bg: 36 50% 15%;
+    --status-error-bg: 4 40% 15%;
+
+    --success: 122 39% 55%;
+    --success-foreground: 0 0% 100%;
+    --warning: 36 90% 55%;
+    --warning-foreground: 0 0% 100%;
+    --info: 187 80% 50%;
+    --info-foreground: 0 0% 100%;
+
+    --org-default: 220 89% 62%;
+    --sidebar: 0 0% 14%;
+
+    --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.08);
+    --shadow-xs: 1px 1px 3px hsl(0 0% 0% / 0.15);
+    --shadow-sm: 2px 2px 7px hsl(0 0% 0% / 0.2);
+    --shadow: 2px 2px 7px hsl(0 0% 0% / 0.2);
+    --shadow-md: 2px 2px 10px hsl(0 0% 0% / 0.25);
+    --shadow-lg: 2px 4px 16px hsl(0 0% 0% / 0.3);
+    --shadow-xl: 2px 6px 24px hsl(0 0% 0% / 0.35);
+    --shadow-2xl: 2px 8px 32px hsl(0 0% 0% / 0.4);
   }
 }
 
@@ -181,138 +209,105 @@ All colors MUST be HSL.
 }
 
 @layer components {
-  /* ── Core Glass Utilities ── */
+  /* ── Flat Card Utilities (Orbitask) ── */
   .glass {
-    background: hsl(var(--card) / 0.4) !important;
-    backdrop-filter: blur(20px) saturate(1.4);
-    -webkit-backdrop-filter: blur(20px) saturate(1.4);
-    border: 1px solid hsl(0 0% 100% / 0.12) !important;
-    box-shadow:
-      0 8px 32px hsl(0 0% 0% / 0.12),
-      inset 0 1px 0 hsl(0 0% 100% / 0.08) !important;
-    border-radius: 1rem;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius);
   }
 
   .glass-card {
-    background: hsl(var(--card) / 0.35) !important;
-    backdrop-filter: blur(24px) saturate(1.5);
-    -webkit-backdrop-filter: blur(24px) saturate(1.5);
-    border: 1px solid hsl(0 0% 100% / 0.1) !important;
-    box-shadow:
-      0 8px 32px hsl(0 0% 0% / 0.12),
-      inset 0 1px 0 hsl(0 0% 100% / 0.12),
-      inset 0 0 0 0.5px hsl(0 0% 100% / 0.05) !important;
-    border-radius: 1.25rem;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius);
   }
 
   .dark .glass-card {
-    background: hsl(var(--card) / 0.25) !important;
-    border: 1px solid hsl(0 0% 100% / 0.08) !important;
-    box-shadow:
-      0 8px 32px hsl(0 0% 0% / 0.25),
-      inset 0 1px 0 hsl(0 0% 100% / 0.06),
-      inset 0 0 0 0.5px hsl(0 0% 100% / 0.03) !important;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-sm);
   }
 
   .glass-badge {
-    background: hsl(var(--secondary) / 0.25) !important;
-    backdrop-filter: blur(12px) saturate(1.3);
-    -webkit-backdrop-filter: blur(12px) saturate(1.3);
-    border: 1px solid hsl(0 0% 100% / 0.1) !important;
+    background: hsl(var(--muted) / 0.12);
+    border: 1px solid hsl(var(--border));
     border-radius: 9999px;
   }
 
-  /* ── Sidebar Glass ── */
+  /* ── Sidebar ── */
   .glass-sidebar {
-    background: hsl(var(--background) / 0.88) !important;
-    backdrop-filter: blur(24px) saturate(1.8);
-    -webkit-backdrop-filter: blur(24px) saturate(1.8);
-    border-inline-end: 1px solid hsl(var(--border) / 0.3) !important;
+    background: hsl(var(--sidebar-background));
+    border-inline-end: 1px solid hsl(var(--border));
   }
 
   .dark .glass-sidebar {
-    background: hsl(var(--sidebar-background) / 0.75) !important;
-    backdrop-filter: blur(24px) saturate(1.8);
-    -webkit-backdrop-filter: blur(24px) saturate(1.8);
-    border-inline-end: 1px solid hsl(var(--border) / 0.3) !important;
+    background: hsl(var(--sidebar-background));
+    border-inline-end: 1px solid hsl(var(--border));
   }
 
-  /* ── Stat Card Glass ── */
+  /* ── Stat Card ── */
   .glass-stat {
-    background: hsl(var(--card) / 0.35) !important;
-    backdrop-filter: blur(24px) saturate(1.5);
-    -webkit-backdrop-filter: blur(24px) saturate(1.5);
-    border: 1px solid hsl(0 0% 100% / 0.1) !important;
-    box-shadow:
-      0 4px 24px hsl(0 0% 0% / 0.1),
-      inset 0 1px 0 hsl(0 0% 100% / 0.1) !important;
-    border-radius: 1.25rem;
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
   .dark .glass-stat {
-    background: hsl(var(--card) / 0.22) !important;
-    border: 1px solid hsl(0 0% 100% / 0.07) !important;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-sm);
   }
 
   .glass-stat:hover {
-    transform: translateY(-3px);
-    box-shadow:
-      0 12px 40px hsl(var(--primary) / 0.12),
-      inset 0 1px 0 hsl(0 0% 100% / 0.15) !important;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
   }
 
-  /* ── Chart Container Glass ── */
+  /* ── Chart Container ── */
   .glass-chart {
-    background: hsl(var(--card) / 0.4) !important;
-    backdrop-filter: blur(20px) saturate(1.4);
-    -webkit-backdrop-filter: blur(20px) saturate(1.4);
-    border: 1px solid hsl(0 0% 100% / 0.08) !important;
-    box-shadow:
-      0 4px 24px hsl(0 0% 0% / 0.1),
-      inset 0 1px 0 hsl(0 0% 100% / 0.08) !important;
-    border-radius: 1.25rem;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius);
   }
 
   .dark .glass-chart {
-    background: hsl(var(--card) / 0.2) !important;
-    border: 1px solid hsl(0 0% 100% / 0.06) !important;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-sm);
   }
 
-  /* ── Active Nav Item Glow ── */
+  /* ── Active Nav Item ── */
   .glass-active {
-    background: hsl(var(--sidebar-primary) / 0.15) !important;
-    box-shadow:
-      0 0 16px hsl(var(--sidebar-primary) / 0.2),
-      inset 0 0 0 1px hsl(var(--sidebar-primary) / 0.25) !important;
-    border-radius: 0.75rem;
+    background: hsl(var(--sidebar-primary) / 0.1);
+    border-radius: var(--radius);
   }
 
-  /* ── Glass Header ── */
+  /* ── Header ── */
   .glass-header {
-    background: hsl(var(--background) / 0.72) !important;
-    backdrop-filter: blur(24px) saturate(1.4);
-    -webkit-backdrop-filter: blur(24px) saturate(1.4);
-    border-bottom: 1px solid hsl(var(--border) / 0.3) !important;
+    background: hsl(var(--card));
+    border-bottom: 1px solid hsl(var(--border));
   }
 
   .dark .glass-header {
-    background: hsl(var(--background) / 0.4) !important;
-    border-bottom: 1px solid hsl(var(--border) / 0.3) !important;
+    background: hsl(var(--card));
+    border-bottom: 1px solid hsl(var(--border));
   }
 
-  /* ── Glass Tabs ── */
+  /* ── Tabs ── */
   .glass-tabs {
-    background: hsl(var(--card) / 0.3) !important;
-    backdrop-filter: blur(16px) saturate(1.3);
-    -webkit-backdrop-filter: blur(16px) saturate(1.3);
-    border: 1px solid hsl(0 0% 100% / 0.08) !important;
-    border-radius: 1rem;
+    background: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
     padding: 0.25rem;
   }
 
   .dark .glass-tabs {
-    background: hsl(var(--card) / 0.18) !important;
+    background: hsl(var(--background));
   }
 }
 

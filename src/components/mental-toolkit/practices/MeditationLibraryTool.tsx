@@ -99,7 +99,7 @@ export default function MeditationLibraryTool() {
   const progress = selected ? (elapsed / selected.duration) * 100 : 0;
 
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       <div className="px-5 py-4 border-b border-border bg-toolkit-sky/15">
         <div className="flex items-center gap-2">
           <span className="text-2xl">🧘</span>
@@ -117,7 +117,7 @@ export default function MeditationLibraryTool() {
             <button onClick={handleClose} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
               ← Back to library
             </button>
-            <div className="rounded-2xl p-5 space-y-4 bg-gradient-to-br from-toolkit-lavender/15 to-toolkit-sky/15">
+            <div className="rounded-lg p-5 space-y-4 bg-gradient-to-br from-toolkit-lavender/15 to-toolkit-sky/15">
               <div className="text-center space-y-1">
                 <div className="text-4xl">{selected.emoji}</div>
                 <h3 className="font-bold text-lg text-foreground">{selected.title}</h3>
@@ -158,7 +158,7 @@ export default function MeditationLibraryTool() {
               <button
                 key={med.id}
                 onClick={() => { setSelected(med); setElapsed(0); setPlaying(false); }}
-                className="rounded-2xl p-4 text-start border border-border bg-background hover:bg-muted transition-all space-y-2 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                className="rounded-lg p-4 text-start border border-border bg-background hover:bg-muted transition-all space-y-2 shadow-sm hover:shadow-md hover:-translate-y-0.5"
               >
                 <div className="text-2xl">{med.emoji}</div>
                 <div>

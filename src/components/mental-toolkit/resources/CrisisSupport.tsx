@@ -38,7 +38,7 @@ export default function CrisisSupport() {
   });
 
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       {/* Emergency Banner */}
       <div className="px-5 py-3 flex items-center gap-2 bg-destructive/10">
         <span className="text-lg">🚨</span>
@@ -89,7 +89,7 @@ export default function CrisisSupport() {
         {/* Contacts */}
         <div className="space-y-3">
           {filtered.map((contact) => (
-            <div key={contact.id} className="rounded-2xl border border-border bg-background p-4 space-y-2">
+            <div key={contact.id} className="rounded-lg border border-border bg-background p-4 space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-foreground text-sm">{contact.name}</p>

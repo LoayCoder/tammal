@@ -22,13 +22,13 @@ export default function MoodTrackerPage() {
       <div className="min-h-screen bg-background">
         <div className="bg-card border-b border-border px-4 py-5 sm:px-6">
           <div className="max-w-4xl mx-auto flex items-center gap-3">
-            <Skeleton className="w-10 h-10 rounded-2xl" />
+            <Skeleton className="w-10 h-10 rounded-lg" />
             <div className="space-y-2"><Skeleton className="h-5 w-40" /><Skeleton className="h-4 w-60" /></div>
           </div>
         </div>
         <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-2xl" />)}</div>
-          <Skeleton className="h-64 rounded-2xl" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-lg" />)}</div>
+          <Skeleton className="h-64 rounded-lg" />
         </div>
       </div>
     );
@@ -56,7 +56,7 @@ export default function MoodTrackerPage() {
 
       <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 space-y-6">
         {noData ? (
-          <Card className="glass-card border-0 rounded-2xl border-dashed">
+          <Card className="glass-card border-0 rounded-lg border-dashed">
             <CardContent className="py-10 text-center space-y-2">
               <SmilePlus className="h-12 w-12 mx-auto text-muted-foreground" />
               <p className="text-lg font-semibold text-foreground">{t("mentalToolkit.moodDashboard.noDataYet")}</p>

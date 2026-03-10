@@ -32,7 +32,7 @@ export function DashboardEndorsementRequests() {
   });
 
   if (requestsPending) {
-    return <Skeleton className="h-24 w-full rounded-2xl" />;
+    return <Skeleton className="h-24 w-full rounded-lg" />;
   }
 
   if (myEndorsementRequests.length === 0) return null;
@@ -42,7 +42,7 @@ export function DashboardEndorsementRequests() {
       {myEndorsementRequests.map(n => (
         <Card
           key={n.id}
-          className="group relative overflow-hidden border-0 glass-card rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.01]"
+          className="group relative overflow-hidden border-0 glass-card rounded-lg cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.01]"
           onClick={() => navigate('/recognition/my-nominations?tab=endorse')}
         >
           {/* Gradient accent stripe on the start edge */}

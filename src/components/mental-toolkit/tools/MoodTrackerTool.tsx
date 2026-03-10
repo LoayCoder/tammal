@@ -74,7 +74,7 @@ export default function MoodTrackerTool() {
   });
 
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       {/* Header */}
       <div className="px-5 py-4 border-b border-border bg-toolkit-lavender/15">
         <div className="flex items-center gap-2">
@@ -93,7 +93,7 @@ export default function MoodTrackerTool() {
             <button
               key={e.score}
               onClick={() => setSelectedScore(e.score)}
-              className={`flex-1 flex flex-col items-center gap-1 py-3 rounded-2xl border-2 transition-all duration-200 ${
+              className={`flex-1 flex flex-col items-center gap-1 py-3 rounded-lg border-2 transition-all duration-200 ${
                 selectedScore === e.score
                   ? "border-toolkit-lavender bg-toolkit-lavender/20 scale-105"
                   : "border-border bg-background hover:bg-muted"

@@ -199,7 +199,7 @@ export default function PsychoeducationArticles() {
 
   if (selected) {
     return (
-      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden animate-in slide-in-from-bottom duration-300">
+      <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden animate-in slide-in-from-bottom duration-300">
         <div className="px-5 py-4 border-b border-border flex items-center gap-3">
           <button onClick={() => setSelected(null)} className="text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-5 w-5" />
@@ -227,7 +227,7 @@ export default function PsychoeducationArticles() {
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       <div className="px-5 py-4 border-b border-border bg-gradient-to-br from-toolkit-gold/20 to-toolkit-lavender/10">
         <div className="flex items-center gap-2">
           <span className="text-2xl">📚</span>
@@ -243,7 +243,7 @@ export default function PsychoeducationArticles() {
           <button
             key={article.id}
             onClick={() => setSelected(article)}
-            className="w-full rounded-2xl border border-border bg-background hover:bg-muted text-start p-4 transition-all hover:shadow-md hover:-translate-y-0.5 space-y-2"
+            className="w-full rounded-lg border border-border bg-background hover:bg-muted text-start p-4 transition-all hover:shadow-md hover:-translate-y-0.5 space-y-2"
           >
             <div className="flex items-start justify-between gap-2">
               <p className="font-semibold text-foreground text-sm">{article.title}</p>

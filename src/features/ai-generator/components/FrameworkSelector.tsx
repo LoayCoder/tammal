@@ -169,7 +169,7 @@ export function FrameworkSelector({
           ) : frameworks.length === 0 ? (
             /* Empty state */
             <div className="flex flex-col items-center justify-center py-8 text-center space-y-3">
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center">
                 <BookOpen className="h-7 w-7 text-primary/60" />
               </div>
               <div className="space-y-1">

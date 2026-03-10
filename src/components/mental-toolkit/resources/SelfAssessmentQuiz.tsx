@@ -166,7 +166,7 @@ export default function SelfAssessmentQuiz() {
   // Quiz selector
   if (!selectedQuiz) {
     return (
-      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+      <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-border bg-gradient-to-br from-toolkit-sky/20 to-toolkit-sage/10">
           <div className="flex items-center gap-2">
             <span className="text-2xl">📋</span>
@@ -181,7 +181,7 @@ export default function SelfAssessmentQuiz() {
             <button
               key={quiz.id}
               onClick={() => handleStart(quiz)}
-              className="rounded-2xl border border-border bg-background hover:bg-muted text-start p-4 transition-all hover:shadow-md hover:-translate-y-0.5 space-y-2"
+              className="rounded-lg border border-border bg-background hover:bg-muted text-start p-4 transition-all hover:shadow-md hover:-translate-y-0.5 space-y-2"
             >
               <div className="text-3xl">{t(`mentalToolkit.quiz.quizzes.${quiz.id}.emoji`)}</div>
               <p className="font-semibold text-foreground text-sm">{t(`mentalToolkit.quiz.quizzes.${quiz.id}.name`)}</p>
@@ -199,7 +199,7 @@ export default function SelfAssessmentQuiz() {
   // Result screen
   if (result) {
     return (
-      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden animate-in fade-in duration-300">
+      <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden animate-in fade-in duration-300">
         <div className="px-5 py-4 border-b border-border">
           <h2 className="font-semibold text-foreground">{t(`mentalToolkit.quiz.quizzes.${selectedQuiz.id}.name`)} — Results</h2>
         </div>
@@ -216,7 +216,7 @@ export default function SelfAssessmentQuiz() {
           </div>
 
           {/* Message */}
-          <div className="rounded-2xl p-4 space-y-1" style={{ background: result.color + "20", border: `1px solid ${result.color}` }}>
+          <div className="rounded-lg p-4 space-y-1" style={{ background: result.color + "20", border: `1px solid ${result.color}` }}>
             <p className="text-sm text-foreground leading-relaxed">{result.message}</p>
           </div>
 
@@ -239,7 +239,7 @@ export default function SelfAssessmentQuiz() {
   // Question screen
   const progress = (currentQ / selectedQuiz.questions.length) * 100;
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden animate-in fade-in duration-300">
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden animate-in fade-in duration-300">
       <div className="px-5 py-4 border-b border-border">
         <div className="flex items-center justify-between mb-2">
           <h2 className="font-semibold text-foreground text-sm">{t(`mentalToolkit.quiz.quizzes.${selectedQuiz.id}.name`)}</h2>
