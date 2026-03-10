@@ -39,10 +39,14 @@ export function TeamTaskFilters({ filters, onChange, employees }: TeamTaskFilter
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">{t('common.all')}</SelectItem>
-          <SelectItem value="todo">{t('workload.tasks.statusTodo')}</SelectItem>
-          <SelectItem value="in_progress">{t('workload.tasks.statusInProgress')}</SelectItem>
-          <SelectItem value="done">{t('common.done')}</SelectItem>
-          <SelectItem value="blocked">{t('workload.tasks.statusBlocked')}</SelectItem>
+          <SelectItem value="draft">{t('tasks.status.draft')}</SelectItem>
+          <SelectItem value="open">{t('tasks.status.open')}</SelectItem>
+          <SelectItem value="in_progress">{t('tasks.status.in_progress')}</SelectItem>
+          <SelectItem value="under_review">{t('tasks.status.under_review')}</SelectItem>
+          <SelectItem value="pending_approval">{t('tasks.status.pending_approval')}</SelectItem>
+          <SelectItem value="completed">{t('tasks.status.completed')}</SelectItem>
+          <SelectItem value="rejected">{t('tasks.status.rejected')}</SelectItem>
+          <SelectItem value="archived">{t('tasks.status.archived')}</SelectItem>
         </SelectContent>
       </Select>
       <Select value={filters.priority} onValueChange={v => set('priority', v)}>

@@ -65,11 +65,11 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
 
   // Compute derived status from progress
   const computeStatus = (prog: number, currentStatus: string) => {
-    if (currentStatus === 'verified') return 'verified';
-    if (currentStatus === 'blocked') return 'blocked';
     if (prog >= 100) return 'completed';
-    if (prog > 0) return 'in_progress';
-    return currentStatus === 'todo' ? 'open' : (currentStatus || 'open');
+    if (prog > 0 && ['draft', 'open'].includes(currentStatus)) return 'in_progress';
+    // Map legacy statuses
+    if (currentStatus === 'todo' || currentStatus === 'blocked') return 'open';
+    return currentStatus || 'open';
   };
 
   const watchedStatus = watch('status');
@@ -155,7 +155,9 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
 
   const handleMarkVerified = () => {
     if (!task) return;
-    onUpdate({ id: task.id, status: 'verified' } as UnifiedTaskUpdate);
+    // Store verification in metadata instead of invalid status
+    onUpdate({ id: task.id, metadata: { ...(task.metadata as Record<string, unknown> ?? {}), verified: true } } as UnifiedTaskUpdate);
+    toast.success(t('workload.tasks.verified'));
     onOpenChange(false);
   };
 
@@ -164,7 +166,7 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
   const hasApprovedEvidence = evidence.some(e => e.status === 'approved');
   const hasAnyEvidence = evidence.length > 0;
   const isCompleted = task?.status === 'completed';
-  const isVerified = task?.status === 'verified';
+  const isVerified = !!(task?.metadata as Record<string, unknown>)?.verified;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -211,7 +213,16 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
             <div className="space-y-2">
               <Label>{t('common.status')}</Label>
               <div className="flex items-center gap-2 h-10 px-3 rounded-md border bg-muted/30 text-sm">
-                {t(`workload.status.${computeStatus(progress, watchedStatus) === 'todo' ? 'planned' : computeStatus(progress, watchedStatus) === 'in_progress' ? 'inProgress' : computeStatus(progress, watchedStatus) === 'completed' ? 'completed' : computeStatus(progress, watchedStatus) === 'verified' ? 'completed' : 'blocked'}`)}
+                {t(`workload.status.${({
+                  draft: 'planned',
+                  open: 'planned',
+                  in_progress: 'inProgress',
+                  under_review: 'underReview',
+                  pending_approval: 'pendingApproval',
+                  completed: 'completed',
+                  rejected: 'rejected',
+                  archived: 'archived',
+                } as Record<string, string>)[computeStatus(progress, watchedStatus)] ?? 'planned'}`)}
               </div>
             </div>
           </div>
@@ -237,14 +248,18 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
             </div>
           )}
 
-          {/* Blocked toggle */}
+          {/* Blocked indicator via metadata */}
           {isEdit && (
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 id="blocked-toggle"
-                checked={watchedStatus === 'blocked'}
-                onChange={(e) => setValue('status', e.target.checked ? 'blocked' : 'draft')}
+                checked={!!(task?.metadata as Record<string, unknown>)?.is_blocked}
+                onChange={(e) => {
+                  if (task) {
+                    onUpdate({ id: task.id, metadata: { ...(task.metadata as Record<string, unknown> ?? {}), is_blocked: e.target.checked } } as UnifiedTaskUpdate);
+                  }
+                }}
                 className="rounded"
                 disabled={isVerified}
               />

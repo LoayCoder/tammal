@@ -37,14 +37,11 @@ const PRIORITY_COLORS: Record<number, string> = {
 const STATUS_BADGE: Record<string, { className: string; icon: typeof CheckCircle2 | null; label: string }> = {
   draft: { className: 'bg-muted text-muted-foreground', icon: null, label: 'Draft' },
   open: { className: 'bg-chart-2/10 text-chart-2', icon: null, label: 'Open' },
-  todo: { className: 'bg-muted text-muted-foreground', icon: null, label: 'Planned' },
   in_progress: { className: 'bg-chart-2/10 text-chart-2', icon: null, label: 'In Progress' },
   under_review: { className: 'bg-chart-4/10 text-chart-4', icon: null, label: 'Under Review' },
   pending_approval: { className: 'bg-chart-5/10 text-chart-5', icon: null, label: 'Pending Approval' },
   completed: { className: 'bg-chart-1/10 text-chart-1', icon: CheckCircle2, label: 'Completed' },
-  verified: { className: 'bg-primary/10 text-primary', icon: ShieldCheck, label: 'Verified' },
   rejected: { className: 'bg-destructive/10 text-destructive', icon: null, label: 'Rejected' },
-  blocked: { className: 'bg-destructive/10 text-destructive', icon: null, label: 'Blocked' },
   archived: { className: 'bg-muted text-muted-foreground', icon: null, label: 'Archived' },
 };
 
@@ -62,12 +59,13 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
   return (
     <div className="divide-y divide-border/50">
       {tasks.map((task) => {
-        const isCompleted = task.status === 'completed' || task.status === 'verified';
+        const isCompleted = task.status === 'completed';
+        const isVerified = !!(task.metadata as Record<string, unknown>)?.verified;
         const source = SOURCE_LABELS[task.source_type] ?? SOURCE_LABELS.manual;
         const priorityClass = PRIORITY_COLORS[task.priority] ?? PRIORITY_COLORS[3];
         const isLocked = task.is_locked;
         const commentCount = task.comments?.length ?? 0;
-        const statusInfo = STATUS_BADGE[task.status] ?? STATUS_BADGE.todo;
+        const statusInfo = STATUS_BADGE[task.status] ?? STATUS_BADGE.draft;
         const StatusIcon = statusInfo.icon;
 
         return (
@@ -79,7 +77,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
             {/* Progress circle */}
             <div className="mt-1 shrink-0 flex flex-col items-center gap-0.5">
               <div className="relative h-9 w-9 rounded-full border-2 border-border flex items-center justify-center text-2xs font-bold">
-                {task.status === 'verified' ? (
+                {isVerified ? (
                   <ShieldCheck className="h-4 w-4 text-primary" />
                 ) : task.status === 'completed' ? (
                   <CheckCircle2 className="h-4 w-4 text-chart-1" />
@@ -122,7 +120,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
               )}
 
               {/* Progress bar */}
-              {task.progress > 0 && task.status !== 'verified' && (
+              {task.progress > 0 && !isVerified && (
                 <Progress value={task.progress} className="h-1.5" />
               )}
 
@@ -138,7 +136,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
                   </span>
                 )}
                 {task.due_date && (
-                  <span className={`flex items-center gap-1 ${task.due_date.split('T')[0] < new Date().toISOString().split('T')[0] && task.status !== 'completed' && task.status !== 'verified' ? 'text-destructive font-medium' : ''}`}>
+                  <span className={`flex items-center gap-1 ${task.due_date.split('T')[0] < new Date().toISOString().split('T')[0] && !isCompleted ? 'text-destructive font-medium' : ''}`}>
                     → {new Date(task.due_date).toLocaleDateString()}
                   </span>
                 )}

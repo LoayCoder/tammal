@@ -34,8 +34,8 @@ export default function PersonalCommandCenter() {
 
   const stats = useMemo(() => {
     const todayStr = new Date().toISOString().split('T')[0];
-    const active = tasks.filter(t => !['completed', 'verified', 'archived'].includes(t.status));
-    const completed = tasks.filter(t => t.status === 'completed' || t.status === 'verified');
+    const active = tasks.filter(t => !['completed', 'archived'].includes(t.status));
+    const completed = tasks.filter(t => t.status === 'completed');
     const overdue = active.filter(t => t.due_date && t.due_date.split('T')[0] < todayStr);
     const scheduledMinutes = active.reduce((sum, t) => sum + (t.estimated_minutes ?? 0), 0);
     return { active, completed, overdue, scheduledMinutes };
