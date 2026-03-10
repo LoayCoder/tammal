@@ -99,7 +99,7 @@ export default function EmployeeHome() {
         {todayEntry && (
           <Card className="glass-card border-0 ring-1 ring-chart-1/20">
             <CardContent className="flex items-center gap-4 p-6">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-chart-1/10 text-2xl">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-chart-1/10 text-2xl">
                 {MOOD_EMOJIS[todayEntry.level] || '✅'}
               </div>
               <div className="flex-1 min-w-0">
