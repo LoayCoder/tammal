@@ -3473,7 +3473,15 @@
         "pending": "Pending Approval",
         "approved": "Manager Approved",
         "rejected": "Manager Rejected"
-      }
+      },
+      "notifyNomineeReceived": "{{nominator}} nominated you!",
+      "notifyNomineeReceivedBody": "You've been nominated for \"{{headline}}\"",
+      "notifyNomineeApproved": "Your nomination has been approved!",
+      "notifyNomineeApprovedBody": "Your nomination for \"{{headline}}\" was approved by the manager",
+      "notifyNomineeRejected": "Your nomination was not approved",
+      "notifyNomineeRejectedBody": "Your nomination for \"{{headline}}\" was not approved by the manager",
+      "notifyAwardWon": "Congratulations! You placed #{{rank}}",
+      "notifyAwardWonBody": "You placed #{{rank}} in \"{{theme}}\""
     },
     "endorsements": {
       "title": "Peer Endorsements",

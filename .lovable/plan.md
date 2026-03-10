@@ -1,59 +1,87 @@
+# Enterprise Task Management — Architecture Audit
 
+## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
-## What Should Happen After Nominating alshehri.sa@hotmail.com — And What's Missing
+---
 
-### Current State
-- alshehri.sa@hotmail.com was nominated and the nomination is already **shortlisted** in an **announced** cycle
-- The nominee has **zero recognition notifications** — they were never told they were nominated
+## 1. Folder Architecture — ✅ PASS
 
-### The Problem
-The nomination workflow **never notifies the nominee** that they've been nominated. Notifications are only sent for:
-- Endorsement requests (to endorsers)
-- Manager approval flow
-
-The nominee only discovers they were nominated if they manually navigate to My Nominations → Received tab.
-
-### What Should Happen After Nomination
+The project follows a clean modular structure:
 
 ```text
-Nomination Submitted
-  ├─ [MISSING] Notify nominee: "You've been nominated!"
-  ├─ If manager approval required → Manager gets approval card
-  │     ├─ Manager approves → status: endorsed
-  │     │     └─ [MISSING] Notify nominee: "Your nomination was approved"
-  │     └─ Manager rejects → [MISSING] Notify nominee: "Nomination not approved"
-  ├─ Endorsement requests sent to selected colleagues
-  └─ When cycle results announced
-        └─ [MISSING] Notify winners: "Congratulations! You won!"
+src/
+  ai/          — Isolated AI client, prompts, guards, quality
+  components/  — UI components
+  config/      — Centralized constants
+  features/    — Feature modules (tasks, approvals, workload, etc.)
+  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
+  services/    — Pure async business services (no UI imports)
+  types/       — Shared type definitions
 ```
 
-### Proposed Fix: Add Missing Notifications
+**Layer separation checks:**
+- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
+- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
+- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
+- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
 
-**1. Notify nominee on nomination submission** (`useNominations.ts`)
-After creating a nomination, insert a `recognition_notification` for the nominee:
-- Type: `nomination_received`
-- Title: "{nominator name} nominated you!"
-- Body: "You've been nominated for '{headline}'"
+---
 
-**2. Notify nominee on manager approval/rejection** (`useNominationApprovals.ts`)
-After manager approves or rejects, notify the nominee:
-- Approve type: `nomination_approved`
-- Reject type: `nomination_rejected`
+## 2. Feature Isolation — ✅ PASS
 
-**3. Notify winners on results announcement** (`calculate-recognition-results/index.ts`)
-After results are calculated, notify the top 3 nominees per theme:
-- Type: `award_won`
-- Title: "Congratulations! You placed #{rank}"
+| Module | Location | Status |
+|---|---|---|
+| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
+| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
+| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
+| AI Governance | `src/features/ai-governance/` | ✅ |
+| AI Generator | `src/features/ai-generator/` | ✅ |
+| Org Dashboard | `src/features/org-dashboard/` | ✅ |
+| Cycle Builder | `src/features/cycle-builder/` | ✅ |
 
-**4. Register new notification types in the bell** (`UnifiedNotificationBell.tsx`)
-Add icons and colors for the new types: `nomination_received`, `nomination_approved`, `nomination_rejected`, `award_won`
+**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
 
-**5. Add i18n keys** for all new notification strings
+---
 
-### Files to Change
-- `src/hooks/recognition/useNominations.ts` — send nominee notification on create
-- `src/hooks/recognition/useNominationApprovals.ts` — send nominee notification on approve/reject
-- `supabase/functions/calculate-recognition-results/index.ts` — send winner notifications
-- `src/components/notifications/UnifiedNotificationBell.tsx` — register new notification types
-- Translation files (en/ar)
+## 3. Backend Architecture — ✅ PASS
 
+- **35 edge functions** properly separate API routes from client code
+- **Services layer** (`src/services/`) handles business logic
+- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
+- Database access centralized through the Supabase client
+
+---
+
+## 4. Supabase Integration — ✅ PASS
+
+- **Client centralized** in `src/integrations/supabase/client.ts`
+- **RLS enabled** on all task-related tables with `authenticated` role enforcement
+- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
+
+---
+
+## 5. Warnings
+
+### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
+
+Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
+`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
+
+### ⚠️ WARNING (low priority): Workload feature is a thin barrel
+
+`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
+
+---
+
+## Summary
+
+| Category | Result |
+|---|---|
+| Folder Architecture | ✅ PASS |
+| Feature Isolation | ✅ PASS |
+| Backend Architecture | ✅ PASS |
+| Supabase Integration | ✅ PASS |
+| Layer Separation | ✅ PASS (resolved) |
+| Workload Consolidation | ⚠️ Low-priority migration |
+
+**No FAIL conditions found.** Architecture is production-ready.

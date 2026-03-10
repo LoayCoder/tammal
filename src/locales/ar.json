@@ -3311,7 +3311,15 @@
         "pending": "بانتظار الموافقة",
         "approved": "وافق المدير",
         "rejected": "رفض المدير"
-      }
+      },
+      "notifyNomineeReceived": "{{nominator}} قام بترشيحك!",
+      "notifyNomineeReceivedBody": "تم ترشيحك لـ \"{{headline}}\"",
+      "notifyNomineeApproved": "تمت الموافقة على ترشيحك!",
+      "notifyNomineeApprovedBody": "تمت الموافقة على ترشيحك لـ \"{{headline}}\" من قبل المدير",
+      "notifyNomineeRejected": "لم تتم الموافقة على ترشيحك",
+      "notifyNomineeRejectedBody": "لم تتم الموافقة على ترشيحك لـ \"{{headline}}\" من قبل المدير",
+      "notifyAwardWon": "تهانينا! حصلت على المركز #{{rank}}",
+      "notifyAwardWonBody": "حصلت على المركز #{{rank}} في \"{{theme}}\""
     },
     "endorsements": {
       "title": "تزكيات الزملاء",

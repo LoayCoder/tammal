@@ -55,6 +55,10 @@ const CRISIS_ICONS: Record<string, typeof Bell> = {
 const RECOGNITION_ICONS: Record<string, typeof Bell> = {
   endorsement_requested: ThumbsUp,
   nomination_endorsed: Award,
+  nomination_received: UserPlus,
+  nomination_approved: CheckCircle2,
+  nomination_rejected: XCircle,
+  award_won: Award,
 };
 
 const TASK_COLORS: Record<string, string> = {
@@ -78,6 +82,10 @@ const CRISIS_COLORS: Record<string, string> = {
 const RECOGNITION_COLORS: Record<string, string> = {
   endorsement_requested: 'text-chart-2',
   nomination_endorsed: 'text-chart-1',
+  nomination_received: 'text-chart-2',
+  nomination_approved: 'text-chart-1',
+  nomination_rejected: 'text-destructive',
+  award_won: 'text-chart-5',
 };
 
 function normalizeTask(n: TaskNotification): UnifiedNotification {
@@ -107,6 +115,9 @@ function normalizeCrisis(n: CrisisNotification): UnifiedNotification {
 }
 
 function normalizeRecognition(n: RecognitionNotification): UnifiedNotification {
+  const navigateTo = n.type === 'endorsement_requested'
+    ? '/recognition/my-nominations?tab=endorse'
+    : '/recognition/my-nominations?tab=received';
   return {
     id: n.id,
     type: n.type,
@@ -115,7 +126,7 @@ function normalizeRecognition(n: RecognitionNotification): UnifiedNotification {
     is_read: n.is_read,
     created_at: n.created_at,
     source: 'recognition',
-    navigateTo: '/recognition/my-nominations?tab=endorse',
+    navigateTo,
   };
 }
 
