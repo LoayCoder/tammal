@@ -38,7 +38,7 @@ export default function CrisisSupport() {
   });
 
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       {/* Emergency Banner */}
       <div className="px-5 py-3 flex items-center gap-2 bg-destructive/10">
         <span className="text-lg">🚨</span>
