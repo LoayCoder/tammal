@@ -237,6 +237,30 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
               <p className="text-xs text-muted-foreground">{t('recognition.fairness.votingWeightAdjustmentLimitDesc')}</p>
             </div>
           </TabsContent>
+
+          {/* ── Rewards Tab ── */}
+          <TabsContent value="rewards" className="space-y-4 mt-0">
+            <p className="text-sm text-muted-foreground">{t('recognition.rewards.description')}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label>{t('recognition.rewards.firstPlace')}</Label>
+                <Input type="number" min={0} value={pointsConfig.first_place} onChange={(e) => updatePointsField('first_place', parseInt(e.target.value, 10) || 0)} />
+              </div>
+              <div className="space-y-1">
+                <Label>{t('recognition.rewards.secondPlace')}</Label>
+                <Input type="number" min={0} value={pointsConfig.second_place} onChange={(e) => updatePointsField('second_place', parseInt(e.target.value, 10) || 0)} />
+              </div>
+              <div className="space-y-1">
+                <Label>{t('recognition.rewards.thirdPlace')}</Label>
+                <Input type="number" min={0} value={pointsConfig.third_place} onChange={(e) => updatePointsField('third_place', parseInt(e.target.value, 10) || 0)} />
+              </div>
+              <div className="space-y-1">
+                <Label>{t('recognition.rewards.nominatorBonus')}</Label>
+                <Input type="number" min={0} value={pointsConfig.nominator_bonus} onChange={(e) => updatePointsField('nominator_bonus', parseInt(e.target.value, 10) || 0)} />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">{t('recognition.rewards.nominatorBonusDesc')}</p>
+          </TabsContent>
         </Tabs>
 
         <DialogFooter>

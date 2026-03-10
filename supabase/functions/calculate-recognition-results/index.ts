@@ -358,11 +358,21 @@ Deno.serve(async (req) => {
           .update({ status: 'shortlisted', endorsement_status: 'sufficient' })
           .in('id', top3NominationIds);
 
-        // Send award_won notifications to top 3 nominees
+        // Points configuration from cycle
+        const pointsConfig = (cycle.points_config || {}) as Record<string, number>;
+        const rankRewards: { amount: number; sourceType: string }[] = [
+          { amount: pointsConfig.first_place ?? 5000, sourceType: 'award_win' },
+          { amount: pointsConfig.second_place ?? 2000, sourceType: 'award_runner_up' },
+          { amount: pointsConfig.third_place ?? 1000, sourceType: 'award_finalist' },
+        ];
+        const nominatorBonus = pointsConfig.nominator_bonus ?? 200;
+
+        // Send award_won notifications + award points to top 3 nominees
         for (let i = 0; i < Math.min(3, nomineeScores.length); i++) {
           const ns = nomineeScores[i];
           const nom = themeNominations.find(n => n.id === ns.nomination_id);
           if (nom) {
+            // Notification
             await supabase.from('recognition_notifications').insert({
               tenant_id: cycle.tenant_id,
               user_id: nom.nominee_id,
@@ -371,6 +381,33 @@ Deno.serve(async (req) => {
               title: `Congratulations! You placed #${i + 1}`,
               body: `You placed #${i + 1} in "${theme.name}"`,
             });
+
+            // Award points to winner
+            const reward = rankRewards[i];
+            if (reward && reward.amount > 0) {
+              await supabase.from('points_transactions').insert({
+                user_id: nom.nominee_id,
+                tenant_id: cycle.tenant_id,
+                amount: reward.amount,
+                source_type: reward.sourceType,
+                source_id: nom.id,
+                status: 'credited',
+                description: `#${i + 1} place in "${theme.name}" — ${cycle.name}`,
+              });
+            }
+
+            // Award nominator bonus
+            if (nominatorBonus > 0 && nom.nominator_id) {
+              await supabase.from('points_transactions').insert({
+                user_id: nom.nominator_id,
+                tenant_id: cycle.tenant_id,
+                amount: nominatorBonus,
+                source_type: 'nominator_bonus',
+                source_id: nom.id,
+                status: 'credited',
+                description: `Nominator bonus — your nominee placed #${i + 1} in "${theme.name}"`,
+              });
+            }
           }
         }
       }
