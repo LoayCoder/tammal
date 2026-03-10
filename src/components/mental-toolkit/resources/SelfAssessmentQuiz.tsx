@@ -199,7 +199,7 @@ export default function SelfAssessmentQuiz() {
   // Result screen
   if (result) {
     return (
-      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden animate-in fade-in duration-300">
+      <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden animate-in fade-in duration-300">
         <div className="px-5 py-4 border-b border-border">
           <h2 className="font-semibold text-foreground">{t(`mentalToolkit.quiz.quizzes.${selectedQuiz.id}.name`)} — Results</h2>
         </div>
