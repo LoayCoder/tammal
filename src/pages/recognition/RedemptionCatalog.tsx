@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRedemptionCatalog, useRedemptionRequests } from '@/hooks/recognition/useRedemption';
 import { usePoints } from '@/hooks/recognition/usePoints';
@@ -5,7 +6,6 @@ import { RedemptionCard } from '@/components/recognition/RedemptionCard';
 import { PointsBalanceCard } from '@/components/recognition/PointsBalanceCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useState } from 'react';
 
 const CATEGORIES = ['all', 'time_off', 'cash_equivalent', 'experience', 'charity', 'merchandise'] as const;
 
@@ -52,7 +52,7 @@ export default function RedemptionCatalog() {
               key={option.id}
               option={option}
               balance={balance}
-              onRedeem={(id, cost) => redeem.mutate({ optionId: id, pointsCost: cost })}
+              onRedeem={(id, cost) => redeem.mutate({ optionId: id, pointsCost: cost, option })}
               isRedeeming={redeem.isPending}
             />
           ))}
