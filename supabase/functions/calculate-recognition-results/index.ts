@@ -52,6 +52,7 @@ Deno.serve(async (req) => {
     await supabase.from('award_cycles').update({ status: 'calculating' }).eq('id', cycle_id);
 
     const fairnessConfig = (cycle.fairness_config || {}) as Record<string, any>;
+    const shortlistCount = Math.min(Math.max(cycle.shortlist_count ?? 3, 1), 15);
 
     // 2. Get themes for cycle
     const { data: themes } = await supabase
@@ -182,12 +183,11 @@ Deno.serve(async (req) => {
       // --- Fairness Analysis ---
       const fairnessReport: Record<string, any> = {};
 
-      // Clique detection: check if nominator nominated someone who also nominated them
+      // Clique detection
       const biasDetection = fairnessConfig.biasDetection || fairnessConfig.bias_detection || {};
       const cliqueThreshold = biasDetection.cliqueThreshold || fairnessConfig.clique_threshold || 3;
       const cliqueWarnings: any[] = [];
       for (const nom of themeNominations) {
-        // Find reverse nominations: where this nominee nominated the original nominator
         const reverseNoms = nominations.filter(
           n => n.nominator_id === nom.nominee_id && n.nominee_id === nom.nominator_id
         );
@@ -222,6 +222,7 @@ Deno.serve(async (req) => {
         }
       }
       fairnessReport.anomalies = anomalies;
+
       // Demographic parity calculation
       const parityTarget = fairnessConfig.demographicParityTarget || fairnessConfig.demographic_parity_target || 0.8;
       const deptNomineeCounts: Record<string, { name: string; nominees: number; winners: number }> = {};
@@ -236,9 +237,9 @@ Deno.serve(async (req) => {
         deptNomineeCounts[deptKey].nominees++;
       }
 
-      // Count winners (top 3) by department
-      const top3Ids = nomineeScores.slice(0, 3).map(ns => ns.nomination_id);
-      for (const nomId of top3Ids) {
+      // Count winners (top N) by department
+      const topNIds = nomineeScores.slice(0, shortlistCount).map(ns => ns.nomination_id);
+      for (const nomId of topNIds) {
         const nom = themeNominations.find(n => n.id === nomId);
         if (!nom) continue;
         const info = nomineeDeptMap[nom.nominee_id];
@@ -249,7 +250,7 @@ Deno.serve(async (req) => {
       }
 
       const totalNominees = themeNominations.length;
-      const totalWinners = top3Ids.length;
+      const totalWinners = topNIds.length;
       const deptEntries = Object.entries(deptNomineeCounts);
 
       if (deptEntries.length < 2 || totalWinners === 0) {
@@ -350,25 +351,39 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Update nomination statuses after results are calculated
-      const top3NominationIds = nomineeScores.slice(0, 3).map(ns => ns.nomination_id);
-      if (top3NominationIds.length > 0) {
+      // Update nomination statuses — shortlist top N instead of hardcoded 3
+      const topNNominationIds = nomineeScores.slice(0, shortlistCount).map(ns => ns.nomination_id);
+      if (topNNominationIds.length > 0) {
         await supabase
           .from('nominations')
           .update({ status: 'shortlisted', endorsement_status: 'sufficient' })
-          .in('id', top3NominationIds);
+          .in('id', topNNominationIds);
 
-        // Points configuration from cycle
+        // Points configuration from cycle — supports dynamic place_1..place_15 keys
         const pointsConfig = (cycle.points_config || {}) as Record<string, number>;
-        const rankRewards: { amount: number; sourceType: string }[] = [
-          { amount: pointsConfig.first_place ?? 5000, sourceType: 'award_win' },
-          { amount: pointsConfig.second_place ?? 2000, sourceType: 'award_runner_up' },
-          { amount: pointsConfig.third_place ?? 1000, sourceType: 'award_finalist' },
-        ];
+        
+        // Map source types for ranks
+        const getSourceType = (rank: number): string => {
+          if (rank === 1) return 'award_win';
+          if (rank === 2) return 'award_runner_up';
+          return 'award_finalist';
+        };
+
+        // Get points for a given rank (1-indexed), falling back to legacy keys then 0
+        const getPointsForRank = (rank: number): number => {
+          // Try new dynamic key first: place_1, place_2, ...
+          if (pointsConfig[`place_${rank}`] !== undefined) return pointsConfig[`place_${rank}`];
+          // Fallback to legacy keys for ranks 1-3
+          if (rank === 1) return pointsConfig.first_place ?? 5000;
+          if (rank === 2) return pointsConfig.second_place ?? 2000;
+          if (rank === 3) return pointsConfig.third_place ?? 1000;
+          return 0;
+        };
+
         const nominatorBonus = pointsConfig.nominator_bonus ?? 200;
 
-        // Send award_won notifications + award points to top 3 nominees
-        for (let i = 0; i < Math.min(3, nomineeScores.length); i++) {
+        // Send award_won notifications + award points to top N nominees
+        for (let i = 0; i < Math.min(shortlistCount, nomineeScores.length); i++) {
           const ns = nomineeScores[i];
           const nom = themeNominations.find(n => n.id === ns.nomination_id);
           if (nom) {
@@ -383,13 +398,13 @@ Deno.serve(async (req) => {
             });
 
             // Award points to winner
-            const reward = rankRewards[i];
-            if (reward && reward.amount > 0) {
+            const rewardAmount = getPointsForRank(i + 1);
+            if (rewardAmount > 0) {
               await supabase.from('points_transactions').insert({
                 user_id: nom.nominee_id,
                 tenant_id: cycle.tenant_id,
-                amount: reward.amount,
-                source_type: reward.sourceType,
+                amount: rewardAmount,
+                source_type: getSourceType(i + 1),
                 source_id: nom.id,
                 status: 'credited',
                 description: `#${i + 1} place in "${theme.name}" — ${cycle.name}`,

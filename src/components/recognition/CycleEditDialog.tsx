@@ -66,10 +66,12 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
     voting_end: '',
     announcement_date: '',
     audit_review_days: 3,
+    shortlist_count: 3,
+    require_acknowledgment: true,
   });
 
   const [fairness, setFairness] = useState<FairnessSettings>({ ...DEFAULT_FAIRNESS });
-  const [pointsConfig, setPointsConfig] = useState({
+  const [pointsConfig, setPointsConfig] = useState<Record<string, number>>({
     first_place: 5000, second_place: 2000, third_place: 1000, nominator_bonus: 200,
   });
 
@@ -85,22 +87,35 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
         voting_end: cycle.voting_end?.slice(0, 16) ?? '',
         announcement_date: cycle.announcement_date?.slice(0, 16) ?? '',
         audit_review_days: cycle.audit_review_days ?? 3,
+        shortlist_count: cycle.shortlist_count ?? 3,
+        require_acknowledgment: cycle.require_acknowledgment ?? true,
       });
       setFairness(parseFairnessConfig(cycle.fairness_config));
-      const pc = (cycle as any).points_config as Record<string, number> | null;
-      if (pc) {
-        setPointsConfig({
-          first_place: pc.first_place ?? 5000,
-          second_place: pc.second_place ?? 2000,
-          third_place: pc.third_place ?? 1000,
-          nominator_bonus: pc.nominator_bonus ?? 200,
-        });
+      const pc = (cycle.points_config || {}) as Record<string, number>;
+      // Build points config supporting dynamic place_N keys
+      const scCount = cycle.shortlist_count ?? 3;
+      const newPc: Record<string, number> = { nominator_bonus: pc.nominator_bonus ?? 200 };
+      for (let i = 1; i <= scCount; i++) {
+        const key = `place_${i}`;
+        // Fallback to legacy keys for 1-3
+        if (pc[key] !== undefined) {
+          newPc[key] = pc[key];
+        } else if (i === 1) {
+          newPc[key] = pc.first_place ?? 5000;
+        } else if (i === 2) {
+          newPc[key] = pc.second_place ?? 2000;
+        } else if (i === 3) {
+          newPc[key] = pc.third_place ?? 1000;
+        } else {
+          newPc[key] = 0;
+        }
       }
+      setPointsConfig(newPc);
       setActiveTab('basics');
     }
   }, [cycle]);
 
-  const updateField = useCallback((key: string, value: string | number) => {
+  const updateField = useCallback((key: string, value: string | number | boolean) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   }, []);
 
@@ -241,22 +256,56 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
           {/* ── Rewards Tab ── */}
           <TabsContent value="rewards" className="space-y-4 mt-0">
             <p className="text-sm text-muted-foreground">{t('recognition.rewards.description')}</p>
+            
+            {/* Shortlist settings */}
+            <div className="space-y-2">
+              <Label>{t('recognition.shortlist.shortlistCount')}: {form.shortlist_count}</Label>
+              <Slider
+                value={[form.shortlist_count]}
+                onValueChange={([v]) => {
+                  updateField('shortlist_count', v);
+                  // Adjust points config to match new count
+                  setPointsConfig(prev => {
+                    const next = { ...prev };
+                    for (let i = 1; i <= v; i++) {
+                      if (next[`place_${i}`] === undefined) next[`place_${i}`] = 0;
+                    }
+                    // Remove keys above new count
+                    for (let i = v + 1; i <= 15; i++) {
+                      delete next[`place_${i}`];
+                    }
+                    return next;
+                  });
+                }}
+                min={1} max={15} step={1}
+              />
+              <p className="text-xs text-muted-foreground">{t('recognition.shortlist.shortlistCountDesc')}</p>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label>{t('recognition.shortlist.requireAcknowledgment')}</Label>
+              <Switch
+                checked={form.require_acknowledgment}
+                onCheckedChange={(v) => updateField('require_acknowledgment', v)}
+              />
+            </div>
+
+            {/* Dynamic points per rank */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label>{t('recognition.rewards.firstPlace')}</Label>
-                <Input type="number" min={0} value={pointsConfig.first_place} onChange={(e) => updatePointsField('first_place', parseInt(e.target.value, 10) || 0)} />
-              </div>
-              <div className="space-y-1">
-                <Label>{t('recognition.rewards.secondPlace')}</Label>
-                <Input type="number" min={0} value={pointsConfig.second_place} onChange={(e) => updatePointsField('second_place', parseInt(e.target.value, 10) || 0)} />
-              </div>
-              <div className="space-y-1">
-                <Label>{t('recognition.rewards.thirdPlace')}</Label>
-                <Input type="number" min={0} value={pointsConfig.third_place} onChange={(e) => updatePointsField('third_place', parseInt(e.target.value, 10) || 0)} />
-              </div>
+              {Array.from({ length: form.shortlist_count }, (_, i) => i + 1).map(rank => (
+                <div key={rank} className="space-y-1">
+                  <Label>{t('recognition.shortlist.placePoints', { rank })}</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={pointsConfig[`place_${rank}`] ?? 0}
+                    onChange={(e) => updatePointsField(`place_${rank}`, parseInt(e.target.value, 10) || 0)}
+                  />
+                </div>
+              ))}
               <div className="space-y-1">
                 <Label>{t('recognition.rewards.nominatorBonus')}</Label>
-                <Input type="number" min={0} value={pointsConfig.nominator_bonus} onChange={(e) => updatePointsField('nominator_bonus', parseInt(e.target.value, 10) || 0)} />
+                <Input type="number" min={0} value={pointsConfig.nominator_bonus ?? 200} onChange={(e) => updatePointsField('nominator_bonus', parseInt(e.target.value, 10) || 0)} />
               </div>
             </div>
             <p className="text-xs text-muted-foreground">{t('recognition.rewards.nominatorBonusDesc')}</p>

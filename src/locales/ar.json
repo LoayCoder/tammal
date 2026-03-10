@@ -3214,7 +3214,17 @@
       "secondPlace": "نقاط المركز الثاني",
       "thirdPlace": "نقاط المركز الثالث",
       "nominatorBonus": "مكافأة المرشِّح",
-      "nominatorBonusDesc": "نقاط إضافية تُمنح لمرشحي أفضل 3 فائزين لكل محور."
+      "nominatorBonusDesc": "نقاط إضافية تُمنح لمرشحي الفائزين المختارين لكل محور."
+    },
+    "shortlist": {
+      "shortlistCount": "حجم القائمة المختصرة",
+      "shortlistCountDesc": "عدد المرشحين المختارين لكل محور (1-15)",
+      "requireAcknowledgment": "يتطلب تأكيد الاستلام",
+      "placePoints": "نقاط المركز #{{rank}}",
+      "youPlaced": "حصلت على المركز #{{rank}}!",
+      "acknowledge": "تأكيد الاستلام",
+      "acknowledged": "تم تأكيد الاستلام بنجاح",
+      "acknowledgeError": "فشل تأكيد الاستلام"
     },
     "criteriaEval": {
       "title": "تقييم المعايير",

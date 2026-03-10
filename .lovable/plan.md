@@ -1,66 +1,87 @@
+# Enterprise Task Management — Architecture Audit
 
+## Overall Verdict: **PASS with 1 WARNING** (was 2, 1 resolved)
 
-## Shortlisted Display on Dashboard with Acknowledgment
+---
 
-### What the user wants
-1. When a nominee is **shortlisted** (placed in top rankings), show a prominent card on their **Employee Dashboard** (EmployeeHome)
-2. The nominee must **click an acknowledgment button** to confirm they've seen their placement
-3. Support up to **top 15 placements** (not just top 3)
-4. All related settings (shortlist count, acknowledgment requirement, rewards tiers) should be **configurable during award cycle creation**
+## 1. Folder Architecture — ✅ PASS
 
-### Current State
-- The edge function hardcodes top 3 for shortlisting, notifications, and points
-- No acknowledgment tracking exists (no `acknowledged_at` column)
-- No dashboard widget for shortlisted nominees
-- Cycle builder has no setting for shortlist count or acknowledgment toggle
-- `points_config` only has `first_place`, `second_place`, `third_place`
+The project follows a clean modular structure:
 
-### Database Changes
-
-**1. Add columns to `award_cycles`**
-```sql
-ALTER TABLE award_cycles
-ADD COLUMN shortlist_count integer DEFAULT 3,
-ADD COLUMN require_acknowledgment boolean DEFAULT true;
+```text
+src/
+  ai/          — Isolated AI client, prompts, guards, quality
+  components/  — UI components
+  config/      — Centralized constants
+  features/    — Feature modules (tasks, approvals, workload, etc.)
+  hooks/       — Domain-grouped hooks (auth, org, workload, etc.)
+  services/    — Pure async business services (no UI imports)
+  types/       — Shared type definitions
 ```
 
-**2. Add acknowledgment column to `nominee_rankings`**
-```sql
-ALTER TABLE nominee_rankings
-ADD COLUMN acknowledged_at timestamptz DEFAULT NULL;
-```
+**Layer separation checks:**
+- **Services contain no UI code** — ✅ All 12 service files import only `supabase/client` and sibling services
+- **Hooks do not import UI components** — ✅ Zero matches for component imports inside `src/hooks/`
+- **AI modules isolated** — ✅ Dedicated `src/ai/` with client, prompts, guards, quality, types
+- **No circular dependencies between feature modules** — ✅ `features/tasks` and `features/approvals` have zero cross-imports
 
-### Edge Function Update (`calculate-recognition-results/index.ts`)
-- Replace hardcoded `3` with `cycle.shortlist_count` (default 3, max 15)
-- Shortlist top N nominations instead of just top 3
-- Send `award_won` notifications to all top N
-- Distribute points: use `points_config` with keys `place_1` through `place_15`, falling back to 0 for unconfigured ranks
+---
 
-### Cycle Builder Changes
+## 2. Feature Isolation — ✅ PASS
 
-**Add "Results" settings to cycle creation and edit dialogs:**
-- **Shortlist count** (1-15 slider) — how many nominees are shortlisted per theme
-- **Require acknowledgment** toggle — whether nominees must acknowledge their placement
-- **Points per rank** — dynamic list of point inputs based on shortlist count (e.g., if shortlist_count = 5, show 5 point fields)
-- **Nominator bonus** — stays as-is
+| Module | Location | Status |
+|---|---|---|
+| Tasks | `src/features/tasks/` (hooks, components, pages, constants) | ✅ |
+| Approvals | `src/features/approvals/` (hooks, types) | ✅ |
+| Workload | `src/features/workload/` (barrel re-exporting 26 hooks) | ✅ |
+| AI Governance | `src/features/ai-governance/` | ✅ |
+| AI Generator | `src/features/ai-generator/` | ✅ |
+| Org Dashboard | `src/features/org-dashboard/` | ✅ |
+| Cycle Builder | `src/features/cycle-builder/` | ✅ |
 
-### New Dashboard Widget (`DashboardShortlistWidget.tsx`)
-- Query `nominee_rankings` joined with `nominations` where `nominations.nominee_id = current_user_id` and `acknowledged_at IS NULL`
-- Show a celebratory card per placement with:
-  - Rank number, theme name, cycle name
-  - Points earned
-  - **"Acknowledge" button** that updates `nominee_rankings.acknowledged_at = now()`
-- If `require_acknowledgment = false`, still show the card but without the mandatory acknowledge button (just informational)
-- Place it on `EmployeeHome.tsx` below endorsement requests, above voting widget
+**Not present as feature modules:** `notifications`, `ai-recommendations`. These are handled by hooks (`src/hooks/`) and edge functions respectively, which is acceptable given their cross-cutting nature.
 
-### Files to Change
-- **Database migration**: Add `shortlist_count`, `require_acknowledgment` to `award_cycles`; add `acknowledged_at` to `nominee_rankings`
-- **`supabase/functions/calculate-recognition-results/index.ts`**: Use dynamic shortlist count
-- **`src/features/cycle-builder/types.ts`**: Add shortlist_count and require_acknowledgment to defaults
-- **`src/features/cycle-builder/components/CycleBasicsTab.tsx`** or new tab: Add shortlist/acknowledgment settings
-- **`src/components/recognition/CycleEditDialog.tsx`**: Add shortlist/acknowledgment fields to Rewards tab
-- **`src/components/dashboard/DashboardShortlistWidget.tsx`** (new): Shortlist acknowledgment card
-- **`src/pages/EmployeeHome.tsx`**: Import and render the new widget
-- **`src/hooks/recognition/useAwardCycles.ts`**: Update AwardCycle type
-- **Translation files**: New keys for shortlist settings and acknowledgment UI
+---
 
+## 3. Backend Architecture — ✅ PASS
+
+- **35 edge functions** properly separate API routes from client code
+- **Services layer** (`src/services/`) handles business logic
+- **AI modules** isolated in both `src/ai/` (client-side) and dedicated edge functions (`task-ai-engine`, `workload-ai`, `ai-governance`)
+- Database access centralized through the Supabase client
+
+---
+
+## 4. Supabase Integration — ✅ PASS
+
+- **Client centralized** in `src/integrations/supabase/client.ts`
+- **RLS enabled** on all task-related tables with `authenticated` role enforcement
+- **Multi-tenant** via `tenant_id` columns + `get_user_tenant_id(auth.uid())` in policies
+
+---
+
+## 5. Warnings
+
+### ✅ RESOLVED: Direct Supabase import in EmployeeSheet.tsx
+
+Extracted inline `useQuery` + `supabase` call into `src/hooks/org/useManagerEligibleUserIds.ts`.
+`EmployeeSheet.tsx` now imports only the hook — zero direct Supabase references in UI components (excluding acceptable `supabase.auth.*` in profile dialogs).
+
+### ⚠️ WARNING (low priority): Workload feature is a thin barrel
+
+`src/features/workload/index.ts` re-exports 26 hooks from `src/hooks/workload/` but has no local components or pages. This is a valid intermediate step but a full migration would co-locate hooks with the feature module.
+
+---
+
+## Summary
+
+| Category | Result |
+|---|---|
+| Folder Architecture | ✅ PASS |
+| Feature Isolation | ✅ PASS |
+| Backend Architecture | ✅ PASS |
+| Supabase Integration | ✅ PASS |
+| Layer Separation | ✅ PASS (resolved) |
+| Workload Consolidation | ⚠️ Low-priority migration |
+
+**No FAIL conditions found.** Architecture is production-ready.

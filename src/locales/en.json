@@ -3376,7 +3376,17 @@
       "secondPlace": "2nd Place Points",
       "thirdPlace": "3rd Place Points",
       "nominatorBonus": "Nominator Bonus",
-      "nominatorBonusDesc": "Bonus points awarded to nominators of top 3 winners per theme."
+      "nominatorBonusDesc": "Bonus points awarded to nominators of shortlisted winners per theme."
+    },
+    "shortlist": {
+      "shortlistCount": "Shortlist Size",
+      "shortlistCountDesc": "How many nominees are shortlisted per theme (1-15)",
+      "requireAcknowledgment": "Require Acknowledgment",
+      "placePoints": "#{{rank}} Place Points",
+      "youPlaced": "You placed #{{rank}}!",
+      "acknowledge": "Acknowledge",
+      "acknowledged": "Placement acknowledged successfully",
+      "acknowledgeError": "Failed to acknowledge placement"
     },
     "criteriaEval": {
       "title": "Criteria Evaluation",
