@@ -113,6 +113,10 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
   const isInProcess = cycle.status !== 'configuring';
   const impactWarning = getImpactWarning(cycle.status, t);
 
+  const updatePointsField = useCallback((key: string, value: number) => {
+    setPointsConfig((prev) => ({ ...prev, [key]: value }));
+  }, []);
+
   const handleSave = () => {
     const fairnessConfig = buildFairnessConfig(fairness);
     updateCycle.mutate(
@@ -121,6 +125,7 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
         ...form,
         name_ar: form.name_ar || null,
         fairness_config: fairnessConfig,
+        points_config: pointsConfig,
       },
       { onSuccess: () => onOpenChange(false) }
     );
