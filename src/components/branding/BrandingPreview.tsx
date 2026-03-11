@@ -8,6 +8,8 @@ interface BrandingPreviewProps {
   secondaryColor: HSLColor;
   accentColor: HSLColor;
   logoUrl?: string | null;
+  logoLightUrl?: string | null;
+  logoDarkUrl?: string | null;
 }
 
 function hslToString(color: HSLColor): string {
