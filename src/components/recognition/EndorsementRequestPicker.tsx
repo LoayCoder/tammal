@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useEmployees } from '@/hooks/org/useEmployees';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useTenantId } from '@/hooks/org/useTenantId';
-import { supabase } from '@/integrations/supabase/client';
+import { useEndorsementRequests } from '@/hooks/recognition/useEndorsementRequests';
 import { Users, Search, Send, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
