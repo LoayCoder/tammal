@@ -56,52 +56,20 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, managerAppro
   // Get the current user's name for notification text
   const currentUserName = employees.find(e => e.user_id === user?.id)?.full_name || '';
 
-  // Get nomination headline for notification body
-  const getNominationHeadline = async (nomId: string) => {
-    const { data } = await supabase
-      .from('nominations')
-      .select('headline')
-      .eq('id', nomId)
-      .single();
-    return data?.headline || '';
-  };
-
   const handleSend = async () => {
     if (!tenantId || !user?.id || selectedIds.size === 0) return;
-    setSending(true);
     try {
-      const rows = Array.from(selectedIds).map(uid => ({
-        tenant_id: tenantId,
-        nomination_id: nominationId,
-        requested_user_id: uid,
-        requested_by: user.id,
-      }));
-      const { error } = await supabase.from('endorsement_requests').insert(rows as any);
-      if (error) throw error;
-
-      // Only send notifications if manager approval is not pending
-      if (!managerApprovalPending) {
-        const headline = await getNominationHeadline(nominationId);
-        const notificationRows = Array.from(selectedIds).map(uid => ({
-          tenant_id: tenantId,
-          user_id: uid,
-          nomination_id: nominationId,
-          type: 'endorsement_requested',
-          title: t('notifications.endorsementRequested', { name: currentUserName }),
-          body: t('notifications.endorsementRequestedBody', { headline: headline || '—' }),
-        }));
-        await supabase.from('recognition_notifications').insert(notificationRows as any);
-      }
-
+      await sendRequests.mutateAsync({
+        tenantId,
+        nominationId,
+        requestedUserIds: Array.from(selectedIds),
+        requestedBy: user.id,
+        currentUserName,
+        managerApprovalPending,
+      });
       setSent(true);
-      toast.success(managerApprovalPending
-        ? t('recognition.endorsements.endorsementsPendingApproval')
-        : t('recognition.endorsements.requestsSent'));
-    } catch (err) {
-      console.error('[EndorsementRequestPicker] Failed to send endorsement requests:', err);
-      toast.error(t('recognition.endorsements.requestsError'));
-    } finally {
-      setSending(false);
+    } catch {
+      // error handled by hook
     }
   };
 
