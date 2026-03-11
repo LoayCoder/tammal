@@ -15,7 +15,7 @@ import { useReferenceFrameworks } from '@/hooks/questions/useReferenceFrameworks
 import { useQuestionBatches } from '@/hooks/questions/useQuestionBatches';
 import { useGenerationPeriods } from '@/hooks/questions/useGenerationPeriods';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { useTenantIdQuery } from '@/hooks/admin/useTenantIdQuery';
+import { useTenantId } from '@/hooks/org/useTenantId';
 import { usePromptRewrite } from '@/hooks/admin/usePromptRewrite';
 import type { QuestionPurpose } from '../components/ConfigPanel';
 import type { AIGeneratorState } from '../types';
