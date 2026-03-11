@@ -40,6 +40,7 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onBac
   const { user } = useAuth();
   const { tenantId } = useTenantId();
   const { createNomination } = useNominations();
+  const { saveCriteriaEvaluations } = useNominationCriteria();
   const { data: managerQuota } = useManagerQuota(themeId);
   const { data: peerQuota } = usePeerQuota(themeId);
   const { employees = [] } = useEmployees();
