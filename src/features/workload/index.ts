@@ -8,7 +8,6 @@
 // Hooks
 export { useActions } from './hooks/useActions';
 export { useAlignmentMetrics } from './hooks/useAlignmentMetrics';
-export { useApprovals } from './hooks/useApprovals';
 export { useBurnoutPredictions } from './hooks/useBurnoutPredictions';
 export { useDepartmentTasks } from './hooks/useDepartmentTasks';
 export { useEmployeeCapacity } from './hooks/useEmployeeCapacity';
