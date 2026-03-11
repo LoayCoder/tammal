@@ -156,7 +156,7 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onBac
           weight: ce.weight,
           justification: ce.justification.trim() || null,
         }));
-        await supabase.from('nomination_criteria_evaluations').insert(rows);
+        await saveCriteriaEvaluations.mutateAsync(rows);
       }
 
       // Auto-advance to endorsement step
