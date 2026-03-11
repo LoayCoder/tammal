@@ -22,7 +22,6 @@ export { usePriorityScore } from './hooks/usePriorityScore';
 export { useRedistributionRecommendations } from './hooks/useRedistributionRecommendations';
 export { useRepresentativeTasks } from './hooks/useRepresentativeTasks';
 export { useSystemHealth } from './hooks/useSystemHealth';
-export { useTaskDependencies } from './hooks/useTaskDependencies';
 export { useTaskEvidence } from './hooks/useTaskEvidence';
 export { useTaskEvidenceUpload } from './hooks/useTaskEvidenceUpload';
 export { useTaskQueue } from './hooks/useTaskQueue';
