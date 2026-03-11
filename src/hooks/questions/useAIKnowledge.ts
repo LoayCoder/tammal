@@ -82,7 +82,7 @@ export function useAIKnowledge() {
         .from('ai_knowledge_documents')
         .insert({
           tenant_id: tenantId,
-          user_id: user.user.id,
+          user_id: user.id,
           file_name: file.name,
           file_path: filePath,
           file_size: file.size,

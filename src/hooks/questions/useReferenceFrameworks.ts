@@ -52,7 +52,7 @@ export function useReferenceFrameworks() {
       const { data, error } = await supabase.from('reference_frameworks').insert({
         ...params,
         tenant_id: tenantId,
-        created_by: user.user.id,
+        created_by: user.id,
         is_default: false,
       }).select('id').single();
       if (error) throw error;

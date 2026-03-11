@@ -39,7 +39,7 @@ export function useAIGenerator(): AIGeneratorState {
     isGenerating, regeneratingIndex, isValidating, isSaving, isSavingWellness,
   } = useEnhancedAIGeneration();
 
-  const { data: tenantId } = useTenantIdQuery(user?.id);
+  const { tenantId } = useTenantId();
   const { rewritePrompt: rewritePromptFn, isRewriting } = usePromptRewrite();
 
   const { availableBatches, availableWellnessBatches, MAX_BATCH_SIZE } = useQuestionBatches(tenantId || null);

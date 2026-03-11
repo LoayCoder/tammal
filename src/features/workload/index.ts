@@ -43,4 +43,4 @@ export type { InitiativeRiskMetric } from './hooks/useInitiativeRisk';
 export type { OrgIntelligenceScore } from './hooks/useOrgIntelligenceScore';
 export type { HeatmapMetric } from './hooks/useWorkloadHeatmap';
 export type { RedistributionRecommendation } from './hooks/useRedistributionRecommendations';
-export type { Approval } from './hooks/useApprovals';
+

@@ -20,8 +20,7 @@ export default function MoodPathwaySettings() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
-  const { user } = useAuth();
-  const { data: tenantId } = useTenantIdQuery(user?.id);
+  const { tenantId } = useTenantId();
 
   const [localConfigs, setLocalConfigs] = useState<Record<string, MoodQuestionConfig>>({});
   const [savingMood, setSavingMood] = useState<string | null>(null);
