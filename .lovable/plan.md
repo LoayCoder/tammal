@@ -1,50 +1,18 @@
-# UI Architecture Audit — Post-Cleanup
 
-## Overall Verdict: **PASS** (with advisories)
 
----
+## Replace `font-medium` → `font-semibold` across 220 files
 
-## Navigation Structure
+### Rationale
+The Orbitask spec allows only Inter weights 400, 600, 700. Weight 500 was already removed from the Google Fonts import, so all 2,435 `font-medium` instances currently fall back to weight 400 (too light). Replacing with `font-semibold` (600) restores the intended visual hierarchy.
 
-~69 routable pages across 10 domains (Admin, Employee, Tasks, Recognition, Crisis, Mental Toolkit, Spiritual, Settings, Auth, Dev). All routes resolve correctly with role-based guards.
+### Approach
+Global search-and-replace of `font-medium` → `font-semibold` across all 220 files in `src/`. This is safe because:
+- Weight 500 is no longer loaded, so `font-medium` already renders incorrectly
+- Weight 600 (`font-semibold`) is the closest approved weight and matches the spec's intent for labels, nav items, and emphasis text
+- No behavioral or layout changes — purely a weight bump from broken-500→600
 
-## Results
+### Scope
+- 2,435 occurrences across 220 `.tsx`/`.ts` files
+- Includes UI primitives (`accordion.tsx`, `calendar.tsx`, `navigation-menu.tsx`), page components, and feature components
+- All replacements are identical: `font-medium` → `font-semibold`
 
-| Category | Result |
-|---|---|
-| Pages | 69 — ✅ PASS |
-| Components | ~250 — ✅ PASS |
-| UI Primitives | 50 — ✅ PASS |
-| System Components | 6 — ✅ PASS |
-| Shared Patterns | 6 — ✅ PASS |
-| Layout Components | 6 — ✅ PASS |
-| Forms | 25+ — ✅ PASS |
-| Dashboards | 19 — ✅ PASS |
-| Dialogs/Modals | 35+ — ✅ PASS |
-| ErrorBoundary Coverage | ✅ PASS |
-| i18n Coverage | ✅ PASS |
-| RTL Support | ✅ PASS |
-| Duplicate Components | 0 — ✅ PASS |
-| Dead Code Pages | 0 — ✅ PASS |
-| Broken Workflows | 0 — ✅ PASS |
-| Missing Routes | 0 — ✅ PASS |
-| Large Files (>300 lines) | 13 — ⚠️ ADVISORY |
-| Naming Inconsistencies | 3 — ⚠️ ADVISORY |
-| Split Domain Folders | 1 — ⚠️ ADVISORY |
-
-## Resolved Issues
-
-- ✅ Dead code pages deleted (5 files)
-- ✅ Duplicate NotificationBells consolidated to UnifiedNotificationBell
-- ✅ Unreferenced User Management pages removed
-
-## Remaining Advisories (low priority)
-
-### ⚠️ 13 large files (>300 lines)
-QuestionManagement (600), TeamWorkload (577), UnifiedUserManagement (535), RepresentativeWorkload (514), MoodTrackerPage (472), MoodPathwaySettings (466), NominationWizard (463), ScheduleManagement (461), TaskDialog (405), IslamicCalendar (399), CreateTaskModal (371), ComponentShowcase (349), OrgStructure (301)
-
-### ⚠️ Minor naming inconsistencies
-Mixed `Page`/`Management` suffixes across the page tree.
-
-### ⚠️ Split domain folders
-Task components in both `components/workload/` and `features/tasks/`.
