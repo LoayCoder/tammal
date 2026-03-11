@@ -160,12 +160,12 @@ export default function TaskConnectors() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setImportOpen(false)}>{t('common.cancel')}</Button>
             <Button
-              onClick={() => importMutation.mutate(csvText)}
-              disabled={!csvText.trim() || importMutation.isPending}
+              onClick={handleImport}
+              disabled={!csvText.trim() || importTasks.isPending}
               className="gap-2"
             >
               <FileSpreadsheet className="h-4 w-4" />
-              {importMutation.isPending ? t('common.loading') : t('connectors.importBtn')}
+              {importTasks.isPending ? t('common.loading') : t('connectors.importBtn')}
             </Button>
           </DialogFooter>
         </DialogContent>

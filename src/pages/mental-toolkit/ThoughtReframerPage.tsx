@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { useThoughtReframes } from "@/hooks/wellness/useThoughtReframes";
 import { useCurrentEmployee } from "@/hooks/auth/useCurrentEmployee";
 import { useSpeechToText } from "@/hooks/ui/useSpeechToText";
-import { supabase } from "@/integrations/supabase/client";
+import { useReframeSuggestion } from "@/hooks/wellness/useReframeSuggestion";
 import { format } from "date-fns";
 
 import { TOOLKIT } from "@/config/toolkit-colors";
