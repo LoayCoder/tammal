@@ -3,7 +3,7 @@ import type { BrandingConfig } from './useBranding';
 
 /**
  * Applies the tenant's branding HSL colors to CSS custom properties at runtime.
- * This allows dynamic theming based on tenant configuration.
+ * Propagates primary to all derived variables (ring, sidebar, charts, etc.).
  */
 export function useBrandingColors(branding: BrandingConfig | null) {
   useEffect(() => {
@@ -12,14 +12,31 @@ export function useBrandingColors(branding: BrandingConfig | null) {
     const root = document.documentElement;
     const { primary, secondary, accent } = branding.colors;
 
-    // Apply primary color
+    // Apply primary color + all derived variables
     if (primary) {
-      root.style.setProperty('--primary', `${primary.h} ${primary.s}% ${primary.l}%`);
+      const primaryVal = `${primary.h} ${primary.s}% ${primary.l}%`;
+      root.style.setProperty('--primary', primaryVal);
+
       // Derive primary-foreground based on lightness
       const primaryForeground = primary.l > 50 
-        ? '222.2 47.4% 11.2%' // dark text for light background
-        : '210 40% 98%'; // light text for dark background
+        ? '222.2 47.4% 11.2%'
+        : '210 40% 98%';
       root.style.setProperty('--primary-foreground', primaryForeground);
+
+      // Propagate to all derived CSS vars that track primary
+      root.style.setProperty('--ring', primaryVal);
+      root.style.setProperty('--sidebar-primary', primaryVal);
+      root.style.setProperty('--sidebar-primary-foreground', primaryForeground);
+      root.style.setProperty('--sidebar-ring', primaryVal);
+      root.style.setProperty('--chart-1', primaryVal);
+      root.style.setProperty('--org-default', primaryVal);
+
+      // Derive sidebar-active-bg as a light tint of primary
+      const isDark = root.classList.contains('dark');
+      const activeBg = isDark
+        ? `${primary.h} 40% 18%`
+        : `${primary.h} ${Math.min(primary.s, 89)}% 96%`;
+      root.style.setProperty('--sidebar-active-bg', activeBg);
     }
 
     // Apply secondary color
@@ -33,11 +50,15 @@ export function useBrandingColors(branding: BrandingConfig | null) {
 
     // Apply accent color
     if (accent) {
-      root.style.setProperty('--accent', `${accent.h} ${accent.s}% ${accent.l}%`);
+      const accentVal = `${accent.h} ${accent.s}% ${accent.l}%`;
+      root.style.setProperty('--accent', accentVal);
       const accentForeground = accent.l > 50 
         ? '222.2 47.4% 11.2%'
         : '210 40% 98%';
       root.style.setProperty('--accent-foreground', accentForeground);
+
+      // Chart-2 tracks accent
+      root.style.setProperty('--chart-2', accentVal);
     }
 
     // Update theme-color meta tag
@@ -48,9 +69,8 @@ export function useBrandingColors(branding: BrandingConfig | null) {
       }
     }
 
-    // Cleanup function to reset styles when unmounting or branding changes
     return () => {
-      // We don't reset here as we want the colors to persist
+      // Colors persist intentionally
     };
   }, [branding]);
 }

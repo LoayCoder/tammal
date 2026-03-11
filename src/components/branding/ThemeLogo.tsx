@@ -19,10 +19,12 @@ export function ThemeLogo({
 }: ThemeLogoProps) {
   const { theme } = useTheme();
 
-  // Select logo based on current theme
-  const selectedLogo = theme === 'dark' ?
-  logoDarkUrl || logoUrl :
-  logoLightUrl || logoUrl;
+  // Priority: theme-specific override → general logo_url → fallback
+  // logoUrl is the "full logo" (primary asset).
+  // logoLightUrl / logoDarkUrl are optional theme overrides.
+  const selectedLogo = theme === 'dark'
+    ? (logoDarkUrl || logoUrl)
+    : (logoLightUrl || logoUrl);
 
   if (!selectedLogo) {
     return fallback ? <>{fallback}</> : null;
@@ -33,8 +35,6 @@ export function ThemeLogo({
       src={selectedLogo}
       alt={alt}
       className={`object-contain border-0 ${className}`}
-    />);
-
-
-
+    />
+  );
 }

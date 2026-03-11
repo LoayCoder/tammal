@@ -20,7 +20,9 @@ export function BrandingPreview({
   primaryColor, 
   secondaryColor, 
   accentColor,
-  logoUrl 
+  logoUrl,
+  logoLightUrl,
+  logoDarkUrl
 }: BrandingPreviewProps) {
   const { t } = useTranslation();
 
