@@ -43,7 +43,7 @@ export default function TaskConnectors() {
   const { t } = useTranslation();
   const { tenantId } = useTenantId();
   const { employee } = useCurrentEmployee();
-  const queryClient = useQueryClient();
+  const { importTasks } = useTaskImport();
   const [importOpen, setImportOpen] = useState(false);
   const [csvText, setCsvText] = useState('');
 
