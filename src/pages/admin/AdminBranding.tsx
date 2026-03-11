@@ -324,6 +324,8 @@ export default function AdminBranding() {
             secondaryColor={branding.colors.secondary}
             accentColor={branding.colors.accent}
             logoUrl={logoPreview}
+            logoLightUrl={branding.logo_light_url}
+            logoDarkUrl={branding.logo_dark_url}
           />
         </div>
       </div>
