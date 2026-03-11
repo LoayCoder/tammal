@@ -6,8 +6,7 @@ import { useMoodQuestionConfig, type MoodQuestionConfig } from '@/hooks/wellness
 import { useMoodDefinitions, type MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';
 import { useQuestions } from '@/hooks/questions/useQuestions';
 import { useMoodTagging } from '@/hooks/admin/useMoodTagging';
-import { useTenantIdQuery } from '@/hooks/admin/useTenantIdQuery';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useTenantId } from '@/hooks/org/useTenantId';
 import { MoodQuestionPickerDialog } from '@/components/checkin/MoodQuestionPickerDialog';
 import { MoodDefinitionDialog } from '@/components/mood/MoodDefinitionDialog';
 import { MoodDefinitionManager } from '@/components/mood/settings/MoodDefinitionManager';
