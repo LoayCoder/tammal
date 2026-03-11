@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { useTaskImport } from '@/hooks/tasks/useTaskImport';
 
 interface Connector {
   id: string;
