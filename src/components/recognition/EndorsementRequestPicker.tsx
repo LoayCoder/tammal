@@ -161,7 +161,7 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, managerAppro
           )}
           <Button
             onClick={handleSend}
-            disabled={selectedIds.size === 0 || sending}
+            disabled={selectedIds.size === 0 || sendRequests.isPending}
             size="sm"
             className="ms-auto"
           >
