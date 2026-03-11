@@ -24,6 +24,7 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, managerAppro
   const { t } = useTranslation();
   const { user } = useAuth();
   const { tenantId } = useTenantId();
+  const { employees = [] } = useEmployees();
   const { sendRequests } = useEndorsementRequests();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
