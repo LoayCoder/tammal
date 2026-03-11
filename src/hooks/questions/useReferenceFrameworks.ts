@@ -40,14 +40,19 @@ export function useReferenceFrameworks() {
 
   const addFramework = useMutation({
     mutationFn: async (params: { name: string; name_ar?: string; description?: string; description_ar?: string; icon?: string; framework_key: string }) => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('Not authenticated');
-      const tenantId = await supabase.rpc('get_user_tenant_id', { _user_id: user.user.id }).then(r => r.data);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('tenant_id')
+        .eq('user_id', user.id)
+        .single();
+      const tenantId = profile?.tenant_id;
 
       const { data, error } = await supabase.from('reference_frameworks').insert({
         ...params,
         tenant_id: tenantId,
-        created_by: user.user.id,
+        created_by: user.id,
         is_default: false,
       }).select('id').single();
       if (error) throw error;

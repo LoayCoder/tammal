@@ -5,9 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion } from "@/components/ui/accordion";
 import { useQuestionBatches, type BatchQuestion } from "@/hooks/questions/useQuestionBatches";
-import { useAuth } from "@/hooks/auth/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useTenantId } from "@/hooks/org/useTenantId";
 import { Search, Package } from "lucide-react";
 import { BatchStatusKPIs } from "@/components/questions/BatchStatusKPIs";
 import { BatchAccordionItem } from "@/components/questions/BatchAccordionItem";
@@ -15,21 +13,11 @@ import { QuestionDetailDialog } from "@/components/questions/QuestionDetailDialo
 
 export default function QuestionManagement() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { tenantId } = useTenantId();
   const [search, setSearch] = useState("");
   const [expandedBatches, setExpandedBatches] = useState<string[]>([]);
   const [selectedQuestions, setSelectedQuestions] = useState<Record<string, Set<string>>>({});
   const [viewQuestion, setViewQuestion] = useState<BatchQuestion | null>(null);
-
-  const { data: tenantId } = useQuery({
-    queryKey: ['user-tenant-id', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return null;
-      const { data } = await supabase.rpc('get_user_tenant_id', { _user_id: user.id });
-      return data as string | null;
-    },
-    enabled: !!user?.id,
-  });
 
   const {
     batches, isPending: isLoading, fetchBatchQuestions, expandedBatchQuestions,

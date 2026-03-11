@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { useTaskImport } from '@/hooks/tasks/useTaskImport';
 
 interface Connector {
   id: string;
@@ -42,7 +43,7 @@ export default function TaskConnectors() {
   const { t } = useTranslation();
   const { tenantId } = useTenantId();
   const { employee } = useCurrentEmployee();
-  const queryClient = useQueryClient();
+  const { importTasks } = useTaskImport();
   const [importOpen, setImportOpen] = useState(false);
   const [csvText, setCsvText] = useState('');
 
@@ -59,48 +60,18 @@ export default function TaskConnectors() {
     enabled: !!tenantId,
   });
 
-  const importMutation = useMutation({
-    mutationFn: async (csv: string) => {
-      if (!employee) throw new Error('No employee profile');
-      const lines = csv.trim().split('\n').filter(l => l.trim());
-      if (lines.length < 2) throw new Error('CSV must have header + data');
-      
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-      const titleIdx = headers.indexOf('title');
-      const descIdx = headers.indexOf('description');
-      const priorityIdx = headers.indexOf('priority');
-      const estIdx = headers.indexOf('estimated_minutes');
-      const dueIdx = headers.indexOf('due_date');
-
-      if (titleIdx === -1) throw new Error('CSV must have a "title" column');
-
-      const tasks = lines.slice(1).map(line => {
-        const cols = line.split(',').map(c => c.trim());
-        return {
-          tenant_id: employee.tenant_id,
-          employee_id: employee.id,
-          title: cols[titleIdx] || 'Untitled',
-          description: descIdx >= 0 ? cols[descIdx] || null : null,
-          priority: priorityIdx >= 0 ? parseInt(cols[priorityIdx]) || 3 : 3,
-          estimated_minutes: estIdx >= 0 ? parseInt(cols[estIdx]) || null : null,
-          due_date: dueIdx >= 0 && cols[dueIdx] ? cols[dueIdx] : null,
-          source_type: 'external' as const,
-          status: 'draft' as const,
-        };
-      });
-
-      const { error } = await supabase.from('unified_tasks').insert(tasks);
-      if (error) throw error;
-      return tasks.length;
-    },
-    onSuccess: (count) => {
-      queryClient.invalidateQueries({ queryKey: ['unified-tasks'] });
-      toast.success(t('connectors.importSuccess', { count }));
-      setImportOpen(false);
-      setCsvText('');
-    },
-    onError: (err: Error) => toast.error(err.message),
-  });
+  const handleImport = () => {
+    if (!employee || !csvText.trim()) return;
+    importTasks.mutate(
+      { csv: csvText, tenantId: employee.tenant_id, employeeId: employee.id },
+      {
+        onSuccess: () => {
+          setImportOpen(false);
+          setCsvText('');
+        },
+      }
+    );
+  };
 
   const connectors = connectorsQuery.data ?? [];
 
@@ -189,12 +160,12 @@ export default function TaskConnectors() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setImportOpen(false)}>{t('common.cancel')}</Button>
             <Button
-              onClick={() => importMutation.mutate(csvText)}
-              disabled={!csvText.trim() || importMutation.isPending}
+              onClick={handleImport}
+              disabled={!csvText.trim() || importTasks.isPending}
               className="gap-2"
             >
               <FileSpreadsheet className="h-4 w-4" />
-              {importMutation.isPending ? t('common.loading') : t('connectors.importBtn')}
+              {importTasks.isPending ? t('common.loading') : t('connectors.importBtn')}
             </Button>
           </DialogFooter>
         </DialogContent>

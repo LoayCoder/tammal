@@ -15,7 +15,7 @@ import { useReferenceFrameworks } from '@/hooks/questions/useReferenceFrameworks
 import { useQuestionBatches } from '@/hooks/questions/useQuestionBatches';
 import { useGenerationPeriods } from '@/hooks/questions/useGenerationPeriods';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { useTenantIdQuery } from '@/hooks/admin/useTenantIdQuery';
+import { useTenantId } from '@/hooks/org/useTenantId';
 import { usePromptRewrite } from '@/hooks/admin/usePromptRewrite';
 import type { QuestionPurpose } from '../components/ConfigPanel';
 import type { AIGeneratorState } from '../types';
@@ -39,7 +39,7 @@ export function useAIGenerator(): AIGeneratorState {
     isGenerating, regeneratingIndex, isValidating, isSaving, isSavingWellness,
   } = useEnhancedAIGeneration();
 
-  const { data: tenantId } = useTenantIdQuery(user?.id);
+  const { tenantId } = useTenantId();
   const { rewritePrompt: rewritePromptFn, isRewriting } = usePromptRewrite();
 
   const { availableBatches, availableWellnessBatches, MAX_BATCH_SIZE } = useQuestionBatches(tenantId || null);

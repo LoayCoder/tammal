@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useEmployees } from '@/hooks/org/useEmployees';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useTenantId } from '@/hooks/org/useTenantId';
-import { supabase } from '@/integrations/supabase/client';
+import { useEndorsementRequests } from '@/hooks/recognition/useEndorsementRequests';
 import { Users, Search, Send, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -25,9 +25,9 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, managerAppro
   const { user } = useAuth();
   const { tenantId } = useTenantId();
   const { employees = [] } = useEmployees();
+  const { sendRequests } = useEndorsementRequests();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
-  const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
   // Filter: exclude self, nominee, and only show employees with user_id
@@ -57,52 +57,20 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, managerAppro
   // Get the current user's name for notification text
   const currentUserName = employees.find(e => e.user_id === user?.id)?.full_name || '';
 
-  // Get nomination headline for notification body
-  const getNominationHeadline = async (nomId: string) => {
-    const { data } = await supabase
-      .from('nominations')
-      .select('headline')
-      .eq('id', nomId)
-      .single();
-    return data?.headline || '';
-  };
-
   const handleSend = async () => {
     if (!tenantId || !user?.id || selectedIds.size === 0) return;
-    setSending(true);
     try {
-      const rows = Array.from(selectedIds).map(uid => ({
-        tenant_id: tenantId,
-        nomination_id: nominationId,
-        requested_user_id: uid,
-        requested_by: user.id,
-      }));
-      const { error } = await supabase.from('endorsement_requests').insert(rows as any);
-      if (error) throw error;
-
-      // Only send notifications if manager approval is not pending
-      if (!managerApprovalPending) {
-        const headline = await getNominationHeadline(nominationId);
-        const notificationRows = Array.from(selectedIds).map(uid => ({
-          tenant_id: tenantId,
-          user_id: uid,
-          nomination_id: nominationId,
-          type: 'endorsement_requested',
-          title: t('notifications.endorsementRequested', { name: currentUserName }),
-          body: t('notifications.endorsementRequestedBody', { headline: headline || '—' }),
-        }));
-        await supabase.from('recognition_notifications').insert(notificationRows as any);
-      }
-
+      await sendRequests.mutateAsync({
+        tenantId,
+        nominationId,
+        requestedUserIds: Array.from(selectedIds),
+        requestedBy: user.id,
+        currentUserName,
+        managerApprovalPending,
+      });
       setSent(true);
-      toast.success(managerApprovalPending
-        ? t('recognition.endorsements.endorsementsPendingApproval')
-        : t('recognition.endorsements.requestsSent'));
-    } catch (err) {
-      console.error('[EndorsementRequestPicker] Failed to send endorsement requests:', err);
-      toast.error(t('recognition.endorsements.requestsError'));
-    } finally {
-      setSending(false);
+    } catch {
+      // error handled by hook
     }
   };
 
@@ -193,7 +161,7 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, managerAppro
           )}
           <Button
             onClick={handleSend}
-            disabled={selectedIds.size === 0 || sending}
+            disabled={selectedIds.size === 0 || sendRequests.isPending}
             size="sm"
             className="ms-auto"
           >

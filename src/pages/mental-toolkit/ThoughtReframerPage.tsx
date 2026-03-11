@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { useThoughtReframes } from "@/hooks/wellness/useThoughtReframes";
 import { useCurrentEmployee } from "@/hooks/auth/useCurrentEmployee";
 import { useSpeechToText } from "@/hooks/ui/useSpeechToText";
-import { supabase } from "@/integrations/supabase/client";
+import { useReframeSuggestion } from "@/hooks/wellness/useReframeSuggestion";
 import { format } from "date-fns";
 
 import { TOOLKIT } from "@/config/toolkit-colors";
@@ -76,7 +76,7 @@ export default function ThoughtReframerPage() {
   const [showSummary, setShowSummary] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(10);
-  const [aiSuggesting, setAiSuggesting] = useState(false);
+  const { suggest: suggestReframe, isPending: aiSuggesting } = useReframeSuggestion();
 
   const speechLang = i18n.language?.startsWith("ar") ? "ar-SA" : "en-US";
 
@@ -112,25 +112,8 @@ export default function ThoughtReframerPage() {
   };
 
   const handleAiSuggest = async () => {
-    setAiSuggesting(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("suggest-reframe", {
-        body: {
-          negative_thought: negativeThought,
-          challenge_answers: answers,
-        },
-      });
-      if (error) throw error;
-      if (data?.reframed_thought) {
-        setReframedThought(data.reframed_thought);
-      } else if (data?.error) {
-        toast.error(data.error);
-      }
-    } catch {
-      toast.error(t("mentalToolkit.thoughtReframer.aiSuggestError"));
-    } finally {
-      setAiSuggesting(false);
-    }
+    const result = await suggestReframe(negativeThought, answers);
+    if (result) setReframedThought(result);
   };
 
   // Speech callbacks

@@ -18,6 +18,7 @@ import { useEmployees } from '@/hooks/org/useEmployees';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { supabase } from '@/integrations/supabase/client';
+import { useNominationCriteria } from '@/hooks/recognition/useNominationCriteria';
 import type { CriterionEvaluation } from './CriteriaEvaluationForm';
 import { User, FileText, Scale, ThumbsUp, CheckCircle, ChevronLeft, ChevronRight, Users, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -40,6 +41,7 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onBac
   const { user } = useAuth();
   const { tenantId } = useTenantId();
   const { createNomination } = useNominations();
+  const { saveCriteriaEvaluations } = useNominationCriteria();
   const { data: managerQuota } = useManagerQuota(themeId);
   const { data: peerQuota } = usePeerQuota(themeId);
   const { employees = [] } = useEmployees();
@@ -155,7 +157,7 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onBac
           weight: ce.weight,
           justification: ce.justification.trim() || null,
         }));
-        await supabase.from('nomination_criteria_evaluations').insert(rows);
+        await saveCriteriaEvaluations.mutateAsync(rows);
       }
 
       // Auto-advance to endorsement step

@@ -59,11 +59,15 @@ export function useAIKnowledge() {
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('Not authenticated');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
 
-      const tenantResult = await supabase.rpc('get_user_tenant_id', { _user_id: user.user.id });
-      const tenantId = tenantResult.data;
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('tenant_id')
+        .eq('user_id', user.id)
+        .single();
+      const tenantId = profile?.tenant_id;
       if (!tenantId) throw new Error(t('aiGenerator.noTenantError'));
 
       // Upload to storage (tenant-scoped folder)
@@ -78,7 +82,7 @@ export function useAIKnowledge() {
         .from('ai_knowledge_documents')
         .insert({
           tenant_id: tenantId,
-          user_id: user.user.id,
+          user_id: user.id,
           file_name: file.name,
           file_path: filePath,
           file_size: file.size,

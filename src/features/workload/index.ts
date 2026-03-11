@@ -8,7 +8,6 @@
 // Hooks
 export { useActions } from './hooks/useActions';
 export { useAlignmentMetrics } from './hooks/useAlignmentMetrics';
-export { useApprovals } from './hooks/useApprovals';
 export { useBurnoutPredictions } from './hooks/useBurnoutPredictions';
 export { useDepartmentTasks } from './hooks/useDepartmentTasks';
 export { useEmployeeCapacity } from './hooks/useEmployeeCapacity';
@@ -23,7 +22,6 @@ export { usePriorityScore } from './hooks/usePriorityScore';
 export { useRedistributionRecommendations } from './hooks/useRedistributionRecommendations';
 export { useRepresentativeTasks } from './hooks/useRepresentativeTasks';
 export { useSystemHealth } from './hooks/useSystemHealth';
-export { useTaskDependencies } from './hooks/useTaskDependencies';
 export { useTaskEvidence } from './hooks/useTaskEvidence';
 export { useTaskEvidenceUpload } from './hooks/useTaskEvidenceUpload';
 export { useTaskQueue } from './hooks/useTaskQueue';
@@ -45,4 +43,4 @@ export type { InitiativeRiskMetric } from './hooks/useInitiativeRisk';
 export type { OrgIntelligenceScore } from './hooks/useOrgIntelligenceScore';
 export type { HeatmapMetric } from './hooks/useWorkloadHeatmap';
 export type { RedistributionRecommendation } from './hooks/useRedistributionRecommendations';
-export type { Approval } from './hooks/useApprovals';
+
