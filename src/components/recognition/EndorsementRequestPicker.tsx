@@ -24,10 +24,9 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, managerAppro
   const { t } = useTranslation();
   const { user } = useAuth();
   const { tenantId } = useTenantId();
-  const { employees = [] } = useEmployees();
+  const { sendRequests } = useEndorsementRequests();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
-  const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
   // Filter: exclude self, nominee, and only show employees with user_id
