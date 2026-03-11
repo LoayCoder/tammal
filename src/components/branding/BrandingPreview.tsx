@@ -8,6 +8,8 @@ interface BrandingPreviewProps {
   secondaryColor: HSLColor;
   accentColor: HSLColor;
   logoUrl?: string | null;
+  logoLightUrl?: string | null;
+  logoDarkUrl?: string | null;
 }
 
 function hslToString(color: HSLColor): string {
@@ -18,7 +20,9 @@ export function BrandingPreview({
   primaryColor, 
   secondaryColor, 
   accentColor,
-  logoUrl 
+  logoUrl,
+  logoLightUrl,
+  logoDarkUrl
 }: BrandingPreviewProps) {
   const { t } = useTranslation();
 
