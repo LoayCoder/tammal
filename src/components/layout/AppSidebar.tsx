@@ -349,28 +349,28 @@ export function AppSidebar({ branding }: AppSidebarProps) {
   return (
     <Sidebar variant="sidebar" collapsible="icon" side={isRTL ? "right" : "left"}>
       {/* Header with logo and toggle */}
-      <SidebarHeader className="px-3 pt-4 pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center justify-center flex-1">
+      <SidebarHeader className="px-2 sm:px-3 pt-3 sm:pt-4 pb-2 sm:pb-3">
+        <div className="flex items-center justify-between min-h-[40px] sm:min-h-[48px]">
+          <div className="flex items-center justify-center flex-1 overflow-hidden">
             {isCollapsed ? (
               <ThemeIcon
                 iconLightUrl={branding.icon_light_url}
                 iconDarkUrl={branding.icon_dark_url}
-                className="h-9 w-9 object-contain shrink-0"
+                className="h-8 w-8 sm:h-9 sm:w-9 object-contain shrink-0"
                 alt={t('branding.themeIcon')}
-                fallback={<Building className="h-8 w-8 text-sidebar-foreground/70" />}
+                fallback={<Building className="h-7 w-7 sm:h-8 sm:w-8 text-sidebar-foreground/70" />}
               />
             ) : (
               <ThemeLogo
                 logoUrl={branding.logo_url}
                 logoLightUrl={branding.logo_light_url}
                 logoDarkUrl={branding.logo_dark_url}
-                className="h-12 max-w-[200px] object-contain"
+                className="h-10 sm:h-12 max-w-[160px] sm:max-w-[200px] object-contain"
                 alt={t('branding.themeLogo')}
                 fallback={
                   <div className="flex items-center gap-2">
-                    <Building className="h-6 w-6 text-sidebar-foreground/70" />
-                    <span className="font-semibold text-base text-sidebar-foreground/90">SaaS Admin</span>
+                    <Building className="h-5 w-5 sm:h-6 sm:w-6 text-sidebar-foreground/70" />
+                    <span className="font-semibold text-sm sm:text-base text-sidebar-foreground/90 truncate">SaaS Admin</span>
                   </div>
                 }
               />
@@ -379,7 +379,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
           {!isCollapsed && (
             <button
               onClick={toggleSidebar}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-[hsl(var(--sidebar-hover-bg))] hover:text-sidebar-foreground"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-[hsl(var(--sidebar-hover-bg))] hover:text-sidebar-foreground shrink-0"
               aria-label={t('accessibility.toggleSidebar')}
             >
               <ToggleIcon className="h-4 w-4" />
