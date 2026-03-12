@@ -365,7 +365,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                 logoUrl={branding.logo_url}
                 logoLightUrl={branding.logo_light_url}
                 logoDarkUrl={branding.logo_dark_url}
-                className="h-10 max-w-[180px] object-contain"
+                className="h-12 max-w-[200px] object-contain"
                 alt={t('branding.themeLogo')}
                 fallback={
                   <div className="flex items-center gap-2">
