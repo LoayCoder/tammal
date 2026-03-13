@@ -1,5 +1,5 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { Users, Clock, CheckCircle, TrendingUp, HelpCircle, FileCheck } from 'lucide-react';
 import type { EmployeeStats, QuestionStats } from '@/hooks/analytics/useSurveyMonitor';

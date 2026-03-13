@@ -7,22 +7,22 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from '@/shared/components/ui/dialog';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
+} from '@/shared/components/ui/select';
+import { Checkbox } from '@/shared/components/ui/checkbox';
 import { useTenantInvitations } from '@/hooks/org/useTenantInvitations';
-import { useRoles } from '@/hooks/auth/useRoles';
+import { useRoles } from '@/features/auth/hooks/auth/useRoles';
 import { Loader2 } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/shared/components/ui/scroll-area';
 
 interface InviteUserDialogProps {
   open: boolean;
@@ -182,3 +182,4 @@ export function InviteUserDialog({ open, onOpenChange, tenantId }: InviteUserDia
     </Dialog>
   );
 }
+

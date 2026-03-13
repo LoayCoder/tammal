@@ -9,8 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+} from '@/shared/components/ui/dialog';
+import { Button } from '@/shared/components/ui/button';
 import {
   Form,
   FormControl,
@@ -18,15 +18,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from '@/shared/components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
+} from '@/shared/components/ui/select';
+import { Input } from '@/shared/components/ui/input';
 import { useTenants, usePlans, type Subscription } from '@/hooks/org/useSubscriptions';
 
 const subscriptionSchema = z.object({

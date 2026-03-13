@@ -1,6 +1,6 @@
 import { useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/components/ui/button';
 import { Upload, X, FileText, Image, File } from 'lucide-react';
 
 interface LocalFile {

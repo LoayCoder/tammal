@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Brain, RefreshCw, Lightbulb, AlertTriangle, TrendingUp } from 'lucide-react';
 import { useWellnessInsights, type WellnessInsight } from '@/hooks/analytics/useWellnessInsights';
 

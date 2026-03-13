@@ -3,7 +3,7 @@
 
 import { format, parseISO } from 'date-fns';
 import type { TFunction } from 'i18next';
-import type { OrgAnalyticsData } from '@/lib/analytics/types';
+import type { OrgAnalyticsData } from '@/shared/utils/analytics/types';
 import type { StatCard, TrendDataPoint, DistributionDataPoint, AIPayload } from '../types';
 import { Users, Heart, TrendingUp, AlertTriangle, Flame, ClipboardCheck } from 'lucide-react';
 

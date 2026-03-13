@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTenantId } from '@/hooks/org/useTenantId';
-import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { useCurrentEmployee } from '@/features/auth/hooks/auth/useCurrentEmployee';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -44,3 +44,4 @@ export function useApprovalQueue() {
 
   return { pendingTasks, tasksLoading, empLoading, employee, updateStatus };
 }
+

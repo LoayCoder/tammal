@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Input } from '@/shared/components/ui/input';
+import { Textarea } from '@/shared/components/ui/textarea';
+import { Switch } from '@/shared/components/ui/switch';
+import { Checkbox } from '@/shared/components/ui/checkbox';
+import { Label } from '@/shared/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import { Separator } from '@/shared/components/ui/separator';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
 import {
   StatusBadge,
   TENANT_STATUS_CONFIG,
@@ -27,7 +27,7 @@ import {
   PRAYER_STATUS_CONFIG,
 } from '@/shared/status-badge';
 import type { StatusBadgeConfig } from '@/shared/status-badge';
-import { StatCard, MetricCard, ChartCard, InsightCard, DashboardGrid, PageHeader, EmptyState } from '@/components/system';
+import { StatCard, MetricCard, ChartCard, InsightCard, DashboardGrid, PageHeader, EmptyState } from '@/shared/components/system';
 import { spacing, typography, cardVariants } from '@/theme/tokens';
 import {
   BarChart3, TrendingUp, CheckCircle, Star, AlertCircle, Lightbulb, Users
@@ -95,7 +95,7 @@ export default function ComponentShowcase() {
       {/* ════════ SYSTEM COMPONENTS ════════ */}
       <h2 className={typography.sectionTitle}>System Components</h2>
 
-      <ShowcaseSection label="PageHeader" code={`import { PageHeader } from "@/components/system";\n<PageHeader icon={…} title="…" subtitle="…" actions={…} />`}>
+      <ShowcaseSection label="PageHeader" code={`import { PageHeader } from "@/shared/components/system";\n<PageHeader icon={…} title="…" subtitle="…" actions={…} />`}>
         <PageHeader
           icon={<BarChart3 className="h-5 w-5 text-primary" />}
           title="Example Page Header"
@@ -104,7 +104,7 @@ export default function ComponentShowcase() {
         />
       </ShowcaseSection>
 
-      <ShowcaseSection label="StatCard" code={`import { StatCard, DashboardGrid } from "@/components/system";\n<DashboardGrid columns={3}>\n  <StatCard title="…" value="…" icon={…} trend={…} />\n</DashboardGrid>`}>
+      <ShowcaseSection label="StatCard" code={`import { StatCard, DashboardGrid } from "@/shared/components/system";\n<DashboardGrid columns={3}>\n  <StatCard title="…" value="…" icon={…} trend={…} />\n</DashboardGrid>`}>
         <DashboardGrid columns={3}>
           <StatCard title="Total Users" value="1,245" icon={<TrendingUp className="h-4 w-4 text-primary" />} trend={<span className="text-2xs text-chart-1">+12%</span>} />
           <StatCard title="Active" value="387" icon={<Users className="h-4 w-4 text-primary" />} />
@@ -112,7 +112,7 @@ export default function ComponentShowcase() {
         </DashboardGrid>
       </ShowcaseSection>
 
-      <ShowcaseSection label="MetricCard" code={`import { MetricCard } from "@/components/system";\n<MetricCard title="…" value="…" icon={…} description="…" />`}>
+      <ShowcaseSection label="MetricCard" code={`import { MetricCard } from "@/shared/components/system";\n<MetricCard title="…" value="…" icon={…} description="…" />`}>
         <DashboardGrid columns={4}>
           <MetricCard title="Revenue" value="$12.5K" icon={<Star className="h-4 w-4" />} description="+8.2%" />
           <MetricCard title="Tasks" value="156" icon={<CheckCircle className="h-4 w-4" />} />
@@ -121,13 +121,13 @@ export default function ComponentShowcase() {
         </DashboardGrid>
       </ShowcaseSection>
 
-      <ShowcaseSection label="ChartCard" code={`import { ChartCard } from "@/components/system";\n<ChartCard title="…" description="…">{children}</ChartCard>`}>
+      <ShowcaseSection label="ChartCard" code={`import { ChartCard } from "@/shared/components/system";\n<ChartCard title="…" description="…">{children}</ChartCard>`}>
         <ChartCard title="Weekly Trend" description="Chart card wrapper example">
           <div className="h-32 flex items-center justify-center text-muted-foreground text-sm">[Chart content]</div>
         </ChartCard>
       </ShowcaseSection>
 
-      <ShowcaseSection label="InsightCard" code={`import { InsightCard } from "@/components/system";\n<InsightCard icon={…} title="…" description="…" badge={…} />`}>
+      <ShowcaseSection label="InsightCard" code={`import { InsightCard } from "@/shared/components/system";\n<InsightCard icon={…} title="…" description="…" badge={…} />`}>
         <DashboardGrid columns={3}>
           <InsightCard icon={<Lightbulb className="h-4 w-4 text-primary" />} title="AI Insight" description="Productivity up 15%" badge={<Badge variant="secondary">New</Badge>} />
           <InsightCard icon={<AlertCircle className="h-4 w-4 text-destructive" />} title="Risk" description="3 overdue tasks" />
@@ -135,7 +135,7 @@ export default function ComponentShowcase() {
         </DashboardGrid>
       </ShowcaseSection>
 
-      <ShowcaseSection label="EmptyState" code={`import { EmptyState } from "@/components/system";\n<EmptyState title="…" description="…" actionLabel="…" onAction={…} />`}>
+      <ShowcaseSection label="EmptyState" code={`import { EmptyState } from "@/shared/components/system";\n<EmptyState title="…" description="…" actionLabel="…" onAction={…} />`}>
         <Card className={cardVariants.glass}>
           <CardContent>
             <EmptyState title="No data yet" description="Standard empty state component" actionLabel="Get Started" onAction={() => {}} />
@@ -149,7 +149,7 @@ export default function ComponentShowcase() {
       <h2 className={typography.sectionTitle}>UI Primitives</h2>
 
       {/* Buttons */}
-      <ShowcaseSection label="Button" code={`import { Button } from "@/components/ui/button";\n<Button variant="default | secondary | outline | ghost | destructive | link" size="default | sm | lg | icon" />`}>
+      <ShowcaseSection label="Button" code={`import { Button } from "@/shared/components/ui/button";\n<Button variant="default | secondary | outline | ghost | destructive | link" size="default | sm | lg | icon" />`}>
         <Card className={cardVariants.glass}>
           <CardContent className={`${spacing.cardStandard} space-y-4`}>
             <div className="flex flex-wrap gap-3">
@@ -171,7 +171,7 @@ export default function ComponentShowcase() {
       </ShowcaseSection>
 
       {/* Badge */}
-      <ShowcaseSection label="Badge" code={`import { Badge } from "@/components/ui/badge";\n<Badge variant="default | secondary | outline | destructive" />`}>
+      <ShowcaseSection label="Badge" code={`import { Badge } from "@/shared/components/ui/badge";\n<Badge variant="default | secondary | outline | destructive" />`}>
         <Card className={cardVariants.glass}>
           <CardContent className={`${spacing.cardStandard} flex flex-wrap gap-3`}>
             <Badge>Default</Badge>
@@ -183,7 +183,7 @@ export default function ComponentShowcase() {
       </ShowcaseSection>
 
       {/* Avatar */}
-      <ShowcaseSection label="Avatar" code={`import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";\n<Avatar><AvatarFallback>AB</AvatarFallback></Avatar>`}>
+      <ShowcaseSection label="Avatar" code={`import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";\n<Avatar><AvatarFallback>AB</AvatarFallback></Avatar>`}>
         <Card className={cardVariants.glass}>
           <CardContent className={`${spacing.cardStandard} flex items-center gap-4`}>
             <Avatar><AvatarFallback>JD</AvatarFallback></Avatar>
@@ -194,7 +194,7 @@ export default function ComponentShowcase() {
       </ShowcaseSection>
 
       {/* Forms */}
-      <ShowcaseSection label="Input / Textarea" code={`import { Input } from "@/components/ui/input";\nimport { Textarea } from "@/components/ui/textarea";`}>
+      <ShowcaseSection label="Input / Textarea" code={`import { Input } from "@/shared/components/ui/input";\nimport { Textarea } from "@/shared/components/ui/textarea";`}>
         <Card className={cardVariants.glass}>
           <CardContent className={`${spacing.cardStandard} space-y-4 max-w-md`}>
             <div className="space-y-1.5">
@@ -210,7 +210,7 @@ export default function ComponentShowcase() {
       </ShowcaseSection>
 
       {/* Select */}
-      <ShowcaseSection label="Select" code={`import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";`}>
+      <ShowcaseSection label="Select" code={`import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";`}>
         <Card className={cardVariants.glass}>
           <CardContent className={`${spacing.cardStandard} max-w-xs`}>
             <Select>
@@ -226,7 +226,7 @@ export default function ComponentShowcase() {
       </ShowcaseSection>
 
       {/* Switch & Checkbox */}
-      <ShowcaseSection label="Switch / Checkbox" code={`import { Switch } from "@/components/ui/switch";\nimport { Checkbox } from "@/components/ui/checkbox";`}>
+      <ShowcaseSection label="Switch / Checkbox" code={`import { Switch } from "@/shared/components/ui/switch";\nimport { Checkbox } from "@/shared/components/ui/checkbox";`}>
         <Card className={cardVariants.glass}>
           <CardContent className={`${spacing.cardStandard} space-y-4`}>
             <div className="flex items-center gap-3">
@@ -242,7 +242,7 @@ export default function ComponentShowcase() {
       </ShowcaseSection>
 
       {/* Dialog */}
-      <ShowcaseSection label="Dialog" code={`import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";`}>
+      <ShowcaseSection label="Dialog" code={`import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/components/ui/dialog";`}>
         <Card className={cardVariants.glass}>
           <CardContent className={spacing.cardStandard}>
             <Dialog>
@@ -262,7 +262,7 @@ export default function ComponentShowcase() {
       </ShowcaseSection>
 
       {/* Tabs */}
-      <ShowcaseSection label="Tabs" code={`import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";`}>
+      <ShowcaseSection label="Tabs" code={`import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";`}>
         <Card className={cardVariants.glass}>
           <CardContent className={spacing.cardStandard}>
             <Tabs defaultValue="tab1">
@@ -280,7 +280,7 @@ export default function ComponentShowcase() {
       </ShowcaseSection>
 
       {/* Table */}
-      <ShowcaseSection label="Table" code={`import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";`}>
+      <ShowcaseSection label="Table" code={`import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";`}>
         <Card className={cardVariants.glass}>
           <CardContent className={spacing.cardStandard}>
             <Table>
@@ -347,3 +347,4 @@ export default function ComponentShowcase() {
     </div>
   );
 }
+

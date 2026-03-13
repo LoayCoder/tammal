@@ -6,13 +6,13 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+} from '@/shared/components/ui/dialog';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Badge } from '@/shared/components/ui/badge';
+import { Separator } from '@/shared/components/ui/separator';
+import { Alert, AlertDescription } from '@/shared/components/ui/alert';
 import { 
   Shield, 
   Loader2, 
@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuth } from '@/features/auth/hooks/auth/useAuth';
 
 interface MFASetupDialogProps {
   open: boolean;
@@ -330,3 +330,4 @@ export function MFASetupDialog({ open, onOpenChange }: MFASetupDialogProps) {
     </Dialog>
   );
 }
+

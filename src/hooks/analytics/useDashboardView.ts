@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
-import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { useUserPermissions, useHasRole } from '@/features/auth/hooks/auth/useUserPermissions';
+import { useCurrentEmployee } from '@/features/auth/hooks/auth/useCurrentEmployee';
 
 export type DashboardView = 'overview' | 'wellness' | 'personal';
 
@@ -34,3 +34,4 @@ export function useDashboardView() {
     isPending: permLoading || roleLoading || empLoading,
   };
 }
+

@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
 import { Upload, FileText, Trash2, Loader2 } from 'lucide-react';
 import { useFrameworkDocuments } from '@/hooks/questions/useFrameworkDocuments';
 

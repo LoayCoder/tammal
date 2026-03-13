@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { Users, UserCheck, UserX, TrendingUp, TrendingDown, SmilePlus, Flame, Percent, type LucideIcon } from 'lucide-react';
 import type { ParticipationStats } from '@/hooks/analytics/useCheckinMonitor';

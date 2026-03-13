@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
 import { ChevronRight } from 'lucide-react';
-import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
-import { useHijriToday, ISLAMIC_EVENTS, isWhiteDay, isSunnahFastingDay } from '@/hooks/spiritual/useHijriCalendar';
+import { useSpiritualPreferences } from '@/features/spiritual/hooks/spiritual/useSpiritualPreferences';
+import { useHijriToday, ISLAMIC_EVENTS, isWhiteDay, isSunnahFastingDay } from '@/features/spiritual/hooks/spiritual/useHijriCalendar';
 
 export function DashboardIslamicCalendarWidget() {
   const { t, i18n } = useTranslation();
@@ -89,3 +89,4 @@ export function DashboardIslamicCalendarWidget() {
     </Card>
   );
 }
+

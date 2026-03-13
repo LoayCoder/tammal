@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { useEndorsements } from '@/hooks/recognition/useEndorsements';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { Badge } from '@/shared/components/ui/badge';
+import { useEndorsements } from '@/features/recognition/hooks/recognition/useEndorsements';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ThumbsUp, ChevronRight } from 'lucide-react';
@@ -89,3 +89,5 @@ export function DashboardEndorsementRequests() {
     </div>
   );
 }
+
+

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { SaasStatsSection } from './SaasStatsSection';
 import { AuditLogTable } from '@/components/audit/AuditLogTable';
 import { useAuditLog } from '@/hooks/audit/useAuditLog';

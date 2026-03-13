@@ -3,7 +3,7 @@
 // All logic delegated to src/lib/analytics/.
 
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuth } from '@/features/auth/hooks/auth/useAuth';
 import { subDays, format, eachDayOfInterval, parseISO } from 'date-fns';
 
 // Re-export all types for backward compat
@@ -12,11 +12,11 @@ export type {
   DayOfWeekActivity, RiskTrendPoint, OrgUnitComparison, OrgComparison, TopEngager,
   CheckinMoodOverTimePoint, SupportActionCount, StreakBucket, CheckinByOrgUnitItem,
   OrgAnalyticsData, TrendOverlayPoint,
-} from '@/lib/analytics/types';
-export { emptyResult } from '@/lib/analytics/types';
+} from '@/shared/utils/analytics/types';
+export { emptyResult } from '@/shared/utils/analytics/types';
 
-import type { TimeRange, OrgFilter, OrgAnalyticsData } from '@/lib/analytics/types';
-import { emptyResult } from '@/lib/analytics/types';
+import type { TimeRange, OrgFilter, OrgAnalyticsData } from '@/shared/utils/analytics/types';
+import { emptyResult } from '@/shared/utils/analytics/types';
 
 import {
   hasOrgFilter, resolveFilteredEmployeeIds, fetchMoodEntries,
@@ -25,16 +25,16 @@ import {
   fetchCategoryAnalysis, computeCategoryTrendsAndMatrix,
   fetchPreviousPeriodComparison, fetchResponseDailyMap,
   computeTrendOverlay,
-} from '@/lib/analytics/queries';
+} from '@/shared/utils/analytics/queries';
 
 import {
   computeKPIs, computeStreaks, computeMoodDistribution, computeDailyTrend,
   computeDayOfWeekActivity, computeRiskTrend, computeCheckinMoodOverTime,
   computeSupportActions, computeStreakDistribution, computeCheckinByOrgUnit,
   computeCategoryRiskScores, computeHealthScore, detectEarlyWarnings,
-} from '@/lib/analytics/computations';
+} from '@/shared/utils/analytics/computations';
 
-import { computeCheckinPulse, computeSurveyStructural, computeSynthesis } from '@/lib/analytics/synthesis';
+import { computeCheckinPulse, computeSurveyStructural, computeSynthesis } from '@/shared/utils/analytics/synthesis';
 
 export function useOrgAnalytics(
   timeRange: TimeRange = 30,
@@ -157,3 +157,4 @@ export function useOrgAnalytics(
 
   return { data, isPending: isPending && isFetching };
 }
+

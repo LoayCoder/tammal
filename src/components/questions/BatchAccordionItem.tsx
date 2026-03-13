@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
-import { AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { AccordionContent, AccordionItem, AccordionTrigger } from '@/shared/components/ui/accordion';
 import { Trash2, Calendar, User, Hash, ClipboardList, Heart, Send, Ban, CheckCircle, Pencil, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { BatchQuestionTable } from './BatchQuestionTable';

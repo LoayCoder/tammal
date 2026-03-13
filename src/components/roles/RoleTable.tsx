@@ -1,19 +1,19 @@
 import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/shared/components/ui/dropdown-menu';
 import { MoreHorizontal, Edit, Key, Trash2, Shield } from 'lucide-react';
-import { formatDate } from '@/lib/utils';
+import { formatDate } from '@/shared/utils/utils';
 import { DataTable } from '@/shared/data-table/DataTable';
 import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
 import type { ColumnDef } from '@/shared/data-table/types';
-import type { Role } from '@/hooks/auth/useRoles';
+import type { Role } from '@/features/auth/hooks/auth/useRoles';
 import { useState } from 'react';
 
 interface RoleTableProps {
@@ -152,3 +152,4 @@ export function RoleTable({ roles, isLoading, onEdit, onManagePermissions, onDel
     </>
   );
 }
+

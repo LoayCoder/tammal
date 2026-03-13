@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, LineChart, Line, Area, AreaChart,
@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { format, subDays, startOfDay, eachDayOfInterval } from 'date-fns';
 import { useMemo, useState } from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
 import { useTaskPerformanceAnalytics } from '@/features/tasks/hooks/useTaskPerformanceAnalytics';
 import { CHART_AXIS_TICK, CHART_TOOLTIP_STYLE, CHART_GRID_STROKE } from '@/config/chart-styles';
 

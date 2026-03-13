@@ -4,16 +4,16 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Progress } from '@/components/ui/progress';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Badge } from '@/shared/components/ui/badge';
+import { Checkbox } from '@/shared/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/shared/components/ui/radio-group';
+import { ScrollArea } from '@/shared/components/ui/scroll-area';
+import { Progress } from '@/shared/components/ui/progress';
 import { Users, Building2, UserCheck, Search } from 'lucide-react';
-import type { ScheduleFormState } from '@/hooks/admin/useScheduleReducer';
-import type { AudienceResult, AudienceEmployee } from '@/hooks/admin/useAudienceResolver';
+import type { ScheduleFormState } from '@/features/admin/hooks/admin/useScheduleReducer';
+import type { AudienceResult, AudienceEmployee } from '@/features/admin/hooks/admin/useAudienceResolver';
 
 interface ScheduleAudienceSelectorProps {
   state: ScheduleFormState;
@@ -174,3 +174,4 @@ export default function ScheduleAudienceSelector({
     </div>
   );
 }
+

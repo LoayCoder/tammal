@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   Line, ComposedChart, Area,
@@ -11,7 +11,7 @@ import { RiskTrendChart } from '@/components/dashboard/RiskTrendChart';
 import { CategoryHealthChart } from '@/components/dashboard/CategoryHealthChart';
 import { AffectiveStateChart } from '@/components/dashboard/AffectiveStateChart';
 import { TopEngagersCard } from '@/components/dashboard/TopEngagersCard';
-import type { OrgAnalyticsData } from '@/lib/analytics/types';
+import type { OrgAnalyticsData } from '@/shared/utils/analytics/types';
 import type { TrendDataPoint } from '../types';
 
 const GLASS_TOOLTIP = {

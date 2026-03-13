@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/components/ui/card';
+import { Progress } from '@/shared/components/ui/progress';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { Badge } from '@/shared/components/ui/badge';
 import { useTenantUsage } from '@/hooks/org/useTenantUsage';
-import { useProfile } from '@/hooks/auth/useProfile';
+import { useProfile } from '@/features/auth/hooks/auth/useProfile';
 import { useSubscriptions } from '@/hooks/org/useSubscriptions';
 import { Users, HardDrive, Activity, TrendingUp, TrendingDown, CreditCard } from 'lucide-react';
 
@@ -168,3 +168,4 @@ export default function UsageBilling() {
     </div>
   );
 }
+

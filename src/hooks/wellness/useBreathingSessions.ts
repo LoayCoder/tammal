@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { useCurrentEmployee } from '@/features/auth/hooks/auth/useCurrentEmployee';
 import { useMemo } from 'react';
 import { format, subDays, startOfMonth } from 'date-fns';
 
@@ -179,3 +179,4 @@ export function useBreathingSessions() {
     isCompleting: completeSessionMutation.isPending,
   };
 }
+

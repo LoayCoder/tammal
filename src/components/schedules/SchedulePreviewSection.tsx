@@ -4,15 +4,15 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Input } from '@/shared/components/ui/input';
+import { Badge } from '@/shared/components/ui/badge';
+import { Progress } from '@/shared/components/ui/progress';
+import { ScrollArea } from '@/shared/components/ui/scroll-area';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/shared/components/ui/dialog';
 import { Search, Check, X } from 'lucide-react';
 import type { QuestionSchedule } from '@/hooks/questions/useQuestionSchedules';
-import type { AudienceResult } from '@/hooks/admin/useAudienceResolver';
+import type { AudienceResult } from '@/features/admin/hooks/admin/useAudienceResolver';
 
 interface SchedulePreviewSectionProps {
   audienceViewSchedule: QuestionSchedule | null;
@@ -124,3 +124,4 @@ export default function SchedulePreviewSection({
     </Dialog>
   );
 }
+

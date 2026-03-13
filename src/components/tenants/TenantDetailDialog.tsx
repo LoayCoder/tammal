@@ -7,14 +7,14 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+} from '@/shared/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { Badge } from '@/shared/components/ui/badge';
 import { TenantStatusBadge } from './TenantStatusBadge';
 import { TenantTrialControl } from './TenantTrialControl';
 import { TenantSecurityControl, type SecuritySettings, DEFAULT_SECURITY_SETTINGS } from './TenantSecurityControl';
 import { InvitationManagement } from './InvitationManagement';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Building2, Calendar, Users, Globe, Mail, Phone, FileText } from 'lucide-react';
 import type { Tenant } from '@/hooks/org/useTenants';
 

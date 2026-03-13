@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Badge } from '@/shared/components/ui/badge';
+import { Checkbox } from '@/shared/components/ui/checkbox';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
 import type { BatchQuestion } from '@/hooks/questions/useQuestionBatches';
 
 function ExpandableBatchText({ text, dir }: { text: string; dir?: string }) {

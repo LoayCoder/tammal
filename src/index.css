@@ -9,52 +9,52 @@
 
 @layer base {
   :root {
-    --background: 0 0% 95%;
-    --foreground: 0 0% 19%;
+    --background: 240 20% 98%;
+    --foreground: 240 10% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 19%;
+    --card-foreground: 240 10% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 19%;
+    --popover-foreground: 240 10% 20%;
 
-    --primary: 220 89% 56%;
+    --primary: 240 80% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 28%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 240 10% 96%;
+    --secondary-foreground: 240 10% 20%;
 
-    --muted: 0 0% 57%;
-    --muted-foreground: 0 0% 46%;
+    --muted: 240 10% 92%;
+    --muted-foreground: 240 10% 40%;
 
-    --accent: 187 100% 42%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 240 10% 96%;
+    --accent-foreground: 240 10% 20%;
 
-    --destructive: 4 90% 58%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 89%;
-    --input: 0 0% 89%;
-    --ring: 220 89% 56%;
+    --border: 240 10% 90%;
+    --input: 240 10% 90%;
+    --ring: 240 80% 60%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 19%;
-    --sidebar-primary: 220 89% 56%;
+    --sidebar-foreground: 240 10% 20%;
+    --sidebar-primary: 240 80% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 28%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 89%;
-    --sidebar-ring: 220 89% 56%;
-    --sidebar-active-bg: 220 89% 96%;
-    --sidebar-hover-bg: 0 0% 97%;
+    --sidebar-accent: 240 10% 96%;
+    --sidebar-accent-foreground: 240 10% 20%;
+    --sidebar-border: 240 10% 90%;
+    --sidebar-ring: 240 80% 60%;
+    --sidebar-active-bg: 240 80% 96%;
+    --sidebar-hover-bg: 240 20% 98%;
 
-    --chart-1: 220 89% 56%;
+    --chart-1: 240 80% 60%;
     --chart-2: 187 100% 42%;
     --chart-3: 36 100% 50%;
-    --chart-4: 0 0% 46%;
-    --chart-5: 0 0% 28%;
+    --chart-4: 240 10% 40%;
+    --chart-5: 240 10% 20%;
 
     /* Mental Toolkit palette */
     --toolkit-lavender: 263 52% 81%;
@@ -96,65 +96,65 @@
     --font-serif: 'Lora', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-mono: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
-    --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.03);
-    --shadow-xs: 1px 1px 3px hsl(210 11% 29% / 0.06);
-    --shadow-sm: 2px 2px 7px hsl(210 11% 29% / 0.08);
-    --shadow: 2px 2px 7px hsl(210 11% 29% / 0.08);
-    --shadow-md: 2px 2px 10px hsl(210 11% 29% / 0.1);
-    --shadow-lg: 2px 4px 16px hsl(210 11% 29% / 0.12);
-    --shadow-xl: 2px 6px 24px hsl(210 11% 29% / 0.14);
-    --shadow-2xl: 2px 8px 32px hsl(210 11% 29% / 0.18);
-    --shadow-tooltip: 0px 4px 30px hsl(249 43% 32% / 0.1);
+    --shadow-2xs: 0 1px 2px 0 hsl(240 10% 15% / 0.05);
+    --shadow-xs: 0 2px 4px -1px hsl(240 10% 15% / 0.06);
+    --shadow-sm: 0 4px 6px -2px hsl(240 10% 15% / 0.08);
+    --shadow: 0 4px 6px -2px hsl(240 10% 15% / 0.08);
+    --shadow-md: 0 8px 16px -4px hsl(240 10% 15% / 0.1);
+    --shadow-lg: 0 16px 32px -8px hsl(240 10% 15% / 0.12);
+    --shadow-xl: 0 24px 48px -12px hsl(240 10% 15% / 0.15);
+    --shadow-2xl: 0 32px 64px -16px hsl(240 10% 15% / 0.2);
+    --shadow-tooltip: 0px 4px 30px hsl(240 10% 15% / 0.1);
 
     --tracking-normal: 0em;
     --spacing: 0.25rem;
   }
 
   .dark {
-    --background: 0 0% 10%;
+    --background: 240 10% 4%;
     --foreground: 0 0% 95%;
 
-    --card: 0 0% 14%;
+    --card: 240 10% 8%;
     --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 16%;
+    --popover: 240 10% 8%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 220 89% 62%;
+    --primary: 240 80% 64%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 75%;
-    --secondary-foreground: 0 0% 10%;
+    --secondary: 240 10% 16%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 0 0% 35%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 240 10% 16%;
+    --muted-foreground: 240 10% 60%;
 
-    --accent: 187 80% 45%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 240 10% 16%;
+    --accent-foreground: 0 0% 95%;
 
-    --destructive: 4 80% 55%;
+    --destructive: 0 80% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 22%;
-    --input: 0 0% 22%;
-    --ring: 220 89% 62%;
+    --border: 240 10% 16%;
+    --input: 240 10% 16%;
+    --ring: 240 80% 64%;
 
-    --sidebar-background: 0 0% 8%;
+    --sidebar-background: 240 10% 6%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 220 89% 62%;
+    --sidebar-primary: 240 80% 64%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 60%;
-    --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 0 0% 22%;
-    --sidebar-ring: 220 89% 62%;
-    --sidebar-active-bg: 220 40% 18%;
-    --sidebar-hover-bg: 0 0% 14%;
+    --sidebar-accent: 240 10% 16%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 240 10% 16%;
+    --sidebar-ring: 240 80% 64%;
+    --sidebar-active-bg: 240 40% 16%;
+    --sidebar-hover-bg: 240 10% 10%;
 
-    --chart-1: 220 89% 65%;
+    --chart-1: 240 80% 64%;
     --chart-2: 187 80% 50%;
     --chart-3: 36 90% 55%;
-    --chart-4: 0 0% 50%;
-    --chart-5: 0 0% 35%;
+    --chart-4: 240 10% 50%;
+    --chart-5: 240 10% 30%;
 
     /* Mental Toolkit palette (dark) */
     --toolkit-lavender: 263 40% 68%;
@@ -188,15 +188,15 @@
     --org-default: 220 89% 62%;
     --sidebar: 0 0% 14%;
 
-    --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.08);
-    --shadow-xs: 1px 1px 3px hsl(0 0% 0% / 0.15);
-    --shadow-sm: 2px 2px 7px hsl(0 0% 0% / 0.2);
-    --shadow: 2px 2px 7px hsl(0 0% 0% / 0.2);
-    --shadow-md: 2px 2px 10px hsl(0 0% 0% / 0.25);
-    --shadow-lg: 2px 4px 16px hsl(0 0% 0% / 0.3);
-    --shadow-xl: 2px 6px 24px hsl(0 0% 0% / 0.35);
-    --shadow-2xl: 2px 8px 32px hsl(0 0% 0% / 0.4);
-    --shadow-tooltip: 0px 4px 30px hsl(249 43% 32% / 0.15);
+    --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.1);
+    --shadow-xs: 0 2px 4px -1px hsl(0 0% 0% / 0.15);
+    --shadow-sm: 0 4px 6px -2px hsl(0 0% 0% / 0.2);
+    --shadow: 0 4px 6px -2px hsl(0 0% 0% / 0.2);
+    --shadow-md: 0 8px 16px -4px hsl(0 0% 0% / 0.3);
+    --shadow-lg: 0 16px 32px -8px hsl(0 0% 0% / 0.4);
+    --shadow-xl: 0 24px 48px -12px hsl(0 0% 0% / 0.5);
+    --shadow-2xl: 0 32px 64px -16px hsl(0 0% 0% / 0.6);
+    --shadow-tooltip: 0px 4px 30px hsl(0 0% 0% / 0.3);
   }
 }
 
@@ -213,54 +213,71 @@
 @layer components {
   /* ── Flat Card Utilities (Orbitask) ── */
   .glass {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card) / 0.85);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
     box-shadow: var(--shadow-sm);
     border-radius: var(--radius);
   }
 
   .glass-card {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card) / 0.85);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
     box-shadow: var(--shadow-sm);
     border-radius: var(--radius);
+    transition: all 0.3s ease-out;
   }
 
   .dark .glass-card {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card) / 0.6);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.2);
     box-shadow: var(--shadow-sm);
   }
 
   .glass-badge {
-    background: hsl(var(--muted) / 0.12);
-    border: 1px solid hsl(var(--border));
+    background: hsl(var(--muted) / 0.4);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border: 1px solid hsl(var(--border) / 0.3);
     border-radius: 9999px;
   }
 
   /* ── Sidebar ── */
   .glass-sidebar {
-    background: hsl(var(--sidebar-background));
-    border-inline-end: 1px solid hsl(var(--border));
+    background: hsl(var(--sidebar-background) / 0.85);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-inline-end: 1px solid hsl(var(--border) / 0.5);
   }
 
   .dark .glass-sidebar {
-    background: hsl(var(--sidebar-background));
-    border-inline-end: 1px solid hsl(var(--border));
+    background: hsl(var(--sidebar-background) / 0.6);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-inline-end: 1px solid hsl(var(--border) / 0.2);
   }
 
   /* ── Stat Card ── */
   .glass-stat {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card) / 0.85);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
     box-shadow: var(--shadow-sm);
     border-radius: var(--radius);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
   .dark .glass-stat {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card) / 0.6);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.2);
     box-shadow: var(--shadow-sm);
   }
 
@@ -271,15 +288,19 @@
 
   /* ── Chart Container ── */
   .glass-chart {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card) / 0.85);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
     box-shadow: var(--shadow-sm);
     border-radius: var(--radius);
   }
 
   .dark .glass-chart {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card) / 0.6);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.2);
     box-shadow: var(--shadow-sm);
   }
 
@@ -291,25 +312,33 @@
 
   /* ── Header ── */
   .glass-header {
-    background: hsl(var(--card));
-    border-bottom: 1px solid hsl(var(--border));
+    background: hsl(var(--card) / 0.85);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid hsl(var(--border) / 0.5);
   }
 
   .dark .glass-header {
-    background: hsl(var(--card));
-    border-bottom: 1px solid hsl(var(--border));
+    background: hsl(var(--card) / 0.6);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid hsl(var(--border) / 0.2);
   }
 
   /* ── Tabs ── */
   .glass-tabs {
-    background: hsl(var(--background));
-    border: 1px solid hsl(var(--border));
+    background: hsl(var(--background) / 0.85);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
     border-radius: var(--radius);
     padding: 0.25rem;
   }
 
   .dark .glass-tabs {
-    background: hsl(var(--background));
+    background: hsl(var(--background) / 0.6);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
   }
 }
 

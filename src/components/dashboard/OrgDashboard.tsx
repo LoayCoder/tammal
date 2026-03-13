@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/shared/components/ui/tabs';
 import { OrgFilterBar } from './OrgFilterBar';
 import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 import {

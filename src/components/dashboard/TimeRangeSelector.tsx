@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
+import { ToggleGroup, ToggleGroupItem } from '@/shared/components/ui/toggle-group';
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
+import { Button } from '@/shared/components/ui/button';
+import { Calendar } from '@/shared/components/ui/calendar';
 import { CalendarIcon } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import type { TimeRange } from '@/hooks/analytics/useOrgAnalytics';

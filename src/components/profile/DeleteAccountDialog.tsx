@@ -10,9 +10,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+} from '@/shared/components/ui/alert-dialog';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
 import {
   Form,
   FormControl,
@@ -20,10 +20,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+} from '@/shared/components/ui/form';
+import { Alert, AlertDescription } from '@/shared/components/ui/alert';
 import { AlertTriangle, Loader2, Trash2 } from 'lucide-react';
-import { useDeleteAccount } from '@/hooks/auth/useDeleteAccount';
+import { useDeleteAccount } from '@/features/auth/hooks/auth/useDeleteAccount';
 import { useState } from 'react';
 
 interface DeleteAccountDialogProps {
@@ -132,3 +132,4 @@ export function DeleteAccountDialog({ open, onOpenChange }: DeleteAccountDialogP
     </AlertDialog>
   );
 }
+

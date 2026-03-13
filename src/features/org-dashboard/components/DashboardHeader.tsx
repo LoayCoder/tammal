@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { TimeRangeSelector } from '@/components/dashboard/TimeRangeSelector';
-import type { TimeRange } from '@/lib/analytics/types';
+import type { TimeRange } from '@/shared/utils/analytics/types';
 
 interface Props {
   timeRange: TimeRange;

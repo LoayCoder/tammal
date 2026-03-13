@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { StatCard, MetricCard, ChartCard, InsightCard, DashboardGrid, PageHeader } from "@/components/system";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Button } from "@/shared/components/ui/button";
+import { Badge } from "@/shared/components/ui/badge";
+import { Separator } from "@/shared/components/ui/separator";
+import { StatCard, MetricCard, ChartCard, InsightCard, DashboardGrid, PageHeader } from "@/shared/components/system";
 import { EmptyState } from "@/shared/empty/EmptyState";
 import { spacing, typography, cardVariants, layout, iconBox } from "@/theme/tokens";
 import { DESIGN_SYSTEM } from "@/theme/version";
@@ -343,7 +343,7 @@ export default function DesignSystemPage() {
       <Section title="UI Governance Rules" icon={<Shield className="h-5 w-5 text-primary" />}>
         <div className="grid gap-4 md:grid-cols-2">
           <RuleCard title="Component Usage">
-            <p>✅ Always use system components from <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">@/components/system</code></p>
+            <p>✅ Always use system components from <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">@/shared/components/system</code></p>
             <p>❌ Never create card containers using raw <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"<div className=\"p-6 rounded-lg\">"}</code></p>
             <p>✅ Use <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"<StatCard />"}</code>, <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"<MetricCard />"}</code>, <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"<ChartCard />"}</code></p>
             <p>✅ All page titles must use <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"<PageHeader />"}</code></p>
@@ -366,7 +366,7 @@ export default function DesignSystemPage() {
           </RuleCard>
 
           <RuleCard title="Feature Isolation">
-            <p>✅ Import from system: <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"import { MetricCard } from '@/components/system'"}</code></p>
+            <p>✅ Import from system: <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"import { MetricCard } from '@/shared/components/system'"}</code></p>
             <p>❌ Never redefine system components inside feature modules</p>
             <p>❌ Never create custom metric/stat/chart cards in features</p>
             <p>✅ Feature modules live in <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">src/features/*</code> and consume system components</p>
@@ -400,3 +400,4 @@ export default function DesignSystemPage() {
     </div>
   );
 }
+

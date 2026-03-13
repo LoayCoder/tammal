@@ -1,6 +1,6 @@
 // ── useCycleBuilder — orchestrator hook ──
 import { useState, useCallback, useMemo } from 'react';
-import { useAwardCycles, type CreateCycleInput } from '@/hooks/recognition/useAwardCycles';
+import { useAwardCycles, type CreateCycleInput } from '@/features/recognition/hooks/recognition/useAwardCycles';
 import type { CycleStep, FairnessSettings } from '../types';
 import { DEFAULT_FAIRNESS, DEFAULT_FORM, buildFairnessConfig, isBasicsValid } from '../types';
 
@@ -46,3 +46,5 @@ export function useCycleBuilder(onClose: () => void) {
     onClose,
   };
 }
+
+

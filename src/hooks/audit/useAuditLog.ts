@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables, TablesInsert } from '@/integrations/supabase/types';
-import { logger } from '@/lib/logger';
+import { logger } from '@/shared/utils/logger';
 
 export type AuditLog = Tables<'audit_logs'>;
 export type AuditLogInsert = TablesInsert<'audit_logs'>;

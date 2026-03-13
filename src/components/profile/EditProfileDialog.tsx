@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from '@/shared/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -19,11 +19,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useProfile } from '@/hooks/auth/useProfile';
+} from '@/shared/components/ui/form';
+import { Input } from '@/shared/components/ui/input';
+import { Button } from '@/shared/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import { useProfile } from '@/features/auth/hooks/auth/useProfile';
 
 interface EditProfileDialogProps {
   open: boolean;
@@ -261,3 +261,4 @@ export function EditProfileDialog({
     </Dialog>
   );
 }
+

@@ -1,14 +1,14 @@
 import { useTranslation } from 'react-i18next';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import { Button } from '@/shared/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/shared/components/ui/dropdown-menu';
 import { MoreHorizontal, Shield, UserCog, Pencil, UserX, Ban, UserCheck, Trash2 } from 'lucide-react';
 import type { UserWithRoles } from '@/hooks/org/useUsers';
 

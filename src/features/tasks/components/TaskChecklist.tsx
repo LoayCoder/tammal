@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/shared/components/ui/checkbox';
+import { Input } from '@/shared/components/ui/input';
+import { Button } from '@/shared/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 
 export interface ChecklistItem {

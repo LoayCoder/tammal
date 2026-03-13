@@ -26,7 +26,7 @@ let hookState = {
   goToLogin: mockGoToLogin,
 };
 
-vi.mock('@/hooks/auth/useAcceptInvite', () => ({
+vi.mock('@/features/auth/hooks/auth/useAcceptInvite', () => ({
   useAcceptInvite: () => hookState,
 }));
 
@@ -42,15 +42,15 @@ vi.mock('react-router-dom', () => ({
   useNavigate: () => vi.fn(),
 }));
 
-vi.mock('@/components/ThemeToggle', () => ({
+vi.mock('@/shared/components/ThemeToggle', () => ({
   ThemeToggle: () => React.createElement('div', { 'data-testid': 'theme-toggle' }),
 }));
 
-vi.mock('@/components/LanguageSelector', () => ({
+vi.mock('@/shared/components/LanguageSelector', () => ({
   LanguageSelector: () => React.createElement('div', { 'data-testid': 'lang-selector' }),
 }));
 
-import AcceptInvite from '@/pages/auth/AcceptInvite';
+import AcceptInvite from '@/features/auth/pages/Auth/AcceptInvite';
 
 describe('AcceptInvite — E2E Smoke', () => {
   beforeEach(() => {
@@ -193,3 +193,6 @@ describe('AcceptInvite — E2E Smoke', () => {
     expect(mockGoToLogin).toHaveBeenCalled();
   });
 });
+
+
+

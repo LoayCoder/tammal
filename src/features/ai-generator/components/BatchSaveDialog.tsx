@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/shared/components/ui/dialog';
+import { Button } from '@/shared/components/ui/button';
+import { RadioGroup, RadioGroupItem } from '@/shared/components/ui/radio-group';
+import { Label } from '@/shared/components/ui/label';
+import { Badge } from '@/shared/components/ui/badge';
+import { Alert, AlertDescription } from '@/shared/components/ui/alert';
 import { AlertTriangle, Plus, FolderPlus } from 'lucide-react';
 import type { QuestionBatch } from '@/hooks/questions/useQuestionBatches';
 

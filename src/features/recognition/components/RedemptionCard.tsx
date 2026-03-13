@@ -1,0 +1,105 @@
+import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Coins, Gift, Clock, Coffee, Heart, ShoppingBag } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/shared/components/ui/alert-dialog';
+import type { RedemptionOption } from '@/features/recognition/hooks/recognition/useRedemption';
+
+interface RedemptionCardProps {
+  option: RedemptionOption;
+  balance: number;
+  onRedeem: (optionId: string, cost: number) => void;
+  isRedeeming?: boolean;
+}
+
+const categoryIcon = (category: string) => {
+  switch (category) {
+    case 'time_off': return Clock;
+    case 'cash_equivalent': return Coins;
+    case 'experience': return Coffee;
+    case 'charity': return Heart;
+    case 'merchandise': return ShoppingBag;
+    default: return Gift;
+  }
+};
+
+export function RedemptionCard({ option, balance, onRedeem, isRedeeming }: RedemptionCardProps) {
+  const { t, i18n } = useTranslation();
+  const Icon = categoryIcon(option.category);
+  const name = i18n.language === 'ar' && option.name_ar ? option.name_ar : option.name;
+  const description = i18n.language === 'ar' && option.description_ar ? option.description_ar : option.description;
+  const canAfford = balance >= option.points_cost;
+
+  return (
+    <Card className="flex flex-col">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <Badge variant="outline" className="gap-1">
+            <Icon className="h-3 w-3" />
+            {t(`recognition.points.categories.${option.category}`, option.category)}
+          </Badge>
+          <span className="text-sm font-semibold text-primary flex items-center gap-1">
+            <Coins className="h-3.5 w-3.5" />
+            {option.points_cost}
+          </span>
+        </div>
+        <CardTitle className="text-base mt-2">{name}</CardTitle>
+        {description && <CardDescription className="text-sm">{description}</CardDescription>}
+      </CardHeader>
+      <CardContent className="flex-1">
+        {option.max_per_year && (
+          <p className="text-xs text-muted-foreground">
+            {t('recognition.points.maxPerYear', { count: option.max_per_year })}
+          </p>
+        )}
+        {option.min_tenure_months && (
+          <p className="text-xs text-muted-foreground">
+            {t('recognition.points.minTenure', { months: option.min_tenure_months })}
+          </p>
+        )}
+      </CardContent>
+      <CardFooter>
+        {canAfford ? (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button className="w-full" disabled={isRedeeming}>
+                {t('recognition.points.redeem')}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t('recognition.points.confirmRedeemTitle')}</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t('recognition.points.confirmRedeemDescription', { reward: name, points: option.points_cost })}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onRedeem(option.id, option.points_cost)}>
+                  {t('recognition.points.confirmRedeem')}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        ) : (
+          <Button className="w-full" disabled>
+            {t('recognition.points.insufficientPoints')}
+          </Button>
+        )}
+      </CardFooter>
+    </Card>
+  );
+}
+
+

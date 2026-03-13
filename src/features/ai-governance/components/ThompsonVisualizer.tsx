@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { useTranslation } from 'react-i18next';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { GovernanceSummaryRow } from '@/features/ai-governance/hooks/useGovernanceSummary';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 
 interface Props {
   summary: GovernanceSummaryRow[];

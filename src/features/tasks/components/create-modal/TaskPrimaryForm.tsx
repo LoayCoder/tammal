@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
+import { Label } from '@/shared/components/ui/label';
+import { Input } from '@/shared/components/ui/input';
+import { Textarea } from '@/shared/components/ui/textarea';
+import { Separator } from '@/shared/components/ui/separator';
 import { TaskChecklist, type ChecklistItem } from '../TaskChecklist';
 import { TaskAttachments } from '../TaskAttachments';
 import { TaskTemplatePicker } from '../TaskTemplatePicker';

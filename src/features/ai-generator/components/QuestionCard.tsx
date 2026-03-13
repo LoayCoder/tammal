@@ -1,20 +1,20 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Progress } from '@/components/ui/progress';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Textarea } from '@/shared/components/ui/textarea';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/shared/components/ui/collapsible';
+import { Progress } from '@/shared/components/ui/progress';
 import {
   RefreshCw, Edit2, Copy, ChevronDown, Check, X,
   AlertTriangle, CheckCircle, XCircle, Info, Sparkles, Loader2, Plus
 } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
 import { EnhancedGeneratedQuestion } from '@/hooks/questions/useEnhancedAIGeneration';
 import { toast } from 'sonner';
-import { useQuestionRewrite } from '@/hooks/admin/useQuestionRewrite';
+import { useQuestionRewrite } from '@/features/admin/hooks/admin/useQuestionRewrite';
 import type { QuestionPurpose } from './ConfigPanel';
 import type { MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';
 import { DEFAULT_MOOD_META } from '@/config/moods';
@@ -386,3 +386,4 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
     </Card>
   );
 }
+

@@ -10,7 +10,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/shared/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -18,19 +18,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from '@/shared/components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+} from '@/shared/components/ui/select';
+import { Input } from '@/shared/components/ui/input';
+import { Textarea } from '@/shared/components/ui/textarea';
+import { Button } from '@/shared/components/ui/button';
 import { Loader2 } from 'lucide-react';
-import type { Role, CreateRoleInput, UpdateRoleInput } from '@/hooks/auth/useRoles';
+import type { Role, CreateRoleInput, UpdateRoleInput } from '@/features/auth/hooks/auth/useRoles';
 
 const createRoleSchema = (t: (key: string) => string) => z.object({
   name: z.string().min(1, t('validation.roleNameRequired')),
@@ -258,3 +258,4 @@ export function RoleDialog({ open, onOpenChange, role, tenantId, onSave, isSavin
     </Dialog>
   );
 }
+

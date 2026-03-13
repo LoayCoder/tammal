@@ -49,3 +49,12 @@ export const iconBox = {
   md: 'w-10 h-10 rounded-lg flex items-center justify-center shrink-0',
   lg: 'w-14 h-14 rounded-lg flex items-center justify-center shrink-0',
 } as const;
+
+// ── Animations ───────────────────────────────────────────────────────
+export const animations = {
+  fadeIn: 'animate-in fade-in duration-500',
+  slideUp: 'animate-in slide-in-from-bottom-4 duration-500',
+  zoomIn: 'animate-in zoom-in duration-500',
+  hoverScale: 'hover:scale-[1.02] transition-transform duration-300',
+  hoverGlow: 'hover:shadow-md hover:shadow-primary/10 transition-all duration-300 ease-out',
+} as const;

@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Badge } from '@/shared/components/ui/badge';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, UserX, TrendingDown, Building2 } from 'lucide-react';
 import type { RiskAlert } from '@/hooks/analytics/useCheckinMonitor';

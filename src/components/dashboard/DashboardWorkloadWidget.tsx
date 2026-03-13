@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { isAfter, isBefore, format, addDays } from 'date-fns';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Badge } from '@/shared/components/ui/badge';
+import { Progress } from '@/shared/components/ui/progress';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { useUnifiedTasks } from '@/features/workload/hooks/useUnifiedTasks';
 import { useApprovalQueue } from '@/features/tasks/hooks/useApprovalQueue';
 import {

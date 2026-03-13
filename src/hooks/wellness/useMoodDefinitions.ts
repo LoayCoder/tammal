@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import type { TableRow, TableInsert, TableUpdate } from '@/lib/supabase-types';
+import type { TableRow, TableInsert, TableUpdate } from '@/shared/utils/supabase-types';
 
 export type MoodDefinition = TableRow<'mood_definitions'>;
 type MoodInsert = TableInsert<'mood_definitions'>;

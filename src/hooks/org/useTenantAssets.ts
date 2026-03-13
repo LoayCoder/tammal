@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { tenantAssetsService, type TenantAssets, type AssetType } from '@/services/tenantAssets';
+import { tenantAssetsService, type TenantAssets, type AssetType } from '@/features/admin/services/tenantAssets';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 
@@ -68,3 +68,4 @@ export function useTenantAssets(tenantId?: string) {
         isUploading: uploadMutation.isPending,
     };
 }
+

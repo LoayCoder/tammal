@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/button';
-import { ThemeBuilder } from '@/components/recognition/ThemeBuilder';
+import { Button } from '@/shared/components/ui/button';
+import { ThemeBuilder } from '@/features/recognition/components/ThemeBuilder';
 
 interface Props {
   cycleId: string | null;
@@ -20,3 +20,4 @@ export const ThemeBuilderTab = React.memo(function ThemeBuilderTab({ cycleId, on
     </div>
   );
 });
+

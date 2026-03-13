@@ -1,14 +1,14 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
-import { UnifiedTaskList } from '@/components/workload/employee/UnifiedTaskList';
+} from '@/shared/components/ui/select';
+import { UnifiedTaskList } from '@/features/workload/components/employee/UnifiedTaskList';
 import {
   Search, ListChecks, CheckCircle2, AlertTriangle,
 } from 'lucide-react';
@@ -123,3 +123,4 @@ export function WorkloadTasksView({ tasks, isPending, onDelete }: WorkloadTasksV
     </div>
   );
 }
+

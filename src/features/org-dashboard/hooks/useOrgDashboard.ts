@@ -5,7 +5,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { format, subDays } from 'date-fns';
 import { useOrgAnalytics } from '@/hooks/analytics/useOrgAnalytics';
-import type { TimeRange, OrgFilter } from '@/lib/analytics/types';
+import type { TimeRange, OrgFilter } from '@/shared/utils/analytics/types';
 import { buildStatCards, buildTrendData, buildDistributionData, buildAIPayload } from '../utils/transforms';
 
 export function useOrgDashboard() {

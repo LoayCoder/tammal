@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/auth/useAuth';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/features/auth/hooks/auth/useAuth';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Award, Trophy, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -167,3 +167,4 @@ export function DashboardShortlistWidget() {
     </div>
   );
 }
+

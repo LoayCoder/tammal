@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { useCurrentEmployee } from '@/features/auth/hooks/auth/useCurrentEmployee';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { usePushNotifications } from '@/hooks/ui/usePushNotifications';
 import { useEffect } from 'react';
@@ -120,3 +120,4 @@ export function useTaskNotifications() {
     markAllRead: markAllRead.mutate,
   };
 }
+

@@ -15,7 +15,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-import { CheckinSuccess } from '@/components/checkin/CheckinSuccess';
+import { CheckinSuccess } from '@/features/wellness/components/CheckinSuccess';
 
 describe('CheckinSuccess — Smoke', () => {
   it('renders streak and points', () => {
@@ -53,3 +53,4 @@ describe('CheckinSuccess — Smoke', () => {
     expect(doneContainer.textContent).toContain('✅');
   });
 });
+

@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Progress } from '@/shared/components/ui/progress';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Brain, Users, Clock, AlertTriangle, Sparkles, ArrowUpDown, ListChecks, GitBranch } from 'lucide-react';
 import { useTaskAI } from '@/features/tasks/hooks/useTaskAI';
 

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { ListOrdered, ToggleLeft, MessageSquare, CheckSquare, Scale } from "lucide-react";
 import { QuestionType } from "@/hooks/questions/useQuestions";
 

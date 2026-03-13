@@ -17,12 +17,12 @@ import React from 'react';
 const mockFetchDepartments = vi.fn();
 const mockFetchEmployees = vi.fn();
 
-vi.mock('@/services/scheduleService', () => ({
+vi.mock('@/features/admin/services/scheduleService', () => ({
   fetchDepartments: (...args: unknown[]) => mockFetchDepartments(...args),
   fetchEmployees: (...args: unknown[]) => mockFetchEmployees(...args),
 }));
 
-import { useScheduleData } from '@/hooks/admin/useScheduleData';
+import { useScheduleData } from '@/features/admin/hooks/admin/useScheduleData';
 
 function createWrapper() {
   const qc = new QueryClient({
@@ -97,3 +97,5 @@ describe('useScheduleData', () => {
     await waitFor(() => expect(mockFetchDepartments).toHaveBeenCalledTimes(2));
   });
 });
+
+

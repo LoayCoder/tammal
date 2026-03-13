@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTenantId } from '@/hooks/org/useTenantId';
-import { runAllHealthChecks, type HealthCheckKey, type HealthCheckResult } from '@/services/governance-health.service';
+import { runAllHealthChecks, type HealthCheckKey, type HealthCheckResult } from '@/features/admin/services/governance-health.service';
 
 export function useSystemHealth() {
   const { tenantId } = useTenantId();
@@ -27,3 +27,4 @@ export function useSystemHealth() {
     runHealthCheck,
   };
 }
+

@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 import { useAuditLog } from '@/hooks/audit/useAuditLog';
-import { logger } from '@/lib/logger';
+import { logger } from '@/shared/utils/logger';
 
 export type Plan = Tables<'plans'>;
 export type PlanInsert = TablesInsert<'plans'>;

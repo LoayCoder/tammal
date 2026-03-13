@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuth } from '@/features/auth/hooks/auth/useAuth';
 
 /**
  * Centralized hook for fetching the current user's tenant_id.
@@ -27,3 +27,4 @@ export function useTenantId() {
 
   return { tenantId: tenantId ?? null, isPending: isPending && isFetching };
 }
+

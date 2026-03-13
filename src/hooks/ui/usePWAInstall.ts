@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { logger } from '@/lib/logger';
+import { logger } from '@/shared/utils/logger';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;

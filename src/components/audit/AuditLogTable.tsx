@@ -4,17 +4,17 @@ import { formatDistanceToNow, format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { 
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow 
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from '@/shared/components/ui/table';
+import { Badge } from '@/shared/components/ui/badge';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { ScrollArea } from '@/shared/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
+} from '@/shared/components/ui/dialog';
 import { 
   Plus, Edit, Trash2, ToggleLeft, RefreshCw, 
   Building2, CreditCard, Users, Layers, Eye 

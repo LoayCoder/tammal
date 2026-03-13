@@ -1,9 +1,9 @@
 import { useState, useCallback, useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/shared/components/ui/dialog';
+import { Button } from '@/shared/components/ui/button';
+import { Separator } from '@/shared/components/ui/separator';
+import { ScrollArea } from '@/shared/components/ui/scroll-area';
 import { Save, Send } from 'lucide-react';
 import { format } from 'date-fns';
 import { useEnterpriseTasks } from '@/features/tasks/hooks/useEnterpriseTasks';

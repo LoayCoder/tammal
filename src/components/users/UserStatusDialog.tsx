@@ -8,7 +8,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from '@/shared/components/ui/alert-dialog';
 import { UserX, Ban, Trash2, UserCheck } from 'lucide-react';
 import type { UserWithRoles } from '@/hooks/org/useUsers';
 

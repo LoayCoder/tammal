@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { FileText } from 'lucide-react';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
+} from '@/shared/components/ui/select';
 import { useTaskTemplates } from '@/features/tasks/hooks/useTaskTemplates';
 
 interface TaskTemplatePickerProps {

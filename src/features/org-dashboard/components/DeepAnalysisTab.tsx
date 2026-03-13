@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/shared/components/ui/tabs';
 import { CheckinMoodOverTime } from '@/components/dashboard/CheckinMoodOverTime';
 import { SupportActionsChart } from '@/components/dashboard/SupportActionsChart';
 import { StreakDistribution } from '@/components/dashboard/StreakDistribution';
@@ -10,7 +10,7 @@ import { CategoryMoodMatrix } from '@/components/dashboard/CategoryMoodMatrix';
 import { SubcategoryRiskBubble } from '@/components/dashboard/SubcategoryRiskBubble';
 import { MoodByCategoryTrend } from '@/components/dashboard/MoodByCategoryTrend';
 import { SubcategoryChart } from '@/components/dashboard/SubcategoryChart';
-import type { OrgAnalyticsData } from '@/lib/analytics/types';
+import type { OrgAnalyticsData } from '@/shared/utils/analytics/types';
 
 interface Props {
   stats: OrgAnalyticsData | undefined;

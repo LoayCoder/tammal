@@ -1,6 +1,6 @@
-import { Badge, type BadgeProps } from '@/components/ui/badge';
+import { Badge, type BadgeProps } from '@/shared/components/ui/badge';
 import { useTranslation } from 'react-i18next';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/utils/utils';
 import type { LucideIcon } from 'lucide-react';
 
 export interface StatusBadgeEntry {

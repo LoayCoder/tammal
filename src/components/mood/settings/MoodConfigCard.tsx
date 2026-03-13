@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/components/ui/card';
+import { Switch } from '@/shared/components/ui/switch';
+import { Textarea } from '@/shared/components/ui/textarea';
+import { Button } from '@/shared/components/ui/button';
+import { Label } from '@/shared/components/ui/label';
 import { Save, RotateCcw, Link2, Plus, X, ChevronUp, ChevronDown } from 'lucide-react';
 import type { MoodQuestionConfig } from '@/hooks/wellness/useMoodQuestionConfig';
 import type { MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
 import { Search } from 'lucide-react';
 import { UserTable } from '@/components/users/UserTable';
 import type { UserWithRoles } from '@/hooks/org/useUsers';

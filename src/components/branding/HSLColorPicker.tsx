@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Slider } from '@/components/ui/slider';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-export type { HSLColor } from '@/types/branding';
-import type { HSLColor } from '@/types/branding';
+import { Label } from '@/shared/components/ui/label';
+import { Input } from '@/shared/components/ui/input';
+import { Slider } from '@/shared/components/ui/slider';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+export type { HSLColor } from '@/shared/types/common.types/branding';
+import type { HSLColor } from '@/shared/types/common.types/branding';
 
 interface HSLColorPickerProps {
   label: string;
@@ -346,3 +346,4 @@ export function HSLColorPicker({ label, value, onChange }: HSLColorPickerProps) 
     </Card>
   );
 }
+

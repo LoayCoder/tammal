@@ -12,7 +12,7 @@ import React from 'react';
 
 const mockFetch = vi.fn();
 
-vi.mock('@/services/gamificationService', () => ({
+vi.mock('@/features/recognition/services/gamificationService', () => ({
   fetchGamificationData: (...args: unknown[]) => mockFetch(...args),
   calculatePoints: (s: number) => 10 + Math.min(s * 5, 50),
 }));
@@ -57,3 +57,4 @@ describe('useGamification query key stability', () => {
     await waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(2));
   });
 });
+

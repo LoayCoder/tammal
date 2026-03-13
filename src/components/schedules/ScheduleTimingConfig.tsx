@@ -5,15 +5,15 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { Switch } from '@/shared/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/shared/components/ui/collapsible';
 import { ChevronDown, ChevronUp, Settings2 } from 'lucide-react';
-import type { ScheduleFormState } from '@/hooks/admin/useScheduleReducer';
+import type { ScheduleFormState } from '@/features/admin/hooks/admin/useScheduleReducer';
 
 interface MoodDef {
   key: string;
@@ -269,3 +269,4 @@ export default function ScheduleTimingConfig({
     </>
   );
 }
+

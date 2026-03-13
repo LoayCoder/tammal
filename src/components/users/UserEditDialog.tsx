@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { logger } from '@/lib/logger';
+import { logger } from '@/shared/utils/logger';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,7 +11,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/shared/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -19,14 +19,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from '@/shared/components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/shared/components/ui/select';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,18 +36,18 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Label } from '@/components/ui/label';
-import { AvatarCropperDialog } from '@/components/ui/avatar-cropper-dialog';
+} from '@/shared/components/ui/alert-dialog';
+import { Input } from '@/shared/components/ui/input';
+import { Button } from '@/shared/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import { Badge } from '@/shared/components/ui/badge';
+import { Separator } from '@/shared/components/ui/separator';
+import { Label } from '@/shared/components/ui/label';
+import { AvatarCropperDialog } from '@/shared/components/ui/avatar-cropper-dialog';
 import { Camera, Trash2, KeyRound, Loader2 } from 'lucide-react';
-import { useAvatarUpload } from '@/hooks/admin/useAvatarUpload';
+import { useAvatarUpload } from '@/features/admin/hooks/admin/useAvatarUpload';
 import { toast } from 'sonner';
-import { readFile } from '@/lib/cropImage';
+import { readFile } from '@/shared/utils/cropImage';
 import type { UserWithRoles } from '@/hooks/org/useUsers';
 
 const formSchema = z.object({
@@ -477,3 +477,4 @@ export function UserEditDialog({
     </>
   );
 }
+

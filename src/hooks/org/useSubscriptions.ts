@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 import { useAuditLog } from '@/hooks/audit/useAuditLog';
-import { logger } from '@/lib/logger';
+import { logger } from '@/shared/utils/logger';
 
 export type Subscription = Tables<'subscriptions'>;
 export type SubscriptionInsert = TablesInsert<'subscriptions'>;

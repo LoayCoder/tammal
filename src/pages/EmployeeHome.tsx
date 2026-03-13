@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Badge } from '@/shared/components/ui/badge';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { useCurrentEmployee } from '@/features/auth/hooks/auth/useCurrentEmployee';
 import { useGamification } from '@/hooks/wellness/useGamification';
 import { useMoodHistory } from '@/hooks/wellness/useMoodHistory';
 import { useScheduledQuestions } from '@/hooks/questions/useScheduledQuestions';
-import { InlineDailyCheckin } from '@/components/checkin/InlineDailyCheckin';
+import { InlineDailyCheckin } from '@/features/wellness/components/InlineDailyCheckin';
 import { PersonalMoodDashboard } from '@/components/dashboard/PersonalMoodDashboard';
 import { MentalHealthToolsHub } from '@/components/dashboard/MentalHealthToolsHub';
 import { MentalHealthResourcesHub } from '@/components/dashboard/MentalHealthResourcesHub';
@@ -19,7 +19,7 @@ import {
 import { DashboardPrayerWidget } from '@/components/dashboard/DashboardPrayerWidget';
 import { DashboardIslamicCalendarWidget } from '@/components/dashboard/DashboardIslamicCalendarWidget';
 import { DashboardWorkloadWidget } from '@/components/dashboard/DashboardWorkloadWidget';
-import FirstAiderQuickConnect from '@/components/crisis/FirstAiderQuickConnect';
+import FirstAiderQuickConnect from '@/features/crisis/components/FirstAiderQuickConnect';
 import { DashboardEndorsementRequests } from '@/components/dashboard/DashboardEndorsementRequests';
 import { DashboardShortlistWidget } from '@/components/dashboard/DashboardShortlistWidget';
 import { DashboardVotingWidget } from '@/components/dashboard/DashboardVotingWidget';
@@ -193,3 +193,6 @@ export default function EmployeeHome() {
     </div>
   );
 }
+
+
+

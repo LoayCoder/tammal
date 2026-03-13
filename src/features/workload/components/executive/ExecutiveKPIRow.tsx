@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Target, Activity, AlertTriangle, TrendingUp } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 

@@ -4,9 +4,9 @@
  */
 
 import { useMutation } from '@tanstack/react-query';
-import { generateQuestions } from '@/services/aiQuestionService';
+import { generateQuestions } from '@/features/admin/services/aiQuestionService';
 import type { QuestionGeneratorVariables, QuestionGeneratorOutput } from '@/ai/prompts/questionGenerator';
-import { AIResponseInvalidError, ServiceUnavailableError, AIProviderTimeoutError } from '@/services/errors';
+import { AIResponseInvalidError, ServiceUnavailableError, AIProviderTimeoutError } from '@/shared/utils/errors';
 
 interface UseQuestionGeneratorOptions {
   onSuccess?: (data: QuestionGeneratorOutput) => void;
@@ -39,3 +39,4 @@ export function useQuestionGenerator(opts?: UseQuestionGeneratorOptions) {
       err instanceof AIProviderTimeoutError,
   };
 }
+

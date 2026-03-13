@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { EmployeePicker } from '@/components/workload/EmployeePicker';
-import { Badge } from '@/components/ui/badge';
+import { EmployeePicker } from '@/features/workload/components/EmployeePicker';
+import { Badge } from '@/shared/components/ui/badge';
 import { User, UserCheck, Shield, Eye } from 'lucide-react';
 
 interface TaskMembersPickerProps {
@@ -48,3 +48,4 @@ export function TaskMembersPicker({
     </div>
   );
 }
+

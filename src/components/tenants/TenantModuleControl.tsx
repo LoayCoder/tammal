@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Input } from '@/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Switch } from '@/shared/components/ui/switch';
+import { Input } from '@/shared/components/ui/input';
 import { Users, CreditCard, Headphones, Building2, FileText, Shield, UserPlus } from 'lucide-react';
 
 export interface TenantSettings {

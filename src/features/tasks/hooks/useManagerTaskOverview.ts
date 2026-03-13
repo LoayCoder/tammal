@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTenantId } from '@/hooks/org/useTenantId';
-import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { useCurrentEmployee } from '@/features/auth/hooks/auth/useCurrentEmployee';
 
 interface DirectReport {
   id: string;
@@ -52,3 +52,4 @@ export function useManagerTaskOverview() {
 }
 
 export type { DirectReport };
+

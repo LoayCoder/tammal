@@ -4,18 +4,18 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useTenantId } from '@/hooks/org/useTenantId';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuth } from '@/features/auth/hooks/auth/useAuth';
 import { subDays, format, eachDayOfInterval, parseISO } from 'date-fns';
 
-import type { TimeRange, OrgFilter } from '@/lib/analytics/types';
+import type { TimeRange, OrgFilter } from '@/shared/utils/analytics/types';
 import {
   hasOrgFilter, resolveFilteredEmployeeIds,
   fetchMoodEntries, fetchActiveEmployeeCount,
   fetchSurveyResponseRate, fetchResponseDailyMap,
   fetchPreviousPeriodComparison,
-} from '@/lib/analytics/queries';
-import { computeKPIs, computeStreaks, computeMoodDistribution, computeDailyTrend } from '@/lib/analytics/computations';
-import { computeHealthScore } from '@/lib/analytics/computations/riskScore';
+} from '@/shared/utils/analytics/queries';
+import { computeKPIs, computeStreaks, computeMoodDistribution, computeDailyTrend } from '@/shared/utils/analytics/computations';
+import { computeHealthScore } from '@/shared/utils/analytics/computations/riskScore';
 
 export function useAnalyticsOverview(
   timeRange: TimeRange = 30,
@@ -91,3 +91,4 @@ export function useAnalyticsOverview(
     staleTime: 5 * 60 * 1000,
   });
 }
+

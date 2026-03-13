@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Progress } from '@/shared/components/ui/progress';
+import { Button } from '@/shared/components/ui/button';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Vote, ChevronRight } from 'lucide-react';
-import { useAwardCycles } from '@/hooks/recognition/useAwardCycles';
-import { useVoting } from '@/hooks/recognition/useVoting';
+import { useAwardCycles } from '@/features/recognition/hooks/recognition/useAwardCycles';
+import { useVoting } from '@/features/recognition/hooks/recognition/useVoting';
 
 function VotingCycleCard({ cycleId, cycleName }: { cycleId: string; cycleName: string }) {
   const { t } = useTranslation();
@@ -78,3 +78,5 @@ export function DashboardVotingWidget() {
     </>
   );
 }
+
+

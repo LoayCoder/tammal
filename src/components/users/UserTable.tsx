@@ -6,19 +6,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+} from '@/shared/components/ui/table';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/shared/components/ui/dropdown-menu';
 import { MoreHorizontal, Shield, UserCog, Pencil, UserX, Ban, UserCheck, Trash2 } from 'lucide-react';
-import { formatDate } from '@/lib/utils';
+import { formatDate } from '@/shared/utils/utils';
 import type { UserWithRoles } from '@/hooks/org/useUsers';
 import { useIsMobile } from '@/hooks/ui/use-mobile';
 import { UserMobileCard } from './UserMobileCard';

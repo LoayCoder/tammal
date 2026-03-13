@@ -4,8 +4,8 @@ import {
   Flame, TrendingUp, CalendarCheck, Activity, BarChart3,
   PieChart, Grid3X3, ClipboardList, RefreshCw, ArrowRight, Wind, SmilePlus,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { usePersonalMoodDashboard } from "@/hooks/analytics/usePersonalMoodDashboard";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,

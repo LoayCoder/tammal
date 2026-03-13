@@ -1,15 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Skeleton } from '@/components/ui/skeleton';
-import { formatCurrency } from '@/lib/utils';
+} from '@/shared/components/ui/dropdown-menu';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { formatCurrency } from '@/shared/utils/utils';
 import { DataTable } from '@/shared/data-table/DataTable';
 import type { ColumnDef } from '@/shared/data-table/types';
 import type { Plan } from '@/hooks/org/usePlans';

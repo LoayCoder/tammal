@@ -6,7 +6,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/shared/components/ui/table';
 import { SkeletonTable } from '@/shared/loading/Skeletons';
 import { EmptyState } from '@/shared/empty/EmptyState';
 import { useTranslation } from 'react-i18next';

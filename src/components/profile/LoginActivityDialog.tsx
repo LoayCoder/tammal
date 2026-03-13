@@ -5,10 +5,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Skeleton } from '@/components/ui/skeleton';
+} from '@/shared/components/ui/dialog';
+import { Badge } from '@/shared/components/ui/badge';
+import { ScrollArea } from '@/shared/components/ui/scroll-area';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { 
   Monitor, 
   Smartphone, 
@@ -23,7 +23,7 @@ import {
   LogOut,
   History
 } from 'lucide-react';
-import { useLoginHistory } from '@/hooks/auth/useLoginHistory';
+import { useLoginHistory } from '@/features/auth/hooks/auth/useLoginHistory';
 import { formatDistanceToNow } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 
@@ -188,3 +188,4 @@ export function LoginActivityDialog({ open, onOpenChange }: LoginActivityDialogP
     </Dialog>
   );
 }
+

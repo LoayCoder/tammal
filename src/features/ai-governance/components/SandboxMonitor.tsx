@@ -1,14 +1,14 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { Progress } from '@/shared/components/ui/progress';
 import { FlaskConical, CheckCircle2, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSandboxEvaluations, type SandboxEvaluation } from '@/features/ai-governance/hooks/useSandboxEvaluations';
-import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
+import { useUserPermissions } from '@/features/auth/hooks/auth/useUserPermissions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import * as AiGovernanceService from '../services/ai-governance.service';
 
 function StatusBadge({ status }: { status: string }) {
   const variant = status === 'active' ? 'default'
@@ -26,11 +26,7 @@ export function SandboxMonitor() {
 
   const manageSandbox = useMutation({
     mutationFn: async ({ action, sandboxId }: { action: string; sandboxId: string }) => {
-      const { data, error } = await supabase.functions.invoke('ai-governance', {
-        body: { action, params: { sandbox_id: sandboxId } },
-      });
-      if (error) throw error;
-      return data;
+      return AiGovernanceService.manageSandbox(action, sandboxId);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['ai-governance'] });
@@ -123,3 +119,4 @@ export function SandboxMonitor() {
     </Card>
   );
 }
+

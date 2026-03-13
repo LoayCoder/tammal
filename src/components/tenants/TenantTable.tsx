@@ -7,20 +7,20 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/shared/components/ui/table';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+} from '@/shared/components/ui/dropdown-menu';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
 import { MoreHorizontal, Trash2, Settings2, BarChart3, Eye } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { TenantStatusBadge } from './TenantStatusBadge';
-import { formatDate } from '@/lib/utils';
+import { formatDate } from '@/shared/utils/utils';
 import type { Tenant } from '@/hooks/org/useTenants';
 import type { Plan } from '@/hooks/org/usePlans';
 

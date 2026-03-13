@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 import type { Plan } from './usePlans';
 import { useAuditLog } from '@/hooks/audit/useAuditLog';
-import { logger } from '@/lib/logger';
+import { logger } from '@/shared/utils/logger';
 import { addDays } from 'date-fns';
-import type { SecuritySettings } from '@/types/tenant';
+import type { SecuritySettings } from '@/shared/types/common.types/tenant';
 
 export type Tenant = Tables<'tenants'> & {
   plan?: Plan | null;
@@ -300,3 +300,4 @@ export function useTenants() {
     isSecurityUpdating: updateSecurityMutation.isPending,
   };
 }
+

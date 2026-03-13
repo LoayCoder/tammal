@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
+import { Button } from '@/shared/components/ui/button';
 import { X } from 'lucide-react';
 import { useBranches } from '@/hooks/org/useBranches';
 import { useDivisions } from '@/hooks/org/useDivisions';

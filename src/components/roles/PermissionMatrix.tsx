@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { logger } from '@/lib/logger';
+import { logger } from '@/shared/utils/logger';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog,
@@ -8,15 +8,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { usePermissions, useRolePermissions } from '@/hooks/auth/usePermissions';
-import type { Role } from '@/hooks/auth/useRoles';
+} from '@/shared/components/ui/dialog';
+import { Button } from '@/shared/components/ui/button';
+import { Checkbox } from '@/shared/components/ui/checkbox';
+import { Label } from '@/shared/components/ui/label';
+import { ScrollArea } from '@/shared/components/ui/scroll-area';
+import { Badge } from '@/shared/components/ui/badge';
+import { Separator } from '@/shared/components/ui/separator';
+import { usePermissions, useRolePermissions } from '@/features/auth/hooks/auth/usePermissions';
+import type { Role } from '@/features/auth/hooks/auth/useRoles';
 import { Key, Loader2, Shield, Users, FileText, Settings, BarChart3, Calendar, ClipboardList } from 'lucide-react';
 
 interface PermissionMatrixProps {
@@ -204,3 +204,4 @@ export function PermissionMatrix({ open, onOpenChange, role }: PermissionMatrixP
     </Dialog>
   );
 }
+

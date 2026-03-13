@@ -14,7 +14,7 @@ import {
   FALLBACK_PROVIDER,
   FEATURE_MODEL_MAP,
 } from '@/config/ai';
-import { AIResponseInvalidError, ServiceUnavailableError } from '@/services/errors';
+import { AIResponseInvalidError, ServiceUnavailableError } from '@/shared/utils/errors';
 import {
   questionGeneratorPrompt,
   questionGeneratorVariablesSchema,
@@ -182,7 +182,7 @@ vi.mock('@/integrations/supabase/client', () => ({
   },
 }));
 
-vi.mock('@/lib/sentry', () => ({
+vi.mock('@/shared/utils/sentry', () => ({
   Sentry: {
     withScope: vi.fn((cb: (scope: any) => void) => {
       cb({ setTags: vi.fn() });
@@ -278,3 +278,4 @@ describe('aiClient.generateStructured', () => {
     ).rejects.toThrow(AIResponseInvalidError);
   });
 });
+

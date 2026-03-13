@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import i18n from '@/lib/i18n';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import i18n from '@/shared/utils/i18n';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Input } from '@/shared/components/ui/input';
 
 import { BookOpen, ChevronDown, Plus, Pencil, Trash2, Check, Search, CheckCheck, XCircle, FileText } from 'lucide-react';
 import { ReferenceFramework } from '@/hooks/questions/useReferenceFrameworks';

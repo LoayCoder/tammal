@@ -1,8 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Button } from '@/shared/components/ui/button';
 import { Search } from 'lucide-react';
 import type { RoutingLogEntry } from '@/features/ai-governance/hooks/useRoutingLogs';
 

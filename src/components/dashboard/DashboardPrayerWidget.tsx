@@ -1,16 +1,16 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
 import { Building2, Home, Briefcase, ChevronRight, Clock, Timer, Check } from 'lucide-react';
-import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
-import { usePrayerTimes, PRAYER_NAMES } from '@/hooks/spiritual/usePrayerTimes';
-import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
-import { usePrayerCountdown } from '@/hooks/spiritual/usePrayerCountdown';
-import { useWitrCountdown } from '@/hooks/spiritual/useWitrCountdown';
-import { useSunnahLogs } from '@/hooks/spiritual/useSunnahLogs';
-import { cn } from '@/lib/utils';
+import { useSpiritualPreferences } from '@/features/spiritual/hooks/spiritual/useSpiritualPreferences';
+import { usePrayerTimes, PRAYER_NAMES } from '@/features/spiritual/hooks/spiritual/usePrayerTimes';
+import { usePrayerLogs } from '@/features/spiritual/hooks/spiritual/usePrayerLogs';
+import { usePrayerCountdown } from '@/features/spiritual/hooks/spiritual/usePrayerCountdown';
+import { useWitrCountdown } from '@/features/spiritual/hooks/spiritual/useWitrCountdown';
+import { useSunnahLogs } from '@/features/spiritual/hooks/spiritual/useSunnahLogs';
+import { cn } from '@/shared/utils/utils';
 
 const ALL_PRAYERS = [...PRAYER_NAMES, 'Witr'] as const;
 
@@ -284,3 +284,4 @@ export function DashboardPrayerWidget() {
     </Card>
   );
 }
+

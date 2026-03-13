@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
 import { Plus } from 'lucide-react';
 import { RoleTable } from '@/components/roles/RoleTable';
-import type { Role } from '@/hooks/auth/useRoles';
+import type { Role } from '@/features/auth/hooks/auth/useRoles';
 
 interface RolesTabProps {
   roles: Role[];
@@ -51,3 +51,4 @@ export function RolesTab({
     </Card>
   );
 }
+

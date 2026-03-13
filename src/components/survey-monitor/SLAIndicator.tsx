@@ -1,5 +1,5 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Badge } from '@/shared/components/ui/badge';
 import { useTranslation } from 'react-i18next';
 import { Clock, AlertTriangle } from 'lucide-react';
 import { format, parseISO, differenceInHours, differenceInDays, isPast } from 'date-fns';

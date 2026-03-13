@@ -19,7 +19,7 @@ import {
   MAX_DOCUMENT_CONTEXT_CHARS,
   MAX_FRAMEWORK_CONTEXT_CHARS,
 } from '@/config/ai';
-import { logger } from '@/lib/logger';
+import { logger } from '@/shared/utils/logger';
 
 const TAG = 'contextBuilder';
 

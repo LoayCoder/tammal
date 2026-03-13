@@ -1,14 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { Shield, Clock, Users, AlertTriangle } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
-export type { SecuritySettings } from '@/types/tenant';
-export { DEFAULT_SECURITY_SETTINGS } from '@/types/tenant';
-import type { SecuritySettings } from '@/types/tenant';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Label } from '@/shared/components/ui/label';
+import { Input } from '@/shared/components/ui/input';
+import { Switch } from '@/shared/components/ui/switch';
+import { Slider } from '@/shared/components/ui/slider';
+import { Badge } from '@/shared/components/ui/badge';
+export type { SecuritySettings } from '@/shared/types/common.types/tenant';
+export { DEFAULT_SECURITY_SETTINGS } from '@/shared/types/common.types/tenant';
+import type { SecuritySettings } from '@/shared/types/common.types/tenant';
 
 interface TenantSecurityControlProps {
   settings: SecuritySettings;
@@ -148,3 +148,4 @@ export function TenantSecurityControl({ settings, onChange }: TenantSecurityCont
     </div>
   );
 }
+

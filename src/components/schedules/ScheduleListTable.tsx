@@ -1,15 +1,15 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
 import { StatusBadge, SCHEDULE_STATUS_CONFIG } from '@/shared/status-badge';
-import { Switch } from '@/components/ui/switch';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Switch } from '@/shared/components/ui/switch';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
 import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Package, Building2, UserCheck } from 'lucide-react';
 import type { QuestionSchedule } from '@/hooks/questions/useQuestionSchedules';
-import { resolveAudience } from '@/hooks/admin/useAudienceResolver';
+import { resolveAudience } from '@/features/admin/hooks/admin/useAudienceResolver';
 
-import type { AudienceEmployee } from '@/hooks/admin/useAudienceResolver';
+import type { AudienceEmployee } from '@/features/admin/hooks/admin/useAudienceResolver';
 
 interface ScheduleListTableProps {
   schedules: QuestionSchedule[];
@@ -176,3 +176,4 @@ export function ScheduleListTable({
     </Card>
   );
 }
+

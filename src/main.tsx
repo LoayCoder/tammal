@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { initSentry } from "./lib/sentry";
+import { initSentry } from "@/shared/utils/sentry";
 import App from "./App.tsx";
 import "./index.css";
 

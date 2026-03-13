@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTaskTimeTracking } from '@/features/tasks/hooks/useTaskTimeTracking';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Play, Square, Plus, Trash2, Clock, Timer } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';

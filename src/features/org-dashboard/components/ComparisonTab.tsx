@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/shared/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
 import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -17,7 +17,7 @@ import { TrendOverlayChart } from '@/components/dashboard/comparison/TrendOverla
 import { OrgComparisonChart } from '@/components/dashboard/OrgComparisonChart';
 import { TopEngagersCard } from '@/components/dashboard/TopEngagersCard';
 import { ResponseHeatmap } from '@/components/dashboard/ResponseHeatmap';
-import type { OrgAnalyticsData } from '@/lib/analytics/types';
+import type { OrgAnalyticsData } from '@/shared/utils/analytics/types';
 import type { DistributionDataPoint } from '../types';
 
 const GLASS_TOOLTIP = {

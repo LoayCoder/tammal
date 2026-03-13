@@ -7,7 +7,7 @@ import {
   detectBurnoutRisk,
   computeAlignmentScore,
   upsertWorkloadMetrics,
-} from '@/services/workload-intelligence.service';
+} from '@/features/workload/services/workload-intelligence.service';
 
 export interface WorkloadMetric {
   id: string;

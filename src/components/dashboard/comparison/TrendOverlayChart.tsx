@@ -1,14 +1,14 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import {
   ResponsiveContainer, ComposedChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend,
 } from 'recharts';
 import { format, parseISO } from 'date-fns';
 
 // Re-export from canonical location for backward compat
-export type { TrendOverlayPoint } from '@/lib/analytics/types';
-import type { TrendOverlayPoint } from '@/lib/analytics/types';
+export type { TrendOverlayPoint } from '@/shared/utils/analytics/types';
+import type { TrendOverlayPoint } from '@/shared/utils/analytics/types';
 
 interface Props {
   data: TrendOverlayPoint[];

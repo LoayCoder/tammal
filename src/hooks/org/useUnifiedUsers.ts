@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useEmployees, type Employee, type EmployeeFilters } from './useEmployees';
-import type { AccountStatus } from '@/types/employee';
+import type { AccountStatus } from '@/shared/types/common.types/employee';
 
 export interface UnifiedEmployee extends Employee {
   accountStatus: AccountStatus;
@@ -168,3 +168,4 @@ export function useUnifiedUsers(options?: UseUnifiedUsersOptions) {
     profiles,
   };
 }
+

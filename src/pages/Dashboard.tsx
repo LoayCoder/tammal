@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '@/hooks/auth/useAuth';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/features/auth/hooks/auth/useAuth';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { useDashboardView, type DashboardView } from '@/hooks/analytics/useDashboardView';
-import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
+import { useUserPermissions } from '@/features/auth/hooks/auth/useUserPermissions';
 import { DashboardOverviewTab } from '@/components/dashboard/DashboardOverviewTab';
 import { OrgDashboard } from '@/components/dashboard/OrgDashboard';
 import { Building2, Heart, User } from 'lucide-react';
@@ -72,3 +72,4 @@ export default function Dashboard() {
     </Tabs>
   );
 }
+

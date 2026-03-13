@@ -1,21 +1,21 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/shared/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { ScrollArea } from '@/shared/components/ui/scroll-area';
 import {
   Popover, PopoverContent, PopoverTrigger,
-} from '@/components/ui/popover';
+} from '@/shared/components/ui/popover';
 import {
   Bell, CheckCircle2, MessageSquare, AlertTriangle, UserPlus,
   ShieldCheck, XCircle, Clock, CheckCheck, ListChecks, Timer,
   UserCheck, Check, X, Award, ThumbsUp,
 } from 'lucide-react';
 import { useTaskNotifications, type TaskNotification } from '@/features/tasks/hooks/useTaskNotifications';
-import { useCrisisNotifications, type CrisisNotification } from '@/hooks/crisis/useCrisisNotifications';
-import { useRecognitionNotifications, type RecognitionNotification } from '@/hooks/recognition/useRecognitionNotifications';
+import { useCrisisNotifications, type CrisisNotification } from '@/features/crisis/hooks/crisis/useCrisisNotifications';
+import { useRecognitionNotifications, type RecognitionNotification } from '@/features/recognition/hooks/recognition/useRecognitionNotifications';
 import { formatDistanceToNow } from 'date-fns';
 
 type NotificationSource = 'task' | 'crisis' | 'recognition';
@@ -297,3 +297,5 @@ export function UnifiedNotificationBell() {
     </Popover>
   );
 }
+
+

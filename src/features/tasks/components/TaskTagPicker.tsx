@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Badge } from '@/shared/components/ui/badge';
+import { Input } from '@/shared/components/ui/input';
+import { Button } from '@/shared/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
 import { Plus, X, Tag } from 'lucide-react';
 import { useTaskTags, type TaskTag } from '@/features/tasks/hooks/useTaskTags';
 

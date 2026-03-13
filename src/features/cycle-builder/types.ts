@@ -1,5 +1,5 @@
 // ── Cycle Builder feature types ──
-import type { CreateCycleInput } from '@/hooks/recognition/useAwardCycles';
+import type { CreateCycleInput } from '@/features/recognition/hooks/recognition/useAwardCycles';
 
 export type CycleStep = 'basics' | 'themes' | 'fairness' | 'review';
 
@@ -68,3 +68,5 @@ export function isBasicsValid(form: CreateCycleInput): boolean {
   return !!(form.name && form.nomination_start && form.nomination_end &&
     form.peer_endorsement_end && form.voting_start && form.voting_end && form.announcement_date);
 }
+
+

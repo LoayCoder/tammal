@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '@/hooks/auth/useAuth';
-import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
+import { useAuth } from '@/features/auth/hooks/auth/useAuth';
+import { useUserPermissions } from '@/features/auth/hooks/auth/useUserPermissions';
 import { useUserRoles } from '@/hooks/org/useUsers';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { Separator } from '@/shared/components/ui/separator';
 import { User, Shield, Key, Mail, Calendar, Pencil, Lock, Smartphone, Monitor, Trash2, History } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,7 +19,7 @@ import { DeleteAccountDialog } from '@/components/profile/DeleteAccountDialog';
 import { SessionManagementDialog } from '@/components/profile/SessionManagementDialog';
 import { MFASetupDialog } from '@/components/profile/MFASetupDialog';
 import { LoginActivityDialog } from '@/components/profile/LoginActivityDialog';
-import { SpiritualPreferencesCard } from '@/components/spiritual/SpiritualPreferencesCard';
+import { SpiritualPreferencesCard } from '@/features/spiritual/components/SpiritualPreferencesCard';
 
 export default function UserProfile() {
   const { t, i18n } = useTranslation();
@@ -413,3 +413,5 @@ export default function UserProfile() {
     </div>
   );
 }
+
+

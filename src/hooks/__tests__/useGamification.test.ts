@@ -18,7 +18,7 @@ import React from 'react';
 const mockFetchGamificationData = vi.fn();
 const mockCalculatePoints = vi.fn((s: number) => 10 + Math.min(s * 5, 50));
 
-vi.mock('@/services/gamificationService', () => ({
+vi.mock('@/features/recognition/services/gamificationService', () => ({
   fetchGamificationData: (id: string) => mockFetchGamificationData(id),
   calculatePoints: (s: number) => mockCalculatePoints(s),
 }));
@@ -97,3 +97,4 @@ describe('useGamification', () => {
     expect(mockCalculatePoints).toHaveBeenCalledWith(3);
   });
 });
+

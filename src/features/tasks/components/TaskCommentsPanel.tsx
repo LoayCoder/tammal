@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ScrollArea } from '@/shared/components/ui/scroll-area';
+import { Button } from '@/shared/components/ui/button';
+import { Textarea } from '@/shared/components/ui/textarea';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { Avatar, AvatarFallback } from '@/shared/components/ui/avatar';
 import { Send, Trash2, Pencil, X, Check, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import type { TaskComment } from '@/features/tasks/hooks/useTaskComments';

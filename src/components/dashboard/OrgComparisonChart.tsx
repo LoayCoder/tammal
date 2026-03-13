@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import type { OrgComparison, OrgUnitComparison } from '@/hooks/analytics/useOrgAnalytics';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis,

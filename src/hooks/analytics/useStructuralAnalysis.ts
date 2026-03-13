@@ -3,15 +3,15 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useTenantId } from '@/hooks/org/useTenantId';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuth } from '@/features/auth/hooks/auth/useAuth';
 import { subDays, format, eachDayOfInterval, parseISO } from 'date-fns';
 
-import type { TimeRange, OrgFilter } from '@/lib/analytics/types';
+import type { TimeRange, OrgFilter } from '@/shared/utils/analytics/types';
 import {
   hasOrgFilter, resolveFilteredEmployeeIds,
   fetchMoodEntries, computeOrgComparison, computeTopEngagers,
   fetchCategoryAnalysis, computeCategoryTrendsAndMatrix,
-} from '@/lib/analytics/queries';
+} from '@/shared/utils/analytics/queries';
 
 export function useStructuralAnalysis(
   timeRange: TimeRange = 30,
@@ -76,3 +76,4 @@ export function useStructuralAnalysis(
     staleTime: 5 * 60 * 1000,
   });
 }
+

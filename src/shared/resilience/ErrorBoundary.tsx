@@ -1,9 +1,9 @@
 import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
 import i18n from 'i18next';
-import { logger } from '@/lib/logger';
+import { logger } from '@/shared/utils/logger';
 
 interface ErrorBoundaryProps {
   children: ReactNode;

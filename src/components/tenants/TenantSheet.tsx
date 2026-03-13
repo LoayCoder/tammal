@@ -10,7 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetFooter,
-} from '@/components/ui/sheet';
+} from '@/shared/components/ui/sheet';
 import {
   Form,
   FormControl,
@@ -18,17 +18,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+} from '@/shared/components/ui/form';
+import { Input } from '@/shared/components/ui/input';
+import { Button } from '@/shared/components/ui/button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+} from '@/shared/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { TenantBrandingTab } from './TenantBrandingTab';
 import { TenantModuleControl, DEFAULT_SETTINGS, type TenantSettings } from './TenantModuleControl';
 import { TenantContactTab } from './TenantContactTab';

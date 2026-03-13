@@ -5,9 +5,9 @@
 
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/lib/logger';
-import { Sentry } from '@/lib/sentry';
-import { AIResponseInvalidError, ServiceUnavailableError } from '@/services/errors';
+import { logger } from '@/shared/utils/logger';
+import { Sentry } from '@/shared/utils/sentry';
+import { AIResponseInvalidError, ServiceUnavailableError } from '@/shared/utils/errors';
 import { getProviderFromModel } from '@/config/ai';
 import type { GenerateStructuredInput, EdgeGenerateResponse, AITelemetryContext } from '@/ai/types';
 
@@ -122,3 +122,4 @@ export async function generateStructured<
     });
   }
 }
+

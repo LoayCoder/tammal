@@ -3,7 +3,7 @@
 
 import type { LucideIcon } from 'lucide-react';
 
-export type { TimeRange, OrgFilter, OrgAnalyticsData } from '@/lib/analytics/types';
+export type { TimeRange, OrgFilter, OrgAnalyticsData } from '@/shared/utils/analytics/types';
 
 export interface StatCard {
   title: string;

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { logger } from '@/lib/logger';
+import { logger } from '@/shared/utils/logger';
 import { supabase } from '@/integrations/supabase/client';
-import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { useCurrentEmployee } from '@/features/auth/hooks/auth/useCurrentEmployee';
 import { useMoodDefinitions } from '@/hooks/wellness/useMoodDefinitions';
 import { useGamification } from '@/hooks/wellness/useGamification';
 import { format, subDays, getDay, startOfMonth } from 'date-fns';
@@ -328,3 +328,4 @@ export function usePersonalMoodDashboard() {
     breathingStats: breathingStats ?? { totalSessions: 0, totalMinutes: 0, currentStreak: 0, avgMoodImprovement: 0, thisMonth: 0, favoriteExercise: null },
   };
 }
+

@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/components/ui/dialog';
 import {
   Music, BookMarked, Calendar, ChevronRight,
 } from 'lucide-react';
-import MeditationLibraryTool from '@/components/mental-toolkit/practices/MeditationLibraryTool';
-import PsychoeducationArticles from '@/components/mental-toolkit/resources/PsychoeducationArticles';
-import IslamicCalendar from '@/pages/spiritual/IslamicCalendar';
+import MeditationLibraryTool from '@/features/mental-toolkit/components/practices/MeditationLibraryTool';
+import PsychoeducationArticles from '@/features/mental-toolkit/components/resources/PsychoeducationArticles';
+import IslamicCalendar from '@/features/spiritual/pages/IslamicCalendar';
 
 type ResourceKey = 'meditation' | 'articles' | 'calendar';
 
@@ -84,3 +84,5 @@ export function MentalHealthResourcesHub() {
     </>
   );
 }
+
+

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   fetchGamificationData,
   calculatePoints,
-} from '@/services/gamificationService';
+} from '@/features/recognition/services/gamificationService';
 
 export function useGamification(employeeId: string | null) {
   const query = useQuery({
@@ -18,3 +18,4 @@ export function useGamification(employeeId: string | null) {
     calculatePoints,
   };
 }
+

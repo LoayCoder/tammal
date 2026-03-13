@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/shared/components/ui/dialog';
 import type { BatchQuestion } from '@/hooks/questions/useQuestionBatches';
 
 interface QuestionDetailDialogProps {

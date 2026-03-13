@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Badge } from '@/shared/components/ui/badge';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { AlertTriangle, TrendingDown, Zap, Users, RotateCcw } from 'lucide-react';
-import type { EarlyWarning } from '@/lib/analytics/types';
+import type { EarlyWarning } from '@/shared/utils/analytics/types';
 
 interface Props {
   warnings: EarlyWarning[];

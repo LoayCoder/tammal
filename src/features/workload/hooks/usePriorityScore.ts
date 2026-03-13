@@ -1,5 +1,5 @@
 import { useMemo, useCallback } from 'react';
-import { computePriorityScore, type PriorityScoreInput } from '@/services/workload-intelligence.service';
+import { computePriorityScore, type PriorityScoreInput } from '@/features/workload/services/workload-intelligence.service';
 
 /**
  * Hook that exposes the priority score computation

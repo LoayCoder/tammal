@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { logger } from '@/lib/logger';
+import { logger } from '@/shared/utils/logger';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog,
@@ -7,11 +7,11 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+} from '@/shared/components/ui/dialog';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Separator } from '@/shared/components/ui/separator';
+import { Alert, AlertDescription } from '@/shared/components/ui/alert';
 import { 
   Monitor, 
   Smartphone, 
@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuth } from '@/features/auth/hooks/auth/useAuth';
 
 interface SessionManagementDialogProps {
   open: boolean;
@@ -228,3 +228,4 @@ export function SessionManagementDialog({ open, onOpenChange }: SessionManagemen
     </Dialog>
   );
 }
+

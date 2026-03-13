@@ -1,9 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
+import { Button } from '@/shared/components/ui/button';
+import { Label } from '@/shared/components/ui/label';
+import { Slider } from '@/shared/components/ui/slider';
+import { Switch } from '@/shared/components/ui/switch';
 import type { FairnessSettings } from '../types';
 
 interface Props {

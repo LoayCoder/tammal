@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
 import type { CheckinByOrgUnitItem } from '@/hooks/analytics/useOrgAnalytics';
-import i18n from '@/lib/i18n';
+import i18n from '@/shared/utils/i18n';
 import { CHART_AXIS_TICK, CHART_AXIS_LABEL, CHART_TOOLTIP_STYLE, CHART_GRID_STROKE } from '@/config/chart-styles';
 
 interface Props {

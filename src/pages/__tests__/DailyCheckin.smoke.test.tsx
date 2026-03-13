@@ -28,7 +28,7 @@ const mockEmployee = {
   email: 'test@test.com',
 };
 
-vi.mock('@/hooks/auth/useCurrentEmployee', () => ({
+vi.mock('@/features/auth/hooks/auth/useCurrentEmployee', () => ({
   useCurrentEmployee: () => ({
     employee: mockEmployee,
     isLoading: false,
@@ -45,11 +45,11 @@ vi.mock('@/hooks/wellness/useGamification', () => ({
   }),
 }));
 
-vi.mock('@/hooks/checkin/useTodayEntry', () => ({
+vi.mock('@/features/wellness/hooks/checkin/useTodayEntry', () => ({
   useTodayEntry: () => ({ data: null, isLoading: false }),
 }));
 
-vi.mock('@/hooks/checkin/useCheckinSubmit', () => ({
+vi.mock('@/features/wellness/hooks/checkin/useCheckinSubmit', () => ({
   useCheckinSubmit: () => mockUseCheckinSubmit(),
 }));
 
@@ -92,7 +92,7 @@ vi.mock('@/config/moods', () => ({
   DEFAULT_MOOD_COLOR_STYLE: { bgFrom: '', bgTo: '', border: '', activeBorder: '', ring: '', text: '' },
 }));
 
-import DailyCheckin from '@/pages/employee/DailyCheckin';
+import DailyCheckin from '@/features/wellness/pages/DailyCheckin';
 
 function renderWithProviders(ui: React.ReactElement) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -202,3 +202,6 @@ describe('DailyCheckin — E2E Smoke', () => {
     expect(mockUseCheckinSubmit).toHaveBeenCalled();
   });
 });
+
+
+

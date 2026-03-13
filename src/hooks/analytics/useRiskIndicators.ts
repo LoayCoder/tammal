@@ -3,17 +3,17 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useTenantId } from '@/hooks/org/useTenantId';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuth } from '@/features/auth/hooks/auth/useAuth';
 import { subDays, format, eachDayOfInterval, parseISO } from 'date-fns';
 
-import type { TimeRange, OrgFilter } from '@/lib/analytics/types';
+import type { TimeRange, OrgFilter } from '@/shared/utils/analytics/types';
 import {
   hasOrgFilter, resolveFilteredEmployeeIds,
   fetchMoodEntries, fetchActiveEmployeeCount,
   fetchCategoryAnalysis, computeCategoryTrendsAndMatrix,
-} from '@/lib/analytics/queries';
-import { computeKPIs, computeRiskTrend } from '@/lib/analytics/computations';
-import { computeCategoryRiskScores, detectEarlyWarnings } from '@/lib/analytics/computations/riskScore';
+} from '@/shared/utils/analytics/queries';
+import { computeKPIs, computeRiskTrend } from '@/shared/utils/analytics/computations';
+import { computeCategoryRiskScores, detectEarlyWarnings } from '@/shared/utils/analytics/computations/riskScore';
 
 export function useRiskIndicators(
   timeRange: TimeRange = 30,
@@ -83,3 +83,4 @@ export function useRiskIndicators(
     staleTime: 5 * 60 * 1000,
   });
 }
+

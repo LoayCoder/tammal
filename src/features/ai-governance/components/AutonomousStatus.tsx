@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
 import { Bot, Shield, Clock, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAutonomousState, type AutonomousStateRow } from '@/features/ai-governance/hooks/useAutonomousState';
-import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
+import { useUserPermissions } from '@/features/auth/hooks/auth/useUserPermissions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import * as AiGovernanceService from '../services/ai-governance.service';
 import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
 
 function ModeBadge({ mode }: { mode: string }) {
@@ -41,11 +41,7 @@ export function AutonomousStatus() {
 
   const toggleMode = useMutation({
     mutationFn: async ({ tenantId, feature, mode }: { tenantId: string; feature: string; mode: string }) => {
-      const { data, error } = await supabase.functions.invoke('ai-governance', {
-        body: { action: 'toggle_autonomous_mode', params: { tenant_id: tenantId, feature, mode } },
-      });
-      if (error) throw error;
-      return data;
+      return AiGovernanceService.toggleAutonomousMode(tenantId, feature, mode);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['ai-governance'] });
@@ -55,11 +51,7 @@ export function AutonomousStatus() {
 
   const rollback = useMutation({
     mutationFn: async ({ tenantId, feature }: { tenantId: string; feature: string }) => {
-      const { data, error } = await supabase.functions.invoke('ai-governance', {
-        body: { action: 'rollback_weights', params: { tenant_id: tenantId, feature } },
-      });
-      if (error) throw error;
-      return data;
+      return AiGovernanceService.rollbackWeights(tenantId, feature);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['ai-governance'] });
@@ -175,3 +167,4 @@ export function AutonomousStatus() {
     </>
   );
 }
+

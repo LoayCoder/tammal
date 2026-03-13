@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
 import { useTranslation } from 'react-i18next';
 import type { MoodBreakdownItem } from '@/hooks/analytics/useCheckinMonitor';
 

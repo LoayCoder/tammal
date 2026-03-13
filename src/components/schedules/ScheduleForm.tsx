@@ -4,17 +4,17 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Textarea } from '@/shared/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/shared/components/ui/radio-group';
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
+import { Checkbox } from '@/shared/components/ui/checkbox';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
 import { CalendarClock, Package } from 'lucide-react';
-import type { ScheduleFormState } from '@/hooks/admin/useScheduleReducer';
+import type { ScheduleFormState } from '@/features/admin/hooks/admin/useScheduleReducer';
 
 interface ScheduleFormProps {
   state: ScheduleFormState;
@@ -171,3 +171,4 @@ export default function ScheduleForm({ state, dispatch, setField, batches, perio
     </>
   );
 }
+

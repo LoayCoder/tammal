@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ScrollArea } from '@/shared/components/ui/scroll-area';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import {
   Activity, CheckCircle2, Circle, MessageSquare, Paperclip,
   UserPlus, ArrowRightLeft, AlertTriangle, Clock, Filter,

@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { logger } from '@/lib/logger';
-import type { HSLColor } from '@/types/branding';
+import { logger } from '@/shared/utils/logger';
+import type { HSLColor } from '@/shared/types/common.types/branding';
 
 export type AssetType = 'logo' | 'logo_light' | 'logo_dark' | 'favicon' | 'icon_light' | 'icon_dark' | 'pwa_icon' | 'pwa_icon_light' | 'pwa_icon_dark';
 
@@ -188,3 +188,4 @@ export function useBranding(tenantId?: string) {
     defaultBranding: DEFAULT_BRANDING
   };
 }
+

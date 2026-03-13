@@ -18,7 +18,7 @@ const mockAcceptInvite = vi.fn();
 const mockToastError = vi.fn();
 const mockNavigate = vi.fn();
 
-vi.mock('@/services/inviteService', () => ({
+vi.mock('@/features/auth/services/inviteService', () => ({
   verifyInviteCode: (...args: unknown[]) => mockVerifyInviteCode(...args),
   acceptInvite: (...args: unknown[]) => mockAcceptInvite(...args),
 }));
@@ -35,8 +35,8 @@ vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-import { useAcceptInvite } from '@/hooks/auth/useAcceptInvite';
-import type { InvitationData } from '@/services/inviteService';
+import { useAcceptInvite } from '@/features/auth/hooks/auth/useAcceptInvite';
+import type { InvitationData } from '@/features/auth/services/inviteService';
 
 const fakeInvitation: InvitationData = {
   id: 'inv-1',
@@ -185,3 +185,5 @@ describe('useAcceptInvite', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/auth');
   });
 });
+
+

@@ -3,11 +3,11 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useTenantId } from '@/hooks/org/useTenantId';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuth } from '@/features/auth/hooks/auth/useAuth';
 import { subDays, format, parseISO } from 'date-fns';
 
-import type { TimeRange, OrgFilter } from '@/lib/analytics/types';
-import { hasOrgFilter, resolveFilteredEmployeeIds, fetchCategoryAnalysis } from '@/lib/analytics/queries';
+import type { TimeRange, OrgFilter } from '@/shared/utils/analytics/types';
+import { hasOrgFilter, resolveFilteredEmployeeIds, fetchCategoryAnalysis } from '@/shared/utils/analytics/queries';
 
 export function useCategoryBreakdown(
   timeRange: TimeRange = 30,
@@ -49,3 +49,4 @@ export function useCategoryBreakdown(
     staleTime: 5 * 60 * 1000,
   });
 }
+

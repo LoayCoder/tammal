@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/components/ui/dialog';
 import {
   Wind, BookOpen, CheckSquare, ClipboardCheck, ChevronRight,
 } from 'lucide-react';
-import BreathingGroundingTool from '@/components/mental-toolkit/tools/BreathingGroundingTool';
-import JournalingPromptsTool from '@/components/mental-toolkit/practices/JournalingPromptsTool';
-import HabitsPlanner from '@/components/mental-toolkit/practices/HabitsPlanner';
-import SelfAssessmentQuiz from '@/components/mental-toolkit/resources/SelfAssessmentQuiz';
+import BreathingGroundingTool from '@/features/mental-toolkit/components/tools/BreathingGroundingTool';
+import JournalingPromptsTool from '@/features/mental-toolkit/components/practices/JournalingPromptsTool';
+import HabitsPlanner from '@/features/mental-toolkit/components/practices/HabitsPlanner';
+import SelfAssessmentQuiz from '@/features/mental-toolkit/components/resources/SelfAssessmentQuiz';
 
 type ToolKey = 'breathing' | 'journaling' | 'habits' | 'assessment';
 
@@ -98,3 +98,4 @@ export function MentalHealthToolsHub() {
     </>
   );
 }
+

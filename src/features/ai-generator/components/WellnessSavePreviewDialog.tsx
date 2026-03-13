@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
+} from '@/shared/components/ui/dialog';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { ScrollArea } from '@/shared/components/ui/scroll-area';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import { RadioGroup, RadioGroupItem } from '@/shared/components/ui/radio-group';
+import { Label } from '@/shared/components/ui/label';
 import { Heart, Package, Plus } from 'lucide-react';
 import type { QuestionBatch } from '@/hooks/questions/useQuestionBatches';
 
