@@ -4,8 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useWorkloadAnalytics, type TeamMemberLoad } from '@/features/workload/hooks/useWorkloadAnalytics';
 import { Users, Clock, AlertTriangle, Moon } from 'lucide-react';
-import {
 import { typography } from "@/theme/tokens";
+import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts';
 
