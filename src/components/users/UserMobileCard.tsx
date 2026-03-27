@@ -10,6 +10,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Shield, UserCog, Pencil, UserX, Ban, UserCheck, Trash2 } from 'lucide-react';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 import type { UserWithRoles } from '@/hooks/org/useUsers';
 
 interface UserMobileCardProps {
@@ -63,7 +65,7 @@ export function UserMobileCard({
 
   return (
     <div
-      className="glass-card p-4 cursor-pointer active:scale-[0.98] transition-transform"
+      className={cn(cardVariants.glass, "p-4 cursor-pointer active:scale-[0.98] transition-transform")}
       onClick={() => onViewDetails(user)}
     >
       <div className="flex items-start justify-between gap-3">

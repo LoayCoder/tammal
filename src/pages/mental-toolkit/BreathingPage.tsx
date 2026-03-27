@@ -203,7 +203,7 @@ export default function BreathingPage() {
           <ToolkitCard>
             <CardContent className="p-6 text-center space-y-5 animate-in fade-in duration-500">
               <div className="text-5xl">🌿</div>
-              <h2 className="text-xl font-bold text-foreground">{t("mentalToolkit.breathing.complete")}</h2>
+              <h2 className={typography.sectionTitle}>{t("mentalToolkit.breathing.complete")}</h2>
               <p className={typography.subtitle}>
                 {Math.round(lastDuration / 60)} {t("mentalToolkit.breathing.totalMinutes").toLowerCase()} · {lastRounds} {t("mentalToolkit.breathing.round", { current: lastRounds, total: technique === "grounding" ? 5 : sessionLength }).split(" ")[0].toLowerCase()}
               </p>
@@ -301,7 +301,7 @@ function StatPill({ icon, color, value, label }: { icon: React.ReactNode; color:
     <ToolkitCard variant="stat">
       <CardContent className="p-4 flex flex-col items-center text-center gap-1">
         <span style={{ color }}>{icon}</span>
-        <span className="text-xl font-bold text-foreground">{value}</span>
+        <span className={typography.metric}>{value}</span>
         <span className="text-2xs text-muted-foreground leading-tight">{label}</span>
       </CardContent>
     </ToolkitCard>

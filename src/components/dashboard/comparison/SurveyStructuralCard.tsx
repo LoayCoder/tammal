@@ -4,7 +4,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { ClipboardCheck, AlertTriangle, TrendingDown, BarChart } from 'lucide-react';
 import type { SurveyStructuralMetrics } from '@/lib/analytics/types';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface Props {
   data: SurveyStructuralMetrics | null;
@@ -56,7 +57,7 @@ export function SurveyStructuralCard({ data, isLoading }: Props) {
             ) : (
               <div className="flex items-center gap-1.5">
                 <m.icon className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-lg font-semibold truncate">{m.value}</span>
+                <span className={cn(typography.sectionTitle, "truncate")}>{m.value}</span>
                 {m.highlight && <Badge variant="destructive" className="text-2xs px-1 py-0">{data?.riskCategoryCount}</Badge>}
               </div>
             )}

@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/shared/empty/EmptyState';
 import { useOverdueTasks } from '@/features/tasks/hooks/useOverdueTasks';
 import { typography } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 function getEscalationLevel(daysOverdue: number): { level: number; className: string; label: string } {
   if (daysOverdue >= 14) return { level: 3, className: 'bg-destructive text-destructive-foreground', label: 'Level 3' };
@@ -40,19 +41,19 @@ export default function OverdueTasks() {
       {/* Stats */}
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
         <Card className="border-0 bg-destructive/5"><CardContent className="p-3 text-center">
-          <div className="text-xl font-bold text-destructive">{stats.total}</div>
+          <div className={cn(typography.metric, "text-destructive")}>{stats.total}</div>
           <p className="text-xs text-muted-foreground">{t('tasks.stats.totalOverdue')}</p>
         </CardContent></Card>
         <Card className="border-0 bg-chart-4/5"><CardContent className="p-3 text-center">
-          <div className="text-xl font-bold text-chart-4">{stats.level1}</div>
+          <div className={cn(typography.metric, "text-chart-4")}>{stats.level1}</div>
           <p className="text-xs text-muted-foreground">{t('tasks.escalation.level1')}</p>
         </CardContent></Card>
         <Card className="border-0 bg-chart-5/5"><CardContent className="p-3 text-center">
-          <div className="text-xl font-bold text-chart-5">{stats.level2}</div>
+          <div className={cn(typography.metric, "text-chart-5")}>{stats.level2}</div>
           <p className="text-xs text-muted-foreground">{t('tasks.escalation.level2')}</p>
         </CardContent></Card>
         <Card className="border-0 bg-destructive/5"><CardContent className="p-3 text-center">
-          <div className="text-xl font-bold text-destructive">{stats.level3}</div>
+          <div className={cn(typography.metric, "text-destructive")}>{stats.level3}</div>
           <p className="text-xs text-muted-foreground">{t('tasks.escalation.level3')}</p>
         </CardContent></Card>
       </div>

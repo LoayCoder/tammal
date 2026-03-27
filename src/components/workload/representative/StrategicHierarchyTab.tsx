@@ -12,6 +12,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Plus, Pencil, Trash2, ArrowRight, Rocket, FolderOpen, Lock, Unlock, Target, Crosshair } from 'lucide-react';
+import { typography } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 import type { Objective } from '@/features/workload/hooks/useObjectives';
 import type { Initiative } from '@/features/workload/hooks/useInitiatives';
 import type { ObjAction } from '@/features/workload/hooks/useActions';
@@ -124,7 +126,7 @@ export function StrategicHierarchyTab({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold flex items-center gap-2">
+        <h2 className={cn(typography.sectionTitle, "flex items-center gap-2")}>
           <Target className="h-5 w-5 text-primary" />
           {t('workload.objectives.pageTitle')}
         </h2>

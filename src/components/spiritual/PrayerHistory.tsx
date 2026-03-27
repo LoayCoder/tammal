@@ -182,7 +182,7 @@ export const PrayerHistory = React.memo(function PrayerHistory() {
                           <p className="text-xs text-muted-foreground">
                             {t(`spiritual.prayer.names.${s.prayerName.toLowerCase()}`, s.prayerName)}
                           </p>
-                          <p className="text-xl font-bold" style={{ color: PRAYER_COLORS[s.prayerName] }}>
+                          <p className="text-2xl font-bold" style={{ color: PRAYER_COLORS[s.prayerName] }}>
                             {s.pct}%
                           </p>
                           <p className="text-2xs text-muted-foreground">

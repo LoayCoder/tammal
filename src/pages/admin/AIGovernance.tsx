@@ -23,6 +23,7 @@ import { SandboxMonitor } from '@/features/ai-governance/components/SandboxMonit
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { typography } from "@/theme/tokens";
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function AIGovernance() {
@@ -72,7 +73,7 @@ export default function AIGovernance() {
               <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-lg font-semibold text-foreground">
+              <h3 className={typography.sectionTitle}>
                 {t('aiGovernance.loadError', 'Failed to load governance data')}
               </h3>
               <p className="text-sm text-muted-foreground max-w-sm">

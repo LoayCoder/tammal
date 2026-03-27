@@ -7,6 +7,8 @@ import { useEndorsements } from '@/hooks/recognition/useEndorsements';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ThumbsUp, ChevronRight } from 'lucide-react';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 export function DashboardEndorsementRequests() {
   const { t } = useTranslation();
@@ -42,7 +44,7 @@ export function DashboardEndorsementRequests() {
       {myEndorsementRequests.map(n => (
         <Card
           key={n.id}
-          className="group relative overflow-hidden border-0 glass-card rounded-lg cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.01]"
+          className={cn(cardVariants.glass, "group relative overflow-hidden rounded-lg cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.01]")}
           onClick={() => navigate('/recognition/my-nominations?tab=endorse')}
         >
           {/* Gradient accent stripe on the start edge */}

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EscalationTimeline } from './EscalationTimeline';
 import { SlaBadge } from './SlaBadge';
 import { AlertTriangle } from 'lucide-react';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   taskId: string;
@@ -15,7 +16,7 @@ export function EscalationPanel({ taskId, taskTitle, dueDate, completedAt }: Pro
   const { t } = useTranslation();
 
   return (
-    <Card className="border-0 glass-card">
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="text-base flex items-center gap-2">

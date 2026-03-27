@@ -17,7 +17,8 @@ import { Phone, MessageSquare, Shield, AlertTriangle, ArrowRight, Clock, User, E
 import { toast } from 'sonner';
 import CrisisSupport from '@/components/mental-toolkit/resources/CrisisSupport';
 import EmployeeBookingWidget from '@/components/crisis/EmployeeBookingWidget';
-import { cardVariants, typography} from "@/theme/tokens";
+import { cardVariants, typography } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 
 const INTENTS = [
@@ -185,7 +186,7 @@ export default function CrisisRequestPage() {
               <CardContent className="pt-6 space-y-4">
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="h-6 w-6 text-destructive" />
-                  <h2 className="text-lg font-semibold text-destructive">{t('crisisSupport.highRisk.title')}</h2>
+                  <h2 className={cn(typography.sectionTitle, "text-destructive")}>{t('crisisSupport.highRisk.title')}</h2>
                 </div>
                 <p className="text-sm text-foreground">{t('crisisSupport.highRisk.body')}</p>
                 <p className="text-xs text-muted-foreground">{t('crisisSupport.highRisk.notEmergency')}</p>

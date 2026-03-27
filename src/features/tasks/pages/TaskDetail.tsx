@@ -117,7 +117,7 @@ export default function TaskDetail() {
       <div className="flex flex-col md:flex-row md:items-start gap-4">
         <div className="flex-1 space-y-2">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-xl font-bold">{task.title}</h1>
+            <h1 className={typography.sectionTitle}>{task.title}</h1>
             {task.is_locked && <Lock className="h-4 w-4 text-chart-4" />}
           </div>
           {task.title_ar && <p className={typography.subtitle} dir="rtl">{task.title_ar}</p>}
