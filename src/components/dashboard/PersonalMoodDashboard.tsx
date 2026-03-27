@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
@@ -21,6 +22,33 @@ export function PersonalMoodDashboard() {
   const isRTL = i18n.dir() === "rtl";
   const dashboard = usePersonalMoodDashboard();
 
+  // 14-day chart data (memoized to prevent Recharts re-renders)
+  const chartData = useMemo(() => Array.from({ length: 14 }, (_, i) => {
+    const d = format(subDays(new Date(), 13 - i), "yyyy-MM-dd");
+    const entry = dashboard.last14.find((e) => e.date === d);
+    const moodDef = entry ? dashboard.moodDefs.find((m) => m.key === entry.level) : null;
+    return {
+      date: d,
+      label: format(subDays(new Date(), 13 - i), "dd/MM"),
+      score: entry?.score ?? null,
+      emoji: moodDef?.emoji ?? "",
+      orgAvg: dashboard.orgAvgMap[d] ?? null,
+    };
+  }), [dashboard.last14, dashboard.moodDefs, dashboard.orgAvgMap]);
+
+  // Donut data (memoized to prevent Recharts re-renders)
+  const donutData = useMemo(() => Object.entries(dashboard.distribution).map(([level, count]) => {
+    const def = dashboard.moodDefs.find((m) => m.key === level);
+    const label = def ? (isRTL ? def.label_ar : def.label_en) : level;
+    return { name: `${def?.emoji ?? ""} ${label}`, value: count };
+  }), [dashboard.distribution, dashboard.moodDefs, isRTL]);
+
+  const todayDef = dashboard.todayEntry
+    ? dashboard.moodDefs.find((m) => m.key === dashboard.todayEntry!.level)
+    : null;
+
+  const noData = dashboard.moodHistory.length === 0;
+
   if (dashboard.isPending) {
     return (
       <div className="space-y-4">
@@ -33,8 +61,6 @@ export function PersonalMoodDashboard() {
       </div>
     );
   }
-
-  const noData = dashboard.moodHistory.length === 0;
 
   if (noData) {
     return (
@@ -51,31 +77,6 @@ export function PersonalMoodDashboard() {
       </Card>
     );
   }
-
-  // 14-day chart data
-  const chartData = Array.from({ length: 14 }, (_, i) => {
-    const d = format(subDays(new Date(), 13 - i), "yyyy-MM-dd");
-    const entry = dashboard.last14.find((e) => e.date === d);
-    const moodDef = entry ? dashboard.moodDefs.find((m) => m.key === entry.level) : null;
-    return {
-      date: d,
-      label: format(subDays(new Date(), 13 - i), "dd/MM"),
-      score: entry?.score ?? null,
-      emoji: moodDef?.emoji ?? "",
-      orgAvg: dashboard.orgAvgMap[d] ?? null,
-    };
-  });
-
-  // Donut data
-  const donutData = Object.entries(dashboard.distribution).map(([level, count]) => {
-    const def = dashboard.moodDefs.find((m) => m.key === level);
-    const label = def ? (isRTL ? def.label_ar : def.label_en) : level;
-    return { name: `${def?.emoji ?? ""} ${label}`, value: count };
-  });
-
-  const todayDef = dashboard.todayEntry
-    ? dashboard.moodDefs.find((m) => m.key === dashboard.todayEntry!.level)
-    : null;
 
   return (
     <div className="space-y-4">
