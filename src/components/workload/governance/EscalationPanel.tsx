@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EscalationTimeline } from './EscalationTimeline';
 import { SlaBadge } from './SlaBadge';
 import { AlertTriangle } from 'lucide-react';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   taskId: string;
