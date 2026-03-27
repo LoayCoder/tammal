@@ -220,7 +220,7 @@ export default function EmployeeSurvey() {
           const isPending = question?.validation_status === 'pending';
 
           return (
-            <Card key={sq.id} className={cn(cardVariants.glass, `rounded-xl overflow-hidden ${isPending ? 'border-amber-500/50 bg-amber-500/5' : ''}`)}>
+            <Card key={sq.id} className={cn(cardVariants.glass, "rounded-xl overflow-hidden", isPending && "border-amber-500/50 bg-amber-500/5")}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
