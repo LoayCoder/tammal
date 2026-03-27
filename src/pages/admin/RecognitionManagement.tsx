@@ -22,6 +22,7 @@ import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
 import { useConfirmDelete } from '@/shared/dialogs/useConfirmDelete';
 import { isInProcessStatus, getImpactWarning, getNextStatus } from '@/lib/recognition-utils';
 import { format } from 'date-fns';
+import { typography } from "@/theme/tokens";
 
 export default function RecognitionManagement() {
   const { t } = useTranslation();
@@ -112,7 +113,7 @@ export default function RecognitionManagement() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <Trophy className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold">{t('recognition.cycles.empty')}</h3>
+            <h3 className={typography.sectionTitle}>{t('recognition.cycles.empty')}</h3>
             <p className="text-sm text-muted-foreground mt-1 max-w-md">{t('recognition.cycles.emptyDescription')}</p>
             <Button className="mt-4" onClick={() => setShowBuilder(true)}>
               <Plus className="h-4 w-4 me-2" />

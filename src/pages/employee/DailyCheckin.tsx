@@ -13,7 +13,7 @@ import { Flame, Star, Loader2, ArrowRight, ArrowLeft, Send, AlertCircle, Refresh
 import { MoodStep } from '@/components/checkin/MoodStep';
 import { SupportStep } from '@/components/checkin/SupportStep';
 import { CheckinSuccess } from '@/components/checkin/CheckinSuccess';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 type Step = 'mood' | 'support';
@@ -88,7 +88,7 @@ export default function DailyCheckin() {
     return (
       <div className="container mx-auto max-w-md py-20 px-4 flex flex-col items-center gap-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
+        <p className={typography.subtitle}>{t('common.loading')}</p>
       </div>
     );
   }
@@ -99,8 +99,8 @@ export default function DailyCheckin() {
       <div className="container mx-auto max-w-md py-16 px-4">
         <div className="text-center space-y-4 p-8 rounded-lg border border-dashed border-destructive/30 bg-destructive/5">
           <UserX className="h-12 w-12 mx-auto text-destructive/60" />
-          <h2 className="text-lg font-semibold">{t('wellness.profileNotFound', 'Profile Not Found')}</h2>
-          <p className="text-sm text-muted-foreground">{t('wellness.profileNotFoundDesc', 'Your employee profile could not be found. Please contact your administrator.')}</p>
+          <h2 className={typography.sectionTitle}>{t('wellness.profileNotFound', 'Profile Not Found')}</h2>
+          <p className={typography.subtitle}>{t('wellness.profileNotFoundDesc', 'Your employee profile could not be found. Please contact your administrator.')}</p>
         </div>
       </div>
     );

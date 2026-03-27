@@ -107,7 +107,7 @@ export default function RecognitionResults() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <Calculator className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold">{t('recognition.results.noResults')}</h3>
+            <h3 className={typography.sectionTitle}>{t('recognition.results.noResults')}</h3>
             <p className="text-sm text-muted-foreground mt-1">{t('recognition.results.noResultsDesc')}</p>
           </CardContent>
         </Card>

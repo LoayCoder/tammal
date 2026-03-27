@@ -23,7 +23,7 @@ import FirstAiderQuickConnect from '@/components/crisis/FirstAiderQuickConnect';
 import { DashboardEndorsementRequests } from '@/components/dashboard/DashboardEndorsementRequests';
 import { DashboardShortlistWidget } from '@/components/dashboard/DashboardShortlistWidget';
 import { DashboardVotingWidget } from '@/components/dashboard/DashboardVotingWidget';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 const MOOD_EMOJIS: Record<string, string> = {
@@ -159,7 +159,7 @@ export default function EmployeeHome() {
 
         {/* Quick Actions */}
         <div className="space-y-2">
-          <h2 className="text-lg font-semibold">{t('dashboard.quickActions')}</h2>
+          <h2 className={typography.sectionTitle}>{t('dashboard.quickActions')}</h2>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
             <Link to="/crisis-support">
               <Card className={cn(cardVariants.glass, "ring-1 ring-destructive/20 cursor-pointer transition-all hover:shadow-lg hover:ring-destructive/40")}>

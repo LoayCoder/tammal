@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Heart, Wind, Phone, Coffee, CheckCircle2 } from 'lucide-react';
+import { typography } from "@/theme/tokens";
 
 const SUPPORT_ACTIONS = [
   { key: 'meditation', icon: Heart, emoji: '🧘' },
@@ -26,8 +27,8 @@ export function SupportStep({ showSupport, supportActions, onToggleAction, comme
       {showSupport && (
         <div className="space-y-3">
           <div className="text-center space-y-1">
-            <h3 className="text-lg font-semibold">{t('wellness.supportActions')}</h3>
-            <p className="text-sm text-muted-foreground">{t('wellness.supportDescription')}</p>
+            <h3 className={typography.sectionTitle}>{t('wellness.supportActions')}</h3>
+            <p className={typography.subtitle}>{t('wellness.supportDescription')}</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {SUPPORT_ACTIONS.map(action => {

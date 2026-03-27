@@ -15,7 +15,7 @@ import { UsageCharts } from '@/components/tenants/UsageCharts';
 import { AuditLogTable } from '@/components/audit/AuditLogTable';
 import { TenantStatusBadge } from '@/components/tenants/TenantStatusBadge';
 import { format } from 'date-fns';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { PageHeader } from '@/components/system';
 
 export default function TenantDashboard() {
@@ -128,8 +128,8 @@ export default function TenantDashboard() {
           <CardContent>
             {plan ? (
               <div className="space-y-1">
-                <p className="text-lg font-semibold">{plan.name}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className={typography.sectionTitle}>{plan.name}</p>
+                <p className={typography.subtitle}>
                   ${Number(plan.price).toFixed(2)} / {plan.billing_period}
                 </p>
               </div>
@@ -146,10 +146,10 @@ export default function TenantDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-semibold">
+            <p className={typography.sectionTitle}>
               {format(new Date(tenant.created_at), 'PP')}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className={typography.subtitle}>
               {format(new Date(tenant.created_at), 'p')}
             </p>
           </CardContent>

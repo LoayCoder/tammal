@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus, Activity, BarChart3, Zap, Heart } from 'lucide-react';
 import type { CheckinPulseMetrics } from '@/lib/analytics/types';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 interface Props {
   data: CheckinPulseMetrics | null;
@@ -60,7 +60,7 @@ export function CheckinPulseCard({ data, isLoading }: Props) {
             ) : (
               <div className="flex items-center gap-1.5">
                 {m.customIcon ?? <m.icon className="h-3.5 w-3.5 text-muted-foreground" />}
-                <span className="text-lg font-semibold">{m.value}</span>
+                <span className={typography.sectionTitle}>{m.value}</span>
                 {m.highlight && <Badge variant="destructive" className="text-2xs px-1 py-0">!</Badge>}
               </div>
             )}

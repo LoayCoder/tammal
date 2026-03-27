@@ -9,7 +9,7 @@ import BreathingGroundingTool from '@/components/mental-toolkit/tools/BreathingG
 import JournalingPromptsTool from '@/components/mental-toolkit/practices/JournalingPromptsTool';
 import HabitsPlanner from '@/components/mental-toolkit/practices/HabitsPlanner';
 import SelfAssessmentQuiz from '@/components/mental-toolkit/resources/SelfAssessmentQuiz';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 type ToolKey = 'breathing' | 'journaling' | 'habits' | 'assessment';
@@ -28,7 +28,7 @@ export function MentalHealthToolsHub() {
   return (
     <>
       <div className="space-y-2">
-        <h2 className="text-lg font-semibold">{t('home.mentalHealthTools', 'Mental Health Tools')}</h2>
+        <h2 className={typography.sectionTitle}>{t('home.mentalHealthTools', 'Mental Health Tools')}</h2>
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
           {TOOLS.map(({ key, icon: Icon, color, titleKey, descKey }) => (
             <div key={key} onClick={() => setOpenTool(key)} className="cursor-pointer">
