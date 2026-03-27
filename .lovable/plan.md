@@ -1,145 +1,201 @@
 
 
-# Design System Compliance Migration Plan
+# TAMMAL UI QA Audit Report — Design System Compliance (Post-Migration)
 
-## Scope
-
-5 workstreams, ~81 files affected. Execution is phased to minimize regression risk — each phase is independently shippable.
+**Audit Date**: 2026-03-27
+**Auditor**: Senior UI/UX QA
+**Design System Version**: v1.0.0 (`src/theme/tokens.ts`, `src/components/system/`)
+**Scope**: Full application codebase — all pages, components, and shared modules
 
 ---
 
-## Phase 1 — Page Headers (14 pages + ToolkitPageHeader retirement)
+## Executive Summary
 
-**Problem**: 14+ pages build their own headers with raw `glass-card border-0 rounded-xl p-6 flex...` HTML. Three competing patterns exist.
+After the Phase 1–3 migration (PageHeader, StatCard, cardVariants tokenization), compliance has improved significantly. Card class tokenization is now at ~95%. However, **typography tokenization remains at near-zero** in production pages, and **several pages still bypass the PageHeader component entirely**. Two open phases (4 and 5) from the migration plan are confirmed as still necessary.
 
-**Action**: Replace all inline headers with `<PageHeader>` from `@/components/system`.
+**Overall Grade: C+ (up from D pre-migration)**
 
-The current `PageHeader` uses `rounded-none` (flush edge-to-edge). Most pages use `rounded-xl` (card-style). Before migration, the `PageHeader` component needs a `variant` prop or the pages need to adopt the flush style. Recommendation: **add a `variant?: "flush" | "card"` prop** to `PageHeader` — `flush` = current behavior (rounded-none, border-b), `card` = rounded-xl with padding. Default stays `flush`.
+---
 
-**Files (grouped by task)**:
+## 1. Page Header Compliance
 
-| Task | Pages |
+### 1.1 Pages still NOT using `<PageHeader>` — HIGH
+
+| Page | Current Pattern | Severity |
+|---|---|---|
+| `SystemHealth.tsx` | Raw `<h1 className="text-2xl font-bold">` + no card wrapper | **High** |
+| `TeamWorkload.tsx` | Raw `<h1 className="text-2xl font-bold tracking-tight">` | **High** |
+| `RepresentativeWorkload.tsx` | Raw `<h1 className="text-2xl font-bold">` | **High** |
+| `RedemptionCatalog.tsx` | Raw `<h1 className="text-2xl font-bold">` | **High** |
+| `MyNominationsPage.tsx` | Raw `<h1>` with inline Trophy icon | **High** |
+| `TenantDashboard.tsx` | Raw `<h1 className="text-2xl font-bold">` with back-button layout | **High** |
+| `MentalToolkit.tsx` (hub page) | Raw `<h1 className="text-xl font-bold">` — wrong size | **High** |
+| `ComponentShowcase.tsx` | Raw `<h1 className="text-2xl font-bold">` (dev page) | **Low** |
+| `EmployeeSurvey.tsx` | Raw `<h1 className="text-xl font-bold">` inside card | **Medium** |
+| `OverdueTasks.tsx` (tasks feature) | No header at all — uses inline stat cards | **Medium** |
+
+**Rule violated**: Design System mandates `<PageHeader>` for all page-level headers.
+**Recommendation**: Migrate all remaining pages to `<PageHeader variant="card">`. For TenantDashboard's back-button pattern, extend PageHeader with an optional `backAction` prop.
+
+### 1.2 PageHeader component itself uses hardcoded classes — MEDIUM
+
+`PageHeader.tsx` line 27 uses `"glass-card border-0 rounded-xl p-6"` instead of `cardVariants.glass` token.
+Line 45 uses `"glass-card border-0 rounded-none..."` — also hardcoded.
+
+**Rule violated**: Token governance — system components should consume their own tokens.
+**Recommendation**: Import `cardVariants` and use `cn(cardVariants.glass, "p-6")` for card variant.
+
+---
+
+## 2. Typography Token Adoption — CRITICAL
+
+| Issue | Count | Severity |
+|---|---|---|
+| `text-2xl font-bold` used instead of `typography.pageTitle` or `typography.metric` | **55 files, 495 matches** | **Critical** |
+| `text-xl font-bold` (non-standard size — not in token set) | **7 files, 52 matches** | **High** |
+| `text-lg font-semibold` used raw instead of `typography.sectionTitle` | **26 files, 135 matches** | **High** |
+| `font-medium` used (violates 400/600/700 weight restriction) | **216 files, 2405 matches** | **Medium** |
+| Files importing `typography` tokens | **7 files only** (all system/dev) | **Critical** |
+
+**Rules violated**:
+- Design System specifies `font-semibold` (600) for page titles; most pages use `font-bold` (700)
+- `font-medium` (500) is not in the approved weight set (400/600/700)
+- `text-xl` is not a defined typography token size
+- Zero feature pages import `typography.*` tokens
+
+**Recommendation**: Execute Phase 4 of migration plan. Map `text-2xl font-bold` → `typography.metric` (for numbers) or `typography.pageTitle` (for headings). Eliminate `text-xl font-bold` — standardize to `text-2xl font-semibold`.
+
+---
+
+## 3. Stat/Metric Card Adoption — MEDIUM
+
+| Issue | Details | Severity |
+|---|---|---|
+| `FirstAiderDashboard.tsx` stat cards | Uses raw `Card` + `CardContent` with inline centered layout, `text-2xl font-bold`, and manual icon boxes. Does NOT use `<StatCard>` | **High** |
+| `OverdueTasks.tsx` stat cards | Raw `Card` + `CardContent` with `text-xl font-bold` | **Medium** |
+| `SunnahTracker.tsx` stat grid | Raw cards with `text-2xl font-bold` | **Medium** |
+| `BreathingPage.tsx` stat cards | Raw cards with `text-xl font-bold` | **Low** |
+| Files importing `StatCard` from system | **3 files** (2 dev pages + RecognitionMonitor) | **High** |
+| Files importing `DashboardGrid` from system | **2 files** (both dev pages) | **High** |
+
+**Rule violated**: Design System mandates `<StatCard>` for simple stats and `<DashboardGrid>` for stat layouts.
+**Recommendation**: Migrate remaining raw stat cards to `<StatCard>`. FirstAiderDashboard is the highest priority — 4 stat cards with completely custom markup.
+
+---
+
+## 4. Spacing Token Adoption — HIGH
+
+| Issue | Details | Severity |
+|---|---|---|
+| Files importing `spacing.*` tokens | **6 files** (all system/dev + RecognitionMonitor) | **High** |
+| Raw `p-4`, `p-5`, `p-6` in card content | ~200+ instances across codebase | **High** |
+| Raw `space-y-6`, `space-y-8` for section gaps | ~100+ instances | **Medium** |
+| Raw `px-4 py-6` for page wrappers | ~30+ instances | **Medium** |
+
+**Rule violated**: Token governance requires `spacing.cardCompact`, `spacing.sectionGap`, etc.
+**Recommendation**: Add spacing token migration to Phase 4 scope.
+
+---
+
+## 5. Card Class Tokenization — MOSTLY COMPLIANT
+
+| Check | Status |
 |---|---|
-| Admin headers | PlanManagement, TenantManagement, SubscriptionManagement, SubcategoryManagement, CategoryManagement, ScheduleManagement, CheckinMonitor, SurveyMonitor, ObjectivesManagement, AdminBranding |
-| Recognition headers | RecognitionManagement, RecognitionResults, NominatePage, NominationApprovalsPage |
-| Crisis & settings | FirstAiderDashboard, MySupportPage, Support, UserProfile, CrisisSettings |
-| Dashboard headers | ExecutiveDashboard, WorkloadDashboard, TaskConnectors, PortfolioDashboard |
-| Toolkit retirement | Make `ToolkitPageHeader` a thin re-export of `PageHeader` |
+| `cardVariants` imported in feature files | **116 files** — PASS |
+| Remaining hardcoded `glass-card border-0 rounded-xl` | **1 file** (PageHeader.tsx itself) — see 1.2 |
+| Remaining hardcoded `glass-stat border-0` | **0 files** — PASS |
+| Redundant `rounded-xl` alongside `cardVariants.stat` | **4 instances** in FirstAiderDashboard (token already includes `rounded-xl`) |
 
-**Pattern — before**:
-```text
-<div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
-  <div className="flex items-center gap-3">
-    <div className="bg-primary/10 rounded-lg p-2"><Icon .../></div>
-    <div>
-      <h1 className="text-2xl font-bold">{title}</h1>
-      <p className="text-muted-foreground text-sm">{subtitle}</p>
-    </div>
-  </div>
-  {actions}
-</div>
-```
-
-**Pattern — after**:
-```text
-<PageHeader
-  icon={<Icon className="h-5 w-5 text-primary" />}
-  title={t('...')}
-  subtitle={t('...')}
-  actions={<Select .../>}
-  variant="card"
-/>
-```
+**Grade: A-** — Phase 3 migration was effective. Only the PageHeader system component and FirstAiderDashboard need cleanup.
 
 ---
 
-## Phase 2 — Stat/Metric Card Migration (15 files)
+## 6. RTL Compliance — PASS
 
-**Problem**: 15 files build stat cards with raw `glass-stat border-0` + inline `CardHeader`/`CardContent` markup instead of `<StatCard>` or `<MetricCard>`.
-
-**Action**: Replace with system components. Two patterns:
-
-- **Simple stat** (label + big number + optional icon) → `<StatCard>`
-- **Rich metric** (label + value + description + icon in header) → `<MetricCard>`
-
-**Files**:
-- `StatCards.tsx` (org-dashboard), `TeamStatCards.tsx`, `ScheduleStatCards.tsx`, `SaasStatsSection.tsx`, `WorkloadDashboard.tsx`
-- `PersonalMoodDashboard.tsx`, `QuranReader.tsx`, `FirstAiderDashboard.tsx`, `CrisisAnalyticsTab.tsx`, `UsageBilling.tsx`
-
-Note: Some stat cards (e.g., PersonalMoodDashboard) have custom layouts (centered icons, colored text). These may need a `children` slot on `StatCard` or remain as `MetricCard` with description.
-
----
-
-## Phase 3 — Card Class Tokenization (81 + 15 files)
-
-**Problem**: `glass-card border-0 rounded-xl` is hardcoded in 81 files. `glass-stat border-0` in 15 files.
-
-**Action**: Find-and-replace with token imports.
-
-```text
-// Before
-<Card className="glass-card border-0 rounded-xl">
-
-// After
-import { cardVariants } from "@/theme/tokens";
-<Card className={cardVariants.glass}>
-```
-
-Note: `cardVariants.glass` currently outputs `glass-card border-0 rounded-lg` (not `rounded-xl`). Either:
-- Update token to `rounded-xl` to match current app convention, OR
-- Keep `rounded-lg` and accept the subtle visual change.
-
-**Recommendation**: Update `cardVariants.glass` to use `rounded-xl` since that's what 81 files already use, then do the replacement.
-
----
-
-## Phase 4 — Typography Tokenization (62+ files)
-
-**Problem**: Raw Tailwind typography classes instead of `typography.*` tokens.
-
-**Mapping**:
-| Raw class | Token |
+| Check | Status |
 |---|---|
-| `text-2xl font-bold` (in metrics) | `typography.metric` |
-| `text-2xl font-semibold` (page titles) | `typography.pageTitle` |
-| `text-xs font-medium` / `text-xs font-bold` (stat labels) | `typography.statLabel` |
-| `text-sm text-muted-foreground` (subtitles) | `typography.subtitle` |
-| `text-base font-semibold` (card titles) | `typography.cardTitle` |
-| `text-lg font-semibold` (section titles) | `typography.sectionTitle` |
+| `ml-` / `mr-` / `pl-` / `pr-` usage | **0 matches** — PASS |
+| `text-left` / `text-right` | **0 matches** — PASS |
+| Logical properties (`ms-`, `me-`, `ps-`, `pe-`) | Used consistently — PASS |
+| `start` / `end` positioning | Correct — PASS |
 
-**Action**: Import `typography` from `@/theme/tokens` and replace raw classes. This is mostly mechanical but must be done carefully — not every `text-2xl font-bold` is a metric (some are in animations, overlays, etc.).
+**Grade: A** — No RTL violations detected.
 
 ---
 
-## Phase 5 — Arbitrary Value Audit (498 instances, 65 files)
+## 7. Color System — PASS
 
-**Action**: Two-step process.
+| Check | Status |
+|---|---|
+| HSL CSS variables for all colors | PASS |
+| No hardcoded hex values in className | PASS |
+| Dark mode variable coverage | PASS |
+| Brand injection system | PASS |
 
-1. **Classify** — Run through all 498 arbitrary values and categorize:
-   - **Acceptable**: Dialog widths (`sm:max-w-[500px]`), animation keyframes, SVG coordinates, third-party library requirements
-   - **Replaceable**: Fixed widths that should be standard Tailwind (`w-40`, `w-44`, `max-w-xs`), arbitrary padding/margin that maps to spacing scale
-
-2. **Replace** — Swap replaceable values with standard Tailwind classes or new tokens added to `tokens.ts`.
-
-Estimated: ~60% acceptable, ~40% replaceable.
+**Grade: A**
 
 ---
 
-## Execution Order
+## 8. Arbitrary Tailwind Values — WARNING
 
-```text
-Phase 1 ─── PageHeader variant prop + 14 page migrations
-Phase 2 ─── StatCard/MetricCard migrations (15 files)
-Phase 3 ─── cardVariants token replacement (96 files)
-Phase 4 ─── typography token replacement (62 files)
-Phase 5 ─── Arbitrary value audit + cleanup
-```
+| Metric | Count |
+|---|---|
+| Total arbitrary values (`[Npx]`) | **848 matches in 111 files** |
+| Skeleton heights (`h-[260px]`, `h-[80px]`) | ~60% — mostly acceptable |
+| Fixed input/dialog widths (`w-[140px]`, `sm:max-w-[900px]`) | ~25% — acceptable |
+| Non-standard arbitrary values (replaceable) | ~15% — needs token mapping |
 
-Each phase is independently testable. Total estimated: ~16 tasks across 5 requirements.
+**Rule violated**: Design System governance says "no arbitrary values."
+**Recommendation**: Execute Phase 5 audit. Most Skeleton and ResponsiveContainer heights are acceptable. Focus on replacing arbitrary widths in form inputs and layout containers with standard Tailwind or new tokens.
 
-## Risk Mitigation
+---
 
-- **Visual regression**: Each phase should be followed by a visual spot-check on 3-4 representative pages (admin, dashboard, spiritual, recognition).
-- **Token value mismatch**: `cardVariants.glass` uses `rounded-lg` but app uses `rounded-xl` — must reconcile before Phase 3.
-- **Custom stat cards**: Some stat cards in PersonalMoodDashboard and FirstAiderDashboard have non-standard layouts that may not fit `StatCard` — these get `MetricCard` or keep custom markup with tokenized classes.
+## 9. `font-medium` Weight Violation — MEDIUM
+
+The design system restricts font weights to 400 (`font-normal`), 600 (`font-semibold`), 700 (`font-bold`). However, `font-medium` (500) appears **2,405 times in 216 files**, including:
+- Shadcn UI primitives (accordion, navigation-menu) — acceptable, not customizable
+- Feature code labels, table headers, badges — should be `font-semibold`
+
+**Recommendation**: Audit `font-medium` usage in feature code. Replace with `font-semibold` where it represents emphasis. Leave Shadcn primitives as-is (they remap 500→600 via Tailwind config).
+
+---
+
+## 10. System Component Adoption Summary
+
+| Component | Defined | Used in Production | Grade |
+|---|---|---|---|
+| `PageHeader` | Yes | **~22 pages** (good progress, ~10 still missing) | **B** |
+| `StatCard` | Yes | **1 page** (RecognitionMonitor only) | **F** |
+| `MetricCard` | Yes | **0 pages** | **F** |
+| `ChartCard` | Yes | **0 pages** | **F** |
+| `InsightCard` | Yes | **0 pages** | **F** |
+| `DashboardGrid` | Yes | **0 pages** | **F** |
+| `EmptyState` | Yes | Partial use | **C** |
+
+---
+
+## Priority Fix List (Ordered by Impact)
+
+| # | Issue | Severity | Files | Phase |
+|---|---|---|---|---|
+| 1 | Typography tokens not used in any feature page | **Critical** | 55+ files | Phase 4 |
+| 2 | 10+ pages still use raw headers instead of `<PageHeader>` | **High** | 10 files | Phase 1 (cont.) |
+| 3 | `StatCard`/`MetricCard`/`ChartCard`/`DashboardGrid` unused in production | **High** | 15+ files | Phase 2 (cont.) |
+| 4 | `spacing.*` tokens unused in feature code | **High** | 200+ instances | Phase 4 |
+| 5 | `font-medium` weight violation (2,405 uses) | **Medium** | 216 files | Phase 4 |
+| 6 | `text-xl font-bold` non-standard size (52 uses) | **High** | 7 files | Phase 4 |
+| 7 | 848 arbitrary pixel values | **Medium** | 111 files | Phase 5 |
+| 8 | PageHeader component uses hardcoded classes internally | **Medium** | 1 file | Immediate |
+| 9 | Redundant `rounded-xl` on cards already using `cardVariants.stat` | **Low** | 1 file | Cleanup |
+
+---
+
+## Conclusion
+
+The Phase 1–3 migration achieved strong results for **card tokenization** (A-) and maintained excellent **RTL** (A) and **color system** (A) compliance. The remaining gaps are concentrated in two areas:
+
+1. **Typography** — the single largest compliance gap. Zero feature pages use `typography.*` tokens. This is Phase 4.
+2. **System component adoption** — `StatCard`, `MetricCard`, `ChartCard`, `DashboardGrid`, and `InsightCard` exist but are only referenced in dev sandbox pages.
+
+Phases 4 and 5 of the existing migration plan directly address these findings. No new workstreams are needed.
 
