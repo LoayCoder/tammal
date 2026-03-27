@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Plus, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/system';
 import { Button } from '@/components/ui/button';
 import { SubscriptionTable } from '@/components/subscriptions/SubscriptionTable';
 import { SubscriptionDialog } from '@/components/subscriptions/SubscriptionDialog';
