@@ -12,6 +12,7 @@ import { CheckinTrendChart } from '@/components/checkin-monitor/CheckinTrendChar
 import { CheckinRiskPanel } from '@/components/checkin-monitor/CheckinRiskPanel';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Activity } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 
 export default function CheckinMonitor() {
   const { t } = useTranslation();
