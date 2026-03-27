@@ -48,7 +48,7 @@ export default function OverdueTasks() {
           <p className="text-xs text-muted-foreground">{t('tasks.escalation.level1')}</p>
         </CardContent></Card>
         <Card className="border-0 bg-chart-5/5"><CardContent className="p-3 text-center">
-          <div className="text-xl font-bold text-chart-5">{stats.level2}</div>
+          <div className={cn(typography.metric, "text-chart-5")}>{stats.level2}</div>
           <p className="text-xs text-muted-foreground">{t('tasks.escalation.level2')}</p>
         </CardContent></Card>
         <Card className="border-0 bg-destructive/5"><CardContent className="p-3 text-center">
