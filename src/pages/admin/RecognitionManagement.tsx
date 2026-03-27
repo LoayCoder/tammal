@@ -90,19 +90,18 @@ export default function RecognitionManagement() {
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Trophy className="h-6 w-6 text-primary" />
-            {t('recognition.title')}
-          </h1>
-          <p className="text-muted-foreground">{t('recognition.subtitle')}</p>
-        </div>
-        <Button onClick={() => setShowBuilder(true)}>
-          <Plus className="h-4 w-4 me-2" />
-          {t('recognition.cycles.create')}
-        </Button>
-      </div>
+      <PageHeader
+        icon={<Trophy className="h-5 w-5 text-primary" />}
+        title={t('recognition.title')}
+        subtitle={t('recognition.subtitle')}
+        variant="card"
+        actions={
+          <Button onClick={() => setShowBuilder(true)}>
+            <Plus className="h-4 w-4 me-2" />
+            {t('recognition.cycles.create')}
+          </Button>
+        }
+      />
 
       {isPending ? (
         <div className="grid gap-4 md:grid-cols-2">

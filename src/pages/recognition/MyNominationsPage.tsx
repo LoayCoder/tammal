@@ -64,19 +64,18 @@ export default function MyNominationsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Trophy className="h-6 w-6 text-primary" />
-            {t('recognition.nominations.myNominations')}
-          </h1>
-          <p className="text-muted-foreground">{t('recognition.nominations.myNominationsDesc')}</p>
-        </div>
-        <Button onClick={() => navigate('/recognition/nominate')}>
-          <Plus className="h-4 w-4 me-2" />
-          {t('recognition.nominations.nominate')}
-        </Button>
-      </div>
+      <PageHeader
+        icon={<Trophy className="h-5 w-5 text-primary" />}
+        title={t('recognition.nominations.myNominations')}
+        subtitle={t('recognition.nominations.myNominationsDesc')}
+        variant="card"
+        actions={
+          <Button onClick={() => navigate('/recognition/nominate')}>
+            <Plus className="h-4 w-4 me-2" />
+            {t('recognition.nominations.nominate')}
+          </Button>
+        }
+      />
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>

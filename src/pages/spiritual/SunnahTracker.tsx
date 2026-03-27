@@ -52,13 +52,12 @@ export default function SunnahTracker() {
   return (
     <div className="container mx-auto py-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <Star className="h-8 w-8 text-primary" />
-        <div>
-          <h1 className="text-2xl font-bold">{t('spiritual.sunnah.title')}</h1>
-          <p className="text-muted-foreground">{t('spiritual.sunnah.subtitle')}</p>
-        </div>
-      </div>
+      <PageHeader
+        icon={<Star className="h-5 w-5 text-primary" />}
+        title={t('spiritual.sunnah.title')}
+        subtitle={t('spiritual.sunnah.subtitle')}
+        variant="card"
+      />
 
       {/* Today's Sunnah */}
       <Card className={cardVariants.glass}>
