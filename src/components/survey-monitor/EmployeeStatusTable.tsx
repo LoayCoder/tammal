@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Users } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import type { EmployeeStatus } from '@/hooks/analytics/useSurveyMonitor';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 interface Props {
   employees: EmployeeStatus[];
@@ -111,7 +111,7 @@ export function EmployeeStatusTable({ employees, isLoading }: Props) {
                         {emp.answeredQuestions}/{emp.totalQuestions}
                       </span>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className={typography.subtitle}>
                       {emp.lastActivity ? format(parseISO(emp.lastActivity), 'MMM dd, HH:mm') : '—'}
                     </TableCell>
                   </TableRow>

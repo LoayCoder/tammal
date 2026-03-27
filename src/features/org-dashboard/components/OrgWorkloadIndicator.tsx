@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useWorkloadAnalytics, type TeamMemberLoad } from '@/features/workload/hooks/useWorkloadAnalytics';
 import { Users, Clock, AlertTriangle, Moon } from 'lucide-react';
 import {
+import { typography } from "@/theme/tokens";
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts';
 
@@ -160,7 +161,7 @@ export function OrgWorkloadIndicator() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-muted-foreground">{t('orgDashboard.noSurveyData')}</p>
+              <p className={typography.subtitle}>{t('orgDashboard.noSurveyData')}</p>
             )}
           </div>
 
@@ -190,7 +191,7 @@ export function OrgWorkloadIndicator() {
                 })}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">{t('orgDashboard.noSurveyData')}</p>
+              <p className={typography.subtitle}>{t('orgDashboard.noSurveyData')}</p>
             )}
           </div>
         </div>

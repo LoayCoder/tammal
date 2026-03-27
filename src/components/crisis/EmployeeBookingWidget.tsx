@@ -7,7 +7,7 @@ import { useSessionScheduling, BookableSlot } from '@/hooks/crisis/useSessionSch
 import { Calendar, Clock, Loader2, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, addDays, startOfDay } from 'date-fns';
 import { toast } from 'sonner';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 interface Props {
   firstAiderId: string;
@@ -108,7 +108,7 @@ export default function EmployeeBookingWidget({ firstAiderId, tenantId, caseId, 
           </div>
         ) : sortedDates.length === 0 ? (
           <div className="text-center py-6 space-y-2">
-            <p className="text-sm text-muted-foreground">{t('crisisSupport.scheduling.noSlots')}</p>
+            <p className={typography.subtitle}>{t('crisisSupport.scheduling.noSlots')}</p>
             <p className="text-xs text-muted-foreground">{t('crisisSupport.scheduling.tryNextWeek')}</p>
             <div className="flex justify-center gap-2 pt-2">
               <Button variant="outline" size="sm" onClick={() => setWeekOffset(Math.max(0, weekOffset - 1))} disabled={weekOffset === 0}>

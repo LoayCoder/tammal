@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Brain, RefreshCw, Lightbulb, AlertTriangle, TrendingUp } from 'lucide-react';
 import { useWellnessInsights, type WellnessInsight } from '@/hooks/analytics/useWellnessInsights';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -58,7 +58,7 @@ export function AIInsightsCard({ analyticsData, isLoading: parentLoading }: Prop
         {!enabled ? (
           <div className="text-center py-8">
             <Brain className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">{t('orgDashboard.aiInsightsPrompt')}</p>
+            <p className={typography.subtitle}>{t('orgDashboard.aiInsightsPrompt')}</p>
           </div>
         ) : isLoading ? (
           <div className="space-y-3">

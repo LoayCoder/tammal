@@ -11,6 +11,7 @@ import { Moon, MapPin } from 'lucide-react';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { CALCULATION_METHODS } from '@/hooks/spiritual/usePrayerTimes';
 import { COUNTRIES, getCitiesForCountry } from '@/data/countryCities';
+import { typography } from "@/theme/tokens";
 
 export function SpiritualPreferencesCard() {
   const { t, i18n } = useTranslation();
@@ -62,7 +63,7 @@ export function SpiritualPreferencesCard() {
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label className="text-base">{t('spiritual.preferences.enableToggle')}</Label>
-            <p className="text-sm text-muted-foreground">{t('spiritual.preferences.enableDescription')}</p>
+            <p className={typography.subtitle}>{t('spiritual.preferences.enableDescription')}</p>
           </div>
           <Switch
             checked={isEnabled}

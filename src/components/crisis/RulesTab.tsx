@@ -8,6 +8,7 @@ import { AlertTriangle, Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useRiskMappings, useCreateRiskMapping, useUpdateRiskMapping, useDeleteRiskMapping, type RiskMapping } from '@/hooks/crisis/useRiskMappings';
 import RiskMappingDialog from './RiskMappingDialog';
+import { typography } from "@/theme/tokens";
 
 const riskBadgeVariant = (level: string) => {
   if (level === 'high') return 'destructive' as const;
@@ -77,7 +78,7 @@ export default function RulesTab() {
                     <TableCell>
                       <Badge variant={riskBadgeVariant(m.risk_level)}>{m.risk_level.toUpperCase()}</Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className={typography.subtitle}>
                       {m.action_description
                         ? m.action_description
                         : m.risk_level === 'high'
@@ -112,7 +113,7 @@ export default function RulesTab() {
               <AlertTriangle className="h-5 w-5 text-destructive" />
               <span className="font-semibold text-destructive">{t('crisisSupport.admin.highRiskNote', 'High Risk Note')}</span>
             </div>
-            <p className="text-sm text-muted-foreground">{t('crisisSupport.admin.highRiskNoteDesc', 'High-risk intents trigger immediate escalation and first aider dispatch.')}</p>
+            <p className={typography.subtitle}>{t('crisisSupport.admin.highRiskNoteDesc', 'High-risk intents trigger immediate escalation and first aider dispatch.')}</p>
           </div>
         </CardContent>
       </Card>

@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle, TrendingDown, Zap, Users, RotateCcw } from 'lucide-react';
 import type { EarlyWarning } from '@/lib/analytics/types';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 interface Props {
   warnings: EarlyWarning[];
@@ -49,7 +49,7 @@ export function EarlyWarningPanel({ warnings, isLoading }: Props) {
       <CardContent>
         {warnings.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-sm text-muted-foreground">{t('orgDashboard.noAlerts')}</p>
+            <p className={typography.subtitle}>{t('orgDashboard.noAlerts')}</p>
           </div>
         ) : (
           <div className="space-y-3">

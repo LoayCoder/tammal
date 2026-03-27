@@ -49,6 +49,7 @@ import { useAvatarUpload } from '@/hooks/admin/useAvatarUpload';
 import { toast } from 'sonner';
 import { readFile } from '@/lib/cropImage';
 import type { UserWithRoles } from '@/hooks/org/useUsers';
+import { typography } from "@/theme/tokens";
 
 const formSchema = z.object({
   full_name: z.string().optional(),
@@ -398,7 +399,7 @@ export function UserEditDialog({
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="font-medium">{t('users.sendPasswordReset')}</div>
-                          <div className="text-sm text-muted-foreground">
+                          <div className={typography.subtitle}>
                             {t('users.sendPasswordResetDescription')}
                           </div>
                         </div>

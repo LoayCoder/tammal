@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Trophy, Medal } from 'lucide-react';
+import { typography } from "@/theme/tokens";
 
 interface WinnerAnnouncementProps {
   winners: { rank: number; name: string; score: number }[];
@@ -18,7 +19,7 @@ export function WinnerAnnouncement({ winners, themeName }: WinnerAnnouncementPro
         <div className="text-center mb-6">
           <Trophy className="h-10 w-10 text-primary mx-auto mb-2" />
           <h3 className="text-lg font-bold">{themeName}</h3>
-          <p className="text-sm text-muted-foreground">{t('recognition.results.winnersAnnounced')}</p>
+          <p className={typography.subtitle}>{t('recognition.results.winnersAnnounced')}</p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {winners.map((w) => (
@@ -35,7 +36,7 @@ export function WinnerAnnouncement({ winners, themeName }: WinnerAnnouncementPro
                 {t(`recognition.results.place${w.rank}` as any)}
               </span>
               <span className="font-semibold mt-1">{w.name}</span>
-              <span className="text-sm text-muted-foreground">{w.score.toFixed(2)}</span>
+              <span className={typography.subtitle}>{w.score.toFixed(2)}</span>
             </div>
           ))}
         </div>

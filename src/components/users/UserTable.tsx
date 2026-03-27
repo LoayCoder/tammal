@@ -22,6 +22,7 @@ import { formatDate } from '@/lib/utils';
 import type { UserWithRoles } from '@/hooks/org/useUsers';
 import { useIsMobile } from '@/hooks/ui/use-mobile';
 import { UserMobileCard } from './UserMobileCard';
+import { typography } from "@/theme/tokens";
 
 interface UserTableProps {
   users: UserWithRoles[];
@@ -163,7 +164,7 @@ export function UserTable({
                 </Avatar>
                 <div>
                   <div className="font-medium">{user.full_name || t('users.unnamed')}</div>
-                  <div className="text-sm text-muted-foreground">{user.email || user.user_id}</div>
+                  <div className={typography.subtitle}>{user.email || user.user_id}</div>
                 </div>
               </div>
             </TableCell>

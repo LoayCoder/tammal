@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { toast } from "sonner";
 import { TOOLKIT } from "@/config/toolkit-colors";
+import { typography } from "@/theme/tokens";
 
 interface MoodEntry {
   date: string;
@@ -81,7 +82,7 @@ export default function MoodTrackerTool() {
           <span className="text-2xl">📊</span>
           <div>
             <h2 className="font-semibold text-foreground">{t("mentalToolkit.moodTracker.title")}</h2>
-            <p className="text-sm text-muted-foreground">{t("mentalToolkit.moodTracker.subtitle")}</p>
+            <p className={typography.subtitle}>{t("mentalToolkit.moodTracker.subtitle")}</p>
           </div>
         </div>
       </div>
@@ -108,7 +109,7 @@ export default function MoodTrackerTool() {
         {/* Slider */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">{t("mentalToolkit.moodTracker.score")}</span>
+            <span className={typography.subtitle}>{t("mentalToolkit.moodTracker.score")}</span>
             <span className="text-lg font-bold text-toolkit-plum">{selectedEmoji.emoji} {selectedEmoji.label}</span>
           </div>
           <Slider

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle } from 'lucide-react';
 import { useAutonomousAuditLog } from '@/features/ai-governance/hooks/useAutonomousState';
+import { typography } from "@/theme/tokens";
 
 export function AnomalyTimeline() {
   const { t } = useTranslation();
@@ -22,7 +23,7 @@ export function AnomalyTimeline() {
       </CardHeader>
       <CardContent>
         {anomalyLogs.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t('aiGovernance.autonomous.noAnomalies')}</p>
+          <p className={typography.subtitle}>{t('aiGovernance.autonomous.noAnomalies')}</p>
         ) : (
           <div className="space-y-3">
             {anomalyLogs.map((log) => (

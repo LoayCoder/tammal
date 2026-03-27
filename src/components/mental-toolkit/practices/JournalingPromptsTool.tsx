@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { TOOLKIT_CATEGORY_COLORS } from "@/config/toolkit-colors";
+import { typography } from "@/theme/tokens";
 
 interface JournalEntry {
   id: string;
@@ -95,7 +96,7 @@ export default function JournalingPromptsTool() {
           <span className="text-2xl">📔</span>
           <div>
             <h2 className="font-semibold text-foreground">{t("mentalToolkit.journaling.title")}</h2>
-            <p className="text-sm text-muted-foreground">{t("mentalToolkit.journaling.subtitle")}</p>
+            <p className={typography.subtitle}>{t("mentalToolkit.journaling.subtitle")}</p>
           </div>
         </div>
       </div>

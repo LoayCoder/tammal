@@ -8,6 +8,7 @@ import { useSecureAttachments } from '@/hooks/crisis/useSecureAttachments';
 import { toast } from 'sonner';
 import { Upload, FileText, Image, Music, Shield, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { typography } from "@/theme/tokens";
 
 interface Props {
   caseId: string;
@@ -92,7 +93,7 @@ export default function SecureAttachmentUploader({ caseId, tenantId, expiryDays 
           onChange={e => handleFiles(e.target.files)}
         />
         <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-        <p className="text-sm text-muted-foreground">{t('crisisSupport.attachments.dropzone')}</p>
+        <p className={typography.subtitle}>{t('crisisSupport.attachments.dropzone')}</p>
         <p className="text-2xs text-muted-foreground mt-1">{t('crisisSupport.attachments.maxSize')}</p>
 
         {uploading && (

@@ -17,7 +17,7 @@ import { Phone, MessageSquare, Shield, AlertTriangle, ArrowRight, Clock, User, E
 import { toast } from 'sonner';
 import CrisisSupport from '@/components/mental-toolkit/resources/CrisisSupport';
 import EmployeeBookingWidget from '@/components/crisis/EmployeeBookingWidget';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 
 const INTENTS = [
@@ -354,13 +354,13 @@ export default function CrisisRequestPage() {
               <Card className={cardVariants.glass}>
                 <CardContent className="py-12 flex flex-col items-center gap-4">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <p className="text-sm text-muted-foreground">{t('crisisSupport.request.matching')}</p>
+                  <p className={typography.subtitle}>{t('crisisSupport.request.matching')}</p>
                 </CardContent>
               </Card>
             ) : matches.length === 0 ? (
               <Card className={cardVariants.glass}>
                 <CardContent className="py-8 text-center space-y-4">
-                  <p className="text-sm text-muted-foreground">{t('crisisSupport.request.noMatchesFound')}</p>
+                  <p className={typography.subtitle}>{t('crisisSupport.request.noMatchesFound')}</p>
                   <Button onClick={() => navigate('/my-support')}>{t('common.done')}</Button>
                 </CardContent>
               </Card>

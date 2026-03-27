@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { ThumbsUp, CheckCircle } from 'lucide-react';
 import type { PeerEndorsement, CreateEndorsementInput } from '@/hooks/recognition/useEndorsements';
+import { typography } from "@/theme/tokens";
 
 interface EndorsementFormProps {
   nominationId: string;
@@ -111,7 +112,7 @@ export function EndorsementListItem({ endorsement, endorserName }: EndorsementLi
             </Badge>
           )}
         </div>
-        <p className="text-sm text-muted-foreground">{endorsement.confirmation_statement}</p>
+        <p className={typography.subtitle}>{endorsement.confirmation_statement}</p>
         {endorsement.additional_context && (
           <p className="text-xs text-muted-foreground italic">{endorsement.additional_context}</p>
         )}

@@ -21,7 +21,7 @@ import { SessionManagementDialog } from '@/components/profile/SessionManagementD
 import { MFASetupDialog } from '@/components/profile/MFASetupDialog';
 import { LoginActivityDialog } from '@/components/profile/LoginActivityDialog';
 import { SpiritualPreferencesCard } from '@/components/spiritual/SpiritualPreferencesCard';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 export default function UserProfile() {
   const { t, i18n } = useTranslation();
@@ -270,7 +270,7 @@ export default function UserProfile() {
                 >
                   {t('profile.superAdmin')}
                 </Badge>
-                <p className="text-sm text-muted-foreground">
+                <p className={typography.subtitle}>
                   {t('profile.superAdminDescription')}
                 </p>
               </div>

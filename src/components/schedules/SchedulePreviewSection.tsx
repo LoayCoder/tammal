@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Search, Check, X } from 'lucide-react';
 import type { QuestionSchedule } from '@/hooks/questions/useQuestionSchedules';
 import type { AudienceResult } from '@/hooks/admin/useAudienceResolver';
+import { typography } from "@/theme/tokens";
 
 interface SchedulePreviewSectionProps {
   audienceViewSchedule: QuestionSchedule | null;
@@ -61,7 +62,7 @@ export default function SchedulePreviewSection({
               />
             )}
             {audienceViewResult.includedCount === audienceViewResult.totalEligible && audienceViewResult.totalEligible > 0 && (
-              <p className="text-sm text-muted-foreground">{t('schedules.allIncluded')}</p>
+              <p className={typography.subtitle}>{t('schedules.allIncluded')}</p>
             )}
 
             {/* Search */}
@@ -97,7 +98,7 @@ export default function SchedulePreviewSection({
                     filteredAudienceList.map(emp => (
                       <TableRow key={emp.id}>
                         <TableCell className="text-sm font-medium">{emp.full_name}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{emp.email}</TableCell>
+                        <TableCell className={typography.subtitle}>{emp.email}</TableCell>
                         <TableCell className="text-sm">{emp.department || '—'}</TableCell>
                         <TableCell className="text-end">
                           {emp.included ? (

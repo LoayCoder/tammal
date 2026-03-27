@@ -14,6 +14,7 @@ import { ThemeBuilder } from '@/components/recognition/ThemeBuilder';
 import { getImpactWarning } from '@/lib/recognition-utils';
 import type { FairnessSettings, FairnessConfig } from '@/features/cycle-builder/types';
 import { buildFairnessConfig } from '@/features/cycle-builder/types';
+import { typography } from "@/theme/tokens";
 
 interface CycleEditDialogProps {
   cycle: AwardCycle | null;
@@ -255,7 +256,7 @@ export const CycleEditDialog = React.memo(function CycleEditDialog({
 
           {/* ── Rewards Tab ── */}
           <TabsContent value="rewards" className="space-y-4 mt-0">
-            <p className="text-sm text-muted-foreground">{t('recognition.rewards.description')}</p>
+            <p className={typography.subtitle}>{t('recognition.rewards.description')}</p>
             
             {/* Shortlist settings */}
             <div className="space-y-2">

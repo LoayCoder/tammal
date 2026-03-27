@@ -11,6 +11,7 @@ import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
+import { typography } from "@/theme/tokens";
 
 function ModeBadge({ mode }: { mode: string }) {
   const variant = mode === 'enabled' ? 'default' : mode === 'shadow' ? 'secondary' : 'outline';
@@ -93,7 +94,7 @@ export function AutonomousStatus() {
         </CardHeader>
         <CardContent className="space-y-6">
           {states.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t('aiGovernance.autonomous.noStates')}</p>
+            <p className={typography.subtitle}>{t('aiGovernance.autonomous.noStates')}</p>
           ) : (
             states.map((s: AutonomousStateRow) => (
               <div key={`${s.tenant_id}-${s.feature}`} className="border rounded-lg p-4 space-y-4">

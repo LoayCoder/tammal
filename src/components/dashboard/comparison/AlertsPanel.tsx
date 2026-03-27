@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, ShieldAlert, Info } from 'lucide-react';
 import type { DivergenceAlert } from '@/lib/analytics/types';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 interface Props {
   alerts: DivergenceAlert[];
@@ -41,7 +41,7 @@ export function AlertsPanel({ alerts, isLoading }: Props) {
         ) : alerts.length === 0 ? (
           <div className="text-center py-6">
             <Info className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">{t('synthesis.noAlerts')}</p>
+            <p className={typography.subtitle}>{t('synthesis.noAlerts')}</p>
           </div>
         ) : (
           <div className="space-y-3">

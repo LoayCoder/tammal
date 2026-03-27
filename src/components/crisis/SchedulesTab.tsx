@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFirstAiders, useFirstAiderSchedule } from '@/hooks/crisis/useCrisisSupport';
 import { toast } from 'sonner';
+import { typography } from "@/theme/tokens";
 
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
 
@@ -84,7 +85,7 @@ export default function SchedulesTab() {
                   <div key={day} className="flex items-center gap-3">
                     <span className="w-10 text-sm font-medium capitalize">{t(`orgDashboard.days.${day}`)}</span>
                     {slots.length === 0 ? (
-                      <span className="text-sm text-muted-foreground">{t('crisisSupport.admin.dayOff')}</span>
+                      <span className={typography.subtitle}>{t('crisisSupport.admin.dayOff')}</span>
                     ) : (
                       slots.map((slot, i) => (
                         <div key={i} className="flex items-center gap-1">

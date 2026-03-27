@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 export type { SecuritySettings } from '@/types/tenant';
 export { DEFAULT_SECURITY_SETTINGS } from '@/types/tenant';
 import type { SecuritySettings } from '@/types/tenant';
+import { typography } from "@/theme/tokens";
 
 interface TenantSecurityControlProps {
   settings: SecuritySettings;
@@ -37,7 +38,7 @@ export function TenantSecurityControl({ settings, onChange }: TenantSecurityCont
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>{t('tenants.security.mfaTrustDuration')}</Label>
-              <span className="text-sm text-muted-foreground">
+              <span className={typography.subtitle}>
                 {t('tenants.daysCount', { count: settings.mfa_trust_duration_days })}
               </span>
             </div>
@@ -77,7 +78,7 @@ export function TenantSecurityControl({ settings, onChange }: TenantSecurityCont
                 max={120}
                 className="w-24"
               />
-              <span className="text-sm text-muted-foreground">{t('tenants.security.minutes')}</span>
+              <span className={typography.subtitle}>{t('tenants.security.minutes')}</span>
             </div>
             <p className="text-xs text-muted-foreground">
               {t('tenants.security.sessionTimeoutHint')}
@@ -107,7 +108,7 @@ export function TenantSecurityControl({ settings, onChange }: TenantSecurityCont
                 max={10}
                 className="w-24"
               />
-              <span className="text-sm text-muted-foreground">{t('tenants.security.sessions')}</span>
+              <span className={typography.subtitle}>{t('tenants.security.sessions')}</span>
             </div>
             <p className="text-xs text-muted-foreground">
               {t('tenants.security.maxConcurrentHint')}

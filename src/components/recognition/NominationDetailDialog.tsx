@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Nomination } from '@/hooks/recognition/useNominations';
 import { FileText, ThumbsUp, User, Calendar, Tag } from 'lucide-react';
 import { format } from 'date-fns';
+import { typography } from "@/theme/tokens";
 
 interface NominationDetailDialogProps {
   nomination: Nomination | null;
@@ -179,7 +180,7 @@ export function NominationDetailDialog({
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">{t('recognition.endorsements.noEndorsements')}</p>
+              <p className={typography.subtitle}>{t('recognition.endorsements.noEndorsements')}</p>
             )}
           </div>
 

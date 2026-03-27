@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+import { typography } from "@/theme/tokens";
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -115,7 +116,7 @@ export function TenantTrialControl({
             {hasTrialDates && (
               <div className="flex-1 space-y-1">
                 <p className="text-sm font-medium">{t('tenants.trialPeriod')}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className={typography.subtitle}>
                   {format(new Date(trialData.trial_start_date!), 'PP')} — {format(new Date(trialData.trial_end_date!), 'PP')}
                 </p>
               </div>

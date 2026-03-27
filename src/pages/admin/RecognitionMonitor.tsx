@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Separator } from '@/components/ui/separator';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { PageHeader, StatCard } from '@/components/system';
-import { spacing } from '@/theme/tokens';
+import { spacing, typography} from "@/theme/tokens";
 import { cn } from '@/lib/utils';
 import { useAwardCycles } from '@/hooks/recognition/useAwardCycles';
 import { useRecognitionMonitor, type RecentNomination } from '@/hooks/recognition/useRecognitionMonitor';
@@ -299,21 +299,21 @@ export default function RecognitionMonitor() {
                     <Card>
                       <CardHeader><CardTitle>{t('recognition.monitor.approvalInfo', 'How It Works')}</CardTitle></CardHeader>
                       <CardContent className="space-y-3">
-                        <p className="text-sm text-muted-foreground">
+                        <p className={typography.subtitle}>
                           {t('recognition.monitor.approvalInfoDesc', 'When "Allow Appeals" is enabled for this cycle, every nomination requires explicit approval from the nominee\'s direct manager before it becomes valid for voting.')}
                         </p>
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
                             <Badge variant="secondary">pending</Badge>
-                            <span className="text-sm text-muted-foreground">{t('recognition.monitor.pendingDesc', 'Awaiting manager review')}</span>
+                            <span className={typography.subtitle}>{t('recognition.monitor.pendingDesc', 'Awaiting manager review')}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Badge variant="default">approved</Badge>
-                            <span className="text-sm text-muted-foreground">{t('recognition.monitor.approvedDesc', 'Manager approved — eligible for voting')}</span>
+                            <span className={typography.subtitle}>{t('recognition.monitor.approvedDesc', 'Manager approved — eligible for voting')}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Badge variant="destructive">rejected</Badge>
-                            <span className="text-sm text-muted-foreground">{t('recognition.monitor.rejectedDesc', 'Manager rejected — not eligible')}</span>
+                            <span className={typography.subtitle}>{t('recognition.monitor.rejectedDesc', 'Manager rejected — not eligible')}</span>
                           </div>
                         </div>
                       </CardContent>
@@ -496,7 +496,7 @@ export default function RecognitionMonitor() {
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.nominee')}</h4>
                   <p className="font-semibold text-lg">{selectedNomination.nomineeName}</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className={typography.subtitle}>
                     {selectedNomination.nomineeDivisionName} → {selectedNomination.nomineeDepartmentName} → {selectedNomination.nomineeSectionName}
                   </p>
                 </div>
@@ -508,7 +508,7 @@ export default function RecognitionMonitor() {
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.nominator')}</h4>
                     <p className="font-medium">{selectedNomination.nominatorName}</p>
-                    <p className="text-sm text-muted-foreground">{selectedNomination.nominatorDepartmentName}</p>
+                    <p className={typography.subtitle}>{selectedNomination.nominatorDepartmentName}</p>
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('recognition.monitor.nominatorRole')}</h4>

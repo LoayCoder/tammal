@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { TOOLKIT, TOOLKIT_CATEGORY_COLORS } from "@/config/toolkit-colors";
+import { typography } from "@/theme/tokens";
 
 interface Meditation {
   id: string;
@@ -105,7 +106,7 @@ export default function MeditationLibraryTool() {
           <span className="text-2xl">🧘</span>
           <div>
             <h2 className="font-semibold text-foreground">{t("mentalToolkit.meditation.title")}</h2>
-            <p className="text-sm text-muted-foreground">{t("mentalToolkit.meditation.subtitle")}</p>
+            <p className={typography.subtitle}>{t("mentalToolkit.meditation.subtitle")}</p>
           </div>
         </div>
       </div>
@@ -121,7 +122,7 @@ export default function MeditationLibraryTool() {
               <div className="text-center space-y-1">
                 <div className="text-4xl">{selected.emoji}</div>
                 <h3 className="font-bold text-lg text-foreground">{selected.title}</h3>
-                <p className="text-sm text-muted-foreground">{selected.description}</p>
+                <p className={typography.subtitle}>{selected.description}</p>
                 <Badge className="text-xs rounded-full border-0 text-foreground" style={{ background: TOOLKIT_CATEGORY_COLORS[selected.targetKey] }}>
                   {t(`mentalToolkit.meditation.targets.${selected.targetKey}`)}
                 </Badge>

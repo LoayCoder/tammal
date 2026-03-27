@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, CalendarClock } from 'lucide-react';
+import { typography } from "@/theme/tokens";
 
 interface DueDateHistoryEntry {
   old_due_date: string | null;
@@ -52,7 +53,7 @@ export function ExtendDueDateDialog({ open, onOpenChange, taskId, taskTitle, cur
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">{taskTitle}</p>
+          <p className={typography.subtitle}>{taskTitle}</p>
 
           {currentDueDate && (
             <div className="space-y-1">

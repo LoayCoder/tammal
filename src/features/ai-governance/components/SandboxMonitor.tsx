@@ -9,6 +9,7 @@ import { useSandboxEvaluations, type SandboxEvaluation } from '@/features/ai-gov
 import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { typography } from "@/theme/tokens";
 
 function StatusBadge({ status }: { status: string }) {
   const variant = status === 'active' ? 'default'
@@ -50,7 +51,7 @@ export function SandboxMonitor() {
       </CardHeader>
       <CardContent>
         {evaluations.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t('aiGovernance.autonomous.noSandbox')}</p>
+          <p className={typography.subtitle}>{t('aiGovernance.autonomous.noSandbox')}</p>
         ) : (
           <div className="space-y-4">
             {evaluations.map((ev: SandboxEvaluation) => {

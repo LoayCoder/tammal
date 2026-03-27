@@ -11,6 +11,7 @@ import { CriteriaWeightSlider } from './CriteriaWeightSlider';
 import { VotingProgress } from './VotingProgress';
 import type { Ballot } from '@/hooks/recognition/useVoting';
 import { ChevronRight, ChevronLeft, Send, CheckCircle, AlertTriangle } from 'lucide-react';
+import { typography } from "@/theme/tokens";
 
 interface VotingBoothProps {
   ballots: Ballot[];
@@ -67,7 +68,7 @@ export function VotingBooth({ ballots, completedCount, totalCount, votingWeightA
         <CardContent className="flex flex-col items-center justify-center py-16 space-y-3">
           <CheckCircle className="h-12 w-12 text-primary" />
           <p className="text-lg font-medium">{t('recognition.voting.allDone')}</p>
-          <p className="text-sm text-muted-foreground">{t('recognition.voting.allDoneDesc')}</p>
+          <p className={typography.subtitle}>{t('recognition.voting.allDoneDesc')}</p>
         </CardContent>
       </Card>
     );

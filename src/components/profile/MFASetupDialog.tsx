@@ -26,6 +26,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { typography } from "@/theme/tokens";
 
 interface MFASetupDialogProps {
   open: boolean;
@@ -193,7 +194,7 @@ export function MFASetupDialog({ open, onOpenChange }: MFASetupDialogProps) {
                   </div>
                   <div>
                     <p className="font-medium">{t('profile.authenticatorApp')}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className={typography.subtitle}>
                       {isEnrolled ? t('profile.mfaStatusEnabled') : t('profile.mfaStatusDisabled')}
                     </p>
                   </div>
@@ -236,7 +237,7 @@ export function MFASetupDialog({ open, onOpenChange }: MFASetupDialogProps) {
               <Separator />
 
               <div className="space-y-2">
-                <Label className="text-sm text-muted-foreground">
+                <Label className={typography.subtitle}>
                   {t('profile.manualEntryCode')}
                 </Label>
                 <div className="flex gap-2">
@@ -305,7 +306,7 @@ export function MFASetupDialog({ open, onOpenChange }: MFASetupDialogProps) {
                 </AlertDescription>
               </Alert>
 
-              <p className="text-sm text-muted-foreground">
+              <p className={typography.subtitle}>
                 {t('profile.disableMFADescription')}
               </p>
 

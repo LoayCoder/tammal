@@ -34,6 +34,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTenantInvitations, type Invitation, type CreateInvitationInput } from '@/hooks/org/useTenantInvitations';
 import { toast } from 'sonner';
+import { typography } from "@/theme/tokens";
 
 const getExpiryOptions = (t: (key: string) => string) => [
   { value: '1', label: t('expiryOptions.1day') },
@@ -184,7 +185,7 @@ export function InvitationManagement({ tenantId }: InvitationManagementProps) {
                             {t('invitations.daysRemaining', { count: getDaysRemaining(invitation) })}
                           </span>
                         ) : (
-                          <span className="text-sm text-muted-foreground">
+                          <span className={typography.subtitle}>
                             {format(new Date(invitation.expires_at), 'PP', { locale: dateLocale })}
                           </span>
                         )}
