@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { CategoryDialog } from "@/components/questions/CategoryDialog";
 import { useQuestionCategories, QuestionCategory, CreateCategoryInput } from "@/hooks/questions/useQuestionCategories";
 import { Plus, MoreHorizontal, Edit2, Trash2, ToggleLeft, ToggleRight, Tags } from "lucide-react";
+import { PageHeader } from '@/components/system';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
