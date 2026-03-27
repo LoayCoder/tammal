@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { SmilePlus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
