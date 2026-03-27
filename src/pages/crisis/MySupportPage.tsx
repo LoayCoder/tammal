@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCrisisCases } from '@/hooks/crisis/useCrisisSupport';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { MessageSquare, Clock, ArrowLeft, X, Plus, Calendar, FileText } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import { format } from 'date-fns';
 import EnhancedChatPanel from '@/components/crisis/EnhancedChatPanel';
 
