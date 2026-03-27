@@ -116,15 +116,12 @@ export default function UserProfile() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6 flex items-center gap-3">
-        <div className="bg-primary/10 rounded-lg p-2">
-          <User className="h-6 w-6 text-primary" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold">{t('profile.title')}</h1>
-          <p className="text-muted-foreground">{t('profile.description')}</p>
-        </div>
-      </div>
+      <PageHeader
+        icon={<User className="h-5 w-5 text-primary" />}
+        title={t('profile.title')}
+        subtitle={t('profile.description')}
+        variant="card"
+      />
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* User Info Card */}

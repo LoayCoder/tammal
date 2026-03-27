@@ -43,15 +43,12 @@ export default function UsageBilling() {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><CreditCard className="h-6 w-6 text-primary" /></div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('billing.title')}</h1>
-            <p className="text-muted-foreground mt-1">{t('billing.subtitle', 'Monitor your plan usage and billing information')}</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={<CreditCard className="h-5 w-5 text-primary" />}
+        title={t('billing.title')}
+        subtitle={t('billing.subtitle', 'Monitor your plan usage and billing information')}
+        variant="card"
+      />
 
       {/* Current Plan */}
       {!subLoading && activeSubscription && (

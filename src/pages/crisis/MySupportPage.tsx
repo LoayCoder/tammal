@@ -50,19 +50,18 @@ export default function MySupportPage() {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><MessageSquare className="h-6 w-6 text-primary" /></div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('crisisSupport.mySupport.title')}</h1>
-            <p className="text-muted-foreground">{t('crisisSupport.mySupport.subtitle')}</p>
-          </div>
-        </div>
-        <Button onClick={() => navigate('/crisis-support')} className="gap-1.5 rounded-xl">
-          <Plus className="h-4 w-4" />
-          {t('crisisSupport.mySupport.newRequest')}
-        </Button>
-      </div>
+      <PageHeader
+        icon={<MessageSquare className="h-5 w-5 text-primary" />}
+        title={t('crisisSupport.mySupport.title')}
+        subtitle={t('crisisSupport.mySupport.subtitle')}
+        variant="card"
+        actions={
+          <Button onClick={() => navigate('/crisis-support')} className="gap-1.5 rounded-xl">
+            <Plus className="h-4 w-4" />
+            {t('crisisSupport.mySupport.newRequest')}
+          </Button>
+        }
+      />
 
       {isPending ? (
         <p className="text-muted-foreground">{t('common.loading')}</p>

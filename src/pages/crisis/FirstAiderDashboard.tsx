@@ -96,29 +96,28 @@ export default function FirstAiderDashboard() {
   return (
     <div className="space-y-6">
       {/* Header with 3-state status toggle */}
-      <div className="glass-card border-0 rounded-xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><Shield className="h-6 w-6 text-primary" /></div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('crisisSupport.firstAider.title')}</h1>
-            <p className="text-muted-foreground">{t('crisisSupport.firstAider.subtitle')}</p>
+      <PageHeader
+        icon={<Shield className="h-5 w-5 text-primary" />}
+        title={t('crisisSupport.firstAider.title')}
+        subtitle={t('crisisSupport.firstAider.subtitle')}
+        variant="card"
+        actions={
+          <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
+            {(['available', 'busy', 'offline'] as AiderStatus[]).map(s => (
+              <button
+                key={s}
+                onClick={() => handleStatusChange(s)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  aiderStatus === s ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <CircleDot className={`h-3 w-3 ${statusColors[s]}`} />
+                {t(`crisisSupport.firstAider.status_${s}`)}
+              </button>
+            ))}
           </div>
-        </div>
-        <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
-          {(['available', 'busy', 'offline'] as AiderStatus[]).map(s => (
-            <button
-              key={s}
-              onClick={() => handleStatusChange(s)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                aiderStatus === s ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <CircleDot className={`h-3 w-3 ${statusColors[s]}`} />
-              {t(`crisisSupport.firstAider.status_${s}`)}
-            </button>
-          ))}
-        </div>
-      </div>
+        }
+      />
 
       {/* Professional Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

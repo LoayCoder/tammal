@@ -45,29 +45,28 @@ export default function CategoryManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><Tags className="h-6 w-6 text-primary" /></div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('categories.title')}</h1>
-            <p className="text-muted-foreground">{t('categories.subtitle')}</p>
-          </div>
-        </div>
-        <Button 
-          onClick={() => {
-            if (!canAddCategory) {
-              toast.error(t('categories.maxReached', { max: MAX_CATEGORIES }));
-              return;
-            }
-            setEditingCategory(null); 
-            setDialogOpen(true); 
-          }}
-          disabled={!canAddCategory}
-        >
-          <Plus className="h-4 w-4 me-2" />
-          {t('categories.addCategory')} ({categories.length}/{MAX_CATEGORIES})
-        </Button>
-      </div>
+      <PageHeader
+        icon={<Tags className="h-5 w-5 text-primary" />}
+        title={t('categories.title')}
+        subtitle={t('categories.subtitle')}
+        variant="card"
+        actions={
+          <Button 
+            onClick={() => {
+              if (!canAddCategory) {
+                toast.error(t('categories.maxReached', { max: MAX_CATEGORIES }));
+                return;
+              }
+              setEditingCategory(null); 
+              setDialogOpen(true); 
+            }}
+            disabled={!canAddCategory}
+          >
+            <Plus className="h-4 w-4 me-2" />
+            {t('categories.addCategory')} ({categories.length}/{MAX_CATEGORIES})
+          </Button>
+        }
+      />
 
       <Card className="glass-card border-0 rounded-xl">
         <CardHeader>
