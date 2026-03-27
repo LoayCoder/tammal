@@ -12,6 +12,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Plus, Pencil, Trash2, ArrowRight, Rocket, FolderOpen, Lock, Unlock, Target, Crosshair } from 'lucide-react';
+import { typography } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 import type { Objective } from '@/features/workload/hooks/useObjectives';
 import type { Initiative } from '@/features/workload/hooks/useInitiatives';
 import type { ObjAction } from '@/features/workload/hooks/useActions';
