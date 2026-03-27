@@ -9,6 +9,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useUnifiedTasks } from '@/features/workload/hooks/useUnifiedTasks';
 import { useApprovalQueue } from '@/features/tasks/hooks/useApprovalQueue';
 import {
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
   ClipboardList, ChevronRight, CheckCircle2, AlertTriangle,
   Clock, SquareCheckBig,
 } from 'lucide-react';
@@ -61,7 +63,7 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
   ];
 
   return (
-    <Card className="glass-card border-0 ring-1 ring-primary/10">
+    <Card className={cn(cardVariants.glass, "ring-1 ring-primary/10")}>
       {/* Header */}
       <div className="flex items-center justify-between p-6 pb-0">
         <div className="flex items-center gap-2">

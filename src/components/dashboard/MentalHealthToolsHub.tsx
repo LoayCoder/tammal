@@ -9,6 +9,8 @@ import BreathingGroundingTool from '@/components/mental-toolkit/tools/BreathingG
 import JournalingPromptsTool from '@/components/mental-toolkit/practices/JournalingPromptsTool';
 import HabitsPlanner from '@/components/mental-toolkit/practices/HabitsPlanner';
 import SelfAssessmentQuiz from '@/components/mental-toolkit/resources/SelfAssessmentQuiz';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 type ToolKey = 'breathing' | 'journaling' | 'habits' | 'assessment';
 
@@ -30,7 +32,7 @@ export function MentalHealthToolsHub() {
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
           {TOOLS.map(({ key, icon: Icon, color, titleKey, descKey }) => (
             <div key={key} onClick={() => setOpenTool(key)} className="cursor-pointer">
-              <Card className={`glass-card border-0 ring-1 ring-${color}/20 cursor-pointer transition-all hover:shadow-lg hover:ring-${color}/40`}>
+              <Card className={cn(cardVariants.glass, \`ring-1 ring-${color}/20 cursor-pointer transition-all hover:shadow-lg hover:ring-${color}/40\`)}>
                 <CardContent className="flex items-center gap-4 p-5">
                   <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-${color}/10`}>
                     <Icon className={`h-6 w-6 text-${color}`} />

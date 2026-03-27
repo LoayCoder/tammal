@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Brain, RefreshCw, Lightbulb, AlertTriangle, TrendingUp } from 'lucide-react';
 import { useWellnessInsights, type WellnessInsight } from '@/hooks/analytics/useWellnessInsights';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface Props {
   analyticsData: any;
@@ -33,7 +35,7 @@ export function AIInsightsCard({ analyticsData, isLoading: parentLoading }: Prop
   }
 
   return (
-    <Card className="glass-card border-0 ring-1 ring-primary/20">
+    <Card className={cn(cardVariants.glass, "ring-1 ring-primary/20")}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base flex items-center gap-2">

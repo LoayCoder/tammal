@@ -11,6 +11,7 @@ import { usePrayerCountdown } from '@/hooks/spiritual/usePrayerCountdown';
 import { useWitrCountdown } from '@/hooks/spiritual/useWitrCountdown';
 import { useSunnahLogs } from '@/hooks/spiritual/useSunnahLogs';
 import { cn } from '@/lib/utils';
+import { cardVariants } from "@/theme/tokens";
 
 const ALL_PRAYERS = [...PRAYER_NAMES, 'Witr'] as const;
 
@@ -107,7 +108,7 @@ export function DashboardPrayerWidget() {
   const hasActiveRawatib = activeRawatib && (activeRawatib.before || activeRawatib.after);
 
   return (
-    <Card className="glass-card border-0 ring-1 ring-primary/20">
+    <Card className={cn(cardVariants.glass, "ring-1 ring-primary/20")}>
       <CardContent className="p-5 space-y-4">
         {/* Header with Hijri date */}
         <div className="flex items-center justify-between">

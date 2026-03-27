@@ -10,6 +10,8 @@ import MeditationLibraryTool from "@/components/mental-toolkit/practices/Meditat
 import HabitsPlanner from "@/components/mental-toolkit/practices/HabitsPlanner";
 import PsychoeducationArticles from "@/components/mental-toolkit/resources/PsychoeducationArticles";
 import SelfAssessmentQuiz from "@/components/mental-toolkit/resources/SelfAssessmentQuiz";
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 export default function MentalToolkit() {
   const { t } = useTranslation();
@@ -18,7 +20,7 @@ export default function MentalToolkit() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="glass-card border-0 rounded-none border-b border-border/50 px-4 py-6 sm:px-6">
+      <div className={cn(cardVariants.glass, "rounded-none border-b border-border/50 px-4 py-6 sm:px-6")}>
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-1">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10">

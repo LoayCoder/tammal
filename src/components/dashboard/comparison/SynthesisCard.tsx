@@ -4,6 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Brain, Shield, Target, Gauge, Lightbulb } from 'lucide-react';
 import type { SynthesisResult } from '@/lib/analytics/types';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   data: SynthesisResult | null;
@@ -36,7 +37,7 @@ export function SynthesisCard({ data, isLoading }: Props) {
   const riskColor = RISK_COLORS[data.riskClassification] ?? RISK_COLORS.green;
 
   return (
-    <Card className="glass-card border-0">
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <Brain className="h-4 w-4 text-primary" />

@@ -6,6 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Brain } from 'lucide-react';
 import type { BurnoutPrediction } from '@/features/workload';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface Props {
   predictions: BurnoutPrediction[];
@@ -17,7 +19,7 @@ export function BurnoutPredictionsCard({ predictions, isPending, empMap }: Props
   const { t } = useTranslation();
 
   return (
-    <Card className="glass-card border-0 shadow-sm">
+    <Card className={cn(cardVariants.glass, "shadow-sm")}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <Brain className="h-4 w-4 text-destructive" />

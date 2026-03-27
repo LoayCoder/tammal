@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { DepartmentBAIItem } from '@/lib/analytics/types';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   branchData: DepartmentBAIItem[];
@@ -86,7 +87,7 @@ export function DivergenceHeatmap({ branchData, divisionData, departmentData, se
   ];
 
   return (
-    <Card className="glass-card border-0">
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-3">
         <CardTitle className="text-base">{t('synthesis.heatmapTitle')}</CardTitle>
         <p className="text-xs text-muted-foreground">{t('synthesis.heatmapDesc')}</p>

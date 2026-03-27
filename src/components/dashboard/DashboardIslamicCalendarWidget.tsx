@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { useHijriToday, ISLAMIC_EVENTS, isWhiteDay, isSunnahFastingDay } from '@/hooks/spiritual/useHijriCalendar';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 export function DashboardIslamicCalendarWidget() {
   const { t, i18n } = useTranslation();
@@ -24,7 +26,7 @@ export function DashboardIslamicCalendarWidget() {
   const hasFasting = whiteDay || sunnahDay || event?.isFastingDay || isRamadan;
 
   return (
-    <Card className="glass-card border-0 ring-1 ring-chart-2/20">
+    <Card className={cn(cardVariants.glass, "ring-1 ring-chart-2/20")}>
       <CardContent className="p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

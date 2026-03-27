@@ -4,6 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus, Activity, BarChart3, Zap, Heart } from 'lucide-react';
 import type { CheckinPulseMetrics } from '@/lib/analytics/types';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   data: CheckinPulseMetrics | null;
@@ -42,7 +43,7 @@ export function CheckinPulseCard({ data, isLoading }: Props) {
   ];
 
   return (
-    <Card className="glass-card border-0">
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <Activity className="h-4 w-4 text-primary" />

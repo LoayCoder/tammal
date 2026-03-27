@@ -2,6 +2,8 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Grid3X3 } from "lucide-react";
 import { TOOLKIT } from "@/config/toolkit-colors";
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
@@ -13,7 +15,7 @@ export function MoodHeatmap({ dayActivity }: MoodHeatmapProps) {
   const { t } = useTranslation();
 
   return (
-    <Card className="glass-card border-0 rounded-lg">
+    <Card className={cn(cardVariants.glass, "rounded-lg")}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <Grid3X3 className="h-4 w-4" style={{ color: TOOLKIT.plum }} />

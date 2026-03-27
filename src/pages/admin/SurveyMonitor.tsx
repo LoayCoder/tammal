@@ -13,6 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart3 } from 'lucide-react';
 import { PageHeader } from '@/components/system';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 export default function SurveyMonitor() {
   const { t } = useTranslation();
@@ -75,7 +77,7 @@ export default function SurveyMonitor() {
       />
 
       {!selectedScheduleId && (
-        <div className="glass-card border-0 rounded-xl flex items-center justify-center h-48 text-muted-foreground">
+        <div className={cn(cardVariants.glass, "rounded-xl flex items-center justify-center h-48 text-muted-foreground")}>
           {t('surveyMonitor.selectPrompt')}
         </div>
       )}

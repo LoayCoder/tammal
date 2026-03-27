@@ -13,6 +13,8 @@ import { Flame, Star, Loader2, ArrowRight, ArrowLeft, Send, AlertCircle, Refresh
 import { MoodStep } from '@/components/checkin/MoodStep';
 import { SupportStep } from '@/components/checkin/SupportStep';
 import { CheckinSuccess } from '@/components/checkin/CheckinSuccess';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 type Step = 'mood' | 'support';
 
@@ -164,7 +166,7 @@ export default function DailyCheckin() {
       {/* Steps with animated transitions */}
       <div className="transition-all duration-300 ease-in-out">
         {step === 'mood' && (
-          <div className="glass-card border-0 rounded-xl p-6 space-y-6 animate-in fade-in slide-in-from-end-4 duration-300">
+          <div className={cn(cardVariants.glass, "rounded-xl p-6 space-y-6 animate-in fade-in slide-in-from-end-4 duration-300")}>
             <MoodStep selectedMood={selectedMood} onSelect={handleMoodSelected} tenantId={tenantId} />
             {selectedMood && (
               <Button className="w-full rounded-xl h-12 text-base gap-2" onClick={advanceFromMood}>
@@ -175,7 +177,7 @@ export default function DailyCheckin() {
         )}
 
         {step === 'support' && (
-          <div className="glass-card border-0 rounded-xl p-6 space-y-6 animate-in fade-in slide-in-from-end-4 duration-300">
+          <div className={cn(cardVariants.glass, "rounded-xl p-6 space-y-6 animate-in fade-in slide-in-from-end-4 duration-300")}>
             <SupportStep showSupport={showSupport} supportActions={supportActions} onToggleAction={toggleSupportAction} comment={comment} onCommentChange={setComment} />
 
             {submitError && (

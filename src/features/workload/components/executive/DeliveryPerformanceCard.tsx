@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Zap } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface MetricItem {
   label: string;
@@ -49,7 +51,7 @@ export function DeliveryPerformanceCard({ avgVelocity, totalCompleted, completio
   ];
 
   return (
-    <Card className="glass-card border-0 shadow-sm">
+    <Card className={cn(cardVariants.glass, "shadow-sm")}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <Zap className="h-4 w-4 text-primary" />

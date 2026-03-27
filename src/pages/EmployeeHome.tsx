@@ -23,6 +23,8 @@ import FirstAiderQuickConnect from '@/components/crisis/FirstAiderQuickConnect';
 import { DashboardEndorsementRequests } from '@/components/dashboard/DashboardEndorsementRequests';
 import { DashboardShortlistWidget } from '@/components/dashboard/DashboardShortlistWidget';
 import { DashboardVotingWidget } from '@/components/dashboard/DashboardVotingWidget';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 const MOOD_EMOJIS: Record<string, string> = {
   great: '😄', good: '🙂', okay: '😐', bad: '😟', terrible: '😢',
@@ -97,7 +99,7 @@ export default function EmployeeHome() {
 
         {/* Completed check-in indicator */}
         {todayEntry && (
-          <Card className="glass-card border-0 ring-1 ring-chart-1/20">
+          <Card className={cn(cardVariants.glass, "ring-1 ring-chart-1/20")}>
             <CardContent className="flex items-center gap-4 p-6">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-chart-1/10 text-2xl">
                 {MOOD_EMOJIS[todayEntry.level] || '✅'}
@@ -121,7 +123,7 @@ export default function EmployeeHome() {
         {/* Pending Surveys Card */}
         {(sqLoading || pendingQuestions.length > 0) && (
           <Link to="/employee/survey">
-            <Card className="glass-card border-0 ring-1 ring-chart-2/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-2/40">
+            <Card className={cn(cardVariants.glass, "ring-1 ring-chart-2/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-2/40")}>
               <CardContent className="flex items-center gap-4 p-6">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-chart-2/10">
                   <ClipboardList className="h-7 w-7 text-chart-2" />
@@ -160,7 +162,7 @@ export default function EmployeeHome() {
           <h2 className="text-lg font-semibold">{t('dashboard.quickActions')}</h2>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
             <Link to="/crisis-support">
-              <Card className="glass-card border-0 ring-1 ring-destructive/20 cursor-pointer transition-all hover:shadow-lg hover:ring-destructive/40">
+              <Card className={cn(cardVariants.glass, "ring-1 ring-destructive/20 cursor-pointer transition-all hover:shadow-lg hover:ring-destructive/40")}>
                 <CardContent className="flex items-center gap-4 p-5">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-destructive/10">
                     <Phone className="h-6 w-6 text-destructive" />
@@ -174,7 +176,7 @@ export default function EmployeeHome() {
               </Card>
             </Link>
             <div onClick={() => setShowFirstAider(true)} className="cursor-pointer">
-              <Card className="glass-card border-0 ring-1 ring-chart-1/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-1/40">
+              <Card className={cn(cardVariants.glass, "ring-1 ring-chart-1/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-1/40")}>
                 <CardContent className="flex items-center gap-4 p-5">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-chart-1/10">
                     <HeartHandshake className="h-6 w-6 text-chart-1" />

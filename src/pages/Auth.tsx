@@ -12,6 +12,8 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 export default function Auth() {
   const { t } = useTranslation();
@@ -113,7 +115,7 @@ export default function Auth() {
       </div>
       
       <div className="flex-1 flex items-center justify-center px-3 md:px-4">
-        <Card className="glass-card border-0 rounded-xl w-full max-w-md shadow-2xl">
+        <Card className={cn(cardVariants.glass, "rounded-xl w-full max-w-md shadow-2xl")}>
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">
               {isLogin ? t('auth.loginTitle') : t('auth.signupTitle')}

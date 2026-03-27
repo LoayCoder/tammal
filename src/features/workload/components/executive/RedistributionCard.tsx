@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowRightLeft, Check, X } from 'lucide-react';
 import type { RedistributionRecommendation } from '@/features/workload';
 import type { UseMutationResult } from '@tanstack/react-query';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface Props {
   pending: RedistributionRecommendation[];
@@ -18,7 +20,7 @@ export function RedistributionCard({ pending, isPending, empMap, updateStatus }:
   const { t } = useTranslation();
 
   return (
-    <Card className="glass-card border-0 shadow-sm">
+    <Card className={cn(cardVariants.glass, "shadow-sm")}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <ArrowRightLeft className="h-4 w-4 text-primary" />

@@ -14,6 +14,8 @@ import {
 } from "recharts";
 import { format, subDays } from "date-fns";
 import { TOOLKIT, ZONE_COLORS, DONUT_COLORS } from "@/config/toolkit-colors";
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
@@ -64,7 +66,7 @@ export function PersonalMoodDashboard() {
 
   if (noData) {
     return (
-      <Card className="glass-card border-0 rounded-lg border-dashed">
+      <Card className={cn(cardVariants.glass, "rounded-lg border-dashed")}>
         <CardContent className="py-12 text-center space-y-2">
           <SmilePlus className="h-12 w-12 mx-auto text-muted-foreground" />
           <p className="text-lg font-semibold text-foreground">
@@ -151,7 +153,7 @@ export function PersonalMoodDashboard() {
       </div>
 
       {/* Mood Trend Chart */}
-      <Card className="glass-card border-0 rounded-lg">
+      <Card className={cn(cardVariants.glass, "rounded-lg")}>
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-toolkit-lavender" />
@@ -216,7 +218,7 @@ export function PersonalMoodDashboard() {
 
       {/* Distribution + Activity */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="glass-card border-0 rounded-lg">
+        <Card className={cn(cardVariants.glass, "rounded-lg")}>
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <PieChart className="h-4 w-4 text-toolkit-sage" />
@@ -246,7 +248,7 @@ export function PersonalMoodDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card border-0 rounded-lg">
+        <Card className={cn(cardVariants.glass, "rounded-lg")}>
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Grid3X3 className="h-4 w-4 text-toolkit-plum" />
@@ -282,7 +284,7 @@ export function PersonalMoodDashboard() {
       </div>
 
       {/* Survey Stats */}
-      <Card className="glass-card border-0 rounded-lg">
+      <Card className={cn(cardVariants.glass, "rounded-lg")}>
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
             <ClipboardList className="h-4 w-4 text-toolkit-lavender" />
@@ -309,7 +311,7 @@ export function PersonalMoodDashboard() {
 
       {/* Reframe + Breathing Activity */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="glass-card border-0 rounded-lg">
+        <Card className={cn(cardVariants.glass, "rounded-lg")}>
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <RefreshCw className="h-4 w-4 text-toolkit-sage" />
@@ -337,7 +339,7 @@ export function PersonalMoodDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card border-0 rounded-lg">
+        <Card className={cn(cardVariants.glass, "rounded-lg")}>
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Wind className="h-4 w-4 text-toolkit-lavender" />

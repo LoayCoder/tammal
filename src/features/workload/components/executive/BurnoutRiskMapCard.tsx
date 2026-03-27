@@ -4,6 +4,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AlertTriangle } from 'lucide-react';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface MetricItem {
   employee_id: string;
@@ -26,7 +28,7 @@ export function BurnoutRiskMapCard({ metrics, teamLoad, isPending }: Props) {
   const atRisk = metrics.filter(m => m.burnout_risk_score > 30).sort((a, b) => b.burnout_risk_score - a.burnout_risk_score).slice(0, 9);
 
   return (
-    <Card className="glass-card border-0 shadow-sm">
+    <Card className={cn(cardVariants.glass, "shadow-sm")}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 text-destructive" />

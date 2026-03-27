@@ -12,6 +12,8 @@ import { MoodDefinitionDialog } from '@/components/mood/MoodDefinitionDialog';
 import { MoodDefinitionManager } from '@/components/mood/settings/MoodDefinitionManager';
 import { MoodConfigCard } from '@/components/mood/settings/MoodConfigCard';
 import {
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
@@ -102,7 +104,7 @@ export default function MoodPathwaySettings() {
       </div>
 
       {/* Info banner */}
-      <div className="glass-card border-0 rounded-xl p-4 flex items-start gap-3">
+      <div className={cn(cardVariants.glass, "rounded-xl p-4 flex items-start gap-3")}>
         <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
         <p className="text-sm text-muted-foreground">{t('moodPathway.settingsInfo')}</p>
       </div>

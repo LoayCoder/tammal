@@ -13,6 +13,7 @@ import { useEmployeeResponses, useDraftResponses } from '@/hooks/wellness/useEmp
 import { useProfile } from '@/hooks/auth/useProfile';
 import { AnswerInput } from '@/components/survey/AnswerInput';
 import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 export default function EmployeeSurvey() {
   const { t, i18n } = useTranslation();
@@ -219,7 +220,7 @@ export default function EmployeeSurvey() {
           const isPending = question?.validation_status === 'pending';
 
           return (
-            <Card key={sq.id} className={`glass-card border-0 rounded-xl overflow-hidden ${isPending ? 'border-amber-500/50 bg-amber-500/5' : ''}`}>
+            <Card key={sq.id} className={cn(cardVariants.glass, \`rounded-xl overflow-hidden ${isPending ? 'border-amber-500/50 bg-amber-500/5' : ''}\`)}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">

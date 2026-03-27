@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Save, RotateCcw, Link2, Plus, X, ChevronUp, ChevronDown } from 'lucide-react';
 import type { MoodQuestionConfig } from '@/hooks/wellness/useMoodQuestionConfig';
 import type { MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface TaggedQuestion {
   id: string;
@@ -37,7 +39,7 @@ export function MoodConfigCard({
   const isEnabled = config?.is_enabled ?? true;
 
   return (
-    <Card className="glass-card border-0 rounded-xl overflow-hidden">
+    <Card className={cn(cardVariants.glass, "rounded-xl overflow-hidden")}>
       <CardHeader className="pb-3 border-b">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

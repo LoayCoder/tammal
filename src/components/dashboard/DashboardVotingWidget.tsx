@@ -7,6 +7,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Vote, ChevronRight } from 'lucide-react';
 import { useAwardCycles } from '@/hooks/recognition/useAwardCycles';
 import { useVoting } from '@/hooks/recognition/useVoting';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 function VotingCycleCard({ cycleId, cycleName }: { cycleId: string; cycleName: string }) {
   const { t } = useTranslation();
@@ -14,7 +16,7 @@ function VotingCycleCard({ cycleId, cycleName }: { cycleId: string; cycleName: s
 
   if (ballotsPending) {
     return (
-      <Card className="glass-card border-0 ring-1 ring-primary/20">
+      <Card className={cn(cardVariants.glass, "ring-1 ring-primary/20")}>
         <CardContent className="p-6">
           <Skeleton className="h-16 w-full" />
         </CardContent>
@@ -29,7 +31,7 @@ function VotingCycleCard({ cycleId, cycleName }: { cycleId: string; cycleName: s
   const pct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   return (
-    <Card className="glass-card border-0 ring-1 ring-primary/20">
+    <Card className={cn(cardVariants.glass, "ring-1 ring-primary/20")}>
       <CardContent className="flex flex-col gap-4 p-6">
         <div className="flex items-center gap-4">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-primary/10">

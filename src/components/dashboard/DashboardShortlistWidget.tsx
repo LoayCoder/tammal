@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Award, Trophy, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface ShortlistEntry {
   ranking_id: string;
@@ -128,7 +130,7 @@ export function DashboardShortlistWidget() {
   return (
     <div className="space-y-3">
       {entries.map((entry) => (
-        <Card key={entry.ranking_id} className="glass-card border-0 ring-1 ring-chart-1/30 overflow-hidden">
+        <Card key={entry.ranking_id} className={cn(cardVariants.glass, "ring-1 ring-chart-1/30 overflow-hidden")}>
           <CardContent className="flex items-center gap-4 p-6">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-chart-1/10">
               {getRankIcon(entry.rank)}

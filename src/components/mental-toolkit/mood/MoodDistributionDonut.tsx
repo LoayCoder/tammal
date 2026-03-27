@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart } from "lucide-react";
 import { PieChart as RechartsPie, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
 import { TOOLKIT, DONUT_COLORS } from "@/config/toolkit-colors";
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface DonutDataItem {
   name: string;
@@ -17,7 +19,7 @@ export function MoodDistributionDonut({ data }: MoodDistributionDonutProps) {
   const { t } = useTranslation();
 
   return (
-    <Card className="glass-card border-0 rounded-lg">
+    <Card className={cn(cardVariants.glass, "rounded-lg")}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <PieChart className="h-4 w-4" style={{ color: TOOLKIT.sage }} />
