@@ -9,6 +9,7 @@ import { useSubscriptions } from '@/hooks/org/useSubscriptions';
 import { Users, HardDrive, Activity, TrendingUp, TrendingDown, CreditCard } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 export default function UsageBilling() {
   const { t } = useTranslation();
@@ -53,7 +54,7 @@ export default function UsageBilling() {
 
       {/* Current Plan */}
       {!subLoading && activeSubscription && (
-        <Card className="glass-stat border-0 rounded-xl overflow-hidden relative group hover:-translate-y-1 transition-all duration-300">
+        <Card className={cn(cardVariants.stat, "rounded-xl overflow-hidden relative group hover:-translate-y-1 transition-all duration-300")}>
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -137,7 +138,7 @@ export default function UsageBilling() {
 
       {/* API Calls */}
       {usage && (
-        <Card className="glass-stat border-0 rounded-xl">
+        <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <Activity className="h-4 w-4 text-muted-foreground" />

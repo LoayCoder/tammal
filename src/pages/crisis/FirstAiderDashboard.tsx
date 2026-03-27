@@ -123,7 +123,7 @@ export default function FirstAiderDashboard() {
 
       {/* Professional Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Card className="glass-stat border-0 rounded-xl">
+        <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="pt-6 text-center">
             <div className="mx-auto w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
               <MessageSquare className="h-5 w-5 text-primary" />
@@ -132,7 +132,7 @@ export default function FirstAiderDashboard() {
             <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.activeCases')}</p>
           </CardContent>
         </Card>
-        <Card className="glass-stat border-0 rounded-xl">
+        <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="pt-6 text-center">
             <div className="mx-auto w-10 h-10 rounded-xl bg-chart-2/10 flex items-center justify-center mb-2">
               <Check className="h-5 w-5 text-chart-2" />
@@ -141,7 +141,7 @@ export default function FirstAiderDashboard() {
             <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.totalSessions')}</p>
           </CardContent>
         </Card>
-        <Card className="glass-stat border-0 rounded-xl">
+        <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="pt-6 text-center">
             <div className="mx-auto w-10 h-10 rounded-xl bg-chart-3/10 flex items-center justify-center mb-2">
               <Timer className="h-5 w-5 text-chart-3" />
@@ -150,7 +150,7 @@ export default function FirstAiderDashboard() {
             <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.avgResponse')}</p>
           </CardContent>
         </Card>
-        <Card className="glass-stat border-0 rounded-xl">
+        <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="pt-6 text-center">
             <div className="mx-auto w-10 h-10 rounded-xl bg-chart-4/10 flex items-center justify-center mb-2">
               <Calendar className="h-5 w-5 text-chart-4" />

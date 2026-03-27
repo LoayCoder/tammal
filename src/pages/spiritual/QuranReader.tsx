@@ -180,7 +180,7 @@ export default function QuranReader() {
 
       {/* Weekly stats */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="glass-stat border-0 rounded-xl">
+        <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="rounded-full bg-primary/10 p-2">
               <BookOpen className="h-5 w-5 text-primary" />
@@ -191,7 +191,7 @@ export default function QuranReader() {
             </div>
           </CardContent>
         </Card>
-        <Card className="glass-stat border-0 rounded-xl">
+        <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="rounded-full bg-primary/10 p-2">
               <Clock className="h-5 w-5 text-primary" />
@@ -202,7 +202,7 @@ export default function QuranReader() {
             </div>
           </CardContent>
         </Card>
-        <Card className="glass-stat border-0 rounded-xl">
+        <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="rounded-full bg-primary/10 p-2">
               <TrendingUp className="h-5 w-5 text-primary" />

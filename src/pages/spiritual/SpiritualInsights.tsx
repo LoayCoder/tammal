@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { format, subDays, startOfMonth, startOfWeek } from 'date-fns';
 import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface InsightCard {
   icon: React.ComponentType<any>;
@@ -51,7 +52,7 @@ function CorrelationCards({ insights }: { insights: InsightCard[] }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {insights.map((insight, i) => (
-        <Card key={i} className="glass-stat border-0 rounded-xl">
+        <Card key={i} className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
