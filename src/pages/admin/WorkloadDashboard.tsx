@@ -10,6 +10,7 @@ import {
   Users, AlertTriangle, Clock, Target, TrendingUp, Moon, Activity, Shield,
 } from 'lucide-react';
 import {
+import { cardVariants } from "@/theme/tokens";
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
 } from 'recharts';
 
@@ -75,7 +76,7 @@ export default function WorkloadDashboard() {
       {/* KPI Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-5">
         {statCards.map(stat => (
-          <Card key={stat.title} className="glass-stat border-0">
+          <Card key={stat.title} className={cardVariants.stat}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium truncate">{stat.title}</CardTitle>
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 shrink-0">

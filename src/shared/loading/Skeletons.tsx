@@ -1,6 +1,7 @@
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { cardVariants } from "@/theme/tokens";
 
 /* ─── Stat cards row ─── */
 interface SkeletonCardsProps {
@@ -15,7 +16,7 @@ export const SkeletonCards = React.memo(function SkeletonCards({
   return (
     <div className={`grid gap-4 ${columns}`}>
       {Array.from({ length: count }).map((_, i) => (
-        <Card key={i} className="glass-stat border-0">
+        <Card key={i} className={cardVariants.stat}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <Skeleton className="h-4 w-20" />
             <Skeleton className="h-7 w-7 rounded-lg" />
