@@ -7,6 +7,7 @@ import { useTenantUsage } from '@/hooks/org/useTenantUsage';
 import { useProfile } from '@/hooks/auth/useProfile';
 import { useSubscriptions } from '@/hooks/org/useSubscriptions';
 import { Users, HardDrive, Activity, TrendingUp, TrendingDown, CreditCard } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 
 export default function UsageBilling() {
   const { t } = useTranslation();
