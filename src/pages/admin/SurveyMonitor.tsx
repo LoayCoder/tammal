@@ -12,6 +12,7 @@ import { EmployeeStatusTable } from '@/components/survey-monitor/EmployeeStatusT
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart3 } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 
 export default function SurveyMonitor() {
   const { t } = useTranslation();

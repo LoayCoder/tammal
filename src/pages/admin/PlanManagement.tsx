@@ -39,16 +39,17 @@ export default function PlanManagement() {
   return (
     <ErrorBoundary>
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><Layers className="h-6 w-6 text-primary" /></div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('plans.title')}</h1>
-        </div>
-        <Button onClick={formDialog.openCreate}>
-          <Plus className="me-2 h-4 w-4" />
-          {t('plans.addPlan')}
-        </Button>
-      </div>
+      <PageHeader
+        icon={<Layers className="h-5 w-5 text-primary" />}
+        title={t('plans.title')}
+        variant="card"
+        actions={
+          <Button onClick={formDialog.openCreate}>
+            <Plus className="me-2 h-4 w-4" />
+            {t('plans.addPlan')}
+          </Button>
+        }
+      />
 
       <Card className="glass-card border-0 rounded-xl">
         <CardHeader>

@@ -94,13 +94,12 @@ export default function AuditLogs() {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6">
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><History className="h-6 w-6 text-primary" /></div>
-          {t('audit.title')}
-        </h1>
-        <p className="text-muted-foreground mt-1">{t('audit.subtitle')}</p>
-      </div>
+      <PageHeader
+        icon={<History className="h-5 w-5 text-primary" />}
+        title={t('audit.title')}
+        subtitle={t('audit.subtitle')}
+        variant="card"
+      />
 
       <Card className="glass-card border-0 rounded-xl">
         <CardHeader>

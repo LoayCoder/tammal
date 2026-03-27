@@ -141,19 +141,18 @@ export default function TenantManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><Building2 className="h-6 w-6 text-primary" /></div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('tenants.title')}</h1>
-            <p className="text-muted-foreground">{t('tenants.subtitle')}</p>
-          </div>
-        </div>
-        <Button onClick={handleCreate}>
-          <Plus className="me-2 h-4 w-4" />
-          {t('tenants.addTenant')}
-        </Button>
-      </div>
+      <PageHeader
+        icon={<Building2 className="h-5 w-5 text-primary" />}
+        title={t('tenants.title')}
+        subtitle={t('tenants.subtitle')}
+        variant="card"
+        actions={
+          <Button onClick={handleCreate}>
+            <Plus className="me-2 h-4 w-4" />
+            {t('tenants.addTenant')}
+          </Button>
+        }
+      />
 
       <Card className="glass-card border-0 rounded-xl">
         <CardHeader>

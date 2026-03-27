@@ -130,19 +130,18 @@ export default function ScheduleManagement() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><CalendarClock className="h-6 w-6 text-primary" /></div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('schedules.title')}</h1>
-            <p className="text-muted-foreground">{t('schedules.subtitle')}</p>
-          </div>
-        </div>
-        <Button onClick={() => dispatch({ type: 'OPEN_CREATE' })}>
-          <Plus className="me-2 h-4 w-4" />
-          {t('schedules.createSchedule')}
-        </Button>
-      </div>
+      <PageHeader
+        icon={<CalendarClock className="h-5 w-5 text-primary" />}
+        title={t('schedules.title')}
+        subtitle={t('schedules.subtitle')}
+        variant="card"
+        actions={
+          <Button onClick={() => dispatch({ type: 'OPEN_CREATE' })}>
+            <Plus className="me-2 h-4 w-4" />
+            {t('schedules.createSchedule')}
+          </Button>
+        }
+      />
 
       <ScheduleStatCards schedules={schedules} />
 

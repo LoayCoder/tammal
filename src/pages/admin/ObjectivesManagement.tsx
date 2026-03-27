@@ -58,16 +58,13 @@ export default function ObjectivesManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><Target className="h-6 w-6 text-primary" /></div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('workload.objectives.pageTitle')}</h1>
-            <p className="text-muted-foreground text-sm">{t('workload.objectives.pageDesc')}</p>
-          </div>
-        </div>
-        {canManage && <Button onClick={handleCreate}><Plus className="me-2 h-4 w-4" />{t('workload.objectives.add')}</Button>}
-      </div>
+      <PageHeader
+        icon={<Target className="h-5 w-5 text-primary" />}
+        title={t('workload.objectives.pageTitle')}
+        subtitle={t('workload.objectives.pageDesc')}
+        variant="card"
+        actions={canManage ? <Button onClick={handleCreate}><Plus className="me-2 h-4 w-4" />{t('workload.objectives.add')}</Button> : undefined}
+      />
 
       {isPending ? (
         <div className="grid gap-4 md:grid-cols-2">{[1,2,3,4].map(i => <Card key={i} className="glass-card border-0 animate-pulse h-40" />)}</div>
