@@ -11,6 +11,7 @@ import { useQuestionSubcategories, QuestionSubcategory, CreateSubcategoryInput }
 import { useQuestionCategories } from "@/hooks/questions/useQuestionCategories";
 import { CategoryBadge } from "@/components/questions/CategoryBadge";
 import { Plus, MoreHorizontal, Edit2, Trash2, ToggleLeft, ToggleRight, GitBranch } from "lucide-react";
+import { PageHeader } from '@/components/system';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
