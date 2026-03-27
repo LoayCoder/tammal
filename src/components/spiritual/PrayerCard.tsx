@@ -6,6 +6,7 @@ import { Home, Building2, Briefcase, Clock, Check, Pencil, Timer } from 'lucide-
 import type { PrayerLog } from '@/hooks/spiritual/usePrayerLogs';
 import { PrayerStatusBadge } from './PrayerStatusBadge';
 import { cn } from '@/lib/utils';
+import { cardVariants } from "@/theme/tokens";
 
 const RAWATIB_CONFIG: Record<string, { before?: number; after?: number }> = {
   Fajr:    { after: 2 },
