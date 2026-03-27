@@ -35,18 +35,18 @@ export default function MoodTrackerPage() {
     );
   }
 
-  const chartData = Array.from({ length: 14 }, (_, i) => {
+  const chartData = useMemo(() => Array.from({ length: 14 }, (_, i) => {
     const d = format(subDays(new Date(), 13 - i), "yyyy-MM-dd");
     const entry = dashboard.last14.find(e => e.date === d);
     const moodDef = entry ? dashboard.moodDefs.find(m => m.key === entry.level) : null;
     return { date: d, label: format(subDays(new Date(), 13 - i), "dd/MM"), score: entry?.score ?? null, emoji: moodDef?.emoji ?? "", orgAvg: dashboard.orgAvgMap[d] ?? null };
-  });
+  }), [dashboard.last14, dashboard.moodDefs, dashboard.orgAvgMap]);
 
-  const donutData = Object.entries(dashboard.distribution).map(([level, count]) => {
+  const donutData = useMemo(() => Object.entries(dashboard.distribution).map(([level, count]) => {
     const def = dashboard.moodDefs.find(m => m.key === level);
     const label = def ? (isRTL ? def.label_ar : def.label_en) : level;
     return { name: `${def?.emoji ?? ""} ${label}`, value: count };
-  });
+  }), [dashboard.distribution, dashboard.moodDefs, isRTL]);
 
   const todayDef = dashboard.todayEntry ? dashboard.moodDefs.find(m => m.key === dashboard.todayEntry!.level) ?? null : null;
   const noData = dashboard.moodHistory.length === 0;
