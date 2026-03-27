@@ -8,6 +8,7 @@ import { useCrisisCases, useIsFirstAider, useFirstAiderSchedule } from '@/hooks/
 import { useSupportSessions } from '@/hooks/crisis/useSessionScheduling';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { MessageSquare, Clock, Check, X, AlertTriangle, Shield, Star, Calendar, Timer, CircleDot } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import { format, isToday } from 'date-fns';
 import { toast } from 'sonner';
 import SessionWorkspace from '@/components/crisis/SessionWorkspace';
