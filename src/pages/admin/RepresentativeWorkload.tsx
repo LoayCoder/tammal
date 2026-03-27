@@ -10,7 +10,7 @@ import { useTenantId } from '@/hooks/org/useTenantId';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { StrategicHierarchyTab } from '@/components/workload/representative/StrategicHierarchyTab';
 import { TaskDistributionTab } from '@/components/workload/representative/TaskDistributionTab';
-
+import { PageHeader } from '@/components/system';
 export default function RepresentativeWorkload() {
   const { t } = useTranslation();
   const { tenantId } = useTenantId();
