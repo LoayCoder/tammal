@@ -10,6 +10,7 @@ import { Slider } from '@/components/ui/slider';
 import { useFirstAiderSchedule } from '@/hooks/crisis/useCrisisSupport';
 import { toast } from 'sonner';
 import { Clock, Calendar, Shield, AlertTriangle } from 'lucide-react';
+import { cardVariants } from "@/theme/tokens";
 
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
 
@@ -112,7 +113,7 @@ export default function FirstAiderAvailabilityManager({ firstAiderId, tenantId, 
   return (
     <div className="space-y-6">
       {/* Status & Quick Controls */}
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -150,7 +151,7 @@ export default function FirstAiderAvailabilityManager({ firstAiderId, tenantId, 
       </Card>
 
       {/* Weekly Schedule Grid */}
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Clock className="h-4 w-4" />
@@ -200,7 +201,7 @@ export default function FirstAiderAvailabilityManager({ firstAiderId, tenantId, 
       </Card>
 
       {/* Session Limits & SLA */}
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Shield className="h-4 w-4" />

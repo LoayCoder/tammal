@@ -1,4 +1,9 @@
+/**
+ * ToolkitPageHeader — thin wrapper around the global PageHeader.
+ * Kept for backward compatibility; new code should import PageHeader directly.
+ */
 import { ReactNode } from "react";
+import PageHeader from "@/components/system/PageHeader";
 
 interface ToolkitPageHeaderProps {
   icon: ReactNode;
@@ -15,20 +20,14 @@ export default function ToolkitPageHeader({
   actions,
   maxWidth = "2xl",
 }: ToolkitPageHeaderProps) {
-  const maxWClass = maxWidth === "4xl" ? "max-w-4xl" : "max-w-2xl";
-
   return (
-    <div className="glass-card border-0 rounded-none border-b border-border/50 px-4 py-5 sm:px-6">
-      <div className={`${maxWClass} mx-auto flex items-center gap-3`}>
-        <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-primary/10">
-          {icon}
-        </div>
-        <div className="flex-1">
-          <h1 className="text-xl font-bold text-foreground">{title}</h1>
-          <p className="text-sm text-muted-foreground">{subtitle}</p>
-        </div>
-        {actions && <div className="shrink-0">{actions}</div>}
-      </div>
-    </div>
+    <PageHeader
+      icon={icon}
+      title={title}
+      subtitle={subtitle}
+      actions={actions}
+      maxWidth={maxWidth}
+      variant="flush"
+    />
   );
 }

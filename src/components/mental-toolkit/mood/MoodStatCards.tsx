@@ -2,6 +2,8 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Flame, TrendingUp, CalendarCheck, Activity } from "lucide-react";
 import { TOOLKIT, ZONE_COLORS } from "@/config/toolkit-colors";
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface MoodStatCardsProps {
   streak: number;
@@ -18,7 +20,7 @@ export function MoodStatCards({ streak, avgMood7d, burnoutZone, monthlyCheckins,
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <Card className="glass-stat border-0 rounded-lg">
+      <Card className={cn(cardVariants.stat, "rounded-lg")}>
         <CardContent className="p-4 flex flex-col items-center text-center gap-1">
           <Flame className="h-6 w-6" style={{ color: TOOLKIT.lavender }} />
           <span className="text-2xl font-bold text-foreground">{streak}</span>
@@ -26,7 +28,7 @@ export function MoodStatCards({ streak, avgMood7d, burnoutZone, monthlyCheckins,
         </CardContent>
       </Card>
 
-      <Card className="glass-stat border-0 rounded-lg">
+      <Card className={cn(cardVariants.stat, "rounded-lg")}>
         <CardContent className="p-4 flex flex-col items-center text-center gap-1">
           <TrendingUp className="h-6 w-6" style={{ color: ZONE_COLORS[burnoutZone] }} />
           <span className="text-2xl font-bold text-foreground">{avgMood7d}</span>
@@ -37,7 +39,7 @@ export function MoodStatCards({ streak, avgMood7d, burnoutZone, monthlyCheckins,
         </CardContent>
       </Card>
 
-      <Card className="glass-stat border-0 rounded-lg">
+      <Card className={cn(cardVariants.stat, "rounded-lg")}>
         <CardContent className="p-4 flex flex-col items-center text-center gap-1">
           <CalendarCheck className="h-6 w-6" style={{ color: TOOLKIT.sage }} />
           <span className="text-2xl font-bold text-foreground">
@@ -47,7 +49,7 @@ export function MoodStatCards({ streak, avgMood7d, burnoutZone, monthlyCheckins,
         </CardContent>
       </Card>
 
-      <Card className="glass-stat border-0 rounded-lg">
+      <Card className={cn(cardVariants.stat, "rounded-lg")}>
         <CardContent className="p-4 flex flex-col items-center text-center gap-1">
           {todayDef ? (
             <>

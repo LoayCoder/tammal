@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Plus, Target, ChevronRight, Pencil, Trash2, Crosshair } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -15,6 +16,8 @@ import { ObjectiveDialog } from '@/components/workload/ObjectiveDialog';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { useNavigate } from 'react-router-dom';
 import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 const statusColors: Record<string, string> = {
   on_track: 'bg-chart-2/15 text-chart-2 border-chart-2/30',
@@ -57,21 +60,18 @@ export default function ObjectivesManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><Target className="h-6 w-6 text-primary" /></div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('workload.objectives.pageTitle')}</h1>
-            <p className="text-muted-foreground text-sm">{t('workload.objectives.pageDesc')}</p>
-          </div>
-        </div>
-        {canManage && <Button onClick={handleCreate}><Plus className="me-2 h-4 w-4" />{t('workload.objectives.add')}</Button>}
-      </div>
+      <PageHeader
+        icon={<Target className="h-5 w-5 text-primary" />}
+        title={t('workload.objectives.pageTitle')}
+        subtitle={t('workload.objectives.pageDesc')}
+        variant="card"
+        actions={canManage ? <Button onClick={handleCreate}><Plus className="me-2 h-4 w-4" />{t('workload.objectives.add')}</Button> : undefined}
+      />
 
       {isPending ? (
-        <div className="grid gap-4 md:grid-cols-2">{[1,2,3,4].map(i => <Card key={i} className="glass-card border-0 animate-pulse h-40" />)}</div>
+        <div className="grid gap-4 md:grid-cols-2">{[1,2,3,4].map(i => <Card key={i} className={cn(cardVariants.glass, "animate-pulse h-40")} />)}</div>
       ) : objectives.length === 0 ? (
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <Crosshair className="h-12 w-12 text-muted-foreground/40 mb-4" />
             <p className="text-muted-foreground">{t('workload.objectives.empty')}</p>
@@ -81,7 +81,7 @@ export default function ObjectivesManagement() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {objectives.map(obj => (
-            <Card key={obj.id} className="glass-card border-0 rounded-xl hover:shadow-md transition-shadow cursor-pointer group"
+            <Card key={obj.id} className={cn(cardVariants.glass, "rounded-xl hover:shadow-md transition-shadow cursor-pointer group")}
               onClick={() => navigate(`/admin/workload/objectives/${obj.id}`)}>
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">

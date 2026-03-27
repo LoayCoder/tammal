@@ -24,6 +24,7 @@ import {
   Lock, Unlock, Trash2, Search,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { cardVariants } from "@/theme/tokens";
 
 const priorityLabels: Record<number, string> = { 1: 'P1', 2: 'P2', 3: 'P3', 4: 'P4', 5: 'P5' };
 
@@ -203,7 +204,7 @@ export default function TeamWorkload() {
       <RiskAlertsCard members={riskMembers} />
 
       {/* Team Members */}
-      <Card className="glass-card border-0">
+      <Card className={cardVariants.glass}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">{t('teamWorkload.departmentTasks')}</CardTitle>
@@ -232,7 +233,7 @@ export default function TeamWorkload() {
       </Card>
 
       {/* Objective Alignment */}
-      <Card className="glass-card border-0">
+      <Card className={cardVariants.glass}>
         <CardHeader className="pb-2">
           <CardTitle className="text-base">{t('teamWorkload.objectiveAlignment')}</CardTitle>
         </CardHeader>

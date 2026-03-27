@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle } from 'lucide-react';
 import type { DepartmentStat } from '@/hooks/analytics/useSurveyMonitor';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   departments: DepartmentStat[];
@@ -17,7 +18,7 @@ export function RiskPanel({ departments, threshold = 50 }: Props) {
 
   if (atRisk.length === 0) {
     return (
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-chart-1" />
@@ -32,7 +33,7 @@ export function RiskPanel({ departments, threshold = 50 }: Props) {
   }
 
   return (
-    <Card className="glass-card border-0 rounded-xl">
+    <Card className={cardVariants.glass}>
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 text-destructive" />

@@ -12,6 +12,8 @@ import { useScheduledQuestions, useAnsweredSurveyCheck } from '@/hooks/questions
 import { useEmployeeResponses, useDraftResponses } from '@/hooks/wellness/useEmployeeResponses';
 import { useProfile } from '@/hooks/auth/useProfile';
 import { AnswerInput } from '@/components/survey/AnswerInput';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 export default function EmployeeSurvey() {
   const { t, i18n } = useTranslation();
@@ -170,7 +172,7 @@ export default function EmployeeSurvey() {
       {/* Survey Header */}
       <div className="space-y-3">
         {surveyMeta && (
-          <Card className="glass-card border-0 rounded-xl">
+          <Card className={cardVariants.glass}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <h1 className="text-xl font-bold">{surveyMeta.schedule_name}</h1>
@@ -218,7 +220,7 @@ export default function EmployeeSurvey() {
           const isPending = question?.validation_status === 'pending';
 
           return (
-            <Card key={sq.id} className={`glass-card border-0 rounded-xl overflow-hidden ${isPending ? 'border-amber-500/50 bg-amber-500/5' : ''}`}>
+            <Card key={sq.id} className={cn(cardVariants.glass, `rounded-xl overflow-hidden ${isPending ? 'border-amber-500/50 bg-amber-500/5' : ''}`)}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">

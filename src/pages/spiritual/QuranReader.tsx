@@ -13,6 +13,8 @@ import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferenc
 import { useQuranSessions, useLastQuranSession } from '@/hooks/spiritual/useQuranSessions';
 import { useNavigate } from 'react-router-dom';
 import { QuranHistory } from '@/components/spiritual/QuranHistory';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 const SURAHS = [
   'Al-Fatiha','Al-Baqarah','Aal-Imran','An-Nisa','Al-Maidah','Al-Anam','Al-Araf','Al-Anfal',
@@ -105,7 +107,7 @@ export default function QuranReader() {
   if (!isActive) {
     return (
       <div className="container mx-auto py-6">
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardContent className="p-12 text-center space-y-4">
             <BookOpenCheck className="h-12 w-12 mx-auto text-muted-foreground" />
             <h2 className="text-xl font-semibold">{t('spiritual.quran.notEnabled')}</h2>
@@ -152,7 +154,7 @@ export default function QuranReader() {
 
       {/* Resume Last Session */}
       {lastSession?.surah_name && (
-        <Card className="glass-card border-0 rounded-xl border-s-4 border-s-primary/40">
+        <Card className={cn(cardVariants.glass, "rounded-xl border-s-4 border-s-primary/40")}>
           <CardContent className="p-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="rounded-full bg-primary/10 p-2">
@@ -178,7 +180,7 @@ export default function QuranReader() {
 
       {/* Weekly stats */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="glass-stat border-0 rounded-xl">
+        <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="rounded-full bg-primary/10 p-2">
               <BookOpen className="h-5 w-5 text-primary" />
@@ -189,7 +191,7 @@ export default function QuranReader() {
             </div>
           </CardContent>
         </Card>
-        <Card className="glass-stat border-0 rounded-xl">
+        <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="rounded-full bg-primary/10 p-2">
               <Clock className="h-5 w-5 text-primary" />
@@ -200,7 +202,7 @@ export default function QuranReader() {
             </div>
           </CardContent>
         </Card>
-        <Card className="glass-stat border-0 rounded-xl">
+        <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="rounded-full bg-primary/10 p-2">
               <TrendingUp className="h-5 w-5 text-primary" />
@@ -218,7 +220,7 @@ export default function QuranReader() {
 
       {/* Log form */}
       {showForm && (
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardHeader>
             <CardTitle className="text-lg">{t('spiritual.quran.newSession')}</CardTitle>
             <CardDescription>{t('spiritual.quran.newSessionDesc')}</CardDescription>
@@ -265,7 +267,7 @@ export default function QuranReader() {
       )}
 
       {/* Session history */}
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <div className="flex items-center justify-between flex-wrap gap-3">
             <CardTitle className="text-lg">{t('spiritual.quran.recentSessions')}</CardTitle>

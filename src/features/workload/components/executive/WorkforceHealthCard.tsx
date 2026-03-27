@@ -8,6 +8,8 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip as RechartsTooltip,
 } from 'recharts';
 import type { InitiativeRiskMetric } from '@/features/workload';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 const GLASS_TOOLTIP = {
   background: 'hsl(var(--card) / 0.6)',
@@ -48,7 +50,7 @@ export function WorkforceHealthCard({ distribution, heatmapLoading, riskMetrics,
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {/* Heatmap Pie */}
-      <Card className="glass-card border-0 shadow-sm">
+      <Card className={cn(cardVariants.glass, "shadow-sm")}>
         <CardHeader className="pb-2">
           <CardTitle className="text-base">{t('executive.heatmapTitle')}</CardTitle>
         </CardHeader>
@@ -79,7 +81,7 @@ export function WorkforceHealthCard({ distribution, heatmapLoading, riskMetrics,
       </Card>
 
       {/* Initiative Risk */}
-      <Card className="glass-card border-0 shadow-sm">
+      <Card className={cn(cardVariants.glass, "shadow-sm")}>
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-destructive" />

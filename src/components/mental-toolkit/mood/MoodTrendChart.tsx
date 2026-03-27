@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { TOOLKIT } from "@/config/toolkit-colors";
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface ChartDataItem {
   date: string;
@@ -21,7 +23,7 @@ export function MoodTrendChart({ data, hasOrgData }: MoodTrendChartProps) {
   const { t } = useTranslation();
 
   return (
-    <Card className="glass-card border-0 rounded-lg">
+    <Card className={cn(cardVariants.glass, "rounded-lg")}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <BarChart3 className="h-4 w-4" style={{ color: TOOLKIT.lavender }} />

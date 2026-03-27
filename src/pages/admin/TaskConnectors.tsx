@@ -21,6 +21,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useTaskImport } from '@/hooks/tasks/useTaskImport';
+import { cardVariants } from "@/theme/tokens";
 
 interface Connector {
   id: string;
@@ -84,7 +85,7 @@ export default function TaskConnectors() {
 
       {/* Connected */}
       {connectors.length > 0 && (
-        <Card className="glass-card border-0">
+        <Card className={cardVariants.glass}>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">{t('connectors.connected')}</CardTitle>
           </CardHeader>
@@ -107,7 +108,7 @@ export default function TaskConnectors() {
         {PROVIDERS.map(provider => {
           const isConnected = connectors.some(c => c.provider === provider.id);
           return (
-            <Card key={provider.id} className="glass-card border-0">
+            <Card key={provider.id} className={cardVariants.glass}>
               <CardContent className="p-5 space-y-3">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{provider.icon}</span>

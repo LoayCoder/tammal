@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 import { CalendarNavigation } from '@/components/spiritual/calendar/CalendarNavigation';
 import { CalendarGrid } from '@/components/spiritual/calendar/CalendarGrid';
 import { CalendarEventList } from '@/components/spiritual/calendar/CalendarEventList';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 type CalendarView = 'month' | 'week';
 
@@ -104,7 +106,7 @@ export default function IslamicCalendar() {
   if (!isEnabled) {
     return (
       <div className="container mx-auto py-6">
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardContent className="p-12 text-center space-y-4">
             <CalendarIcon className="h-12 w-12 mx-auto text-muted-foreground" />
             <h2 className="text-xl font-semibold">{t('spiritual.calendar.notEnabled')}</h2>
@@ -125,7 +127,7 @@ export default function IslamicCalendar() {
       />
 
       {/* Calendar grid is rendered inside the navigation card */}
-      <Card className="glass-card border-0 rounded-xl -mt-4">
+      <Card className={cn(cardVariants.glass, "rounded-xl -mt-4")}>
         <CardContent className="pt-4">
           <CalendarGrid
             displayGrid={displayGrid} calendarView={calendarView}

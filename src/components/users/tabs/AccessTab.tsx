@@ -5,6 +5,7 @@ import { Search } from 'lucide-react';
 import { UserTable } from '@/components/users/UserTable';
 import type { UserWithRoles } from '@/hooks/org/useUsers';
 import type { StatusAction } from '@/components/users/UserStatusDialog';
+import { cardVariants } from "@/theme/tokens";
 
 interface AccessTabProps {
   users: UserWithRoles[];
@@ -29,7 +30,7 @@ export function AccessTab({
   const { t } = useTranslation();
 
   return (
-    <Card className="glass-card border-0 rounded-xl">
+    <Card className={cardVariants.glass}>
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>

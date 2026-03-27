@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import type { CategoryScore } from '@/hooks/analytics/useOrgAnalytics';
 import { MOOD_CHART_COLORS } from '@/config/moods';
+import { cardVariants } from "@/theme/tokens";
 
 interface MoodByCategoryData {
   date: string;
@@ -41,7 +42,7 @@ export function MoodByCategoryTrend({ categories, moodByCategoryData, isLoading 
   }
 
   return (
-    <Card className="glass-card border-0 rounded-xl">
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-base">{t('orgDashboard.moodByCategory')}</CardTitle>
         {categories.length > 0 && (

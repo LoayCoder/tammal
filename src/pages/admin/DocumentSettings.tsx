@@ -3,8 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { FileText } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import { usePlatformSettings } from '@/hooks/org/usePlatformSettings';
 import { toast } from 'sonner';
+import { cardVariants } from "@/theme/tokens";
 
 export default function DocumentSettings() {
   const { t } = useTranslation();
@@ -22,14 +24,13 @@ export default function DocumentSettings() {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><FileText className="h-6 w-6 text-primary" /></div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('documents.title')}</h1>
-        </div>
-      </div>
+      <PageHeader
+        icon={<FileText className="h-5 w-5 text-primary" />}
+        title={t('documents.title')}
+        variant="card"
+      />
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle>{t('platformSettings.title')}</CardTitle>
           <CardDescription>{t('platformSettings.description')}</CardDescription>
@@ -62,7 +63,7 @@ export default function DocumentSettings() {
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardHeader>
             <CardTitle>{t('documents.pdfTemplate')}</CardTitle>
           </CardHeader>
@@ -70,7 +71,7 @@ export default function DocumentSettings() {
             <p className="text-muted-foreground">PDF template settings coming soon...</p>
           </CardContent>
         </Card>
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardHeader>
             <CardTitle>{t('documents.notificationTemplate')}</CardTitle>
           </CardHeader>

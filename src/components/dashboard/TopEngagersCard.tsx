@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Trophy, Medal, Award, Flame, MessageSquare } from 'lucide-react';
 import type { TopEngager } from '@/hooks/analytics/useOrgAnalytics';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   data: TopEngager[];
@@ -21,7 +22,7 @@ export function TopEngagersCard({ data, isLoading }: Props) {
   const isAr = i18n.language === 'ar';
 
   return (
-    <Card className="glass-card border-0">
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base">{t('orgDashboard.topEngagers')}</CardTitle>
       </CardHeader>

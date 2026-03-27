@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { cardVariants } from "@/theme/tokens";
 
 interface ToolkitCardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "stat" | "dashed";
@@ -8,9 +9,9 @@ interface ToolkitCardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const variantClasses: Record<string, string> = {
-  default: "glass-card border-0 rounded-lg",
-  stat: "glass-stat border-0 rounded-lg",
-  dashed: "glass-card border-0 rounded-lg border-dashed",
+  default: cardVariants.glass,
+  stat: cardVariants.stat,
+  dashed: cardVariants.dashed,
 };
 
 const ToolkitCard = React.forwardRef<HTMLDivElement, ToolkitCardProps>(

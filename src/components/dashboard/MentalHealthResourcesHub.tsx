@@ -8,6 +8,8 @@ import {
 import MeditationLibraryTool from '@/components/mental-toolkit/practices/MeditationLibraryTool';
 import PsychoeducationArticles from '@/components/mental-toolkit/resources/PsychoeducationArticles';
 import IslamicCalendar from '@/pages/spiritual/IslamicCalendar';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 type ResourceKey = 'meditation' | 'articles' | 'calendar';
 
@@ -28,7 +30,7 @@ export function MentalHealthResourcesHub() {
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
           {RESOURCES.map(({ key, icon: Icon, color, titleKey, descKey }) => (
             <div key={key} onClick={() => setOpenResource(key)} className="cursor-pointer">
-              <Card className={`glass-card border-0 ring-1 ring-${color}/20 cursor-pointer transition-all hover:shadow-lg hover:ring-${color}/40`}>
+              <Card className={cn(cardVariants.glass, `ring-1 ring-${color}/20 cursor-pointer transition-all hover:shadow-lg hover:ring-${color}/40`)}>
                 <CardContent className="flex items-center gap-4 p-5">
                   <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-${color}/10`}>
                     <Icon className={`h-6 w-6 text-${color}`} />

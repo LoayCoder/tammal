@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { AlertTriangle, Clock, ArrowUp, Shield } from 'lucide-react';
+import { cardVariants } from "@/theme/tokens";
 
 const ESCALATION_LEVELS = [
   { level: 1, daysOverdue: 3, target: 'manager', icon: Clock, variant: 'default' as const },
@@ -21,7 +22,7 @@ export default function EscalationSettings() {
       </div>
 
       {/* Escalation Rules */}
-      <Card className="glass-card border-0">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Shield className="h-4 w-4" />
@@ -60,7 +61,7 @@ export default function EscalationSettings() {
       </Card>
 
       {/* SLA Configuration */}
-      <Card className="glass-card border-0">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Clock className="h-4 w-4" />
@@ -87,7 +88,7 @@ export default function EscalationSettings() {
       </Card>
 
       {/* Governance Policies */}
-      <Card className="glass-card border-0">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="text-base">{t('governance.settings.policies')}</CardTitle>
           <CardDescription>{t('governance.settings.policiesDesc')}</CardDescription>

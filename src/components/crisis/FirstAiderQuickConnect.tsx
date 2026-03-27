@@ -13,6 +13,8 @@ import EmployeeBookingWidget from '@/components/crisis/EmployeeBookingWidget';
 import EnhancedChatPanel from '@/components/crisis/EnhancedChatPanel';
 import { Phone, MessageSquare, CalendarDays, Languages, Loader2, HeartHandshake, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface Props {
   open: boolean;
@@ -159,7 +161,7 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
                 const langs = aider.languages || [];
 
                 return (
-                  <Card key={aider.id} className="glass-card border-0 ring-1 ring-border/40">
+                  <Card key={aider.id} className={cn(cardVariants.glass, "ring-1 ring-border/40")}>
                     <CardContent className="p-4 space-y-3">
                       {/* Header row */}
                       <div className="flex items-start justify-between gap-3">

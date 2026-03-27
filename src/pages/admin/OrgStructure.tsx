@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Network, Building2, Layers, GitBranch, MapPin } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProfile } from '@/hooks/auth/useProfile';
 import { useDepartments } from '@/hooks/org/useDepartments';
@@ -28,15 +29,12 @@ export default function OrgStructure() {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><Network className="h-6 w-6 text-primary" /></div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('organization.title')}</h1>
-            <p className="text-muted-foreground">{t('organization.subtitle')}</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={<Network className="h-5 w-5 text-primary" />}
+        title={t('organization.title')}
+        subtitle={t('organization.subtitle')}
+        variant="card"
+      />
 
       <Tabs defaultValue="branches">
         <TabsList className="glass-tabs flex-wrap">

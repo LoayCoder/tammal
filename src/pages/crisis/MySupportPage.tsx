@@ -8,8 +8,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCrisisCases } from '@/hooks/crisis/useCrisisSupport';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { MessageSquare, Clock, ArrowLeft, X, Plus, Calendar, FileText } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import { format } from 'date-fns';
 import EnhancedChatPanel from '@/components/crisis/EnhancedChatPanel';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 const STATUS_COLORS: Record<string, string> = {
   new: 'secondary',
@@ -49,24 +52,23 @@ export default function MySupportPage() {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><MessageSquare className="h-6 w-6 text-primary" /></div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('crisisSupport.mySupport.title')}</h1>
-            <p className="text-muted-foreground">{t('crisisSupport.mySupport.subtitle')}</p>
-          </div>
-        </div>
-        <Button onClick={() => navigate('/crisis-support')} className="gap-1.5 rounded-xl">
-          <Plus className="h-4 w-4" />
-          {t('crisisSupport.mySupport.newRequest')}
-        </Button>
-      </div>
+      <PageHeader
+        icon={<MessageSquare className="h-5 w-5 text-primary" />}
+        title={t('crisisSupport.mySupport.title')}
+        subtitle={t('crisisSupport.mySupport.subtitle')}
+        variant="card"
+        actions={
+          <Button onClick={() => navigate('/crisis-support')} className="gap-1.5 rounded-xl">
+            <Plus className="h-4 w-4" />
+            {t('crisisSupport.mySupport.newRequest')}
+          </Button>
+        }
+      />
 
       {isPending ? (
         <p className="text-muted-foreground">{t('common.loading')}</p>
       ) : myCases.length === 0 ? (
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardContent className="py-12 text-center">
             <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">{t('crisisSupport.mySupport.noCases')}</p>
@@ -107,7 +109,7 @@ function CaseCardList({ cases, onSelect }: { cases: any[]; onSelect: (id: string
   return (
     <div className="space-y-3 mt-4">
       {cases.map(c => (
-        <Card key={c.id} className="glass-card border-0 rounded-xl cursor-pointer hover:bg-white/5 transition-colors" onClick={() => onSelect(c.id)}>
+        <Card key={c.id} className={cn(cardVariants.glass, "rounded-xl cursor-pointer hover:bg-white/5 transition-colors")} onClick={() => onSelect(c.id)}>
           <CardContent className="py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -167,7 +169,7 @@ function CaseThread({ caseData, onBack }: { caseData: any; onBack: () => void })
       </div>
 
       {/* Enhanced chat */}
-      <Card className="glass-card border-0 rounded-xl overflow-hidden">
+      <Card className={cn(cardVariants.glass, "rounded-xl overflow-hidden")}>
         <EnhancedChatPanel
           caseId={caseData.id}
           tenantId={caseData.tenant_id}

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, UtensilsCrossed } from 'lucide-react';
+import { cardVariants } from "@/theme/tokens";
 
 interface EnrichedDay {
   gregorian: string;
@@ -36,7 +37,7 @@ export function CalendarEventList({ islamicEvents, fastingData, todayStr, isRTL 
   return (
     <>
       {/* Islamic Events */}
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Star className="h-4 w-4 text-chart-4" />
@@ -78,7 +79,7 @@ export function CalendarEventList({ islamicEvents, fastingData, todayStr, isRTL 
       </Card>
 
       {/* Recommended Fasting Days */}
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <UtensilsCrossed className="h-4 w-4 text-chart-2" />

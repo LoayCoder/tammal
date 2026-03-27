@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClipboardList, RefreshCw, ArrowRight, Wind } from "lucide-react";
 import { TOOLKIT } from "@/config/toolkit-colors";
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface MoodToolsSuggestionsProps {
   surveyStats: { totalAnswered: number; avgScore: number; completionRate: number };
@@ -15,7 +17,7 @@ export function MoodToolsSuggestions({ surveyStats, reframeStats, breathingStats
 
   return (
     <>
-      <Card className="glass-card border-0 rounded-lg">
+      <Card className={cn(cardVariants.glass, "rounded-lg")}>
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
             <ClipboardList className="h-4 w-4" style={{ color: TOOLKIT.lavender }} />

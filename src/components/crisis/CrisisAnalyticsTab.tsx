@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { useCrisisAnalytics } from '@/hooks/analytics/useCrisisAnalytics';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { Activity, Clock, AlertTriangle, CheckCircle, TrendingUp, Users } from 'lucide-react';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 const RISK_COLORS: Record<string, string> = {
   high: 'hsl(var(--destructive))',
@@ -43,7 +45,7 @@ export default function CrisisAnalyticsTab({ tenantId }: { tenantId?: string }) 
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Monthly Cases Bar Chart */}
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardHeader>
             <CardTitle className="text-base">{t('crisisSupport.analytics.monthlyCases')}</CardTitle>
           </CardHeader>
@@ -61,7 +63,7 @@ export default function CrisisAnalyticsTab({ tenantId }: { tenantId?: string }) 
         </Card>
 
         {/* Risk Distribution Pie */}
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardHeader>
             <CardTitle className="text-base">{t('crisisSupport.analytics.riskDistribution')}</CardTitle>
           </CardHeader>
@@ -85,7 +87,7 @@ export default function CrisisAnalyticsTab({ tenantId }: { tenantId?: string }) 
         </Card>
 
         {/* Intent Distribution */}
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardHeader>
             <CardTitle className="text-base">{t('crisisSupport.analytics.intentDistribution')}</CardTitle>
           </CardHeader>
@@ -103,7 +105,7 @@ export default function CrisisAnalyticsTab({ tenantId }: { tenantId?: string }) 
         </Card>
 
         {/* First Aider Load */}
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardHeader>
             <CardTitle className="text-base">{t('crisisSupport.analytics.firstAiderLoad')}</CardTitle>
           </CardHeader>
@@ -132,7 +134,7 @@ export default function CrisisAnalyticsTab({ tenantId }: { tenantId?: string }) 
 
 function KPICard({ icon: Icon, label, value, variant }: { icon: any; label: string; value: string | number; variant?: 'destructive' }) {
   return (
-    <Card className="glass-stat border-0 rounded-xl">
+    <Card className={cn(cardVariants.stat, "rounded-xl")}>
       <CardContent className="pt-4 pb-3 px-4">
         <div className="flex items-center gap-2 mb-2">
           <Icon className={`h-4 w-4 ${variant === 'destructive' ? 'text-destructive' : 'text-muted-foreground'}`} />

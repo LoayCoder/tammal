@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslation } from 'react-i18next';
 import type { MoodBreakdownItem } from '@/hooks/analytics/useCheckinMonitor';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   breakdown: MoodBreakdownItem[];
@@ -35,7 +36,7 @@ export function MoodDistributionBar({ breakdown }: Props) {
 
   if (breakdown.length === 0) {
     return (
-       <Card className="glass-card border-0 rounded-xl">
+       <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="text-base">{t('checkinMonitor.moodDistribution')}</CardTitle>
         </CardHeader>
@@ -47,7 +48,7 @@ export function MoodDistributionBar({ breakdown }: Props) {
   }
 
   return (
-    <Card className="glass-card border-0 rounded-xl">
+    <Card className={cardVariants.glass}>
       <CardHeader>
         <CardTitle className="text-base">{t('checkinMonitor.moodDistribution')}</CardTitle>
       </CardHeader>

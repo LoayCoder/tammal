@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface Props {
   avgAlignment: number;
@@ -19,7 +21,7 @@ export function AlignmentOverviewCard({ avgAlignment, avgUtilization, atRiskCoun
   ];
 
   return (
-    <Card className="glass-card border-0 shadow-sm">
+    <Card className={cn(cardVariants.glass, "shadow-sm")}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base">{t('executive.organizationAlignment')}</CardTitle>
       </CardHeader>

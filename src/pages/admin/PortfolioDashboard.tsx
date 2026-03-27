@@ -12,6 +12,8 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 const GLASS_TOOLTIP = {
   background: 'hsl(var(--card) / 0.6)',
@@ -83,7 +85,7 @@ export default function PortfolioDashboard() {
       {/* KPI Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
         {statCards.map(stat => (
-          <Card key={stat.title} className="glass-stat border-0">
+          <Card key={stat.title} className={cardVariants.stat}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium truncate">{stat.title}</CardTitle>
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 shrink-0">
@@ -163,7 +165,7 @@ export default function PortfolioDashboard() {
           </div>
 
           {/* Objectives List */}
-          <Card className="glass-card border-0">
+          <Card className={cardVariants.glass}>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">{t('portfolio.allObjectives')}</CardTitle>
             </CardHeader>
@@ -203,7 +205,7 @@ export default function PortfolioDashboard() {
           {isPending ? <Skeleton className="h-40" /> : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {initiatives.map(init => (
-                <Card key={init.id} className="glass-card border-0">
+                <Card key={init.id} className={cardVariants.glass}>
                   <CardContent className="p-5 space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="font-semibold text-sm truncate">{init.title}</h3>
@@ -219,7 +221,7 @@ export default function PortfolioDashboard() {
                 </Card>
               ))}
               {initiatives.length === 0 && (
-                <Card className="glass-card border-0 col-span-full">
+                <Card className={cn(cardVariants.glass, "col-span-full")}>
                   <CardContent className="p-10 text-center text-muted-foreground">{t('common.noData')}</CardContent>
                 </Card>
               )}
@@ -229,7 +231,7 @@ export default function PortfolioDashboard() {
 
         {/* Risk Tab */}
         <TabsContent value="risk" className="space-y-4">
-          <Card className="glass-card border-0">
+          <Card className={cardVariants.glass}>
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-destructive" />
@@ -263,7 +265,7 @@ export default function PortfolioDashboard() {
 
         {/* AI Predictions Tab */}
         <TabsContent value="predictions" className="space-y-4">
-          <Card className="glass-card border-0">
+          <Card className={cardVariants.glass}>
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2">
                 <Brain className="h-4 w-4 text-primary" />

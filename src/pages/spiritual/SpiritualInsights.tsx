@@ -17,6 +17,8 @@ import { useSpiritualReports, type SpiritualReport } from '@/hooks/spiritual/use
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { format, subDays, startOfMonth, startOfWeek } from 'date-fns';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface InsightCard {
   icon: React.ComponentType<any>;
@@ -37,7 +39,7 @@ function CorrelationCards({ insights }: { insights: InsightCard[] }) {
 
   if (insights.length === 0) {
     return (
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardContent className="p-8 text-center space-y-2">
           <Sparkles className="h-8 w-8 mx-auto text-muted-foreground" />
           <p className="text-sm text-muted-foreground">{t('spiritual.insights.notEnoughData')}</p>
@@ -50,7 +52,7 @@ function CorrelationCards({ insights }: { insights: InsightCard[] }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {insights.map((insight, i) => (
-        <Card key={i} className="glass-stat border-0 rounded-xl">
+        <Card key={i} className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -73,7 +75,7 @@ function ReportCard({ report, onDelete }: { report: SpiritualReport; onDelete: (
   const data = report.report_data;
 
   return (
-    <Card className="glass-card border-0 rounded-xl">
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base flex items-center gap-2">
@@ -278,7 +280,7 @@ export default function SpiritualInsights() {
   if (!isEnabled) {
     return (
       <div className="container mx-auto py-6">
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardContent className="p-12 text-center space-y-4">
             <Sparkles className="h-12 w-12 mx-auto text-muted-foreground" />
             <h2 className="text-xl font-semibold">{t('spiritual.insights.notEnabled')}</h2>
@@ -302,7 +304,7 @@ export default function SpiritualInsights() {
       </div>
 
       {/* Current mood */}
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardContent className="p-4 flex items-center gap-4">
           <div className="text-3xl font-bold text-primary">{avgMood7d || '—'}</div>
           <div>
@@ -350,7 +352,7 @@ export default function SpiritualInsights() {
           {reportsLoading ? (
             <Skeleton className="h-48" />
           ) : reports.length === 0 ? (
-            <Card className="glass-card border-0 rounded-xl">
+            <Card className={cardVariants.glass}>
               <CardContent className="p-8 text-center space-y-2">
                 <FileText className="h-8 w-8 mx-auto text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">{t('spiritual.insights.noReports')}</p>

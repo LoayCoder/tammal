@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TrendingUp, TrendingDown, Minus, ShieldAlert, Sparkles } from 'lucide-react';
 import type { PeriodComparison, EarlyWarning } from '@/lib/analytics/types';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface Props {
   healthScore: number;
@@ -61,7 +63,7 @@ export function ExecutiveSummary({ healthScore, periodComparison, warnings, isLo
   }
 
   return (
-    <Card className="glass-card border-0 ring-1 ring-primary/20">
+    <Card className={cn(cardVariants.glass, "ring-1 ring-primary/20")}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary" />

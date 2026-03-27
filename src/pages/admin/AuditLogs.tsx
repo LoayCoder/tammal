@@ -5,11 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Search, Filter, History, RefreshCw, Download } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import { useAuditLog, AuditLog } from '@/hooks/audit/useAuditLog';
 import { useTenants } from '@/hooks/org/useTenants';
 import { AuditLogTable } from '@/components/audit/AuditLogTable';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { cardVariants } from "@/theme/tokens";
 
 export default function AuditLogs() {
   const { t } = useTranslation();
@@ -93,15 +95,14 @@ export default function AuditLogs() {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6">
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><History className="h-6 w-6 text-primary" /></div>
-          {t('audit.title')}
-        </h1>
-        <p className="text-muted-foreground mt-1">{t('audit.subtitle')}</p>
-      </div>
+      <PageHeader
+        icon={<History className="h-5 w-5 text-primary" />}
+        title={t('audit.title')}
+        subtitle={t('audit.subtitle')}
+        variant="card"
+      />
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
@@ -176,7 +177,7 @@ export default function AuditLogs() {
         </CardContent>
       </Card>
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle>{t('audit.logEntries')}</CardTitle>
           <CardDescription>

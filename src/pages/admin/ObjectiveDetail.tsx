@@ -28,6 +28,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 const statusColors: Record<string, string> = {
   planned: 'bg-muted text-muted-foreground',
@@ -104,7 +106,7 @@ export default function ObjectiveDetail() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="glass-card border-0 rounded-xl p-6">
+      <div className={cn(cardVariants.glass, "rounded-xl p-6")}>
         <Button variant="ghost" size="sm" className="mb-3 -ms-2" onClick={() => navigate('/admin/workload/objectives')}>
           <ChevronLeft className="h-4 w-4 me-1 rtl:-scale-x-100" />{t('common.back')}
         </Button>
@@ -155,7 +157,7 @@ export default function ObjectiveDetail() {
       {initLoading ? (
         <div className="space-y-3">{[1,2].map(i => <Skeleton key={i} className="h-20" />)}</div>
       ) : initiatives.length === 0 ? (
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardContent className="flex flex-col items-center justify-center py-8 text-center">
             <FolderOpen className="h-10 w-10 text-muted-foreground/40 mb-3" />
             <p className="text-muted-foreground">{t('workload.initiatives.empty')}</p>
@@ -166,7 +168,7 @@ export default function ObjectiveDetail() {
           {initiatives.map(init => {
             const isExpanded = expandedInitiative === init.id;
             return (
-              <Card key={init.id} className="glass-card border-0 rounded-xl">
+              <Card key={init.id} className={cardVariants.glass}>
                 <CardHeader className="pb-2 cursor-pointer" onClick={() => setExpandedInitiative(isExpanded ? null : init.id)}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">

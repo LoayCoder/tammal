@@ -12,6 +12,7 @@ import {
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
 } from 'recharts';
+import { cardVariants } from "@/theme/tokens";
 
 const GLASS_TOOLTIP = {
   background: 'hsl(var(--card) / 0.6)',
@@ -75,7 +76,7 @@ export default function WorkloadDashboard() {
       {/* KPI Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-5">
         {statCards.map(stat => (
-          <Card key={stat.title} className="glass-stat border-0">
+          <Card key={stat.title} className={cardVariants.stat}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium truncate">{stat.title}</CardTitle>
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 shrink-0">
@@ -130,7 +131,7 @@ export default function WorkloadDashboard() {
           </Card>
 
           {/* Team Table */}
-          <Card className="glass-card border-0">
+          <Card className={cardVariants.glass}>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">{t('adminWorkload.teamOverview')}</CardTitle>
             </CardHeader>
@@ -204,7 +205,7 @@ export default function WorkloadDashboard() {
           {isPending ? <Skeleton className="h-40" /> : objProgress.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2">
               {objProgress.map(obj => (
-                <Card key={obj.id} className="glass-card border-0">
+                <Card key={obj.id} className={cardVariants.glass}>
                   <CardContent className="p-5 space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="space-y-1 min-w-0">
@@ -226,7 +227,7 @@ export default function WorkloadDashboard() {
               ))}
             </div>
           ) : (
-            <Card className="glass-card border-0">
+            <Card className={cardVariants.glass}>
               <CardContent className="p-10 text-center text-muted-foreground">{t('workload.objectives.empty')}</CardContent>
             </Card>
           )}
@@ -234,7 +235,7 @@ export default function WorkloadDashboard() {
 
         {/* Off-Hours Tab */}
         <TabsContent value="offHours" className="space-y-4">
-          <Card className="glass-card border-0">
+          <Card className={cardVariants.glass}>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">{t('adminWorkload.offHoursAnalysis')}</CardTitle>
             </CardHeader>

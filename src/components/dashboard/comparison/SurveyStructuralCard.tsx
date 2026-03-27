@@ -4,6 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { ClipboardCheck, AlertTriangle, TrendingDown, BarChart } from 'lucide-react';
 import type { SurveyStructuralMetrics } from '@/lib/analytics/types';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   data: SurveyStructuralMetrics | null;
@@ -38,7 +39,7 @@ export function SurveyStructuralCard({ data, isLoading }: Props) {
   ];
 
   return (
-    <Card className="glass-card border-0">
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <ClipboardCheck className="h-4 w-4 text-primary" />

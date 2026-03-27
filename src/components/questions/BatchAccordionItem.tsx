@@ -9,6 +9,8 @@ import { Trash2, Calendar, User, Hash, ClipboardList, Heart, Send, Ban, CheckCir
 import { format } from 'date-fns';
 import { BatchQuestionTable } from './BatchQuestionTable';
 import type { BatchQuestion } from '@/hooks/questions/useQuestionBatches';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface BatchData {
   id: string;
@@ -70,7 +72,7 @@ export function BatchAccordionItem({
   };
 
   return (
-    <AccordionItem value={batch.id} className="glass-card border-0 mb-3 px-1 group rounded-xl overflow-hidden">
+    <AccordionItem value={batch.id} className={cn(cardVariants.glass, "mb-3 px-1 group rounded-xl overflow-hidden")}>
       <AccordionTrigger className="hover:no-underline px-3">
         <div className="flex items-center gap-3 flex-1 text-start flex-wrap">
           {isEditing ? (

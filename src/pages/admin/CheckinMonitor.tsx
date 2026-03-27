@@ -12,6 +12,7 @@ import { CheckinTrendChart } from '@/components/checkin-monitor/CheckinTrendChar
 import { CheckinRiskPanel } from '@/components/checkin-monitor/CheckinRiskPanel';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Activity } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 
 export default function CheckinMonitor() {
   const { t } = useTranslation();
@@ -32,34 +33,27 @@ export default function CheckinMonitor() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="glass-card border-0 rounded-xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Activity className="h-5 w-5 text-primary" />
-            </div>
-            {t('checkinMonitor.title')}
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {t('checkinMonitor.subtitle')}
-          </p>
-        </div>
-
-        {/* Date Range Selector */}
-        <div className="w-full sm:w-48">
-          <Select value={dateRange} onValueChange={(v) => setDateRange(v as DateRange)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="today">{t('checkinMonitor.dateRange.today')}</SelectItem>
-              <SelectItem value="7d">{t('checkinMonitor.dateRange.7d')}</SelectItem>
-              <SelectItem value="30d">{t('checkinMonitor.dateRange.30d')}</SelectItem>
-              <SelectItem value="ytd">{t('checkinMonitor.dateRange.ytd')}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <PageHeader
+        icon={<Activity className="h-5 w-5 text-primary" />}
+        title={t('checkinMonitor.title')}
+        subtitle={t('checkinMonitor.subtitle')}
+        variant="card"
+        actions={
+          <div className="w-full sm:w-48">
+            <Select value={dateRange} onValueChange={(v) => setDateRange(v as DateRange)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="today">{t('checkinMonitor.dateRange.today')}</SelectItem>
+                <SelectItem value="7d">{t('checkinMonitor.dateRange.7d')}</SelectItem>
+                <SelectItem value="30d">{t('checkinMonitor.dateRange.30d')}</SelectItem>
+                <SelectItem value="ytd">{t('checkinMonitor.dateRange.ytd')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        }
+      />
 
       {/* Org Filters */}
       <OrgFilterBar filters={orgFilters} onChange={setOrgFilters} />

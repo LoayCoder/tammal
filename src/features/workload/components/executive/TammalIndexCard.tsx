@@ -5,6 +5,8 @@ import { Progress } from '@/components/ui/progress';
 import { Gauge } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import type { OrgIntelligenceScore } from '@/features/workload';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface Props {
   score: OrgIntelligenceScore | null | undefined;
@@ -37,7 +39,7 @@ export function TammalIndexCard({ score, isPending }: Props) {
   ];
 
   return (
-    <Card className="glass-card border-0 shadow-sm">
+    <Card className={cn(cardVariants.glass, "shadow-sm")}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <Gauge className="h-4 w-4 text-primary" />

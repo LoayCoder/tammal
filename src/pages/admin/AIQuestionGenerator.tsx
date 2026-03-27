@@ -18,6 +18,8 @@ import { BatchSaveDialog } from '@/features/ai-generator/components/BatchSaveDia
 import { WellnessSavePreviewDialog } from '@/features/ai-generator/components/WellnessSavePreviewDialog';
 import { useAIGenerator, GeneratorProvider } from '@/features/ai-generator';
 import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 export default function AIQuestionGenerator() {
   const { t } = useTranslation();
@@ -32,7 +34,7 @@ export default function AIQuestionGenerator() {
           <p className="text-muted-foreground">{t('aiGenerator.subtitle')}</p>
         </div>
 
-        <div className="glass-card border-0 rounded-xl">
+        <div className={cardVariants.glass}>
           <TopControlBar
             accuracyMode={g.accuracyMode}
             onAccuracyModeChange={g.setAccuracyMode}
@@ -54,18 +56,18 @@ export default function AIQuestionGenerator() {
 
           <div className="lg:col-span-3 space-y-4">
             {g.isStrict && g.hasFailures && g.questions.length > 0 && (
-              <Alert variant="destructive" className="glass-card border-0 rounded-xl">
+              <Alert variant="destructive" className={cardVariants.glass}>
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>{t('aiGenerator.strictModeMessage')}</AlertDescription>
               </Alert>
             )}
 
             {(g.isGenerating && g.regeneratingIndex === null) ? (
-              <div className="glass-card border-0 rounded-xl p-6">
+              <div className={cn(cardVariants.glass, "rounded-xl p-6")}>
                 <SkeletonList rows={3} />
               </div>
             ) : g.questions.length === 0 ? (
-              <div className="glass-card border-0 rounded-xl py-4">
+              <div className={cn(cardVariants.glass, "rounded-xl py-4")}>
                 <EmptyState
                   icon={<Sparkles className="h-16 w-16 text-muted-foreground/30" />}
                   title={t('aiGenerator.emptyTitle')}
@@ -74,7 +76,7 @@ export default function AIQuestionGenerator() {
               </div>
             ) : (
               <>
-                <div className="glass-card border-0 rounded-xl p-3 flex items-center justify-between flex-wrap gap-2">
+                <div className={cn(cardVariants.glass, "rounded-xl p-3 flex items-center justify-between flex-wrap gap-2")}>
                   <span className="text-sm text-muted-foreground px-2">
                     {t('aiGenerator.questionsGenerated', { count: g.questions.length })}
                     {g.generationMeta && ` • ${g.generationMeta.duration_ms}ms`}

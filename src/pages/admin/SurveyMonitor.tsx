@@ -12,6 +12,9 @@ import { EmployeeStatusTable } from '@/components/survey-monitor/EmployeeStatusT
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart3 } from 'lucide-react';
+import { PageHeader } from '@/components/system';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 export default function SurveyMonitor() {
   const { t } = useTranslation();
@@ -40,48 +43,41 @@ export default function SurveyMonitor() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="glass-card border-0 rounded-xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
-              <BarChart3 className="h-5 w-5 text-primary" />
-            </div>
-            {t('surveyMonitor.title')}
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {t('surveyMonitor.subtitle')}
-          </p>
-        </div>
-
-        {/* Survey Selector */}
-        <div className="w-full sm:w-72">
-          {schedulesLoading ? (
-            <Skeleton className="h-10 w-full" />
-          ) : (
-            <Select value={selectedScheduleId} onValueChange={setSelectedScheduleId}>
-              <SelectTrigger>
-                <SelectValue placeholder={t('surveyMonitor.selectSurvey')} />
-              </SelectTrigger>
-              <SelectContent>
-                {schedules.map(s => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.name}
-                    {s.status === 'active' ? ' ✓' : ''}
-                  </SelectItem>
-                ))}
-                {schedules.length === 0 && (
-                  <div className="px-3 py-2 text-sm text-muted-foreground">
-                    {t('surveyMonitor.noSurveys')}
-                  </div>
-                )}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        icon={<BarChart3 className="h-5 w-5 text-primary" />}
+        title={t('surveyMonitor.title')}
+        subtitle={t('surveyMonitor.subtitle')}
+        variant="card"
+        actions={
+          <div className="w-full sm:w-72">
+            {schedulesLoading ? (
+              <Skeleton className="h-10 w-full" />
+            ) : (
+              <Select value={selectedScheduleId} onValueChange={setSelectedScheduleId}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t('surveyMonitor.selectSurvey')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {schedules.map(s => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name}
+                      {s.status === 'active' ? ' ✓' : ''}
+                    </SelectItem>
+                  ))}
+                  {schedules.length === 0 && (
+                    <div className="px-3 py-2 text-sm text-muted-foreground">
+                      {t('surveyMonitor.noSurveys')}
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+        }
+      />
 
       {!selectedScheduleId && (
-        <div className="glass-card border-0 rounded-xl flex items-center justify-center h-48 text-muted-foreground">
+        <div className={cn(cardVariants.glass, "rounded-xl flex items-center justify-center h-48 text-muted-foreground")}>
           {t('surveyMonitor.selectPrompt')}
         </div>
       )}

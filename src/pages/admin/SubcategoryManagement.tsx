@@ -11,8 +11,10 @@ import { useQuestionSubcategories, QuestionSubcategory, CreateSubcategoryInput }
 import { useQuestionCategories } from "@/hooks/questions/useQuestionCategories";
 import { CategoryBadge } from "@/components/questions/CategoryBadge";
 import { Plus, MoreHorizontal, Edit2, Trash2, ToggleLeft, ToggleRight, GitBranch } from "lucide-react";
+import { PageHeader } from '@/components/system';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { cardVariants } from "@/theme/tokens";
 
 export default function SubcategoryManagement() {
   const { t, i18n } = useTranslation();
@@ -55,20 +57,19 @@ export default function SubcategoryManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><GitBranch className="h-6 w-6 text-primary" /></div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('subcategories.title')}</h1>
-            <p className="text-muted-foreground">{t('subcategories.subtitle')}</p>
-          </div>
-        </div>
-        <Button onClick={() => { setEditing(null); setDialogOpen(true); }}>
-          <Plus className="h-4 w-4 me-2" />{t('subcategories.addSubcategory')}
-        </Button>
-      </div>
+      <PageHeader
+        icon={<GitBranch className="h-5 w-5 text-primary" />}
+        title={t('subcategories.title')}
+        subtitle={t('subcategories.subtitle')}
+        variant="card"
+        actions={
+          <Button onClick={() => { setEditing(null); setDialogOpen(true); }}>
+            <Plus className="h-4 w-4 me-2" />{t('subcategories.addSubcategory')}
+          </Button>
+        }
+      />
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>

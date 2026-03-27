@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Save, RotateCcw, Palette } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -9,6 +10,7 @@ import { ImageUploader } from '@/components/branding/ImageUploader';
 import { BrandingPreview } from '@/components/branding/BrandingPreview';
 import { useBranding } from '@/hooks/branding/useBranding';
 import { useTenantId } from '@/hooks/org/useTenantId';
+import { cardVariants } from "@/theme/tokens";
 
 export default function AdminBranding() {
   const { t } = useTranslation();
@@ -147,32 +149,31 @@ export default function AdminBranding() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="glass-card border-0 rounded-xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><Palette className="h-6 w-6 text-primary" /></div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('branding.title')}</h1>
-            <p className="text-muted-foreground mt-1">{t('branding.description')}</p>
+      <PageHeader
+        icon={<Palette className="h-5 w-5 text-primary" />}
+        title={t('branding.title')}
+        subtitle={t('branding.description')}
+        variant="card"
+        actions={
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleReset} disabled={isSaving}>
+              <RotateCcw className="h-4 w-4 me-2 rtl:-scale-x-100" />
+              {t('branding.resetToDefault')}
+            </Button>
+            <Button onClick={handleSave} disabled={isSaving}>
+              <Save className="h-4 w-4 me-2" />
+              {isSaving ? t('common.loading') : t('branding.saveChanges')}
+            </Button>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleReset} disabled={isSaving}>
-            <RotateCcw className="h-4 w-4 me-2 rtl:-scale-x-100" />
-            {t('branding.resetToDefault')}
-          </Button>
-          <Button onClick={handleSave} disabled={isSaving}>
-            <Save className="h-4 w-4 me-2" />
-            {isSaving ? t('common.loading') : t('branding.saveChanges')}
-          </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Main Content */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column - Settings */}
         <div className="lg:col-span-2 space-y-6">
           {/* Colors Section */}
-          <Card className="glass-card border-0 rounded-xl">
+          <Card className={cardVariants.glass}>
             <CardHeader>
               <CardTitle>{t('branding.colorsSection')}</CardTitle>
               <CardDescription>{t('branding.colorsDescription')}</CardDescription>
@@ -199,7 +200,7 @@ export default function AdminBranding() {
           </Card>
 
           {/* Primary Assets Section */}
-          <Card className="glass-card border-0 rounded-xl">
+          <Card className={cardVariants.glass}>
             <CardHeader>
               <CardTitle>{t('branding.assetsSection')}</CardTitle>
               <CardDescription>{t('branding.assetsDescription')}</CardDescription>
@@ -227,7 +228,7 @@ export default function AdminBranding() {
           </Card>
 
           {/* Logo Variants Section */}
-          <Card className="glass-card border-0 rounded-xl">
+          <Card className={cardVariants.glass}>
             <CardHeader>
               <CardTitle>{t('branding.logosSection')}</CardTitle>
               <CardDescription>{t('branding.logosDescription')}</CardDescription>
@@ -255,7 +256,7 @@ export default function AdminBranding() {
           </Card>
 
           {/* Icon Variants Section */}
-          <Card className="glass-card border-0 rounded-xl">
+          <Card className={cardVariants.glass}>
             <CardHeader>
               <CardTitle>{t('branding.iconsSection')}</CardTitle>
               <CardDescription>{t('branding.iconsDescription')}</CardDescription>

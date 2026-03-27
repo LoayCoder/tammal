@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, ShieldAlert, Info } from 'lucide-react';
 import type { DivergenceAlert } from '@/lib/analytics/types';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   alerts: DivergenceAlert[];
@@ -25,7 +26,7 @@ export function AlertsPanel({ alerts, isLoading }: Props) {
   const { t } = useTranslation();
 
   return (
-    <Card className="glass-card border-0">
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 text-primary" />

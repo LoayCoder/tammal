@@ -12,6 +12,7 @@ import { useQuranSurahList, useQuranSurah, SurahMeta } from '@/hooks/spiritual/u
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { useReadingTimer } from '@/hooks/spiritual/useReadingTimer';
 import { ReadingSessionDialog } from '@/components/spiritual/ReadingSessionDialog';
+import { cardVariants } from "@/theme/tokens";
 
 const MIN_SESSION_SECONDS = 0;
 
@@ -423,7 +424,7 @@ export default function QuranTextReader() {
   if (!isActive) {
     return (
       <div className="container mx-auto py-6">
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardContent className="p-12 text-center space-y-4">
             <BookOpen className="h-12 w-12 mx-auto text-muted-foreground" />
             <h2 className="text-xl font-semibold">{t('spiritual.quran.notEnabled')}</h2>
@@ -451,7 +452,7 @@ export default function QuranTextReader() {
         </div>
       </div>
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardContent className="p-4 md:p-6">
           {surahsLoading ? (
             <div className="space-y-3">

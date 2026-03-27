@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Plus, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/system';
 import { Button } from '@/components/ui/button';
 import { SubscriptionTable } from '@/components/subscriptions/SubscriptionTable';
 import { SubscriptionDialog } from '@/components/subscriptions/SubscriptionDialog';
@@ -9,6 +10,7 @@ import { useFormDialog } from '@/shared/dialogs/useFormDialog';
 import { useConfirmDelete } from '@/shared/dialogs/useConfirmDelete';
 import { useSubscriptions, type Subscription } from '@/hooks/org/useSubscriptions';
 import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
+import { cardVariants } from "@/theme/tokens";
 
 export default function SubscriptionManagement() {
   const { t } = useTranslation();
@@ -37,18 +39,19 @@ export default function SubscriptionManagement() {
   return (
     <ErrorBoundary>
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><CreditCard className="h-6 w-6 text-primary" /></div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('subscriptions.title')}</h1>
-        </div>
-        <Button onClick={formDialog.openCreate}>
-          <Plus className="h-4 w-4 me-2" />
-          {t('subscriptions.addSubscription')}
-        </Button>
-      </div>
+      <PageHeader
+        icon={<CreditCard className="h-5 w-5 text-primary" />}
+        title={t('subscriptions.title')}
+        variant="card"
+        actions={
+          <Button onClick={formDialog.openCreate}>
+            <Plus className="h-4 w-4 me-2" />
+            {t('subscriptions.addSubscription')}
+          </Button>
+        }
+      />
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle>{t('subscriptions.title')}</CardTitle>
         </CardHeader>

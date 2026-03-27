@@ -11,6 +11,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { ChevronDown, Flame, CalendarIcon, History } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePrayerHistory, type HistoryRange } from '@/hooks/spiritual/usePrayerHistory';
+import { cardVariants } from "@/theme/tokens";
 
 const RANGE_OPTIONS: HistoryRange[] = ['week', 'month', 'quarter', 'year', 'custom'];
 
@@ -47,7 +48,7 @@ export const PrayerHistory = React.memo(function PrayerHistory() {
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CollapsibleTrigger asChild>
           <CardHeader className="cursor-pointer hover:bg-muted/40 transition-colors rounded-t-xl">
             <CardTitle className="flex items-center justify-between text-lg">

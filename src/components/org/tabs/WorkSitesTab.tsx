@@ -9,6 +9,7 @@ import { useDepartments } from '@/hooks/org/useDepartments';
 import { useSites } from '@/hooks/org/useSites';
 import { WorkSiteTable } from '@/components/org/WorkSiteTable';
 import { WorkSiteSheet } from '@/components/org/WorkSiteSheet';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   tenantId: string;
@@ -39,7 +40,7 @@ export function WorkSitesTab({ tenantId, isLoading }: Props) {
 
   return (
     <>
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>{t('workSites.title')}</CardTitle>
           <Button onClick={() => { setEditing(null); setSheetOpen(true); }}>

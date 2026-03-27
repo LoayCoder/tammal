@@ -12,6 +12,8 @@ import {
   ClipboardList, ChevronRight, CheckCircle2, AlertTriangle,
   Clock, SquareCheckBig,
 } from 'lucide-react';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 const PRIORITY_COLORS: Record<number, string> = {
   1: 'bg-destructive',     // critical
@@ -61,7 +63,7 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
   ];
 
   return (
-    <Card className="glass-card border-0 ring-1 ring-primary/10">
+    <Card className={cn(cardVariants.glass, "ring-1 ring-primary/10")}>
       {/* Header */}
       <div className="flex items-center justify-between p-6 pb-0">
         <div className="flex items-center gap-2">

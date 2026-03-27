@@ -4,6 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import i18n from 'i18next';
 import { logger } from '@/lib/logger';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface PageErrorBoundaryProps {
   children: ReactNode;
@@ -72,7 +74,7 @@ export class PageErrorBoundary extends Component<PageErrorBoundaryProps, PageErr
 
     return (
       <div className="flex items-center justify-center min-h-[50vh] p-4">
-        <Card className="glass-card border-0 rounded-xl max-w-md w-full">
+        <Card className={cn(cardVariants.glass, "rounded-xl max-w-md w-full")}>
           <CardContent className="flex flex-col items-center justify-center py-12 text-center space-y-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
               <AlertTriangle className="h-6 w-6 text-destructive" />

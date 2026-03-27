@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Zap } from 'lucide-react';
+import { cardVariants } from "@/theme/tokens";
 
 interface ExecutionMetricsCardProps {
   velocity: number;
@@ -12,7 +13,7 @@ export function ExecutionMetricsCard({ velocity, completionRate, overdueRate }: 
   const { t } = useTranslation();
 
   return (
-    <Card className="glass-card border-0">
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <Zap className="h-4 w-4 text-primary" />

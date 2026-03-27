@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Send, Package, Ban, CheckCircle } from 'lucide-react';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface Batch {
   status: string;
@@ -32,7 +34,7 @@ export function BatchStatusKPIs({ batches }: BatchStatusKPIsProps) {
         const count = counts[key];
         if (!count) return null;
         return (
-          <div key={key} className="glass-stat border-0 flex items-center gap-2 px-4 py-2.5 rounded-xl">
+          <div key={key} className={cn(cardVariants.stat, "flex items-center gap-2 px-4 py-2.5 rounded-xl")}>
             <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${colorClass}`}>
               <Icon className={`h-3.5 w-3.5 ${iconClass}`} />
             </div>

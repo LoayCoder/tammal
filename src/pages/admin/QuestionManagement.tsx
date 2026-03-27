@@ -10,6 +10,7 @@ import { Search, Package } from "lucide-react";
 import { BatchStatusKPIs } from "@/components/questions/BatchStatusKPIs";
 import { BatchAccordionItem } from "@/components/questions/BatchAccordionItem";
 import { QuestionDetailDialog } from "@/components/questions/QuestionDetailDialog";
+import { cardVariants } from "@/theme/tokens";
 
 export default function QuestionManagement() {
   const { t } = useTranslation();
@@ -120,7 +121,7 @@ export default function QuestionManagement() {
 
       <BatchStatusKPIs batches={batches} />
 
-      <Card className="glass-card border-0">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>

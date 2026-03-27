@@ -8,9 +8,12 @@ import { useCrisisCases, useIsFirstAider, useFirstAiderSchedule } from '@/hooks/
 import { useSupportSessions } from '@/hooks/crisis/useSessionScheduling';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { MessageSquare, Clock, Check, X, AlertTriangle, Shield, Star, Calendar, Timer, CircleDot } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import { format, isToday } from 'date-fns';
 import { toast } from 'sonner';
 import SessionWorkspace from '@/components/crisis/SessionWorkspace';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 type AiderStatus = 'available' | 'busy' | 'offline';
 
@@ -95,33 +98,32 @@ export default function FirstAiderDashboard() {
   return (
     <div className="space-y-6">
       {/* Header with 3-state status toggle */}
-      <div className="glass-card border-0 rounded-xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><Shield className="h-6 w-6 text-primary" /></div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('crisisSupport.firstAider.title')}</h1>
-            <p className="text-muted-foreground">{t('crisisSupport.firstAider.subtitle')}</p>
+      <PageHeader
+        icon={<Shield className="h-5 w-5 text-primary" />}
+        title={t('crisisSupport.firstAider.title')}
+        subtitle={t('crisisSupport.firstAider.subtitle')}
+        variant="card"
+        actions={
+          <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
+            {(['available', 'busy', 'offline'] as AiderStatus[]).map(s => (
+              <button
+                key={s}
+                onClick={() => handleStatusChange(s)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  aiderStatus === s ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <CircleDot className={`h-3 w-3 ${statusColors[s]}`} />
+                {t(`crisisSupport.firstAider.status_${s}`)}
+              </button>
+            ))}
           </div>
-        </div>
-        <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
-          {(['available', 'busy', 'offline'] as AiderStatus[]).map(s => (
-            <button
-              key={s}
-              onClick={() => handleStatusChange(s)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                aiderStatus === s ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <CircleDot className={`h-3 w-3 ${statusColors[s]}`} />
-              {t(`crisisSupport.firstAider.status_${s}`)}
-            </button>
-          ))}
-        </div>
-      </div>
+        }
+      />
 
       {/* Professional Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Card className="glass-stat border-0 rounded-xl">
+        <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="pt-6 text-center">
             <div className="mx-auto w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
               <MessageSquare className="h-5 w-5 text-primary" />
@@ -130,7 +132,7 @@ export default function FirstAiderDashboard() {
             <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.activeCases')}</p>
           </CardContent>
         </Card>
-        <Card className="glass-stat border-0 rounded-xl">
+        <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="pt-6 text-center">
             <div className="mx-auto w-10 h-10 rounded-xl bg-chart-2/10 flex items-center justify-center mb-2">
               <Check className="h-5 w-5 text-chart-2" />
@@ -139,7 +141,7 @@ export default function FirstAiderDashboard() {
             <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.totalSessions')}</p>
           </CardContent>
         </Card>
-        <Card className="glass-stat border-0 rounded-xl">
+        <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="pt-6 text-center">
             <div className="mx-auto w-10 h-10 rounded-xl bg-chart-3/10 flex items-center justify-center mb-2">
               <Timer className="h-5 w-5 text-chart-3" />
@@ -148,7 +150,7 @@ export default function FirstAiderDashboard() {
             <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.avgResponse')}</p>
           </CardContent>
         </Card>
-        <Card className="glass-stat border-0 rounded-xl">
+        <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="pt-6 text-center">
             <div className="mx-auto w-10 h-10 rounded-xl bg-chart-4/10 flex items-center justify-center mb-2">
               <Calendar className="h-5 w-5 text-chart-4" />
@@ -161,7 +163,7 @@ export default function FirstAiderDashboard() {
 
       {/* Today's Schedule */}
       {todaySessions.length > 0 && (
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Calendar className="h-4 w-4 text-primary" />
@@ -248,7 +250,7 @@ function CaseList({ cases, isPending, onSelect, actions }: { cases: any[]; isPen
   return (
     <div className="space-y-3 mt-4">
       {cases.map(c => (
-        <Card key={c.id} className={`glass-card border-0 rounded-xl cursor-pointer hover:bg-white/5 transition-colors ${riskIndicator(c.risk_level)}`} onClick={() => onSelect(c.id)}>
+        <Card key={c.id} className={cn(cardVariants.glass, `rounded-xl cursor-pointer hover:bg-white/5 transition-colors ${riskIndicator(c.risk_level)}`)} onClick={() => onSelect(c.id)}>
           <CardContent className="py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

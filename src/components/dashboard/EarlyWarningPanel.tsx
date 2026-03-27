@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle, TrendingDown, Zap, Users, RotateCcw } from 'lucide-react';
 import type { EarlyWarning } from '@/lib/analytics/types';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   warnings: EarlyWarning[];
@@ -35,7 +36,7 @@ export function EarlyWarningPanel({ warnings, isLoading }: Props) {
   }
 
   return (
-    <Card className="glass-card border-0">
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 text-chart-4" />

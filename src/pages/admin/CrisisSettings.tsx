@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, Users, Clock, Phone, BarChart3 } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import FirstAidersTab from '@/components/crisis/FirstAidersTab';
 import SchedulesTab from '@/components/crisis/SchedulesTab';
 import EmergencyContactsTab from '@/components/crisis/EmergencyContactsTab';
@@ -14,15 +15,12 @@ export default function CrisisSettings() {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card border-0 rounded-xl p-6">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2"><Shield className="h-6 w-6 text-primary" /></div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('crisisSupport.admin.title')}</h1>
-            <p className="text-muted-foreground">{t('crisisSupport.admin.subtitle')}</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={<Shield className="h-5 w-5 text-primary" />}
+        title={t('crisisSupport.admin.title')}
+        subtitle={t('crisisSupport.admin.subtitle')}
+        variant="card"
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="glass-tabs">

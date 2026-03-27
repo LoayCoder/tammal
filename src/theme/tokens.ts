@@ -26,10 +26,10 @@ export const typography = {
 
 // ── Card Variants ────────────────────────────────────────────────────
 export const cardVariants = {
-  glass: 'glass-card border-0 rounded-lg',
-  stat: 'glass-stat border-0 rounded-lg',
-  dashed: 'glass-card border-0 rounded-lg border-dashed',
-  elevated: 'glass-card border-0 rounded-lg hover:-translate-y-1 transition-all duration-300',
+  glass: 'glass-card border-0 rounded-xl',
+  stat: 'glass-stat border-0 rounded-xl',
+  dashed: 'glass-card border-0 rounded-xl border-dashed',
+  elevated: 'glass-card border-0 rounded-xl hover:-translate-y-1 transition-all duration-300',
 } as const;
 
 // ── Layout ───────────────────────────────────────────────────────────

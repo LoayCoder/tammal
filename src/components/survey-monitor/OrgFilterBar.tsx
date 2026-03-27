@@ -6,6 +6,8 @@ import { useBranches } from '@/hooks/org/useBranches';
 import { useDivisions } from '@/hooks/org/useDivisions';
 import { useDepartments } from '@/hooks/org/useDepartments';
 import type { OrgFilters } from '@/hooks/analytics/useSurveyMonitor';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface Props {
   filters: OrgFilters;
@@ -29,7 +31,7 @@ export function OrgFilterBar({ filters, onChange }: Props) {
   const hasFilters = filters.branchId || filters.divisionId || filters.departmentId;
 
   return (
-    <div className="glass-card border-0 rounded-xl p-4 flex flex-wrap items-center gap-3">
+    <div className={cn(cardVariants.glass, "rounded-xl p-4 flex flex-wrap items-center gap-3")}>
       {/* Branch */}
       <Select
         value={filters.branchId ?? '__all__'}

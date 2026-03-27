@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useBranches, type Branch, type BranchInput } from '@/hooks/org/useBranches';
 import { BranchTable } from '@/components/org/BranchTable';
 import { BranchSheet } from '@/components/org/BranchSheet';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   tenantId: string;
@@ -35,7 +36,7 @@ export function BranchesTab({ tenantId, isLoading }: Props) {
 
   return (
     <>
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>{t('branches.title')}</CardTitle>
           <Button onClick={() => { setEditing(null); setSheetOpen(true); }}>

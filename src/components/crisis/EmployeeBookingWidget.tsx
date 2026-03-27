@@ -7,6 +7,7 @@ import { useSessionScheduling, BookableSlot } from '@/hooks/crisis/useSessionSch
 import { Calendar, Clock, Loader2, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, addDays, startOfDay } from 'date-fns';
 import { toast } from 'sonner';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   firstAiderId: string;
@@ -89,7 +90,7 @@ export default function EmployeeBookingWidget({ firstAiderId, tenantId, caseId, 
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return (
-    <Card className="glass-card border-0 rounded-xl">
+    <Card className={cardVariants.glass}>
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" />

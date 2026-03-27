@@ -12,6 +12,8 @@ import { MoodTrendChart } from "@/components/mental-toolkit/mood/MoodTrendChart"
 import { MoodDistributionDonut } from "@/components/mental-toolkit/mood/MoodDistributionDonut";
 import { MoodHeatmap } from "@/components/mental-toolkit/mood/MoodHeatmap";
 import { MoodToolsSuggestions } from "@/components/mental-toolkit/mood/MoodToolsSuggestions";
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 export default function MoodTrackerPage() {
   const { t, i18n } = useTranslation();
@@ -57,7 +59,7 @@ export default function MoodTrackerPage() {
 
       <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 space-y-6">
         {noData ? (
-          <Card className="glass-card border-0 rounded-lg border-dashed">
+          <Card className={cn(cardVariants.glass, "rounded-lg border-dashed")}>
             <CardContent className="py-10 text-center space-y-2">
               <SmilePlus className="h-12 w-12 mx-auto text-muted-foreground" />
               <p className="text-lg font-semibold text-foreground">{t("mentalToolkit.moodDashboard.noDataYet")}</p>
