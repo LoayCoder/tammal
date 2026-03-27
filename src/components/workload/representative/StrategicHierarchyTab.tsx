@@ -20,7 +20,6 @@ import type { ObjAction } from '@/features/workload/hooks/useActions';
 import { ObjectiveDialog } from '@/components/workload/ObjectiveDialog';
 import { InitiativeDialog } from '@/components/workload/InitiativeDialog';
 import { ActionDialog } from '@/components/workload/ActionDialog';
-import { typography } from "@/theme/tokens";
 
 const statusColors: Record<string, string> = {
   on_track: 'bg-chart-2/15 text-chart-2 border-chart-2/30',
