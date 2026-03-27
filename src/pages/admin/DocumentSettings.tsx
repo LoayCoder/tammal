@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { FileText } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import { usePlatformSettings } from '@/hooks/org/usePlatformSettings';
 import { toast } from 'sonner';
 
