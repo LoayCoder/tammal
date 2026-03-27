@@ -23,6 +23,7 @@ import { SandboxMonitor } from '@/features/ai-governance/components/SandboxMonit
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { typography } from "@/theme/tokens";
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function AIGovernance() {
