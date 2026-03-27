@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Plus, CalendarClock, Loader2 } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import SchedulePreviewDialog from '@/components/schedules/SchedulePreviewDialog';
 import ScheduleForm from '@/components/schedules/ScheduleForm';
 import ScheduleAudienceSelector from '@/components/schedules/ScheduleAudienceSelector';
