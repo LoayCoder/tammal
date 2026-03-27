@@ -13,6 +13,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
 } from 'recharts';
 import { cardVariants } from "@/theme/tokens";
+import { PageHeader, MetricCard } from '@/components/system';
 
 const GLASS_TOOLTIP = {
   background: 'hsl(var(--card) / 0.6)',
