@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Search, Filter, History, RefreshCw, Download } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import { useAuditLog, AuditLog } from '@/hooks/audit/useAuditLog';
 import { useTenants } from '@/hooks/org/useTenants';
 import { AuditLogTable } from '@/components/audit/AuditLogTable';
