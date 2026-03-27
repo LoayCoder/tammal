@@ -22,37 +22,6 @@ export function PersonalMoodDashboard() {
   const isRTL = i18n.dir() === "rtl";
   const dashboard = usePersonalMoodDashboard();
 
-  if (dashboard.isPending) {
-    return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-28 rounded-lg" />
-          ))}
-        </div>
-        <Skeleton className="h-56 rounded-lg" />
-      </div>
-    );
-  }
-
-  const noData = dashboard.moodHistory.length === 0;
-
-  if (noData) {
-    return (
-      <Card className="glass-card border-0 rounded-lg border-dashed">
-        <CardContent className="py-12 text-center space-y-2">
-          <SmilePlus className="h-12 w-12 mx-auto text-muted-foreground" />
-          <p className="text-lg font-semibold text-foreground">
-            {t("mentalToolkit.moodDashboard.noDataYet")}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {t("mentalToolkit.moodDashboard.startCheckinPrompt")}
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   // 14-day chart data (memoized to prevent Recharts re-renders)
   const chartData = useMemo(() => Array.from({ length: 14 }, (_, i) => {
     const d = format(subDays(new Date(), 13 - i), "yyyy-MM-dd");
@@ -77,6 +46,37 @@ export function PersonalMoodDashboard() {
   const todayDef = dashboard.todayEntry
     ? dashboard.moodDefs.find((m) => m.key === dashboard.todayEntry!.level)
     : null;
+
+  const noData = dashboard.moodHistory.length === 0;
+
+  if (dashboard.isPending) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-28 rounded-lg" />
+          ))}
+        </div>
+        <Skeleton className="h-56 rounded-lg" />
+      </div>
+    );
+  }
+
+  if (noData) {
+    return (
+      <Card className="glass-card border-0 rounded-lg border-dashed">
+        <CardContent className="py-12 text-center space-y-2">
+          <SmilePlus className="h-12 w-12 mx-auto text-muted-foreground" />
+          <p className="text-lg font-semibold text-foreground">
+            {t("mentalToolkit.moodDashboard.noDataYet")}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {t("mentalToolkit.moodDashboard.startCheckinPrompt")}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-4">
