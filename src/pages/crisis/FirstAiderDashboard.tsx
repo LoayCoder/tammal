@@ -250,7 +250,7 @@ function CaseList({ cases, isPending, onSelect, actions }: { cases: any[]; isPen
   return (
     <div className="space-y-3 mt-4">
       {cases.map(c => (
-        <Card key={c.id} className={cn(cardVariants.glass, `rounded-xl cursor-pointer hover:bg-white/5 transition-colors ${riskIndicator(c.risk_level)}`)} onClick={() => onSelect(c.id)}>
+        <Card key={c.id} className={cn(cardVariants.glass, "rounded-xl cursor-pointer hover:bg-white/5 transition-colors", riskIndicator(c.risk_level))} onClick={() => onSelect(c.id)}>
           <CardContent className="py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
