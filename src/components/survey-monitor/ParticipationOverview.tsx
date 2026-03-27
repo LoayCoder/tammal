@@ -3,7 +3,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { Users, Clock, CheckCircle, TrendingUp, HelpCircle, FileCheck } from 'lucide-react';
 import type { EmployeeStats, QuestionStats } from '@/hooks/analytics/useSurveyMonitor';
-import { cardVariants, typography} from "@/theme/tokens";
+import { cardVariants, typography } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface Props {
   employeeStats: EmployeeStats;

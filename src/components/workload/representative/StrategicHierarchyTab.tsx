@@ -124,7 +124,7 @@ export function StrategicHierarchyTab({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold flex items-center gap-2">
+        <h2 className={cn(typography.sectionTitle, "flex items-center gap-2")}>
           <Target className="h-5 w-5 text-primary" />
           {t('workload.objectives.pageTitle')}
         </h2>

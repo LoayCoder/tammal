@@ -301,7 +301,7 @@ function StatPill({ icon, color, value, label }: { icon: React.ReactNode; color:
     <ToolkitCard variant="stat">
       <CardContent className="p-4 flex flex-col items-center text-center gap-1">
         <span style={{ color }}>{icon}</span>
-        <span className="text-xl font-bold text-foreground">{value}</span>
+        <span className={typography.metric}>{value}</span>
         <span className="text-2xs text-muted-foreground leading-tight">{label}</span>
       </CardContent>
     </ToolkitCard>

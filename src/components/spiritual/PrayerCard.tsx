@@ -79,7 +79,7 @@ export function PrayerCard({
   };
 
   return (
-    <Card className={`glass-card border rounded-xl transition-all duration-300 ${cardClass}`}>
+    <Card className={cn(cardVariants.glass, `border transition-all duration-300 ${cardClass}`)}>
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>

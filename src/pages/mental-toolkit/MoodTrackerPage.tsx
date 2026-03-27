@@ -62,7 +62,7 @@ export default function MoodTrackerPage() {
           <Card className={cn(cardVariants.glass, "rounded-lg border-dashed")}>
             <CardContent className="py-10 text-center space-y-2">
               <SmilePlus className="h-12 w-12 mx-auto text-muted-foreground" />
-              <p className="text-lg font-semibold text-foreground">{t("mentalToolkit.moodDashboard.noDataYet")}</p>
+              <p className={typography.sectionTitle}>{t("mentalToolkit.moodDashboard.noDataYet")}</p>
               <p className={typography.subtitle}>{t("mentalToolkit.moodDashboard.startCheckinPrompt")}</p>
             </CardContent>
           </Card>

@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/shared/empty/EmptyState';
 import { useOverdueTasks } from '@/features/tasks/hooks/useOverdueTasks';
 import { typography } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 function getEscalationLevel(daysOverdue: number): { level: number; className: string; label: string } {
   if (daysOverdue >= 14) return { level: 3, className: 'bg-destructive text-destructive-foreground', label: 'Level 3' };

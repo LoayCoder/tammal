@@ -17,7 +17,8 @@ import { Phone, MessageSquare, Shield, AlertTriangle, ArrowRight, Clock, User, E
 import { toast } from 'sonner';
 import CrisisSupport from '@/components/mental-toolkit/resources/CrisisSupport';
 import EmployeeBookingWidget from '@/components/crisis/EmployeeBookingWidget';
-import { cardVariants, typography} from "@/theme/tokens";
+import { cardVariants, typography } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 
 const INTENTS = [

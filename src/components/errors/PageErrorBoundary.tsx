@@ -80,7 +80,7 @@ export class PageErrorBoundary extends Component<PageErrorBoundaryProps, PageErr
               <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-lg font-semibold text-foreground">
+              <h3 className="text-lg font-semibold">
                 {i18n.t('common.somethingWentWrong', 'Something went wrong')}
               </h3>
               <p className="text-sm text-muted-foreground max-w-sm">

@@ -4,7 +4,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { ClipboardCheck, AlertTriangle, TrendingDown, BarChart } from 'lucide-react';
 import type { SurveyStructuralMetrics } from '@/lib/analytics/types';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface Props {
   data: SurveyStructuralMetrics | null;

@@ -69,7 +69,7 @@ export function PersonalMoodDashboard() {
       <Card className={cn(cardVariants.glass, "rounded-lg border-dashed")}>
         <CardContent className="py-12 text-center space-y-2">
           <SmilePlus className="h-12 w-12 mx-auto text-muted-foreground" />
-          <p className="text-lg font-semibold text-foreground">
+          <p className={typography.sectionTitle}>
             {t("mentalToolkit.moodDashboard.noDataYet")}
           </p>
           <p className={typography.subtitle}>

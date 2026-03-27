@@ -63,7 +63,7 @@ export function UserMobileCard({
 
   return (
     <div
-      className="glass-card p-4 cursor-pointer active:scale-[0.98] transition-transform"
+      className={cn(cardVariants.glass, "p-4 cursor-pointer active:scale-[0.98] transition-transform")}
       onClick={() => onViewDetails(user)}
     >
       <div className="flex items-start justify-between gap-3">

@@ -175,7 +175,7 @@ export default function EmployeeSurvey() {
           <Card className={cardVariants.glass}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between flex-wrap gap-2">
-                <h1 className="text-xl font-bold">{surveyMeta.schedule_name}</h1>
+                <h1 className={typography.sectionTitle}>{surveyMeta.schedule_name}</h1>
                 {isClosed ? (
                   <Badge variant="destructive" className="flex items-center gap-1">
                     <Lock className="h-3 w-3" />

@@ -44,7 +44,7 @@ export function DashboardEndorsementRequests() {
       {myEndorsementRequests.map(n => (
         <Card
           key={n.id}
-          className="group relative overflow-hidden border-0 glass-card rounded-lg cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.01]"
+          className={cn(cardVariants.glass, "group relative overflow-hidden rounded-lg cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.01]")}
           onClick={() => navigate('/recognition/my-nominations?tab=endorse')}
         >
           {/* Gradient accent stripe on the start edge */}
