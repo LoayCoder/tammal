@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Network, Building2, Layers, GitBranch, MapPin } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProfile } from '@/hooks/auth/useProfile';
 import { useDepartments } from '@/hooks/org/useDepartments';
