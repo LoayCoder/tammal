@@ -180,16 +180,18 @@ export default function TeamWorkload() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t('teamWorkload.pageTitle')}</h1>
-          <p className="text-muted-foreground text-sm">{t('teamWorkload.pageDesc')}</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setAddOpen(true)} className="gap-2"><Plus className="h-4 w-4" />{t('teamWorkload.quickAssign')}</Button>
-          <Button onClick={() => setEnterpriseModalOpen(true)} className="gap-2"><Plus className="h-4 w-4" />{t('tasks.createTask')}</Button>
-        </div>
-      </div>
+      <PageHeader
+        icon={<Users className="h-5 w-5 text-primary" />}
+        title={t('teamWorkload.pageTitle')}
+        subtitle={t('teamWorkload.pageDesc')}
+        variant="card"
+        actions={
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setAddOpen(true)} className="gap-2"><Plus className="h-4 w-4" />{t('teamWorkload.quickAssign')}</Button>
+            <Button onClick={() => setEnterpriseModalOpen(true)} className="gap-2"><Plus className="h-4 w-4" />{t('tasks.createTask')}</Button>
+          </div>
+        }
+      />
 
       <TeamStatCards cards={statCards} isLoading={analyticsLoading} />
 

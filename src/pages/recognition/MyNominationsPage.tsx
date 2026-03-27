@@ -18,6 +18,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Trophy, Plus, Send, Inbox, ShieldCheck, ThumbsUp } from 'lucide-react';
 import type { Nomination } from '@/hooks/recognition/useNominations';
+import { PageHeader } from '@/components/system';
 
 export default function MyNominationsPage() {
   const { t } = useTranslation();

@@ -40,12 +40,12 @@ export default function RepresentativeWorkload() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">{t('representative.pageTitle')}</h1>
-          <p className="text-muted-foreground text-sm">{t('representative.pageDesc')}</p>
-        </div>
-      </div>
+      <PageHeader
+        icon={<Target className="h-5 w-5 text-primary" />}
+        title={t('representative.pageTitle')}
+        subtitle={t('representative.pageDesc')}
+        variant="card"
+      />
 
       <div className="flex flex-wrap gap-2">
         {assignments.map(a => (
