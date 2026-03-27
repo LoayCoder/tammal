@@ -16,6 +16,7 @@ import { AuditLogTable } from '@/components/audit/AuditLogTable';
 import { TenantStatusBadge } from '@/components/tenants/TenantStatusBadge';
 import { format } from 'date-fns';
 import { cardVariants } from "@/theme/tokens";
+import { PageHeader } from '@/components/system';
 
 export default function TenantDashboard() {
   const { t } = useTranslation();
