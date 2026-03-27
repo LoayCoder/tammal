@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Search, Building2 } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import {
   AlertDialog,
   AlertDialogAction,
