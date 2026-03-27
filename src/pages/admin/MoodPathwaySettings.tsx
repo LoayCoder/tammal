@@ -12,11 +12,11 @@ import { MoodDefinitionDialog } from '@/components/mood/MoodDefinitionDialog';
 import { MoodDefinitionManager } from '@/components/mood/settings/MoodDefinitionManager';
 import { MoodConfigCard } from '@/components/mood/settings/MoodConfigCard';
 import {
-import { cardVariants } from "@/theme/tokens";
-import { cn } from "@/lib/utils";
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 export default function MoodPathwaySettings() {
   const { t, i18n } = useTranslation();

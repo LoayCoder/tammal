@@ -26,10 +26,10 @@ import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions'
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
-import { cardVariants } from "@/theme/tokens";
-import { cn } from "@/lib/utils";
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 const statusColors: Record<string, string> = {
   planned: 'bg-muted text-muted-foreground',
