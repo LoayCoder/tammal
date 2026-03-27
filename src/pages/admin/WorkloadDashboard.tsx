@@ -69,25 +69,22 @@ export default function WorkloadDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">{t('adminWorkload.pageTitle')}</h1>
-        <p className="text-muted-foreground text-sm">{t('adminWorkload.pageDesc')}</p>
-      </div>
+      <PageHeader
+        icon={<Activity className="h-5 w-5 text-primary" />}
+        title={t('adminWorkload.pageTitle')}
+        subtitle={t('adminWorkload.pageDesc')}
+        variant="card"
+      />
 
       {/* KPI Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-5">
         {statCards.map(stat => (
-          <Card key={stat.title} className={cardVariants.stat}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs font-medium truncate">{stat.title}</CardTitle>
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 shrink-0">
-                <stat.icon className="h-3.5 w-3.5 text-primary" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              {isPending ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-bold">{stat.value}</div>}
-            </CardContent>
-          </Card>
+          <MetricCard
+            key={stat.title}
+            title={stat.title}
+            value={isPending ? <Skeleton className="h-7 w-16" /> : stat.value}
+            icon={<stat.icon className="h-3.5 w-3.5 text-primary" />}
+          />
         ))}
       </div>
 
