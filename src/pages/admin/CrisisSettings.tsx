@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, Users, Clock, Phone, BarChart3 } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import FirstAidersTab from '@/components/crisis/FirstAidersTab';
 import SchedulesTab from '@/components/crisis/SchedulesTab';
 import EmergencyContactsTab from '@/components/crisis/EmergencyContactsTab';
