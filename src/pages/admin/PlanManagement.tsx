@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Layers } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import { usePlansManagement, type Plan } from '@/hooks/org/usePlans';
 import { PlanTable } from '@/components/plans/PlanTable';
 import { PlanDialog } from '@/components/plans/PlanDialog';
