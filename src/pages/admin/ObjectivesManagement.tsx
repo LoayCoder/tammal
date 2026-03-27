@@ -17,6 +17,7 @@ import { useTenantId } from '@/hooks/org/useTenantId';
 import { useNavigate } from 'react-router-dom';
 import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
 import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 const statusColors: Record<string, string> = {
   on_track: 'bg-chart-2/15 text-chart-2 border-chart-2/30',
@@ -68,7 +69,7 @@ export default function ObjectivesManagement() {
       />
 
       {isPending ? (
-        <div className="grid gap-4 md:grid-cols-2">{[1,2,3,4].map(i => <Card key={i} className="glass-card border-0 animate-pulse h-40" />)}</div>
+        <div className="grid gap-4 md:grid-cols-2">{[1,2,3,4].map(i => <Card key={i} className={cn(cardVariants.glass, "animate-pulse h-40")} />)}</div>
       ) : objectives.length === 0 ? (
         <Card className={cardVariants.glass}>
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
@@ -80,7 +81,7 @@ export default function ObjectivesManagement() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {objectives.map(obj => (
-            <Card key={obj.id} className="glass-card border-0 rounded-xl hover:shadow-md transition-shadow cursor-pointer group"
+            <Card key={obj.id} className={cn(cardVariants.glass, "rounded-xl hover:shadow-md transition-shadow cursor-pointer group")}
               onClick={() => navigate(`/admin/workload/objectives/${obj.id}`)}>
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">

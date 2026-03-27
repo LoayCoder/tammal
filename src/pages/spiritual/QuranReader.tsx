@@ -14,6 +14,7 @@ import { useQuranSessions, useLastQuranSession } from '@/hooks/spiritual/useQura
 import { useNavigate } from 'react-router-dom';
 import { QuranHistory } from '@/components/spiritual/QuranHistory';
 import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 const SURAHS = [
   'Al-Fatiha','Al-Baqarah','Aal-Imran','An-Nisa','Al-Maidah','Al-Anam','Al-Araf','Al-Anfal',
@@ -153,7 +154,7 @@ export default function QuranReader() {
 
       {/* Resume Last Session */}
       {lastSession?.surah_name && (
-        <Card className="glass-card border-0 rounded-xl border-s-4 border-s-primary/40">
+        <Card className={cn(cardVariants.glass, "rounded-xl border-s-4 border-s-primary/40")}>
           <CardContent className="p-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="rounded-full bg-primary/10 p-2">

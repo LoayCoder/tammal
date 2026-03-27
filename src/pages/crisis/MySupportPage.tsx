@@ -12,6 +12,7 @@ import { PageHeader } from '@/components/system';
 import { format } from 'date-fns';
 import EnhancedChatPanel from '@/components/crisis/EnhancedChatPanel';
 import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 const STATUS_COLORS: Record<string, string> = {
   new: 'secondary',
@@ -108,7 +109,7 @@ function CaseCardList({ cases, onSelect }: { cases: any[]; onSelect: (id: string
   return (
     <div className="space-y-3 mt-4">
       {cases.map(c => (
-        <Card key={c.id} className="glass-card border-0 rounded-xl cursor-pointer hover:bg-white/5 transition-colors" onClick={() => onSelect(c.id)}>
+        <Card key={c.id} className={cn(cardVariants.glass, "rounded-xl cursor-pointer hover:bg-white/5 transition-colors")} onClick={() => onSelect(c.id)}>
           <CardContent className="py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -168,7 +169,7 @@ function CaseThread({ caseData, onBack }: { caseData: any; onBack: () => void })
       </div>
 
       {/* Enhanced chat */}
-      <Card className="glass-card border-0 rounded-xl overflow-hidden">
+      <Card className={cn(cardVariants.glass, "rounded-xl overflow-hidden")}>
         <EnhancedChatPanel
           caseId={caseData.id}
           tenantId={caseData.tenant_id}

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import EnhancedChatPanel from './EnhancedChatPanel';
 import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface Props {
   caseId: string;
@@ -89,7 +90,7 @@ export default function SessionWorkspace({ caseId, sessionId, tenantId, isFirstA
         </div>
 
         {/* Enhanced Chat */}
-        <Card className="glass-card border-0 rounded-xl flex-1 flex flex-col min-h-[300px]">
+        <Card className={cn(cardVariants.glass, "rounded-xl flex-1 flex flex-col min-h-[300px]")}>
           <EnhancedChatPanel caseId={caseId} tenantId={tenantId} />
         </Card>
       </div>

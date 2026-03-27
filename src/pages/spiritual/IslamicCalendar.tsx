@@ -11,6 +11,7 @@ import { CalendarNavigation } from '@/components/spiritual/calendar/CalendarNavi
 import { CalendarGrid } from '@/components/spiritual/calendar/CalendarGrid';
 import { CalendarEventList } from '@/components/spiritual/calendar/CalendarEventList';
 import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 type CalendarView = 'month' | 'week';
 
@@ -126,7 +127,7 @@ export default function IslamicCalendar() {
       />
 
       {/* Calendar grid is rendered inside the navigation card */}
-      <Card className="glass-card border-0 rounded-xl -mt-4">
+      <Card className={cn(cardVariants.glass, "rounded-xl -mt-4")}>
         <CardContent className="pt-4">
           <CalendarGrid
             displayGrid={displayGrid} calendarView={calendarView}

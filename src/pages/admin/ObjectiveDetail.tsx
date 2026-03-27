@@ -27,6 +27,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
 import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 
@@ -105,7 +106,7 @@ export default function ObjectiveDetail() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="glass-card border-0 rounded-xl p-6">
+      <div className={cn(cardVariants.glass, "rounded-xl p-6")}>
         <Button variant="ghost" size="sm" className="mb-3 -ms-2" onClick={() => navigate('/admin/workload/objectives')}>
           <ChevronLeft className="h-4 w-4 me-1 rtl:-scale-x-100" />{t('common.back')}
         </Button>
