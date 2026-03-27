@@ -8,7 +8,7 @@ import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferenc
 import { useSunnahLogs, SUNNAH_PRACTICES } from '@/hooks/spiritual/useSunnahLogs';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { PageHeader } from '@/components/system';
 
 export default function SunnahTracker() {
@@ -63,7 +63,7 @@ export default function SunnahTracker() {
       <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="text-lg">{t('spiritual.sunnah.todayTitle')}</CardTitle>
-          <p className="text-sm text-muted-foreground">{t('spiritual.sunnah.tapToMark')}</p>
+          <p className={typography.subtitle}>{t('spiritual.sunnah.tapToMark')}</p>
         </CardHeader>
         <CardContent>
           {isPending ? (
@@ -122,7 +122,7 @@ export default function SunnahTracker() {
               return (
                 <div key={practice.key} className="text-center space-y-1 rounded-lg border p-3">
                   <span className="text-xl">{practice.emoji}</span>
-                  <p className="text-2xl font-bold">{stat?.count ?? 0}</p>
+                  <p className={typography.metric}>{stat?.count ?? 0}</p>
                   <p className="text-xs text-muted-foreground">
                     {isRTL ? practice.labelAr : practice.labelEn}
                   </p>

@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Users, HardDrive, Activity, TrendingUp, TrendingDown } from 'lucide-react';
 import type { Tenant } from '@/hooks/org/useTenants';
 import type { Plan } from '@/hooks/org/usePlans';
+import { typography } from "@/theme/tokens";
 
 interface UsageStatsCardsProps {
   usage: {
@@ -85,7 +86,7 @@ export function UsageStatsCards({ usage, tenant, plan, isLoading }: UsageStatsCa
         </CardHeader>
         <CardContent>
           <div className="flex items-baseline justify-between">
-            <div className="text-2xl font-bold">{activeUsers}</div>
+            <div className={typography.metric}>{activeUsers}</div>
             <TrendIndicator value={usage?.usersTrend} />
           </div>
           <p className="text-xs text-muted-foreground mt-1">
@@ -102,7 +103,7 @@ export function UsageStatsCards({ usage, tenant, plan, isLoading }: UsageStatsCa
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className={typography.metric}>
             {totalUsers} / {maxUsers === -1 ? '∞' : maxUsers}
           </div>
           {maxUsers !== -1 && (
@@ -125,7 +126,7 @@ export function UsageStatsCards({ usage, tenant, plan, isLoading }: UsageStatsCa
         </CardHeader>
         <CardContent>
           <div className="flex items-baseline justify-between">
-            <div className="text-2xl font-bold">
+            <div className={typography.metric}>
               {formatStorageSize(storageUsedMb)}
             </div>
             <TrendIndicator value={usage?.storageTrend} />
@@ -146,7 +147,7 @@ export function UsageStatsCards({ usage, tenant, plan, isLoading }: UsageStatsCa
         </CardHeader>
         <CardContent>
           <div className="flex items-baseline justify-between">
-            <div className="text-2xl font-bold">
+            <div className={typography.metric}>
               {apiCalls.toLocaleString()}
             </div>
             <TrendIndicator value={usage?.apiCallsTrend} />

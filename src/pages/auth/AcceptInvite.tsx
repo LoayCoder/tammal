@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { useAcceptInvite } from "@/hooks/auth/useAcceptInvite";
+import { typography } from "@/theme/tokens";
 
 export default function AcceptInvite() {
   const { t } = useTranslation();
@@ -154,7 +155,7 @@ export default function AcceptInvite() {
           <Card className="w-full max-w-md">
             <CardContent className="pt-6 text-center space-y-4">
               <CheckCircle className="h-16 w-16 text-primary mx-auto" />
-              <h2 className="text-2xl font-bold">{t("acceptInvite.accountCreated")}</h2>
+              <h2 className={typography.metric}>{t("acceptInvite.accountCreated")}</h2>
               <p className="text-muted-foreground">{t("acceptInvite.verifyEmailNote")}</p>
               <Button onClick={goToLogin} className="w-full">{t("auth.login")}</Button>
             </CardContent>

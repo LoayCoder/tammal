@@ -12,7 +12,7 @@ import { useScheduledQuestions, useAnsweredSurveyCheck } from '@/hooks/questions
 import { useEmployeeResponses, useDraftResponses } from '@/hooks/wellness/useEmployeeResponses';
 import { useProfile } from '@/hooks/auth/useProfile';
 import { AnswerInput } from '@/components/survey/AnswerInput';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 export default function EmployeeSurvey() {
@@ -224,7 +224,7 @@ export default function EmployeeSurvey() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">
+                    <span className={typography.subtitle}>
                       {t('survey.question')} {index + 1}
                     </span>
                     {isPending && (
@@ -282,7 +282,7 @@ export default function EmployeeSurvey() {
               <Sparkles className="h-5 w-5 text-primary absolute -bottom-1 -start-1 animate-pulse" />
             </div>
 
-            <h2 className="text-2xl font-bold">
+            <h2 className={typography.metric}>
               {t('survey.thankYouTitle', 'Thank You, {{name}}!', { name: profile?.full_name || employee?.full_name || '' })}
             </h2>
 

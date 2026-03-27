@@ -17,7 +17,7 @@ import { useSpiritualReports, type SpiritualReport } from '@/hooks/spiritual/use
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { format, subDays, startOfMonth, startOfWeek } from 'date-fns';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 interface InsightCard {
@@ -42,7 +42,7 @@ function CorrelationCards({ insights }: { insights: InsightCard[] }) {
       <Card className={cardVariants.glass}>
         <CardContent className="p-8 text-center space-y-2">
           <Sparkles className="h-8 w-8 mx-auto text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">{t('spiritual.insights.notEnoughData')}</p>
+          <p className={typography.subtitle}>{t('spiritual.insights.notEnoughData')}</p>
           <p className="text-xs text-muted-foreground">{t('spiritual.insights.notEnoughDataDesc')}</p>
         </CardContent>
       </Card>
@@ -61,7 +61,7 @@ function CorrelationCards({ insights }: { insights: InsightCard[] }) {
               </div>
               <TrendIcon trend={insight.trend} />
             </div>
-            <p className="text-2xl font-bold">{insight.value}</p>
+            <p className={typography.metric}>{insight.value}</p>
             <p className="text-xs text-muted-foreground">{insight.description}</p>
           </CardContent>
         </Card>
@@ -298,7 +298,7 @@ export default function SpiritualInsights() {
       <div className="flex items-center gap-3">
         <Sparkles className="h-8 w-8 text-primary" />
         <div>
-          <h1 className="text-2xl font-bold">{t('spiritual.insights.title')}</h1>
+          <h1 className={typography.metric}>{t('spiritual.insights.title')}</h1>
           <p className="text-muted-foreground">{t('spiritual.insights.subtitle')}</p>
         </div>
       </div>
@@ -355,7 +355,7 @@ export default function SpiritualInsights() {
             <Card className={cardVariants.glass}>
               <CardContent className="p-8 text-center space-y-2">
                 <FileText className="h-8 w-8 mx-auto text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">{t('spiritual.insights.noReports')}</p>
+                <p className={typography.subtitle}>{t('spiritual.insights.noReports')}</p>
                 <p className="text-xs text-muted-foreground">{t('spiritual.insights.noReportsDesc')}</p>
               </CardContent>
             </Card>

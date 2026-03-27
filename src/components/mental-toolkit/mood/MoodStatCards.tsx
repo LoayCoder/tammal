@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Flame, TrendingUp, CalendarCheck, Activity } from "lucide-react";
 import { TOOLKIT, ZONE_COLORS } from "@/config/toolkit-colors";
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 interface MoodStatCardsProps {
@@ -23,7 +23,7 @@ export function MoodStatCards({ streak, avgMood7d, burnoutZone, monthlyCheckins,
       <Card className={cn(cardVariants.stat, "rounded-lg")}>
         <CardContent className="p-4 flex flex-col items-center text-center gap-1">
           <Flame className="h-6 w-6" style={{ color: TOOLKIT.lavender }} />
-          <span className="text-2xl font-bold text-foreground">{streak}</span>
+          <span className={typography.pageTitle}>{streak}</span>
           <span className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.currentStreak")}</span>
         </CardContent>
       </Card>
@@ -31,7 +31,7 @@ export function MoodStatCards({ streak, avgMood7d, burnoutZone, monthlyCheckins,
       <Card className={cn(cardVariants.stat, "rounded-lg")}>
         <CardContent className="p-4 flex flex-col items-center text-center gap-1">
           <TrendingUp className="h-6 w-6" style={{ color: ZONE_COLORS[burnoutZone] }} />
-          <span className="text-2xl font-bold text-foreground">{avgMood7d}</span>
+          <span className={typography.pageTitle}>{avgMood7d}</span>
           <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: ZONE_COLORS[burnoutZone] + "22", color: ZONE_COLORS[burnoutZone] }}>
             {t(`mentalToolkit.moodDashboard.${burnoutZone}`)}
           </span>
@@ -42,7 +42,7 @@ export function MoodStatCards({ streak, avgMood7d, burnoutZone, monthlyCheckins,
       <Card className={cn(cardVariants.stat, "rounded-lg")}>
         <CardContent className="p-4 flex flex-col items-center text-center gap-1">
           <CalendarCheck className="h-6 w-6" style={{ color: TOOLKIT.sage }} />
-          <span className="text-2xl font-bold text-foreground">
+          <span className={typography.pageTitle}>
             {monthlyCheckins}<span className="text-sm font-normal text-muted-foreground">/{daysInMonth}</span>
           </span>
           <span className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.monthlyCheckins")}</span>

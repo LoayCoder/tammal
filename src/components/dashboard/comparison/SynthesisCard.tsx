@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Brain, Shield, Target, Gauge, Lightbulb } from 'lucide-react';
 import type { SynthesisResult } from '@/lib/analytics/types';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 interface Props {
   data: SynthesisResult | null;
@@ -50,7 +50,7 @@ export function SynthesisCard({ data, isLoading }: Props) {
           {/* BAI Score */}
           <div className="text-center space-y-1">
             <Target className="h-5 w-5 mx-auto text-primary" />
-            <p className="text-2xl font-bold">{(data.baiScore * 100).toFixed(0)}%</p>
+            <p className={typography.metric}>{(data.baiScore * 100).toFixed(0)}%</p>
             <p className="text-xs text-muted-foreground">{t('synthesis.baiScore')}</p>
           </div>
 
@@ -73,7 +73,7 @@ export function SynthesisCard({ data, isLoading }: Props) {
           {/* Confidence */}
           <div className="text-center space-y-1">
             <Gauge className="h-5 w-5 mx-auto text-primary" />
-            <p className="text-2xl font-bold">{data.confidenceScore}%</p>
+            <p className={typography.metric}>{data.confidenceScore}%</p>
             <p className="text-xs text-muted-foreground">{t('synthesis.confidence')}</p>
           </div>
 

@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { Users, UserCheck, UserX, TrendingUp, TrendingDown, SmilePlus, Flame, Percent, type LucideIcon } from 'lucide-react';
 import type { ParticipationStats } from '@/hooks/analytics/useCheckinMonitor';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 interface Props {
   stats: ParticipationStats;
@@ -57,7 +57,7 @@ export function CheckinOverview({ stats, isLoading }: Props) {
               <Icon className={`h-4 w-4 ${colorClass}`} />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-2xl font-bold">{value}</span>
+              <span className={typography.metric}>{value}</span>
               {suffix ?? null}
             </div>
             <span className="text-xs text-muted-foreground">{label}</span>

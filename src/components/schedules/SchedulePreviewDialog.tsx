@@ -14,6 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar, Loader2, BarChart3, ChevronDown, Filter, X, Building2, GitBranch, MapPin } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { typography } from "@/theme/tokens";
 
 interface PreviewQuestion {
   id: string;
@@ -429,7 +430,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                   <div className="grid grid-cols-3 gap-3">
                     <Card>
                       <CardContent className="p-4 text-center">
-                        <p className="text-2xl font-bold">{totalCount}</p>
+                        <p className={typography.metric}>{totalCount}</p>
                         <p className="text-xs text-muted-foreground">{t('common.totalQuestions')}</p>
                       </CardContent>
                     </Card>
@@ -441,7 +442,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                     </Card>
                     <Card>
                       <CardContent className="p-4 text-center">
-                        <p className="text-2xl font-bold">{pendingCount}</p>
+                        <p className={typography.metric}>{pendingCount}</p>
                         <p className="text-xs text-muted-foreground">{t('common.pending')}</p>
                       </CardContent>
                     </Card>
@@ -580,7 +581,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
 
             {/* Results count */}
             {hasActiveFilters && (
-              <p className="text-sm text-muted-foreground">
+              <p className={typography.subtitle}>
                 {t('common.showingOf', { shown: filteredPreview.length, total: previewQuestions.length })}
               </p>
             )}
@@ -674,24 +675,24 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
               <div className="flex flex-wrap items-center gap-3">
                 {viewSq.question?.type && (
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">{t('questions.type')}:</span>
+                    <span className={typography.subtitle}>{t('questions.type')}:</span>
                     <Badge variant="outline">{viewSq.question.type}</Badge>
                   </div>
                 )}
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">{t('common.status')}:</span>
+                  <span className={typography.subtitle}>{t('common.status')}:</span>
                   {getSqStatusBadge(viewSq.status)}
                 </div>
                 {viewSq.employee?.full_name && (
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">{t('schedules.employee')}:</span>
+                    <span className={typography.subtitle}>{t('schedules.employee')}:</span>
                     <Badge variant="secondary">{viewSq.employee.full_name}</Badge>
                   </div>
                 )}
               </div>
               {viewSq.scheduled_delivery && (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">{t('schedules.delivery')}:</span>
+                  <span className={typography.subtitle}>{t('schedules.delivery')}:</span>
                   <span className="text-sm">{new Date(viewSq.scheduled_delivery).toLocaleDateString()}</span>
                 </div>
               )}

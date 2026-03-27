@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
+import { typography } from "@/theme/tokens";
 
 export default function PointsDashboard() {
   const { t } = useTranslation();
@@ -21,7 +22,7 @@ export default function PointsDashboard() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-bold">{t('recognition.points.dashboardTitle')}</h1>
+        <h1 className={typography.metric}>{t('recognition.points.dashboardTitle')}</h1>
         <p className="text-muted-foreground">{t('recognition.points.dashboardSubtitle')}</p>
       </div>
 
@@ -32,7 +33,7 @@ export default function PointsDashboard() {
             <CardTitle className="text-sm font-medium">{t('recognition.points.totalEarned')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className={typography.metric}>
               {transactions.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0).toLocaleString()}
             </div>
           </CardContent>
@@ -42,7 +43,7 @@ export default function PointsDashboard() {
             <CardTitle className="text-sm font-medium">{t('recognition.points.totalRedeemed')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className={typography.metric}>
               {transactions.filter(t => t.status === 'redeemed').reduce((s, t) => s + Math.abs(t.amount), 0).toLocaleString()}
             </div>
           </CardContent>

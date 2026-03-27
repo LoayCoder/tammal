@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { SkipForward, ClipboardList, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import type { CheckinScheduledQuestion } from '@/hooks/questions/useCheckinScheduledQuestions';
+import { typography } from "@/theme/tokens";
 
 export interface ScheduledAnswer {
   scheduledQuestionId: string;
@@ -178,7 +179,7 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
         <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 mb-2">
           <ClipboardList className="h-5 w-5 text-primary" />
         </div>
-        <h3 className="text-lg font-semibold">{t('wellness.scheduledQuestion')}</h3>
+        <h3 className={typography.sectionTitle}>{t('wellness.scheduledQuestion')}</h3>
       </div>
 
       <div className="space-y-2">

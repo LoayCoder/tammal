@@ -13,7 +13,7 @@ import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferenc
 import { useQuranSessions, useLastQuranSession } from '@/hooks/spiritual/useQuranSessions';
 import { useNavigate } from 'react-router-dom';
 import { QuranHistory } from '@/components/spiritual/QuranHistory';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 const SURAHS = [
@@ -126,7 +126,7 @@ export default function QuranReader() {
         <div className="flex items-center gap-3">
           <BookOpenCheck className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-2xl font-bold">{t('spiritual.quran.title')}</h1>
+            <h1 className={typography.metric}>{t('spiritual.quran.title')}</h1>
             <p className="text-muted-foreground">{t('spiritual.quran.subtitle')}</p>
           </div>
         </div>
@@ -186,7 +186,7 @@ export default function QuranReader() {
               <BookOpen className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{totalSessions}</p>
+              <p className={typography.metric}>{totalSessions}</p>
               <p className="text-xs text-muted-foreground">{t('spiritual.quran.sessionsThisWeek')}</p>
             </div>
           </CardContent>
@@ -197,7 +197,7 @@ export default function QuranReader() {
               <Clock className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{totalMinutes}</p>
+              <p className={typography.metric}>{totalMinutes}</p>
               <p className="text-xs text-muted-foreground">{t('spiritual.quran.minutesThisWeek')}</p>
             </div>
           </CardContent>
@@ -208,7 +208,7 @@ export default function QuranReader() {
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0}</p>
+              <p className={typography.metric}>{totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0}</p>
               <p className="text-xs text-muted-foreground">{t('spiritual.quran.avgMinutes')}</p>
             </div>
           </CardContent>

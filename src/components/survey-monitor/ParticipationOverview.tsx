@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { Users, Clock, CheckCircle, TrendingUp, HelpCircle, FileCheck } from 'lucide-react';
 import type { EmployeeStats, QuestionStats } from '@/hooks/analytics/useSurveyMonitor';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 interface Props {
   employeeStats: EmployeeStats;
@@ -49,7 +49,7 @@ export function ParticipationOverview({ employeeStats, questionStats, isLoading 
               <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Icon className={`h-4 w-4 ${colorClass}`} />
               </div>
-              <span className="text-2xl font-bold">{value}</span>
+              <span className={typography.metric}>{value}</span>
               <span className="text-xs text-muted-foreground">{label}</span>
             </CardContent>
           </Card>

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Zap } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 interface MetricItem {
@@ -65,7 +65,7 @@ export function DeliveryPerformanceCard({ avgVelocity, totalCompleted, completio
               <div key={m.label} className="flex items-center gap-3 p-4 rounded-lg bg-muted/30">
                 <MiniDonut value={m.numericValue} color={m.color} />
                 <div className="min-w-0">
-                  <p className="text-2xl font-bold">{m.value}</p>
+                  <p className={typography.metric}>{m.value}</p>
                   <p className="text-xs text-muted-foreground truncate">{m.label}</p>
                 </div>
               </div>
