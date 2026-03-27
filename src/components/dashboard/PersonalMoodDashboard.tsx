@@ -14,7 +14,7 @@ import {
 } from "recharts";
 import { format, subDays } from "date-fns";
 import { TOOLKIT, ZONE_COLORS, DONUT_COLORS } from "@/config/toolkit-colors";
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
@@ -72,7 +72,7 @@ export function PersonalMoodDashboard() {
           <p className="text-lg font-semibold text-foreground">
             {t("mentalToolkit.moodDashboard.noDataYet")}
           </p>
-          <p className="text-sm text-muted-foreground">
+          <p className={typography.subtitle}>
             {t("mentalToolkit.moodDashboard.startCheckinPrompt")}
           </p>
         </CardContent>
@@ -87,7 +87,7 @@ export function PersonalMoodDashboard() {
         <Card className={cn(cardVariants.stat, "rounded-lg")}>
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
             <Flame className="h-6 w-6 text-toolkit-lavender" />
-            <span className="text-2xl font-bold text-foreground">{dashboard.streak}</span>
+            <span className={typography.metric}>{dashboard.streak}</span>
             <span className="text-xs text-muted-foreground">
               {t("mentalToolkit.moodDashboard.currentStreak")}
             </span>
@@ -97,7 +97,7 @@ export function PersonalMoodDashboard() {
         <Card className={cn(cardVariants.stat, "rounded-lg")}>
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
             <TrendingUp className="h-6 w-6" style={{ color: ZONE_COLORS[dashboard.burnoutZone] }} />
-            <span className="text-2xl font-bold text-foreground">{dashboard.avgMood7d}</span>
+            <span className={typography.metric}>{dashboard.avgMood7d}</span>
             <span
               className="text-xs font-medium px-2 py-0.5 rounded-full"
               style={{
@@ -118,7 +118,7 @@ export function PersonalMoodDashboard() {
         <Card className={cn(cardVariants.stat, "rounded-lg")}>
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
             <CalendarCheck className="h-6 w-6 text-toolkit-sage" />
-            <span className="text-2xl font-bold text-foreground">
+            <span className={typography.metric}>
               {dashboard.monthlyCheckins}
               <span className="text-sm font-normal text-muted-foreground">/{dashboard.daysInMonth}</span>
             </span>
@@ -294,15 +294,15 @@ export function PersonalMoodDashboard() {
         <CardContent>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <p className="text-2xl font-bold text-foreground">{dashboard.surveyStats.totalAnswered}</p>
+              <p className={typography.metric}>{dashboard.surveyStats.totalAnswered}</p>
               <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.totalAnswered")}</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">{dashboard.surveyStats.avgScore}</p>
+              <p className={typography.metric}>{dashboard.surveyStats.avgScore}</p>
               <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.avgResponseScore")}</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">{dashboard.surveyStats.completionRate}%</p>
+              <p className={typography.metric}>{dashboard.surveyStats.completionRate}%</p>
               <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.completionRate")}</p>
             </div>
           </div>
@@ -321,15 +321,15 @@ export function PersonalMoodDashboard() {
           <CardContent>
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <p className="text-2xl font-bold text-foreground">{dashboard.reframeStats.total}</p>
+                <p className={typography.metric}>{dashboard.reframeStats.total}</p>
                 <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.totalReframes")}</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{dashboard.reframeStats.thisMonth}</p>
+                <p className={typography.metric}>{dashboard.reframeStats.thisMonth}</p>
                 <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.reframesThisMonth")}</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{dashboard.reframeStats.streak}d</p>
+                <p className={typography.metric}>{dashboard.reframeStats.streak}d</p>
                 <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.reframeStreak")}</p>
               </div>
             </div>
@@ -349,15 +349,15 @@ export function PersonalMoodDashboard() {
           <CardContent>
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <p className="text-2xl font-bold text-foreground">{dashboard.breathingStats.totalSessions}</p>
+                <p className={typography.metric}>{dashboard.breathingStats.totalSessions}</p>
                 <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.breathingSessions")}</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{dashboard.breathingStats.thisMonth}</p>
+                <p className={typography.metric}>{dashboard.breathingStats.thisMonth}</p>
                 <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.breathingThisMonth")}</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{dashboard.breathingStats.currentStreak}d</p>
+                <p className={typography.metric}>{dashboard.breathingStats.currentStreak}d</p>
                 <p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.breathingStreak")}</p>
               </div>
             </div>

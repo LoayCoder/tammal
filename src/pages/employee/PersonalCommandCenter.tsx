@@ -16,6 +16,7 @@ import { CreateTaskModal } from '@/features/tasks/components/CreateTaskModal';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
+import { typography } from "@/theme/tokens";
   Plus, ListChecks, CalendarDays, CheckCircle2, AlertTriangle, Flame, CheckSquare, ChevronDown, Star,
 } from 'lucide-react';
 
@@ -62,7 +63,7 @@ export default function PersonalCommandCenter() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t('commandCenter.pageTitle')}</h1>
+          <h1 className={typography.pageTitle}>{t('commandCenter.pageTitle')}</h1>
           <p className="text-muted-foreground text-sm">{t('commandCenter.pageDesc')}</p>
         </div>
         <div className="flex items-center gap-3">

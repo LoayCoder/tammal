@@ -10,6 +10,7 @@ import { NominationWizard } from '@/components/recognition/NominationWizard';
 import { useAwardCycles } from '@/hooks/recognition/useAwardCycles';
 import { useAwardThemes } from '@/hooks/recognition/useAwardThemes';
 import { Trophy, ArrowLeft } from 'lucide-react';
+import { typography } from "@/theme/tokens";
 
 export default function NominatePage() {
   const { t } = useTranslation();
@@ -43,7 +44,7 @@ export default function NominatePage() {
           <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
+          <h1 className={`${typography.pageTitle} flex items-center gap-2`}>
             <Trophy className="h-6 w-6 text-primary" />
             {t('recognition.nominations.nominate')}
           </h1>

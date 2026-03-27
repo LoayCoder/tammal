@@ -21,7 +21,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useTaskImport } from '@/hooks/tasks/useTaskImport';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 interface Connector {
   id: string;
@@ -79,7 +79,7 @@ export default function TaskConnectors() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">{t('connectors.pageTitle')}</h1>
+        <h1 className={typography.pageTitle}>{t('connectors.pageTitle')}</h1>
         <p className="text-muted-foreground text-sm">{t('connectors.pageDesc')}</p>
       </div>
 

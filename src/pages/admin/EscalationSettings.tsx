@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { AlertTriangle, Clock, ArrowUp, Shield } from 'lucide-react';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 const ESCALATION_LEVELS = [
   { level: 1, daysOverdue: 3, target: 'manager', icon: Clock, variant: 'default' as const },
@@ -17,7 +17,7 @@ export default function EscalationSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">{t('governance.settings.title')}</h1>
+        <h1 className={typography.pageTitle}>{t('governance.settings.title')}</h1>
         <p className="text-muted-foreground text-sm">{t('governance.settings.subtitle')}</p>
       </div>
 

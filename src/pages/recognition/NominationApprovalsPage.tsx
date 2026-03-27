@@ -9,6 +9,7 @@ import { ManagerApprovalCard } from '@/components/recognition/ManagerApprovalCar
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { CriterionEvaluation } from '@/components/recognition/CriteriaEvaluationForm';
+import { typography } from "@/theme/tokens";
 
 export default function NominationApprovalsPage() {
   const { t } = useTranslation();
@@ -73,7 +74,7 @@ export default function NominationApprovalsPage() {
           <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
+          <h1 className={`${typography.pageTitle} flex items-center gap-2`}>
             <ShieldCheck className="h-6 w-6 text-primary" />
             {t('recognition.nominations.managerApproval')}
           </h1>
