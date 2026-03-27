@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { typography } from "@/theme/tokens";
 
 interface AnswerInputProps {
   question: {
@@ -61,7 +62,7 @@ export function AnswerInput({ question, answer, onAnswer, disabled = false, isRT
           />
           <div className="flex justify-between text-sm text-muted-foreground">
             <span>1</span>
-            <span className="text-2xl font-bold text-primary">{String(answer ?? 5)}</span>
+            <span className={`${typography.metric} text-primary`}>{String(answer ?? 5)}</span>
             <span>10</span>
           </div>
         </div>

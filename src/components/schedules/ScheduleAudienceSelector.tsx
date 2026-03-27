@@ -14,6 +14,7 @@ import { Progress } from '@/components/ui/progress';
 import { Users, Building2, UserCheck, Search } from 'lucide-react';
 import type { ScheduleFormState } from '@/hooks/admin/useScheduleReducer';
 import type { AudienceResult, AudienceEmployee } from '@/hooks/admin/useAudienceResolver';
+import { typography } from "@/theme/tokens";
 
 interface ScheduleAudienceSelectorProps {
   state: ScheduleFormState;
@@ -66,7 +67,7 @@ export default function ScheduleAudienceSelector({
       {state.audienceType === 'departments' && (
         <div className="border rounded-md p-3 space-y-2">
           {availableDepartments.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t('schedules.noDepartmentsYet')}</p>
+            <p className={typography.subtitle}>{t('schedules.noDepartmentsYet')}</p>
           ) : (
             <ScrollArea className="max-h-40">
               <div className="space-y-2">
@@ -108,7 +109,7 @@ export default function ScheduleAudienceSelector({
             />
           </div>
           {availableEmployees.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t('schedules.noEmployeesYet')}</p>
+            <p className={typography.subtitle}>{t('schedules.noEmployeesYet')}</p>
           ) : (
             <ScrollArea className="max-h-40">
               <div className="space-y-1">

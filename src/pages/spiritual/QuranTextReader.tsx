@@ -12,7 +12,7 @@ import { useQuranSurahList, useQuranSurah, SurahMeta } from '@/hooks/spiritual/u
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { useReadingTimer } from '@/hooks/spiritual/useReadingTimer';
 import { ReadingSessionDialog } from '@/components/spiritual/ReadingSessionDialog';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 const MIN_SESSION_SECONDS = 0;
 
@@ -203,7 +203,7 @@ function SurahViewer({ surahNumber, onBack, onStopAndSave, elapsedSeconds, forma
           <span className="h-px w-12 bg-primary/20" />
         </div>
         <h2 className="text-4xl font-arabic text-primary" dir="rtl">{surah.name}</h2>
-        <p className="text-sm text-muted-foreground">
+        <p className={typography.subtitle}>
           {surah.englishName} — {surah.englishNameTranslation}
         </p>
         <p className="text-xs text-muted-foreground/60">
@@ -445,7 +445,7 @@ export default function QuranTextReader() {
         </Button>
         <BookOpen className="h-7 w-7 text-primary" />
         <div>
-          <h1 className="text-2xl font-bold">{t('spiritual.quranReader.title', 'Read the Qur\'an')}</h1>
+          <h1 className={typography.metric}>{t('spiritual.quranReader.title', 'Read the Qur\'an')}</h1>
           <p className="text-muted-foreground text-sm">
             {t('spiritual.quranReader.subtitle', 'Read the Holy Qur\'an with English translation')}
           </p>

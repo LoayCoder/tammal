@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { typography } from "@/theme/tokens";
 
 interface ReframeEntry {
   id: string;
@@ -60,7 +61,7 @@ export default function ThoughtReframerTool() {
           <span className="text-2xl">🔄</span>
           <div>
             <h2 className="font-semibold text-foreground">{t("mentalToolkit.thoughtReframer.title")}</h2>
-            <p className="text-sm text-muted-foreground">{t("mentalToolkit.thoughtReframer.subtitle")}</p>
+            <p className={typography.subtitle}>{t("mentalToolkit.thoughtReframer.subtitle")}</p>
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Pause, Play, RotateCcw } from "lucide-react";
 import { TOOLKIT } from "@/config/toolkit-colors";
+import { typography } from "@/theme/tokens";
 
 type Technique = "box" | "sigh" | "grounding";
 
@@ -161,7 +162,7 @@ export default function BreathingGroundingTool({ technique = "box", totalRounds 
       <div className="space-y-4">
         {!running && !complete && (
           <div className="text-center space-y-3">
-            <p className="text-sm text-muted-foreground">{t("mentalToolkit.breathing.groundingIntro")}</p>
+            <p className={typography.subtitle}>{t("mentalToolkit.breathing.groundingIntro")}</p>
             <Button onClick={() => { setRunning(true); setGroundingStep(0); startTimeRef.current = Date.now(); }} className="rounded-xl px-8 bg-toolkit-sage text-toolkit-plum hover:opacity-90">
               {t("mentalToolkit.breathing.start")}
             </Button>
@@ -175,7 +176,7 @@ export default function BreathingGroundingTool({ technique = "box", totalRounds 
             <p className="text-lg font-semibold text-foreground">
               {t(`mentalToolkit.breathing.groundingPrompts.${GROUNDING_STEPS[groundingStep]?.sense}`, { n: GROUNDING_STEPS[groundingStep]?.n })}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className={typography.subtitle}>
               {t("mentalToolkit.breathing.step", { current: groundingStep + 1, total: 5 })}
             </p>
             {/* Progress dots */}
@@ -241,7 +242,7 @@ export default function BreathingGroundingTool({ technique = "box", totalRounds 
 
       {/* Status */}
       {running && !complete && (
-        <p className="text-sm text-muted-foreground">
+        <p className={typography.subtitle}>
           {t("mentalToolkit.breathing.round", { current: round, total: totalRounds })}
           {paused && ` — ${t("mentalToolkit.breathing.pause")}`}
         </p>

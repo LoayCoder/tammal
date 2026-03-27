@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Flame, Star, Sparkles, CheckCircle2 } from 'lucide-react';
+import { typography } from "@/theme/tokens";
 
 interface CheckinSuccessProps {
   streak: number;
@@ -37,7 +38,7 @@ export function CheckinSuccess({ streak, totalPoints, aiTip, alreadyDone }: Chec
           </span>
         </div>
 
-        <h2 className="text-2xl font-bold animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <h2 className={`${typography.metric} animate-in fade-in slide-in-from-bottom-2 duration-500`}>
           {alreadyDone ? t('wellness.alreadyCheckedIn', "You've already checked in today!") : t('wellness.thankYou')}
         </h2>
 

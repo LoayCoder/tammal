@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Users } from 'lucide-react';
 import type { CheckinEmployeeRow } from '@/hooks/analytics/useCheckinMonitor';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 interface Props {
   employees: CheckinEmployeeRow[];
@@ -110,7 +110,7 @@ export function CheckinEmployeeTable({ employees, isLoading }: Props) {
                     <TableCell>
                       <span className="text-sm font-medium">{emp.streak}</span>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className={typography.subtitle}>
                       {emp.lastCheckinDate ?? '—'}
                     </TableCell>
                   </TableRow>

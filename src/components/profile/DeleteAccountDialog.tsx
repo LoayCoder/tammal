@@ -25,6 +25,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, Loader2, Trash2 } from 'lucide-react';
 import { useDeleteAccount } from '@/hooks/auth/useDeleteAccount';
 import { useState } from 'react';
+import { typography } from "@/theme/tokens";
 
 interface DeleteAccountDialogProps {
   open: boolean;
@@ -79,7 +80,7 @@ export function DeleteAccountDialog({ open, onOpenChange }: DeleteAccountDialogP
                     <AlertTriangle className="h-4 w-4" />
                     <AlertDescription>{t('profile.deleteAccountWarning')}</AlertDescription>
                   </Alert>
-                  <p className="text-sm text-muted-foreground">{t('profile.deleteAccountDescription')}</p>
+                  <p className={typography.subtitle}>{t('profile.deleteAccountDescription')}</p>
                   <ul className="text-sm text-muted-foreground list-disc ps-5 space-y-1">
                     <li>{t('profile.deleteConsequence1')}</li>
                     <li>{t('profile.deleteConsequence2')}</li>
@@ -89,7 +90,7 @@ export function DeleteAccountDialog({ open, onOpenChange }: DeleteAccountDialogP
               ) : (
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(handleDelete)} className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
+                    <p className={typography.subtitle}>
                       {t('profile.deleteConfirmInstruction', { text: confirmText })}
                     </p>
                     <FormField

@@ -18,6 +18,7 @@ import { Separator } from '@/components/ui/separator';
 import { usePermissions, useRolePermissions } from '@/hooks/auth/usePermissions';
 import type { Role } from '@/hooks/auth/useRoles';
 import { Key, Loader2, Shield, Users, FileText, Settings, BarChart3, Calendar, ClipboardList } from 'lucide-react';
+import { typography } from "@/theme/tokens";
 
 interface PermissionMatrixProps {
   open: boolean;
@@ -138,7 +139,7 @@ export function PermissionMatrix({ open, onOpenChange, role }: PermissionMatrixP
                           }}
                           onCheckedChange={(checked) => handleCategoryToggle(categoryPermissionIds, checked as boolean)}
                         />
-                        <Label className="text-sm text-muted-foreground">
+                        <Label className={typography.subtitle}>
                           {t('permissions.selectAll')}
                         </Label>
                       </div>
@@ -186,7 +187,7 @@ export function PermissionMatrix({ open, onOpenChange, role }: PermissionMatrixP
 
         <DialogFooter>
           <div className="flex items-center justify-between w-full">
-            <p className="text-sm text-muted-foreground">
+            <p className={typography.subtitle}>
               {t('permissions.selected', { count: selectedPermissions.length })}
             </p>
             <div className="flex gap-2">

@@ -10,8 +10,7 @@ import MeditationLibraryTool from "@/components/mental-toolkit/practices/Meditat
 import HabitsPlanner from "@/components/mental-toolkit/practices/HabitsPlanner";
 import PsychoeducationArticles from "@/components/mental-toolkit/resources/PsychoeducationArticles";
 import SelfAssessmentQuiz from "@/components/mental-toolkit/resources/SelfAssessmentQuiz";
-import { cardVariants } from "@/theme/tokens";
-import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/system";
 
 export default function MentalToolkit() {
   const { t } = useTranslation();
@@ -20,19 +19,11 @@ export default function MentalToolkit() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className={cn(cardVariants.glass, "rounded-none border-b border-border/50 px-4 py-6 sm:px-6")}>
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10">
-              <span className="text-xl">🧠</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">{t("mentalToolkit.pageTitle")}</h1>
-              <p className="text-sm text-muted-foreground">{t("mentalToolkit.pageSubtitle")}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={<span className="text-xl">🧠</span>}
+        title={t("mentalToolkit.pageTitle")}
+        subtitle={t("mentalToolkit.pageSubtitle")}
+      />
 
       {/* Tabs */}
       <div className="max-w-4xl mx-auto px-4 py-4 sm:px-6">

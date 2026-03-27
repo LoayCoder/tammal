@@ -12,7 +12,7 @@ import { PageHeader } from '@/components/system';
 import { format, isToday } from 'date-fns';
 import { toast } from 'sonner';
 import SessionWorkspace from '@/components/crisis/SessionWorkspace';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 type AiderStatus = 'available' | 'busy' | 'offline';
@@ -128,7 +128,7 @@ export default function FirstAiderDashboard() {
             <div className="mx-auto w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
               <MessageSquare className="h-5 w-5 text-primary" />
             </div>
-            <p className="text-2xl font-bold">{activeCases.length}</p>
+            <p className={typography.metric}>{activeCases.length}</p>
             <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.activeCases')}</p>
           </CardContent>
         </Card>
@@ -137,7 +137,7 @@ export default function FirstAiderDashboard() {
             <div className="mx-auto w-10 h-10 rounded-xl bg-chart-2/10 flex items-center justify-center mb-2">
               <Check className="h-5 w-5 text-chart-2" />
             </div>
-            <p className="text-2xl font-bold">{totalSessions}</p>
+            <p className={typography.metric}>{totalSessions}</p>
             <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.totalSessions')}</p>
           </CardContent>
         </Card>
@@ -146,7 +146,7 @@ export default function FirstAiderDashboard() {
             <div className="mx-auto w-10 h-10 rounded-xl bg-chart-3/10 flex items-center justify-center mb-2">
               <Timer className="h-5 w-5 text-chart-3" />
             </div>
-            <p className="text-2xl font-bold">{avgResponseMin}<span className="text-sm font-normal text-muted-foreground">m</span></p>
+            <p className={typography.metric}>{avgResponseMin}<span className="text-sm font-normal text-muted-foreground">m</span></p>
             <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.avgResponse')}</p>
           </CardContent>
         </Card>
@@ -155,7 +155,7 @@ export default function FirstAiderDashboard() {
             <div className="mx-auto w-10 h-10 rounded-xl bg-chart-4/10 flex items-center justify-center mb-2">
               <Calendar className="h-5 w-5 text-chart-4" />
             </div>
-            <p className="text-2xl font-bold">{todaySessions.length}</p>
+            <p className={typography.metric}>{todaySessions.length}</p>
             <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.todaySessions')}</p>
           </CardContent>
         </Card>

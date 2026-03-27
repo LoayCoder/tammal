@@ -28,7 +28,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 const statusColors: Record<string, string> = {
@@ -121,7 +121,7 @@ export default function ObjectiveDetail() {
                 </Badge>
               )}
             </div>
-            <h1 className="text-2xl font-bold">{objective.title}</h1>
+            <h1 className={typography.metric}>{objective.title}</h1>
             {objective.description && <p className="text-muted-foreground mt-1">{objective.description}</p>}
           </div>
           <div className="flex items-center gap-2">

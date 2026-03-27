@@ -19,6 +19,7 @@ import { BurnoutPredictionsCard } from '@/features/workload/components/executive
 import { RedistributionCard } from '@/features/workload/components/executive/RedistributionCard';
 import { BurnoutRiskMapCard } from '@/features/workload/components/executive/BurnoutRiskMapCard';
 import { AlignmentOverviewCard } from '@/features/workload/components/executive/AlignmentOverviewCard';
+import { typography } from "@/theme/tokens";
 
 export default function ExecutiveDashboard() {
   const { t } = useTranslation();
@@ -108,7 +109,7 @@ export default function ExecutiveDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t('executive.pageTitle')}</h1>
+          <h1 className={typography.pageTitle}>{t('executive.pageTitle')}</h1>
           <p className="text-muted-foreground text-sm">{t('executive.pageDesc')}</p>
         </div>
         <div className="flex gap-2">

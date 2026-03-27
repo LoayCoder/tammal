@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslation } from 'react-i18next';
 import type { MoodBreakdownItem } from '@/hooks/analytics/useCheckinMonitor';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 interface Props {
   breakdown: MoodBreakdownItem[];
@@ -41,7 +41,7 @@ export function MoodDistributionBar({ breakdown }: Props) {
           <CardTitle className="text-base">{t('checkinMonitor.moodDistribution')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">{t('common.noData')}</p>
+          <p className={typography.subtitle}>{t('common.noData')}</p>
         </CardContent>
       </Card>
     );

@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 export default function PrayerTracker() {
   const { t, i18n } = useTranslation();
@@ -148,14 +148,14 @@ export default function PrayerTracker() {
       <div className="flex items-center gap-3">
         <Moon className="h-8 w-8 text-primary" />
         <div>
-          <h1 className="text-2xl font-bold">{t('spiritual.prayer.title')}</h1>
+          <h1 className={typography.metric}>{t('spiritual.prayer.title')}</h1>
           <p className="text-muted-foreground">{t('spiritual.prayer.subtitle')}</p>
         </div>
       </div>
 
       {/* Hijri date */}
       {prayerData?.date?.hijri && (
-        <p className="text-sm text-muted-foreground">
+        <p className={typography.subtitle}>
           {i18n.language === 'ar'
             ? `${prayerData.date.hijri.day} ${prayerData.date.hijri.month.ar} ${prayerData.date.hijri.year} هـ`
             : `${prayerData.date.hijri.day} ${prayerData.date.hijri.month.en} ${prayerData.date.hijri.year} AH`
@@ -233,7 +233,7 @@ export default function PrayerTracker() {
             <CardContent>
               <div className="flex items-center gap-4">
                 <div className="text-4xl font-bold text-primary">{weeklyStats.pct}%</div>
-                <div className="text-sm text-muted-foreground">
+                <div className={typography.subtitle}>
                   {t('spiritual.prayer.weeklyDetail', {
                     completed: weeklyStats.completed,
                     total: weeklyStats.totalPossible,

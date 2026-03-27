@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Flame, Star, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { typography } from "@/theme/tokens";
 
 interface AchievementOverlayProps {
   streak: number;
@@ -57,7 +58,7 @@ export function AchievementOverlay({ streak, points, aiTip, onDismiss }: Achieve
         </div>
 
         {/* Title */}
-        <h2 className="text-2xl font-bold text-center animate-in fade-in slide-in-from-bottom-3 duration-500" style={{ animationDelay: '200ms' }}>
+        <h2 className={`${typography.metric} text-center animate-in fade-in slide-in-from-bottom-3 duration-500`} style={{ animationDelay: '200ms' }}>
           {t('wellness.thankYou')}
         </h2>
 

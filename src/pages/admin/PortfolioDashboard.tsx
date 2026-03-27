@@ -12,7 +12,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 const GLASS_TOOLTIP = {
@@ -78,7 +78,7 @@ export default function PortfolioDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">{t('portfolio.pageTitle')}</h1>
+        <h1 className={typography.pageTitle}>{t('portfolio.pageTitle')}</h1>
         <p className="text-muted-foreground text-sm">{t('portfolio.pageDesc')}</p>
       </div>
 
@@ -93,7 +93,7 @@ export default function PortfolioDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              {isPending ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-bold">{stat.value}</div>}
+              {isPending ? <Skeleton className="h-7 w-16" /> : <div className={typography.metric}>{stat.value}</div>}
             </CardContent>
           </Card>
         ))}
@@ -291,7 +291,7 @@ export default function PortfolioDashboard() {
                       </div>
                       {pred.riskFactors.length > 0 && (
                         <div className="space-y-1">
-                          <p className="text-xs font-medium text-muted-foreground">{t('portfolio.riskFactors')}</p>
+                          <p className={typography.statLabel}>{t('portfolio.riskFactors')}</p>
                           {pred.riskFactors.map((f, i) => (
                             <p key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
                               <AlertTriangle className="h-3 w-3 text-destructive shrink-0 mt-0.5" />
@@ -302,7 +302,7 @@ export default function PortfolioDashboard() {
                       )}
                       {pred.suggestedActions.length > 0 && (
                         <div className="space-y-1">
-                          <p className="text-xs font-medium text-muted-foreground">{t('portfolio.suggestedActions')}</p>
+                          <p className={typography.statLabel}>{t('portfolio.suggestedActions')}</p>
                           {pred.suggestedActions.map((a, i) => (
                             <p key={i} className="text-xs text-primary">{a}</p>
                           ))}

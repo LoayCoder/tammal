@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Brain, RefreshCw, Lightbulb, AlertTriangle, TrendingUp } from 'lucide-react';
 import { useWellnessInsights, type WellnessInsight } from '@/hooks/analytics/useWellnessInsights';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -58,7 +58,7 @@ export function AIInsightsCard({ analyticsData, isLoading: parentLoading }: Prop
         {!enabled ? (
           <div className="text-center py-8">
             <Brain className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">{t('orgDashboard.aiInsightsPrompt')}</p>
+            <p className={typography.subtitle}>{t('orgDashboard.aiInsightsPrompt')}</p>
           </div>
         ) : isLoading ? (
           <div className="space-y-3">
@@ -76,7 +76,7 @@ export function AIInsightsCard({ analyticsData, isLoading: parentLoading }: Prop
             {/* Recommendations */}
             {insights.recommendations?.length > 0 && (
               <div className="space-y-2">
-                <h4 className="text-xs font-medium text-muted-foreground">{t('orgDashboard.recommendations')}</h4>
+                <h4 className={typography.statLabel}>{t('orgDashboard.recommendations')}</h4>
                 {insights.recommendations.map((rec, idx) => {
                   const style = PRIORITY_STYLES[rec.priority] ?? PRIORITY_STYLES.medium;
                   const Icon = style.icon;
@@ -96,7 +96,7 @@ export function AIInsightsCard({ analyticsData, isLoading: parentLoading }: Prop
             {/* Positive Highlights */}
             {insights.positiveHighlights?.length > 0 && (
               <div className="space-y-1">
-                <h4 className="text-xs font-medium text-muted-foreground">{t('orgDashboard.positiveHighlights')}</h4>
+                <h4 className={typography.statLabel}>{t('orgDashboard.positiveHighlights')}</h4>
                 {insights.positiveHighlights.map((h, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-sm">
                     <TrendingUp className="h-3 w-3 text-chart-2 shrink-0" />

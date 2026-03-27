@@ -8,7 +8,7 @@ import { VotingBooth } from '@/components/recognition/VotingBooth';
 import { useVoting } from '@/hooks/recognition/useVoting';
 import { useAwardCycles } from '@/hooks/recognition/useAwardCycles';
 import { Vote } from 'lucide-react';
-
+import { PageHeader } from '@/components/system';
 export default function VotingBoothPage() {
   const { t } = useTranslation();
   const { cycles, isPending: cyclesPending } = useAwardCycles();
@@ -32,13 +32,12 @@ export default function VotingBoothPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Vote className="h-6 w-6" />
-          {t('recognition.voting.title')}
-        </h1>
-        <p className="text-muted-foreground mt-1">{t('recognition.voting.subtitle')}</p>
-      </div>
+      <PageHeader
+        icon={<Vote className="h-5 w-5 text-primary" />}
+        title={t('recognition.voting.title')}
+        subtitle={t('recognition.voting.subtitle')}
+        variant="card"
+      />
 
       {/* Cycle selector */}
       {cyclesPending ? (

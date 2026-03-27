@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 export type { HSLColor } from '@/types/branding';
 import type { HSLColor } from '@/types/branding';
+import { typography } from "@/theme/tokens";
 
 interface HSLColorPickerProps {
   label: string;
@@ -218,7 +219,7 @@ export function HSLColorPicker({ label, value, onChange }: HSLColorPickerProps) 
             <div className="space-y-2">
               <div className="flex justify-between">
                 <Label className="text-sm">{t('branding.hue')}</Label>
-                <span className="text-sm text-muted-foreground">{value.h}°</span>
+                <span className={typography.subtitle}>{value.h}°</span>
               </div>
               <div
                 className="h-3 rounded-md"
@@ -232,7 +233,7 @@ export function HSLColorPicker({ label, value, onChange }: HSLColorPickerProps) 
             <div className="space-y-2">
               <div className="flex justify-between">
                 <Label className="text-sm">{t('branding.saturation')}</Label>
-                <span className="text-sm text-muted-foreground">{value.s}%</span>
+                <span className={typography.subtitle}>{value.s}%</span>
               </div>
               <div
                 className="h-3 rounded-md"
@@ -244,7 +245,7 @@ export function HSLColorPicker({ label, value, onChange }: HSLColorPickerProps) 
             <div className="space-y-2">
               <div className="flex justify-between">
                 <Label className="text-sm">{t('branding.lightness')}</Label>
-                <span className="text-sm text-muted-foreground">{value.l}%</span>
+                <span className={typography.subtitle}>{value.l}%</span>
               </div>
               <div
                 className="h-3 rounded-md"

@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useSystemHealth } from '@/features/workload';
 import { type HealthCheckKey } from '@/services/governance-health.service';
 import { RefreshCw, ShieldCheck, AlertTriangle, XCircle, Activity } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 
 const HEALTH_CHECKS: { key: HealthCheckKey; icon: typeof ShieldCheck }[] = [
   { key: 'queueSync', icon: Activity },
@@ -35,21 +36,22 @@ export default function SystemHealth() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">{t('systemHealth.title')}</h1>
-          <p className="text-muted-foreground">{t('systemHealth.description')}</p>
-        </div>
-        <Button
-          onClick={() => runHealthCheck.mutate()}
-          disabled={runHealthCheck.isPending}
-          variant="outline"
-        >
-          <RefreshCw className={`h-4 w-4 me-2 ${runHealthCheck.isPending ? 'animate-spin' : ''}`} />
-          {t('systemHealth.runCheck')}
-        </Button>
-      </div>
-
+      <PageHeader
+        icon={<Activity className="h-5 w-5 text-primary" />}
+        title={t('systemHealth.title')}
+        subtitle={t('systemHealth.description')}
+        variant="card"
+        actions={
+          <Button
+            onClick={() => runHealthCheck.mutate()}
+            disabled={runHealthCheck.isPending}
+            variant="outline"
+          >
+            <RefreshCw className={`h-4 w-4 me-2 ${runHealthCheck.isPending ? 'animate-spin' : ''}`} />
+            {t('systemHealth.runCheck')}
+          </Button>
+        }
+      />
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

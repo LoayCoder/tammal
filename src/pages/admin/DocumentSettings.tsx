@@ -6,7 +6,7 @@ import { FileText } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import { usePlatformSettings } from '@/hooks/org/usePlatformSettings';
 import { toast } from 'sonner';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 export default function DocumentSettings() {
   const { t } = useTranslation();
@@ -39,7 +39,7 @@ export default function DocumentSettings() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>{t('platformSettings.allowSignup')}</Label>
-              <p className="text-sm text-muted-foreground">{t('platformSettings.allowSignupDesc')}</p>
+              <p className={typography.subtitle}>{t('platformSettings.allowSignupDesc')}</p>
             </div>
             <Switch
               checked={allowSignup}
@@ -51,7 +51,7 @@ export default function DocumentSettings() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>{t('platformSettings.showInvitation')}</Label>
-              <p className="text-sm text-muted-foreground">{t('platformSettings.showInvitationDesc')}</p>
+              <p className={typography.subtitle}>{t('platformSettings.showInvitationDesc')}</p>
             </div>
             <Switch
               checked={showInvitation}

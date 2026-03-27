@@ -8,7 +8,7 @@ import {
 import MeditationLibraryTool from '@/components/mental-toolkit/practices/MeditationLibraryTool';
 import PsychoeducationArticles from '@/components/mental-toolkit/resources/PsychoeducationArticles';
 import IslamicCalendar from '@/pages/spiritual/IslamicCalendar';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 type ResourceKey = 'meditation' | 'articles' | 'calendar';
@@ -26,7 +26,7 @@ export function MentalHealthResourcesHub() {
   return (
     <>
       <div className="space-y-2">
-        <h2 className="text-lg font-semibold">{t('home.mentalHealthResources', 'Mental Health Resources')}</h2>
+        <h2 className={typography.sectionTitle}>{t('home.mentalHealthResources', 'Mental Health Resources')}</h2>
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
           {RESOURCES.map(({ key, icon: Icon, color, titleKey, descKey }) => (
             <div key={key} onClick={() => setOpenResource(key)} className="cursor-pointer">

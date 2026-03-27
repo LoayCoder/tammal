@@ -8,7 +8,8 @@ import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferenc
 import { useSunnahLogs, SUNNAH_PRACTICES } from '@/hooks/spiritual/useSunnahLogs';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
+import { PageHeader } from '@/components/system';
 
 export default function SunnahTracker() {
   const { t, i18n } = useTranslation();
@@ -51,19 +52,18 @@ export default function SunnahTracker() {
   return (
     <div className="container mx-auto py-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <Star className="h-8 w-8 text-primary" />
-        <div>
-          <h1 className="text-2xl font-bold">{t('spiritual.sunnah.title')}</h1>
-          <p className="text-muted-foreground">{t('spiritual.sunnah.subtitle')}</p>
-        </div>
-      </div>
+      <PageHeader
+        icon={<Star className="h-5 w-5 text-primary" />}
+        title={t('spiritual.sunnah.title')}
+        subtitle={t('spiritual.sunnah.subtitle')}
+        variant="card"
+      />
 
       {/* Today's Sunnah */}
       <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="text-lg">{t('spiritual.sunnah.todayTitle')}</CardTitle>
-          <p className="text-sm text-muted-foreground">{t('spiritual.sunnah.tapToMark')}</p>
+          <p className={typography.subtitle}>{t('spiritual.sunnah.tapToMark')}</p>
         </CardHeader>
         <CardContent>
           {isPending ? (
@@ -122,7 +122,7 @@ export default function SunnahTracker() {
               return (
                 <div key={practice.key} className="text-center space-y-1 rounded-lg border p-3">
                   <span className="text-xl">{practice.emoji}</span>
-                  <p className="text-2xl font-bold">{stat?.count ?? 0}</p>
+                  <p className={typography.metric}>{stat?.count ?? 0}</p>
                   <p className="text-xs text-muted-foreground">
                     {isRTL ? practice.labelAr : practice.labelEn}
                   </p>

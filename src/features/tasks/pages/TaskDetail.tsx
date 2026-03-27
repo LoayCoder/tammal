@@ -33,6 +33,7 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 
 import { getValidNextStatuses, STATUS_COLORS } from '@/features/tasks/constants/taskLifecycle';
+import { typography } from "@/theme/tokens";
 
 const PRIORITY_LABELS: Record<number, { label: string; className: string }> = {
   0: { label: 'Critical', className: 'text-destructive' },
@@ -119,7 +120,7 @@ export default function TaskDetail() {
             <h1 className="text-xl font-bold">{task.title}</h1>
             {task.is_locked && <Lock className="h-4 w-4 text-chart-4" />}
           </div>
-          {task.title_ar && <p className="text-sm text-muted-foreground" dir="rtl">{task.title_ar}</p>}
+          {task.title_ar && <p className={typography.subtitle} dir="rtl">{task.title_ar}</p>}
 
           {/* Inline status & priority controls */}
           <div className="flex items-center gap-2 flex-wrap">

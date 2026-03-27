@@ -9,6 +9,7 @@ import { format, differenceInDays } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/shared/empty/EmptyState';
 import { useOverdueTasks } from '@/features/tasks/hooks/useOverdueTasks';
+import { typography } from "@/theme/tokens";
 
 function getEscalationLevel(daysOverdue: number): { level: number; className: string; label: string } {
   if (daysOverdue >= 14) return { level: 3, className: 'bg-destructive text-destructive-foreground', label: 'Level 3' };
@@ -32,7 +33,7 @@ export default function OverdueTasks() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">{t('tasks.overdueTasks')}</h1>
+        <h1 className={typography.pageTitle}>{t('tasks.overdueTasks')}</h1>
         <p className="text-muted-foreground text-sm">{t('tasks.overdueTasksDesc')}</p>
       </div>
 

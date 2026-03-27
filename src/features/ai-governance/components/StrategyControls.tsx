@@ -8,6 +8,7 @@ import { useSwitchStrategy, useResetPosterior, useRefreshSummary } from '@/featu
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { typography } from "@/theme/tokens";
 
 interface Props {
   currentStrategy: string;
@@ -70,7 +71,7 @@ export function StrategyControls({ currentStrategy }: Props) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">{t('aiGovernance.resetPosteriorWarning')}</p>
+          <p className={typography.subtitle}>{t('aiGovernance.resetPosteriorWarning')}</p>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label>{t('aiGovernance.provider')}</Label>

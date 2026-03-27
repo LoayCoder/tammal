@@ -18,14 +18,11 @@ import { TeamStatCards } from '@/components/workload/team/TeamStatCards';
 import { WorkloadDistributionChart } from '@/components/workload/team/WorkloadDistributionChart';
 import { ExecutionMetricsCard } from '@/components/workload/team/ExecutionMetricsCard';
 import { RiskAlertsCard } from '@/components/workload/team/RiskAlertsCard';
+import { PageHeader } from '@/components/system';
+import { Users, AlertTriangle, TrendingUp, CheckCircle2, Plus, Search, Lock, Unlock, Trash2 } from 'lucide-react';
 import { TeamMemberAccordion } from '@/components/workload/team/TeamMemberAccordion';
-import {
-  Users, AlertTriangle, TrendingUp, CheckCircle2, Plus,
-  Lock, Unlock, Trash2, Search,
-} from 'lucide-react';
 import { format } from 'date-fns';
-import { cardVariants } from "@/theme/tokens";
-
+import { cardVariants, typography} from "@/theme/tokens";
 const priorityLabels: Record<number, string> = { 1: 'P1', 2: 'P2', 3: 'P3', 4: 'P4', 5: 'P5' };
 
 interface MemberSummary {
@@ -156,11 +153,11 @@ export default function TeamWorkload() {
     },
     {
       id: 'dueDate', header: t('workload.tasks.dueDate'), className: 'w-28',
-      cell: (row: typeof filteredTasks[number]) => <span className="text-sm text-muted-foreground">{row.due_date ? format(new Date(row.due_date), 'MMM dd') : '—'}</span>,
+      cell: (row: typeof filteredTasks[number]) => <span className={typography.subtitle}>{row.due_date ? format(new Date(row.due_date), 'MMM dd') : '—'}</span>,
     },
     {
       id: 'estimated', header: t('workload.tasks.estimatedMinutes'), className: 'w-20',
-      cell: (row: typeof filteredTasks[number]) => <span className="text-sm text-muted-foreground">{row.estimated_minutes ? `${row.estimated_minutes}m` : '—'}</span>,
+      cell: (row: typeof filteredTasks[number]) => <span className={typography.subtitle}>{row.estimated_minutes ? `${row.estimated_minutes}m` : '—'}</span>,
     },
     {
       id: 'source', header: t('teamWorkload.source'), className: 'w-28',
@@ -183,16 +180,18 @@ export default function TeamWorkload() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t('teamWorkload.pageTitle')}</h1>
-          <p className="text-muted-foreground text-sm">{t('teamWorkload.pageDesc')}</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setAddOpen(true)} className="gap-2"><Plus className="h-4 w-4" />{t('teamWorkload.quickAssign')}</Button>
-          <Button onClick={() => setEnterpriseModalOpen(true)} className="gap-2"><Plus className="h-4 w-4" />{t('tasks.createTask')}</Button>
-        </div>
-      </div>
+      <PageHeader
+        icon={<Users className="h-5 w-5 text-primary" />}
+        title={t('teamWorkload.pageTitle')}
+        subtitle={t('teamWorkload.pageDesc')}
+        variant="card"
+        actions={
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setAddOpen(true)} className="gap-2"><Plus className="h-4 w-4" />{t('teamWorkload.quickAssign')}</Button>
+            <Button onClick={() => setEnterpriseModalOpen(true)} className="gap-2"><Plus className="h-4 w-4" />{t('tasks.createTask')}</Button>
+          </div>
+        }
+      />
 
       <TeamStatCards cards={statCards} isLoading={analyticsLoading} />
 

@@ -35,6 +35,7 @@ import { TenantContactTab } from './TenantContactTab';
 import { TenantSecurityControl, DEFAULT_SECURITY_SETTINGS, type SecuritySettings } from './TenantSecurityControl';
 import { usePlansManagement } from '@/hooks/org/usePlans';
 import type { Tenant } from '@/hooks/org/useTenants';
+import { typography } from "@/theme/tokens";
 
 const TENANT_STATUSES = ['active', 'trial', 'suspended', 'inactive'] as const;
 
@@ -411,7 +412,7 @@ export function TenantSheet({
                           <FormLabel>
                             {t('tenants.acceptTerms')} <span className="text-destructive">*</span>
                           </FormLabel>
-                          <p className="text-sm text-muted-foreground">
+                          <p className={typography.subtitle}>
                             {t('tenants.acceptTermsDescription')}
                           </p>
                         </div>

@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { typography } from "@/theme/tokens";
 
 const CATEGORIES = ['time_off', 'cash_equivalent', 'experience', 'charity', 'merchandise'];
 
@@ -42,7 +43,7 @@ export default function RedemptionManagement() {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{t('recognition.points.managementTitle')}</h1>
+          <h1 className={typography.metric}>{t('recognition.points.managementTitle')}</h1>
           <p className="text-muted-foreground">{t('recognition.points.managementSubtitle')}</p>
         </div>
         <Dialog open={showCreate} onOpenChange={setShowCreate}>

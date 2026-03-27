@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ASSESSMENT_COLORS, TOOLKIT } from "@/config/toolkit-colors";
 import GradientButton from "@/components/mental-toolkit/shared/GradientButton";
+import { typography } from "@/theme/tokens";
 
 interface Quiz {
   id: string;
@@ -172,7 +173,7 @@ export default function SelfAssessmentQuiz() {
             <span className="text-2xl">📋</span>
             <div>
               <h2 className="font-semibold text-foreground">{t("mentalToolkit.quiz.title")}</h2>
-              <p className="text-sm text-muted-foreground">{t("mentalToolkit.quiz.subtitle")}</p>
+              <p className={typography.subtitle}>{t("mentalToolkit.quiz.subtitle")}</p>
             </div>
           </div>
         </div>

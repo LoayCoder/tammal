@@ -15,7 +15,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 export default function MoodPathwaySettings() {
@@ -98,7 +98,7 @@ export default function MoodPathwaySettings() {
           <Brain className="h-6 w-6 text-primary" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t('moodPathway.settingsTitle')}</h1>
+          <h1 className={typography.pageTitle}>{t('moodPathway.settingsTitle')}</h1>
           <p className="text-muted-foreground text-sm mt-1">{t('moodPathway.settingsDesc')}</p>
         </div>
       </div>
@@ -106,7 +106,7 @@ export default function MoodPathwaySettings() {
       {/* Info banner */}
       <div className={cn(cardVariants.glass, "rounded-xl p-4 flex items-start gap-3")}>
         <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-        <p className="text-sm text-muted-foreground">{t('moodPathway.settingsInfo')}</p>
+        <p className={typography.subtitle}>{t('moodPathway.settingsInfo')}</p>
       </div>
 
       {/* Mood Definitions Management */}

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock } from "lucide-react";
 import { TOOLKIT_CATEGORY_COLORS } from "@/config/toolkit-colors";
+import { typography } from "@/theme/tokens";
 
 interface Article {
   id: string;
@@ -233,7 +234,7 @@ export default function PsychoeducationArticles() {
           <span className="text-2xl">📚</span>
           <div>
             <h2 className="font-semibold text-foreground">{t("mentalToolkit.articles.title")}</h2>
-            <p className="text-sm text-muted-foreground">{t("mentalToolkit.articles.subtitle")}</p>
+            <p className={typography.subtitle}>{t("mentalToolkit.articles.subtitle")}</p>
           </div>
         </div>
       </div>

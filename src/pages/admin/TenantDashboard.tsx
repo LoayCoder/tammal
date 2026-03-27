@@ -15,7 +15,8 @@ import { UsageCharts } from '@/components/tenants/UsageCharts';
 import { AuditLogTable } from '@/components/audit/AuditLogTable';
 import { TenantStatusBadge } from '@/components/tenants/TenantStatusBadge';
 import { format } from 'date-fns';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
+import { PageHeader } from '@/components/system';
 
 export default function TenantDashboard() {
   const { t } = useTranslation();
@@ -60,8 +61,8 @@ export default function TenantDashboard() {
     <ErrorBoundary>
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-4">
+      <PageHeader
+        icon={
           <Button 
             variant="outline" 
             size="icon"
@@ -69,24 +70,20 @@ export default function TenantDashboard() {
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold">{tenant.name}</h1>
-              <TenantStatusBadge status={tenant.status} />
-            </div>
-            <p className="text-muted-foreground">
-              {tenant.slug && <span className="font-mono text-sm">{tenant.slug}</span>}
-              {tenant.domain && <span className="ms-2">• {tenant.domain}</span>}
-            </p>
+        }
+        title={tenant.name}
+        subtitle={tenant.slug ? tenant.slug + (tenant.domain ? ' • ' + tenant.domain : '') : tenant.domain}
+        variant="card"
+        actions={
+          <div className="flex items-center gap-2">
+            <TenantStatusBadge status={tenant.status} />
+            <Button variant="outline" onClick={() => navigate('/admin/tenants')}>
+              <Settings className="h-4 w-4 me-2" />
+              {t('tenants.manage')}
+            </Button>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => navigate('/admin/tenants')}>
-            <Settings className="h-4 w-4 me-2" />
-            {t('tenants.manage')}
-          </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Quick Info Cards */}
       <div className="grid gap-4 md:grid-cols-3">
@@ -131,8 +128,8 @@ export default function TenantDashboard() {
           <CardContent>
             {plan ? (
               <div className="space-y-1">
-                <p className="text-lg font-semibold">{plan.name}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className={typography.sectionTitle}>{plan.name}</p>
+                <p className={typography.subtitle}>
                   ${Number(plan.price).toFixed(2)} / {plan.billing_period}
                 </p>
               </div>
@@ -149,10 +146,10 @@ export default function TenantDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-semibold">
+            <p className={typography.sectionTitle}>
               {format(new Date(tenant.created_at), 'PP')}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className={typography.subtitle}>
               {format(new Date(tenant.created_at), 'p')}
             </p>
           </CardContent>

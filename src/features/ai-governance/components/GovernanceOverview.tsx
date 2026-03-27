@@ -7,6 +7,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { RiskBadge } from './RiskBadge';
 import type { GovernanceSummaryRow } from '@/features/ai-governance/hooks/useGovernanceSummary';
 import type { CostDailyRow } from '@/features/ai-governance/hooks/useCostBreakdown';
+import { typography } from "@/theme/tokens";
 
 interface Props {
   summary: GovernanceSummaryRow[];
@@ -115,7 +116,7 @@ export function GovernanceOverview({ summary, costData, budgetConfig, isLoading 
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('aiGovernance.projectedCost')}</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{currencyFormatter.format(projectedCost)}</p></CardContent>
+          <CardContent><p className={typography.metric}>{currencyFormatter.format(projectedCost)}</p></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('aiGovernance.budgetRisk')}</CardTitle></CardHeader>
@@ -130,19 +131,19 @@ export function GovernanceOverview({ summary, costData, budgetConfig, isLoading 
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('aiGovernance.burnRate')}</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{currencyFormatter.format(burnRate)}<span className="text-sm text-muted-foreground">/{t('aiGovernance.perDay')}</span></p></CardContent>
+          <CardContent><p className={typography.metric}>{currencyFormatter.format(burnRate)}<span className={typography.subtitle}>/{t('aiGovernance.perDay')}</span></p></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('aiGovernance.dominantProvider')}</CardTitle></CardHeader>
-          <CardContent><p className="text-lg font-semibold">{dominantProviderName ?? 'N/A'} <span className="text-muted-foreground">({dominancePct}%)</span></p></CardContent>
+          <CardContent><p className={typography.sectionTitle}>{dominantProviderName ?? 'N/A'} <span className="text-muted-foreground">({dominancePct}%)</span></p></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('aiGovernance.performanceDrift')}</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{formatSafe(driftScore * 100, 1)}%</p></CardContent>
+          <CardContent><p className={typography.metric}>{formatSafe(driftScore * 100, 1)}%</p></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">{t('aiGovernance.totalCalls24h')}</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{totalCalls.toLocaleString(locale)}</p></CardContent>
+          <CardContent><p className={typography.metric}>{totalCalls.toLocaleString(locale)}</p></CardContent>
         </Card>
       </div>
 

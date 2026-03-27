@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import type { BatchQuestion } from '@/hooks/questions/useQuestionBatches';
+import { typography } from "@/theme/tokens";
 
 interface QuestionDetailDialogProps {
   question: BatchQuestion | null;
@@ -39,17 +40,17 @@ export function QuestionDetailDialog({ question, onClose, statusColor, statusLab
 
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">{t('batches.type')}:</span>
+                <span className={typography.subtitle}>{t('batches.type')}:</span>
                 <Badge variant="outline">{typeLabel(question.type)}</Badge>
               </div>
               {question.confidence_score != null && (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">{t('batches.confidence')}:</span>
+                  <span className={typography.subtitle}>{t('batches.confidence')}:</span>
                   <Badge variant="outline">{question.confidence_score}%</Badge>
                 </div>
               )}
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">{t('common.status')}:</span>
+                <span className={typography.subtitle}>{t('common.status')}:</span>
                 <Badge variant="outline" className={statusColor(question.validation_status || 'pending')}>
                   {statusLabel(question.validation_status || 'pending')}
                 </Badge>

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { CriteriaEvaluationForm, isCriteriaWeightValid, type CriterionEvaluation } from './CriteriaEvaluationForm';
 import { useJudgingCriteria } from '@/hooks/recognition/useJudgingCriteria';
 import { Scale, ChevronLeft, ChevronRight } from 'lucide-react';
+import { typography } from "@/theme/tokens";
 
 interface NominationCriteriaFormProps {
   themeId: string;
@@ -37,7 +38,7 @@ export function NominationCriteriaForm({ themeId, onSubmit, onBack, isPending }:
   const isValid = isCriteriaWeightValid(evaluations) && evaluations.every(e => e.justification.trim().length > 0);
 
   if (criteriaLoading) {
-    return <div className="text-sm text-muted-foreground">{t('common.loading')}</div>;
+    return <div className={typography.subtitle}>{t('common.loading')}</div>;
   }
 
   if (judgingCriteria.length === 0) {

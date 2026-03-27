@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { useRecurringTasks } from '@/features/tasks/hooks/useRecurringTasks';
+import { typography } from "@/theme/tokens";
 
 const PATTERNS = ['daily', 'weekly', 'biweekly', 'monthly', 'quarterly'] as const;
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -99,8 +100,8 @@ export default function RecurringTasks() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{t('recurringTasks.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('recurringTasks.subtitle')}</p>
+          <h1 className={typography.pageTitle}>{t('recurringTasks.title')}</h1>
+          <p className={typography.subtitle}>{t('recurringTasks.subtitle')}</p>
         </div>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditId(null); setForm(defaultForm); } }}>
           <DialogTrigger asChild>

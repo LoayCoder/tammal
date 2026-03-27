@@ -13,6 +13,7 @@ import { useMemo, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTaskPerformanceAnalytics } from '@/features/tasks/hooks/useTaskPerformanceAnalytics';
 import { CHART_AXIS_TICK, CHART_TOOLTIP_STYLE, CHART_GRID_STROKE } from '@/config/chart-styles';
+import { typography } from "@/theme/tokens";
 
 type RangeKey = '7' | '14' | '30';
 
@@ -123,8 +124,8 @@ export default function TaskPerformanceAnalytics() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{t('taskAnalytics.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('taskAnalytics.subtitle')}</p>
+          <h1 className={typography.pageTitle}>{t('taskAnalytics.title')}</h1>
+          <p className={typography.subtitle}>{t('taskAnalytics.subtitle')}</p>
         </div>
         <Select value={range} onValueChange={(v) => setRange(v as RangeKey)}>
           <SelectTrigger className="w-[140px]">
@@ -244,8 +245,8 @@ function KPICard({ icon: Icon, label, value }: { icon: any; label: string; value
           <Icon className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="text-2xl font-bold text-foreground">{value}</p>
+          <p className={typography.subtitle}>{label}</p>
+          <p className={typography.pageTitle}>{value}</p>
         </div>
       </CardContent>
     </Card>

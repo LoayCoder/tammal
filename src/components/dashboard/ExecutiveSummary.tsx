@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TrendingUp, TrendingDown, Minus, ShieldAlert, Sparkles } from 'lucide-react';
 import type { PeriodComparison, EarlyWarning } from '@/lib/analytics/types';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -29,7 +29,7 @@ function HealthGauge({ score }: { score: number }) {
             transform={`rotate(${rotation}, 60, 55)`} />
         </svg>
       </div>
-      <span className="text-2xl font-bold mt-1">{score}</span>
+      <span className={`${typography.metric} mt-1`}>{score}</span>
       <span className="text-xs text-muted-foreground">/100</span>
     </div>
   );
@@ -80,7 +80,7 @@ export function ExecutiveSummary({ healthScore, periodComparison, warnings, isLo
 
           {/* Period Comparison */}
           <div className="space-y-3">
-            <p className="text-xs font-medium text-muted-foreground">{t('orgDashboard.periodChange')}</p>
+            <p className={typography.statLabel}>{t('orgDashboard.periodChange')}</p>
             {periodComparison ? (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -97,7 +97,7 @@ export function ExecutiveSummary({ healthScore, periodComparison, warnings, isLo
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">{t('common.noData')}</p>
+              <p className={typography.subtitle}>{t('common.noData')}</p>
             )}
           </div>
 

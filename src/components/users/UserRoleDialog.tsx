@@ -21,6 +21,7 @@ import { useHasRole } from '@/hooks/auth/useUserPermissions';
 import { useAuth } from '@/hooks/auth/useAuth';
 import type { UserWithRoles } from '@/hooks/org/useUsers';
 import { Shield, Loader2, AlertTriangle } from 'lucide-react';
+import { typography } from "@/theme/tokens";
 
 interface UserRoleDialogProps {
   open: boolean;
@@ -275,7 +276,7 @@ export function UserRoleDialog({ open, onOpenChange, user, tenantId }: UserRoleD
                         )}
                       </div>
                       {(isRTL ? role.description_ar : role.description) && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className={typography.subtitle}>
                           {isRTL && role.description_ar ? role.description_ar : role.description}
                         </p>
                       )}

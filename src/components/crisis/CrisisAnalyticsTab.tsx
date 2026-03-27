@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { useCrisisAnalytics } from '@/hooks/analytics/useCrisisAnalytics';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { Activity, Clock, AlertTriangle, CheckCircle, TrendingUp, Users } from 'lucide-react';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 const RISK_COLORS: Record<string, string> = {
@@ -140,7 +140,7 @@ function KPICard({ icon: Icon, label, value, variant }: { icon: any; label: stri
           <Icon className={`h-4 w-4 ${variant === 'destructive' ? 'text-destructive' : 'text-muted-foreground'}`} />
           <span className="text-xs text-muted-foreground truncate">{label}</span>
         </div>
-        <p className={`text-2xl font-bold ${variant === 'destructive' ? 'text-destructive' : ''}`}>{value}</p>
+        <p className={`${typography.metric} ${variant === 'destructive' ? 'text-destructive' : ''}`}>{value}</p>
       </CardContent>
     </Card>
   );

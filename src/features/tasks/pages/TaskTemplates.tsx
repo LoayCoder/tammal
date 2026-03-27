@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Plus, Pencil, Trash2, FileText, Search, CheckSquare } from 'lucide-react';
 import { useTaskTemplates, type CreateTemplateInput } from '@/features/tasks/hooks/useTaskTemplates';
+import { typography } from "@/theme/tokens";
 
 const PRIORITIES = [
   { value: 'low', label: 'tasks.priority.low' },
@@ -128,8 +129,8 @@ export default function TaskTemplates() {
     <div className="container mx-auto p-4 md:p-6 space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">{t('taskTemplates.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('taskTemplates.subtitle')}</p>
+          <h1 className={typography.metric}>{t('taskTemplates.title')}</h1>
+          <p className={typography.subtitle}>{t('taskTemplates.subtitle')}</p>
         </div>
         <Button onClick={openCreate} className="gap-2">
           <Plus className="h-4 w-4" />

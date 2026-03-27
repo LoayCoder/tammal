@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { typography } from "@/theme/tokens";
 
 interface ImageDropzoneProps {
   label: string;
@@ -153,7 +154,7 @@ export function ImageDropzone({
               ) : (
                 <ImageIcon className="h-8 w-8 text-muted-foreground" />
               )}
-              <p className="text-sm text-muted-foreground">
+              <p className={typography.subtitle}>
                 {t('branding.dropzone')}
               </p>
               {hint && (

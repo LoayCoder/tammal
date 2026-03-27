@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { PageHeader } from '@/components/system';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -21,6 +22,7 @@ import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
 import { useConfirmDelete } from '@/shared/dialogs/useConfirmDelete';
 import { isInProcessStatus, getImpactWarning, getNextStatus } from '@/lib/recognition-utils';
 import { format } from 'date-fns';
+import { typography } from "@/theme/tokens";
 
 export default function RecognitionManagement() {
   const { t } = useTranslation();
@@ -90,19 +92,18 @@ export default function RecognitionManagement() {
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Trophy className="h-6 w-6 text-primary" />
-            {t('recognition.title')}
-          </h1>
-          <p className="text-muted-foreground">{t('recognition.subtitle')}</p>
-        </div>
-        <Button onClick={() => setShowBuilder(true)}>
-          <Plus className="h-4 w-4 me-2" />
-          {t('recognition.cycles.create')}
-        </Button>
-      </div>
+      <PageHeader
+        icon={<Trophy className="h-5 w-5 text-primary" />}
+        title={t('recognition.title')}
+        subtitle={t('recognition.subtitle')}
+        variant="card"
+        actions={
+          <Button onClick={() => setShowBuilder(true)}>
+            <Plus className="h-4 w-4 me-2" />
+            {t('recognition.cycles.create')}
+          </Button>
+        }
+      />
 
       {isPending ? (
         <div className="grid gap-4 md:grid-cols-2">
@@ -112,7 +113,7 @@ export default function RecognitionManagement() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <Trophy className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold">{t('recognition.cycles.empty')}</h3>
+            <h3 className={typography.sectionTitle}>{t('recognition.cycles.empty')}</h3>
             <p className="text-sm text-muted-foreground mt-1 max-w-md">{t('recognition.cycles.emptyDescription')}</p>
             <Button className="mt-4" onClick={() => setShowBuilder(true)}>
               <Plus className="h-4 w-4 me-2" />

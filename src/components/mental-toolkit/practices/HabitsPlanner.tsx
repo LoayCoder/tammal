@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Trash2, Plus, Flame } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { typography } from "@/theme/tokens";
 
 interface Habit {
   id: string;
@@ -94,7 +95,7 @@ export default function HabitsPlanner() {
           <span className="text-2xl">✅</span>
           <div>
             <h2 className="font-semibold text-foreground">{t("mentalToolkit.habits.title")}</h2>
-            <p className="text-sm text-muted-foreground">{t("mentalToolkit.habits.subtitle")}</p>
+            <p className={typography.subtitle}>{t("mentalToolkit.habits.subtitle")}</p>
           </div>
         </div>
       </div>
@@ -130,7 +131,7 @@ export default function HabitsPlanner() {
         {habits.length === 0 ? (
           <div className="text-center py-8 space-y-2">
             <span className="text-4xl">🌱</span>
-            <p className="text-sm text-muted-foreground">{t("mentalToolkit.habits.noHabits")}</p>
+            <p className={typography.subtitle}>{t("mentalToolkit.habits.noHabits")}</p>
           </div>
         ) : (
           <div className="space-y-3">

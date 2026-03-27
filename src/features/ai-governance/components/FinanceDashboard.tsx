@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import type { CostDailyRow } from '@/features/ai-governance/hooks/useCostBreakdown';
 import { CHART_AXIS_TICK, CHART_TOOLTIP_STYLE, CHART_GRID_STROKE } from '@/config/chart-styles';
+import { typography } from "@/theme/tokens";
 
 interface Props {
   costData: CostDailyRow[];
@@ -48,16 +49,16 @@ export function FinanceDashboard({ costData, budgetConfig, isLoading }: Props) {
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{t('aiGovernance.totalSpend')}</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{currencyFormatter.format(totalSpend)}</p></CardContent>
+          <CardHeader className="pb-2"><CardTitle className={typography.subtitle}>{t('aiGovernance.totalSpend')}</CardTitle></CardHeader>
+          <CardContent><p className={typography.metric}>{currencyFormatter.format(totalSpend)}</p></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{t('aiGovernance.monthlyBudget')}</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{currencyFormatter.format(monthlyBudget)}</p></CardContent>
+          <CardHeader className="pb-2"><CardTitle className={typography.subtitle}>{t('aiGovernance.monthlyBudget')}</CardTitle></CardHeader>
+          <CardContent><p className={typography.metric}>{currencyFormatter.format(monthlyBudget)}</p></CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{t('aiGovernance.budgetUtilization')}</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{monthlyBudget > 0 ? ((totalSpend / monthlyBudget) * 100).toFixed(1) : 'N/A'}%</p></CardContent>
+          <CardHeader className="pb-2"><CardTitle className={typography.subtitle}>{t('aiGovernance.budgetUtilization')}</CardTitle></CardHeader>
+          <CardContent><p className={typography.metric}>{monthlyBudget > 0 ? ((totalSpend / monthlyBudget) * 100).toFixed(1) : 'N/A'}%</p></CardContent>
         </Card>
       </div>
 

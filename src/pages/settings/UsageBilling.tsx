@@ -8,7 +8,7 @@ import { useProfile } from '@/hooks/auth/useProfile';
 import { useSubscriptions } from '@/hooks/org/useSubscriptions';
 import { Users, HardDrive, Activity, TrendingUp, TrendingDown, CreditCard } from 'lucide-react';
 import { PageHeader } from '@/components/system';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 export default function UsageBilling() {
@@ -65,12 +65,12 @@ export default function UsageBilling() {
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold">{plan?.name ?? '—'}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className={typography.metric}>{plan?.name ?? '—'}</p>
+                <p className={typography.subtitle}>
                   {t('billing.renewsOn', 'Renews')}: {activeSubscription.renewal_date ?? '—'}
                 </p>
               </div>
-              <p className="text-2xl font-bold">
+              <p className={typography.metric}>
                 {plan?.price != null ? `${plan.price} ${t('billing.currency', 'SAR')}` : '—'}
                 <span className="text-sm font-normal text-muted-foreground">/{plan?.billing_period ?? 'mo'}</span>
               </p>

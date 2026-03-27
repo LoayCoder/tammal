@@ -18,6 +18,7 @@ import { AppealForm } from '@/components/recognition/AppealForm';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import { typography } from "@/theme/tokens";
 
 export default function RecognitionResults() {
   const { t } = useTranslation();
@@ -65,7 +66,7 @@ export default function RecognitionResults() {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
+          <h1 className={`${typography.pageTitle} flex items-center gap-2`}>
             <Trophy className="h-6 w-6 text-primary" />
             {t('recognition.results.title')}
           </h1>
@@ -106,7 +107,7 @@ export default function RecognitionResults() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <Calculator className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold">{t('recognition.results.noResults')}</h3>
+            <h3 className={typography.sectionTitle}>{t('recognition.results.noResults')}</h3>
             <p className="text-sm text-muted-foreground mt-1">{t('recognition.results.noResultsDesc')}</p>
           </CardContent>
         </Card>

@@ -12,7 +12,7 @@ import { useScheduledQuestions, useAnsweredSurveyCheck } from '@/hooks/questions
 import { useEmployeeResponses, useDraftResponses } from '@/hooks/wellness/useEmployeeResponses';
 import { useProfile } from '@/hooks/auth/useProfile';
 import { AnswerInput } from '@/components/survey/AnswerInput';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 export default function EmployeeSurvey() {
@@ -135,7 +135,7 @@ export default function EmployeeSurvey() {
   if (!employee) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <h2 className="text-2xl font-bold mb-2">{t('survey.noProfile')}</h2>
+        <h2 className={`${typography.pageTitle} mb-2`}>{t('survey.noProfile')}</h2>
         <p className="text-muted-foreground">{t('survey.contactAdmin')}</p>
       </div>
     );
@@ -145,7 +145,7 @@ export default function EmployeeSurvey() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
         <CheckCircle2 className="h-16 w-16 text-primary mb-4" />
-        <h2 className="text-2xl font-bold mb-2">
+        <h2 className={`${typography.pageTitle} mb-2`}>
           {hasAnswered ? t('survey.surveyCompleted', 'Survey Completed') : t('survey.allCaughtUp')}
         </h2>
         <p className="text-muted-foreground">
@@ -159,7 +159,7 @@ export default function EmployeeSurvey() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
         <Clock className="h-16 w-16 text-muted-foreground mb-4" />
-        <h2 className="text-2xl font-bold mb-2">{t('survey.notStarted', 'Survey Not Yet Open')}</h2>
+        <h2 className={`${typography.pageTitle} mb-2`}>{t('survey.notStarted', 'Survey Not Yet Open')}</h2>
         <p className="text-muted-foreground">
           {t('survey.opensAt', 'Opens at')}: {surveyMeta?.start_date ? new Date(surveyMeta.start_date).toLocaleString() : ''}
         </p>
@@ -224,7 +224,7 @@ export default function EmployeeSurvey() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">
+                    <span className={typography.subtitle}>
                       {t('survey.question')} {index + 1}
                     </span>
                     {isPending && (
@@ -282,7 +282,7 @@ export default function EmployeeSurvey() {
               <Sparkles className="h-5 w-5 text-primary absolute -bottom-1 -start-1 animate-pulse" />
             </div>
 
-            <h2 className="text-2xl font-bold">
+            <h2 className={typography.metric}>
               {t('survey.thankYouTitle', 'Thank You, {{name}}!', { name: profile?.full_name || employee?.full_name || '' })}
             </h2>
 

@@ -26,6 +26,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { typography } from "@/theme/tokens";
 
 interface ChangeEmailDialogProps {
   open: boolean;
@@ -116,7 +117,7 @@ export function ChangeEmailDialog({
                 {t('profile.emailVerificationSentDescription')}
               </AlertDescription>
             </Alert>
-            <p className="text-sm text-muted-foreground">
+            <p className={typography.subtitle}>
               {t('profile.emailVerificationNote')}
             </p>
             <DialogFooter>

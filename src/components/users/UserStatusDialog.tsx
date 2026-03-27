@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { UserX, Ban, Trash2, UserCheck } from 'lucide-react';
 import type { UserWithRoles } from '@/hooks/org/useUsers';
+import { typography } from "@/theme/tokens";
 
 export type StatusAction = 'deactivate' | 'suspend' | 'reactivate' | 'delete';
 
@@ -89,7 +90,7 @@ export function UserStatusDialog({
             {config.description}
             <div className="mt-2 p-3 bg-muted rounded-lg">
               <div className="font-medium">{user.full_name || t('users.unnamed')}</div>
-              <div className="text-sm text-muted-foreground">{(user as any).email || user.user_id}</div>
+              <div className={typography.subtitle}>{(user as any).email || user.user_id}</div>
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>

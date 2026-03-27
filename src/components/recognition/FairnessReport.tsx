@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, CheckCircle, Shield, Eye, TrendingDown, TrendingUp } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { typography } from "@/theme/tokens";
 
 interface FairnessReportProps {
   report: Record<string, any>;
@@ -168,7 +169,7 @@ export function FairnessReport({ report }: FairnessReportProps) {
               <span>{t('recognition.results.correctionApplied')}</span>
             </div>
           ) : (
-            <span className="text-sm text-muted-foreground">{t('recognition.results.noCorrectionNeeded')}</span>
+            <span className={typography.subtitle}>{t('recognition.results.noCorrectionNeeded')}</span>
           )}
         </CardContent>
       </Card>

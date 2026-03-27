@@ -16,6 +16,7 @@ type SessionLength = 3 | 5 | 8;
 type PageState = "setup" | "active" | "complete";
 
 import { TOOLKIT } from "@/config/toolkit-colors";
+import { typography } from "@/theme/tokens";
 
 const TECHNIQUE_INFO: Record<Technique, { emoji: string; descKey: string }> = {
   box: { emoji: "📦", descKey: "mentalToolkit.breathing.boxDesc" },
@@ -203,7 +204,7 @@ export default function BreathingPage() {
             <CardContent className="p-6 text-center space-y-5 animate-in fade-in duration-500">
               <div className="text-5xl">🌿</div>
               <h2 className="text-xl font-bold text-foreground">{t("mentalToolkit.breathing.complete")}</h2>
-              <p className="text-sm text-muted-foreground">
+              <p className={typography.subtitle}>
                 {Math.round(lastDuration / 60)} {t("mentalToolkit.breathing.totalMinutes").toLowerCase()} · {lastRounds} {t("mentalToolkit.breathing.round", { current: lastRounds, total: technique === "grounding" ? 5 : sessionLength }).split(" ")[0].toLowerCase()}
               </p>
 

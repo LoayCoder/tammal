@@ -12,7 +12,7 @@ import { MoodTrendChart } from "@/components/mental-toolkit/mood/MoodTrendChart"
 import { MoodDistributionDonut } from "@/components/mental-toolkit/mood/MoodDistributionDonut";
 import { MoodHeatmap } from "@/components/mental-toolkit/mood/MoodHeatmap";
 import { MoodToolsSuggestions } from "@/components/mental-toolkit/mood/MoodToolsSuggestions";
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 export default function MoodTrackerPage() {
@@ -63,7 +63,7 @@ export default function MoodTrackerPage() {
             <CardContent className="py-10 text-center space-y-2">
               <SmilePlus className="h-12 w-12 mx-auto text-muted-foreground" />
               <p className="text-lg font-semibold text-foreground">{t("mentalToolkit.moodDashboard.noDataYet")}</p>
-              <p className="text-sm text-muted-foreground">{t("mentalToolkit.moodDashboard.startCheckinPrompt")}</p>
+              <p className={typography.subtitle}>{t("mentalToolkit.moodDashboard.startCheckinPrompt")}</p>
             </CardContent>
           </Card>
         ) : (

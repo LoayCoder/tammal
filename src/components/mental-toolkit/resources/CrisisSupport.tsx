@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Phone, Search } from "lucide-react";
 import { REGION_COLORS, TOOLKIT } from "@/config/toolkit-colors";
+import { typography } from "@/theme/tokens";
 
 interface Contact {
   id: string;
@@ -50,7 +51,7 @@ export default function CrisisSupport() {
           <span className="text-2xl">🆘</span>
           <div>
             <h2 className="font-semibold text-foreground">{t("mentalToolkit.crisis.title")}</h2>
-            <p className="text-sm text-muted-foreground">{t("mentalToolkit.crisis.subtitle")}</p>
+            <p className={typography.subtitle}>{t("mentalToolkit.crisis.subtitle")}</p>
           </div>
         </div>
       </div>

@@ -11,6 +11,7 @@ import { CategoryBadge } from "./CategoryBadge";
 import { Question } from "@/hooks/questions/useQuestions";
 import { Edit2, Trash2, MoreHorizontal, Eye, EyeOff } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { typography } from "@/theme/tokens";
 
 function ExpandableText({ text }: { text: string }) {
   if (!text || text === '-') return <span className="text-muted-foreground">-</span>;
@@ -228,7 +229,7 @@ export function QuestionTable({
               <div className="flex flex-wrap items-center gap-3">
                 {viewQuestion.category && (
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">{t('questions.category')}:</span>
+                    <span className={typography.subtitle}>{t('questions.category')}:</span>
                     <CategoryBadge
                       name={viewQuestion.category.name}
                       nameAr={viewQuestion.category.name_ar}
@@ -237,11 +238,11 @@ export function QuestionTable({
                   </div>
                 )}
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">{t('questions.type')}:</span>
+                  <span className={typography.subtitle}>{t('questions.type')}:</span>
                   <Badge variant="outline">{getTypeLabel(viewQuestion.type)}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">{t('common.status')}:</span>
+                  <span className={typography.subtitle}>{t('common.status')}:</span>
                   <Badge variant={viewQuestion.is_active ? "default" : "secondary"}>
                     {viewQuestion.is_active ? t('common.active') : t('common.inactive')}
                   </Badge>

@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { typography, layout, iconBox } from "@/theme/tokens";
+import { typography, layout, iconBox, cardVariants } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 interface PageHeaderProps {
@@ -24,7 +24,7 @@ export default function PageHeader({
 
   if (variant === "card") {
     return (
-      <div className="glass-card border-0 rounded-xl p-6">
+      <div className={cn(cardVariants.glass, "p-6")}>
         <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-4")}>
           <div className="flex items-center gap-3">
             <div className={cn(iconBox.md, "bg-primary/10")}>
@@ -42,7 +42,7 @@ export default function PageHeader({
   }
 
   return (
-    <div className="glass-card border-0 rounded-none border-b border-border/50 px-4 py-5 sm:px-6">
+    <div className={cn(cardVariants.glass, "rounded-none border-b border-border/50 px-4 py-5 sm:px-6")}>
       <div className={cn(maxWClass, "flex items-center gap-3")}>
         <div className={cn(iconBox.md, "bg-primary/10")}>
           {icon}

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, CalendarDays, CalendarRange } from 'lucide-react';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 
 const MONTHS_EN = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -32,9 +32,9 @@ export function CalendarNavigation({
         <div className="flex items-center gap-3">
           <CalendarIcon className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-2xl font-bold">{t('spiritual.calendar.title')}</h1>
+            <h1 className={typography.metric}>{t('spiritual.calendar.title')}</h1>
             {hijriToday && (
-              <p className="text-sm text-muted-foreground">
+              <p className={typography.subtitle}>
                 {isRTL
                   ? `${hijriToday.day} ${hijriToday.month.ar} ${hijriToday.year} هـ`
                   : `${hijriToday.day} ${hijriToday.month.en} ${hijriToday.year} AH`}

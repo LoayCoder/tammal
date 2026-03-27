@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Upload, FileText, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CreateEmployeeInput } from "@/hooks/org/useEmployees";
+import { typography } from "@/theme/tokens";
 
 interface EmployeeImportProps {
   open: boolean;
@@ -163,7 +164,7 @@ export function EmployeeImport({ open, onOpenChange, tenantId, onImport, isLoadi
               </Alert>
             )}
 
-            <p className="text-sm text-muted-foreground">{t('employees.mapFields')}</p>
+            <p className={typography.subtitle}>{t('employees.mapFields')}</p>
             
             <div className="grid gap-3">
               {[...REQUIRED_FIELDS, ...OPTIONAL_FIELDS].map(field => (
@@ -193,7 +194,7 @@ export function EmployeeImport({ open, onOpenChange, tenantId, onImport, isLoadi
 
         {step === 'preview' && (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
+            <p className={typography.subtitle}>
               {t('employees.previewCount', { count: getMappedData().length })}
             </p>
             
