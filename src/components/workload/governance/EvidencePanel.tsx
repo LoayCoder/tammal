@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FileText, Upload, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { cardVariants } from "@/theme/tokens";
 
 export interface EvidenceItem {
   id: string;
