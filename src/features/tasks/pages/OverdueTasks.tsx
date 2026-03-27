@@ -40,7 +40,7 @@ export default function OverdueTasks() {
       {/* Stats */}
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
         <Card className="border-0 bg-destructive/5"><CardContent className="p-3 text-center">
-          <div className="text-xl font-bold text-destructive">{stats.total}</div>
+          <div className={cn(typography.metric, "text-destructive")}>{stats.total}</div>
           <p className="text-xs text-muted-foreground">{t('tasks.stats.totalOverdue')}</p>
         </CardContent></Card>
         <Card className="border-0 bg-chart-4/5"><CardContent className="p-3 text-center">
