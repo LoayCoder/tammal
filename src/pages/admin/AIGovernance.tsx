@@ -72,7 +72,7 @@ export default function AIGovernance() {
               <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-lg font-semibold text-foreground">
+              <h3 className={typography.sectionTitle}>
                 {t('aiGovernance.loadError', 'Failed to load governance data')}
               </h3>
               <p className="text-sm text-muted-foreground max-w-sm">
