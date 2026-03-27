@@ -436,7 +436,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                     </Card>
                     <Card>
                       <CardContent className="p-4 text-center">
-                        <p className="text-2xl font-bold text-primary">{answeredRate}%</p>
+                        <p className={`${typography.metric} text-primary`}>{answeredRate}%</p>
                         <p className="text-xs text-muted-foreground">{t('common.answeredRate')}</p>
                       </CardContent>
                     </Card>

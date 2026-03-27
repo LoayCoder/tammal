@@ -135,7 +135,7 @@ export default function EmployeeSurvey() {
   if (!employee) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <h2 className="text-2xl font-bold mb-2">{t('survey.noProfile')}</h2>
+        <h2 className={`${typography.pageTitle} mb-2`}>{t('survey.noProfile')}</h2>
         <p className="text-muted-foreground">{t('survey.contactAdmin')}</p>
       </div>
     );
@@ -145,7 +145,7 @@ export default function EmployeeSurvey() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
         <CheckCircle2 className="h-16 w-16 text-primary mb-4" />
-        <h2 className="text-2xl font-bold mb-2">
+        <h2 className={`${typography.pageTitle} mb-2`}>
           {hasAnswered ? t('survey.surveyCompleted', 'Survey Completed') : t('survey.allCaughtUp')}
         </h2>
         <p className="text-muted-foreground">
@@ -159,7 +159,7 @@ export default function EmployeeSurvey() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
         <Clock className="h-16 w-16 text-muted-foreground mb-4" />
-        <h2 className="text-2xl font-bold mb-2">{t('survey.notStarted', 'Survey Not Yet Open')}</h2>
+        <h2 className={`${typography.pageTitle} mb-2`}>{t('survey.notStarted', 'Survey Not Yet Open')}</h2>
         <p className="text-muted-foreground">
           {t('survey.opensAt', 'Opens at')}: {surveyMeta?.start_date ? new Date(surveyMeta.start_date).toLocaleString() : ''}
         </p>

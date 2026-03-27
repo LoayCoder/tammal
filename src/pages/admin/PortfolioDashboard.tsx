@@ -78,7 +78,7 @@ export default function PortfolioDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">{t('portfolio.pageTitle')}</h1>
+        <h1 className={typography.pageTitle}>{t('portfolio.pageTitle')}</h1>
         <p className="text-muted-foreground text-sm">{t('portfolio.pageDesc')}</p>
       </div>
 

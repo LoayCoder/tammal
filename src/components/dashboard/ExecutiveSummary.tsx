@@ -29,7 +29,7 @@ function HealthGauge({ score }: { score: number }) {
             transform={`rotate(${rotation}, 60, 55)`} />
         </svg>
       </div>
-      <span className="text-2xl font-bold mt-1">{score}</span>
+      <span className={`${typography.metric} mt-1`}>{score}</span>
       <span className="text-xs text-muted-foreground">/100</span>
     </div>
   );

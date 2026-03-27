@@ -118,7 +118,7 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
             />
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>1</span>
-              <span className="text-2xl font-bold text-primary transition-all duration-200">{String(answer ?? 5)}</span>
+              <span className={`${typography.metric} text-primary transition-all duration-200`}>{String(answer ?? 5)}</span>
               <span>10</span>
             </div>
           </div>
