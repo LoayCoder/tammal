@@ -22,6 +22,7 @@ import { format } from "date-fns";
 
 import { TOOLKIT } from "@/config/toolkit-colors";
 import { ToolkitPageHeader, ToolkitCard, GradientButton } from "@/components/mental-toolkit/shared";
+import { typography } from "@/theme/tokens";
 
 
 const STEPS = ["stepIdentify", "stepChallenge", "stepReframe"] as const;
@@ -466,11 +467,11 @@ export default function ThoughtReframerPage() {
 
                       {isExpanded && ca && (
                         <div className="animate-in fade-in duration-200 space-y-2 pt-2 border-t border-border">
-                          <p className="text-xs font-medium text-muted-foreground">{t("mentalToolkit.thoughtReframer.challengeAnswers")}</p>
+                          <p className={typography.statLabel}>{t("mentalToolkit.thoughtReframer.challengeAnswers")}</p>
                           {(["q1", "q2", "q3"] as const).map((key) =>
                             ca[key] ? (
                               <div key={key} className="rounded-lg p-2" style={{ background: `${TOOLKIT.lavender}08` }}>
-                                <p className="text-xs font-medium text-muted-foreground">{t(`mentalToolkit.thoughtReframer.${key}`)}</p>
+                                <p className={typography.statLabel}>{t(`mentalToolkit.thoughtReframer.${key}`)}</p>
                                 <p className="text-xs text-foreground mt-0.5">{ca[key]}</p>
                               </div>
                             ) : null

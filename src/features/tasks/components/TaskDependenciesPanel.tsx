@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Link2, X, Plus, AlertTriangle, CheckCircle, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { typography } from "@/theme/tokens";
 
 const STATUS_BADGE: Record<string, string> = {
   completed: 'bg-chart-1/10 text-chart-1',
@@ -106,7 +107,7 @@ export function TaskDependenciesPanel({ taskId }: { taskId: string }) {
         {/* Blockers */}
         {blockers.length > 0 && (
           <div className="space-y-1">
-            <span className="text-xs font-medium text-muted-foreground">{t('dependencies.blockedBy')}</span>
+            <span className={typography.statLabel}>{t('dependencies.blockedBy')}</span>
             {blockers.map(dep => {
               const task = dep.depends_on_task as any;
               const isResolved = task?.status === 'completed';
@@ -129,7 +130,7 @@ export function TaskDependenciesPanel({ taskId }: { taskId: string }) {
         {/* Dependents */}
         {dependents.length > 0 && (
           <div className="space-y-1">
-            <span className="text-xs font-medium text-muted-foreground">{t('dependencies.blocking')}</span>
+            <span className={typography.statLabel}>{t('dependencies.blocking')}</span>
             {dependents.map(dep => {
               const task = dep.dependent_task as any;
               return (

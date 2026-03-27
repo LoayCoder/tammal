@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Upload, FileText, Trash2, Loader2 } from 'lucide-react';
 import { useFrameworkDocuments } from '@/hooks/questions/useFrameworkDocuments';
+import { typography } from "@/theme/tokens";
 
 interface FrameworkDocumentsProps {
   frameworkId: string;
@@ -29,7 +30,7 @@ export function FrameworkDocuments({ frameworkId }: FrameworkDocumentsProps) {
   return (
     <div className="mt-2 space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-muted-foreground">
+        <span className={typography.statLabel}>
           {t('aiGenerator.frameworkDocuments')}
         </span>
         <Button

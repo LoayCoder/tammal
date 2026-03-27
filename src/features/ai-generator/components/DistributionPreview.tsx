@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { typography } from "@/theme/tokens";
 
 interface DistributionPreviewProps {
   subcategories: { id: string; name: string; name_ar: string | null }[];
@@ -25,7 +26,7 @@ export function DistributionPreview({ subcategories, questionCount }: Distributi
 
   return (
     <div className="rounded-md border p-3 space-y-2">
-      <p className="text-xs font-medium text-muted-foreground">{t('aiGenerator.distributionPreview')}</p>
+      <p className={typography.statLabel}>{t('aiGenerator.distributionPreview')}</p>
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>

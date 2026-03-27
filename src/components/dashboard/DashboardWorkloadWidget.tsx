@@ -12,7 +12,7 @@ import {
   ClipboardList, ChevronRight, CheckCircle2, AlertTriangle,
   Clock, SquareCheckBig,
 } from 'lucide-react';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 const PRIORITY_COLORS: Record<number, string> = {
@@ -103,7 +103,7 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
         {/* Upcoming Tasks */}
         {upcoming.length > 0 && (
           <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground">{t('dashboard.workloadWidget.upcoming')}</p>
+            <p className={typography.statLabel}>{t('dashboard.workloadWidget.upcoming')}</p>
             <div className="space-y-1.5">
               {upcoming.map(task => (
                 <div key={task.id} className="flex items-center gap-2 rounded-md bg-muted/30 px-3 py-2">

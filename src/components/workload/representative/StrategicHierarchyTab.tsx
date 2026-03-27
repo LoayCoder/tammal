@@ -18,6 +18,7 @@ import type { ObjAction } from '@/features/workload/hooks/useActions';
 import { ObjectiveDialog } from '@/components/workload/ObjectiveDialog';
 import { InitiativeDialog } from '@/components/workload/InitiativeDialog';
 import { ActionDialog } from '@/components/workload/ActionDialog';
+import { typography } from "@/theme/tokens";
 
 const statusColors: Record<string, string> = {
   on_track: 'bg-chart-2/15 text-chart-2 border-chart-2/30',
@@ -226,7 +227,7 @@ export function StrategicHierarchyTab({
                               {isInitExpanded && (
                                 <CardContent className="pt-0">
                                   <div className="flex items-center justify-between mb-2">
-                                    <h4 className="text-xs font-medium text-muted-foreground">{t('workload.actions.sectionTitle')}</h4>
+                                    <h4 className={typography.statLabel}>{t('workload.actions.sectionTitle')}</h4>
                                     {!init.is_locked && (
                                       <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { setSelectedAction(null); setActionInitId(init.id); setActionDialogOpen(true); }}>
                                         <Plus className="me-1 h-3 w-3" />{t('workload.actions.add')}
