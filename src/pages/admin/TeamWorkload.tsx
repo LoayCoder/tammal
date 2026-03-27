@@ -19,6 +19,10 @@ import { WorkloadDistributionChart } from '@/components/workload/team/WorkloadDi
 import { ExecutionMetricsCard } from '@/components/workload/team/ExecutionMetricsCard';
 import { RiskAlertsCard } from '@/components/workload/team/RiskAlertsCard';
 import { PageHeader } from '@/components/system';
+import { Users, AlertTriangle, TrendingUp, CheckCircle2, Plus, Search, Lock, Unlock, Trash2 } from 'lucide-react';
+import { TeamMemberAccordion } from '@/components/workload/team/TeamMemberAccordion';
+import { format } from 'date-fns';
+import { cardVariants } from "@/theme/tokens";
 const priorityLabels: Record<number, string> = { 1: 'P1', 2: 'P2', 3: 'P3', 4: 'P4', 5: 'P5' };
 
 interface MemberSummary {
