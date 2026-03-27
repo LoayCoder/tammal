@@ -7,6 +7,8 @@ import { useEndorsements } from '@/hooks/recognition/useEndorsements';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ThumbsUp, ChevronRight } from 'lucide-react';
+import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 export function DashboardEndorsementRequests() {
   const { t } = useTranslation();
