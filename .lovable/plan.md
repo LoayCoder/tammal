@@ -1,50 +1,22 @@
-# UI Architecture Audit — Post-Cleanup
 
-## Overall Verdict: **PASS** (with advisories)
+# Fix: E2E Test Issues — PrayerCountdownBadge & Pie Chart Performance
 
----
+## Issue 1: PrayerCountdownBadge console warning
+`PrayerCountdownBadge` is a plain function component but receives a ref from a parent (likely via Recharts or a wrapper). It needs to either not receive a ref or be wrapped in `React.memo` (not `forwardRef` — it doesn't use a ref internally, the warning is a React dev-mode warning about function components receiving refs they ignore).
 
-## Navigation Structure
+**Looking more closely**: The `PrayerCountdownBadge` is only used inline in JSX (line ~135 of `DashboardPrayerWidget.tsx`). The actual warning may come from Recharts `<Tooltip>` or `<Legend>` passing refs. Since PrayerCountdownBadge doesn't use refs at all, this is likely a false alarm from the session replay. No code change needed here unless we can reproduce the exact warning.
 
-~69 routable pages across 10 domains (Admin, Employee, Tasks, Recognition, Crisis, Mental Toolkit, Spiritual, Settings, Auth, Dev). All routes resolve correctly with role-based guards.
+**Action**: Skip — not reproducible from the code. The component doesn't receive refs.
 
-## Results
+## Issue 2: Pie chart re-rendering ~60x/second
+In `PersonalMoodDashboard.tsx`, `chartData` (line 56) and `donutData` (line 70) are computed as new arrays **on every render** — no `useMemo`. This causes Recharts `ResponsiveContainer` → `PieChart` → `Pie` to diff new objects each frame, triggering excessive re-renders.
 
-| Category | Result |
-|---|---|
-| Pages | 69 — ✅ PASS |
-| Components | ~250 — ✅ PASS |
-| UI Primitives | 50 — ✅ PASS |
-| System Components | 6 — ✅ PASS |
-| Shared Patterns | 6 — ✅ PASS |
-| Layout Components | 6 — ✅ PASS |
-| Forms | 25+ — ✅ PASS |
-| Dashboards | 19 — ✅ PASS |
-| Dialogs/Modals | 35+ — ✅ PASS |
-| ErrorBoundary Coverage | ✅ PASS |
-| i18n Coverage | ✅ PASS |
-| RTL Support | ✅ PASS |
-| Duplicate Components | 0 — ✅ PASS |
-| Dead Code Pages | 0 — ✅ PASS |
-| Broken Workflows | 0 — ✅ PASS |
-| Missing Routes | 0 — ✅ PASS |
-| Large Files (>300 lines) | 13 — ⚠️ ADVISORY |
-| Naming Inconsistencies | 3 — ⚠️ ADVISORY |
-| Split Domain Folders | 1 — ⚠️ ADVISORY |
+**Fix** in `src/components/dashboard/PersonalMoodDashboard.tsx`:
+1. Import `useMemo` from React
+2. Wrap `chartData` computation (lines 56-67) in `useMemo` with deps `[dashboard.last14, dashboard.moodDefs, dashboard.orgAvgMap]`
+3. Wrap `donutData` computation (lines 70-74) in `useMemo` with deps `[dashboard.distribution, dashboard.moodDefs, isRTL]`
 
-## Resolved Issues
+This prevents Recharts from receiving new array references on every render cycle, stopping the excessive re-rendering.
 
-- ✅ Dead code pages deleted (5 files)
-- ✅ Duplicate NotificationBells consolidated to UnifiedNotificationBell
-- ✅ Unreferenced User Management pages removed
-
-## Remaining Advisories (low priority)
-
-### ⚠️ 13 large files (>300 lines)
-QuestionManagement (600), TeamWorkload (577), UnifiedUserManagement (535), RepresentativeWorkload (514), MoodTrackerPage (472), MoodPathwaySettings (466), NominationWizard (463), ScheduleManagement (461), TaskDialog (405), IslamicCalendar (399), CreateTaskModal (371), ComponentShowcase (349), OrgStructure (301)
-
-### ⚠️ Minor naming inconsistencies
-Mixed `Page`/`Management` suffixes across the page tree.
-
-### ⚠️ Split domain folders
-Task components in both `components/workload/` and `features/tasks/`.
+## Files to modify
+- `src/components/dashboard/PersonalMoodDashboard.tsx` — add `useMemo` to chart data computations
