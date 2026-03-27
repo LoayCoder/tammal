@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { User, Shield, Key, Mail, Calendar, Pencil, Lock, Smartphone, Monitor, Trash2, History } from 'lucide-react';
+import { PageHeader } from '@/components/system';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { EditProfileDialog } from '@/components/profile/EditProfileDialog';
