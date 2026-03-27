@@ -181,7 +181,7 @@ export default function PrayerTracker() {
 
             {/* Duha card */}
             <Card className={cn(
-              'glass-card border rounded-xl transition-all duration-300',
+              cardVariants.glass, 'border transition-all duration-300',
               duhaCompleted ? 'border-primary/40 bg-primary/[0.01]' : ''
             )}>
               <CardContent className="p-4 space-y-3">
