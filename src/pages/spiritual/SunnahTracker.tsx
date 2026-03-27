@@ -9,6 +9,7 @@ import { useSunnahLogs, SUNNAH_PRACTICES } from '@/hooks/spiritual/useSunnahLogs
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { cardVariants } from "@/theme/tokens";
+import { PageHeader } from '@/components/system';
 
 export default function SunnahTracker() {
   const { t, i18n } = useTranslation();
