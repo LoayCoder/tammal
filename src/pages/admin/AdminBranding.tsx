@@ -10,6 +10,7 @@ import { ImageUploader } from '@/components/branding/ImageUploader';
 import { BrandingPreview } from '@/components/branding/BrandingPreview';
 import { useBranding } from '@/hooks/branding/useBranding';
 import { useTenantId } from '@/hooks/org/useTenantId';
+import { cardVariants } from "@/theme/tokens";
 
 export default function AdminBranding() {
   const { t } = useTranslation();
@@ -172,7 +173,7 @@ export default function AdminBranding() {
         {/* Left Column - Settings */}
         <div className="lg:col-span-2 space-y-6">
           {/* Colors Section */}
-          <Card className="glass-card border-0 rounded-xl">
+          <Card className={cardVariants.glass}>
             <CardHeader>
               <CardTitle>{t('branding.colorsSection')}</CardTitle>
               <CardDescription>{t('branding.colorsDescription')}</CardDescription>
@@ -199,7 +200,7 @@ export default function AdminBranding() {
           </Card>
 
           {/* Primary Assets Section */}
-          <Card className="glass-card border-0 rounded-xl">
+          <Card className={cardVariants.glass}>
             <CardHeader>
               <CardTitle>{t('branding.assetsSection')}</CardTitle>
               <CardDescription>{t('branding.assetsDescription')}</CardDescription>
@@ -227,7 +228,7 @@ export default function AdminBranding() {
           </Card>
 
           {/* Logo Variants Section */}
-          <Card className="glass-card border-0 rounded-xl">
+          <Card className={cardVariants.glass}>
             <CardHeader>
               <CardTitle>{t('branding.logosSection')}</CardTitle>
               <CardDescription>{t('branding.logosDescription')}</CardDescription>
@@ -255,7 +256,7 @@ export default function AdminBranding() {
           </Card>
 
           {/* Icon Variants Section */}
-          <Card className="glass-card border-0 rounded-xl">
+          <Card className={cardVariants.glass}>
             <CardHeader>
               <CardTitle>{t('branding.iconsSection')}</CardTitle>
               <CardDescription>{t('branding.iconsDescription')}</CardDescription>

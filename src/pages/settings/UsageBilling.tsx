@@ -8,6 +8,7 @@ import { useProfile } from '@/hooks/auth/useProfile';
 import { useSubscriptions } from '@/hooks/org/useSubscriptions';
 import { Users, HardDrive, Activity, TrendingUp, TrendingDown, CreditCard } from 'lucide-react';
 import { PageHeader } from '@/components/system';
+import { cardVariants } from "@/theme/tokens";
 
 export default function UsageBilling() {
   const { t } = useTranslation();
@@ -79,7 +80,7 @@ export default function UsageBilling() {
 
       {/* Usage Quotas */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -106,7 +107,7 @@ export default function UsageBilling() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -154,7 +155,7 @@ export default function UsageBilling() {
       )}
 
       {/* Invoice Placeholder */}
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle>{t('billing.invoices')}</CardTitle>
           <CardDescription>{t('billing.invoicesDesc', 'Your billing history will appear here once invoices are generated.')}</CardDescription>

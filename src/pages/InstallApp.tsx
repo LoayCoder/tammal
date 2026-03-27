@@ -21,6 +21,7 @@ import { usePWAInstall } from '@/hooks/ui/usePWAInstall';
 import { usePushNotifications } from '@/hooks/ui/usePushNotifications';
 import { useBranding } from '@/hooks/branding/useBranding';
 import { ThemeLogo } from '@/components/branding/ThemeLogo';
+import { cardVariants } from "@/theme/tokens";
 
 export default function InstallApp() {
   const { t } = useTranslation();
@@ -151,7 +152,7 @@ export default function InstallApp() {
           <div className="space-y-4">
             {/* iOS Instructions */}
             {isIOS && (
-              <Card className="glass-card border-0 rounded-xl">
+              <Card className={cardVariants.glass}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Smartphone className="h-5 w-5" />
@@ -183,7 +184,7 @@ export default function InstallApp() {
 
             {/* Android Instructions */}
             {isAndroid && !canInstall && (
-              <Card className="glass-card border-0 rounded-xl">
+              <Card className={cardVariants.glass}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Smartphone className="h-5 w-5" />
@@ -208,7 +209,7 @@ export default function InstallApp() {
 
             {/* Desktop Instructions */}
             {!isIOS && !isAndroid && !canInstall && (
-              <Card className="glass-card border-0 rounded-xl">
+              <Card className={cardVariants.glass}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Monitor className="h-5 w-5" />

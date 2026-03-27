@@ -14,6 +14,7 @@ import {
   Phone, Video, CheckCircle, RotateCw, MessageSquare,
 } from 'lucide-react';
 import EnhancedChatPanel from './EnhancedChatPanel';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   caseId: string;
@@ -97,7 +98,7 @@ export default function SessionWorkspace({ caseId, sessionId, tenantId, isFirstA
       <div className="space-y-4">
         {/* Quick Escalation */}
         {isFirstAider && (
-          <Card className="glass-card border-0 rounded-xl">
+          <Card className={cardVariants.glass}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-destructive" />
@@ -118,7 +119,7 @@ export default function SessionWorkspace({ caseId, sessionId, tenantId, isFirstA
 
         {/* Session Notes (First Aider Only) */}
         {isFirstAider && (
-          <Card className="glass-card border-0 rounded-xl">
+          <Card className={cardVariants.glass}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center gap-2">
                 <FileText className="h-4 w-4" />
@@ -165,7 +166,7 @@ export default function SessionWorkspace({ caseId, sessionId, tenantId, isFirstA
 
         {/* Session Info */}
         {currentSession && (
-          <Card className="glass-card border-0 rounded-xl">
+          <Card className={cardVariants.glass}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm">{t('crisisSupport.session.info')}</CardTitle>
             </CardHeader>

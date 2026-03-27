@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, Edit2, ChevronUp, ChevronDown, Trash2, Settings2 } from 'lucide-react';
 import type { MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';
+import { cardVariants } from "@/theme/tokens";
 
 interface MoodDefinitionManagerProps {
   moods: MoodDefinition[];
@@ -27,7 +28,7 @@ export function MoodDefinitionManager({
   const { t } = useTranslation();
 
   return (
-    <Card className="glass-card border-0 rounded-xl">
+    <Card className={cardVariants.glass}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

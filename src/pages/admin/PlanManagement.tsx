@@ -10,6 +10,7 @@ import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
 import { useFormDialog } from '@/shared/dialogs/useFormDialog';
 import { useConfirmDelete } from '@/shared/dialogs/useConfirmDelete';
 import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
+import { cardVariants } from "@/theme/tokens";
 
 export default function PlanManagement() {
   const { t } = useTranslation();
@@ -51,7 +52,7 @@ export default function PlanManagement() {
         }
       />
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle>{t('plans.title')}</CardTitle>
         </CardHeader>

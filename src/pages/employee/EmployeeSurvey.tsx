@@ -12,6 +12,7 @@ import { useScheduledQuestions, useAnsweredSurveyCheck } from '@/hooks/questions
 import { useEmployeeResponses, useDraftResponses } from '@/hooks/wellness/useEmployeeResponses';
 import { useProfile } from '@/hooks/auth/useProfile';
 import { AnswerInput } from '@/components/survey/AnswerInput';
+import { cardVariants } from "@/theme/tokens";
 
 export default function EmployeeSurvey() {
   const { t, i18n } = useTranslation();
@@ -170,7 +171,7 @@ export default function EmployeeSurvey() {
       {/* Survey Header */}
       <div className="space-y-3">
         {surveyMeta && (
-          <Card className="glass-card border-0 rounded-xl">
+          <Card className={cardVariants.glass}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <h1 className="text-xl font-bold">{surveyMeta.schedule_name}</h1>

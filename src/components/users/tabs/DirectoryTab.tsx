@@ -7,6 +7,7 @@ import { Plus, Search, Upload, Download } from 'lucide-react';
 import { EmployeeTable } from '@/components/employees/EmployeeTable';
 import type { Employee, EmployeeStatus } from '@/hooks/org/useEmployees';
 import type { AccountStatus } from '@/components/employees/AccountStatusBadge';
+import { cardVariants } from "@/theme/tokens";
 
 interface UnifiedEmployee extends Employee {
   accountStatus: AccountStatus;
@@ -41,7 +42,7 @@ export function DirectoryTab({
   const { t } = useTranslation();
 
   return (
-    <Card className="glass-card border-0 rounded-xl">
+    <Card className={cardVariants.glass}>
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>

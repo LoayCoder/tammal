@@ -10,6 +10,7 @@ import { useSites } from '@/hooks/org/useSites';
 import { useEmployees } from '@/hooks/org/useEmployees';
 import { DivisionTable } from '@/components/org/DivisionTable';
 import { DivisionSheet } from '@/components/org/DivisionSheet';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   tenantId: string;
@@ -41,7 +42,7 @@ export function DivisionsTab({ tenantId, isLoading }: Props) {
 
   return (
     <>
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>{t('divisions.title')}</CardTitle>
           <Button onClick={() => { setEditing(null); setSheetOpen(true); }}>

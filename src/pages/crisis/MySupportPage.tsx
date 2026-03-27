@@ -11,6 +11,7 @@ import { MessageSquare, Clock, ArrowLeft, X, Plus, Calendar, FileText } from 'lu
 import { PageHeader } from '@/components/system';
 import { format } from 'date-fns';
 import EnhancedChatPanel from '@/components/crisis/EnhancedChatPanel';
+import { cardVariants } from "@/theme/tokens";
 
 const STATUS_COLORS: Record<string, string> = {
   new: 'secondary',
@@ -66,7 +67,7 @@ export default function MySupportPage() {
       {isPending ? (
         <p className="text-muted-foreground">{t('common.loading')}</p>
       ) : myCases.length === 0 ? (
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardContent className="py-12 text-center">
             <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">{t('crisisSupport.mySupport.noCases')}</p>

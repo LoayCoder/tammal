@@ -11,6 +11,7 @@ import { Plus, Trash2, Loader2 } from 'lucide-react';
 import { useRepresentativeAdmin, type CreateRepresentativeInput } from '@/hooks/org/useRepresentativeAdmin';
 import { useOrgTree } from '@/hooks/org/useOrgTree';
 import { useEmployeesWithUser } from '@/hooks/org/useEmployeesList';
+import { cardVariants } from "@/theme/tokens";
 
 interface RepresentativeTabProps {
   tenantId: string;
@@ -86,7 +87,7 @@ export function RepresentativeTab({ tenantId }: RepresentativeTabProps) {
 
   return (
     <>
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>

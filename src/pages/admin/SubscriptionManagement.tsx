@@ -10,6 +10,7 @@ import { useFormDialog } from '@/shared/dialogs/useFormDialog';
 import { useConfirmDelete } from '@/shared/dialogs/useConfirmDelete';
 import { useSubscriptions, type Subscription } from '@/hooks/org/useSubscriptions';
 import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
+import { cardVariants } from "@/theme/tokens";
 
 export default function SubscriptionManagement() {
   const { t } = useTranslation();
@@ -50,7 +51,7 @@ export default function SubscriptionManagement() {
         }
       />
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle>{t('subscriptions.title')}</CardTitle>
         </CardHeader>

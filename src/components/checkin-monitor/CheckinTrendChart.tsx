@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Line, ComposedChart } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import type { CheckinTrendPoint } from '@/hooks/analytics/useCheckinMonitor';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   trendData: CheckinTrendPoint[];
@@ -17,7 +18,7 @@ export function CheckinTrendChart({ trendData, isLoading }: Props) {
 
   if (trendData.length === 0) {
     return (
-       <Card className="glass-card border-0 rounded-xl">
+       <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="text-base">{t('checkinMonitor.trendChart')}</CardTitle>
         </CardHeader>
@@ -34,7 +35,7 @@ export function CheckinTrendChart({ trendData, isLoading }: Props) {
   }));
 
   return (
-    <Card className="glass-card border-0 rounded-xl">
+    <Card className={cardVariants.glass}>
       <CardHeader>
         <CardTitle className="text-base">{t('checkinMonitor.trendChart')}</CardTitle>
       </CardHeader>

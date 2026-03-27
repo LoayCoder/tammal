@@ -10,6 +10,7 @@ import type { QuestionSchedule } from '@/hooks/questions/useQuestionSchedules';
 import { resolveAudience } from '@/hooks/admin/useAudienceResolver';
 
 import type { AudienceEmployee } from '@/hooks/admin/useAudienceResolver';
+import { cardVariants } from "@/theme/tokens";
 
 interface ScheduleListTableProps {
   schedules: QuestionSchedule[];
@@ -77,7 +78,7 @@ export function ScheduleListTable({
   };
 
   return (
-    <Card className="glass-card border-0 rounded-xl">
+    <Card className={cardVariants.glass}>
       <CardHeader>
         <CardTitle>{t('schedules.allSchedules')}</CardTitle>
         <CardDescription>{t('schedules.manageDescription')}</CardDescription>

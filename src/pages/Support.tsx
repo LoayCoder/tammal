@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { PageHeader } from '@/components/system';
+import { cardVariants } from "@/theme/tokens";
 
 export default function Support() {
   const { t } = useTranslation();
@@ -21,7 +22,7 @@ export default function Support() {
         }
       />
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle>{t('support.title')}</CardTitle>
         </CardHeader>

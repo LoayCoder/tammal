@@ -16,6 +16,7 @@ import { ObjectiveDialog } from '@/components/workload/ObjectiveDialog';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { useNavigate } from 'react-router-dom';
 import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
+import { cardVariants } from "@/theme/tokens";
 
 const statusColors: Record<string, string> = {
   on_track: 'bg-chart-2/15 text-chart-2 border-chart-2/30',
@@ -69,7 +70,7 @@ export default function ObjectivesManagement() {
       {isPending ? (
         <div className="grid gap-4 md:grid-cols-2">{[1,2,3,4].map(i => <Card key={i} className="glass-card border-0 animate-pulse h-40" />)}</div>
       ) : objectives.length === 0 ? (
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <Crosshair className="h-12 w-12 text-muted-foreground/40 mb-4" />
             <p className="text-muted-foreground">{t('workload.objectives.empty')}</p>

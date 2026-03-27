@@ -4,6 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { Users, UserCheck, UserX, TrendingUp, TrendingDown, SmilePlus, Flame, Percent, type LucideIcon } from 'lucide-react';
 import type { ParticipationStats } from '@/hooks/analytics/useCheckinMonitor';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   stats: ParticipationStats;
@@ -50,7 +51,7 @@ export function CheckinOverview({ stats, isLoading }: Props) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
       {cards.map(({ label, value, icon: Icon, colorClass, suffix }) => (
-        <Card key={label} className="glass-card border-0 rounded-xl">
+        <Card key={label} className={cardVariants.glass}>
           <CardContent className="p-4 flex flex-col items-center text-center gap-1">
             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
               <Icon className={`h-4 w-4 ${colorClass}`} />

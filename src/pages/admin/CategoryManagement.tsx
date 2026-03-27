@@ -11,6 +11,7 @@ import { Plus, MoreHorizontal, Edit2, Trash2, ToggleLeft, ToggleRight, Tags } fr
 import { PageHeader } from '@/components/system';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { cardVariants } from "@/theme/tokens";
 
 export default function CategoryManagement() {
   const { t, i18n } = useTranslation();
@@ -68,7 +69,7 @@ export default function CategoryManagement() {
         }
       />
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle>{t('categories.list')}</CardTitle>
           <CardDescription>{t('categories.listDescription')}</CardDescription>

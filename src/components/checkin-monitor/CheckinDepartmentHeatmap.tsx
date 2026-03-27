@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import type { CheckinDepartmentStat } from '@/hooks/analytics/useCheckinMonitor';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   departments: CheckinDepartmentStat[];
@@ -16,7 +17,7 @@ export function CheckinDepartmentHeatmap({ departments, isLoading }: Props) {
 
   if (departments.length === 0) {
     return (
-       <Card className="glass-card border-0 rounded-xl">
+       <Card className={cardVariants.glass}>
         <CardContent className="p-6 text-center text-muted-foreground">{t('common.noData')}</CardContent>
       </Card>
     );
@@ -29,7 +30,7 @@ export function CheckinDepartmentHeatmap({ departments, isLoading }: Props) {
   };
 
   return (
-    <Card className="glass-card border-0 rounded-xl">
+    <Card className={cardVariants.glass}>
       <CardHeader>
         <CardTitle className="text-base">{t('checkinMonitor.departmentHeatmap')}</CardTitle>
       </CardHeader>

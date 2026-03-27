@@ -8,6 +8,7 @@ import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferenc
 import { useSunnahLogs, SUNNAH_PRACTICES } from '@/hooks/spiritual/useSunnahLogs';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { cardVariants } from "@/theme/tokens";
 
 export default function SunnahTracker() {
   const { t, i18n } = useTranslation();
@@ -30,7 +31,7 @@ export default function SunnahTracker() {
   if (!isActive) {
     return (
       <div className="container mx-auto py-6">
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardContent className="p-12 text-center space-y-4">
             <Star className="h-12 w-12 mx-auto text-muted-foreground" />
             <h2 className="text-xl font-semibold">{t('spiritual.sunnah.notEnabled')}</h2>
@@ -59,7 +60,7 @@ export default function SunnahTracker() {
       </div>
 
       {/* Today's Sunnah */}
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="text-lg">{t('spiritual.sunnah.todayTitle')}</CardTitle>
           <p className="text-sm text-muted-foreground">{t('spiritual.sunnah.tapToMark')}</p>
@@ -107,7 +108,7 @@ export default function SunnahTracker() {
       </Card>
 
       {/* 30-day Stats */}
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-primary" />

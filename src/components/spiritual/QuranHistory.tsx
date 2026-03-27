@@ -11,6 +11,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { ChevronDown, Flame, CalendarIcon, History, Clock, BookOpen, Calendar as CalendarIconSolid } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuranHistory, type QuranHistoryRange } from '@/hooks/spiritual/useQuranHistory';
+import { cardVariants } from "@/theme/tokens";
 
 const RANGE_OPTIONS: QuranHistoryRange[] = ['week', 'month', 'quarter', 'year', 'custom'];
 
@@ -39,7 +40,7 @@ export const QuranHistory = React.memo(function QuranHistory() {
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CollapsibleTrigger asChild>
           <CardHeader className="cursor-pointer hover:bg-muted/40 transition-colors rounded-t-xl">
             <CardTitle className="flex items-center justify-between text-lg">

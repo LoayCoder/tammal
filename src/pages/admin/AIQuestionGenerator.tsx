@@ -18,6 +18,7 @@ import { BatchSaveDialog } from '@/features/ai-generator/components/BatchSaveDia
 import { WellnessSavePreviewDialog } from '@/features/ai-generator/components/WellnessSavePreviewDialog';
 import { useAIGenerator, GeneratorProvider } from '@/features/ai-generator';
 import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
+import { cardVariants } from "@/theme/tokens";
 
 export default function AIQuestionGenerator() {
   const { t } = useTranslation();
@@ -32,7 +33,7 @@ export default function AIQuestionGenerator() {
           <p className="text-muted-foreground">{t('aiGenerator.subtitle')}</p>
         </div>
 
-        <div className="glass-card border-0 rounded-xl">
+        <div className={cardVariants.glass}>
           <TopControlBar
             accuracyMode={g.accuracyMode}
             onAccuracyModeChange={g.setAccuracyMode}
@@ -54,7 +55,7 @@ export default function AIQuestionGenerator() {
 
           <div className="lg:col-span-3 space-y-4">
             {g.isStrict && g.hasFailures && g.questions.length > 0 && (
-              <Alert variant="destructive" className="glass-card border-0 rounded-xl">
+              <Alert variant="destructive" className={cardVariants.glass}>
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>{t('aiGenerator.strictModeMessage')}</AlertDescription>
               </Alert>

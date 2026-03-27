@@ -28,6 +28,7 @@ import { TenantTable } from '@/components/tenants/TenantTable';
 import { TenantSheet } from '@/components/tenants/TenantSheet';
 import { TenantDetailDialog } from '@/components/tenants/TenantDetailDialog';
 import type { SecuritySettings } from '@/components/tenants/TenantSecurityControl';
+import { cardVariants } from "@/theme/tokens";
 
 const TENANT_STATUSES = ['all', 'active', 'trial', 'suspended', 'inactive'] as const;
 
@@ -154,7 +155,7 @@ export default function TenantManagement() {
         }
       />
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle>{t('tenants.title')}</CardTitle>

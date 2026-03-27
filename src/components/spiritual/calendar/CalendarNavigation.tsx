@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, CalendarDays, CalendarRange } from 'lucide-react';
+import { cardVariants } from "@/theme/tokens";
 
 const MONTHS_EN = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -55,7 +56,7 @@ export function CalendarNavigation({
         </Tabs>
       </div>
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="icon" onClick={onPrevMonth}>

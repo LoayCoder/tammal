@@ -11,6 +11,7 @@ import { useDivisions } from '@/hooks/org/useDivisions';
 import { useEmployees } from '@/hooks/org/useEmployees';
 import { SiteTable } from '@/components/org/SiteTable';
 import { SiteSheet } from '@/components/org/SiteSheet';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   tenantId: string;
@@ -43,7 +44,7 @@ export function SectionsTab({ tenantId, isLoading }: Props) {
 
   return (
     <>
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>{t('sections.title')}</CardTitle>
           <Button onClick={() => { setEditing(null); setSheetOpen(true); }}>

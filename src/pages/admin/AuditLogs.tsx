@@ -11,6 +11,7 @@ import { useTenants } from '@/hooks/org/useTenants';
 import { AuditLogTable } from '@/components/audit/AuditLogTable';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { cardVariants } from "@/theme/tokens";
 
 export default function AuditLogs() {
   const { t } = useTranslation();
@@ -101,7 +102,7 @@ export default function AuditLogs() {
         variant="card"
       />
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
@@ -176,7 +177,7 @@ export default function AuditLogs() {
         </CardContent>
       </Card>
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle>{t('audit.logEntries')}</CardTitle>
           <CardDescription>

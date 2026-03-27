@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import i18n from 'i18next';
 import { logger } from '@/lib/logger';
+import { cardVariants } from "@/theme/tokens";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -51,7 +52,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     }
 
     return (
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardContent className="flex flex-col items-center justify-center py-12 text-center space-y-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
             <AlertTriangle className="h-6 w-6 text-destructive" />

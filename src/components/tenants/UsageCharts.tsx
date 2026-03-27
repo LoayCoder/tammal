@@ -7,6 +7,7 @@ import {
 } from 'recharts';
 import { format } from 'date-fns';
 import type { TenantUsage } from '@/hooks/org/useTenantUsage';
+import { cardVariants } from "@/theme/tokens";
 
 interface UsageChartsProps {
   history: TenantUsage[];
@@ -76,7 +77,7 @@ export function UsageCharts({ history, isLoading }: UsageChartsProps) {
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle>{t('tenantDashboard.userGrowth')}</CardTitle>
         </CardHeader>
@@ -127,7 +128,7 @@ export function UsageCharts({ history, isLoading }: UsageChartsProps) {
         </CardContent>
       </Card>
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle>{t('tenantDashboard.storageUsage')}</CardTitle>
         </CardHeader>

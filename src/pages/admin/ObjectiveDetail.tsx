@@ -26,6 +26,7 @@ import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions'
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
+import { cardVariants } from "@/theme/tokens";
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 
@@ -155,7 +156,7 @@ export default function ObjectiveDetail() {
       {initLoading ? (
         <div className="space-y-3">{[1,2].map(i => <Skeleton key={i} className="h-20" />)}</div>
       ) : initiatives.length === 0 ? (
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardContent className="flex flex-col items-center justify-center py-8 text-center">
             <FolderOpen className="h-10 w-10 text-muted-foreground/40 mb-3" />
             <p className="text-muted-foreground">{t('workload.initiatives.empty')}</p>
@@ -166,7 +167,7 @@ export default function ObjectiveDetail() {
           {initiatives.map(init => {
             const isExpanded = expandedInitiative === init.id;
             return (
-              <Card key={init.id} className="glass-card border-0 rounded-xl">
+              <Card key={init.id} className={cardVariants.glass}>
                 <CardHeader className="pb-2 cursor-pointer" onClick={() => setExpandedInitiative(isExpanded ? null : init.id)}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">

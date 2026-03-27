@@ -5,6 +5,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import type { TrendPoint } from '@/hooks/analytics/useSurveyMonitor';
 import { format, parseISO } from 'date-fns';
 import { CHART_TOOLTIP_STYLE } from '@/config/chart-styles';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   trendData: TrendPoint[];
@@ -37,7 +38,7 @@ export function ParticipationTrend({ trendData, isLoading }: Props) {
   }));
 
   return (
-    <Card className="glass-card border-0 rounded-xl">
+    <Card className={cardVariants.glass}>
       <CardHeader>
         <CardTitle className="text-base">{t('surveyMonitor.participationTrend')}</CardTitle>
       </CardHeader>

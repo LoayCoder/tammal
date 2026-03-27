@@ -14,6 +14,7 @@ import { Plus, MoreHorizontal, Edit2, Trash2, ToggleLeft, ToggleRight, GitBranch
 import { PageHeader } from '@/components/system';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { cardVariants } from "@/theme/tokens";
 
 export default function SubcategoryManagement() {
   const { t, i18n } = useTranslation();
@@ -68,7 +69,7 @@ export default function SubcategoryManagement() {
         }
       />
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>

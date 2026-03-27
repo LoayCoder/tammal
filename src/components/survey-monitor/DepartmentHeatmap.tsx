@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import type { DepartmentStat } from '@/hooks/analytics/useSurveyMonitor';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   departments: DepartmentStat[];
@@ -34,7 +35,7 @@ export function DepartmentHeatmap({ departments, isLoading, riskThreshold = 50 }
   };
 
   return (
-    <Card className="glass-card border-0 rounded-xl">
+    <Card className={cardVariants.glass}>
       <CardHeader>
         <CardTitle className="text-base">{t('surveyMonitor.departmentHeatmap')}</CardTitle>
       </CardHeader>

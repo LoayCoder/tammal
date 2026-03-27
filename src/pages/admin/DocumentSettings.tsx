@@ -6,6 +6,7 @@ import { FileText } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import { usePlatformSettings } from '@/hooks/org/usePlatformSettings';
 import { toast } from 'sonner';
+import { cardVariants } from "@/theme/tokens";
 
 export default function DocumentSettings() {
   const { t } = useTranslation();
@@ -29,7 +30,7 @@ export default function DocumentSettings() {
         variant="card"
       />
 
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle>{t('platformSettings.title')}</CardTitle>
           <CardDescription>{t('platformSettings.description')}</CardDescription>
@@ -62,7 +63,7 @@ export default function DocumentSettings() {
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardHeader>
             <CardTitle>{t('documents.pdfTemplate')}</CardTitle>
           </CardHeader>
@@ -70,7 +71,7 @@ export default function DocumentSettings() {
             <p className="text-muted-foreground">PDF template settings coming soon...</p>
           </CardContent>
         </Card>
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardHeader>
             <CardTitle>{t('documents.notificationTemplate')}</CardTitle>
           </CardHeader>

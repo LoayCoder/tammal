@@ -17,6 +17,7 @@ import { Phone, MessageSquare, Shield, AlertTriangle, ArrowRight, Clock, User, E
 import { toast } from 'sonner';
 import CrisisSupport from '@/components/mental-toolkit/resources/CrisisSupport';
 import EmployeeBookingWidget from '@/components/crisis/EmployeeBookingWidget';
+import { cardVariants } from "@/theme/tokens";
 
 
 const INTENTS = [
@@ -151,7 +152,7 @@ export default function CrisisRequestPage() {
 
         {/* Step: Intent Selection */}
         {step === 'intent' && (
-          <Card className="glass-card border-0 rounded-xl">
+          <Card className={cardVariants.glass}>
             <CardHeader>
               <CardTitle className="text-lg">{t('crisisSupport.request.whatHelp')}</CardTitle>
               <CardDescription>{t('crisisSupport.request.selectIntent')}</CardDescription>
@@ -191,7 +192,7 @@ export default function CrisisRequestPage() {
               </CardContent>
             </Card>
 
-            <Card className="glass-card border-0 rounded-xl">
+            <Card className={cardVariants.glass}>
               <CardHeader>
                 <CardTitle className="text-base">{t('crisisSupport.highRisk.emergencyNumbers')}</CardTitle>
               </CardHeader>
@@ -231,7 +232,7 @@ export default function CrisisRequestPage() {
         {/* Step: Options (Enhanced with urgency, contact method, language) */}
         {step === 'options' && (
           <div className="space-y-4">
-            <Card className="glass-card border-0 rounded-xl">
+            <Card className={cardVariants.glass}>
               <CardHeader>
                 <CardTitle className="text-lg">{t('crisisSupport.request.options')}</CardTitle>
               </CardHeader>
@@ -350,14 +351,14 @@ export default function CrisisRequestPage() {
         {step === 'matching' && (
           <div className="space-y-4">
             {isMatching ? (
-              <Card className="glass-card border-0 rounded-xl">
+              <Card className={cardVariants.glass}>
                 <CardContent className="py-12 flex flex-col items-center gap-4">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                   <p className="text-sm text-muted-foreground">{t('crisisSupport.request.matching')}</p>
                 </CardContent>
               </Card>
             ) : matches.length === 0 ? (
-              <Card className="glass-card border-0 rounded-xl">
+              <Card className={cardVariants.glass}>
                 <CardContent className="py-8 text-center space-y-4">
                   <p className="text-sm text-muted-foreground">{t('crisisSupport.request.noMatchesFound')}</p>
                   <Button onClick={() => navigate('/my-support')}>{t('common.done')}</Button>
@@ -365,7 +366,7 @@ export default function CrisisRequestPage() {
               </Card>
             ) : (
               <>
-                <Card className="glass-card border-0 rounded-xl">
+                <Card className={cardVariants.glass}>
                   <CardHeader>
                     <CardTitle className="text-lg">{t('crisisSupport.request.matchResults')}</CardTitle>
                   </CardHeader>
@@ -426,7 +427,7 @@ export default function CrisisRequestPage() {
                   return (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {/* Left: Profile */}
-                      <Card className="glass-card border-0 rounded-xl">
+                      <Card className={cardVariants.glass}>
                         <CardContent className="pt-6 space-y-4">
                           <div className="flex items-center gap-3">
                             <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
@@ -489,7 +490,7 @@ export default function CrisisRequestPage() {
 
                       {/* Right: Actions */}
                       <div className="space-y-3">
-                        <Card className="glass-card border-0 rounded-xl">
+                        <Card className={cardVariants.glass}>
                           <CardContent className="pt-6 space-y-3">
                             <Button
                               onClick={handleConfirmMatch}

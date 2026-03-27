@@ -21,6 +21,7 @@ import { SessionManagementDialog } from '@/components/profile/SessionManagementD
 import { MFASetupDialog } from '@/components/profile/MFASetupDialog';
 import { LoginActivityDialog } from '@/components/profile/LoginActivityDialog';
 import { SpiritualPreferencesCard } from '@/components/spiritual/SpiritualPreferencesCard';
+import { cardVariants } from "@/theme/tokens";
 
 export default function UserProfile() {
   const { t, i18n } = useTranslation();
@@ -126,7 +127,7 @@ export default function UserProfile() {
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* User Info Card */}
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardHeader className="flex flex-row items-start justify-between space-y-0">
             <div className="space-y-1">
               <CardTitle className="flex items-center gap-2">
@@ -247,7 +248,7 @@ export default function UserProfile() {
         </Card>
 
         {/* Roles Card */}
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5" />
@@ -305,7 +306,7 @@ export default function UserProfile() {
       </div>
 
       {/* Permissions Card */}
-      <Card className="glass-card border-0 rounded-xl">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Key className="h-5 w-5" />

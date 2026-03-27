@@ -12,6 +12,7 @@ import { PageHeader } from '@/components/system';
 import { format, isToday } from 'date-fns';
 import { toast } from 'sonner';
 import SessionWorkspace from '@/components/crisis/SessionWorkspace';
+import { cardVariants } from "@/theme/tokens";
 
 type AiderStatus = 'available' | 'busy' | 'offline';
 
@@ -161,7 +162,7 @@ export default function FirstAiderDashboard() {
 
       {/* Today's Schedule */}
       {todaySessions.length > 0 && (
-        <Card className="glass-card border-0 rounded-xl">
+        <Card className={cardVariants.glass}>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Calendar className="h-4 w-4 text-primary" />

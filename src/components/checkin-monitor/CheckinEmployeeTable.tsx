@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Users } from 'lucide-react';
 import type { CheckinEmployeeRow } from '@/hooks/analytics/useCheckinMonitor';
+import { cardVariants } from "@/theme/tokens";
 
 interface Props {
   employees: CheckinEmployeeRow[];
@@ -42,7 +43,7 @@ export function CheckinEmployeeTable({ employees, isLoading }: Props) {
   if (isLoading) return <Skeleton className="h-64 w-full" />;
 
   return (
-    <Card className="glass-card border-0 rounded-xl">
+    <Card className={cardVariants.glass}>
       <CardHeader className="flex flex-row items-center justify-between gap-2">
         <CardTitle className="text-base flex items-center gap-2">
           <Users className="h-4 w-4" />
