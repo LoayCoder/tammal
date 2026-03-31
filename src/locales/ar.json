@@ -4157,5 +4157,13 @@
     "deleteError": "فشل حذف القالب",
     "deleteConfirm": "حذف القالب؟",
     "deleteDescription": "سيتم حذف هذا القالب. لن تتأثر المهام الموجودة التي تم إنشاؤها منه."
+  },
+  "accessibility": {
+    "selectLanguage": "اختيار اللغة",
+    "toggleTheme": "تبديل المظهر",
+    "toggleSidebar": "تبديل الشريط الجانبي",
+    "previousSlide": "الشريحة السابقة",
+    "nextSlide": "الشريحة التالية",
+    "close": "إغلاق"
   }
 }

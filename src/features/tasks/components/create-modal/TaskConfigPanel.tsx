@@ -7,7 +7,7 @@ import { Separator } from '@/shared/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/shared/components/ui/collapsible';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
 import { Calendar } from '@/shared/components/ui/calendar';
-import { format } from 'date-fns';
+import { useLocaleFormat } from '@/shared/hooks/useLocaleFormat';
 import { CalendarIcon, Clock, Bell, ChevronDown, Settings2 } from 'lucide-react';
 import { TaskTagPicker } from '../TaskTagPicker';
 import { TaskMembersPicker } from '../TaskMembersPicker';
@@ -66,6 +66,7 @@ export function TaskConfigPanel({
   onTagsChange, onAdvancedOpenChange,
 }: TaskConfigPanelProps) {
   const { t } = useTranslation();
+  const { lformat } = useLocaleFormat();
 
   return (
     <div className="space-y-4">
@@ -96,8 +97,8 @@ export function TaskConfigPanel({
           <Label className="flex items-center gap-1.5"><CalendarIcon className="h-3.5 w-3.5" />{t('tasks.fields.startDate')}</Label>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="w-full justify-start text-start font-normal h-9 text-sm" aria-label={startDate ? `${t('tasks.fields.startDate')}: ${format(startDate, 'PPP')}` : t('tasks.fields.startDate')}>
-                {startDate ? format(startDate, 'PPP') : t('tasks.fields.selectDate')}
+              <Button variant="outline" className="w-full justify-start text-start font-normal h-9 text-sm" aria-label={startDate ? `${t('tasks.fields.startDate')}: ${lformat(startDate, 'PPP')}` : t('tasks.fields.startDate')}>
+                {startDate ? lformat(startDate, 'PPP') : t('tasks.fields.selectDate')}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={startDate} onSelect={onStartDateChange} /></PopoverContent>
@@ -108,8 +109,8 @@ export function TaskConfigPanel({
           <Label className="flex items-center gap-1.5"><CalendarIcon className="h-3.5 w-3.5" />{t('tasks.fields.dueDate')}</Label>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="w-full justify-start text-start font-normal h-9 text-sm" aria-label={dueDate ? `${t('tasks.fields.dueDate')}: ${format(dueDate, 'PPP')}` : t('tasks.fields.dueDate')}>
-                {dueDate ? format(dueDate, 'PPP') : t('tasks.fields.selectDate')}
+              <Button variant="outline" className="w-full justify-start text-start font-normal h-9 text-sm" aria-label={dueDate ? `${t('tasks.fields.dueDate')}: ${lformat(dueDate, 'PPP')}` : t('tasks.fields.dueDate')}>
+                {dueDate ? lformat(dueDate, 'PPP') : t('tasks.fields.selectDate')}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={dueDate} onSelect={onDueDateChange} /></PopoverContent>
@@ -147,8 +148,8 @@ export function TaskConfigPanel({
             <Label className="flex items-center gap-1.5"><Bell className="h-3.5 w-3.5" />{t('tasks.fields.reminderDate')}</Label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-start text-start font-normal h-9 text-sm" aria-label={reminderDate ? `${t('tasks.fields.reminderDate')}: ${format(reminderDate, 'PPP')}` : t('tasks.fields.reminderDate')}>
-                  {reminderDate ? format(reminderDate, 'PPP') : t('tasks.fields.selectDate')}
+                <Button variant="outline" className="w-full justify-start text-start font-normal h-9 text-sm" aria-label={reminderDate ? `${t('tasks.fields.reminderDate')}: ${lformat(reminderDate, 'PPP')}` : t('tasks.fields.reminderDate')}>
+                  {reminderDate ? lformat(reminderDate, 'PPP') : t('tasks.fields.selectDate')}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={reminderDate} onSelect={onReminderDateChange} /></PopoverContent>

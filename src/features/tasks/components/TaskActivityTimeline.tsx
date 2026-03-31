@@ -8,7 +8,7 @@ import {
   Activity, CheckCircle2, Circle, MessageSquare, Paperclip,
   UserPlus, ArrowRightLeft, AlertTriangle, Clock, Filter,
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { useLocaleFormat } from '@/shared/hooks/useLocaleFormat';
 import type { TaskActivityLog } from '@/features/tasks/hooks/useTaskActivity';
 
 interface TaskActivityTimelineProps {
@@ -31,6 +31,7 @@ const DEFAULT_ICON = { icon: Activity, className: 'text-muted-foreground' };
 
 export function TaskActivityTimeline({ activities, isLoading }: TaskActivityTimelineProps) {
   const { t } = useTranslation();
+  const { lformat } = useLocaleFormat();
   const [filter, setFilter] = useState<string | null>(null);
 
   const actionTypes = useMemo(() => {
@@ -96,14 +97,14 @@ export function TaskActivityTimeline({ activities, isLoading }: TaskActivityTime
           {filtered.map((a, idx) => {
             const { icon: Icon, className: iconClass } = ACTION_ICONS[a.action] ?? DEFAULT_ICON;
             const detailText = formatDetails(a.action, a.details);
-            const showDateSep = idx === 0 || format(new Date(a.created_at), 'PP') !== format(new Date(filtered[idx - 1].created_at), 'PP');
+            const showDateSep = idx === 0 || lformat(new Date(a.created_at), 'PP') !== lformat(new Date(filtered[idx - 1].created_at), 'PP');
 
             return (
               <div key={a.id}>
                 {showDateSep && (
                   <div className="flex items-center gap-3 py-2 -ms-8 ps-8">
                     <Badge variant="outline" className="text-2xs font-medium">
-                      {format(new Date(a.created_at), 'PP')}
+                      {lformat(new Date(a.created_at), 'PP')}
                     </Badge>
                   </div>
                 )}
@@ -124,7 +125,7 @@ export function TaskActivityTimeline({ activities, isLoading }: TaskActivityTime
                       )}
                     </div>
                     <span className="text-2xs text-muted-foreground whitespace-nowrap shrink-0">
-                      {format(new Date(a.created_at), 'p')}
+                      {lformat(new Date(a.created_at), 'p')}
                     </span>
                   </div>
                 </div>

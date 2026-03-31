@@ -5,7 +5,7 @@ import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
 import { ScrollArea } from '@/shared/components/ui/scroll-area';
 import { Save, Send } from 'lucide-react';
-import { format } from 'date-fns';
+import { useLocaleFormat } from '@/shared/hooks/useLocaleFormat';
 import { useEnterpriseTasks } from '@/features/tasks/hooks/useEnterpriseTasks';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import type { ChecklistItem } from './TaskChecklist';
@@ -29,6 +29,7 @@ export function CreateTaskModal({
   defaultDepartmentId, defaultInitiativeId, defaultObjectiveId,
 }: CreateTaskModalProps) {
   const { t } = useTranslation();
+  const { lformat } = useLocaleFormat();
   const { tenantId } = useTenantId();
   const { createTaskAsync, isCreating } = useEnterpriseTasks();
   const formId = useId();
@@ -111,7 +112,7 @@ export function CreateTaskModal({
         <DialogHeader className="p-4 pb-2">
           <DialogTitle className="text-lg">{t('tasks.createTask')}</DialogTitle>
           <p className="text-xs text-muted-foreground">
-            {t('tasks.createdBy')}: {employeeName || t('common.unknown')} • {format(new Date(), 'dd MMM yyyy • HH:mm')}
+            {t('tasks.createdBy')}: {employeeName || t('common.unknown')} • {lformat(new Date(), 'dd MMM yyyy • HH:mm')}
           </p>
         </DialogHeader>
 

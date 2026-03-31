@@ -7,7 +7,7 @@ import { Input } from '@/shared/components/ui/input';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Play, Square, Plus, Trash2, Clock, Timer } from 'lucide-react';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
+import { useLocaleFormat } from '@/shared/hooks/useLocaleFormat';
 
 function formatDuration(minutes: number): string {
   const h = Math.floor(minutes / 60);
@@ -32,6 +32,7 @@ function LiveTimer({ startedAt }: { startedAt: string }) {
 
 export function TaskTimeTrackingPanel({ taskId }: { taskId: string }) {
   const { t } = useTranslation();
+  const { lformat } = useLocaleFormat();
   const { entries, isPending, activeEntry, totalMinutes, startTimer, stopTimer, addManualEntry, removeEntry, isStarting, isStopping } = useTaskTimeTracking(taskId);
   const [showManual, setShowManual] = useState(false);
   const [manualMinutes, setManualMinutes] = useState(30);
@@ -104,7 +105,7 @@ export function TaskTimeTrackingPanel({ taskId }: { taskId: string }) {
               <div key={entry.id} className="flex items-center gap-2 p-2 rounded-lg bg-muted/20 group text-xs">
                 <Clock className="h-3 w-3 text-muted-foreground shrink-0" />
                 <span className="font-medium">{formatDuration(entry.duration_minutes ?? 0)}</span>
-                <span className="text-muted-foreground truncate flex-1">{entry.description || format(new Date(entry.started_at), 'PP p')}</span>
+                <span className="text-muted-foreground truncate flex-1">{entry.description || lformat(new Date(entry.started_at), 'PP p')}</span>
                 <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => removeEntry(entry.id)}>
                   <Trash2 className="h-3 w-3 text-destructive" />
                 </Button>

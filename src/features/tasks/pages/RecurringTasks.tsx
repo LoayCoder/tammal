@@ -12,7 +12,7 @@ import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Plus, RefreshCw, Pencil, Trash2, Clock, Calendar } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
+import { useLocaleFormat } from '@/shared/hooks/useLocaleFormat';
 import { useRecurringTasks } from '@/features/tasks/hooks/useRecurringTasks';
 
 const PATTERNS = ['daily', 'weekly', 'biweekly', 'monthly', 'quarterly'] as const;
@@ -39,6 +39,7 @@ const defaultForm: TemplateForm = {
 
 export default function RecurringTasks() {
   const { t } = useTranslation();
+  const { lformat } = useLocaleFormat();
   const { templates, isPending, employee, tenantId, upsertTemplate, toggleActive, softDelete } = useRecurringTasks();
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -175,7 +176,7 @@ export default function RecurringTasks() {
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{patternLabel(tpl.recurrence_pattern)}</span>
                     <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{tpl.recurrence_time?.slice(0, 5) || '09:00'}</span>
-                    {tpl.next_run_at && <span>{t('recurringTasks.nextRun')}: {format(new Date(tpl.next_run_at), 'MMM dd, HH:mm')}</span>}
+                    {tpl.next_run_at && <span>{t('recurringTasks.nextRun')}: {lformat(new Date(tpl.next_run_at), 'MMM dd, HH:mm')}</span>}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">

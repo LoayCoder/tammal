@@ -54,27 +54,27 @@ export const MoodStep = React.forwardRef<HTMLDivElement, MoodStepProps>(function
         <p className="text-muted-foreground text-xs">{t('wellness.selectMood')}</p>
       </div>
 
-      <div className={`grid gap-2`} style={{ gridTemplateColumns: `repeat(${Math.min(displayMoods.length, 5)}, minmax(0, 1fr))` }}>
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
         {displayMoods.map(mood => {
           const isSelected = selectedMood === mood.level;
           return (
             <button
               key={mood.level}
               onClick={() => onSelect(mood.level)}
-              className={`flex flex-col items-center gap-1.5 p-2.5 sm:p-3 rounded-xl border-2 transition-all duration-200 bg-gradient-to-b ${mood.bgFrom} ${mood.bgTo} active:scale-95 ${
+              className={`flex flex-col items-center gap-1.5 p-2 sm:p-3 rounded-xl border-2 transition-all duration-200 bg-gradient-to-b ${mood.bgFrom} ${mood.bgTo} active:scale-95 ${
                 isSelected
                   ? `${mood.activeBorder} ring-2 ${mood.ring} scale-105`
                   : `${mood.border} opacity-80 hover:opacity-100 hover:scale-[1.03]`
               }`}
             >
               <span
-                className={`text-2xl sm:text-3xl transition-transform duration-300 ${isSelected ? 'scale-110' : ''}`}
+                className={`text-xl sm:text-3xl transition-transform duration-300 ${isSelected ? 'scale-110' : ''}`}
                 role="img"
                 aria-label={mood.level}
               >
                 {mood.emoji}
               </span>
-              <span className={`text-2xs sm:text-xs font-semibold leading-tight text-center ${isSelected ? mood.text : 'text-muted-foreground'}`}>
+              <span className={`text-[10px] sm:text-xs font-semibold leading-tight text-center ${isSelected ? mood.text : 'text-muted-foreground'}`}>
                 {mood.label}
               </span>
             </button>

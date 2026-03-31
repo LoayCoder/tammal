@@ -5,7 +5,8 @@ import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { AlertTriangle, CalendarDays, Clock, Eye, Flame } from 'lucide-react';
-import { format, differenceInDays } from 'date-fns';
+import { differenceInDays } from 'date-fns';
+import { useLocaleFormat } from '@/shared/hooks/useLocaleFormat';
 import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/shared/empty/EmptyState';
 import { useOverdueTasks } from '@/features/tasks/hooks/useOverdueTasks';
@@ -19,6 +20,7 @@ function getEscalationLevel(daysOverdue: number): { level: number; className: st
 
 export default function OverdueTasks() {
   const { t } = useTranslation();
+  const { lformat } = useLocaleFormat();
   const navigate = useNavigate();
   const { overdueTasks, isPending } = useOverdueTasks();
 
@@ -77,7 +79,7 @@ export default function OverdueTasks() {
                       {(task as any).employee?.full_name && <p className="text-xs text-muted-foreground">{t('tasks.fields.assignee')}: {(task as any).employee.full_name}</p>}
                       {task.description && <p className="text-xs text-muted-foreground line-clamp-1">{task.description}</p>}
                       <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{t('tasks.fields.dueDate')}: {format(new Date(task.due_date), 'PP')}</span>
+                        <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{t('tasks.fields.dueDate')}: {lformat(new Date(task.due_date), 'PP')}</span>
                         <span>{t('tasks.fields.progress')}: {task.progress}%</span>
                         <span>{t('tasks.fields.status')}: {t(`tasks.status.${task.status}`)}</span>
                       </div>

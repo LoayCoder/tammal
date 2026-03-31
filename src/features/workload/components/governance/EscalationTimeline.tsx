@@ -3,7 +3,7 @@ import { useEscalationEvents } from '@/features/workload';
 import { Badge } from '@/shared/components/ui/badge';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { AlertTriangle, ArrowUp, Clock } from 'lucide-react';
-import { format } from 'date-fns';
+import { useLocaleFormat } from '@/shared/hooks/useLocaleFormat';
 
 interface Props {
   taskId: string;
@@ -17,6 +17,7 @@ const levelConfig: Record<number, { icon: typeof Clock; variant: 'default' | 'se
 
 export function EscalationTimeline({ taskId }: Props) {
   const { t } = useTranslation();
+  const { lformat } = useLocaleFormat();
   const { events, isPending } = useEscalationEvents(taskId);
 
   if (isPending) return <Skeleton className="h-20 w-full" />;
@@ -41,7 +42,7 @@ export function EscalationTimeline({ taskId }: Props) {
                   {t('governance.escalation.level')} {ev.escalation_level}
                 </Badge>
                 <span className="text-xs text-muted-foreground">
-                  {format(new Date(ev.created_at), 'PPp')}
+                  {lformat(new Date(ev.created_at), 'PPp')}
                 </span>
               </div>
               {ev.reason && <p className="text-sm text-foreground">{ev.reason}</p>}

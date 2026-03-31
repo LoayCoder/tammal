@@ -4319,5 +4319,13 @@
     "deleteError": "Failed to delete template",
     "deleteConfirm": "Delete Template?",
     "deleteDescription": "This template will be removed. Existing tasks created from it won't be affected."
+  },
+  "accessibility": {
+    "selectLanguage": "Select language",
+    "toggleTheme": "Toggle theme",
+    "toggleSidebar": "Toggle sidebar",
+    "previousSlide": "Previous slide",
+    "nextSlide": "Next slide",
+    "close": "Close"
   }
 }

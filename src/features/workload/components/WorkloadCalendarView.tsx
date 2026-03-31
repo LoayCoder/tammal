@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocaleFormat } from '@/shared/hooks/useLocaleFormat';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
@@ -41,6 +42,7 @@ interface WorkloadCalendarViewProps {
 
 export function WorkloadCalendarView({ tasks, isPending }: WorkloadCalendarViewProps) {
   const { t } = useTranslation();
+  const { lformat } = useLocaleFormat();
   const navigate = useNavigate();
 
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -78,7 +80,7 @@ export function WorkloadCalendarView({ tasks, isPending }: WorkloadCalendarViewP
   const weekDayHeaders = useMemo(() => {
     const start = startOfWeek(new Date(), { weekStartsOn: 0 });
     return eachDayOfInterval({ start, end: endOfWeek(start, { weekStartsOn: 0 }) })
-      .map(d => format(d, 'EEE'));
+      .map(d => lformat(d, 'EEE'));
   }, []);
 
   const unscheduledCount = useMemo(() => tasks.filter(t => !t.due_date).length, [tasks]);
@@ -94,8 +96,8 @@ export function WorkloadCalendarView({ tasks, isPending }: WorkloadCalendarViewP
             </Button>
             <h2 className="text-sm font-semibold min-w-[160px] text-center">
               {view === 'month'
-                ? format(currentDate, 'MMMM yyyy')
-                : `${format(startOfWeek(currentDate, { weekStartsOn: 0 }), 'MMM d')} — ${format(endOfWeek(currentDate, { weekStartsOn: 0 }), 'MMM d, yyyy')}`
+                ? lformat(currentDate, 'MMMM yyyy')
+                : `${lformat(startOfWeek(currentDate, { weekStartsOn: 0 }), 'MMM d')} — ${lformat(endOfWeek(currentDate, { weekStartsOn: 0 }), 'MMM d, yyyy')}`
               }
             </h2>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleNext}>
@@ -154,7 +156,7 @@ export function WorkloadCalendarView({ tasks, isPending }: WorkloadCalendarViewP
                     <div className={`text-xs font-medium mb-1 flex items-center justify-center w-6 h-6 rounded-full mx-auto ${
                       today ? 'bg-primary text-primary-foreground' : inMonth ? '' : 'text-muted-foreground/50'
                     }`}>
-                      {format(day, 'd')}
+                      {lformat(day, 'd')}
                     </div>
                     <div className="space-y-0.5">
                       {dayTasks.slice(0, maxVisible).map(task => (

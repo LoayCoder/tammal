@@ -79,7 +79,7 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
 
       <CardContent className="space-y-4 pt-4">
         {/* Stats Grid */}
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {statItems.map(item => (
             <div key={item.label} className="flex flex-col items-center gap-1 rounded-lg bg-muted/50 p-2">
               <item.icon className={`h-4 w-4 ${item.color}`} />

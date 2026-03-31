@@ -1,0 +1,16 @@
+{
+  "projectName": "tammal",
+  "projectPath": "c:\\Users\\loays\\impact-matrix\\tammal\\tammal-development-code\\tammal",
+  "type": "frontend",
+  "testScope": "codebase",
+  "localPort": 8080,
+  "pathname": "",
+  "serverMode": "development",
+  "testPlanPath": "testsprite_tests/testsprite_frontend_test_plan.json",
+  "codeSummaryPath": "testsprite_tests/tmp/code_summary.yaml",
+  "prdPath": "testsprite_tests/standard_prd.json",
+  "credentials": {
+    "LOGIN_USER": "Luay@dhuud.com",
+    "LOGIN_PASSWORD": "Dhuud@2026!"
+  }
+}

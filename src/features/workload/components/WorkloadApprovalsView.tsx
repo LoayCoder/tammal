@@ -5,12 +5,13 @@ import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { CheckCircle2, XCircle, Eye, CalendarDays } from 'lucide-react';
-import { format } from 'date-fns';
+import { useLocaleFormat } from '@/shared/hooks/useLocaleFormat';
 import { EmptyState } from '@/shared/empty/EmptyState';
 import { useApprovalQueue } from '@/features/tasks/hooks/useApprovalQueue';
 
 export function WorkloadApprovalsView() {
   const { t } = useTranslation();
+  const { lformat } = useLocaleFormat();
   const navigate = useNavigate();
   const { pendingTasks, tasksLoading, updateStatus } = useApprovalQueue();
 
@@ -43,7 +44,7 @@ export function WorkloadApprovalsView() {
                 {task.description && <p className="text-xs text-muted-foreground line-clamp-2">{task.description}</p>}
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   {task.due_date && (
-                    <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{format(new Date(task.due_date), 'PP')}</span>
+                    <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{lformat(new Date(task.due_date), 'PP')}</span>
                   )}
                   <span>{t('tasks.fields.progress')}: {task.progress}%</span>
                 </div>

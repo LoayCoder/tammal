@@ -13,40 +13,67 @@ import {
 } from "@/shared/components/ui/breadcrumb";
 import { useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useAppNavigation } from "@/hooks/navigation/useAppNavigation";
 
 export function Header() {
   const location = useLocation();
   const { t } = useTranslation();
+  const { menuItems, mentalToolkitSections, spiritualItems } = useAppNavigation();
 
   const getBreadcrumbs = () => {
-    const paths = location.pathname.split('/').filter(Boolean);
-    if (paths.length === 0) {
+    const currentPath = location.pathname;
+    
+    if (currentPath === '/') {
       return [{ label: t('nav.overview'), path: '/' }];
     }
     
     const breadcrumbs = [{ label: t('nav.dashboard'), path: '/' }];
     
-    const routeLabels: Record<string, string> = {
-      'admin': t('nav.saasManagement'),
-      'tenants': t('nav.tenantManagement'),
-      'plans': t('nav.planManagement'),
-      'subscriptions': t('nav.subscriptionManagement'),
-      'users': t('nav.userManagement'),
-      'org': t('nav.orgStructure'),
-      'settings': t('nav.settings'),
-      'usage': t('nav.usageBilling'),
-      'branding': t('nav.brandManagement'),
-      'docs': t('nav.documentSettings'),
-      'support': t('nav.support'),
-      'auth': t('auth.login'),
-    };
-
-    let currentPath = '';
-    paths.forEach((path) => {
-      currentPath += `/${path}`;
-      if (routeLabels[path]) {
-        breadcrumbs.push({ label: routeLabels[path], path: currentPath });
+    // 1. Search in Mental Toolkit
+    if (currentPath.startsWith('/mental-toolkit')) {
+      for (const section of mentalToolkitSections) {
+        for (const item of section.items) {
+          if (currentPath.startsWith(item.url)) {
+            breadcrumbs.push({ label: t('nav.wellness'), path: '#' });
+            breadcrumbs.push({ label: item.title, path: currentPath });
+            return breadcrumbs;
+          }
+        }
       }
+    }
+    
+    // 2. Search in Spiritual Wellbeing
+    if (currentPath.startsWith('/spiritual')) {
+      for (const item of spiritualItems) {
+        if (currentPath.startsWith(item.url)) {
+          breadcrumbs.push({ label: t('nav.wellness'), path: '#' });
+          breadcrumbs.push({ label: t('spiritual.nav.title'), path: '#' });
+          breadcrumbs.push({ label: item.title, path: currentPath });
+          return breadcrumbs;
+        }
+      }
+    }
+
+    // 3. Search in standard Menu Items
+    for (const group of menuItems) {
+      for (const item of group.items) {
+        if (item.url !== '/' && currentPath.startsWith(item.url)) {
+          if (group.label !== item.title) {
+            breadcrumbs.push({ label: group.label, path: '#' });
+          }
+          breadcrumbs.push({ label: item.title, path: currentPath });
+          return breadcrumbs;
+        }
+      }
+    }
+
+    // 4. Fallback for custom or direct routes without a sidebar mapping
+    const paths = currentPath.split('/').filter(Boolean);
+    let cumulativePath = '';
+    paths.forEach(p => {
+      cumulativePath += `/${p}`;
+      const formattedPath = p.charAt(0).toUpperCase() + p.slice(1).replace(/-/g, ' ');
+      breadcrumbs.push({ label: formattedPath, path: cumulativePath });
     });
 
     return breadcrumbs;
@@ -56,22 +83,26 @@ export function Header() {
   const currentPageTitle = breadcrumbs[breadcrumbs.length - 1]?.label;
 
   return (
-    <header className="glass-header sticky top-0 z-50 flex h-14 items-center gap-4 px-4">
-      <SidebarTrigger className="-ms-2 min-w-[44px] min-h-[44px]" />
+    <header className="glass-header sticky top-0 z-50 flex h-14 items-center gap-2 md:gap-4 px-2 md:px-4">
+      <SidebarTrigger className="-ms-1 md:-ms-2 min-w-[32px] md:min-w-[44px] min-h-[32px] md:min-h-[44px]" />
       
       {/* Mobile: simple page title */}
-      <span className="md:hidden text-sm font-semibold truncate">{currentPageTitle}</span>
+      <span className="md:hidden text-xs sm:text-sm font-semibold truncate flex-1">{currentPageTitle}</span>
 
       {/* Desktop: breadcrumbs */}
       <Breadcrumb className="hidden md:flex">
         <BreadcrumbList>
           {breadcrumbs.map((crumb, index) => (
-            <BreadcrumbItem key={crumb.path}>
+            <BreadcrumbItem key={`crumb-${index}-${crumb.path}`}>
               {index < breadcrumbs.length - 1 ? (
                 <>
-                  <BreadcrumbLink asChild>
-                    <Link to={crumb.path}>{crumb.label}</Link>
-                  </BreadcrumbLink>
+                  {crumb.path === '#' ? (
+                    <span className="font-medium text-muted-foreground">{crumb.label}</span>
+                  ) : (
+                    <BreadcrumbLink asChild>
+                      <Link to={crumb.path}>{crumb.label}</Link>
+                    </BreadcrumbLink>
+                  )}
                   <BreadcrumbSeparator />
                 </>
               ) : (
@@ -82,7 +113,7 @@ export function Header() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="ms-auto flex items-center gap-1 md:gap-2">
+      <div className="ms-auto flex items-center gap-0.5 sm:gap-2">
         <UnifiedNotificationBell />
         <LanguageSelector />
         <ThemeToggle />

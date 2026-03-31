@@ -23,7 +23,7 @@ import {
   Users, AlertTriangle, TrendingUp, CheckCircle2, Plus,
   Lock, Unlock, Trash2, Search,
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { useLocaleFormat } from '@/shared/hooks/useLocaleFormat';
 
 const priorityLabels: Record<number, string> = { 1: 'P1', 2: 'P2', 3: 'P3', 4: 'P4', 5: 'P5' };
 
@@ -34,6 +34,7 @@ interface MemberSummary {
 
 export default function TeamWorkload() {
   const { t } = useTranslation();
+  const { lformat } = useLocaleFormat();
   const { user } = useAuth();
   const { tenantId } = useTenantId();
   const { teamLoad, isPending: analyticsLoading } = useWorkloadAnalytics();
@@ -155,7 +156,7 @@ export default function TeamWorkload() {
     },
     {
       id: 'dueDate', header: t('workload.tasks.dueDate'), className: 'w-28',
-      cell: (row: typeof filteredTasks[number]) => <span className="text-sm text-muted-foreground">{row.due_date ? format(new Date(row.due_date), 'MMM dd') : '—'}</span>,
+      cell: (row: typeof filteredTasks[number]) => <span className="text-sm text-muted-foreground">{row.due_date ? lformat(new Date(row.due_date), 'MMM dd') : '—'}</span>,
     },
     {
       id: 'estimated', header: t('workload.tasks.estimatedMinutes'), className: 'w-20',

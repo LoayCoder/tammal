@@ -29,7 +29,7 @@ import { useTaskActivity } from '@/features/tasks/hooks/useTaskActivity';
 import { useTaskAttachments } from '@/features/tasks/hooks/useTaskAttachments';
 import { useTaskDetail, useTaskUpdate } from '@/features/tasks/hooks/useTaskDetail';
 import { useCurrentEmployee } from '@/features/auth/hooks/auth/useCurrentEmployee';
-import { format } from 'date-fns';
+import { useLocaleFormat } from '@/shared/hooks/useLocaleFormat';
 import { toast } from 'sonner';
 
 import { getValidNextStatuses, STATUS_COLORS } from '@/features/tasks/constants/taskLifecycle';
@@ -44,6 +44,7 @@ const PRIORITY_LABELS: Record<number, { label: string; className: string }> = {
 export default function TaskDetail() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
+  const { lformat } = useLocaleFormat();
   const navigate = useNavigate();
   const { employee } = useCurrentEmployee();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -164,7 +165,7 @@ export default function TaskDetail() {
           {task.due_date && (
             <span className="flex items-center gap-1.5">
               <CalendarDays className="h-4 w-4" />
-              {t('tasks.fields.dueDate')}: {format(new Date(task.due_date), 'PPP')}
+              {t('tasks.fields.dueDate')}: {lformat(new Date(task.due_date), 'PPP')}
             </span>
           )}
           {task.estimated_minutes && (
@@ -282,7 +283,7 @@ export default function TaskDetail() {
                         {item.title}
                       </span>
                       {item.due_date && (
-                        <span className="text-xs text-muted-foreground">{format(new Date(item.due_date), 'PP')}</span>
+                        <span className="text-xs text-muted-foreground">{lformat(new Date(item.due_date), 'PP')}</span>
                       )}
                       <Button
                         variant="ghost"
@@ -330,7 +331,7 @@ export default function TaskDetail() {
                           {att.file_name}
                         </a>
                         <span className="text-xs text-muted-foreground">
-                          {formatFileSize(att.file_size)} · {format(new Date(att.created_at), 'PP')}
+                          {formatFileSize(att.file_size)} · {lformat(new Date(att.created_at), 'PP')}
                         </span>
                       </div>
                       <Button

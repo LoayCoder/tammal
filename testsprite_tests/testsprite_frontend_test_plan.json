@@ -1,0 +1,625 @@
+[
+  {
+    "id": "TC001",
+    "title": "Login with valid email/password redirects to dashboard",
+    "description": "Verifies a user can sign in via the authentication page and reach the protected dashboard.",
+    "category": "User Authentication",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"Auth\""
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Sign in\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Dashboard\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Login with invalid credentials shows an authentication error",
+    "description": "Verifies invalid email/password is rejected and an error message is shown on the auth page.",
+    "category": "User Authentication",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"not.a.user@example.invalid\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"WrongPassword123!\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Sign in\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/auth\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Invalid\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Login form validation blocks empty submit",
+    "description": "Verifies the auth page shows validation feedback when submitting with required fields empty.",
+    "category": "User Authentication",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Sign in\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Email\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/auth\""
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Submit a valid daily wellness check-in successfully",
+    "description": "Verifies an authenticated employee can select a mood, answer follow-up questions, submit, and see a confirmation.",
+    "category": "Wellness Check-in",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link/menu item for \"Wellness\" or \"Daily Check-in\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/employee/wellness\""
+      },
+      {
+        "type": "action",
+        "description": "Select mood emoji"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Complete follow-up questions and submit check-in confirmation appears",
+    "description": "Verifies the follow-up wellness questions can be completed and a confirmation message is shown after submission.",
+    "category": "Wellness Check-in",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link/menu item for \"Wellness\" or \"Daily Check-in\""
+      },
+      {
+        "type": "action",
+        "description": "Select mood emoji"
+      },
+      {
+        "type": "action",
+        "description": "Complete follow-up wellness questions"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Submit check-in after completing all required inputs shows confirmation",
+    "description": "Verifies the full end-to-end submission flow results in a visible confirmation on the wellness check-in page.",
+    "category": "Wellness Check-in",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link/menu item for \"Wellness\" or \"Daily Check-in\""
+      },
+      {
+        "type": "action",
+        "description": "Submit check-in"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"confirmation\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Validation: submitting without selecting mood shows mood required error",
+    "description": "Verifies a validation error is shown when the user tries to submit without selecting a mood.",
+    "category": "Wellness Check-in",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link/menu item for \"Wellness\" or \"Daily Check-in\""
+      },
+      {
+        "type": "action",
+        "description": "Submit check-in"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"mood is required\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Validation: mood required error clears after selecting a mood",
+    "description": "Verifies that after a mood-required validation error, selecting a mood allows the user to proceed.",
+    "category": "Wellness Check-in",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link/menu item for \"Wellness\" or \"Daily Check-in\""
+      },
+      {
+        "type": "action",
+        "description": "Submit check-in"
+      },
+      {
+        "type": "action",
+        "description": "Select mood emoji"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Wellness check-in page loads and core UI is visible",
+    "description": "Verifies the Daily Check-in page loads for an authenticated user and shows expected page content before interaction.",
+    "category": "Wellness Check-in",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link/menu item for \"Wellness\" or \"Daily Check-in\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/employee/wellness\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"mood emoji selection\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "View personal workload task list",
+    "description": "Verifies an authenticated user can open the Personal Command Center and see their task list area.",
+    "category": "Workload Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Email\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the \"Email\" field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the \"Password\" field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"My Workload\" navigation item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/my-workload\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Task list\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Open a task details page from the task list",
+    "description": "Verifies a user can drill into a task from the workload list and see key task detail sections.",
+    "category": "Workload Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Email\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the \"Email\" field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the \"Password\" field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"My Workload\" navigation item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/my-workload\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the first task item in the task list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/tasks/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Checklist\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Activity\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Task details page shows the task title",
+    "description": "Verifies the task details view displays a visible task title/header after selecting a task.",
+    "category": "Workload Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Email\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the \"Email\" field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the \"Password\" field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"My Workload\" navigation item"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first task item in the task list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/tasks/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Task title\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Attempt to open a deleted or inaccessible task shows an error message",
+    "description": "Verifies that when a user clicks a task that is deleted or not accessible, an appropriate 'not found' or access denied message is shown on the task details page.",
+    "category": "Workload Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Email\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the \"Email\" field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the \"Password\" field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"My Workload\" navigation item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/my-workload\""
+      },
+      {
+        "type": "action",
+        "description": "Click on a task item that is labeled as deleted, archived, or otherwise inaccessible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/tasks/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Task not found\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Task details page displays checklist section content area",
+    "description": "Verifies the checklist section is present and visible on a task details page after selecting a task.",
+    "category": "Workload Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Email\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the \"Email\" field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the \"Password\" field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"My Workload\" navigation item"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first task item in the task list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Checklist\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Add item\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Task details page displays activity timeline section content area",
+    "description": "Verifies the activity timeline section is present and visible on a task details page after selecting a task.",
+    "category": "Workload Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Email\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the \"Email\" field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the \"Password\" field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"My Workload\" navigation item"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first task item in the task list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Activity\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Timeline\" is visible"
+      }
+    ]
+  }
+]

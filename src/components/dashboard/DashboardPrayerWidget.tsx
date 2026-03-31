@@ -232,7 +232,7 @@ export function DashboardPrayerWidget() {
         )}
 
         {/* Progress row — 6 prayer indicators (5 obligatory + Witr) */}
-        <div className="flex items-center justify-between gap-1">
+        <div className="flex flex-wrap items-center justify-center sm:justify-between gap-2 sm:gap-1">
         {ALL_PRAYERS.map(name => {
             const logged = !!todayLogs[name];
             const isMissed = todayLogs[name]?.status === 'missed';

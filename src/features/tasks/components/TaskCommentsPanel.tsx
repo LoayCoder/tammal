@@ -6,7 +6,7 @@ import { Textarea } from '@/shared/components/ui/textarea';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Avatar, AvatarFallback } from '@/shared/components/ui/avatar';
 import { Send, Trash2, Pencil, X, Check, MessageSquare } from 'lucide-react';
-import { format } from 'date-fns';
+import { useLocaleFormat } from '@/shared/hooks/useLocaleFormat';
 import type { TaskComment } from '@/features/tasks/hooks/useTaskComments';
 
 interface TaskCommentsPanelProps {
@@ -23,6 +23,7 @@ export function TaskCommentsPanel({
   comments, isLoading, currentEmployeeId, onAdd, onRemove, onEdit, taskId,
 }: TaskCommentsPanelProps) {
   const { t } = useTranslation();
+  const { lformat } = useLocaleFormat();
   const [text, setText] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
@@ -65,7 +66,7 @@ export function TaskCommentsPanel({
             {comments.map((c, idx) => {
               const isOwn = currentEmployeeId === c.user_id;
               const isEditing = editingId === c.id;
-              const showDateSep = idx === 0 || format(new Date(c.created_at), 'PP') !== format(new Date(comments[idx - 1].created_at), 'PP');
+              const showDateSep = idx === 0 || lformat(new Date(c.created_at), 'PP') !== lformat(new Date(comments[idx - 1].created_at), 'PP');
 
               return (
                 <div key={c.id}>
@@ -73,7 +74,7 @@ export function TaskCommentsPanel({
                     <div className="flex items-center gap-3 py-3">
                       <div className="flex-1 h-px bg-border" />
                       <span className="text-2xs text-muted-foreground font-medium uppercase tracking-wider">
-                        {format(new Date(c.created_at), 'PP')}
+                        {lformat(new Date(c.created_at), 'PP')}
                       </span>
                       <div className="flex-1 h-px bg-border" />
                     </div>
@@ -90,7 +91,7 @@ export function TaskCommentsPanel({
                           {c.employee?.full_name ?? c.user_id.slice(0, 8)}
                         </span>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-2xs text-muted-foreground">{format(new Date(c.created_at), 'p')}</span>
+                          <span className="text-2xs text-muted-foreground">{lformat(new Date(c.created_at), 'p')}</span>
                           {c.updated_at !== c.created_at && (
                             <span className="text-2xs text-muted-foreground italic">({t('tasks.comments.edited')})</span>
                           )}

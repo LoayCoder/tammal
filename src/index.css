@@ -207,6 +207,8 @@
 
   body {
     @apply bg-background text-foreground;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 }
 

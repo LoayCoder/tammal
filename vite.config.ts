@@ -10,6 +10,17 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  optimizeDeps: {
+    force: true,
+    include: [
+      "react",
+      "react-dom",
+      "react-router-dom",
+      "react/jsx-dev-runtime",
+      "@sentry/react",
+      "@tanstack/react-query"
+    ],
+  },
   plugins: [
     react(),
     mode === "development" && componentTagger(),
