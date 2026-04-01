@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import i18n from 'i18next';
 import { logger } from '@/lib/logger';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 interface PageErrorBoundaryProps {
@@ -80,7 +80,7 @@ export class PageErrorBoundary extends Component<PageErrorBoundaryProps, PageErr
               <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-lg font-semibold">
+              <h3 className={typography.sectionTitle}>
                 {i18n.t('common.somethingWentWrong', 'Something went wrong')}
               </h3>
               <p className="text-sm text-muted-foreground max-w-sm">

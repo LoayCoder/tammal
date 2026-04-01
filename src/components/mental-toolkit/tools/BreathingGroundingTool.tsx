@@ -173,7 +173,7 @@ export default function BreathingGroundingTool({ technique = "box", totalRounds 
             <div className="w-28 h-28 mx-auto rounded-full flex items-center justify-center text-4xl shadow-lg bg-gradient-to-br from-toolkit-sage/40 to-toolkit-lavender/40">
               {["👁️", "👂", "✋", "👃", "👅"][groundingStep] || "✨"}
             </div>
-            <p className="text-lg font-semibold text-foreground">
+            <p className={typography.sectionTitle}>
               {t(`mentalToolkit.breathing.groundingPrompts.${GROUNDING_STEPS[groundingStep]?.sense}`, { n: GROUNDING_STEPS[groundingStep]?.n })}
             </p>
             <p className={typography.subtitle}>

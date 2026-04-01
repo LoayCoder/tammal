@@ -5,7 +5,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { DepartmentBAIItem } from '@/lib/analytics/types';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface Props {
   branchData: DepartmentBAIItem[];
@@ -38,7 +39,7 @@ function HeatmapGrid({ data, isAr }: { data: DepartmentBAIItem[]; isAr: boolean 
               <TooltipTrigger asChild>
                 <div className={`rounded-lg border p-3 text-center transition-colors ${CELL_COLORS[dept.classification]}`}>
                   <p className="text-xs font-medium truncate">{isAr ? (dept.nameAr || dept.name) : dept.name}</p>
-                  <p className="text-2xl font-bold mt-1">{(dept.baiScore * 100).toFixed(0)}%</p>
+                  <p className={cn(typography.metric, "mt-1")}>{(dept.baiScore * 100).toFixed(0)}%</p>
                   <p className="text-2xs opacity-70">{t(`synthesis.risk.${dept.classification}`)}</p>
                 </div>
               </TooltipTrigger>

@@ -11,7 +11,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { ChevronDown, Flame, CalendarIcon, History } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePrayerHistory, type HistoryRange } from '@/hooks/spiritual/usePrayerHistory';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography } from "@/theme/tokens";
 
 const RANGE_OPTIONS: HistoryRange[] = ['week', 'month', 'quarter', 'year', 'custom'];
 
@@ -182,7 +182,7 @@ export const PrayerHistory = React.memo(function PrayerHistory() {
                           <p className="text-xs text-muted-foreground">
                             {t(`spiritual.prayer.names.${s.prayerName.toLowerCase()}`, s.prayerName)}
                           </p>
-                          <p className="text-2xl font-bold" style={{ color: PRAYER_COLORS[s.prayerName] }}>
+                          <p className={typography.metric} style={{ color: PRAYER_COLORS[s.prayerName] }}>
                             {s.pct}%
                           </p>
                           <p className="text-2xs text-muted-foreground">
