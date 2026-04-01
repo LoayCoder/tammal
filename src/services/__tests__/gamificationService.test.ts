@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculatePoints, computeStreak, computeTotalPoints } from '../gamificationService';
+import { calculatePoints, computeStreak, computeTotalPoints } from '@/features/recognition/services/gamificationService';
 
 // ── Helper: build dates relative to today ──
 function daysAgo(n: number): string {

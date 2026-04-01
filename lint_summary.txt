@@ -1,0 +1,11 @@
+599	@typescript-eslint/no-explicit-any
+28	react-hooks/exhaustive-deps
+19	prefer-const
+14	no-useless-escape
+12	react-refresh/only-export-components
+6	no-empty
+2	@typescript-eslint/no-empty-object-type
+1	react-hooks/rules-of-hooks
+1	no-prototype-builtins
+1	no-control-regex
+1	@typescript-eslint/no-require-imports

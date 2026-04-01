@@ -1,23 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ── Hoisted mocks ──
-const { mockSingle, mockSignUp, mockChainUpdate, mockChainInsert } = vi.hoisted(() => ({
-  mockSingle: vi.fn(),
+const { mockRpc, mockSignUp, mockChainUpdate, mockChainInsert, mockChainSingle } = vi.hoisted(() => ({
+  mockRpc: vi.fn(),
   mockSignUp: vi.fn(),
   mockChainUpdate: vi.fn(),
   mockChainInsert: vi.fn(),
+  mockChainSingle: vi.fn(),
 }));
 
 const chain = {
   select: vi.fn().mockReturnThis(),
   eq: vi.fn().mockReturnThis(),
-  is: vi.fn().mockReturnThis(),
-  gt: vi.fn().mockReturnThis(),
-  single: mockSingle,
   update: mockChainUpdate.mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) }),
   insert: mockChainInsert.mockReturnValue({
     select: vi.fn().mockReturnValue({
-      single: vi.fn().mockResolvedValue({ data: { id: 'emp-new' }, error: null }),
+      single: mockChainSingle.mockResolvedValue({ data: { id: 'emp-new' }, error: null }),
     }),
     error: null,
   }),
@@ -26,11 +24,23 @@ const chain = {
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: vi.fn(() => chain),
+    rpc: mockRpc,
     auth: { signUp: mockSignUp },
   },
 }));
 
-import { verifyInviteCode, acceptInvite, type InvitationData } from '../inviteService';
+import { verifyInviteCode, acceptInvite, type InvitationData } from '@/features/auth/services/inviteService';
+
+const VALID_RPC_RESULT = [{
+  id: 'inv-1',
+  code: 'ABCD1234',
+  email: 'test@example.com',
+  full_name: 'Test User',
+  tenant_id: 'tenant-1',
+  employee_id: null,
+  tenant_name: 'Acme Corp',
+  used: false,
+}];
 
 const VALID_INVITATION: InvitationData = {
   id: 'inv-1',
@@ -47,8 +57,6 @@ beforeEach(() => {
   // Re-wire defaults after clearAllMocks
   chain.select.mockReturnThis();
   chain.eq.mockReturnThis();
-  chain.is.mockReturnThis();
-  chain.gt.mockReturnThis();
   mockChainUpdate.mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) });
   mockChainInsert.mockReturnValue({
     select: vi.fn().mockReturnValue({
@@ -60,7 +68,7 @@ beforeEach(() => {
 
 describe('verifyInviteCode', () => {
   it('returns valid status with invitation data', async () => {
-    mockSingle.mockResolvedValueOnce({ data: VALID_INVITATION, error: null });
+    mockRpc.mockResolvedValueOnce({ data: VALID_RPC_RESULT, error: null });
 
     const result = await verifyInviteCode('abcd1234');
 
@@ -71,17 +79,15 @@ describe('verifyInviteCode', () => {
   });
 
   it('uppercases the code before querying', async () => {
-    mockSingle.mockResolvedValueOnce({ data: VALID_INVITATION, error: null });
+    mockRpc.mockResolvedValueOnce({ data: VALID_RPC_RESULT, error: null });
 
     await verifyInviteCode('abcd1234');
 
-    expect(chain.eq).toHaveBeenCalledWith('code', 'ABCD1234');
+    expect(mockRpc).toHaveBeenCalledWith('verify_invitation_code', { p_code: 'ABCD1234' });
   });
 
   it('returns used status when invitation was already consumed', async () => {
-    mockSingle
-      .mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } })
-      .mockResolvedValueOnce({ data: { used: true }, error: null });
+    mockRpc.mockResolvedValueOnce({ data: [{ ...VALID_RPC_RESULT[0], used: true }], error: null });
 
     const result = await verifyInviteCode('ABCD1234');
 
@@ -89,9 +95,15 @@ describe('verifyInviteCode', () => {
   });
 
   it('returns invalid status when code does not exist at all', async () => {
-    mockSingle
-      .mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } })
-      .mockResolvedValueOnce({ data: null, error: null });
+    mockRpc.mockResolvedValueOnce({ data: null, error: { message: 'not found' } });
+
+    const result = await verifyInviteCode('ZZZZZZZZ');
+
+    expect(result.status).toBe('invalid');
+  });
+
+  it('returns invalid when rpc returns empty array', async () => {
+    mockRpc.mockResolvedValueOnce({ data: [], error: null });
 
     const result = await verifyInviteCode('ZZZZZZZZ');
 
@@ -133,7 +145,7 @@ describe('acceptInvite', () => {
         password: 'pass',
         redirectUrl: 'https://app.test',
       })
-    ).rejects.toEqual(expect.objectContaining({ message: 'Email already registered' }));
+    ).rejects.toThrow('Email already registered');
   });
 
   it('throws when user object is null (no error object)', async () => {

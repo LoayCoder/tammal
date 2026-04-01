@@ -1,0 +1,19 @@
+
+=== ESLint Results ===
+Total Errors: 644
+Total Warnings: 40
+
+=== Vitest Results ===
+Status: Failed
+Total Passed: 661
+Total Failed: 0
+Failed Suites: C:/Users/loays/impact-matrix/tammal/tammal-development-code/tammal/src/services/__tests__/gamificationService.test.ts, C:/Users/loays/impact-matrix/tammal/tammal-development-code/tammal/src/services/__tests__/inviteService.test.ts, C:/Users/loays/impact-matrix/tammal/tammal-development-code/tammal/src/pages/__tests__/AcceptInvite.smoke.test.tsx, C:/Users/loays/impact-matrix/tammal/tammal-development-code/tammal/src/features/wellness/services/checkinService.test.ts
+
+=== Build Results ===
+Errors found:
+    + FullyQualifiedError 
+[31merror during build:
+There was an error during 
+the error in the 
+the following error:
+    at getRollupError (fil

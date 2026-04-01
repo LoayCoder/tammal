@@ -1,0 +1,340 @@
+﻿  30 |  const 
+__vi_import_1__ = 
+await import("react");
+  31 |  const 
+__vi_import_2__ = 
+await import("@/feature
+s/auth/pages/Auth/Accep
+tInvite");
+     |                 
+                      ^
+  32 |  /**
+  33 |   * 
+AcceptInvite ΓÇö E2E 
+Smoke Test[39m
+[90m [2mΓ¥»[22m Tran
+sformPluginContext._for
+matLog node_modules/vit
+est/node_modules/vite/d
+ist/node/chunks/config.
+js:[2m28999:43[22m[3
+9m
+[90m [2mΓ¥»[22m Tran
+sformPluginContext.erro
+r node_modules/vitest/n
+ode_modules/vite/dist/n
+ode/chunks/config.js:[
+2m28996:14[22m[39m
+[90m [2mΓ¥»[22m 
+normalizeUrl node_modul
+es/vitest/node_modules/
+vite/dist/node/chunks/c
+onfig.js:[2m27119:18[
+22m[39m
+[90m [2mΓ¥»[22m node
+_modules/vitest/node_mo
+dules/vite/dist/node/ch
+unks/config.js:[2m2717
+7:32[22m[39m
+[90m [2mΓ¥»[22m Tran
+sformPluginContext.tran
+sform node_modules/vite
+st/node_modules/vite/di
+st/node/chunks/config.j
+s:[2m27145:4[22m[39m
+[90m [2mΓ¥»[22m Envi
+ronmentPluginContainer.
+transform node_modules/
+vitest/node_modules/vit
+e/dist/node/chunks/conf
+ig.js:[2m28797:14[22m
+[39m
+[90m [2mΓ¥»[22m 
+loadAndTransform node_m
+odules/vitest/node_modu
+les/vite/dist/node/chun
+ks/config.js:[2m22670:
+26[22m[39m
+
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ
+»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»Γ
+Ä»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/4]ΓÄ»[2
+2m[39m
+
+[41m[1m FAIL 
+[22m[49m src/services
+/__tests__/gamification
+Service.test.ts[2m [ s
+rc/services/__tests__/g
+amificationService.test
+.ts ][22m
+[31m[1mError[22m: 
+Failed to resolve 
+import "../gamification
+Service" from "src/serv
+ices/__tests__/gamifica
+tionService.test.ts". 
+Does the file 
+exist?[39m
+  Plugin: [35mvite:imp
+ort-analysis[39m
+  File: [36mC:/Users/l
+oays/impact-matrix/tamm
+al/tammal-development-c
+ode/tammal/src/services
+/__tests__/gamification
+Service.test.ts[39m:2:
+67
+[33m  1  |  import { 
+describe, it, expect } 
+from 'vitest';
+  2  |  import { 
+calculatePoints, 
+computeStreak, 
+computeTotalPoints } 
+from '../gamificationSe
+rvice';
+     |                 
+                       
+                       
+       ^
+  3  |  // ΓöÇΓöÇ 
+Helper: build dates 
+relative to today 
+ΓöÇΓöÇ
+  4  |  function 
+daysAgo(n) {[39m
+[90m [2mΓ¥»[22m Tran
+sformPluginContext._for
+matLog node_modules/vit
+est/node_modules/vite/d
+ist/node/chunks/config.
+js:[2m28999:43[22m[3
+9m
+[90m [2mΓ¥»[22m Tran
+sformPluginContext.erro
+r node_modules/vitest/n
+ode_modules/vite/dist/n
+ode/chunks/config.js:[
+2m28996:14[22m[39m
+[90m [2mΓ¥»[22m 
+normalizeUrl node_modul
+es/vitest/node_modules/
+vite/dist/node/chunks/c
+onfig.js:[2m27119:18[
+22m[39m
+[90m [2mΓ¥»[22m node
+_modules/vitest/node_mo
+dules/vite/dist/node/ch
+unks/config.js:[2m2717
+7:32[22m[39m
+[90m [2mΓ¥»[22m Tran
+sformPluginContext.tran
+sform node_modules/vite
+st/node_modules/vite/di
+st/node/chunks/config.j
+s:[2m27145:4[22m[39m
+[90m [2mΓ¥»[22m Envi
+ronmentPluginContainer.
+transform node_modules/
+vitest/node_modules/vit
+e/dist/node/chunks/conf
+ig.js:[2m28797:14[22m
+[39m
+[90m [2mΓ¥»[22m 
+loadAndTransform node_m
+odules/vitest/node_modu
+les/vite/dist/node/chun
+ks/config.js:[2m22670:
+26[22m[39m
+
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ
+»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»Γ
+Ä»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»[2/4]ΓÄ»[2
+2m[39m
+
+[41m[1m FAIL 
+[22m[49m src/services
+/__tests__/inviteServic
+e.test.ts[2m [ src/ser
+vices/__tests__/inviteS
+ervice.test.ts ][22m
+[31m[1mError[22m: 
+Failed to resolve 
+import 
+"../inviteService" 
+from "src/services/__te
+sts__/inviteService.tes
+t.ts". Does the file 
+exist?[39m
+  Plugin: [35mvite:imp
+ort-analysis[39m
+  File: [36mC:/Users/l
+oays/impact-matrix/tamm
+al/tammal-development-c
+ode/tammal/src/services
+/__tests__/inviteServic
+e.test.ts[39m:33:0
+[33m  13 |          }
+  14 |      }));
+  15 |  const 
+__vi_import_0__ = 
+await import("../invite
+Service");
+     |                 
+                      ^
+  16 |  import { 
+describe, it, expect, 
+vi, beforeEach } from 
+'vitest';
+  17 |  // ΓöÇΓöÇ 
+Hoisted mocks 
+ΓöÇΓöÇ[39m
+[90m [2mΓ¥»[22m Tran
+sformPluginContext._for
+matLog node_modules/vit
+est/node_modules/vite/d
+ist/node/chunks/config.
+js:[2m28999:43[22m[3
+9m
+[90m [2mΓ¥»[22m Tran
+sformPluginContext.erro
+r node_modules/vitest/n
+ode_modules/vite/dist/n
+ode/chunks/config.js:[
+2m28996:14[22m[39m
+[90m [2mΓ¥»[22m 
+normalizeUrl node_modul
+es/vitest/node_modules/
+vite/dist/node/chunks/c
+onfig.js:[2m27119:18[
+22m[39m
+[90m [2mΓ¥»[22m node
+_modules/vitest/node_mo
+dules/vite/dist/node/ch
+unks/config.js:[2m2717
+7:32[22m[39m
+[90m [2mΓ¥»[22m Tran
+sformPluginContext.tran
+sform node_modules/vite
+st/node_modules/vite/di
+st/node/chunks/config.j
+s:[2m27145:4[22m[39m
+[90m [2mΓ¥»[22m Envi
+ronmentPluginContainer.
+transform node_modules/
+vitest/node_modules/vit
+e/dist/node/chunks/conf
+ig.js:[2m28797:14[22m
+[39m
+[90m [2mΓ¥»[22m 
+loadAndTransform node_m
+odules/vitest/node_modu
+les/vite/dist/node/chun
+ks/config.js:[2m22670:
+26[22m[39m
+
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ
+»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»Γ
+Ä»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»[3/4]ΓÄ»[2
+2m[39m
+
+[41m[1m FAIL 
+[22m[49m src/features
+/wellness/services/chec
+kinService.test.ts[2m 
+[ src/features/wellness
+/services/checkinServic
+e.test.ts ][22m
+[31m[1mError[22m: 
+Failed to resolve 
+import 
+"../checkinService" 
+from "src/features/well
+ness/services/checkinSe
+rvice.test.ts". Does 
+the file exist?[39m
+  Plugin: [35mvite:imp
+ort-analysis[39m
+  File: [36mC:/Users/l
+oays/impact-matrix/tamm
+al/tammal-development-c
+ode/tammal/src/features
+/wellness/services/chec
+kinService.test.ts[39m
+:21:0
+[33m  16 |          }
+  17 |      }));
+  18 |  const 
+__vi_import_0__ = 
+await import("../checki
+nService");
+     |                 
+                      ^
+  19 |  const 
+__vi_import_1__ = 
+await 
+import("../errors");
+  20 |  import { 
+describe, it, expect, 
+vi, beforeEach } from 
+'vitest';[39m
+[90m [2mΓ¥»[22m Tran
+sformPluginContext._for
+matLog node_modules/vit
+est/node_modules/vite/d
+ist/node/chunks/config.
+js:[2m28999:43[22m[3
+9m
+[90m [2mΓ¥»[22m Tran
+sformPluginContext.erro
+r node_modules/vitest/n
+ode_modules/vite/dist/n
+ode/chunks/config.js:[
+2m28996:14[22m[39m
+[90m [2mΓ¥»[22m 
+normalizeUrl node_modul
+es/vitest/node_modules/
+vite/dist/node/chunks/c
+onfig.js:[2m27119:18[
+22m[39m
+[90m [2mΓ¥»[22m node
+_modules/vitest/node_mo
+dules/vite/dist/node/ch
+unks/config.js:[2m2717
+7:32[22m[39m
+[90m [2mΓ¥»[22m Tran
+sformPluginContext.tran
+sform node_modules/vite
+st/node_modules/vite/di
+st/node/chunks/config.j
+s:[2m27145:4[22m[39m
+[90m [2mΓ¥»[22m Envi
+ronmentPluginContainer.
+transform node_modules/
+vitest/node_modules/vit
+e/dist/node/chunks/conf
+ig.js:[2m28797:14[22m
+[39m
+[90m [2mΓ¥»[22m 
+loadAndTransform node_m
+odules/vitest/node_modu
+les/vite/dist/node/chun
+ks/config.js:[2m22670:
+26[22m[39m
+
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ
+»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»Γ
+Ä»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»[4/4]ΓÄ»[2
+2m[39m
+
+
+[2m Test Files [22m [1m[31m4 failed[39m[22m[90m (4)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 17:38:49
+[2m   Duration [22m 6.53s[2m (transform 682ms, setup 3.14s, import 0ms, tests 0ms, environment 18.53s)[22m
+

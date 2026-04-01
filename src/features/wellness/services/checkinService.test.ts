@@ -18,8 +18,8 @@ vi.mock('@/integrations/supabase/client', () => ({
   },
 }));
 
-import { submitMoodEntry, type CheckinParams } from '../checkinService';
-import { DuplicateCheckinError, ServiceUnavailableError } from '../errors';
+import { submitMoodEntry, type CheckinParams } from './checkinService';
+import { DuplicateCheckinError, ServiceUnavailableError } from '@/shared/utils/errors';
 
 function makeParams(overrides: Partial<CheckinParams> = {}): CheckinParams {
   return {

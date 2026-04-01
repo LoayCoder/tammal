@@ -50,7 +50,7 @@ vi.mock('@/shared/components/LanguageSelector', () => ({
   LanguageSelector: () => React.createElement('div', { 'data-testid': 'lang-selector' }),
 }));
 
-import AcceptInvite from '@/features/auth/pages/Auth/AcceptInvite';
+import AcceptInvite from '@/features/auth/pages/AcceptInvite';
 
 describe('AcceptInvite — E2E Smoke', () => {
   beforeEach(() => {
