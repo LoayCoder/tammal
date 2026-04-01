@@ -5,7 +5,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { DepartmentBAIItem } from '@/lib/analytics/types';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 interface Props {
   branchData: DepartmentBAIItem[];
