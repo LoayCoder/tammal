@@ -11,7 +11,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { ChevronDown, Flame, CalendarIcon, History } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePrayerHistory, type HistoryRange } from '@/hooks/spiritual/usePrayerHistory';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography } from "@/theme/tokens";
 
 const RANGE_OPTIONS: HistoryRange[] = ['week', 'month', 'quarter', 'year', 'custom'];
 
