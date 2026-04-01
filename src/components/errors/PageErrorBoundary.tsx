@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import i18n from 'i18next';
 import { logger } from '@/lib/logger';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, typography } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 interface PageErrorBoundaryProps {
