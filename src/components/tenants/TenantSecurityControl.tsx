@@ -6,9 +6,9 @@ import { Input } from '@/shared/components/ui/input';
 import { Switch } from '@/shared/components/ui/switch';
 import { Slider } from '@/shared/components/ui/slider';
 import { Badge } from '@/shared/components/ui/badge';
-export type { SecuritySettings } from '@/shared/types/common.types/tenant';
-export { DEFAULT_SECURITY_SETTINGS } from '@/shared/types/common.types/tenant';
-import type { SecuritySettings } from '@/shared/types/common.types/tenant';
+export type { SecuritySettings } from '@/shared/types/tenant';
+export { DEFAULT_SECURITY_SETTINGS } from '@/shared/types/tenant';
+import type { SecuritySettings } from '@/shared/types/tenant';
 
 interface TenantSecurityControlProps {
   settings: SecuritySettings;
