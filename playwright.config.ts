@@ -30,7 +30,7 @@ export default defineConfig({
 
   /* ── Shared options ── */
   use: {
-    baseURL: 'http://localhost:8080',
+    baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -66,8 +66,8 @@ export default defineConfig({
 
   /* ── Dev server ── */
   webServer: {
-    command: 'npm run dev -- --port 8080',
-    url: 'http://localhost:8080',
+    command: 'npm run dev -- --port 3000',
+    url: 'http://localhost:3000',
     reuseExistingServer: true,
     timeout: 60_000,
   },
