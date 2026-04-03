@@ -52,7 +52,7 @@ export function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => navigate('/settings/profile')}>
-          <User className="me-2 h-4 w-4" />
+          <Fingerprint className="me-2 h-4 w-4" />
           <span>{t('profile.title')}</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate('/settings')}>
