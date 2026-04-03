@@ -140,6 +140,28 @@ export default function DesignSystemPage() {
         </Card>
       </Section>
 
+      {/* Status / Semantic Colors */}
+      <Section title="Status & Semantic Colors" icon={<AlertCircle className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardHeader><CardTitle className={typography.cardTitle}>Semantic Status</CardTitle></CardHeader>
+          <CardContent className="flex flex-wrap gap-4">
+            <Swatch name="Success" cssVar="success" />
+            <Swatch name="Warning" cssVar="warning" />
+            <Swatch name="Info" cssVar="info" />
+            <Swatch name="Destructive" cssVar="destructive" />
+          </CardContent>
+        </Card>
+        <Card className={cardVariants.glass}>
+          <CardHeader><CardTitle className={typography.cardTitle}>Status Tint Backgrounds</CardTitle></CardHeader>
+          <CardContent className="flex flex-wrap gap-4">
+            <Swatch name="Success BG" cssVar="status-success-bg" />
+            <Swatch name="Info BG" cssVar="status-info-bg" />
+            <Swatch name="Warning BG" cssVar="status-warning-bg" />
+            <Swatch name="Error BG" cssVar="status-error-bg" />
+          </CardContent>
+        </Card>
+      </Section>
+
       <Separator />
 
       {/* ─── 2. Typography ─── */}
@@ -156,6 +178,53 @@ export default function DesignSystemPage() {
                 </code>
               </div>
             ))}
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Separator />
+
+      {/* ─── Font Families ─── */}
+      <Section title="Font Families" icon={<Type className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard} space-y-5`}>
+            <div className="space-y-1">
+              <code className="text-2xs font-mono text-muted-foreground bg-muted/30 px-2 py-0.5 rounded">Inter (--font-sans)</code>
+              <p className="text-base font-normal" style={{ fontFamily: 'var(--font-sans)' }}>The quick brown fox jumps over the lazy dog — 400</p>
+              <p className="text-base font-semibold" style={{ fontFamily: 'var(--font-sans)' }}>The quick brown fox jumps over the lazy dog — 600</p>
+              <p className="text-base font-bold" style={{ fontFamily: 'var(--font-sans)' }}>The quick brown fox jumps over the lazy dog — 700</p>
+            </div>
+            <Separator />
+            <div className="space-y-1">
+              <code className="text-2xs font-mono text-muted-foreground bg-muted/30 px-2 py-0.5 rounded">Lora (--font-serif)</code>
+              <p className="text-base" style={{ fontFamily: 'var(--font-serif, serif)' }}>The quick brown fox jumps over the lazy dog</p>
+            </div>
+            <Separator />
+            <div className="space-y-1">
+              <code className="text-2xs font-mono text-muted-foreground bg-muted/30 px-2 py-0.5 rounded">Space Mono (--font-mono)</code>
+              <p className="text-base font-mono">The quick brown fox jumps over the lazy dog</p>
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Separator />
+
+      {/* ─── Shadow Tokens ─── */}
+      <Section title="Shadow Tokens" icon={<Maximize className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard}`}>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {['2xs', 'xs', 'sm', 'DEFAULT', 'lg', 'xl', '2xl', 'tooltip'].map((level) => (
+                <div key={level} className="flex flex-col items-center gap-2">
+                  <div
+                    className="w-16 h-16 rounded-xl bg-card border border-border/30"
+                    style={{ boxShadow: `var(--shadow-${level === 'DEFAULT' ? 'md' : level})` }}
+                  />
+                  <code className="text-2xs font-mono text-muted-foreground">{level}</code>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </Section>
@@ -335,6 +404,69 @@ export default function DesignSystemPage() {
             </Card>
           ))}
         </div>
+      </Section>
+
+      <Separator />
+
+      {/* ─── Premium Card Variants ─── */}
+      <Section title="Premium Card Variants" icon={<Star className="h-5 w-5 text-primary" />}>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="premium-card rounded-[10px] p-5 space-y-1">
+            <p className={typography.cardTitle}>premium-card</p>
+            <p className="text-2xs text-muted-foreground">Soft gradient, inner highlight, subtle shadow</p>
+          </div>
+          <div className="premium-card-vip rounded-[10px] p-5 space-y-1">
+            <p className={typography.cardTitle}>premium-card-vip</p>
+            <p className="text-2xs text-muted-foreground">Primary glow border + gradient + shadow</p>
+          </div>
+          <div className="p-5 rounded-[10px] space-y-2">
+            <p className={typography.cardTitle}>vip-stat-chip</p>
+            <div className="flex gap-2">
+              <div className="vip-stat-chip">
+                <span className="text-sm font-semibold">94%</span>
+                <span className="text-2xs text-muted-foreground">Score</span>
+              </div>
+              <div className="vip-stat-chip">
+                <span className="text-sm font-semibold">12</span>
+                <span className="text-2xs text-muted-foreground">Tasks</span>
+              </div>
+            </div>
+          </div>
+          <div className="p-5 rounded-[10px] space-y-2">
+            <p className={typography.cardTitle}>premium-badge</p>
+            <div className="flex gap-2">
+              <span className="premium-badge px-3 py-1 rounded-full text-xs font-medium">Premium</span>
+              <span className="premium-badge px-3 py-1 rounded-full text-xs font-medium">VIP</span>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Separator />
+
+      {/* ─── Contextual Widget Styles ─── */}
+      <Section title="Contextual Widget Styles" icon={<Info className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardHeader><CardTitle className={typography.cardTitle}>Islamic Calendar Pattern</CardTitle></CardHeader>
+          <CardContent className={`${spacing.cardStandard} space-y-4`}>
+            <div className="rounded-xl px-4 py-3.5 space-y-2.5 transition-colors border bg-transparent border-[#69cbfc]/35 shadow-md">
+              <div className="flex items-center gap-2.5">
+                <span className="text-base">🕌</span>
+                <div>
+                  <h3 className="font-semibold text-sm text-foreground">Islamic Calendar</h3>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">10 Shawwal 1447</p>
+                </div>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded-full text-muted-foreground font-medium border border-[#2a0909]/[0.48] bg-[#919191]/0 inline-block">
+                🤍 White Day
+              </span>
+            </div>
+            <div className="space-y-1 text-sm text-muted-foreground">
+              <p><code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">border bg-transparent border-[#69cbfc]/35 shadow-md</code> — container</p>
+              <p><code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">border border-[#2a0909]/[0.48] bg-[#919191]/0</code> — lightweight badge</p>
+            </div>
+          </CardContent>
+        </Card>
       </Section>
 
       <Separator />

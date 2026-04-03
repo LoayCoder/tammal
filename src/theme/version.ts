@@ -6,8 +6,8 @@
  */
 
 export const DESIGN_SYSTEM = {
-  version: '1.0.0',
-  lastUpdated: '2026-03-07',
+  version: '1.1.0',
+  lastUpdated: '2026-04-03',
   description:
     'Core SaaS design system with tokens, system components, dashboard architecture, and UI governance framework.',
   protectedPaths: [
