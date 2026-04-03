@@ -10,6 +10,7 @@ import { CrisisRoutes } from "./crisis.routes";
 import { RecognitionRoutes } from "./recognition.routes";
 import { SpiritualRoutes } from "./spiritual.routes";
 import { MentalToolkitRoutes } from "./mental-toolkit.routes";
+import { IncidentRoutes } from "./incidents.routes";
 
 // ── Eager-loaded (critical path) ──
 import Auth from "@/features/auth/pages/Auth";
@@ -49,6 +50,7 @@ export function AppRouter() {
             {CrisisRoutes()}
             {MentalToolkitRoutes()}
             {SpiritualRoutes()}
+            {IncidentRoutes()}
 
             {/* General Authed Routes */}
             <Route path="/settings/usage" element={<UsageBilling />} />

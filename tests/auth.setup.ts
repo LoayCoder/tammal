@@ -1,4 +1,5 @@
 import { test as setup, expect } from '@playwright/test';
+import { mkdirSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -15,10 +16,13 @@ setup('authenticate', async ({ page }) => {
   const password = process.env.TEST_USER_PASSWORD;
 
   if (!email || !password) {
-    throw new Error(
-      'Missing TEST_USER_EMAIL or TEST_USER_PASSWORD in .env.test. ' +
-      'Please set valid credentials before running tests.'
-    );
+    // Write empty storage state and skip. The CI workflow runs only
+    // --project=unauthenticated when credentials aren't set, so this
+    // path is a safety net for local runs without .env.test.
+    mkdirSync(join(__dirname, '.auth'), { recursive: true });
+    writeFileSync(authFile, JSON.stringify({ cookies: [], origins: [] }));
+    setup.skip(true, 'TEST_USER_EMAIL / TEST_USER_PASSWORD not set — add them to .env.test or GitHub Secrets');
+    return;
   }
 
   // Navigate to auth page

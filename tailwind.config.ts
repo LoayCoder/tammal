@@ -90,7 +90,19 @@ export default {
 				},
 				org: {
 					DEFAULT: 'hsl(var(--org-default))',
-				}
+				},
+				incident: {
+					safety:              'hsl(var(--incident-safety))',
+					injury:              'hsl(var(--incident-injury))',
+					property:            'hsl(var(--incident-property))',
+					environmental:       'hsl(var(--incident-environmental))',
+					security:            'hsl(var(--incident-security))',
+					'safety-bg':         'hsl(var(--incident-safety-bg))',
+					'injury-bg':         'hsl(var(--incident-injury-bg))',
+					'property-bg':       'hsl(var(--incident-property-bg))',
+					'environmental-bg':  'hsl(var(--incident-environmental-bg))',
+					'security-bg':       'hsl(var(--incident-security-bg))',
+				},
 			},
 			borderRadius: {
 				xl: 'var(--radius)',
@@ -100,27 +112,29 @@ export default {
 			},
 			keyframes: {
 				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
+					from: { height: '0' },
+					to: { height: 'var(--radix-accordion-content-height)' }
 				},
 				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
-					},
-					to: {
-						height: '0'
-					}
-				}
+					from: { height: 'var(--radix-accordion-content-height)' },
+					to: { height: '0' }
+				},
+				'calm-fade-in': {
+					from: { opacity: '0', transform: 'translateY(6px)' },
+					to:   { opacity: '1', transform: 'translateY(0)' },
+				},
+				'gentle-scale-in': {
+					from: { opacity: '0', transform: 'scale(0.97)' },
+					to:   { opacity: '1', transform: 'scale(1)' },
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'calm-fade-in':    'calm-fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) both',
+				'gentle-scale-in': 'gentle-scale-in 0.35s cubic-bezier(0.4, 0, 0.2, 1) both',
 			},
-		fontWeight: {
+			fontWeight: {
 				medium: '600',
 			},
 			fontFamily: {
