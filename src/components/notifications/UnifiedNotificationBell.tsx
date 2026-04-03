@@ -43,7 +43,7 @@ const TASK_ICONS: Record<string, typeof Rss> = {
   deadline_approaching: Timer,
 };
 
-const CRISIS_ICONS: Record<string, typeof Radio> = {
+const CRISIS_ICONS: Record<string, typeof Rss> = {
   case_assigned: AlertTriangle,
   case_accepted: UserCheck,
   case_declined: X,
