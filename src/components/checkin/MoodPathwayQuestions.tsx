@@ -292,7 +292,7 @@ export function MoodPathwayQuestions({
 
         return (
           <div key={q.id} className="rounded-xl border bg-card p-3 sm:p-4 space-y-3">
-            <p className="font-medium text-sm text-center" dir="auto">
+            <p className="text-xs font-semibold text-center" dir="auto">
               {questionText}
             </p>
 
