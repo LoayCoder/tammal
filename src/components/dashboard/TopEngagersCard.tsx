@@ -1,1 +1,62 @@
-undefined
+import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Flame, MessageSquare } from 'lucide-react';
+import type { TopEngager } from '@/hooks/analytics/useOrgAnalytics';
+import { cardVariants } from "@/theme/tokens";
+
+interface Props {
+  data: TopEngager[];
+  isLoading: boolean;
+}
+
+const RANK_EMOJI = ['🥇', '🥈', '🥉'];
+
+function RankIcon({ rank }: { rank: number }) {
+  if (rank <= 3) return <span className="text-base w-5 text-center">{RANK_EMOJI[rank - 1]}</span>;
+  return <span className="text-xs text-muted-foreground w-5 text-center">{rank}</span>;
+}
+
+export function TopEngagersCard({ data, isLoading }: Props) {
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+
+  return (
+    <Card className={cardVariants.glass}>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base">{t('orgDashboard.topEngagers')}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <Skeleton className="h-[200px] w-full" />
+        ) : data.length > 0 ? (
+          <div className="space-y-2">
+            {data.map((eng, i) => (
+              <div key={eng.employeeId} className="flex items-center gap-3 py-1.5 border-b border-border/50 last:border-0">
+                <RankIcon rank={i + 1} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{eng.firstName}</p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {isAr ? (eng.departmentAr || eng.department) : eng.department}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex items-center gap-1 text-xs" title={t('orgDashboard.streak')}>
+                    <Flame className="h-3.5 w-3.5 text-destructive" />
+                    <span>{eng.streak}d</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs" title={t('orgDashboard.responses')}>
+                    <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span>{eng.responseCount}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-muted-foreground text-sm text-center py-10">{t('common.noData')}</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
