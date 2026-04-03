@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building2, Home, Briefcase, ChevronRight, Clock, Timer, Check } from 'lucide-react';
+import { Landmark, House, BriefcaseBusiness, ChevronRight, Clock4, Hourglass, CircleCheck } from 'lucide-react';
 
 const ICON_STROKE = 1.75;
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
@@ -33,7 +33,7 @@ function PrayerCountdownBadge({ prayerTime }: { prayerTime: string }) {
 
   return (
     <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30">
-      <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} />
+      <Hourglass className="h-3 w-3" strokeWidth={ICON_STROKE} />
       {i18n.language === 'ar' ? `${minutesLeft}د` : `${minutesLeft}m`}
     </span>
   );
@@ -59,7 +59,7 @@ export function DashboardPrayerWidget() {
     if (!timings) return null;
     const now = new Date();
 
-    // Check 5 obligatory prayers first
+    // CircleCheck 5 obligatory prayers first
     for (const name of PRAYER_NAMES) {
       if (todayLogs[name]) continue;
       const clean = (timings[name] || '').replace(/\s*\(.*\)/, '').trim();
@@ -70,7 +70,7 @@ export function DashboardPrayerWidget() {
       if (now >= pDate) return name;
     }
 
-    // Check Witr (active when 22:00+ or before Fajr and not logged)
+    // CircleCheck Witr (active when 22:00+ or before Fajr and not logged)
     if (!todayLogs['Witr'] && witrCountdown.isPrayerTime) {
       return 'Witr' as const;
     }
@@ -81,7 +81,7 @@ export function DashboardPrayerWidget() {
       return name;
     }
 
-    // Check if Witr is still pending (before its window)
+    // CircleCheck if Witr is still pending (before its window)
     if (!todayLogs['Witr'] && !witrCountdown.isExpired) {
       return 'Witr' as const;
     }
@@ -144,7 +144,7 @@ export function DashboardPrayerWidget() {
                   {t(`spiritual.prayer.names.${activePrayer.toLowerCase()}`)}
                 </p>
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Clock className="h-3 w-3" strokeWidth={ICON_STROKE} />
+                  <Clock4 className="h-3 w-3" strokeWidth={ICON_STROKE} />
                   {activePrayer === 'Witr'
                     ? t('spiritual.prayer.witrTimeRange', { fajr: (timings.Fajr || '').replace(/\s*\(.*\)/, '').trim() || '--:--' })
                     : (timings[activePrayer as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()
@@ -154,7 +154,7 @@ export function DashboardPrayerWidget() {
               {activePrayer === 'Witr' ? (
                 witrCountdown.isPrayerTime && !witrCountdown.isExpired && witrCountdown.minutesLeft != null ? (
                   <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30">
-                    <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} />
+                    <Hourglass className="h-3 w-3" strokeWidth={ICON_STROKE} />
                     {i18n.language === 'ar' ? `${witrCountdown.minutesLeft}د` : `${witrCountdown.minutesLeft}m`}
                   </span>
                 ) : null
@@ -164,13 +164,13 @@ export function DashboardPrayerWidget() {
             </div>
             <div className="flex flex-wrap gap-1.5">
               <Button size="sm" variant="outline" onClick={() => handleLog('completed_mosque')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
-                <Building2 className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.mosque')}
+                <Landmark className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.mosque')}
               </Button>
               <Button size="sm" variant="outline" onClick={() => handleLog('completed_home')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
-                <Home className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.home')}
+                <House className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.home')}
               </Button>
               <Button size="sm" variant="outline" onClick={() => handleLog('completed_work')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
-                <Briefcase className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.work')}
+                <BriefcaseBusiness className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.work')}
               </Button>
             </div>
             {/* Rawatib Sunnah toggles */}
@@ -188,7 +188,7 @@ export function DashboardPrayerWidget() {
                     )}
                   >
                     📿
-                    {todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_before`) && <Check className="h-3 w-3" strokeWidth={ICON_STROKE} />}
+                    {todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_before`) && <CircleCheck className="h-3 w-3" strokeWidth={ICON_STROKE} />}
                     <span>{i18n.language === 'ar' ? `${activeRawatib.before} ركعات قبل` : `${activeRawatib.before} Rak'ahs before`}</span>
                   </button>
                 )}
@@ -204,7 +204,7 @@ export function DashboardPrayerWidget() {
                     )}
                   >
                     📿
-                    {todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_after`) && <Check className="h-3 w-3" strokeWidth={ICON_STROKE} />}
+                    {todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_after`) && <CircleCheck className="h-3 w-3" strokeWidth={ICON_STROKE} />}
                     <span>{i18n.language === 'ar' ? `${activeRawatib.after} ركعات بعد` : `${activeRawatib.after} Rak'ahs after`}</span>
                   </button>
                 )}
@@ -256,9 +256,9 @@ export function DashboardPrayerWidget() {
                     !logged && !isActive && 'bg-muted border-border text-muted-foreground',
                   )}
                 >
-                  {logged && !isMissed ? <Check className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
+                  {logged && !isMissed ? <CircleCheck className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                   {isMissed ? '✕' : null}
-                  {!logged && isActive ? <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
+                  {!logged && isActive ? <Hourglass className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                 </div>
                 <span className="text-2xs text-muted-foreground leading-none">
                   {t(`spiritual.prayer.names.${name.toLowerCase()}`).slice(0, 3)}
