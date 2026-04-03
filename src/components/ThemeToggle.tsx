@@ -14,7 +14,7 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={t('accessibility.toggleTheme')}
     >
-      <Contrast className="h-5 w-5" />
+      <Eclipse className="h-5 w-5" />
     </Button>
   );
 }

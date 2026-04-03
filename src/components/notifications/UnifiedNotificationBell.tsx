@@ -205,7 +205,7 @@ export function UnifiedNotificationBell() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          <Radio className="h-4 w-4" />
+          <Rss className="h-4 w-4" />
           {totalUnread > 0 && (
             <Badge
               variant="destructive"
