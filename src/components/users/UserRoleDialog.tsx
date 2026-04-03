@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog,
@@ -156,7 +157,7 @@ export function UserRoleDialog({ open, onOpenChange, user, tenantId }: UserRoleD
 
       onOpenChange(false);
     } catch (error) {
-      console.error('Error saving roles:', error);
+      logger.error('UserRoleDialog', 'Error saving roles', error);
     } finally {
       setIsSaving(false);
     }

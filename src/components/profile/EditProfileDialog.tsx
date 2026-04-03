@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -141,7 +142,7 @@ export function EditProfileDialog({
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {
-      console.error('Failed to update profile:', error);
+      logger.error('EditProfileDialog', 'Failed to update profile', error);
     } finally {
       setIsUploading(false);
     }

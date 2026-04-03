@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +11,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { WorkSite, WorkSiteInput } from '@/hooks/org/useWorkSites';
 import type { Department } from '@/hooks/org/useDepartments';
 import type { Site } from '@/hooks/org/useSites';
+
+const workSiteSchema = z.object({
+  tenant_id: z.string(),
+  name: z.string().min(1, 'Name is required').max(100),
+  name_ar: z.string().max(100).optional().default(''),
+  address: z.string().max(255).optional().default(''),
+  address_ar: z.string().max(255).optional().default(''),
+  department_id: z.string().nullable().optional(),
+  section_id: z.string().nullable().optional(),
+});
 
 interface WorkSiteSheetProps {
   open: boolean;
@@ -22,7 +34,9 @@ interface WorkSiteSheetProps {
 
 export function WorkSiteSheet({ open, onOpenChange, workSite, departments, sections, tenantId, onSubmit }: WorkSiteSheetProps) {
   const { t, i18n } = useTranslation();
-  const { register, handleSubmit, reset, setValue, watch } = useForm<WorkSiteInput>();
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<WorkSiteInput>({
+    resolver: zodResolver(workSiteSchema),
+  });
   const selectedDept = watch('department_id');
   const selectedSection = watch('section_id');
 
@@ -66,7 +80,8 @@ export function WorkSiteSheet({ open, onOpenChange, workSite, departments, secti
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 mt-4">
           <div className="space-y-2">
             <Label>{t('workSites.name')}</Label>
-            <Input {...register('name', { required: true })} />
+            <Input {...register('name')} />
+            {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
           </div>
           <div className="space-y-2">
             <Label>{t('workSites.nameAr')}</Label>

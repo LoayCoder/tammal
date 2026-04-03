@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { useTenantId } from '@/hooks/org/useTenantId';
+import { logger } from '@/lib/logger';
 
 export interface TaskComment {
   id: string;
@@ -128,7 +129,7 @@ export function useUnifiedTasks(employeeId?: string) {
       toast.success(t('workload.tasks.deleteSuccess'));
     },
     onError: (err: any) => {
-      console.error('Delete task failed:', err?.message, err?.code, err);
+      logger.error('useUnifiedTasks', 'Delete task failed', err);
       toast.error(t('workload.tasks.deleteError'));
     },
   });

@@ -94,7 +94,17 @@ const RecurringTasks = lazy(() => import("@/features/tasks/pages/RecurringTasks"
 const TaskTemplates = lazy(() => import("@/features/tasks/pages/TaskTemplates"));
 const ComponentShowcase = lazy(() => import("@/pages/dev/ComponentShowcase"));
 const DesignSystemPage = lazy(() => import("@/pages/dev/DesignSystemPage"));
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,   // 30 s — avoids redundant refetches on mount
+      retry: 1,
+    },
+    mutations: {
+      retry: 0,            // mutations are not idempotent; never auto-retry
+    },
+  },
+});
 
 const PageFallback = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
@@ -240,9 +250,9 @@ const App = () => (
                 <Route path="/spiritual/calendar" element={<IslamicCalendar />} />
               </Route>
 
-              {/* ── Dev / QA routes ── */}
-              <Route path="/dev/components" element={<ComponentShowcase />} />
-              <Route path="/dev/design-system" element={<DesignSystemPage />} />
+              {/* ── Dev / QA routes — admin only ── */}
+              <Route path="/dev/components" element={<AdminRoute><ComponentShowcase /></AdminRoute>} />
+              <Route path="/dev/design-system" element={<AdminRoute><DesignSystemPage /></AdminRoute>} />
             </Route>
             </Route>
             <Route path="*" element={<NotFound />} />

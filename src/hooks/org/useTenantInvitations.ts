@@ -41,14 +41,15 @@ export interface CreateInvitationInput {
   tenant_name?: string;
 }
 
-// Generate 8-character alphanumeric code (excludes ambiguous chars: O, 0, I, 1, L)
+// Generate 8-character alphanumeric code (excludes ambiguous chars: O, 0, I, 1, L).
+// Uses crypto.getRandomValues() for cryptographic randomness — Math.random() is predictable.
 function generateInvitationCode(): string {
   const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-  let code = '';
-  for (let i = 0; i < 8; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
+  const randomBytes = new Uint32Array(8);
+  crypto.getRandomValues(randomBytes);
+  return Array.from(randomBytes)
+    .map((n) => chars[n % chars.length])
+    .join('');
 }
 
 export function useTenantInvitations(tenantId?: string) {

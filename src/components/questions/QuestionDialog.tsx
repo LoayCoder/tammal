@@ -171,7 +171,7 @@ export function QuestionDialog({
                 <Label>{t('questions.options')}</Label>
                 <div className="space-y-2">
                   {options.map((option, index) => (
-                    <div key={index} className="flex items-center gap-2">
+                    <div key={`option-${index}`} className="flex items-center gap-2">
                       <Input
                         value={option}
                         onChange={(e) => handleOptionChange(index, e.target.value)}

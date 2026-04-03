@@ -66,7 +66,7 @@ export function TaskChecklist({ items, onChange, disabled }: TaskChecklistProps)
 
       <div className="space-y-1">
         {items.map((item, index) => (
-          <div key={index} className="flex items-center gap-2 group">
+          <div key={item.id ?? `checklist-${index}`} className="flex items-center gap-2 group">
             <Checkbox
               checked={item.status === 'completed'}
               onCheckedChange={() => toggleItem(index)}

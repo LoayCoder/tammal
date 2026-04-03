@@ -55,7 +55,7 @@ export function AffectiveStateChart({ data, isLoading }: AffectiveStateChartProp
                 label={({ percentage }) => `${percentage}%`}
               >
                 {chartData.map((entry, index) => (
-                  <Cell key={index} fill={entry.fill} />
+                  <Cell key={entry.name ?? index} fill={entry.fill} />
                 ))}
               </Pie>
               <Tooltip

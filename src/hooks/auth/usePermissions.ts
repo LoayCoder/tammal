@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { useAuditLog } from '@/hooks/audit/useAuditLog';
+import { logger } from '@/lib/logger';
 
 export interface Permission {
   id: string;
@@ -104,7 +105,7 @@ export function useRolePermissions(roleId?: string) {
     },
     onError: (error) => {
       toast.error(t('permissions.assignError'));
-      console.error('Assign permission error:', error);
+      logger.error('usePermissions', 'Assign permission error', error);
     },
   });
 
@@ -124,7 +125,7 @@ export function useRolePermissions(roleId?: string) {
     },
     onError: (error) => {
       toast.error(t('permissions.removeError'));
-      console.error('Remove permission error:', error);
+      logger.error('usePermissions', 'Remove permission error', error);
     },
   });
 
@@ -179,7 +180,7 @@ export function useRolePermissions(roleId?: string) {
     },
     onError: (error) => {
       toast.error(t('permissions.updateError'));
-      console.error('Update role permissions error:', error);
+      logger.error('usePermissions', 'Update role permissions error', error);
     },
   });
 

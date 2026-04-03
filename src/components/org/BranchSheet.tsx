@@ -1,11 +1,23 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Branch, BranchInput } from '@/hooks/org/useBranches';
+
+const branchSchema = z.object({
+  tenant_id: z.string(),
+  name: z.string().min(1, 'Name is required').max(100),
+  name_ar: z.string().max(100).optional().default(''),
+  address: z.string().max(255).optional().default(''),
+  address_ar: z.string().max(255).optional().default(''),
+  phone: z.string().max(30).optional().default(''),
+  email: z.string().email('Invalid email').or(z.literal('')).optional().default(''),
+});
 
 interface BranchSheetProps {
   open: boolean;
@@ -17,7 +29,9 @@ interface BranchSheetProps {
 
 export function BranchSheet({ open, onOpenChange, branch, tenantId, onSubmit }: BranchSheetProps) {
   const { t } = useTranslation();
-  const { register, handleSubmit, reset } = useForm<BranchInput>();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<BranchInput>({
+    resolver: zodResolver(branchSchema),
+  });
 
   useEffect(() => {
     if (open) {
@@ -54,7 +68,8 @@ export function BranchSheet({ open, onOpenChange, branch, tenantId, onSubmit }: 
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 mt-4">
           <div className="space-y-2">
             <Label>{t('branches.name')}</Label>
-            <Input {...register('name', { required: true })} />
+            <Input {...register('name')} />
+            {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
           </div>
           <div className="space-y-2">
             <Label>{t('branches.nameAr')}</Label>
@@ -75,6 +90,7 @@ export function BranchSheet({ open, onOpenChange, branch, tenantId, onSubmit }: 
           <div className="space-y-2">
             <Label>{t('branches.email')}</Label>
             <Input type="email" {...register('email')} />
+            {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
           </div>
           <div className="flex gap-2 pt-4">
             <Button type="submit">{t('common.save')}</Button>

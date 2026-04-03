@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { logger } from '@/lib/logger';
 
 export interface KnowledgeDocument {
   id: string;
@@ -101,7 +102,7 @@ export function useAIKnowledge() {
         body: { documentId: doc.id, filePath, fileName: file.name },
       });
       if (parseError) {
-        console.error('Parse error:', parseError);
+        logger.error('useAIKnowledge', 'Parse error', parseError);
         toast.warning(t('aiGenerator.parseError'));
       }
 

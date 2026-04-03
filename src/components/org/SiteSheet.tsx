@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +12,18 @@ import type { Site, SiteInput } from '@/hooks/org/useSites';
 import type { Department } from '@/hooks/org/useDepartments';
 import type { Branch } from '@/hooks/org/useBranches';
 import type { Employee } from '@/hooks/org/useEmployees';
+
+const siteSchema = z.object({
+  tenant_id: z.string(),
+  branch_id: z.string().optional().default(''),
+  department_id: z.string().nullable().optional(),
+  head_employee_id: z.string().nullable().optional(),
+  name: z.string().min(1, 'Name is required').max(100),
+  name_ar: z.string().max(100).optional().default(''),
+  address: z.string().max(255).optional().default(''),
+  address_ar: z.string().max(255).optional().default(''),
+  color: z.string().optional().default('#3B82F6'),
+});
 
 interface SiteSheetProps {
   open: boolean;
@@ -24,7 +38,9 @@ interface SiteSheetProps {
 
 export function SiteSheet({ open, onOpenChange, site, departments, branches, employees, tenantId, onSubmit }: SiteSheetProps) {
   const { t, i18n } = useTranslation();
-  const { register, handleSubmit, reset, setValue, watch } = useForm<SiteInput>();
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<SiteInput>({
+    resolver: zodResolver(siteSchema),
+  });
   const selectedDepartment = watch('department_id');
   const selectedHead = watch('head_employee_id');
 
@@ -93,7 +109,8 @@ export function SiteSheet({ open, onOpenChange, site, departments, branches, emp
           )}
           <div className="space-y-2">
             <Label>{t('sections.name')}</Label>
-            <Input {...register('name', { required: true })} />
+            <Input {...register('name')} />
+            {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
           </div>
           <div className="space-y-2">
             <Label>{t('sections.nameAr')}</Label>

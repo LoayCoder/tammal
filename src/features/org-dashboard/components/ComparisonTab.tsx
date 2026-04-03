@@ -88,7 +88,7 @@ export const ComparisonTab = React.memo(function ComparisonTab({ stats, distribu
                       <Tooltip contentStyle={GLASS_TOOLTIP} formatter={(value: number, _name: string, props: any) => [`${value} (${props.payload.percentage}%)`, t('orgDashboard.count')]} />
                       <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                         {distributionData.map((entry, index) => (
-                          <Cell key={index} fill={entry.fill} />
+                          <Cell key={entry.name ?? index} fill={entry.fill} />
                         ))}
                       </Bar>
                     </BarChart>
