@@ -52,7 +52,7 @@ const CRISIS_ICONS: Record<string, typeof Rss> = {
   escalation: AlertTriangle,
 };
 
-const RECOGNITION_ICONS: Record<string, typeof Radio> = {
+const RECOGNITION_ICONS: Record<string, typeof Rss> = {
   endorsement_requested: ThumbsUp,
   nomination_endorsed: Award,
   nomination_received: UserPlus,
