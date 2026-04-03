@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useWorkloadAnalytics, useWorkloadMetrics } from '@/features/workload';
+import { classifyUtilization } from '@/services/workload-intelligence.service';
 import type { TeamMemberLoad } from '@/features/workload/hooks/useWorkloadAnalytics';
 import {
   Users, AlertTriangle, Clock, Target, TrendingUp, Moon, Activity, Shield,
@@ -30,11 +31,23 @@ function getLoadColor(mins: number) {
   return 'hsl(var(--chart-1))';
 }
 
-function classifyUtilization(pct: number) {
-  if (pct < 60) return { key: 'underutilized', variant: 'secondary' as const };
-  if (pct <= 90) return { key: 'healthy', variant: 'default' as const };
-  if (pct <= 110) return { key: 'highLoad', variant: 'secondary' as const };
-  return { key: 'burnoutRisk', variant: 'destructive' as const };
+const CLASSIFICATION_VARIANT: Record<string, 'secondary' | 'default' | 'destructive'> = {
+  underutilized: 'secondary',
+  healthy: 'default',
+  high_load: 'secondary',
+  burnout_risk: 'destructive',
+};
+
+function classifyUtilizationForDisplay(pct: number) {
+  const cls = classifyUtilization(pct);
+  // Map service classification keys to i18n keys used in this component
+  const keyMap: Record<string, string> = {
+    underutilized: 'underutilized',
+    healthy: 'healthy',
+    high_load: 'highLoad',
+    burnout_risk: 'burnoutRisk',
+  };
+  return { key: keyMap[cls] ?? cls, variant: CLASSIFICATION_VARIANT[cls] ?? 'secondary' };
 }
 
 export default function WorkloadDashboard() {
@@ -159,7 +172,7 @@ export default function WorkloadDashboard() {
                              {(() => {
                                const metric = getMetric(m.employeeId);
                                if (!metric) return '—';
-                               const cls = classifyUtilization(metric.utilization_percentage);
+                               const cls = classifyUtilizationForDisplay(metric.utilization_percentage);
                                return (
                                  <Badge variant={cls.variant} className="text-xs">
                                    {metric.utilization_percentage}% — {t(`adminWorkload.${cls.key}`)}

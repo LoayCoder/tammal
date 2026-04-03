@@ -33,7 +33,10 @@ export function computeStreak(entries: { entry_date: string }[]): number {
   const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
 
   for (let i = 0; i < entries.length; i++) {
-    const [y, m, d] = entries[i].entry_date.split('-').map(Number);
+    const parts = entries[i].entry_date.split('-');
+    if (parts.length !== 3) break;
+    const [y, m, d] = parts.map(Number);
+    if (isNaN(y) || isNaN(m) || isNaN(d)) break;
     const entryUTC = Date.UTC(y, m - 1, d);
     const expectedUTC = todayUTC - i * 86400000; // i days ago
 

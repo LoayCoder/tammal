@@ -11,6 +11,13 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import {
+  DEFAULT_CAPACITY_MINUTES,
+  UTILIZATION_THRESHOLDS,
+  BURNOUT_FLAGS,
+  BURNOUT_SCORE_WEIGHTS,
+  BURNOUT_SCORE_NORMALIZATION,
+} from '@/config/workload';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -52,10 +59,10 @@ export interface PriorityScoreInput {
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 
-function classifyUtilization(pct: number): UtilizationResult['classification'] {
-  if (pct < 60) return 'underutilized';
-  if (pct <= 90) return 'healthy';
-  if (pct <= 110) return 'high_load';
+export function classifyUtilization(pct: number): UtilizationResult['classification'] {
+  if (pct < UTILIZATION_THRESHOLDS.UNDERUTILIZED) return 'underutilized';
+  if (pct <= UTILIZATION_THRESHOLDS.HEALTHY_MAX) return 'healthy';
+  if (pct <= UTILIZATION_THRESHOLDS.HIGH_LOAD_MAX) return 'high_load';
   return 'burnout_risk';
 }
 
@@ -79,7 +86,7 @@ export async function calculateUtilization(
     .eq('tenant_id', tenantId)
     .maybeSingle();
 
-  const capacityMinutes = cap?.daily_capacity_minutes ?? 480;
+  const capacityMinutes = cap?.daily_capacity_minutes ?? DEFAULT_CAPACITY_MINUTES;
 
   // Sum estimated_hours from active objective_actions assigned to this employee
   const { data: actions } = await supabase
@@ -110,7 +117,7 @@ export async function calculateUtilization(
 
 /**
  * Detect burnout risk for one employee.
- * Flags: daily_work > 480 min, overdue > 3, off_hours > 120 min.
+ * Flags: daily_work > OVER_CAPACITY_MINUTES, overdue > OVERDUE_COUNT, off_hours > OFF_HOURS_MINUTES.
  * Score: 0-100 weighted composite.
  */
 export async function detectBurnoutRisk(
@@ -150,15 +157,15 @@ export async function detectBurnoutRisk(
     0,
   );
 
-  const overCapacity = activeMinutes > 480;
-  const overdueExcess = overdueCount > 3;
-  const offHoursExcess = offHoursMinutes > 120;
+  const overCapacity = activeMinutes > BURNOUT_FLAGS.OVER_CAPACITY_MINUTES;
+  const overdueExcess = overdueCount > BURNOUT_FLAGS.OVERDUE_COUNT;
+  const offHoursExcess = offHoursMinutes > BURNOUT_FLAGS.OFF_HOURS_MINUTES;
 
   // Weighted score: capacity 40%, overdue 35%, off-hours 25%
   let score = 0;
-  if (overCapacity) score += Math.min(((activeMinutes - 480) / 480) * 40, 40);
-  if (overdueExcess) score += Math.min((overdueCount / 10) * 35, 35);
-  if (offHoursExcess) score += Math.min((offHoursMinutes / 300) * 25, 25);
+  if (overCapacity) score += Math.min(((activeMinutes - BURNOUT_FLAGS.OVER_CAPACITY_MINUTES) / BURNOUT_SCORE_NORMALIZATION.CAPACITY) * BURNOUT_SCORE_WEIGHTS.CAPACITY, BURNOUT_SCORE_WEIGHTS.CAPACITY);
+  if (overdueExcess) score += Math.min((overdueCount / BURNOUT_SCORE_NORMALIZATION.OVERDUE) * BURNOUT_SCORE_WEIGHTS.OVERDUE, BURNOUT_SCORE_WEIGHTS.OVERDUE);
+  if (offHoursExcess) score += Math.min((offHoursMinutes / BURNOUT_SCORE_NORMALIZATION.OFF_HOURS) * BURNOUT_SCORE_WEIGHTS.OFF_HOURS, BURNOUT_SCORE_WEIGHTS.OFF_HOURS);
   score = Math.round(Math.min(score, 100));
 
   return {
