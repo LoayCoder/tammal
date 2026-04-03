@@ -137,7 +137,7 @@ export function DashboardPrayerWidget() {
 
         {/* Active prayer card */}
         {activePrayer && !allCompleted ? (
-          <div className="rounded-xl bg-muted/50 p-3 space-y-2.5">
+          <div className="rounded-xl p-3 space-y-2.5 bg-[#69cbfc]/[0.13]">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-semibold text-sm">
