@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Type } from 'lucide-react';
+import { Languages } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +26,7 @@ export function LanguageSelector() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" aria-label={t('accessibility.selectLanguage')}>
-          <Type className="h-5 w-5" />
+          <Languages className="h-5 w-5" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

@@ -9,7 +9,7 @@ import {
   Popover, PopoverContent, PopoverTrigger,
 } from '@/components/ui/popover';
 import {
-  Radio, CheckCircle2, MessageSquare, AlertTriangle, UserPlus,
+  Rss, CheckCircle2, MessageSquare, AlertTriangle, UserPlus,
   ShieldCheck, XCircle, Clock, CheckCheck, ListChecks, Timer,
   UserCheck, Check, X, Award, ThumbsUp,
 } from 'lucide-react';
@@ -31,7 +31,7 @@ interface UnifiedNotification {
   navigateTo: string;
 }
 
-const TASK_ICONS: Record<string, typeof Radio> = {
+const TASK_ICONS: Record<string, typeof Rss> = {
   assigned: UserPlus,
   status_changed: Clock,
   comment_added: MessageSquare,
@@ -43,7 +43,7 @@ const TASK_ICONS: Record<string, typeof Radio> = {
   deadline_approaching: Timer,
 };
 
-const CRISIS_ICONS: Record<string, typeof Radio> = {
+const CRISIS_ICONS: Record<string, typeof Rss> = {
   case_assigned: AlertTriangle,
   case_accepted: UserCheck,
   case_declined: X,
@@ -52,7 +52,7 @@ const CRISIS_ICONS: Record<string, typeof Radio> = {
   escalation: AlertTriangle,
 };
 
-const RECOGNITION_ICONS: Record<string, typeof Radio> = {
+const RECOGNITION_ICONS: Record<string, typeof Rss> = {
   endorsement_requested: ThumbsUp,
   nomination_endorsed: Award,
   nomination_received: UserPlus,
@@ -190,8 +190,8 @@ export function UnifiedNotificationBell() {
   };
 
   const getIcon = (n: UnifiedNotification) => {
-    if (n.source === 'task') return TASK_ICONS[n.type] ?? Radio;
-    if (n.source === 'crisis') return CRISIS_ICONS[n.type] ?? Radio;
+    if (n.source === 'task') return TASK_ICONS[n.type] ?? Rss;
+    if (n.source === 'crisis') return CRISIS_ICONS[n.type] ?? Rss;
     return RECOGNITION_ICONS[n.type] ?? Award;
   };
 
@@ -205,7 +205,7 @@ export function UnifiedNotificationBell() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          <Radio className="h-4 w-4" />
+          <Rss className="h-4 w-4" />
           {totalUnread > 0 && (
             <Badge
               variant="destructive"

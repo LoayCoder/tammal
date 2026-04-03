@@ -1,4 +1,4 @@
-import { Contrast } from "lucide-react";
+import { Eclipse } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/branding/useTheme";
@@ -14,7 +14,7 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={t('accessibility.toggleTheme')}
     >
-      <Contrast className="h-5 w-5" />
+      <Eclipse className="h-5 w-5" />
     </Button>
   );
 }
