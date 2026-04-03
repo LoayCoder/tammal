@@ -49,32 +49,32 @@ export const MoodStep = React.forwardRef<HTMLDivElement, MoodStepProps>(function
 
   return (
     <div ref={ref} className="space-y-5">
-      <div className="text-center space-y-2">
-        <h2 className="text-xl font-semibold tracking-tight">{t('wellness.howAreYou')}</h2>
-        <p className="text-muted-foreground/60 text-xs">{t('wellness.selectMood')}</p>
+      <div className="text-center space-y-1.5">
+        <h2 className="text-lg font-semibold tracking-tight">{t('wellness.howAreYou')}</h2>
+        <p className="text-muted-foreground/50 text-xs">{t('wellness.selectMood')}</p>
       </div>
 
-      <div className={`grid gap-2.5`} style={{ gridTemplateColumns: `repeat(${Math.min(displayMoods.length, 5)}, minmax(0, 1fr))` }}>
+      <div className={`flex justify-center gap-3`}>
         {displayMoods.map(mood => {
           const isSelected = selectedMood === mood.level;
           return (
             <button
               key={mood.level}
               onClick={() => onSelect(mood.level)}
-              className={`flex flex-col items-center gap-2 p-3 sm:p-4 rounded-2xl transition-all duration-200 ease-out ${
+              className={`flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl transition-all duration-200 ease-out ${
                 isSelected
-                  ? 'bg-primary/[0.06] dark:bg-primary/[0.1] shadow-[0_2px_8px_rgba(0,0,0,0.06)] scale-[1.04] border border-primary/20'
-                  : 'bg-muted/40 dark:bg-muted/20 shadow-[0_1px_2px_rgba(0,0,0,0.04)] border border-border/30 hover:bg-muted/60 hover:scale-[1.02] active:scale-[0.97]'
+                  ? 'bg-primary/[0.05] scale-[1.03] text-foreground'
+                  : 'hover:bg-muted/30 hover:scale-[1.02] active:scale-[0.98]'
               }`}
             >
               <span
-                className={`text-xl sm:text-2xl transition-transform duration-200 ${isSelected ? 'scale-105' : ''}`}
+                className={`text-lg sm:text-xl transition-transform duration-200 ${isSelected ? 'scale-105' : 'opacity-80'}`}
                 role="img"
                 aria-label={mood.level}
               >
                 {mood.emoji}
               </span>
-              <span className={`text-2xs sm:text-xs leading-tight text-center ${isSelected ? 'text-foreground font-semibold' : 'text-muted-foreground font-medium'}`}>
+              <span className={`text-[10px] sm:text-xs leading-tight text-center ${isSelected ? 'text-foreground font-medium' : 'text-muted-foreground/70 font-normal'}`}>
                 {mood.label}
               </span>
             </button>
