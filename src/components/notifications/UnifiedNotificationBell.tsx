@@ -190,8 +190,8 @@ export function UnifiedNotificationBell() {
   };
 
   const getIcon = (n: UnifiedNotification) => {
-    if (n.source === 'task') return TASK_ICONS[n.type] ??? Radio;
-    if (n.source === 'crisis') return CRISIS_ICONS[n.type] ??? Radio;
+    if (n.source === 'task') return TASK_ICONS[n.type] ?? Radio;
+    if (n.source === 'crisis') return CRISIS_ICONS[n.type] ?? Radio;
     return RECOGNITION_ICONS[n.type] ?? Award;
   };
 
