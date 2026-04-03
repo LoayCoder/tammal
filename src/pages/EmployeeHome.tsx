@@ -78,14 +78,32 @@ export default function EmployeeHome() {
 
         {/* Gamification Badges */}
         <div className="flex flex-wrap gap-3">
-          <Badge variant="secondary" className="premium-badge gap-1.5 px-3.5 py-1.5 text-sm font-medium">
-            <Flame className="h-4 w-4 text-chart-4 drop-shadow-sm" />
-            {gamLoading ? '...' : streak} {t('home.dayStreak')}
-          </Badge>
-          <Badge variant="secondary" className="premium-badge gap-1.5 px-3.5 py-1.5 text-sm font-medium">
-            <Star className="h-4 w-4 text-chart-1 drop-shadow-sm" />
-            {gamLoading ? '...' : totalPoints} {t('home.points')}
-          </Badge>
+          <div className="vip-stat-chip">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-chart-4/10">
+              <Flame className="h-4 w-4 text-chart-4" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-base font-bold tracking-tight text-foreground leading-none">
+                {gamLoading ? '...' : streak}
+              </span>
+              <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t('home.dayStreak')}
+              </span>
+            </div>
+          </div>
+          <div className="vip-stat-chip">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-chart-1/10">
+              <Star className="h-4 w-4 text-chart-1" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-base font-bold tracking-tight text-foreground leading-none">
+                {gamLoading ? '...' : totalPoints}
+              </span>
+              <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t('home.points')}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Pending Endorsement Requests */}
