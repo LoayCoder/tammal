@@ -1,59 +1,35 @@
 
 
-# Premium Scrollbar, Mobile Top Bar, and Tab Upgrade
+# Fix Tabs Overflow & Hide Scrollbar Completely
 
-Three focused improvements: minimal scrollbar, native-feeling mobile header, and premium pill-style tabs.
+## Problems
+1. **Tabs overflow on mobile (390px)**: Three pill tabs with `px-4` padding and `rounded-full` don't fit in a 390px viewport — they spill off-screen.
+2. **Scrollbar still visible**: Current CSS makes it thin but not hidden.
 
----
+## Changes
 
-## 1. Minimal Scrollbar (`src/index.css`)
+### 1. `src/pages/Dashboard.tsx` — Responsive compact tabs
+- Remove `rounded-full` from `TabsList` — use `rounded-lg` instead
+- Reduce tab padding on mobile: `px-2 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm`
+- Use `w-full` on TabsList so tabs fill available width
+- Use `flex-1` on each TabsTrigger so they share space equally
+- Change tab shape from `rounded-full` to `rounded-md` for better space efficiency
 
-Add global scrollbar styles using WebKit and Firefox scrollbar APIs:
+### 2. `src/index.css` — Completely hide scrollbar
+Replace the current minimal scrollbar styles with full hiding:
+```css
+* {
+  scrollbar-width: none; /* Firefox */
+}
+::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Edge */
+}
+```
+Remove the thumb/track styles since scrollbar is fully hidden.
 
-- **Thin track**: 4px width, transparent background
-- **Thumb**: `hsl(var(--border))` with 40% opacity, rounded
-- **Hover**: opacity increases to 60%
-- **Firefox**: `scrollbar-width: thin; scrollbar-color: hsl(var(--border) / 0.4) transparent`
-- Dark mode: same approach with adjusted opacity
-
----
-
-## 2. Mobile Top Bar — Native App Feel (`src/components/layout/Header.tsx`)
-
-Replace the `SidebarTrigger` on mobile with the tenant's app icon/logo:
-
-- Hide `SidebarTrigger` on mobile (`hidden md:flex`)
-- Add a mobile-only block that renders `ThemeIcon` (with branding props from context or a lightweight branding hook) — falls back to a small app name text
-- Header needs branding data: either pass it via props from `MainLayout` or use `useBranding` + `useTenantId` directly in Header
-- Keep page title on mobile, keep right-side icons unchanged
-- Result: `[Logo/Icon] [Page Title] ... [Notifications] [Avatar]`
-
-**MainLayout change**: Pass `branding` prop to `<Header />`.
-
----
-
-## 3. Premium Pill Tabs (`src/pages/Dashboard.tsx`)
-
-Transform the flat border-bottom tabs into a soft segmented control:
-
-- **TabsList**: `bg-muted/6 rounded-full p-1 gap-1` — soft tinted pill container
-- **TabsTrigger**: `rounded-full px-4 py-2 text-sm font-medium transition-all duration-200`
-- **Active state**: `data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm` — elevated pill with subtle shadow
-- **Inactive**: `text-muted-foreground hover:text-foreground/80`
-- Remove all border-b-2 styling
-
-Also update the inner tabs in `OrgDashboard.tsx` and `PortfolioDashboard.tsx` to use consistent pill style.
-
----
-
-## Files Changed
-
+## Files
 | File | Change |
 |------|--------|
-| `src/index.css` | Add minimal scrollbar CSS |
-| `src/components/layout/Header.tsx` | Mobile: logo instead of sidebar trigger |
-| `src/components/layout/MainLayout.tsx` | Pass branding to Header |
-| `src/pages/Dashboard.tsx` | Pill-style tabs |
-| `src/components/dashboard/OrgDashboard.tsx` | Consistent pill tabs |
-| `src/pages/admin/PortfolioDashboard.tsx` | Consistent pill tabs |
+| `src/pages/Dashboard.tsx` | Compact responsive tabs |
+| `src/index.css` | Hide scrollbar completely |
 
