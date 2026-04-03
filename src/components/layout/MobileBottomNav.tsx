@@ -1,12 +1,12 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { House, HeartPulse, MessageCircle, CircleUserRound, AlignJustify } from 'lucide-react';
+import { Dot, Waves, Send, Fingerprint, Grip } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 
 const navItems = [
-  { key: 'dashboard', icon: House, path: '/' },
-  { key: 'wellness', icon: HeartPulse, path: '/employee/wellness' },
-  { key: 'support', icon: MessageCircle, path: '/support' },
-  { key: 'profile', icon: CircleUserRound, path: '/settings/profile' },
+  { key: 'dashboard', icon: Dot, path: '/' },
+  { key: 'wellness', icon: Waves, path: '/employee/wellness' },
+  { key: 'support', icon: Send, path: '/support' },
+  { key: 'profile', icon: Fingerprint, path: '/settings/profile' },
 ];
 
 export function MobileBottomNav() {
@@ -45,7 +45,7 @@ export function MobileBottomNav() {
           className="flex items-center justify-center min-w-[44px] min-h-[44px] transition-all duration-200"
         >
           <div className="flex items-center justify-center px-2 py-1.5 text-muted-foreground/70 hover:text-muted-foreground transition-all duration-200">
-            <AlignJustify size={22} strokeWidth={2.25} />
+            <Grip size={22} strokeWidth={2.25} />
           </div>
         </button>
       </div>
