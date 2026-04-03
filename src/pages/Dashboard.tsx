@@ -6,7 +6,7 @@ import { useDashboardView, type DashboardView } from '@/hooks/analytics/useDashb
 import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
 import { DashboardOverviewTab } from '@/components/dashboard/DashboardOverviewTab';
 import { OrgDashboard } from '@/components/dashboard/OrgDashboard';
-import { Building2, Heart, User } from 'lucide-react';
+
 import EmployeeHome from './EmployeeHome';
 import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 
@@ -33,18 +33,18 @@ export default function Dashboard() {
 
   return (
     <Tabs value={view} onValueChange={(v) => setView(v as DashboardView)} className="space-y-6">
-      <TabsList className="h-auto bg-muted/50 border border-border rounded-lg p-1">
-        <TabsTrigger value="overview" className="gap-2 rounded-md px-3 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all">
-          <Building2 className="h-4 w-4" />
+      <TabsList className="h-auto bg-transparent border-b border-border rounded-none p-0 gap-0">
+        <TabsTrigger value="overview" className="gap-1.5 rounded-none border-b-2 border-transparent px-3 py-2 text-[13px] font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-colors">
+          <span>📊</span>
           <span className="hidden sm:inline">{t('dashboard.overviewTab')}</span>
         </TabsTrigger>
-        <TabsTrigger value="wellness" className="gap-2 rounded-md px-3 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all">
-          <Heart className="h-4 w-4" />
+        <TabsTrigger value="wellness" className="gap-1.5 rounded-none border-b-2 border-transparent px-3 py-2 text-[13px] font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-colors">
+          <span>💚</span>
           <span className="hidden sm:inline">{t('dashboard.wellnessTab')}</span>
         </TabsTrigger>
         {canSwitch && (
-          <TabsTrigger value="personal" className="gap-2 rounded-md px-3 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all">
-            <User className="h-4 w-4" />
+          <TabsTrigger value="personal" className="gap-1.5 rounded-none border-b-2 border-transparent px-3 py-2 text-[13px] font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-colors">
+            <span>👤</span>
             <span className="hidden sm:inline">{t('dashboard.personalTab')}</span>
           </TabsTrigger>
         )}
