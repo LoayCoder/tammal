@@ -90,7 +90,7 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
       )}
 
       <Card className="premium-card-vip overflow-hidden rounded-2xl border-[#69cbfc]/25">
-        <CardContent className="p-5 sm:p-6 space-y-3 text-accent">
+        <CardContent className="p-5 sm:p-6 space-y-3">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
