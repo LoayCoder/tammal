@@ -268,14 +268,12 @@
   .glass-chart {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-sm);
     border-radius: var(--radius);
   }
 
   .dark .glass-chart {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-sm);
   }
 
   /* ── Active Nav Item ── */
@@ -284,14 +282,14 @@
     border-radius: var(--radius);
   }
 
-  /* ── Header ── */
+  /* ── Header (transparent, border-only) ── */
   .glass-header {
-    background: hsl(var(--card));
+    background: transparent;
     border-bottom: 1px solid hsl(var(--border));
   }
 
   .dark .glass-header {
-    background: hsl(var(--card));
+    background: transparent;
     border-bottom: 1px solid hsl(var(--border));
   }
 
