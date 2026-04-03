@@ -256,9 +256,9 @@ export function DashboardPrayerWidget() {
                     !logged && !isActive && 'bg-muted border-border text-muted-foreground',
                   )}
                 >
-                  {logged && !isMissed ? <Check className="h-3 w-3" /> : null}
+                  {logged && !isMissed ? <Check className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                   {isMissed ? '✕' : null}
-                  {!logged && isActive ? <Timer className="h-3 w-3" /> : null}
+                  {!logged && isActive ? <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                 </div>
                 <span className="text-2xs text-muted-foreground leading-none">
                   {t(`spiritual.prayer.names.${name.toLowerCase()}`).slice(0, 3)}
