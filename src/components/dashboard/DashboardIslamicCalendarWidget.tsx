@@ -21,7 +21,7 @@ export function DashboardIslamicCalendarWidget() {
   const hasFasting = whiteDay || sunnahDay || event?.isFastingDay || isRamadan;
 
   return (
-    <div className="rounded-xl px-4 py-3.5 space-y-2.5 bg-muted/30 hover:bg-muted/40 transition-colors">
+    <div className="rounded-xl px-4 py-3.5 space-y-2.5 transition-colors border bg-transparent border-[#69cbfc]/35 shadow-md">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
@@ -69,7 +69,7 @@ export function DashboardIslamicCalendarWidget() {
             </span>
           )}
           {whiteDay && (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground font-medium">
+            <span className="text-[10px] px-2 py-0.5 rounded-full text-muted-foreground font-medium border border-[#2a0909]/[0.48] bg-[#919191]/0">
               🤍 {isAr ? 'الأيام البيض' : 'White Day'}
             </span>
           )}
