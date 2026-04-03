@@ -186,17 +186,17 @@ export function PersonalMoodDashboard() {
         <div className="border-t border-border/30" />
 
         {/* ── Distribution + Weekly Activity ── */}
-        <div className="grid grid-cols-2 px-4 py-4 gap-4">
+        <div className="flex flex-col gap-5 px-4 py-4">
           {/* Donut */}
           <div>
-            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2 block">{t("mentalToolkit.moodDashboard.moodDistribution")}</span>
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-3 block">{t("mentalToolkit.moodDashboard.moodDistribution")}</span>
             {donutData.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-6">{t("mentalToolkit.moodDashboard.noDataYet")}</p>
             ) : (
-              <div className="h-32">
+              <div className="h-36">
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsPie>
-                    <Pie data={donutData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={30} outerRadius={50} paddingAngle={3}>
+                    <Pie data={donutData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={35} outerRadius={55} paddingAngle={3}>
                       {donutData.map((_, idx) => (
                         <Cell key={idx} fill={DONUT_COLORS[idx % DONUT_COLORS.length]} />
                       ))}
@@ -210,17 +210,17 @@ export function PersonalMoodDashboard() {
 
           {/* Weekly Activity */}
           <div>
-            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2 block">{t("mentalToolkit.moodDashboard.weeklyActivity")}</span>
-            <div className="grid grid-cols-7 gap-1 mt-2">
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-3 block">{t("mentalToolkit.moodDashboard.weeklyActivity")}</span>
+            <div className="flex justify-between gap-1.5 mt-1">
               {DAY_KEYS.map((dayKey, i) => {
                 const count = dashboard.dayActivity[i];
                 const max = Math.max(...dashboard.dayActivity, 1);
                 const intensity = count / max;
                 return (
-                  <div key={dayKey} className="flex flex-col items-center gap-0.5">
-                    <span className="text-[8px] text-muted-foreground">{t(`wellness.days.${dayKey}`)}</span>
+                  <div key={dayKey} className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
+                    <span className="text-[10px] font-medium text-muted-foreground">{t(`wellness.days.${dayKey}`)}</span>
                     <div
-                      className="w-6 h-6 rounded flex items-center justify-center text-[10px] font-medium"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold"
                       style={{
                         backgroundColor: count === 0 ? "hsl(var(--muted) / 0.5)" : `hsl(var(--primary) / ${0.1 + intensity * 0.35})`,
                         color: count > 0 ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))",
