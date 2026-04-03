@@ -94,9 +94,7 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 via-primary/8 to-transparent shadow-sm text-[#e21818] bg-[#69cbfc]/0">
-                <span className="text-xl">✨</span>
-              </div>
+              <span className="text-xl">✨</span>
               <div>
                 <h3 className="font-bold text-base text-foreground">{t('nav.dailyCheckin')}</h3>
                 <p className="text-2xs text-muted-foreground mt-0.5">{t('wellness.howAreYou', 'How are you feeling today?')}</p>
