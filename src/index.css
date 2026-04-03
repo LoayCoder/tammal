@@ -293,16 +293,16 @@
     border-bottom: 1px solid hsl(var(--border));
   }
 
-  /* ── Tabs ── */
+  /* ── Segmented Control Tabs ── */
   .glass-tabs {
-    background: hsl(var(--background));
-    border: 1px solid hsl(var(--border));
-    border-radius: var(--radius);
+    background: hsl(var(--muted) / 0.5);
+    border: none;
+    border-radius: 0.75rem;
     padding: 0.25rem;
   }
 
   .dark .glass-tabs {
-    background: hsl(var(--background));
+    background: hsl(var(--muted) / 0.4);
   }
 }
 
