@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Type } from 'lucide-react';
+import { Languages } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
