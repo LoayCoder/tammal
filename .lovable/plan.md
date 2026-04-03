@@ -1,75 +1,104 @@
 
 
-# E2E Test Suite — Workload Intelligence (Playwright)
+# UI Modernization — Linear/Notion Style Refresh
 
-## Overview
+**Goal**: Transform TAMMAL from a generic SaaS look into a clean, minimal Linear/Notion-inspired design. Focused on sidebar, cards/dashboards, and colors/typography.
 
-Create a production-ready Playwright E2E test suite covering 5 Workload Intelligence pages: Dashboard (`/admin/workload/dashboard`), Team Command Center (`/admin/workload/team`), Executive Dashboard (`/admin/workload/executive`), Portfolio (`/admin/workload/portfolio`), and Personal Workload (`/my-workload`). Tests cover page load, filters, persistence, role-based access, and error/empty states.
+---
 
-## Files to Create
+## What Changes
 
-### 1. `playwright.config.ts`
-- Base URL: `http://localhost:3000`
-- Chromium-only, retries: 1, timeout: 30s
-- Global setup for auth state storage
+### Phase 1: Color & Typography Refresh (src/index.css + tailwind.config.ts)
 
-### 2. `tests/helpers/auth.ts`
-- Reusable `loginAs(page, role)` helper
-- Role map with TODO placeholders for credentials:
-  - `admin` — super_admin or tenant_admin (accesses all `/admin/workload/*` routes)
-  - `manager` — manager role (accesses `/admin/workload/team`, `/admin/workload/representative`)
-  - `user` — regular employee (accesses only `/my-workload`)
-- Navigates to `/auth`, fills email/password, submits, waits for redirect
+**Light mode** — shift from gray (#F2F2F2) background to a cooler, near-white tone:
+- `--background`: `0 0% 95%` → `220 14% 97%` (subtle cool tint like Linear)
+- `--card`: keep `0 0% 100%`
+- `--border`: `0 0% 89%` → `220 13% 91%` (cooler, thinner feel)
+- `--muted-foreground`: `0 0% 46%` → `220 9% 46%` (cooler gray text)
+- `--foreground`: `0 0% 19%` → `220 14% 10%` (near-black, crisper)
+- `--radius`: `0.5rem` → `0.625rem` (10px — slightly rounder, more modern)
 
-### 3. `tests/workload-intelligence/page-load.spec.ts`
-Tests for each page:
-- **Dashboard** (`/admin/workload/dashboard`): Verify PageHeader title, 5 KPI MetricCards (Total Employees, Avg Load, Avg Utilization, At Risk, Off-Hours Workers), 3 tabs (Capacity, Objectives, Off Hours), team overview table headers
-- **Team** (`/admin/workload/team`): Verify PageHeader, 4 stat cards, filter controls (status, priority, employee, source, search), member accordion, workload distribution chart area
-- **Executive** (`/admin/workload/executive`): Verify page title, TAMMAL Index card, KPI row, action buttons (Run AI, Run Snapshot), strategic progress card, department workload card
-- **Portfolio** (`/admin/workload/portfolio`): Verify page header, objectives and initiatives sections
-- **My Workload** (`/my-workload`): Verify personal stats (active, completed, overdue), toggle group (tasks/calendar/approvals), capacity gauge section
+**Dark mode** — similar cool-tone shift:
+- `--background`: `0 0% 10%` → `220 14% 8%`
+- `--card`: `0 0% 14%` → `220 14% 11%`
+- `--border`: `0 0% 22%` → `220 13% 18%`
 
-### 4. `tests/workload-intelligence/filters.spec.ts`
-Focuses on Team Command Center (`/admin/workload/team`) which has the richest filter set:
-- Apply status filter → verify task badge count changes
-- Apply priority filter → verify filtered tasks show correct priority badges
-- Apply employee filter → verify accordion shows only that employee
-- Type in search input → verify text filtering
-- Apply source type filter → verify source column matches
-- Clear all filters (set back to "all") → verify full list restores
-- Verify member search input filters accordion members
-- Verify sort dropdown changes member ordering
+**Shadows** — make them subtler and cooler:
+- Reduce all shadow opacity by ~30%
+- Add a blue-ish tint: `hsl(220 40% 50% / 0.04)` instead of pure gray
 
-### 5. `tests/workload-intelligence/persistence.spec.ts`
-- Navigate to Team page, apply a status filter, verify URL or UI state
-- Reload page → check if filter state persists (if stored in URL params) or resets to defaults
-- Navigate to Executive page, click a tab, reload → verify tab state
-- Navigate to Dashboard, switch to Objectives tab, reload → verify tab resets to default (expected behavior for non-URL-persisted tabs)
+**Typography tokens** (src/theme/tokens.ts):
+- `pageTitle`: `text-2xl` → `text-xl` (Linear uses smaller, tighter headings)
+- Add `tracking-tight` to pageTitle and sectionTitle
+- `statLabel`: keep `text-xs font-bold` but add `uppercase tracking-wide` for that clean label look
 
-### 6. `tests/workload-intelligence/roles.spec.ts`
-Based on route guards in App.tsx:
-- **Admin user**: Can access `/admin/workload/dashboard`, `/admin/workload/executive`, `/admin/workload/portfolio`, `/admin/workload/team`
-- **Manager user**: Can access `/admin/workload/team` but NOT `/admin/workload/dashboard` or `/admin/workload/executive` (AdminRoute-only)
-- **Regular user**: Navigating to any `/admin/workload/*` route should redirect to unauthorized/home; CAN access `/my-workload`
-- Verify redirect behavior for unauthorized routes
+### Phase 2: Sidebar Modernization (AppSidebar.tsx + index.css)
 
-### 7. `tests/workload-intelligence/empty-and-error-states.spec.ts`
-- Dashboard Capacity tab: If no team data, verify "No data" message in table and chart area
-- Dashboard Objectives tab: If no objectives, verify empty state message
-- Team page: Apply impossible filter combination → verify empty accordion or "no results" state
-- Executive page: Verify graceful rendering when analytics return empty arrays (no crash, skeleton or zero values shown)
-- My Workload: If user has no tasks, verify empty task list renders cleanly
+Current sidebar has dot bullets, vertical connector lines, and rounded-xl items — this reads as busy. Linear/Notion sidebars are quieter.
 
-## Technical Details
+Changes:
+- **Remove** dot bullet indicators (`h-2.5 w-2.5 rounded-full`) from sub-items — replace with just the text, left-aligned
+- **Remove** vertical connector lines (`w-px bg-muted-foreground/20`)
+- **Active state**: instead of blue tint background, use a subtle `font-medium` + left border accent (2px solid primary on the start edge)
+- **Hover state**: softer — `bg-muted/50` instead of dedicated hover-bg variable
+- **Group triggers**: remove the active dot indicator (`h-1.5 w-1.5 rounded-full`)
+- **Reduce item height**: `h-10` → `h-9` for groups, `h-9` → `h-8` for sub-items (tighter spacing)
+- **Sidebar footer border**: `border-t` → keep but make thinner via `border-border/50`
+- **Sub-item indentation**: keep `ms-7` but cleaner without connector lines
 
-- **Selectors**: Use `getByRole('heading')`, `getByText()`, `getByPlaceholder()`, `getByRole('tab')`, `getByRole('combobox')` for Shadcn Select triggers
-- **Shadcn Select interaction**: Click trigger → use `page.locator('[role="option"]')` to select values
-- **Wait strategy**: Use `waitForSelector` or `expect(locator).toBeVisible()` — no arbitrary `waitForTimeout`
-- **Tab switching**: Click `role=tab` with matching text, then assert content visibility
-- **i18n awareness**: Use TODO comments for translated strings since actual text depends on locale; provide English defaults
-- **No mock/intercept by default**: Tests run against live backend; network intercept used only in error-state test
+### Phase 3: Cards & Dashboard Components
 
-## Estimated Output
-- 7 new files, ~800 lines total
-- Each file independently runnable via `npx playwright test tests/workload-intelligence/<file>`
+**glass-card / glass-stat classes** (index.css):
+- Remove `box-shadow` from default cards — use border-only like Linear
+- Add shadow only on hover for stat cards (already partially done)
+- Reduce stat card hover lift: `translateY(-2px)` → `translateY(-1px)`
+
+**MetricCard** (src/components/system/MetricCard.tsx):
+- Remove `CardHeader` / `CardContent` wrapper padding differences — use a single flat `p-4` layout
+- Icon position: move from top-right to inline with value (cleaner)
+
+**StatCard** (src/components/system/StatCard.tsx):
+- Keep icon-box but reduce from colored background to simple icon (remove `bg-primary/10`)
+
+**PageHeader** (src/components/system/PageHeader.tsx):
+- Flush variant: remove glass background entirely — just render title/subtitle on the page background with bottom border
+- Remove icon-box background color — show icon bare
+
+### Phase 4: Header Simplification (Header.tsx)
+
+- Remove `glass-header` background — use transparent with only a bottom border
+- This creates the "floating content" feel that Linear has
+
+### Phase 5: Main Layout Background (MainLayout.tsx)
+
+- **Remove** all 4 decorative gradient blobs — these are the biggest "old app" signal
+- Clean, solid background color only
+
+---
+
+## Files Modified
+
+| File | Change |
+|---|---|
+| `src/index.css` | Color variables, shadow values, glass-card/glass-stat/glass-header classes |
+| `src/theme/tokens.ts` | Typography token adjustments (tracking, sizing) |
+| `tailwind.config.ts` | Updated radius value |
+| `src/components/layout/MainLayout.tsx` | Remove gradient blobs |
+| `src/components/layout/AppSidebar.tsx` | Remove dots, lines, simplify active/hover states |
+| `src/components/layout/Header.tsx` | Transparent header with border-only |
+| `src/components/system/PageHeader.tsx` | Lighter flush variant |
+| `src/components/system/MetricCard.tsx` | Flat layout, no icon background |
+| `src/components/system/StatCard.tsx` | Remove icon background tint |
+
+## What Stays the Same
+
+- All component logic, data flow, routing, RBAC
+- RTL support (all changes use logical properties)
+- Branding injection system (CSS variables still used)
+- Dark mode support (both themes updated in parallel)
+- Shadcn component library usage
+
+## Result
+
+A cleaner, quieter, more professional UI that feels like Linear or Notion — minimal, well-spaced, with confident typography and no visual clutter.
 
