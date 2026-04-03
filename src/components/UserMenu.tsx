@@ -61,7 +61,7 @@ export function UserMenu() {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
-          <LogOut className="me-2 h-4 w-4" />
+          <Power className="me-2 h-4 w-4" />
           <span>{t('auth.logout')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -14,11 +14,7 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={t('accessibility.toggleTheme')}
     >
-      {theme === 'dark' ? (
-        <Sun className="h-5 w-5" />
-      ) : (
-        <Moon className="h-5 w-5" />
-      )}
+      <Contrast className="h-5 w-5" />
     </Button>
   );
 }
