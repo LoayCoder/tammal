@@ -33,15 +33,15 @@ export default function Dashboard() {
 
   return (
     <Tabs value={view} onValueChange={(v) => setView(v as DashboardView)} className="space-y-6">
-      <TabsList className="h-auto bg-muted/6 rounded-full p-1 gap-1 border-0">
-        <TabsTrigger value="overview" className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+      <TabsList className="w-full h-auto bg-muted/6 rounded-lg p-1 gap-1 border-0">
+        <TabsTrigger value="overview" className="flex-1 rounded-md px-2 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
           {t('dashboard.overviewTab')}
         </TabsTrigger>
-        <TabsTrigger value="wellness" className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+        <TabsTrigger value="wellness" className="flex-1 rounded-md px-2 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
           {t('dashboard.wellnessTab')}
         </TabsTrigger>
         {canSwitch && (
-          <TabsTrigger value="personal" className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+          <TabsTrigger value="personal" className="flex-1 rounded-md px-2 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
             {t('dashboard.personalTab')}
           </TabsTrigger>
         )}
