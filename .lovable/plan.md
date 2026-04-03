@@ -1,22 +1,39 @@
 
 
-# Bottom Nav — Minimal Line (Linear Style)
+# Mobile Bottom Nav — Fix Routes & Premium UI Upgrade
 
-## Design
-Icon-only bottom bar with no text labels. Solid white (light) / dark background. Thin `border-t` on top. Active item gets a small 4px dot below the icon in `primary` color. Very minimal, very Linear.
+## Problems Found
+1. **Broken routes**: `/wellness` and `/profile` don't exist in the router
+   - `/wellness` should point to `/employee/wellness` (Daily Check-in) or `/mental-toolkit`
+   - `/profile` should point to `/settings/profile`
+2. **UI is too plain** for a premium VIP feel — needs subtle polish
 
-## Changes
+## Correct Route Mapping
+
+| Nav Item | Current (broken) | Fixed Path |
+|----------|------------------|------------|
+| Dashboard | `/` | `/` (correct) |
+| Wellness | `/wellness` | `/employee/wellness` |
+| Support | `/support` | `/support` (correct) |
+| Profile | `/profile` | `/settings/profile` |
+
+## Premium UI Enhancements (Linear-inspired, elevated)
+
+- **Backdrop blur** on the nav bar: `bg-background/80 backdrop-blur-xl` for a frosted-glass premium feel
+- **Smooth transitions**: `transition-all duration-200` on icons for color and scale
+- **Active icon scale**: slight `scale-110` on the active icon for emphasis
+- **Dot indicator**: upgrade from plain dot to a `bg-primary` pill with subtle glow via `shadow-[0_0_6px_var(--primary)]`
+- **Menu button**: add a subtle hover state
+- **Safe area**: keep `env(safe-area-inset-bottom)` for notched devices
+
+## File Changes
 
 ### `src/components/layout/MobileBottomNav.tsx`
-- Remove `glass-header` class; use `bg-background border-t border-border`
-- Remove all `<span>` text labels — icons only
-- Remove `rounded-xl` from buttons
-- Active state: add a small dot indicator (`w-1 h-1 rounded-full bg-primary`) below the icon
-- Inactive: `text-muted-foreground`, Active: `text-foreground` (not `text-primary` — Linear uses foreground)
-- Icon size stays `h-5 w-5`
-- Bar height reduced to `h-12` (tighter without labels)
+- Fix all `path` values in `navItems` array
+- Apply premium backdrop-blur bar styling
+- Add `transition-all duration-200` and active scale to buttons
+- Upgrade dot indicator with primary glow
+- Keep icon-only minimal line approach (no labels)
 
-| File | Change |
-|---|---|
-| `src/components/layout/MobileBottomNav.tsx` | Icon-only, dot indicator, solid bg, no glass |
+## Single file change, all fixes in one update.
 
