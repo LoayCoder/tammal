@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { usePersonalMoodDashboard } from "@/hooks/analytics/usePersonalMoodDashboard";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  ReferenceLine, PieChart as RechartsPie, Pie, Cell,
+  ReferenceLine, PieChart as RechartsPie, Pie, Cell, Legend,
 } from "recharts";
 import { format, subDays } from "date-fns";
 import { TOOLKIT, ZONE_COLORS, DONUT_COLORS } from "@/config/toolkit-colors";
