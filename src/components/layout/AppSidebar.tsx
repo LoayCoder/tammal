@@ -470,17 +470,14 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                     <CollapsibleTrigger asChild>
                       <button
                         className={cn(
-                          "flex h-10 w-full items-center gap-3 rounded-xl px-3 text-sm transition-all duration-200",
+                          "flex h-9 w-full items-center gap-3 rounded-lg px-3 text-sm transition-all duration-200",
                           isGroupActive
                             ? "text-sidebar-primary font-medium"
-                            : "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                            : "text-sidebar-foreground hover:bg-muted/50"
                         )}
                       >
-                        <group.icon className="h-5 w-5 shrink-0" />
+                        <group.icon className="h-4.5 w-4.5 shrink-0" />
                         <span className="flex-1 text-start truncate">{group.label}</span>
-                        {isGroupActive && (
-                          <span className="h-1.5 w-1.5 rounded-full bg-sidebar-primary shrink-0" />
-                        )}
                         <ChevronRight className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 rtl:-scale-x-100" />
                       </button>
                     </CollapsibleTrigger>
