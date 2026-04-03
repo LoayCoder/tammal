@@ -1,12 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { useHijriToday, ISLAMIC_EVENTS, isWhiteDay, isSunnahFastingDay } from '@/hooks/spiritual/useHijriCalendar';
-import { cardVariants } from "@/theme/tokens";
-import { cn } from "@/lib/utils";
 
 export function DashboardIslamicCalendarWidget() {
   const { t, i18n } = useTranslation();
@@ -22,72 +18,68 @@ export function DashboardIslamicCalendarWidget() {
   const whiteDay = isWhiteDay(hijriDay);
   const sunnahDay = isSunnahFastingDay(new Date());
   const isRamadan = hijri.month.number === 9;
-
   const hasFasting = whiteDay || sunnahDay || event?.isFastingDay || isRamadan;
 
   return (
-    <Card className={cn(cardVariants.glass, "ring-1 ring-chart-2/20")}>
-      <CardContent className="p-5 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">📅</span>
-            <div>
-              <h3 className="font-semibold text-sm">
-                {isAr ? 'التقويم الهجري' : 'Islamic Calendar'}
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                {isAr
-                  ? `${hijri.day} ${hijri.month.ar} ${hijri.year} هـ`
-                  : `${hijri.day} ${hijri.month.en} ${hijri.year} AH`}
-              </p>
-            </div>
+    <div className="rounded-xl px-4 py-3.5 space-y-2.5 bg-muted/30 hover:bg-muted/40 transition-colors">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <span className="text-base">🕌</span>
+          <div>
+            <h3 className="font-semibold text-sm text-foreground">
+              {isAr ? 'التقويم الهجري' : 'Islamic Calendar'}
+            </h3>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              {isAr
+                ? `${hijri.day} ${hijri.month.ar} ${hijri.year} هـ`
+                : `${hijri.day} ${hijri.month.en} ${hijri.year} AH`}
+            </p>
           </div>
-          <Link to="/spiritual/calendar">
-            <Button variant="ghost" size="sm" className="gap-1 text-xs h-7">
-              {t('common.more')}
-              <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
-            </Button>
-          </Link>
         </div>
+        <Link to="/spiritual/calendar" className="flex items-center gap-0.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors">
+          {t('common.more')}
+          <ChevronRight className="h-3 w-3 rtl:rotate-180" />
+        </Link>
+      </div>
 
-        {/* Event of the day */}
-        {event && (
-          <div className="rounded-xl bg-chart-2/5 p-3">
-            <p className="text-sm font-semibold">{isAr ? event.ar : event.en}</p>
-            {(isAr ? event.descAr : event.descEn) && (
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {isAr ? event.descAr : event.descEn}
-              </p>
-            )}
-          </div>
-        )}
+      {/* Event */}
+      {event && (
+        <div className="rounded-lg bg-primary/[0.04] px-3 py-2">
+          <p className="text-xs font-medium text-foreground">{isAr ? event.ar : event.en}</p>
+          {(isAr ? event.descAr : event.descEn) && (
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              {isAr ? event.descAr : event.descEn}
+            </p>
+          )}
+        </div>
+      )}
 
-        {/* Fasting badges */}
-        {hasFasting && (
-          <div className="flex flex-wrap gap-2">
-            {isRamadan && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-chart-4/10 text-chart-4 border border-chart-4/30 font-medium">
-                🌙 {isAr ? 'رمضان' : 'Ramadan'}
-              </span>
-            )}
-            {event?.isFastingDay && !isRamadan && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-chart-4/10 text-chart-4 border border-chart-4/30 font-medium">
-                🍽️ {isAr ? 'يوم صيام' : 'Fasting Day'}
-              </span>
-            )}
-            {whiteDay && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border font-medium">
-                🤍 {isAr ? 'الأيام البيض' : 'White Day'}
-              </span>
-            )}
-            {sunnahDay && !isRamadan && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border font-medium">
-                📿 {isAr ? new Date().getDay() === 1 ? 'الاثنين' : 'الخميس' : new Date().getDay() === 1 ? 'Monday' : 'Thursday'}
-              </span>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      {/* Badges */}
+      {hasFasting && (
+        <div className="flex flex-wrap gap-1.5">
+          {isRamadan && (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/[0.06] text-foreground/70 font-medium">
+              🌙 {isAr ? 'رمضان' : 'Ramadan'}
+            </span>
+          )}
+          {event?.isFastingDay && !isRamadan && (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/[0.06] text-foreground/70 font-medium">
+              🍽️ {isAr ? 'يوم صيام' : 'Fasting Day'}
+            </span>
+          )}
+          {whiteDay && (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground font-medium">
+              🤍 {isAr ? 'الأيام البيض' : 'White Day'}
+            </span>
+          )}
+          {sunnahDay && !isRamadan && (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground font-medium">
+              📿 {isAr ? new Date().getDay() === 1 ? 'الاثنين' : 'الخميس' : new Date().getDay() === 1 ? 'Monday' : 'Thursday'}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
