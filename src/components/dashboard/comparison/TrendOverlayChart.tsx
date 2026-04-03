@@ -5,6 +5,8 @@ import {
   ResponsiveContainer, ComposedChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend,
 } from 'recharts';
 import { format, parseISO } from 'date-fns';
+import { cardVariants } from '@/theme/tokens';
+import { CHART_TOOLTIP_STYLE, CHART_AXIS_TICK, CHART_AXIS_LABEL, CHART_GRID_STROKE } from '@/config/chart-styles';
 
 // Re-export from canonical location for backward compat
 export type { TrendOverlayPoint } from '@/lib/analytics/types';
@@ -24,7 +26,7 @@ export function TrendOverlayChart({ data, isLoading }: Props) {
   }));
 
   return (
-    <Card className="glass-chart border-0">
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-3">
         <CardTitle className="text-base">{t('synthesis.trendOverlay')}</CardTitle>
         <p className="text-xs text-muted-foreground">{t('synthesis.trendOverlayDesc')}</p>
@@ -37,36 +39,28 @@ export function TrendOverlayChart({ data, isLoading }: Props) {
         ) : (
           <ResponsiveContainer width="100%" height={260}>
             <ComposedChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} />
+              <XAxis dataKey="label" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
               <YAxis
                 yAxisId="left"
                 domain={[1, 5]}
-                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                tick={CHART_AXIS_TICK}
                 axisLine={false}
                 tickLine={false}
                 width={28}
-                label={{ value: t('synthesis.checkinAxis'), angle: -90, position: 'insideLeft', style: { fontSize: 9, fill: 'hsl(var(--muted-foreground))' } }}
+                label={{ value: t('synthesis.checkinAxis'), angle: -90, position: 'insideLeft', style: CHART_AXIS_LABEL }}
               />
               <YAxis
                 yAxisId="right"
                 orientation="right"
                 domain={[1, 5]}
-                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                tick={CHART_AXIS_TICK}
                 axisLine={false}
                 tickLine={false}
                 width={28}
-                label={{ value: t('synthesis.surveyAxis'), angle: 90, position: 'insideRight', style: { fontSize: 9, fill: 'hsl(var(--muted-foreground))' } }}
+                label={{ value: t('synthesis.surveyAxis'), angle: 90, position: 'insideRight', style: CHART_AXIS_LABEL }}
               />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--popover))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '12px',
-                  fontSize: 12,
-                  boxShadow: '0 8px 32px hsl(var(--primary) / 0.1)',
-                }}
-              />
+              <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <Line
                 yAxisId="left"

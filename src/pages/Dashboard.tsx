@@ -33,17 +33,17 @@ export default function Dashboard() {
 
   return (
     <Tabs value={view} onValueChange={(v) => setView(v as DashboardView)} className="space-y-6">
-      <TabsList className="glass-tabs border-0 h-auto">
-        <TabsTrigger value="overview" className="gap-2 rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">
+      <TabsList className="h-auto bg-muted/50 border border-border rounded-lg p-1">
+        <TabsTrigger value="overview" className="gap-2 rounded-md px-3 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all">
           <Building2 className="h-4 w-4" />
           <span className="hidden sm:inline">{t('dashboard.overviewTab')}</span>
         </TabsTrigger>
-        <TabsTrigger value="wellness" className="gap-2 rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">
+        <TabsTrigger value="wellness" className="gap-2 rounded-md px-3 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all">
           <Heart className="h-4 w-4" />
           <span className="hidden sm:inline">{t('dashboard.wellnessTab')}</span>
         </TabsTrigger>
         {canSwitch && (
-          <TabsTrigger value="personal" className="gap-2 rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">
+          <TabsTrigger value="personal" className="gap-2 rounded-md px-3 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all">
             <User className="h-4 w-4" />
             <span className="hidden sm:inline">{t('dashboard.personalTab')}</span>
           </TabsTrigger>

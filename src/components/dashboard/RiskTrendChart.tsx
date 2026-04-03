@@ -3,10 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { RiskTrendPoint } from '@/hooks/analytics/useOrgAnalytics';
 import {
-  ResponsiveContainer, ComposedChart, Area, Line, XAxis, YAxis,
+  ResponsiveContainer, ComposedChart, Area, XAxis, YAxis,
   CartesianGrid, Tooltip, ReferenceLine,
 } from 'recharts';
 import { format, parseISO } from 'date-fns';
+import { cardVariants } from '@/theme/tokens';
+import { CHART_TOOLTIP_STYLE, CHART_AXIS_TICK, CHART_GRID_STROKE } from '@/config/chart-styles';
 
 interface Props {
   data: RiskTrendPoint[];
@@ -22,7 +24,7 @@ export function RiskTrendChart({ data, isLoading, threshold = 20 }: Props) {
     .map(d => ({ ...d, label: format(parseISO(d.date), 'dd/MM') }));
 
   return (
-    <Card className="glass-chart border-0">
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base">{t('orgDashboard.riskTrend')}</CardTitle>
       </CardHeader>
@@ -38,11 +40,11 @@ export function RiskTrendChart({ data, isLoading, threshold = 20 }: Props) {
                   <stop offset="95%" stopColor="hsl(var(--destructive))" stopOpacity={0.05} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={30} tickFormatter={v => `${v}%`} />
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} />
+              <XAxis dataKey="label" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
+              <YAxis domain={[0, 100]} tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} width={30} tickFormatter={v => `${v}%`} />
               <Tooltip
-                contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '12px', fontSize: 12, boxShadow: '0 8px 32px hsl(var(--primary) / 0.1)' }}
+                contentStyle={CHART_TOOLTIP_STYLE}
                 formatter={(value: number) => [`${value}%`, t('orgDashboard.riskPct')]}
                 labelFormatter={(label) => label}
               />

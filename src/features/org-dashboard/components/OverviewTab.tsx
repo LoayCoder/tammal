@@ -13,16 +13,8 @@ import { AffectiveStateChart } from '@/components/dashboard/AffectiveStateChart'
 import { TopEngagersCard } from '@/components/dashboard/TopEngagersCard';
 import type { OrgAnalyticsData } from '@/lib/analytics/types';
 import type { TrendDataPoint } from '../types';
-
-const GLASS_TOOLTIP = {
-  background: 'hsl(var(--card) / 0.6)',
-  backdropFilter: 'blur(16px)',
-  WebkitBackdropFilter: 'blur(16px)',
-  border: '1px solid hsl(var(--border) / 0.25)',
-  borderRadius: '12px',
-  fontSize: 12,
-  boxShadow: '0 8px 32px hsl(0 0% 0% / 0.08)',
-};
+import { cardVariants } from '@/theme/tokens';
+import { CHART_TOOLTIP_STYLE, CHART_AXIS_TICK, CHART_GRID_STROKE } from '@/config/chart-styles';
 
 interface Props {
   stats: OrgAnalyticsData | undefined;
@@ -43,7 +35,7 @@ export const OverviewTab = React.memo(function OverviewTab({ stats, trendData, i
       />
 
       {/* Engagement Trend */}
-      <Card className="glass-chart border-0">
+      <Card className={cardVariants.glass}>
         <CardHeader className="pb-2">
           <CardTitle className="text-base">{t('orgDashboard.engagementTrend')}</CardTitle>
         </CardHeader>
@@ -59,11 +51,11 @@ export const OverviewTab = React.memo(function OverviewTab({ stats, trendData, i
                     <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
-                <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-                <YAxis yAxisId="left" domain={[1, 5]} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={24} />
-                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={30} />
-                <Tooltip contentStyle={GLASS_TOOLTIP} />
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} strokeOpacity={0.5} />
+                <XAxis dataKey="label" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
+                <YAxis yAxisId="left" domain={[1, 5]} tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} width={24} />
+                <YAxis yAxisId="right" orientation="right" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} width={30} />
+                <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
                 <Area yAxisId="left" type="monotone" dataKey="avg" name={t('orgDashboard.moodAvg')} stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#orgMoodGradient)" dot={{ r: 3, fill: 'hsl(var(--primary))', strokeWidth: 0 }} activeDot={{ r: 6, stroke: 'hsl(var(--primary))', strokeWidth: 2, fill: 'hsl(var(--background))' }} />
                 <Line yAxisId="right" type="monotone" dataKey="responseCount" name={t('orgDashboard.surveyResponses')} stroke="hsl(var(--chart-4))" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
               </ComposedChart>

@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { TrendingUp, TrendingDown, Minus, ShieldAlert, Sparkles } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, ShieldAlert } from 'lucide-react';
 import type { PeriodComparison, EarlyWarning } from '@/lib/analytics/types';
 import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
@@ -63,10 +63,10 @@ export function ExecutiveSummary({ healthScore, periodComparison, warnings, isLo
   }
 
   return (
-    <Card className={cn(cardVariants.glass, "ring-1 ring-primary/20")}>
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" />
+          <span>📊</span>
           {t('orgDashboard.executiveSummary')}
         </CardTitle>
       </CardHeader>

@@ -7,18 +7,15 @@ import { useDashboardStats } from '@/hooks/analytics/useDashboardStats';
 import { formatCurrency } from '@/lib/utils';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { DashboardBrandingPreview } from '@/components/branding/DashboardBrandingPreview';
+import { cardVariants, typography } from '@/theme/tokens';
+import { CHART_TOOLTIP_STYLE } from '@/config/chart-styles';
 
-const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--destructive))', 'hsl(var(--muted))'];
-
-const GLASS_TOOLTIP_STYLE = {
-  background: 'hsl(var(--card) / 0.6)',
-  backdropFilter: 'blur(16px)',
-  WebkitBackdropFilter: 'blur(16px)',
-  border: '1px solid hsl(var(--border) / 0.25)',
-  borderRadius: '12px',
-  fontSize: 12,
-  boxShadow: '0 8px 32px hsl(0 0% 0% / 0.08)',
-};
+const BRAND_COLORS = [
+  'hsl(var(--chart-1))',
+  'hsl(var(--chart-2))',
+  'hsl(var(--chart-3))',
+  'hsl(var(--chart-5))',
+];
 
 export function SaasStatsSection() {
   const { t, i18n } = useTranslation();
@@ -42,7 +39,7 @@ export function SaasStatsSection() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t('dashboard.title')}</h1>
+        <h1 className={typography.pageTitle}>{t('dashboard.title')}</h1>
         <p className="text-muted-foreground">{t('dashboard.welcome')}</p>
       </div>
 
@@ -58,31 +55,31 @@ export function SaasStatsSection() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="glass-chart border-0">
+        <Card className={cardVariants.glass}>
           <CardHeader><CardTitle>{t('dashboard.subscriptionBreakdown')}</CardTitle></CardHeader>
           <CardContent>
             {isLoading ? <Skeleton className="h-[200px] w-full" /> : subscriptionChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
                   <Pie data={subscriptionChartData} cx="50%" cy="50%" innerRadius={40} outerRadius={80} paddingAngle={5} dataKey="value">
-                    {subscriptionChartData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                    {subscriptionChartData.map((_, i) => <Cell key={i} fill={BRAND_COLORS[i % BRAND_COLORS.length]} />)}
                   </Pie>
-                  <Tooltip contentStyle={GLASS_TOOLTIP_STYLE} /><Legend />
+                  <Tooltip contentStyle={CHART_TOOLTIP_STYLE} /><Legend wrapperStyle={{ fontSize: 11 }} />
                 </PieChart>
               </ResponsiveContainer>
             ) : <p className="text-muted-foreground text-sm">{t('common.noData')}</p>}
           </CardContent>
         </Card>
-        <Card className="glass-chart border-0">
+        <Card className={cardVariants.glass}>
           <CardHeader><CardTitle>{t('dashboard.tenantBreakdown')}</CardTitle></CardHeader>
           <CardContent>
             {isLoading ? <Skeleton className="h-[200px] w-full" /> : tenantChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
                   <Pie data={tenantChartData} cx="50%" cy="50%" innerRadius={40} outerRadius={80} paddingAngle={5} dataKey="value">
-                    {tenantChartData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                    {tenantChartData.map((_, i) => <Cell key={i} fill={BRAND_COLORS[i % BRAND_COLORS.length]} />)}
                   </Pie>
-                  <Tooltip contentStyle={GLASS_TOOLTIP_STYLE} /><Legend />
+                  <Tooltip contentStyle={CHART_TOOLTIP_STYLE} /><Legend wrapperStyle={{ fontSize: 11 }} />
                 </PieChart>
               </ResponsiveContainer>
             ) : <p className="text-muted-foreground text-sm">{t('common.noData')}</p>}
