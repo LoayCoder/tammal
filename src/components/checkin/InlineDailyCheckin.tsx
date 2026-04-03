@@ -94,7 +94,7 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 via-primary/8 to-transparent shadow-sm">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 via-primary/8 to-transparent shadow-sm text-[#e21818] bg-[#69cbfc]/0">
                 <span className="text-xl">💭</span>
               </div>
               <div>
