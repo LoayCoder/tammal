@@ -253,7 +253,7 @@ export function DashboardPrayerWidget() {
                     logged && !isMissed && 'bg-green-500/20 border-green-500/40 text-green-500',
                     isMissed && 'bg-destructive/10 border-destructive/30 text-destructive',
                     !logged && isActive && 'bg-primary/10 border-primary/40 text-primary ring-2 ring-primary/20 animate-pulse',
-                    !logged && !isActive && 'bg-muted border-border text-muted-foreground',
+                    !logged && !isActive && 'bg-[#919191]/[0.18] border-border text-primary',
                   )}
                 >
                   {logged && !isMissed ? <Check className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
