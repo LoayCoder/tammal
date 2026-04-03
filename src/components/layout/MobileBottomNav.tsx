@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Dot, Waves, Send, Fingerprint, Grip } from 'lucide-react';
+import { LayoutGrid, Waves, Send, Fingerprint, Menu } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 
 const navItems = [
