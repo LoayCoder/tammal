@@ -124,7 +124,7 @@ export function PersonalMoodDashboard() {
         {/* ── Chart Area (dominant) ── */}
         <div className="px-4 pt-5 pb-4">
           <div className="flex items-center gap-2 mb-3">
-            <BarChart3 className="h-3.5 w-3.5 text-muted-foreground/60" strokeWidth={1.5} />
+            <BarChart3 className="h-3.5 w-3.5 text-toolkit-lavender" strokeWidth={1.5} />
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("mentalToolkit.moodDashboard.moodTrend")}</span>
           </div>
           <div className="h-64">
