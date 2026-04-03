@@ -94,7 +94,7 @@ export function PersonalMoodDashboard() {
 
           {/* Monthly Check-ins */}
           <div className="flex flex-col items-center justify-start gap-0.5 px-1 text-center">
-            <CalendarCheck className="h-3.5 w-3.5 text-muted-foreground/60" strokeWidth={1.5} />
+            <CalendarCheck className="h-3.5 w-3.5 text-toolkit-sage" strokeWidth={1.5} />
             <span className="text-lg font-bold tracking-tight text-foreground">
               {dashboard.monthlyCheckins}<span className="text-[10px] font-normal text-muted-foreground">/{dashboard.daysInMonth}</span>
             </span>
