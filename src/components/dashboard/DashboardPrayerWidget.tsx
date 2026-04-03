@@ -249,10 +249,10 @@ export function DashboardPrayerWidget() {
               <div key={name} className="flex flex-col items-center gap-0.5 flex-1">
                 <div
                   className={cn(
-                    'h-6 w-6 rounded-full flex items-center justify-center text-xs border transition-all',
+                    'h-7 w-7 rounded-full flex items-center justify-center text-xs border transition-all',
                     logged && !isMissed && 'bg-green-500/20 border-green-500/40 text-green-500',
                     isMissed && 'bg-destructive/10 border-destructive/30 text-destructive',
-                    !logged && isActive && 'bg-primary/10 border-primary/40 text-primary ring-2 ring-primary/20',
+                    !logged && isActive && 'bg-primary/10 border-primary/40 text-primary ring-2 ring-primary/20 animate-pulse',
                     !logged && !isActive && 'bg-muted border-border text-muted-foreground',
                   )}
                 >
@@ -260,8 +260,11 @@ export function DashboardPrayerWidget() {
                   {isMissed ? '✕' : null}
                   {!logged && isActive ? <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                 </div>
-                <span className="text-2xs text-muted-foreground leading-none">
-                  {t(`spiritual.prayer.names.${name.toLowerCase()}`).slice(0, 3)}
+                <span className="text-[10px] font-medium text-foreground leading-none">
+                  {t(`spiritual.prayer.names.${name.toLowerCase()}`)}
+                </span>
+                <span className="text-[9px] text-muted-foreground leading-none">
+                  {name === 'Witr' ? '—' : (timings[name as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()}
                 </span>
                 {/* Rawatib dots */}
                 {(hasBefore || hasAfter) && (
