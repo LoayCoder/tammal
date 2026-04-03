@@ -1,12 +1,12 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Square, Wind, ArrowUpRight, AtSign, MoreHorizontal } from 'lucide-react';
+import { LayoutGrid, Waves, Send, Fingerprint, Menu } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 
 const navItems = [
-  { key: 'dashboard', icon: Square, path: '/' },
-  { key: 'wellness', icon: Wind, path: '/employee/wellness' },
-  { key: 'support', icon: ArrowUpRight, path: '/support' },
-  { key: 'profile', icon: AtSign, path: '/settings/profile' },
+  { key: 'dashboard', icon: LayoutGrid, path: '/' },
+  { key: 'wellness', icon: Waves, path: '/employee/wellness' },
+  { key: 'support', icon: Send, path: '/support' },
+  { key: 'profile', icon: Fingerprint, path: '/settings/profile' },
 ];
 
 export function MobileBottomNav() {
@@ -45,7 +45,7 @@ export function MobileBottomNav() {
           className="flex items-center justify-center min-w-[44px] min-h-[44px] transition-all duration-200"
         >
           <div className="flex items-center justify-center px-2 py-1.5 text-muted-foreground/70 hover:text-muted-foreground transition-all duration-200">
-            <MoreHorizontal className="h-5 w-5" strokeWidth={1.75} />
+            <Menu className="h-5 w-5" strokeWidth={1.75} />
           </div>
         </button>
       </div>
