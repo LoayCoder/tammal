@@ -105,9 +105,7 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
           </div>
 
           {/* 1. Mood Selection — always visible */}
-          <div className="rounded-xl bg-muted/5 p-3">
-            <MoodStep selectedMood={selectedMood} onSelect={setSelectedMood} tenantId={tenantId} />
-          </div>
+          <MoodStep selectedMood={selectedMood} onSelect={setSelectedMood} tenantId={tenantId} />
 
           {/* 2. Mood Pathway Questions — the single source of follow-up questions */}
           {selectedMood && moodObj && (
