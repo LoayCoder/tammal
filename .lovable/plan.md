@@ -1,22 +1,37 @@
 
 
-## Make Prayer Check Tick Green
+## Improve Prayer Progress Row — Clarity & Real-Time Data
 
-In `src/components/dashboard/DashboardPrayerWidget.tsx`, the completed prayer indicator uses `text-chart-1` for the check icon. Change it to green.
+**Problem**: The prayer progress row at the bottom of the widget truncates names to 3 characters (e.g. "Faj", "Dhu", "Mag"), making them hard to read. It also doesn't show the actual prayer time next to each indicator, so there's no at-a-glance connection between prayer name, time, and status.
 
-### Change (line ~253-256)
+### Changes (single file: `src/components/dashboard/DashboardPrayerWidget.tsx`)
 
-In the progress row section, update the completed prayer circle styling:
+**1. Show full prayer names instead of truncated 3-char abbreviations**
+- Line 263-264: Replace `.slice(0, 3)` with the full translated name
+- Increase text size from `text-2xs` to `text-[10px]` for readability
 
-**Current:**
-```tsx
-logged && !isMissed && 'bg-chart-1/20 border-chart-1/40 text-chart-1',
+**2. Show each prayer's time below the name**
+- Add a second line under each prayer name showing the actual adhan time (e.g. "5:12", "12:30")
+- For Witr, show "Witr" label without a specific time (since it's a range)
+- Strip timezone suffixes like `(EET)` for clean display
+
+**3. Increase indicator circle size for better visibility**
+- Bump circle from `h-6 w-6` to `h-7 w-7` for easier tapping and reading
+
+**4. Highlight active prayer more prominently**
+- Add a subtle `animate-pulse` to the active prayer's ring so it stands out as "current"
+
+### Technical Detail
+
+```
+Progress row layout (per prayer):
+
+  [ ● ]       ← status circle (h-7 w-7)
+  Fajr        ← full translated name
+  5:12        ← actual prayer time from API
 ```
 
-**New:**
-```tsx
-logged && !isMissed && 'bg-green-500/20 border-green-500/40 text-green-500',
-```
+The times come from `timings[name]` which is already available. Each indicator maps `todayLogs[name]` for status (green check / red X / active timer / grey pending).
 
-Single line change, no other files affected.
+No new files, hooks, or database changes needed — purely presentational improvements within the existing component.
 
