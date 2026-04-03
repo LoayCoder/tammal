@@ -164,13 +164,13 @@ export function DashboardPrayerWidget() {
             </div>
             <div className="flex flex-wrap gap-1.5">
               <Button size="sm" variant="outline" onClick={() => handleLog('completed_mosque')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
-                <Building2 className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.mosque')}
+                <Landmark className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.mosque')}
               </Button>
               <Button size="sm" variant="outline" onClick={() => handleLog('completed_home')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
-                <Home className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.home')}
+                <House className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.home')}
               </Button>
               <Button size="sm" variant="outline" onClick={() => handleLog('completed_work')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
-                <Briefcase className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.work')}
+                <Building className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.work')}
               </Button>
             </div>
             {/* Rawatib Sunnah toggles */}
