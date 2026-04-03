@@ -415,3 +415,27 @@
     background-clip: text;
   }
 }
+
+/* Minimal scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border) / 0.4) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border) / 0.4);
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--border) / 0.6);
+}

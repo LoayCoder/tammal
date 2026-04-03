@@ -25,7 +25,7 @@ export function MainLayout() {
         <AppSidebar branding={branding} />
         <div className="flex flex-1 flex-col min-w-0">
           <PWAInstallBanner />
-          <Header />
+          <Header branding={branding} />
           <main className="flex-1 overflow-x-hidden p-4 md:p-6 pb-20 md:pb-6">
             <Outlet />
           </main>

@@ -40,11 +40,11 @@ export function OrgDashboard() {
       <ErrorBoundary><OrgWorkloadIndicator /></ErrorBoundary>
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="glass-tabs border-0 h-auto">
-          <TabsTrigger value="overview" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">{t('orgDashboard.tabs.overview')}</TabsTrigger>
-          <TabsTrigger value="deep" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">{t('orgDashboard.tabs.deepAnalysis')}</TabsTrigger>
-          <TabsTrigger value="alerts" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">{t('orgDashboard.tabs.alertsInsights')}</TabsTrigger>
-          <TabsTrigger value="comparison" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none transition-all duration-200">{t('orgDashboard.tabs.comparison')}</TabsTrigger>
+        <TabsList className="h-auto bg-muted/6 rounded-full p-1 gap-1 border-0">
+          <TabsTrigger value="overview" className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">{t('orgDashboard.tabs.overview')}</TabsTrigger>
+          <TabsTrigger value="deep" className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">{t('orgDashboard.tabs.deepAnalysis')}</TabsTrigger>
+          <TabsTrigger value="alerts" className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">{t('orgDashboard.tabs.alertsInsights')}</TabsTrigger>
+          <TabsTrigger value="comparison" className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">{t('orgDashboard.tabs.comparison')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
