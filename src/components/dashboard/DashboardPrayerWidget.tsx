@@ -215,7 +215,7 @@ export function DashboardPrayerWidget() {
           <div className="rounded-xl bg-gradient-to-br from-chart-1/10 via-primary/5 to-chart-1/10 border border-chart-1/20 p-4 space-y-2.5">
             <div className="flex items-center justify-center gap-3">
               <span className="text-3xl">🎉</span>
-              <p className="text-base font-bold text-chart-1">
+              <p className="text-base font-bold text-chart-1 text-center">
                 {i18n.language === 'ar' ? 'ما شاء الله! أكملت جميع الصلوات' : 'Masha\'Allah! All prayers completed!'}
               </p>
               <span className="text-3xl">🎉</span>
