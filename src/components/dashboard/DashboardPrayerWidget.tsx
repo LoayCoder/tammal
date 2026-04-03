@@ -221,8 +221,8 @@ export function DashboardPrayerWidget() {
               <span className="text-3xl">🎉</span>
             </div>
             <div className="rounded-xl bg-muted/5 border border-border/30 p-4 space-y-1.5">
-              <p className="text-xs font-semibold text-primary">📖 {i18n.language === 'ar' ? 'حديث شريف' : 'Hadith'}</p>
-              <p className="text-xs text-muted-foreground leading-relaxed italic">
+              <p className="text-xs font-semibold text-primary text-center">📖 {i18n.language === 'ar' ? 'حديث شريف' : 'Hadith'}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed italic font-light text-left">
                 {i18n.language === 'ar'
                   ? '«أَرَأَيْتُمْ لَوْ أَنَّ نَهْرًا بِبَابِ أَحَدِكُمْ يَغْتَسِلُ مِنْهُ كُلَّ يَوْمٍ خَمْسَ مَرَّاتٍ، هَلْ يَبْقَى مِنْ دَرَنِهِ شَيْءٌ؟» قَالُوا: لاَ يَبْقَى مِنْ دَرَنِهِ شَيْءٌ. قَالَ: «فَذَلِكَ مَثَلُ الصَّلَوَاتِ الْخَمْسِ، يَمْحُو اللَّهُ بِهِنَّ الْخَطَايَا»'
                   : '"If there was a river at the door of anyone of you and he took a bath in it five times a day, would any dirt remain on him?" They said, "No." He ﷺ said, "That is the example of the five prayers with which Allah erases sins."'}
