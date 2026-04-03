@@ -243,7 +243,7 @@ export function PersonalMoodDashboard() {
         <div className="px-4 py-4 space-y-3">
           {/* Survey */}
           <div className="flex items-center gap-2 pb-3 border-b border-border/20">
-            <ClipboardList className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" strokeWidth={1.5} />
+            <ClipboardList className="h-3.5 w-3.5 text-toolkit-lavender shrink-0" strokeWidth={1.5} />
             <div className="flex-1 flex items-center divide-x divide-border/30 rtl:divide-x-reverse">
               <div className="flex-1 text-center">
                 <p className="text-base font-bold text-foreground">{dashboard.surveyStats.totalAnswered}</p>
