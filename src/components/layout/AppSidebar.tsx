@@ -685,7 +685,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       </SidebarContent>
 
       {/* User profile footer */}
-      <SidebarFooter className="border-t border-sidebar-border p-3">
+      <SidebarFooter className="border-t border-border/50 p-3">
         {isCollapsed && (
           <div className="flex justify-center">
             <button
