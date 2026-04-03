@@ -1,49 +1,40 @@
 
 
-# Premium Segmented Control Tabs
-
-Upgrade the base `tabs.tsx` component defaults and the `glass-tabs` CSS class so all tabs across the app get a premium segmented-control feel without touching every consumer file.
+# Premium VIP Mood Selector Redesign
 
 ## Changes
 
-### 1. `src/index.css` — Upgrade `.glass-tabs` and add `.glass-active`
+### 1. `src/components/checkin/MoodStep.tsx` — Full redesign
 
-Replace the current `.glass-tabs` block with a premium segmented style:
-- Container: `bg-muted/50` (subtle tinted background), `rounded-xl`, `p-1`, no border
-- Add `.glass-active` class for active pill: `bg-card`, `shadow-[0_1px_3px_rgba(0,0,0,0.08)]`, `text-foreground`
-- Dark mode: slightly lighter muted bg for container, darker card for active
-- Add `transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1)` on triggers for smooth switching
+**Header**: Increase title to `text-xl font-semibold`, subtitle to `text-muted-foreground/60 text-xs`, spacing `space-y-5` overall and `space-y-2` for header.
 
-### 2. `src/components/ui/tabs.tsx` — Upgrade base defaults
+**Grid**: Increase gap from `gap-2` to `gap-2.5`.
 
-Update `TabsList` default classes:
-- From: `rounded-md bg-muted p-1`
-- To: `rounded-xl bg-muted/50 p-1 border-0`
+**Mood items** — replace colored gradient buttons with neutral soft cards:
+- Remove: `border-2`, `bg-gradient-to-b`, colored `bgFrom/bgTo`, `ring-2`, colored borders
+- Add: `bg-muted/40 dark:bg-muted/20`, `rounded-2xl`, `shadow-[0_1px_2px_rgba(0,0,0,0.04)]`, `border border-border/30`
+- Padding: `p-3 sm:p-4`
 
-Update `TabsTrigger` default classes:
-- From: `rounded-sm` with `data-[state=active]:bg-background`
-- To: `rounded-lg` with `data-[state=active]:bg-card data-[state=active]:shadow-[0_1px_3px_rgba(0,0,0,0.08)] data-[state=active]:text-foreground transition-all duration-200`
-- Inactive: `text-muted-foreground`
+**Selected state**:
+- `bg-primary/[0.06] dark:bg-primary/[0.1]`, `shadow-[0_2px_8px_rgba(0,0,0,0.06)]`, `scale-[1.04]`, `border-primary/20`
+- Label: `text-foreground font-semibold` (no bright color)
 
-### 3. `src/pages/Dashboard.tsx` — Simplify inline classes
+**Unselected state**:
+- `hover:bg-muted/60`, `hover:scale-[1.02]`, `active:scale-[0.97]`
+- Label: `text-muted-foreground font-medium`
 
-Remove redundant inline classes on TabsList/TabsTrigger since the base component now handles the premium style. Keep only `w-full`, `h-auto`, `flex-1`, and responsive size classes (`text-xs sm:text-sm`, `px-2 py-1.5 sm:px-4 sm:py-2`).
+**Emoji**: Reduce from `text-2xl sm:text-3xl` to `text-xl sm:text-2xl`. Increase gap between emoji and label from `gap-1.5` to `gap-2`.
 
-### 4. `src/components/dashboard/OrgDashboard.tsx` — Simplify
+**Transitions**: `transition-all duration-200 ease-out`
 
-Same simplification — remove redundant styling, rely on base + `glass-tabs` class.
+### 2. `src/components/checkin/InlineDailyCheckin.tsx` — Remove inner container
 
-### 5. `src/pages/admin/PortfolioDashboard.tsx` — Simplify
-
-Remove `rounded-full` overrides, use consistent `rounded-xl` from base.
+Remove the `rounded-xl bg-muted/5 p-3` wrapper div around `<MoodStep>`, rendering it directly inside the card content with natural spacing.
 
 ## Files
 
 | File | Change |
 |------|--------|
-| `src/index.css` | Premium `.glass-tabs` / `.glass-active` styles |
-| `src/components/ui/tabs.tsx` | Upgrade base defaults to segmented control |
-| `src/pages/Dashboard.tsx` | Simplify inline tab classes |
-| `src/components/dashboard/OrgDashboard.tsx` | Simplify inline tab classes |
-| `src/pages/admin/PortfolioDashboard.tsx` | Simplify inline tab classes |
+| `src/components/checkin/MoodStep.tsx` | Premium neutral card-style mood items |
+| `src/components/checkin/InlineDailyCheckin.tsx` | Remove grey inner box wrapper |
 
