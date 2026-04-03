@@ -166,7 +166,7 @@ export function MoodPathwayQuestions({
                   <RadioGroupItem value={val} id={`pathway-likert-${q.id}-${i}`} />
                   <Label
                     htmlFor={`pathway-likert-${q.id}-${i}`}
-                    className="cursor-pointer flex-1 text-sm leading-snug"
+                    className="cursor-pointer flex-1 text-xs leading-snug font-normal"
                     dir="auto"
                   >
                     {label}
