@@ -1,35 +1,30 @@
 
 
-# Fix Tabs Overflow & Hide Scrollbar Completely
+# Fix Sidebar Popup Overflow & Build Errors
 
-## Problems
-1. **Tabs overflow on mobile (390px)**: Three pill tabs with `px-4` padding and `rounded-full` don't fit in a 390px viewport — they spill off-screen.
-2. **Scrollbar still visible**: Current CSS makes it thin but not hidden.
+## 1. Sidebar Popup Clipping (`src/components/layout/sidebar/SidebarPopup.tsx`)
 
-## Changes
+The popup is positioned at `left: anchorRect.right + 8` with a fixed `w-[180px]`, which overflows on smaller screens.
 
-### 1. `src/pages/Dashboard.tsx` — Responsive compact tabs
-- Remove `rounded-full` from `TabsList` — use `rounded-lg` instead
-- Reduce tab padding on mobile: `px-2 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm`
-- Use `w-full` on TabsList so tabs fill available width
-- Use `flex-1` on each TabsTrigger so they share space equally
-- Change tab shape from `rounded-full` to `rounded-md` for better space efficiency
+**Fix**: Add viewport boundary detection. After calculating position, check if `left + 180 > window.innerWidth` and clamp accordingly. Also add `max-h` with overflow-y-auto in case it overflows vertically.
 
-### 2. `src/index.css` — Completely hide scrollbar
-Replace the current minimal scrollbar styles with full hiding:
-```css
-* {
-  scrollbar-width: none; /* Firefox */
-}
-::-webkit-scrollbar {
-  display: none; /* Chrome/Safari/Edge */
-}
-```
-Remove the thumb/track styles since scrollbar is fully hidden.
+## 2. Build Error Fixes
 
-## Files
+### `CategoryHealthChart.tsx` (line 50)
+`entry.category` doesn't exist — chartData only has `{ name, score, color, responses }`. Change `entry.category` to `entry.name` in the Cell key.
+
+### `MoodTrackerTool.tsx` (line 170)
+`entry.date` doesn't exist — chartData only has `{ day, score, emoji }`. Change `entry.date` to `entry.day` in the Cell key.
+
+### `scheduleService.ts` (lines 94, 103, 112)
+Supabase `.then()` returns `PromiseLike`, not `Promise`. Fix by wrapping each with `Promise.resolve(...)` or changing the array type to `PromiseLike<void>[]`.
+
+## Files Changed
+
 | File | Change |
 |------|--------|
-| `src/pages/Dashboard.tsx` | Compact responsive tabs |
-| `src/index.css` | Hide scrollbar completely |
+| `src/components/layout/sidebar/SidebarPopup.tsx` | Clamp popup position within viewport |
+| `src/components/dashboard/CategoryHealthChart.tsx` | `entry.category` → `entry.name` |
+| `src/components/mental-toolkit/tools/MoodTrackerTool.tsx` | `entry.date` → `entry.day` |
+| `src/services/scheduleService.ts` | Fix `PromiseLike` type mismatch |
 
