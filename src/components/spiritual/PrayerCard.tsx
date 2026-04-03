@@ -87,7 +87,7 @@ export function PrayerCard({
               {t(`spiritual.prayer.names.${prayerNameKey}`)}
             </h3>
             <p className="text-sm text-muted-foreground flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" />
+              <Clock4 className="h-3.5 w-3.5" />
               {timeLabel || prayerTime}
             </p>
           </div>
@@ -95,7 +95,7 @@ export function PrayerCard({
             {/* Countdown badge */}
             {!isLogged && isPrayerTimeFlag && !isExpired && countdownMinutes != null && (
               <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30">
-                <Timer className="h-3 w-3" />
+                <Hourglass className="h-3 w-3" />
                 {i18n.language === 'ar' ? `${countdownMinutes}د` : `${countdownMinutes}m`}
               </span>
             )}
@@ -113,15 +113,15 @@ export function PrayerCard({
         {showButtons && (
           <div className="flex flex-wrap gap-2 animate-in fade-in duration-300">
             <Button size="sm" variant="outline" onClick={() => handleLog('completed_mosque')} disabled={isPending} className="gap-1">
-              <Building2 className="h-3.5 w-3.5" />
+              <Landmark className="h-3.5 w-3.5" />
               {t('spiritual.prayer.mosque')}
             </Button>
             <Button size="sm" variant="outline" onClick={() => handleLog('completed_home')} disabled={isPending} className="gap-1">
-              <Home className="h-3.5 w-3.5" />
+              <House className="h-3.5 w-3.5" />
               {t('spiritual.prayer.home')}
             </Button>
             <Button size="sm" variant="outline" onClick={() => handleLog('completed_work')} disabled={isPending} className="gap-1">
-              <Briefcase className="h-3.5 w-3.5" />
+              <BriefcaseBusiness className="h-3.5 w-3.5" />
               {t('spiritual.prayer.work')}
             </Button>
             <Button size="sm" variant="ghost" onClick={() => handleLog('missed')} disabled={isPending} className="text-muted-foreground">
@@ -158,7 +158,7 @@ export function PrayerCard({
                 )}
               >
                 📿
-                {sunnahBefore && <Check className="h-3 w-3" />}
+                {sunnahBefore && <CircleCheck className="h-3 w-3" />}
                 <span>
                   {i18n.language === 'ar'
                     ? `${rawatib.before} ركعات قبل`
@@ -178,7 +178,7 @@ export function PrayerCard({
                 )}
               >
                 📿
-                {sunnahAfter && <Check className="h-3 w-3" />}
+                {sunnahAfter && <CircleCheck className="h-3 w-3" />}
                 <span>
                   {i18n.language === 'ar'
                     ? `${rawatib.after} ركعات بعد`
