@@ -73,7 +73,7 @@ export function EvidenceCollectionPanel({
 
   const addFiles = (fileList: FileList) => {
     const newFiles: EvidenceFile[] = Array.from(fileList).map((f) => ({
-      id: `${Date.now()}-${Math.random()}`,
+      id: crypto.randomUUID(),
       name: f.name,
       size: f.size,
       type: inferType(f.name),
