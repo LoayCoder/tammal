@@ -29,21 +29,22 @@ export function MentalHealthToolsHub() {
     <>
       <div className="space-y-2">
         <h2 className={typography.sectionTitle}>{t('home.mentalHealthTools', 'Mental Health Tools')}</h2>
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-          {TOOLS.map(({ key, icon: Icon, color, titleKey, descKey }) => (
-            <div key={key} onClick={() => setOpenTool(key)} className="cursor-pointer">
-              <Card className={cn(cardVariants.premium, "cursor-pointer")}>
-                <CardContent className="flex items-center gap-4 p-5">
-                  <div className={"flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-" + color + "/10"}>
-                    <Icon className={"h-6 w-6 text-" + color} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm">{t(titleKey)}</h3>
-                    <p className="text-muted-foreground text-xs mt-0.5">{t(descKey)}</p>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
-                </CardContent>
-              </Card>
+        <div>
+          {TOOLS.map(({ key, icon: Icon, color, titleKey, descKey }, i) => (
+            <div
+              key={key}
+              onClick={() => setOpenTool(key)}
+              className={cn(
+                "flex items-center gap-3 px-1 py-2.5 cursor-pointer hover:bg-muted/30 transition-colors rounded-lg",
+                i < TOOLS.length - 1 && "border-b border-border/30"
+              )}
+            >
+              <Icon className={"h-4 w-4 shrink-0 text-" + color} strokeWidth={1.5} />
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium text-sm leading-tight">{t(titleKey)}</h3>
+                <p className="text-muted-foreground text-[11px] truncate">{t(descKey)}</p>
+              </div>
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0 rtl:rotate-180" strokeWidth={1.5} />
             </div>
           ))}
         </div>
