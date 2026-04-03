@@ -6,7 +6,7 @@ import { useDashboardView, type DashboardView } from '@/hooks/analytics/useDashb
 import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
 import { DashboardOverviewTab } from '@/components/dashboard/DashboardOverviewTab';
 import { OrgDashboard } from '@/components/dashboard/OrgDashboard';
-import { Building2, Heart, User } from 'lucide-react';
+
 import EmployeeHome from './EmployeeHome';
 import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 
