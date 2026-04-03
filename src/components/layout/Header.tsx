@@ -13,8 +13,14 @@ import {
 } from "@/components/ui/breadcrumb";
 import { useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { ThemeIcon } from "@/components/branding/ThemeIcon";
+import type { BrandingConfig } from "@/hooks/branding/useBranding";
 
-export function Header() {
+interface HeaderProps {
+  branding?: BrandingConfig;
+}
+
+export function Header({ branding }: HeaderProps) {
   const location = useLocation();
   const { t } = useTranslation();
 
@@ -57,8 +63,20 @@ export function Header() {
 
   return (
     <header className="glass-header sticky top-0 z-50 flex h-14 items-center gap-4 px-4">
-      <SidebarTrigger className="-ms-2 min-w-[44px] min-h-[44px]" />
-      
+      {/* Desktop: sidebar trigger */}
+      <SidebarTrigger className="-ms-2 min-w-[44px] min-h-[44px] hidden md:flex" />
+
+      {/* Mobile: app icon instead of sidebar trigger */}
+      <div className="md:hidden shrink-0">
+        <ThemeIcon
+          iconLightUrl={branding?.icon_light_url}
+          iconDarkUrl={branding?.icon_dark_url}
+          className="h-7 w-7 rounded-lg object-contain"
+          alt="App"
+          fallback={<span className="text-sm font-bold text-primary">T</span>}
+        />
+      </div>
+
       {/* Mobile: simple page title */}
       <span className="md:hidden text-sm font-semibold truncate">{currentPageTitle}</span>
 

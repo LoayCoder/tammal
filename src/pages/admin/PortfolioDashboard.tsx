@@ -100,17 +100,17 @@ export default function PortfolioDashboard() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="glass-tabs border-0 h-auto">
-          <TabsTrigger value="overview" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
+        <TabsList className="h-auto bg-muted/6 rounded-full p-1 gap-1 border-0">
+          <TabsTrigger value="overview" className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
             {t('portfolio.tabs.overview')}
           </TabsTrigger>
-          <TabsTrigger value="initiatives" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
+          <TabsTrigger value="initiatives" className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
             {t('portfolio.tabs.initiatives')}
           </TabsTrigger>
-          <TabsTrigger value="risk" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
+          <TabsTrigger value="risk" className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
             {t('portfolio.tabs.risk')}
           </TabsTrigger>
-          <TabsTrigger value="predictions" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
+          <TabsTrigger value="predictions" className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">
             <Brain className="h-3.5 w-3.5 me-1.5" />
             {t('portfolio.tabs.predictions')}
           </TabsTrigger>
