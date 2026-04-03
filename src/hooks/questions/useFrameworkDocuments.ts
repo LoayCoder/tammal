@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { logger } from '@/lib/logger';
 
 export interface FrameworkDocument {
   id: string;
@@ -67,13 +68,13 @@ export function useFrameworkDocuments(frameworkId?: string) {
           body: { documentId: insertedDoc.id, filePath, fileName: params.file.name },
         });
         if (parseError) {
-          console.warn('Document parsing failed:', parseError);
+          logger.warn('useFrameworkDocuments', 'Document parsing failed', parseError);
         }
         if (parseData?.success && parseData?.contentLength > 0) {
           // Text was saved directly by the edge function
         }
       } catch (e) {
-        console.warn('Document parsing failed, stored without extracted text:', e);
+        logger.warn('useFrameworkDocuments', 'Document parsing failed, stored without extracted text', e);
       }
 
       return { fileName: params.file.name };

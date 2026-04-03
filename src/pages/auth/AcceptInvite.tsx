@@ -55,7 +55,7 @@ export default function AcceptInvite() {
   const validateSignup = () => {
     const newErrors: Record<string, string> = {};
     if (!fullName.trim()) newErrors.fullName = t("profile.fullNameRequired");
-    if (password.length < 6) newErrors.password = t("validation.passwordMinLength");
+    if (password.length < 8) newErrors.password = t("validation.passwordMinLength");
     if (password !== confirmPassword) newErrors.confirmPassword = t("auth.passwordMismatch");
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

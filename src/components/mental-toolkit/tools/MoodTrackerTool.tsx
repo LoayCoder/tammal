@@ -167,7 +167,7 @@ export default function MoodTrackerTool() {
                   />
                   <Bar dataKey="score" radius={[6, 6, 0, 0]} maxBarSize={32}>
                     {chartData.map((entry, index) => (
-                      <Cell key={index} fill={entry.score > 0 ? TOOLKIT.lavender : "hsl(var(--muted))"} />
+                      <Cell key={entry.date ?? index} fill={entry.score > 0 ? TOOLKIT.lavender : "hsl(var(--muted))"} />
                     ))}
                   </Bar>
                 </BarChart>

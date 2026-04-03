@@ -9,6 +9,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { classifyUtilization } from './workload-intelligence.service';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -42,12 +43,7 @@ export interface InitiativeRiskResult {
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 
-function classifyUtilization(pct: number): HeatmapEntry['classification'] {
-  if (pct < 60) return 'underutilized';
-  if (pct <= 90) return 'healthy';
-  if (pct <= 110) return 'high_load';
-  return 'burnout_risk';
-}
+// classifyUtilization is imported from workload-intelligence.service
 
 /* ------------------------------------------------------------------ */
 /*  Core functions                                                     */

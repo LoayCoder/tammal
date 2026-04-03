@@ -1,11 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Lock, ShieldCheck } from 'lucide-react';
 import type { UnifiedTask, UnifiedTaskInsert, UnifiedTaskUpdate, TaskComment } from '@/features/workload/hooks/useUnifiedTasks';
+
+const taskSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(200),
+  description: z.string().max(2000).optional().default(''),
+  priority: z.number().int().min(1).max(5).default(3),
+  status: z.string().default('draft'),
+  estimated_minutes: z.number().int().positive().nullable().optional(),
+  due_date: z.string().optional().default(''),
+  scheduled_start: z.string().optional().default(''),
+});
 import { useTaskEvidenceUpload } from '@/features/workload';
 import { toast } from 'sonner';
 import { TaskDialogForm } from './task-dialog/TaskDialogForm';
@@ -42,6 +54,7 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
   }, [task?.id, open]);
 
   const { register, handleSubmit, setValue, watch, reset } = useForm({
+    resolver: zodResolver(taskSchema),
     defaultValues: {
       title: task?.title ?? '', description: task?.description ?? '',
       priority: task?.priority ?? 3, status: task?.status ?? 'draft',

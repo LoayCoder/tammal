@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { logger } from '@/lib/logger';
 
 interface Profile {
   id: string;
@@ -64,7 +65,7 @@ export function useProfile() {
       toast.success(t('profile.updateSuccess'));
     },
     onError: (error) => {
-      console.error('Failed to update profile:', error);
+      logger.error('useProfile', 'Failed to update profile', error);
       toast.error(t('profile.updateError'));
     },
   });
@@ -132,7 +133,7 @@ export function useProfile() {
       toast.success(t('profile.updateSuccess'));
     },
     onError: (error) => {
-      console.error('Failed to remove avatar:', error);
+      logger.error('useProfile', 'Failed to remove avatar', error);
       toast.error(t('profile.updateError'));
     },
   });

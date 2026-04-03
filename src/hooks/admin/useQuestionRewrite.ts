@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { rewriteQuestion as rewriteQuestionService, type RewriteQuestionParams } from '@/services/aiService';
+import { logger } from '@/lib/logger';
 
 export function useQuestionRewrite() {
   const { t } = useTranslation();
@@ -22,7 +23,7 @@ export function useQuestionRewrite() {
         question_text_ar: result.question_text_ar!,
       };
     } catch (err: unknown) {
-      console.error('Rewrite error:', err);
+      logger.error('useQuestionRewrite', 'Rewrite error', err);
       toast.error(t('aiGenerator.rewriteError'));
       return null;
     } finally {

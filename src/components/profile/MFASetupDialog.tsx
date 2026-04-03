@@ -26,6 +26,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { logger } from '@/lib/logger';
 import { typography } from "@/theme/tokens";
 
 interface MFASetupDialogProps {
@@ -69,7 +70,7 @@ export function MFASetupDialog({ open, onOpenChange }: MFASetupDialogProps) {
       }
       setStep('status');
     } catch (error) {
-      console.error('Failed to check MFA status:', error);
+      logger.error('MFASetupDialog', 'Failed to check MFA status', error);
     } finally {
       setIsLoading(false);
     }
@@ -92,7 +93,7 @@ export function MFASetupDialog({ open, onOpenChange }: MFASetupDialogProps) {
         setStep('setup');
       }
     } catch (error) {
-      console.error('Failed to start MFA setup:', error);
+      logger.error('MFASetupDialog', 'Failed to start MFA setup', error);
       toast.error(t('profile.mfaSetupError'));
     } finally {
       setIsLoading(false);
@@ -122,7 +123,7 @@ export function MFASetupDialog({ open, onOpenChange }: MFASetupDialogProps) {
       setStep('success');
       toast.success(t('profile.mfaEnabled'));
     } catch (error) {
-      console.error('Failed to verify MFA:', error);
+      logger.error('MFASetupDialog', 'Failed to verify MFA', error);
       toast.error(t('profile.mfaVerifyError'));
     } finally {
       setIsVerifying(false);
@@ -143,7 +144,7 @@ export function MFASetupDialog({ open, onOpenChange }: MFASetupDialogProps) {
       setStep('status');
       toast.success(t('profile.mfaDisabled'));
     } catch (error) {
-      console.error('Failed to disable MFA:', error);
+      logger.error('MFASetupDialog', 'Failed to disable MFA', error);
       toast.error(t('profile.mfaDisableError'));
     } finally {
       setIsUnenrolling(false);

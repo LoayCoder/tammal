@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +12,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { Department, DepartmentInput } from '@/hooks/org/useDepartments';
 import type { Division } from '@/hooks/org/useDivisions';
 import type { Employee } from '@/hooks/org/useEmployees';
+
+const departmentSchema = z.object({
+  tenant_id: z.string(),
+  name: z.string().min(1, 'Name is required').max(100),
+  name_ar: z.string().max(100).nullable().optional(),
+  description: z.string().max(500).nullable().optional(),
+  description_ar: z.string().max(500).nullable().optional(),
+  parent_id: z.string().nullable().optional(),
+  branch_id: z.string().nullable().optional(),
+  division_id: z.string().nullable().optional(),
+  head_employee_id: z.string().nullable().optional(),
+  color: z.string().optional().default('#3B82F6'),
+  sort_order: z.number().int().optional().default(0),
+});
 
 interface DepartmentSheetProps {
   open: boolean;
@@ -25,7 +41,9 @@ export function DepartmentSheet({
   open, onOpenChange, department, divisions, employees, tenantId, onSubmit,
 }: DepartmentSheetProps) {
   const { t, i18n } = useTranslation();
-  const { register, handleSubmit, reset, setValue, watch } = useForm<DepartmentInput>();
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<DepartmentInput>({
+    resolver: zodResolver(departmentSchema),
+  });
 
   const selectedHead = watch('head_employee_id');
   const selectedDivision = watch('division_id');
@@ -98,7 +116,8 @@ export function DepartmentSheet({
           </div>
           <div className="space-y-2">
             <Label>{t('organization.name')}</Label>
-            <Input {...register('name', { required: true })} />
+            <Input {...register('name')} />
+            {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
           </div>
           <div className="space-y-2">
             <Label>{t('organization.nameAr')}</Label>

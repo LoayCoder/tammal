@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tenantAssetsService, type TenantAssets, type AssetType } from '@/services/tenantAssets';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { logger } from '@/lib/logger';
 
 export function useTenantAssets(tenantId?: string) {
     
@@ -27,7 +28,7 @@ export function useTenantAssets(tenantId?: string) {
             toast.success(t('branding.savedSuccess'));
         },
         onError: (error) => {
-            console.error('Failed to update assets:', error);
+            logger.error('useTenantAssets', 'Failed to update assets', error);
             toast.error(t('branding.savedError'));
         },
     });
@@ -54,7 +55,7 @@ export function useTenantAssets(tenantId?: string) {
             toast.success(t('branding.uploadSuccess'));
         },
         onError: (error) => {
-            console.error('Failed to upload asset:', error);
+            logger.error('useTenantAssets', 'Failed to upload asset', error);
             toast.error(t('branding.uploadError'));
         },
     });

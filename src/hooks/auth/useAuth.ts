@@ -5,20 +5,23 @@ import { parseUserAgent, getLocationInfo } from '@/lib/deviceInfo';
 import { logger } from '@/lib/logger';
 
 // Record login event (fire-and-forget, never blocks auth)
-async function recordLoginEvent(userId: string, success: boolean, failureReason?: string) {
+// userId may be null for failed logins where the user was not found.
+async function recordLoginEvent(userId: string | null, success: boolean, failureReason?: string) {
   try {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('tenant_id')
-      .eq('user_id', userId)
-      .single();
+    const { data: profile } = userId
+      ? await supabase
+          .from('profiles')
+          .select('tenant_id')
+          .eq('user_id', userId)
+          .single()
+      : { data: null };
 
     const userAgent = navigator.userAgent;
     const deviceInfo = parseUserAgent(userAgent);
     const locationInfo = await getLocationInfo();
 
     await supabase.from('login_history').insert({
-      user_id: userId,
+      user_id: userId ?? null,
       tenant_id: profile?.tenant_id || null,
       event_type: success ? 'login' : 'failed_login',
       ip_address: locationInfo?.ip || null,
@@ -42,19 +45,15 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // onAuthStateChange fires immediately with the current session,
+    // so getSession() is redundant and creates a race condition.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
       }
     );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -73,6 +72,10 @@ export function useAuth() {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (data.user) {
       recordLoginEvent(data.user.id, true);
+    } else {
+      // Record failed login attempts for security monitoring.
+      // userId is unknown on failure — recorded without profile linkage.
+      recordLoginEvent(null, false, error?.message ?? 'Unknown error');
     }
     return { error };
   };

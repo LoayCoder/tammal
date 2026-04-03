@@ -62,7 +62,7 @@ export function SubcategoryChart({ data, isLoading }: SubcategoryChartProps) {
               />
               <Bar dataKey="score" radius={[0, 4, 4, 0]} barSize={20}>
                 {chartData.map((entry, index) => (
-                  <Cell key={index} fill={entry.color} />
+                  <Cell key={entry.category ?? index} fill={entry.color} />
                 ))}
               </Bar>
             </BarChart>

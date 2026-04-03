@@ -105,7 +105,7 @@ export function useBranding(tenantId?: string) {
       .upload(filePath, file, { upsert: true });
 
     if (uploadError) {
-      console.error('Upload error:', uploadError);
+      logger.error('useBranding', 'Upload error', uploadError);
       throw uploadError;
     }
 
@@ -165,7 +165,7 @@ export function useBranding(tenantId?: string) {
 
       return true;
     } catch (error) {
-      console.error('Error saving branding:', error);
+      logger.error('useBranding', 'Error saving branding', error);
       toast.error(t('branding.savedError'));
       return false;
     } finally {

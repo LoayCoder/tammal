@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +11,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Division, DivisionInput } from '@/hooks/org/useDivisions';
 import type { Employee } from '@/hooks/org/useEmployees';
+
+const divisionSchema = z.object({
+  tenant_id: z.string(),
+  name: z.string().min(1, 'Name is required').max(100),
+  name_ar: z.string().max(100).optional().default(''),
+  description: z.string().max(500).optional().default(''),
+  description_ar: z.string().max(500).optional().default(''),
+  head_employee_id: z.string().nullable().optional(),
+  color: z.string().optional().default('#3B82F6'),
+});
 
 interface DivisionSheetProps {
   open: boolean;
@@ -21,7 +33,9 @@ interface DivisionSheetProps {
 
 export function DivisionSheet({ open, onOpenChange, division, employees, tenantId, onSubmit }: DivisionSheetProps) {
   const { t } = useTranslation();
-  const { register, handleSubmit, reset, setValue, watch } = useForm<DivisionInput>();
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<DivisionInput>({
+    resolver: zodResolver(divisionSchema),
+  });
   const selectedHead = watch('head_employee_id');
 
   useEffect(() => {
@@ -59,7 +73,8 @@ export function DivisionSheet({ open, onOpenChange, division, employees, tenantI
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 mt-4">
           <div className="space-y-2">
             <Label>{t('divisions.name')}</Label>
-            <Input {...register('name', { required: true })} />
+            <Input {...register('name')} />
+            {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
           </div>
           <div className="space-y-2">
             <Label>{t('divisions.nameAr')}</Label>

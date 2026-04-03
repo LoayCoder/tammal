@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { logger } from '@/lib/logger';
 
 export interface RedemptionOption {
   id: string;
@@ -111,7 +112,7 @@ export function useRedemptionRequests() {
               fulfillmentInstructions: instructions,
               language: lang,
             },
-          }).catch(err => console.error('Email send failed:', err));
+          }).catch(err => logger.error('useRedemption', 'Email send failed', err));
         }
       }
 

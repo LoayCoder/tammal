@@ -4,6 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/lib/logger';
 
 /**
  * Fetch unique departments for a tenant's active employees.
@@ -90,20 +91,29 @@ export async function fetchSchedulePreview(scheduleId: string) {
 
   if (idsBySource['questions']?.length) {
     fetches.push(
-      Promise.resolve(supabase.from('questions').select('id, text, text_ar, type').in('id', idsBySource['questions']))
-        .then(({ data }) => { (data || []).forEach(q => { questionMap[q.id] = q; }); })
+      supabase.from('questions').select('id, text, text_ar, type').in('id', idsBySource['questions'])
+        .then(({ data, error }) => {
+          if (error) { logger.warn('scheduleService', 'Failed to fetch questions', error); return; }
+          (data || []).forEach(q => { questionMap[q.id] = q; });
+        })
     );
   }
   if (idsBySource['wellness_questions']?.length) {
     fetches.push(
-      Promise.resolve(supabase.from('wellness_questions').select('id, question_text_en, question_text_ar, question_type').in('id', idsBySource['wellness_questions']))
-        .then(({ data }) => { (data || []).forEach(q => { questionMap[q.id] = { id: q.id, text: q.question_text_en, text_ar: q.question_text_ar, type: q.question_type }; }); })
+      supabase.from('wellness_questions').select('id, question_text_en, question_text_ar, question_type').in('id', idsBySource['wellness_questions'])
+        .then(({ data, error }) => {
+          if (error) { logger.warn('scheduleService', 'Failed to fetch wellness_questions', error); return; }
+          (data || []).forEach(q => { questionMap[q.id] = { id: q.id, text: q.question_text_en, text_ar: q.question_text_ar, type: q.question_type }; });
+        })
     );
   }
   if (idsBySource['generated_questions']?.length) {
     fetches.push(
-      Promise.resolve(supabase.from('generated_questions').select('id, question_text, question_text_ar, type').in('id', idsBySource['generated_questions']))
-        .then(({ data }) => { (data || []).forEach(q => { questionMap[q.id] = { id: q.id, text: q.question_text, text_ar: q.question_text_ar, type: q.type }; }); })
+      supabase.from('generated_questions').select('id, question_text, question_text_ar, type').in('id', idsBySource['generated_questions'])
+        .then(({ data, error }) => {
+          if (error) { logger.warn('scheduleService', 'Failed to fetch generated_questions', error); return; }
+          (data || []).forEach(q => { questionMap[q.id] = { id: q.id, text: q.question_text, text_ar: q.question_text_ar, type: q.type }; });
+        })
     );
   }
 
