@@ -1,1 +1,248 @@
-undefined
+import { useTranslation } from 'react-i18next';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { MoreHorizontal, Shield, UserCog, Pencil, UserX, Ban, UserCheck, Trash2 } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
+import type { UserWithRoles } from '@/hooks/org/useUsers';
+import { useIsMobile } from '@/hooks/ui/use-mobile';
+import { UserMobileCard } from './UserMobileCard';
+import { typography } from "@/theme/tokens";
+
+interface UserTableProps {
+  users: UserWithRoles[];
+  isLoading: boolean;
+  onEditRoles: (user: UserWithRoles) => void;
+  onViewDetails: (user: UserWithRoles) => void;
+  onEdit?: (user: UserWithRoles) => void;
+  onDeactivate?: (user: UserWithRoles) => void;
+  onSuspend?: (user: UserWithRoles) => void;
+  onReactivate?: (user: UserWithRoles) => void;
+  onDelete?: (user: UserWithRoles) => void;
+}
+
+export function UserTable({ 
+  users, 
+  isLoading, 
+  onEditRoles, 
+  onViewDetails,
+  onEdit,
+  onDeactivate,
+  onSuspend,
+  onReactivate,
+  onDelete,
+}: UserTableProps) {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+  const isMobile = useIsMobile();
+
+  const getInitials = (name: string | null) => {
+    if (!name) return '?';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  const getSystemRoleLabel = (role: string) => {
+    const roleLabels: Record<string, string> = {
+      'super_admin': t('users.superAdmin'),
+      'tenant_admin': t('roles.baseRoles.tenantAdmin'),
+      'manager': t('users.manager'),
+      'user': t('users.user'),
+    };
+    return roleLabels[role] || role;
+  };
+
+  const getStatusLabel = (status: string) => {
+    const statusLabels: Record<string, string> = {
+      active: t('users.statusActive'),
+      inactive: t('users.statusInactive'),
+      suspended: t('users.statusSuspended'),
+    };
+    return statusLabels[status] || status;
+  };
+
+  const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
+    switch (status) {
+      case 'active': return 'default';
+      case 'inactive': return 'secondary';
+      case 'suspended': return 'destructive';
+      default: return 'outline';
+    }
+  };
+
+  const getRoleBadges = (user: UserWithRoles) => {
+    const roles = user.user_roles?.filter(ur => ur.roles).map(ur => ur.roles!);
+    if (!roles || roles.length === 0) {
+      return <Badge variant="outline" className="text-muted-foreground">{t('users.noRoles')}</Badge>;
+    }
+    return roles.map(role => (
+      <Badge
+        key={role.id}
+        style={{ backgroundColor: role.color + '20', color: role.color, borderColor: role.color }}
+        variant="outline"
+        className="me-1"
+      >
+        {isRTL && role.name_ar ? role.name_ar : role.name}
+      </Badge>
+    ));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
+  if (users.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <Shield className="h-12 w-12 text-muted-foreground mb-4" />
+        <h3 className="text-lg font-medium">{t('users.noUsers')}</h3>
+        <p className="text-muted-foreground">{t('users.noUsersDescription')}</p>
+      </div>
+    );
+  }
+
+  // Mobile: card layout
+  if (isMobile) {
+    return (
+      <div className="space-y-3">
+        {users.map((user) => (
+          <UserMobileCard
+            key={user.id}
+            user={user}
+            onEditRoles={onEditRoles}
+            onViewDetails={onViewDetails}
+            onEdit={onEdit}
+            onDeactivate={onDeactivate}
+            onSuspend={onSuspend}
+            onReactivate={onReactivate}
+            onDelete={onDelete}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  // Desktop: table layout
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>{t('users.user')}</TableHead>
+          <TableHead>{t('users.userStatus')}</TableHead>
+          <TableHead>{t('users.roles')}</TableHead>
+          <TableHead>{t('users.systemRole')}</TableHead>
+          <TableHead>{t('users.createdAt')}</TableHead>
+          <TableHead className="w-[70px]"></TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {users.map((user) => (
+          <TableRow key={user.id} className="cursor-pointer" onClick={() => onViewDetails(user)}>
+            <TableCell>
+              <div className="flex items-center gap-3">
+                <Avatar className="h-9 w-9">
+                  <AvatarImage src={user.avatar_url || undefined} />
+                  <AvatarFallback>{getInitials(user.full_name)}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="font-medium">{user.full_name || t('users.unnamed')}</div>
+                  <div className={typography.subtitle}>{user.email || user.user_id}</div>
+                </div>
+              </div>
+            </TableCell>
+            <TableCell>
+              <Badge variant={getStatusVariant(user.status || 'active')}>
+                {getStatusLabel(user.status || 'active')}
+              </Badge>
+            </TableCell>
+            <TableCell>
+              <div className="flex flex-wrap gap-1">{getRoleBadges(user)}</div>
+            </TableCell>
+            <TableCell>
+              {user.user_roles?.map(ur => (
+                <Badge key={ur.id} variant="secondary" className="me-1">
+                  {getSystemRoleLabel(ur.role)}
+                </Badge>
+              ))}
+            </TableCell>
+            <TableCell className="text-muted-foreground">
+              {formatDate(user.created_at, i18n.language)}
+            </TableCell>
+            <TableCell>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onViewDetails(user); }}>
+                    <UserCog className="me-2 h-4 w-4" />{t('users.viewDetails')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEditRoles(user); }}>
+                    <Shield className="me-2 h-4 w-4" />{t('users.manageRoles')}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {onEdit && (
+                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(user); }}>
+                      <Pencil className="me-2 h-4 w-4" />{t('users.editUser')}
+                    </DropdownMenuItem>
+                  )}
+                  {user.status === 'active' ? (
+                    <>
+                      {onDeactivate && (
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDeactivate(user); }}>
+                          <UserX className="me-2 h-4 w-4" />{t('users.deactivateUser')}
+                        </DropdownMenuItem>
+                      )}
+                      {onSuspend && (
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onSuspend(user); }}>
+                          <Ban className="me-2 h-4 w-4" />{t('users.suspendUser')}
+                        </DropdownMenuItem>
+                      )}
+                    </>
+                  ) : (
+                    onReactivate && (
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onReactivate(user); }}>
+                        <UserCheck className="me-2 h-4 w-4" />{t('users.reactivateUser')}
+                      </DropdownMenuItem>
+                    )
+                  )}
+                  {onDelete && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={(e) => { e.stopPropagation(); onDelete(user); }}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="me-2 h-4 w-4" />{t('users.deleteUser')}
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
