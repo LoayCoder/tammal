@@ -49,9 +49,6 @@ export const MoodStep = React.forwardRef<HTMLDivElement, MoodStepProps>(function
 
   return (
     <div ref={ref} className="space-y-5">
-      <div className="text-center">
-        <p className="text-muted-foreground/50 text-xs">{t('wellness.selectMood')}</p>
-      </div>
 
       <div className={`flex justify-center gap-3`}>
         {displayMoods.map(mood => {
