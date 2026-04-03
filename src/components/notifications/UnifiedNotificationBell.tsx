@@ -31,7 +31,7 @@ interface UnifiedNotification {
   navigateTo: string;
 }
 
-const TASK_ICONS: Record<string, typeof Radio> = {
+const TASK_ICONS: Record<string, typeof Rss> = {
   assigned: UserPlus,
   status_changed: Clock,
   comment_added: MessageSquare,
