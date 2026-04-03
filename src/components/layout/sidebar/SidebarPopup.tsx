@@ -29,8 +29,18 @@ export const SidebarPopup = React.memo(function SidebarPopup({
 
   useEffect(() => {
     if (!anchorRect) return;
-    const top = anchorRect.top;
-    const start = isRTL ? window.innerWidth - anchorRect.left + 8 : anchorRect.right + 8;
+    const popupW = 188;
+    const popupH = 300;
+    let top = anchorRect.top;
+    if (top + popupH > window.innerHeight) top = Math.max(8, window.innerHeight - popupH);
+    let start: number;
+    if (isRTL) {
+      start = window.innerWidth - anchorRect.left + 8;
+      if (start + popupW > window.innerWidth) start = 8;
+    } else {
+      start = anchorRect.right + 8;
+      if (start + popupW > window.innerWidth) start = Math.max(8, window.innerWidth - popupW);
+    }
     setPosition({ top, start });
   }, [anchorRect, isRTL]);
 

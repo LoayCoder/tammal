@@ -47,7 +47,7 @@ export function CategoryHealthChart({ data, isLoading }: CategoryHealthChartProp
               />
               <Bar dataKey="score" radius={[0, 4, 4, 0]} barSize={24}>
                 {chartData.map((entry, index) => (
-                  <Cell key={entry.category ?? index} fill={entry.color} />
+                  <Cell key={entry.name ?? index} fill={entry.color} />
                 ))}
               </Bar>
             </BarChart>
