@@ -9,7 +9,7 @@ import {
   Popover, PopoverContent, PopoverTrigger,
 } from '@/components/ui/popover';
 import {
-  Radio, CheckCircle2, MessageSquare, AlertTriangle, UserPlus,
+  Rss, CheckCircle2, MessageSquare, AlertTriangle, UserPlus,
   ShieldCheck, XCircle, Clock, CheckCheck, ListChecks, Timer,
   UserCheck, Check, X, Award, ThumbsUp,
 } from 'lucide-react';
