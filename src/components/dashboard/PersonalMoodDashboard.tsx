@@ -221,10 +221,10 @@ export function PersonalMoodDashboard() {
                   <div key={dayKey} className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
                     <span className="text-[10px] font-medium text-muted-foreground">{t(`wellness.days.${dayKey}`)}</span>
                     <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
                       style={{
-                        backgroundColor: count === 0 ? "hsl(var(--muted) / 0.5)" : `hsl(var(--primary) / ${0.1 + intensity * 0.35})`,
-                        color: count > 0 ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))",
+                        backgroundColor: count === 0 ? "hsl(var(--muted) / 0.4)" : `hsl(var(--primary) / ${0.15 + intensity * 0.55})`,
+                        color: count > 0 ? "hsl(var(--primary-foreground))" : "hsl(var(--muted-foreground))",
                       }}
                     >
                       {count}
