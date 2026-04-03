@@ -193,14 +193,15 @@ export function PersonalMoodDashboard() {
             {donutData.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-6">{t("mentalToolkit.moodDashboard.noDataYet")}</p>
             ) : (
-              <div className="h-36">
+              <div className="h-44">
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsPie>
-                    <Pie data={donutData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={35} outerRadius={55} paddingAngle={3}>
+                    <Pie data={donutData} dataKey="value" nameKey="name" cx="50%" cy="45%" innerRadius={30} outerRadius={50} paddingAngle={3}>
                       {donutData.map((_, idx) => (
                         <Cell key={idx} fill={DONUT_COLORS[idx % DONUT_COLORS.length]} />
                       ))}
                     </Pie>
+                    <Legend iconSize={8} wrapperStyle={{ fontSize: 10, lineHeight: '16px' }} />
                     <Tooltip formatter={(value: number) => [value, t("mentalToolkit.moodDashboard.days")]} />
                   </RechartsPie>
                 </ResponsiveContainer>
