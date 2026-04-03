@@ -87,7 +87,7 @@ export async function fetchSchedulePreview(scheduleId: string) {
 
   // Fetch question texts from each source
   const questionMap: Record<string, { id: string; text: string; text_ar?: string | null; type?: string }> = {};
-  const fetches: Promise<void>[] = [];
+  const fetches: PromiseLike<void>[] = [];
 
   if (idsBySource['questions']?.length) {
     fetches.push(
