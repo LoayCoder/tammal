@@ -96,9 +96,11 @@ export function PersonalMoodDashboard() {
           </CardContent>
         </Card>
 
-        <Card className={cn(cardVariants.stat, "rounded-lg")}>
+        <Card className={cn(cardVariants.premium, "rounded-lg")}>
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
-            <TrendingUp className="h-6 w-6" style={{ color: ZONE_COLORS[dashboard.burnoutZone] }} />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ backgroundColor: `${ZONE_COLORS[dashboard.burnoutZone]}15` }}>
+              <TrendingUp className="h-5 w-5" style={{ color: ZONE_COLORS[dashboard.burnoutZone] }} />
+            </div>
             <span className={typography.metric}>{dashboard.avgMood7d}</span>
             <span
               className="text-xs font-medium px-2 py-0.5 rounded-full"
