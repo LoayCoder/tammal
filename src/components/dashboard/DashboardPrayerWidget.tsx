@@ -108,7 +108,7 @@ export function DashboardPrayerWidget() {
   const hasActiveRawatib = activeRawatib && (activeRawatib.before || activeRawatib.after);
 
   return (
-    <Card className={cn(cardVariants.glass, "ring-1 ring-primary/20")}>
+    <Card className={cn(cardVariants.premiumVip)}>
       <CardContent className="p-5 space-y-4">
         {/* Header with Hijri date */}
         <div className="flex items-center justify-between">
