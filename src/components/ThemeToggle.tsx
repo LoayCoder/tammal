@@ -1,4 +1,4 @@
-import { Contrast } from "lucide-react";
+import { Eclipse } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/branding/useTheme";
