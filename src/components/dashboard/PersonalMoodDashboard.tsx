@@ -77,44 +77,44 @@ export function PersonalMoodDashboard() {
     <Card className={cn(cardVariants.premiumVip, "overflow-hidden")}>
       <CardContent className="p-0">
         {/* ── Unified Metrics Row ── */}
-        <div className="flex items-center divide-x divide-border/40 rtl:divide-x-reverse px-2 py-4">
+        <div className="grid grid-cols-4 divide-x divide-border/40 rtl:divide-x-reverse px-1 py-4">
           {/* Streak */}
-          <div className="flex-1 flex flex-col items-center gap-0.5 px-2">
+          <div className="flex flex-col items-center justify-start gap-0.5 px-1 text-center">
             <Flame className="h-3.5 w-3.5 text-muted-foreground/60" strokeWidth={1.5} />
-            <span className="text-xl font-bold tracking-tight text-foreground">{dashboard.streak}</span>
-            <span className="text-[10px] text-muted-foreground leading-tight">{t("mentalToolkit.moodDashboard.currentStreak")}</span>
+            <span className="text-lg font-bold tracking-tight text-foreground">{dashboard.streak}</span>
+            <span className="text-[9px] text-muted-foreground leading-tight">{t("mentalToolkit.moodDashboard.currentStreak")}</span>
           </div>
 
           {/* 7-Day Average */}
-          <div className="flex-1 flex flex-col items-center gap-0.5 px-2">
+          <div className="flex flex-col items-center justify-start gap-0.5 px-1 text-center">
             <TrendingUp className="h-3.5 w-3.5" style={{ color: ZONE_COLORS[dashboard.burnoutZone] }} strokeWidth={1.5} />
-            <span className="text-xl font-bold tracking-tight text-foreground">{dashboard.avgMood7d}</span>
-            <span className="text-[10px] text-muted-foreground leading-tight">{t("mentalToolkit.moodDashboard.avgMood7d")}</span>
+            <span className="text-lg font-bold tracking-tight text-foreground">{dashboard.avgMood7d}</span>
+            <span className="text-[9px] text-muted-foreground leading-tight">{t("mentalToolkit.moodDashboard.avgMood7d")}</span>
           </div>
 
           {/* Monthly Check-ins */}
-          <div className="flex-1 flex flex-col items-center gap-0.5 px-2">
+          <div className="flex flex-col items-center justify-start gap-0.5 px-1 text-center">
             <CalendarCheck className="h-3.5 w-3.5 text-muted-foreground/60" strokeWidth={1.5} />
-            <span className="text-xl font-bold tracking-tight text-foreground">
-              {dashboard.monthlyCheckins}<span className="text-xs font-normal text-muted-foreground">/{dashboard.daysInMonth}</span>
+            <span className="text-lg font-bold tracking-tight text-foreground">
+              {dashboard.monthlyCheckins}<span className="text-[10px] font-normal text-muted-foreground">/{dashboard.daysInMonth}</span>
             </span>
-            <span className="text-[10px] text-muted-foreground leading-tight">{t("mentalToolkit.moodDashboard.monthlyCheckins")}</span>
+            <span className="text-[9px] text-muted-foreground leading-tight">{t("mentalToolkit.moodDashboard.monthlyCheckins")}</span>
           </div>
 
           {/* Today's Mood */}
-          <div className="flex-1 flex flex-col items-center gap-0.5 px-2">
+          <div className="flex flex-col items-center justify-start gap-0.5 px-1 text-center min-w-0">
             {todayDef ? (
               <>
-                <span className="text-lg leading-none">{todayDef.emoji}</span>
-                <span className="text-xs font-medium text-foreground">{isRTL ? todayDef.label_ar : todayDef.label_en}</span>
+                <span className="text-base leading-none">{todayDef.emoji}</span>
+                <span className="text-[10px] font-medium text-foreground truncate max-w-full">{isRTL ? todayDef.label_ar : todayDef.label_en}</span>
               </>
             ) : (
               <>
                 <Activity className="h-3.5 w-3.5 text-muted-foreground/50" strokeWidth={1.5} />
-                <span className="text-[10px] text-muted-foreground">{t("mentalToolkit.moodDashboard.notCheckedIn")}</span>
+                <span className="text-[9px] text-muted-foreground leading-tight text-center">{t("mentalToolkit.moodDashboard.notCheckedIn")}</span>
               </>
             )}
-            <span className="text-[10px] text-muted-foreground leading-tight">{t("mentalToolkit.moodDashboard.todayMood")}</span>
+            <span className="text-[9px] text-muted-foreground leading-tight">{t("mentalToolkit.moodDashboard.todayMood")}</span>
           </div>
         </div>
 
