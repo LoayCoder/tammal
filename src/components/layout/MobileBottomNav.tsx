@@ -45,7 +45,7 @@ export function MobileBottomNav() {
           className="flex items-center justify-center min-w-[44px] min-h-[44px] transition-all duration-200"
         >
           <div className="flex items-center justify-center px-2 py-1.5 text-muted-foreground/70 hover:text-muted-foreground transition-all duration-200">
-            <AlignJustify size={22} strokeWidth={2.25} />
+            <Grip size={22} strokeWidth={2.25} />
           </div>
         </button>
       </div>
