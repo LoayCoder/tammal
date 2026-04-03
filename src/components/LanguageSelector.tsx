@@ -25,8 +25,8 @@ export function LanguageSelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={t('accessibility.selectLanguage')} className="h-9 w-9 rounded-xl bg-muted/40 hover:bg-muted/60 transition-colors">
-          <Globe className="h-4 w-4" />
+        <Button variant="ghost" size="icon" aria-label={t('accessibility.selectLanguage')}>
+          <Globe className="h-5 w-5" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

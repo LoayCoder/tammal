@@ -98,7 +98,7 @@ export function Header({ branding }: HeaderProps) {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="ms-auto flex items-center gap-0.5 md:gap-1">
+      <div className="ms-auto flex items-center gap-1 md:gap-2">
         <UnifiedNotificationBell />
         <LanguageSelector />
         <ThemeToggle />
