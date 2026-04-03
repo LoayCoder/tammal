@@ -1,17 +1,15 @@
-import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Heart, LifeBuoy, User, Menu } from 'lucide-react';
+import { House, HeartPulse, MessageCircle, CircleUserRound, AlignJustify } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 
 const navItems = [
-  { key: 'dashboard', icon: LayoutDashboard, path: '/' },
-  { key: 'wellness', icon: Heart, path: '/employee/wellness' },
-  { key: 'support', icon: LifeBuoy, path: '/support' },
-  { key: 'profile', icon: User, path: '/settings/profile' },
+  { key: 'dashboard', icon: House, path: '/' },
+  { key: 'wellness', icon: HeartPulse, path: '/employee/wellness' },
+  { key: 'support', icon: MessageCircle, path: '/support' },
+  { key: 'profile', icon: CircleUserRound, path: '/settings/profile' },
 ];
 
 export function MobileBottomNav() {
-  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { setOpenMobile } = useSidebar();
@@ -23,27 +21,32 @@ export function MobileBottomNav() {
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-background/80 backdrop-blur-xl border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-      <div className="flex items-center justify-around h-12">
+      <div className="flex items-center justify-around h-14">
         {navItems.map((item) => {
           const active = isActive(item.path);
           return (
             <button
               key={item.key}
               onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] transition-all duration-200 ${
-                active ? 'text-foreground scale-110' : 'text-muted-foreground hover:text-foreground/70'
-              }`}
+              className="flex items-center justify-center min-w-[44px] min-h-[44px] transition-all duration-200"
             >
-              <item.icon className="h-5 w-5" />
-              {active && <span className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_6px_hsl(var(--primary))]" />}
+              <div className={`flex items-center justify-center rounded-xl transition-all duration-200 ${
+                active
+                  ? 'bg-primary/12 px-4 py-1.5 text-primary'
+                  : 'px-2 py-1.5 text-muted-foreground/70 hover:text-muted-foreground'
+              }`}>
+                <item.icon size={22} strokeWidth={2.25} />
+              </div>
             </button>
           );
         })}
         <button
           onClick={() => setOpenMobile(true)}
-          className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground/70 transition-all duration-200"
+          className="flex items-center justify-center min-w-[44px] min-h-[44px] transition-all duration-200"
         >
-          <Menu className="h-5 w-5" />
+          <div className="flex items-center justify-center px-2 py-1.5 text-muted-foreground/70 hover:text-muted-foreground transition-all duration-200">
+            <AlignJustify size={22} strokeWidth={2.25} />
+          </div>
         </button>
       </div>
     </nav>
