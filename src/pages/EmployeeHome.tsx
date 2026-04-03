@@ -64,7 +64,7 @@ export default function EmployeeHome() {
     <div className="relative min-h-full premium-bg">
       <div className="relative space-y-8">
         {/* Greeting + VIP Badge */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2.5">
             <h1 className={typography.greeting}>
               {getGreeting(t)}{firstName ? <>, <span className={typography.vipName}>{firstName}</span></> : ''} 👋
@@ -74,34 +74,17 @@ export default function EmployeeHome() {
             </Badge>
           </div>
           <p className="text-muted-foreground text-sm">{t('home.subtitle')}</p>
-        </div>
-
-        {/* Gamification Badges */}
-        <div className="flex flex-wrap gap-3">
-          <div className="vip-stat-chip">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-chart-4/10">
-              <Flame className="h-4 w-4 text-chart-4" />
+          {/* Gamification Badges — inline pills */}
+          <div className="flex items-center gap-4 mt-1">
+            <div className="flex items-center gap-1.5 rounded-full bg-muted/8 px-3 py-1">
+              <Flame className="h-3.5 w-3.5 text-chart-4/70" />
+              <span className="text-sm font-semibold text-foreground">{gamLoading ? '...' : streak}</span>
+              <span className="text-2xs text-muted-foreground">{t('home.dayStreak')}</span>
             </div>
-            <div className="flex flex-col">
-              <span className="text-base font-bold tracking-tight text-foreground leading-none">
-                {gamLoading ? '...' : streak}
-              </span>
-              <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('home.dayStreak')}
-              </span>
-            </div>
-          </div>
-          <div className="vip-stat-chip">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-chart-1/10">
-              <Star className="h-4 w-4 text-chart-1" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-base font-bold tracking-tight text-foreground leading-none">
-                {gamLoading ? '...' : totalPoints}
-              </span>
-              <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('home.points')}
-              </span>
+            <div className="flex items-center gap-1.5 rounded-full bg-muted/8 px-3 py-1">
+              <Star className="h-3.5 w-3.5 text-chart-1/70" />
+              <span className="text-sm font-semibold text-foreground">{gamLoading ? '...' : totalPoints}</span>
+              <span className="text-2xs text-muted-foreground">{t('home.points')}</span>
             </div>
           </div>
         </div>
