@@ -102,14 +102,6 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
                 <p className="text-2xs text-muted-foreground mt-0.5">{t('wellness.howAreYou', 'How are you feeling today?')}</p>
               </div>
             </div>
-            <div className="flex gap-1.5">
-              <Badge variant="outline" className="gap-1 px-2 py-0.5 rounded-full text-xs bg-card/50">
-                <Flame className="h-3 w-3 text-chart-4" /> {streak}
-              </Badge>
-              <Badge variant="outline" className="gap-1 px-2 py-0.5 rounded-full text-xs bg-card/50">
-                <Star className="h-3 w-3 text-chart-1" /> {totalPoints}
-              </Badge>
-            </div>
           </div>
 
           {/* 1. Mood Selection — always visible */}
