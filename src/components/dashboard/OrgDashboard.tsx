@@ -40,11 +40,11 @@ export function OrgDashboard() {
       <ErrorBoundary><OrgWorkloadIndicator /></ErrorBoundary>
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="h-auto bg-muted/6 rounded-full p-1 gap-1 border-0">
-          <TabsTrigger value="overview" className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">{t('orgDashboard.tabs.overview')}</TabsTrigger>
-          <TabsTrigger value="deep" className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">{t('orgDashboard.tabs.deepAnalysis')}</TabsTrigger>
-          <TabsTrigger value="alerts" className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">{t('orgDashboard.tabs.alertsInsights')}</TabsTrigger>
-          <TabsTrigger value="comparison" className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm">{t('orgDashboard.tabs.comparison')}</TabsTrigger>
+        <TabsList className="h-auto gap-1">
+          <TabsTrigger value="overview">{t('orgDashboard.tabs.overview')}</TabsTrigger>
+          <TabsTrigger value="deep">{t('orgDashboard.tabs.deepAnalysis')}</TabsTrigger>
+          <TabsTrigger value="alerts">{t('orgDashboard.tabs.alertsInsights')}</TabsTrigger>
+          <TabsTrigger value="comparison">{t('orgDashboard.tabs.comparison')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
