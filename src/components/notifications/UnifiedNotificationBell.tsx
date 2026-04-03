@@ -32,33 +32,33 @@ interface UnifiedNotification {
 }
 
 const TASK_ICONS: Record<string, typeof Bell> = {
-  assigned: UserPlus,
+  assigned: Plus,
   status_changed: Clock,
-  comment_added: MessageSquare,
+  comment_added: Send,
   overdue: AlertTriangle,
-  approval_requested: ShieldCheck,
-  approved: CheckCircle2,
-  rejected: XCircle,
+  approval_requested: Shield,
+  approved: Check,
+  rejected: X,
   checklist_completed: ListChecks,
-  deadline_approaching: Timer,
+  deadline_approaching: Clock,
 };
 
 const CRISIS_ICONS: Record<string, typeof Bell> = {
   case_assigned: AlertTriangle,
-  case_accepted: UserCheck,
+  case_accepted: Fingerprint,
   case_declined: X,
-  new_message: MessageSquare,
+  new_message: Send,
   case_resolved: Check,
   escalation: AlertTriangle,
 };
 
 const RECOGNITION_ICONS: Record<string, typeof Bell> = {
-  endorsement_requested: ThumbsUp,
-  nomination_endorsed: Award,
-  nomination_received: UserPlus,
-  nomination_approved: CheckCircle2,
-  nomination_rejected: XCircle,
-  award_won: Award,
+  endorsement_requested: Star,
+  nomination_endorsed: Star,
+  nomination_received: Plus,
+  nomination_approved: Check,
+  nomination_rejected: X,
+  award_won: Star,
 };
 
 const TASK_COLORS: Record<string, string> = {
