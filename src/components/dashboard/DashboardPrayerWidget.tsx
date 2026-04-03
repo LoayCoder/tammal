@@ -250,7 +250,7 @@ export function DashboardPrayerWidget() {
                 <div
                   className={cn(
                     'h-6 w-6 rounded-full flex items-center justify-center text-xs border transition-all',
-                    logged && !isMissed && 'bg-chart-1/20 border-chart-1/40 text-chart-1',
+                    logged && !isMissed && 'bg-green-500/20 border-green-500/40 text-green-500',
                     isMissed && 'bg-destructive/10 border-destructive/30 text-destructive',
                     !logged && isActive && 'bg-primary/10 border-primary/40 text-primary ring-2 ring-primary/20',
                     !logged && !isActive && 'bg-muted border-border text-muted-foreground',
