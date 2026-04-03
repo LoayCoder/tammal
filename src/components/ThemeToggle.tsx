@@ -13,11 +13,12 @@ export function ThemeToggle() {
       size="icon"
       onClick={toggleTheme}
       aria-label={t('accessibility.toggleTheme')}
+      className="h-9 w-9 rounded-xl bg-muted/40 hover:bg-muted/60 transition-colors"
     >
       {theme === 'dark' ? (
-        <Sun className="h-5 w-5" />
+        <Sun className="h-4 w-4" />
       ) : (
-        <Moon className="h-5 w-5" />
+        <Moon className="h-4 w-4" />
       )}
     </Button>
   );
