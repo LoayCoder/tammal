@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building2, Home, Briefcase, ChevronRight, Clock, Timer, Check } from 'lucide-react';
+import { Landmark, House, Building, ChevronRight, Clock, Timer, Check } from 'lucide-react';
 
-const ICON_STROKE = 1.75;
+const ICON_STROKE = 1.5;
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { usePrayerTimes, PRAYER_NAMES } from '@/hooks/spiritual/usePrayerTimes';
 import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
@@ -164,13 +164,13 @@ export function DashboardPrayerWidget() {
             </div>
             <div className="flex flex-wrap gap-1.5">
               <Button size="sm" variant="outline" onClick={() => handleLog('completed_mosque')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
-                <Building2 className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.mosque')}
+                <Landmark className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.mosque')}
               </Button>
               <Button size="sm" variant="outline" onClick={() => handleLog('completed_home')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
-                <Home className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.home')}
+                <House className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.home')}
               </Button>
               <Button size="sm" variant="outline" onClick={() => handleLog('completed_work')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
-                <Briefcase className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.work')}
+                <Building className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.work')}
               </Button>
             </div>
             {/* Rawatib Sunnah toggles */}
