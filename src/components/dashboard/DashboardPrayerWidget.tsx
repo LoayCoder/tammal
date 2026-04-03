@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Landmark, House, BriefcaseBusiness, ChevronRight, Clock4, Hourglass, CircleCheck } from 'lucide-react';
+import { Landmark, House, BriefcaseBusiness, ChevronRight, Clock4, Hourglass, CircleCheck, X } from 'lucide-react';
 
 const ICON_STROKE = 1.75;
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
@@ -257,7 +257,7 @@ export function DashboardPrayerWidget() {
                   )}
                 >
                   {logged && !isMissed ? <CircleCheck className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
-                  {isMissed ? '✕' : null}
+                  {isMissed ? <X className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                   {!logged && isActive ? <Hourglass className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                 </div>
                 <span className="text-2xs text-muted-foreground leading-none">
