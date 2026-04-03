@@ -5,6 +5,8 @@ import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 import type { AffectiveDistribution } from '@/hooks/analytics/useOrgAnalytics';
+import { cardVariants } from '@/theme/tokens';
+import { CHART_TOOLTIP_STYLE } from '@/config/chart-styles';
 
 const STATE_COLORS: Record<string, string> = {
   positive: 'hsl(var(--chart-2))',
@@ -32,7 +34,7 @@ export function AffectiveStateChart({ data, isLoading }: AffectiveStateChartProp
     }));
 
   return (
-    <Card className="glass-chart border-0">
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base">{t('orgDashboard.affectiveDistribution')}</CardTitle>
       </CardHeader>
@@ -57,13 +59,7 @@ export function AffectiveStateChart({ data, isLoading }: AffectiveStateChartProp
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--popover))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '12px',
-                  fontSize: 12,
-                  boxShadow: '0 8px 32px hsl(var(--primary) / 0.1)',
-                }}
+                contentStyle={CHART_TOOLTIP_STYLE}
                 formatter={(value: number, name: string) => [`${value} (${Math.round((value / totalCount) * 100)}%)`, name]}
               />
               <Legend

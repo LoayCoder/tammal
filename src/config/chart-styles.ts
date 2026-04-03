@@ -15,13 +15,13 @@ export const CHART_AXIS_LABEL = {
   fill: 'hsl(var(--muted-foreground))',
 } as const;
 
-/** Glass-style tooltip container */
+/** Clean solid tooltip container */
 export const CHART_TOOLTIP_STYLE: React.CSSProperties = {
-  backgroundColor: 'hsl(var(--popover))',
-  border: '1px solid hsl(var(--border) / 0.25)',
-  borderRadius: '12px',
+  backgroundColor: 'hsl(var(--card))',
+  border: '1px solid hsl(var(--border))',
+  borderRadius: '8px',
   fontSize: 12,
-  boxShadow: '0 8px 32px hsl(var(--primary) / 0.1)',
+  boxShadow: '0 4px 12px hsl(220 40% 50% / 0.08)',
 };
 
 /** Legend wrapper */

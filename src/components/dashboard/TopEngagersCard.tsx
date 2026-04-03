@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Trophy, Medal, Award, Flame, MessageSquare } from 'lucide-react';
+import { Flame, MessageSquare } from 'lucide-react';
 import type { TopEngager } from '@/hooks/analytics/useOrgAnalytics';
 import { cardVariants } from "@/theme/tokens";
 
@@ -10,11 +10,11 @@ interface Props {
   isLoading: boolean;
 }
 
+const RANK_EMOJI = ['🥇', '🥈', '🥉'];
+
 function RankIcon({ rank }: { rank: number }) {
-  if (rank === 1) return <Trophy className="h-4 w-4 text-chart-1" />;
-  if (rank === 2) return <Medal className="h-4 w-4 text-muted-foreground" />;
-  if (rank === 3) return <Award className="h-4 w-4 text-chart-4" />;
-  return <span className="text-xs text-muted-foreground w-4 text-center">{rank}</span>;
+  if (rank <= 3) return <span className="text-base w-5 text-center">{RANK_EMOJI[rank - 1]}</span>;
+  return <span className="text-xs text-muted-foreground w-5 text-center">{rank}</span>;
 }
 
 export function TopEngagersCard({ data, isLoading }: Props) {

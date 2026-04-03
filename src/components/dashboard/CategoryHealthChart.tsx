@@ -5,6 +5,8 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell,
 } from 'recharts';
 import type { CategoryScore } from '@/hooks/analytics/useOrgAnalytics';
+import { cardVariants } from '@/theme/tokens';
+import { CHART_TOOLTIP_STYLE, CHART_AXIS_TICK, CHART_GRID_STROKE } from '@/config/chart-styles';
 
 interface CategoryHealthChartProps {
   data: CategoryScore[];
@@ -23,7 +25,7 @@ export function CategoryHealthChart({ data, isLoading }: CategoryHealthChartProp
   }));
 
   return (
-    <Card className="glass-chart border-0">
+    <Card className={cardVariants.glass}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base">{t('orgDashboard.categoryHealth')}</CardTitle>
       </CardHeader>
@@ -33,30 +35,11 @@ export function CategoryHealthChart({ data, isLoading }: CategoryHealthChartProp
         ) : chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={Math.max(280, chartData.length * 44)}>
             <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-              <XAxis
-                type="number"
-                domain={[0, 5]}
-                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                type="category"
-                dataKey="name"
-                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                axisLine={false}
-                tickLine={false}
-                width={120}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} horizontal={false} />
+              <XAxis type="number" domain={[0, 5]} tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="name" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} width={120} />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--popover))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '12px',
-                  fontSize: 12,
-                  boxShadow: '0 8px 32px hsl(var(--primary) / 0.1)',
-                }}
+                contentStyle={CHART_TOOLTIP_STYLE}
                 formatter={(value: number, _name: string, props: any) => [
                   `${value}/5 (${props.payload.responses} ${t('orgDashboard.responses')})`,
                   t('orgDashboard.avgScore'),

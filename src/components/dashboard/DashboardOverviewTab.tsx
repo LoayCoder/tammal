@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SaasStatsSection } from './SaasStatsSection';
 import { AuditLogTable } from '@/components/audit/AuditLogTable';
 import { useAuditLog } from '@/hooks/audit/useAuditLog';
+import { cardVariants, typography } from '@/theme/tokens';
 
 interface DashboardOverviewTabProps {
   isSuperAdmin: boolean;
@@ -18,12 +19,12 @@ export function DashboardOverviewTab({ isSuperAdmin }: DashboardOverviewTabProps
 
       {!isSuperAdmin && (
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('dashboard.title')}</h1>
+          <h1 className={typography.pageTitle}>{t('dashboard.title')}</h1>
           <p className="text-muted-foreground">{t('dashboard.welcome')}</p>
         </div>
       )}
 
-      <Card className="glass-chart border-0">
+      <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle>{t('dashboard.recentActivity')}</CardTitle>
         </CardHeader>
