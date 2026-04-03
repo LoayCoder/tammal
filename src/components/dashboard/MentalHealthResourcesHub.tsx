@@ -27,21 +27,15 @@ export function MentalHealthResourcesHub() {
     <>
       <div className="space-y-2">
         <h2 className={typography.sectionTitle}>{t('home.mentalHealthResources', 'Mental Health Resources')}</h2>
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-          {RESOURCES.map(({ key, icon: Icon, color, titleKey, descKey }) => (
-            <div key={key} onClick={() => setOpenResource(key)} className="cursor-pointer">
-              <Card className={cn(cardVariants.glass, `ring-1 ring-${color}/20 cursor-pointer transition-all hover:shadow-lg hover:ring-${color}/40`)}>
-                <CardContent className="flex items-center gap-4 p-5">
-                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-${color}/10`}>
-                    <Icon className={`h-6 w-6 text-${color}`} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm">{t(titleKey)}</h3>
-                    <p className="text-muted-foreground text-xs mt-0.5">{t(descKey)}</p>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
-                </CardContent>
-              </Card>
+        <div className="grid grid-cols-2 gap-2.5">
+          {RESOURCES.map(({ key, icon: Icon, color, titleKey }) => (
+            <div
+              key={key}
+              onClick={() => setOpenResource(key)}
+              className="flex flex-col items-center gap-1.5 rounded-xl bg-muted/30 py-4 px-2 cursor-pointer hover:bg-muted/50 transition-colors"
+            >
+              <Icon className={"h-5 w-5 text-" + color} strokeWidth={1.5} />
+              <span className="text-xs font-medium text-center leading-tight">{t(titleKey)}</span>
             </div>
           ))}
         </div>
