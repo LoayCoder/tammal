@@ -69,7 +69,7 @@ export function DashboardIslamicCalendarWidget() {
             </span>
           )}
           {whiteDay && (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground font-medium">
+            <span className="text-[10px] px-2 py-0.5 rounded-full text-muted-foreground font-medium border border-[#2a0909]/[0.48] bg-[#919191]/0">
               🤍 {isAr ? 'الأيام البيض' : 'White Day'}
             </span>
           )}
