@@ -77,8 +77,6 @@ export function Header({ branding }: HeaderProps) {
         />
       </div>
 
-      {/* Mobile: simple page title */}
-      <span className="md:hidden text-sm font-semibold truncate">{currentPageTitle}</span>
 
       {/* Desktop: breadcrumbs */}
       <Breadcrumb className="hidden md:flex">
