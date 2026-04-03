@@ -690,7 +690,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
           <div className="flex justify-center">
             <button
               onClick={toggleSidebar}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-[hsl(var(--sidebar-hover-bg))] hover:text-sidebar-foreground"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/50 hover:text-sidebar-foreground"
               aria-label={t('accessibility.toggleSidebar')}
             >
               <ToggleIcon className="h-4 w-4" />
