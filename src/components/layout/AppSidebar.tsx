@@ -445,13 +445,13 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                           to={group.items[0].url}
                           end={group.items[0].url === '/'}
                           className={cn(
-                            "flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition-all duration-200",
-                            "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                            "flex h-9 items-center gap-3 rounded-lg px-3 text-sm transition-all duration-200",
+                            "text-sidebar-foreground hover:bg-muted/50"
                           )}
-                          activeClassName="bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary font-medium"
+                          activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
                           onClick={handleNavClick}
                         >
-                          <group.icon className="h-5 w-5 shrink-0" />
+                          <group.icon className="h-4.5 w-4.5 shrink-0" />
                           <span className="truncate">{group.items[0].title}</span>
                         </NavLink>
                       </SidebarMenuItem>
