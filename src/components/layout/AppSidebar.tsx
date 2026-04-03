@@ -525,23 +525,18 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                               <CollapsibleTrigger asChild>
                                 <button
                                   className={cn(
-                                    "flex h-9 w-full items-center gap-3 rounded-lg px-2.5 text-sm transition-all duration-200",
+                                    "flex h-8 w-full items-center gap-2.5 rounded-lg px-2.5 text-sm transition-all duration-200",
                                     isSectionActive
                                       ? "text-sidebar-primary font-medium"
-                                      : "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                                      : "text-sidebar-foreground/80 hover:bg-muted/50"
                                   )}
                                 >
-                                  <span className={cn(
-                                    "h-2.5 w-2.5 rounded-full shrink-0",
-                                    isSectionActive ? "bg-sidebar-primary" : "bg-muted-foreground/40"
-                                  )} />
                                   <span className="flex-1 text-start text-xs font-medium">{section.label}</span>
                                   <ChevronRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-data-[state=open]/nested:rotate-90 rtl:-scale-x-100" />
                                 </button>
                               </CollapsibleTrigger>
                               <CollapsibleContent>
-                                <div className="relative ms-4 mt-1 flex flex-col gap-1">
-                                  <div className="absolute start-[0.4375rem] top-[1rem] bottom-[1rem] w-px bg-muted-foreground/20" />
+                                <div className="ms-4 mt-0.5 flex flex-col gap-0.5">
                                   {section.items.map((item) => {
                                     const subActive = location.pathname.startsWith(item.url);
                                     return (
@@ -549,16 +544,13 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                                         key={item.url}
                                         to={item.url}
                                         className={cn(
-                                          "flex h-8 items-center gap-2 rounded-lg px-2.5 text-sm transition-colors",
-                                          "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                                          "flex h-7 items-center gap-2 rounded-lg px-2.5 text-sm transition-colors",
+                                          "text-sidebar-foreground/70 hover:bg-muted/50 hover:text-sidebar-foreground"
                                         )}
                                         activeClassName="text-sidebar-primary font-medium"
                                         onClick={handleNavClick}
                                       >
-                                        <span className={cn(
-                                          "h-2 w-2 rounded-full shrink-0",
-                                          subActive ? "bg-sidebar-primary" : "bg-muted-foreground/30"
-                                        )} />
+                                        <item.icon className="h-3.5 w-3.5 shrink-0" />
                                         <span className="truncate">{item.title}</span>
                                       </NavLink>
                                     );
