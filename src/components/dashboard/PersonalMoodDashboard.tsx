@@ -84,9 +84,11 @@ export function PersonalMoodDashboard() {
     <div className="space-y-4">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className={cn(cardVariants.stat, "rounded-lg")}>
+        <Card className={cn(cardVariants.premium, "rounded-lg")}>
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
-            <Flame className="h-6 w-6 text-toolkit-lavender" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-toolkit-lavender/10">
+              <Flame className="h-5 w-5 text-toolkit-lavender" />
+            </div>
             <span className={typography.metric}>{dashboard.streak}</span>
             <span className="text-xs text-muted-foreground">
               {t("mentalToolkit.moodDashboard.currentStreak")}
@@ -94,9 +96,11 @@ export function PersonalMoodDashboard() {
           </CardContent>
         </Card>
 
-        <Card className={cn(cardVariants.stat, "rounded-lg")}>
+        <Card className={cn(cardVariants.premium, "rounded-lg")}>
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
-            <TrendingUp className="h-6 w-6" style={{ color: ZONE_COLORS[dashboard.burnoutZone] }} />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ backgroundColor: `${ZONE_COLORS[dashboard.burnoutZone]}15` }}>
+              <TrendingUp className="h-5 w-5" style={{ color: ZONE_COLORS[dashboard.burnoutZone] }} />
+            </div>
             <span className={typography.metric}>{dashboard.avgMood7d}</span>
             <span
               className="text-xs font-medium px-2 py-0.5 rounded-full"
@@ -115,9 +119,11 @@ export function PersonalMoodDashboard() {
           </CardContent>
         </Card>
 
-        <Card className={cn(cardVariants.stat, "rounded-lg")}>
+        <Card className={cn(cardVariants.premium, "rounded-lg")}>
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
-            <CalendarCheck className="h-6 w-6 text-toolkit-sage" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-toolkit-sage/10">
+              <CalendarCheck className="h-5 w-5 text-toolkit-sage" />
+            </div>
             <span className={typography.metric}>
               {dashboard.monthlyCheckins}
               <span className="text-sm font-normal text-muted-foreground">/{dashboard.daysInMonth}</span>
@@ -128,7 +134,7 @@ export function PersonalMoodDashboard() {
           </CardContent>
         </Card>
 
-        <Card className={cn(cardVariants.stat, "rounded-lg")}>
+        <Card className={cn(cardVariants.premium, "rounded-lg")}>
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
             {todayDef ? (
               <>

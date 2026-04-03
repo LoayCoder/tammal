@@ -22,6 +22,8 @@ export const typography = {
   statLabel: 'text-xs font-bold uppercase tracking-wide text-muted-foreground',
   subtitle: 'text-sm text-muted-foreground',
   caption: 'text-2xs text-muted-foreground',
+  greeting: 'text-2xl md:text-3xl font-bold tracking-tight text-foreground',
+  vipName: 'text-primary font-extrabold',
 } as const;
 
 // ── Card Variants ────────────────────────────────────────────────────
@@ -30,6 +32,8 @@ export const cardVariants = {
   stat: 'glass-stat border-0 rounded-xl',
   dashed: 'glass-card border-0 rounded-xl border-dashed',
   elevated: 'glass-card border-0 rounded-xl hover:-translate-y-1 transition-all duration-300',
+  premium: 'premium-card premium-interactive rounded-xl',
+  premiumVip: 'premium-card-vip premium-interactive rounded-xl',
 } as const;
 
 // ── Layout ───────────────────────────────────────────────────────────

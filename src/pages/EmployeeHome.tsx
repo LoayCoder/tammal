@@ -14,7 +14,7 @@ import { MentalHealthToolsHub } from '@/components/dashboard/MentalHealthToolsHu
 import { MentalHealthResourcesHub } from '@/components/dashboard/MentalHealthResourcesHub';
 import {
   Flame, Star, CheckCircle2, ClipboardList, ChevronRight,
-  Phone, HeartHandshake,
+  Phone, HeartHandshake, Crown,
 } from 'lucide-react';
 import { DashboardPrayerWidget } from '@/components/dashboard/DashboardPrayerWidget';
 import { DashboardIslamicCalendarWidget } from '@/components/dashboard/DashboardIslamicCalendarWidget';
@@ -23,7 +23,7 @@ import FirstAiderQuickConnect from '@/components/crisis/FirstAiderQuickConnect';
 import { DashboardEndorsementRequests } from '@/components/dashboard/DashboardEndorsementRequests';
 import { DashboardShortlistWidget } from '@/components/dashboard/DashboardShortlistWidget';
 import { DashboardVotingWidget } from '@/components/dashboard/DashboardVotingWidget';
-import { cardVariants, typography} from "@/theme/tokens";
+import { cardVariants, typography } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 const MOOD_EMOJIS: Record<string, string> = {
@@ -61,24 +61,29 @@ export default function EmployeeHome() {
   }
 
   return (
-    <div className="relative min-h-full">
-      <div className="relative space-y-6">
-        {/* Greeting */}
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            {getGreeting(t)}{firstName ? `, ${firstName}` : ''} 👋
-          </h1>
+    <div className="relative min-h-full premium-bg">
+      <div className="relative space-y-8">
+        {/* Greeting + VIP Badge */}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-2.5">
+            <h1 className={typography.greeting}>
+              {getGreeting(t)}{firstName ? <>, <span className={typography.vipName}>{firstName}</span></> : ''} 👋
+            </h1>
+            <Badge className="premium-badge gap-1 px-2.5 py-1 text-xs font-semibold">
+              <Crown className="h-3 w-3 text-amber-500" /> VIP
+            </Badge>
+          </div>
           <p className="text-muted-foreground text-sm">{t('home.subtitle')}</p>
         </div>
 
         {/* Gamification Badges */}
         <div className="flex flex-wrap gap-3">
-          <Badge variant="secondary" className="glass-badge gap-1.5 px-3 py-1.5 text-sm">
-            <Flame className="h-4 w-4 text-chart-4" />
+          <Badge variant="secondary" className="premium-badge gap-1.5 px-3.5 py-1.5 text-sm font-medium">
+            <Flame className="h-4 w-4 text-chart-4 drop-shadow-sm" />
             {gamLoading ? '...' : streak} {t('home.dayStreak')}
           </Badge>
-          <Badge variant="secondary" className="glass-badge gap-1.5 px-3 py-1.5 text-sm">
-            <Star className="h-4 w-4 text-chart-1" />
+          <Badge variant="secondary" className="premium-badge gap-1.5 px-3.5 py-1.5 text-sm font-medium">
+            <Star className="h-4 w-4 text-chart-1 drop-shadow-sm" />
             {gamLoading ? '...' : totalPoints} {t('home.points')}
           </Badge>
         </div>
@@ -99,9 +104,9 @@ export default function EmployeeHome() {
 
         {/* Completed check-in indicator */}
         {todayEntry && (
-          <Card className={cn(cardVariants.glass, "ring-1 ring-chart-1/20")}>
+          <Card className={cn(cardVariants.premiumVip)}>
             <CardContent className="flex items-center gap-4 p-6">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-chart-1/10 text-2xl">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-chart-1/15 to-chart-1/5 text-2xl">
                 {MOOD_EMOJIS[todayEntry.level] || '✅'}
               </div>
               <div className="flex-1 min-w-0">
@@ -123,9 +128,9 @@ export default function EmployeeHome() {
         {/* Pending Surveys Card */}
         {(sqLoading || pendingQuestions.length > 0) && (
           <Link to="/employee/survey">
-            <Card className={cn(cardVariants.glass, "ring-1 ring-chart-2/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-2/40")}>
+            <Card className={cn(cardVariants.premium, "cursor-pointer")}>
               <CardContent className="flex items-center gap-4 p-6">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-chart-2/10">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-chart-2/15 to-chart-2/5">
                   <ClipboardList className="h-7 w-7 text-chart-2" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -139,7 +144,6 @@ export default function EmployeeHome() {
             </Card>
           </Link>
         )}
-
 
         {/* Mental Health Tools Hub */}
         <MentalHealthToolsHub />
@@ -158,13 +162,13 @@ export default function EmployeeHome() {
         <PersonalMoodDashboard />
 
         {/* Quick Actions */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <h2 className={typography.sectionTitle}>{t('dashboard.quickActions')}</h2>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
             <Link to="/crisis-support">
-              <Card className={cn(cardVariants.glass, "ring-1 ring-destructive/20 cursor-pointer transition-all hover:shadow-lg hover:ring-destructive/40")}>
+              <Card className={cn(cardVariants.premium, "cursor-pointer")}>
                 <CardContent className="flex items-center gap-4 p-5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-destructive/10">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-destructive/15 to-destructive/5">
                     <Phone className="h-6 w-6 text-destructive" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -176,9 +180,9 @@ export default function EmployeeHome() {
               </Card>
             </Link>
             <div onClick={() => setShowFirstAider(true)} className="cursor-pointer">
-              <Card className={cn(cardVariants.glass, "ring-1 ring-chart-1/20 cursor-pointer transition-all hover:shadow-lg hover:ring-chart-1/40")}>
+              <Card className={cn(cardVariants.premium, "cursor-pointer")}>
                 <CardContent className="flex items-center gap-4 p-5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-chart-1/10">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-chart-1/15 to-chart-1/5">
                     <HeartHandshake className="h-6 w-6 text-chart-1" />
                   </div>
                   <div className="flex-1 min-w-0">
