@@ -134,7 +134,7 @@ export function PersonalMoodDashboard() {
           </CardContent>
         </Card>
 
-        <Card className={cn(cardVariants.stat, "rounded-lg")}>
+        <Card className={cn(cardVariants.premium, "rounded-lg")}>
           <CardContent className="pt-5 pb-4 px-4 flex flex-col items-center text-center gap-1">
             {todayDef ? (
               <>

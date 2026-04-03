@@ -89,11 +89,16 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
         />
       )}
 
-      <Card className="border-2 border-primary/20 overflow-hidden">
-        <CardContent className="p-4 sm:p-5 space-y-4">
+      <Card className="premium-card-vip overflow-hidden">
+        <CardContent className="p-5 sm:p-6 space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-base">{t('nav.dailyCheckin')}</h3>
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5">
+                <span className="text-lg">💭</span>
+              </div>
+              <h3 className="font-bold text-base">{t('nav.dailyCheckin')}</h3>
+            </div>
             <div className="flex gap-1.5">
               <Badge variant="outline" className="gap-1 px-2 py-0.5 rounded-full text-xs">
                 <Flame className="h-3 w-3 text-chart-4" /> {streak}

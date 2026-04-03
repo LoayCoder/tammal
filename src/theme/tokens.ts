@@ -22,6 +22,8 @@ export const typography = {
   statLabel: 'text-xs font-bold uppercase tracking-wide text-muted-foreground',
   subtitle: 'text-sm text-muted-foreground',
   caption: 'text-2xs text-muted-foreground',
+  greeting: 'text-2xl md:text-3xl font-bold tracking-tight text-foreground',
+  vipName: 'text-primary font-extrabold',
 } as const;
 
 // ── Card Variants ────────────────────────────────────────────────────

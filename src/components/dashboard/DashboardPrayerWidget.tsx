@@ -211,14 +211,14 @@ export function DashboardPrayerWidget() {
           </div>
         ) : (
           <div className="rounded-xl bg-gradient-to-br from-chart-1/10 via-primary/5 to-chart-1/10 border border-chart-1/20 p-4 text-center space-y-2.5">
-            <div className="flex items-center justify-center gap-2">
-              <span className="text-2xl">🎉</span>
-              <p className="text-sm font-bold text-chart-1">
+            <div className="flex items-center justify-center gap-3">
+              <span className="text-3xl">🎉</span>
+              <p className="text-base font-bold text-chart-1">
                 {i18n.language === 'ar' ? 'ما شاء الله! أكملت جميع الصلوات' : 'Masha\'Allah! All prayers completed!'}
               </p>
-              <span className="text-2xl">🎉</span>
+              <span className="text-3xl">🎉</span>
             </div>
-            <div className="rounded-lg bg-background/60 backdrop-blur-sm border border-border/50 p-3 space-y-1">
+            <div className="rounded-xl bg-muted/5 border border-border/30 p-4 space-y-1.5">
               <p className="text-xs font-semibold text-primary">📖 {i18n.language === 'ar' ? 'حديث شريف' : 'Hadith'}</p>
               <p className="text-xs text-muted-foreground leading-relaxed italic">
                 {i18n.language === 'ar'
