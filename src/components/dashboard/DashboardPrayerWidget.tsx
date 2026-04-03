@@ -33,7 +33,7 @@ function PrayerCountdownBadge({ prayerTime }: { prayerTime: string }) {
 
   return (
     <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30">
-      <Timer className="h-3 w-3" />
+      <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} />
       {i18n.language === 'ar' ? `${minutesLeft}د` : `${minutesLeft}m`}
     </span>
   );
