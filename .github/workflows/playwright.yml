@@ -18,7 +18,13 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
-      run: npx playwright test
+      run: |
+        if [ -n "$TEST_USER_EMAIL" ]; then
+          npx playwright test
+        else
+          echo "No TEST_USER_EMAIL secret — running unauthenticated tests only"
+          npx playwright test --project=unauthenticated
+        fi
       env:
         TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
         TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}

@@ -1,4 +1,5 @@
 import { test as setup, expect } from '@playwright/test';
+import { mkdirSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -15,13 +16,12 @@ setup('authenticate', async ({ page }) => {
   const password = process.env.TEST_USER_PASSWORD;
 
   if (!email || !password) {
-    // Write an empty storage state so authenticated tests are skipped gracefully
-    // rather than failing hard. Add TEST_USER_EMAIL and TEST_USER_PASSWORD as
-    // GitHub Actions secrets to enable authenticated test runs in CI.
-    const { mkdirSync, writeFileSync } = await import('fs');
-    mkdirSync('./tests/.auth', { recursive: true });
+    // Write empty storage state and skip. The CI workflow runs only
+    // --project=unauthenticated when credentials aren't set, so this
+    // path is a safety net for local runs without .env.test.
+    mkdirSync(join(__dirname, '.auth'), { recursive: true });
     writeFileSync(authFile, JSON.stringify({ cookies: [], origins: [] }));
-    setup.skip(true, 'TEST_USER_EMAIL / TEST_USER_PASSWORD not set — skipping authenticated tests');
+    setup.skip(true, 'TEST_USER_EMAIL / TEST_USER_PASSWORD not set — add them to .env.test or GitHub Secrets');
     return;
   }
 
