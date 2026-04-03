@@ -1,4 +1,4 @@
-import { LogOut, User, Settings } from 'lucide-react';
+import { Power, Fingerprint, SlidersHorizontal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
