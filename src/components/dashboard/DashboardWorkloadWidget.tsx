@@ -56,63 +56,66 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
   }
 
   const statItems = [
-    { label: t('common.active'), value: stats.active, icon: Clock, color: 'text-primary' },
-    { label: t('common.done'), value: stats.completed, icon: CheckCircle2, color: 'text-chart-1' },
-    { label: t('common.overdue'), value: stats.overdue, icon: AlertTriangle, color: 'text-destructive' },
-    { label: t('dashboard.workloadWidget.pendingApprovals'), value: stats.pending, icon: SquareCheckBig, color: 'text-chart-2' },
+    { label: t('common.active'), value: stats.active, icon: Clock },
+    { label: t('common.done'), value: stats.completed, icon: CheckCircle2 },
+    { label: t('common.overdue'), value: stats.overdue, icon: AlertTriangle },
+    { label: t('dashboard.workloadWidget.pendingApprovals'), value: stats.pending, icon: SquareCheckBig },
   ];
 
   return (
-    <Card className={cn(cardVariants.glass, "ring-1 ring-primary/10")}>
+    <Card className={cn(cardVariants.premiumVip)}>
       {/* Header */}
       <div className="flex items-center justify-between p-6 pb-0">
-        <div className="flex items-center gap-2">
-          <ClipboardList className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold text-base">{t('dashboard.workloadWidget.title')}</h3>
-        </div>
+        <h3 className="font-semibold text-base">{t('dashboard.workloadWidget.title')}</h3>
         <Link
           to="/my-workload"
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
         >
           {t('dashboard.workloadWidget.viewAll')}
-          <ChevronRight className="h-4 w-4 rtl:rotate-180" />
+          <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
         </Link>
       </div>
 
-      <CardContent className="space-y-4 pt-4">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-4 gap-2">
-          {statItems.map(item => (
-            <div key={item.label} className="flex flex-col items-center gap-1 rounded-lg bg-muted/50 p-2">
-              <item.icon className={`h-4 w-4 ${item.color}`} />
-              <span className="text-lg font-bold">{item.value}</span>
-              <span className="text-2xs text-muted-foreground text-center leading-tight">{item.label}</span>
+      <CardContent className="space-y-5 pt-5">
+        {/* Stats Row */}
+        <div className="flex items-center">
+          {statItems.map((item, i) => (
+            <div key={item.label} className={cn(
+              "flex flex-col items-center flex-1 gap-1",
+              i < statItems.length - 1 && "border-e border-border/40"
+            )}>
+              <item.icon className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
+              <span className="text-xl font-bold leading-none">{item.value}</span>
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider text-center leading-tight">{item.label}</span>
             </div>
           ))}
         </div>
 
         {/* Progress */}
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center justify-between text-[11px] text-muted-foreground">
             <span>{t('dashboard.workloadWidget.completionRate')}</span>
             <span className="font-medium">{stats.rate}%</span>
           </div>
-          <Progress value={stats.rate} className="h-2" />
+          <Progress value={stats.rate} className="h-1.5" />
         </div>
 
         {/* Upcoming Tasks */}
         {upcoming.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-1">
             <p className={typography.statLabel}>{t('dashboard.workloadWidget.upcoming')}</p>
-            <div className="space-y-1.5">
-              {upcoming.map(task => (
-                <div key={task.id} className="flex items-center gap-2 rounded-md bg-muted/30 px-3 py-2">
+            <div>
+              {upcoming.map((task, i) => (
+                <div key={task.id} className={cn(
+                  "flex items-center gap-2 py-2.5",
+                  i < upcoming.length - 1 && "border-b border-border/30"
+                )}>
                   <span className={`h-2 w-2 shrink-0 rounded-full ${PRIORITY_COLORS[task.priority] ?? 'bg-muted-foreground'}`} />
                   <span className="flex-1 truncate text-sm">{task.title}</span>
                   {task.due_date && (
-                    <Badge variant="outline" className="text-2xs shrink-0">
+                    <span className="text-[11px] text-muted-foreground shrink-0">
                       {format(new Date(task.due_date), 'MMM d')}
-                    </Badge>
+                    </span>
                   )}
                 </div>
               ))}
