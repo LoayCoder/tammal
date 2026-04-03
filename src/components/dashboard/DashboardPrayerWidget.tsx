@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building2, Home, Briefcase, ChevronRight, Clock, Timer, Check } from 'lucide-react';
+import { Landmark, House, Building, ChevronRight, Clock, Timer, Check } from 'lucide-react';
 
-const ICON_STROKE = 1.75;
+const ICON_STROKE = 1.5;
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { usePrayerTimes, PRAYER_NAMES } from '@/hooks/spiritual/usePrayerTimes';
 import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
