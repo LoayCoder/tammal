@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { House, Landmark, BriefcaseBusiness, Clock4, CircleCheck, Pencil, Hourglass } from 'lucide-react';
+import { Home, Building2, Briefcase, Clock, Check, Pencil, Timer } from 'lucide-react';
 import type { PrayerLog } from '@/hooks/spiritual/usePrayerLogs';
 import { PrayerStatusBadge } from './PrayerStatusBadge';
 import { cn } from '@/lib/utils';
@@ -87,7 +87,7 @@ export function PrayerCard({
               {t(`spiritual.prayer.names.${prayerNameKey}`)}
             </h3>
             <p className="text-sm text-muted-foreground flex items-center gap-1">
-              <Clock4 className="h-3.5 w-3.5" strokeWidth={1.75} />
+              <Clock className="h-3.5 w-3.5" />
               {timeLabel || prayerTime}
             </p>
           </div>
@@ -95,7 +95,7 @@ export function PrayerCard({
             {/* Countdown badge */}
             {!isLogged && isPrayerTimeFlag && !isExpired && countdownMinutes != null && (
               <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30">
-                <Hourglass className="h-3 w-3" strokeWidth={1.75} />
+                <Timer className="h-3 w-3" />
                 {i18n.language === 'ar' ? `${countdownMinutes}د` : `${countdownMinutes}m`}
               </span>
             )}
@@ -113,15 +113,15 @@ export function PrayerCard({
         {showButtons && (
           <div className="flex flex-wrap gap-2 animate-in fade-in duration-300">
             <Button size="sm" variant="outline" onClick={() => handleLog('completed_mosque')} disabled={isPending} className="gap-1">
-              <Landmark className="h-3.5 w-3.5" strokeWidth={1.75} />
+              <Building2 className="h-3.5 w-3.5" />
               {t('spiritual.prayer.mosque')}
             </Button>
             <Button size="sm" variant="outline" onClick={() => handleLog('completed_home')} disabled={isPending} className="gap-1">
-              <House className="h-3.5 w-3.5" strokeWidth={1.75} />
+              <Home className="h-3.5 w-3.5" />
               {t('spiritual.prayer.home')}
             </Button>
             <Button size="sm" variant="outline" onClick={() => handleLog('completed_work')} disabled={isPending} className="gap-1">
-              <BriefcaseBusiness className="h-3.5 w-3.5" strokeWidth={1.75} />
+              <Briefcase className="h-3.5 w-3.5" />
               {t('spiritual.prayer.work')}
             </Button>
             <Button size="sm" variant="ghost" onClick={() => handleLog('missed')} disabled={isPending} className="text-muted-foreground">
@@ -138,7 +138,7 @@ export function PrayerCard({
             onClick={() => setEditing(true)}
             className="gap-1 text-xs text-muted-foreground h-7"
           >
-            <Pencil className="h-3 w-3" strokeWidth={1.75} />
+            <Pencil className="h-3 w-3" />
             {i18n.language === 'ar' ? 'تعديل' : 'Edit'}
           </Button>
         )}
@@ -158,7 +158,7 @@ export function PrayerCard({
                 )}
               >
                 📿
-                {sunnahBefore && <CircleCheck className="h-3 w-3" strokeWidth={1.75} />}
+                {sunnahBefore && <Check className="h-3 w-3" />}
                 <span>
                   {i18n.language === 'ar'
                     ? `${rawatib.before} ركعات قبل`
@@ -178,7 +178,7 @@ export function PrayerCard({
                 )}
               >
                 📿
-                {sunnahAfter && <CircleCheck className="h-3 w-3" strokeWidth={1.75} />}
+                {sunnahAfter && <Check className="h-3 w-3" />}
                 <span>
                   {i18n.language === 'ar'
                     ? `${rawatib.after} ركعات بعد`
