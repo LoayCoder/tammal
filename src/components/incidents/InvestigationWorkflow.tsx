@@ -61,7 +61,7 @@ export function InvestigationWorkflow({
   className,
 }: InvestigationWorkflowProps) {
   const completedCount = currentStepIndex;
-  const progressPercent = Math.round((completedCount / (steps.length - 1)) * 100);
+  const progressPercent = steps.length > 1 ? Math.round((completedCount / (steps.length - 1)) * 100) : 0;
 
   return (
     <div className={cn("flex flex-col gap-5", className)}>
