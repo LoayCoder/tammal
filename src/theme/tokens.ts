@@ -30,6 +30,8 @@ export const cardVariants = {
   stat: 'glass-stat border-0 rounded-xl',
   dashed: 'glass-card border-0 rounded-xl border-dashed',
   elevated: 'glass-card border-0 rounded-xl hover:-translate-y-1 transition-all duration-300',
+  premium: 'premium-card premium-interactive rounded-xl',
+  premiumVip: 'premium-card-vip premium-interactive rounded-xl',
 } as const;
 
 // ── Layout ───────────────────────────────────────────────────────────
