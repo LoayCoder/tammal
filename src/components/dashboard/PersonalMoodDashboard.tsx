@@ -159,7 +159,7 @@ export function PersonalMoodDashboard() {
                     ) : null
                   }
                 />
-                <Area type="monotone" dataKey="score" stroke={TOOLKIT.lavender} fill="url(#dashMoodGrad)" strokeWidth={2} dot={{ r: 2, fill: TOOLKIT.lavender }} connectNulls />
+                <Area type="monotone" dataKey="score" stroke={TOOLKIT.lavender} fill="url(#dashMoodGrad)" strokeWidth={2.5} dot={{ r: 3, fill: TOOLKIT.lavender, strokeWidth: 0 }} activeDot={{ r: 5, fill: TOOLKIT.lavender, strokeWidth: 2, stroke: "hsl(var(--card))" }} connectNulls />
                 {dashboard.hasOrgData && (
                   <Area type="monotone" dataKey="orgAvg" stroke={TOOLKIT.sage} fill="none" strokeWidth={1.5} strokeDasharray="5 3" dot={false} connectNulls />
                 )}
