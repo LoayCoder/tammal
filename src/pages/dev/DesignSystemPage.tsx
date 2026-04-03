@@ -184,6 +184,53 @@ export default function DesignSystemPage() {
 
       <Separator />
 
+      {/* ─── Font Families ─── */}
+      <Section title="Font Families" icon={<Type className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard} space-y-5`}>
+            <div className="space-y-1">
+              <code className="text-2xs font-mono text-muted-foreground bg-muted/30 px-2 py-0.5 rounded">Inter (--font-sans)</code>
+              <p className="text-base font-normal" style={{ fontFamily: 'var(--font-sans)' }}>The quick brown fox jumps over the lazy dog — 400</p>
+              <p className="text-base font-semibold" style={{ fontFamily: 'var(--font-sans)' }}>The quick brown fox jumps over the lazy dog — 600</p>
+              <p className="text-base font-bold" style={{ fontFamily: 'var(--font-sans)' }}>The quick brown fox jumps over the lazy dog — 700</p>
+            </div>
+            <Separator />
+            <div className="space-y-1">
+              <code className="text-2xs font-mono text-muted-foreground bg-muted/30 px-2 py-0.5 rounded">Lora (--font-serif)</code>
+              <p className="text-base" style={{ fontFamily: 'var(--font-serif, serif)' }}>The quick brown fox jumps over the lazy dog</p>
+            </div>
+            <Separator />
+            <div className="space-y-1">
+              <code className="text-2xs font-mono text-muted-foreground bg-muted/30 px-2 py-0.5 rounded">Space Mono (--font-mono)</code>
+              <p className="text-base font-mono">The quick brown fox jumps over the lazy dog</p>
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Separator />
+
+      {/* ─── Shadow Tokens ─── */}
+      <Section title="Shadow Tokens" icon={<Maximize className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard}`}>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {['2xs', 'xs', 'sm', 'DEFAULT', 'lg', 'xl', '2xl', 'tooltip'].map((level) => (
+                <div key={level} className="flex flex-col items-center gap-2">
+                  <div
+                    className="w-16 h-16 rounded-xl bg-card border border-border/30"
+                    style={{ boxShadow: `var(--shadow-${level === 'DEFAULT' ? 'md' : level})` }}
+                  />
+                  <code className="text-2xs font-mono text-muted-foreground">{level}</code>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Separator />
+
       {/* ─── 3. Spacing Tokens ─── */}
       <Section title="Spacing Tokens" icon={<Maximize className="h-5 w-5 text-primary" />}>
         <Card className={cardVariants.glass}>
