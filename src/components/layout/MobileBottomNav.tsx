@@ -35,7 +35,7 @@ export function MobileBottomNav() {
                   ? 'bg-primary/12 px-4 py-1.5 text-primary'
                   : 'px-2 py-1.5 text-muted-foreground/70 hover:text-muted-foreground'
               }`}>
-                <item.icon size={22} strokeWidth={2.25} />
+                <item.icon className="h-5 w-5" strokeWidth={1.75} />
               </div>
             </button>
           );
