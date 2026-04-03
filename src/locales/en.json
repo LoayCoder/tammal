@@ -111,7 +111,9 @@
     "recognitionAwards": "Recognition & Awards",
     "recognition": "Recognition",
     "aiPlatform": "AI Platform",
-    "aiGovernance": "AI Governance"
+    "aiGovernance": "AI Governance",
+    "incidents": "Incidents",
+    "incidentManagement": "Incident Management"
   },
   "checkinMonitor": {
     "title": "Check-in Monitor",

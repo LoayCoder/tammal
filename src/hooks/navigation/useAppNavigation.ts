@@ -8,7 +8,7 @@ import {
   BookOpen, Music, CheckSquare, BookMarked, Phone, ClipboardCheck,
   ChevronRight, Shield, HeartHandshake, Inbox, Moon, BookOpenCheck, UtensilsCrossed, CalendarDays,
   Activity, Target, Gauge, Users2, Plug, Trophy, Award, Star, Vote, Coins, Gift, UserCog, Briefcase, BarChart,
-  ListChecks, AlertTriangle, ChevronsLeft, ChevronsRight
+  ListChecks, AlertTriangle, ChevronsLeft, ChevronsRight, ShieldAlert
 } from 'lucide-react';
 
 export type MenuAccess = 'all' | 'admin' | 'employee';
@@ -156,6 +156,14 @@ export function useAppNavigation() {
         { title: t('recognition.voting.title'), url: "/recognition/vote", icon: Vote, access: 'employee' },
         { title: t('recognition.points.myPoints'), url: "/recognition/points", icon: Coins, access: 'employee' },
         { title: t('recognition.points.rewards'), url: "/recognition/rewards", icon: Gift, access: 'employee' },
+      ]
+    },
+    {
+      label: t('nav.incidents'),
+      access: 'admin',
+      icon: ShieldAlert,
+      items: [
+        { title: t('nav.incidentManagement'), url: "/incidents", icon: ShieldAlert },
       ]
     },
     {

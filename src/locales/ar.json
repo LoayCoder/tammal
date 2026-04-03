@@ -111,7 +111,9 @@
     "recognitionAwards": "التقدير والجوائز",
     "recognition": "التقدير",
     "aiPlatform": "منصة الذكاء الاصطناعي",
-    "aiGovernance": "حوكمة الذكاء الاصطناعي"
+    "aiGovernance": "حوكمة الذكاء الاصطناعي",
+    "incidents": "الحوادث",
+    "incidentManagement": "إدارة الحوادث"
   },
   "checkinMonitor": {
     "title": "مراقبة التسجيل اليومي",
