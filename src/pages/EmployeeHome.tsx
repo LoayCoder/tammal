@@ -73,17 +73,17 @@ export default function EmployeeHome() {
               <Crown className="h-3 w-3 text-amber-500" /> VIP
             </Badge>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <p className="text-muted-foreground text-sm whitespace-nowrap">{t('home.subtitle')}</p>
-            <div className="flex items-center gap-2 shrink-0">
-              <div className="flex items-center gap-1 rounded-full bg-muted/8 px-2 py-0.5">
-                <Flame className="h-3 w-3 text-chart-4/70" />
-                <span className="text-xs font-semibold text-foreground">{gamLoading ? '...' : streak}</span>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-muted-foreground text-xs sm:text-sm truncate min-w-0">{t('home.subtitle')}</p>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex items-center gap-0.5 rounded-full bg-muted/8 px-1.5 py-px">
+                <Flame className="h-2.5 w-2.5 text-chart-4/70" />
+                <span className="text-2xs font-semibold text-foreground">{gamLoading ? '...' : streak}</span>
                 <span className="text-2xs text-muted-foreground">{t('home.dayStreak')}</span>
               </div>
-              <div className="flex items-center gap-1 rounded-full bg-muted/8 px-2 py-0.5">
-                <Star className="h-3 w-3 text-chart-1/70" />
-                <span className="text-xs font-semibold text-foreground">{gamLoading ? '...' : totalPoints}</span>
+              <div className="flex items-center gap-0.5 rounded-full bg-muted/8 px-1.5 py-px">
+                <Star className="h-2.5 w-2.5 text-chart-1/70" />
+                <span className="text-2xs font-semibold text-foreground">{gamLoading ? '...' : totalPoints}</span>
                 <span className="text-2xs text-muted-foreground">{t('home.points')}</span>
               </div>
             </div>
