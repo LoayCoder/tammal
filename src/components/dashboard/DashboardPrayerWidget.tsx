@@ -257,7 +257,7 @@ export function DashboardPrayerWidget() {
                   )}
                 >
                   {logged && !isMissed ? <CircleCheck className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
-                  {isMissed ? '✕' : null}
+                  {isMissed ? <X className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                   {!logged && isActive ? <Hourglass className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                 </div>
                 <span className="text-2xs text-muted-foreground leading-none">
