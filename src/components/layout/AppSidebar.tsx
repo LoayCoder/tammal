@@ -379,7 +379,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
           {!isCollapsed && (
             <button
               onClick={toggleSidebar}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-[hsl(var(--sidebar-hover-bg))] hover:text-sidebar-foreground shrink-0"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/50 hover:text-sidebar-foreground shrink-0"
               aria-label={t('accessibility.toggleSidebar')}
             >
               <ToggleIcon className="h-4 w-4" />
