@@ -154,7 +154,7 @@ export function DashboardPrayerWidget() {
               {activePrayer === 'Witr' ? (
                 witrCountdown.isPrayerTime && !witrCountdown.isExpired && witrCountdown.minutesLeft != null ? (
                   <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30">
-                    <Timer className="h-3 w-3" />
+                    <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} />
                     {i18n.language === 'ar' ? `${witrCountdown.minutesLeft}د` : `${witrCountdown.minutesLeft}m`}
                   </span>
                 ) : null
