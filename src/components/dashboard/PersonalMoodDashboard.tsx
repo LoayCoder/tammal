@@ -132,8 +132,8 @@ export function PersonalMoodDashboard() {
               <AreaChart data={chartData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="dashMoodGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={TOOLKIT.lavender} stopOpacity={0.25} />
-                    <stop offset="95%" stopColor={TOOLKIT.lavender} stopOpacity={0} />
+                    <stop offset="5%" stopColor={TOOLKIT.lavender} stopOpacity={0.45} />
+                    <stop offset="95%" stopColor={TOOLKIT.lavender} stopOpacity={0.05} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="label" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
