@@ -1,0 +1,1 @@
+DELETE FROM spiritual_prayer_logs WHERE prayer_date = CURRENT_DATE;
