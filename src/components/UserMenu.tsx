@@ -1,4 +1,4 @@
-import { LogOut, User, Settings } from 'lucide-react';
+import { Power, Fingerprint, SlidersHorizontal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -52,16 +52,16 @@ export function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => navigate('/settings/profile')}>
-          <User className="me-2 h-4 w-4" />
+          <Fingerprint className="me-2 h-4 w-4" />
           <span>{t('profile.title')}</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate('/settings')}>
-          <Settings className="me-2 h-4 w-4" />
+          <SlidersHorizontal className="me-2 h-4 w-4" />
           <span>{t('nav.settings')}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
-          <LogOut className="me-2 h-4 w-4" />
+          <Power className="me-2 h-4 w-4" />
           <span>{t('auth.logout')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
