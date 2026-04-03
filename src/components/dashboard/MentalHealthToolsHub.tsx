@@ -29,22 +29,15 @@ export function MentalHealthToolsHub() {
     <>
       <div className="space-y-2">
         <h2 className={typography.sectionTitle}>{t('home.mentalHealthTools', 'Mental Health Tools')}</h2>
-        <div>
-          {TOOLS.map(({ key, icon: Icon, color, titleKey, descKey }, i) => (
+        <div className="grid grid-cols-2 gap-2.5">
+          {TOOLS.map(({ key, icon: Icon, color, titleKey }) => (
             <div
               key={key}
               onClick={() => setOpenTool(key)}
-              className={cn(
-                "flex items-center gap-3 px-1 py-2.5 cursor-pointer hover:bg-muted/30 transition-colors rounded-lg",
-                i < TOOLS.length - 1 && "border-b border-border/30"
-              )}
+              className="flex flex-col items-center gap-1.5 rounded-xl bg-muted/30 py-4 px-2 cursor-pointer hover:bg-muted/50 transition-colors"
             >
-              <Icon className={"h-4 w-4 shrink-0 text-" + color} strokeWidth={1.5} />
-              <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-sm leading-tight">{t(titleKey)}</h3>
-                <p className="text-muted-foreground text-[11px] truncate">{t(descKey)}</p>
-              </div>
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0 rtl:rotate-180" strokeWidth={1.5} />
+              <Icon className={"h-5 w-5 text-" + color} strokeWidth={1.5} />
+              <span className="text-xs font-medium text-center leading-tight">{t(titleKey)}</span>
             </div>
           ))}
         </div>
