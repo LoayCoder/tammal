@@ -166,7 +166,7 @@ export function MoodPathwayQuestions({
                   <RadioGroupItem value={val} id={`pathway-likert-${q.id}-${i}`} />
                   <Label
                     htmlFor={`pathway-likert-${q.id}-${i}`}
-                    className="cursor-pointer flex-1 text-sm leading-snug"
+                    className="cursor-pointer flex-1 text-xs leading-snug font-normal"
                     dir="auto"
                   >
                     {label}
@@ -212,7 +212,7 @@ export function MoodPathwayQuestions({
                   <RadioGroupItem value={opt} id={`pathway-${q.id}-${i}`} />
                   <Label
                     htmlFor={`pathway-${q.id}-${i}`}
-                    className="cursor-pointer flex-1 text-sm leading-snug"
+                    className="cursor-pointer flex-1 text-xs leading-snug font-normal"
                     dir="auto"
                   >
                     {opt}
@@ -292,7 +292,7 @@ export function MoodPathwayQuestions({
 
         return (
           <div key={q.id} className="rounded-xl border bg-card p-3 sm:p-4 space-y-3">
-            <p className="font-medium text-sm text-center" dir="auto">
+            <p className="text-xs font-semibold text-center" dir="auto">
               {questionText}
             </p>
 
