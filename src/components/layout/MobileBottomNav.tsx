@@ -3,10 +3,10 @@ import { Dot, Waves, Send, Fingerprint, Grip } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 
 const navItems = [
-  { key: 'dashboard', icon: House, path: '/' },
-  { key: 'wellness', icon: HeartPulse, path: '/employee/wellness' },
-  { key: 'support', icon: MessageCircle, path: '/support' },
-  { key: 'profile', icon: CircleUserRound, path: '/settings/profile' },
+  { key: 'dashboard', icon: Dot, path: '/' },
+  { key: 'wellness', icon: Waves, path: '/employee/wellness' },
+  { key: 'support', icon: Send, path: '/support' },
+  { key: 'profile', icon: Fingerprint, path: '/settings/profile' },
 ];
 
 export function MobileBottomNav() {
