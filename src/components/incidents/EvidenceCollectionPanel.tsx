@@ -128,9 +128,7 @@ export function EvidenceCollectionPanel({
       >
         <input
           ref={inputRef}
-          type="file"
-          multiple
-          className="sr-only"
+          type="file"\n          multiple\n          accept=".pdf,image/*,video/*,audio/*"\n          className="sr-only"
           onChange={(e) => e.target.files && addFiles(e.target.files)}
         />
         <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
