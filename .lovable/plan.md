@@ -1,30 +1,49 @@
 
 
-# Fix Sidebar Popup Overflow & Build Errors
+# Premium Segmented Control Tabs
 
-## 1. Sidebar Popup Clipping (`src/components/layout/sidebar/SidebarPopup.tsx`)
+Upgrade the base `tabs.tsx` component defaults and the `glass-tabs` CSS class so all tabs across the app get a premium segmented-control feel without touching every consumer file.
 
-The popup is positioned at `left: anchorRect.right + 8` with a fixed `w-[180px]`, which overflows on smaller screens.
+## Changes
 
-**Fix**: Add viewport boundary detection. After calculating position, check if `left + 180 > window.innerWidth` and clamp accordingly. Also add `max-h` with overflow-y-auto in case it overflows vertically.
+### 1. `src/index.css` — Upgrade `.glass-tabs` and add `.glass-active`
 
-## 2. Build Error Fixes
+Replace the current `.glass-tabs` block with a premium segmented style:
+- Container: `bg-muted/50` (subtle tinted background), `rounded-xl`, `p-1`, no border
+- Add `.glass-active` class for active pill: `bg-card`, `shadow-[0_1px_3px_rgba(0,0,0,0.08)]`, `text-foreground`
+- Dark mode: slightly lighter muted bg for container, darker card for active
+- Add `transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1)` on triggers for smooth switching
 
-### `CategoryHealthChart.tsx` (line 50)
-`entry.category` doesn't exist — chartData only has `{ name, score, color, responses }`. Change `entry.category` to `entry.name` in the Cell key.
+### 2. `src/components/ui/tabs.tsx` — Upgrade base defaults
 
-### `MoodTrackerTool.tsx` (line 170)
-`entry.date` doesn't exist — chartData only has `{ day, score, emoji }`. Change `entry.date` to `entry.day` in the Cell key.
+Update `TabsList` default classes:
+- From: `rounded-md bg-muted p-1`
+- To: `rounded-xl bg-muted/50 p-1 border-0`
 
-### `scheduleService.ts` (lines 94, 103, 112)
-Supabase `.then()` returns `PromiseLike`, not `Promise`. Fix by wrapping each with `Promise.resolve(...)` or changing the array type to `PromiseLike<void>[]`.
+Update `TabsTrigger` default classes:
+- From: `rounded-sm` with `data-[state=active]:bg-background`
+- To: `rounded-lg` with `data-[state=active]:bg-card data-[state=active]:shadow-[0_1px_3px_rgba(0,0,0,0.08)] data-[state=active]:text-foreground transition-all duration-200`
+- Inactive: `text-muted-foreground`
 
-## Files Changed
+### 3. `src/pages/Dashboard.tsx` — Simplify inline classes
+
+Remove redundant inline classes on TabsList/TabsTrigger since the base component now handles the premium style. Keep only `w-full`, `h-auto`, `flex-1`, and responsive size classes (`text-xs sm:text-sm`, `px-2 py-1.5 sm:px-4 sm:py-2`).
+
+### 4. `src/components/dashboard/OrgDashboard.tsx` — Simplify
+
+Same simplification — remove redundant styling, rely on base + `glass-tabs` class.
+
+### 5. `src/pages/admin/PortfolioDashboard.tsx` — Simplify
+
+Remove `rounded-full` overrides, use consistent `rounded-xl` from base.
+
+## Files
 
 | File | Change |
 |------|--------|
-| `src/components/layout/sidebar/SidebarPopup.tsx` | Clamp popup position within viewport |
-| `src/components/dashboard/CategoryHealthChart.tsx` | `entry.category` → `entry.name` |
-| `src/components/mental-toolkit/tools/MoodTrackerTool.tsx` | `entry.date` → `entry.day` |
-| `src/services/scheduleService.ts` | Fix `PromiseLike` type mismatch |
+| `src/index.css` | Premium `.glass-tabs` / `.glass-active` styles |
+| `src/components/ui/tabs.tsx` | Upgrade base defaults to segmented control |
+| `src/pages/Dashboard.tsx` | Simplify inline tab classes |
+| `src/components/dashboard/OrgDashboard.tsx` | Simplify inline tab classes |
+| `src/pages/admin/PortfolioDashboard.tsx` | Simplify inline tab classes |
 
