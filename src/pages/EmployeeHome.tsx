@@ -73,17 +73,16 @@ export default function EmployeeHome() {
               <Crown className="h-3 w-3 text-amber-500" /> VIP
             </Badge>
           </div>
-          <p className="text-muted-foreground text-sm">{t('home.subtitle')}</p>
-          {/* Gamification Badges — inline pills */}
-          <div className="flex items-center gap-4 mt-1">
-            <div className="flex items-center gap-1.5 rounded-full bg-muted/8 px-3 py-1">
-              <Flame className="h-3.5 w-3.5 text-chart-4/70" />
-              <span className="text-sm font-semibold text-foreground">{gamLoading ? '...' : streak}</span>
+          <div className="flex items-center gap-3 flex-wrap">
+            <p className="text-muted-foreground text-sm">{t('home.subtitle')}</p>
+            <div className="flex items-center gap-1.5 rounded-full bg-muted/8 px-2.5 py-0.5">
+              <Flame className="h-3 w-3 text-chart-4/70" />
+              <span className="text-xs font-semibold text-foreground">{gamLoading ? '...' : streak}</span>
               <span className="text-2xs text-muted-foreground">{t('home.dayStreak')}</span>
             </div>
-            <div className="flex items-center gap-1.5 rounded-full bg-muted/8 px-3 py-1">
-              <Star className="h-3.5 w-3.5 text-chart-1/70" />
-              <span className="text-sm font-semibold text-foreground">{gamLoading ? '...' : totalPoints}</span>
+            <div className="flex items-center gap-1.5 rounded-full bg-muted/8 px-2.5 py-0.5">
+              <Star className="h-3 w-3 text-chart-1/70" />
+              <span className="text-xs font-semibold text-foreground">{gamLoading ? '...' : totalPoints}</span>
               <span className="text-2xs text-muted-foreground">{t('home.points')}</span>
             </div>
           </div>
