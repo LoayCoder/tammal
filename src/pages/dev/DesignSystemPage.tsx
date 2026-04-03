@@ -140,6 +140,28 @@ export default function DesignSystemPage() {
         </Card>
       </Section>
 
+      {/* Status / Semantic Colors */}
+      <Section title="Status & Semantic Colors" icon={<AlertCircle className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardHeader><CardTitle className={typography.cardTitle}>Semantic Status</CardTitle></CardHeader>
+          <CardContent className="flex flex-wrap gap-4">
+            <Swatch name="Success" cssVar="success" />
+            <Swatch name="Warning" cssVar="warning" />
+            <Swatch name="Info" cssVar="info" />
+            <Swatch name="Destructive" cssVar="destructive" />
+          </CardContent>
+        </Card>
+        <Card className={cardVariants.glass}>
+          <CardHeader><CardTitle className={typography.cardTitle}>Status Tint Backgrounds</CardTitle></CardHeader>
+          <CardContent className="flex flex-wrap gap-4">
+            <Swatch name="Success BG" cssVar="status-success-bg" />
+            <Swatch name="Info BG" cssVar="status-info-bg" />
+            <Swatch name="Warning BG" cssVar="status-warning-bg" />
+            <Swatch name="Error BG" cssVar="status-error-bg" />
+          </CardContent>
+        </Card>
+      </Section>
+
       <Separator />
 
       {/* ─── 2. Typography ─── */}
