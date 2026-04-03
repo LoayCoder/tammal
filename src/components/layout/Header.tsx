@@ -13,8 +13,14 @@ import {
 } from "@/components/ui/breadcrumb";
 import { useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { ThemeIcon } from "@/components/branding/ThemeIcon";
+import type { BrandingConfig } from "@/hooks/branding/useBranding";
 
-export function Header() {
+interface HeaderProps {
+  branding?: BrandingConfig;
+}
+
+export function Header({ branding }: HeaderProps) {
   const location = useLocation();
   const { t } = useTranslation();
 
