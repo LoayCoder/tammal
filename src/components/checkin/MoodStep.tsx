@@ -57,7 +57,7 @@ export const MoodStep = React.forwardRef<HTMLDivElement, MoodStepProps>(function
             <button
               key={mood.level}
               onClick={() => onSelect(mood.level)}
-              className={`flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl transition-all duration-200 ease-out ${
+              className={`flex flex-col items-center justify-start gap-1.5 px-[12px] py-0 rounded-xl transition-all duration-200 ease-out ${
                 isSelected
                   ? 'bg-primary/[0.05] scale-[1.03] text-foreground'
                   : 'hover:bg-muted/30 hover:scale-[1.02] active:scale-[0.98]'
