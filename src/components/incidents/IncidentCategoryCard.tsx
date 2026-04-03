@@ -1,48 +1,22 @@
 import { ShieldCheck, HeartPulse, Building2, Leaf, Lock, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/utils/utils";
 import type { IncidentCategory } from "@/theme/tokens";
 
-const CATEGORY_CONFIG = {
-  safety: {
-    icon: ShieldCheck,
-    label: "Safety",
-    description: "Workplace safety events",
-    color: "text-incident-safety",
-    bg: "bg-incident-safety-bg",
-    iconBg: "bg-incident-safety/10",
-  },
-  injury: {
-    icon: HeartPulse,
-    label: "Injury",
-    description: "Personnel injury reports",
-    color: "text-incident-injury",
-    bg: "bg-incident-injury-bg",
-    iconBg: "bg-incident-injury/10",
-  },
-  property: {
-    icon: Building2,
-    label: "Property",
-    description: "Asset & property damage",
-    color: "text-incident-property",
-    bg: "bg-incident-property-bg",
-    iconBg: "bg-incident-property/10",
-  },
-  environmental: {
-    icon: Leaf,
-    label: "Environmental",
-    description: "Environmental incidents",
-    color: "text-incident-environmental",
-    bg: "bg-incident-environmental-bg",
-    iconBg: "bg-incident-environmental/10",
-  },
-  security: {
-    icon: Lock,
-    label: "Security",
-    description: "Security & access events",
-    color: "text-incident-security",
-    bg: "bg-incident-security-bg",
-    iconBg: "bg-incident-security/10",
-  },
+const CATEGORY_ICONS = {
+  safety:        ShieldCheck,
+  injury:        HeartPulse,
+  property:      Building2,
+  environmental: Leaf,
+  security:      Lock,
+} as const;
+
+const CATEGORY_STYLE = {
+  safety:        { color: "text-incident-safety",        bg: "bg-incident-safety-bg",        iconBg: "bg-incident-safety/10"        },
+  injury:        { color: "text-incident-injury",        bg: "bg-incident-injury-bg",        iconBg: "bg-incident-injury/10"        },
+  property:      { color: "text-incident-property",      bg: "bg-incident-property-bg",      iconBg: "bg-incident-property/10"      },
+  environmental: { color: "text-incident-environmental", bg: "bg-incident-environmental-bg", iconBg: "bg-incident-environmental/10" },
+  security:      { color: "text-incident-security",      bg: "bg-incident-security-bg",      iconBg: "bg-incident-security/10"      },
 } as const;
 
 interface IncidentCategoryCardProps {
@@ -64,8 +38,11 @@ export function IncidentCategoryCard({
   onClick,
   className,
 }: IncidentCategoryCardProps) {
-  const config = CATEGORY_CONFIG[category];
-  const Icon = config.icon;
+  const { t } = useTranslation();
+  const style = CATEGORY_STYLE[category];
+  const Icon = CATEGORY_ICONS[category];
+  const label       = t(`incidents.category.${category}.label`);
+  const description = t(`incidents.category.${category}.description`);
 
   const TrendIcon =
     trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus;
@@ -84,7 +61,7 @@ export function IncidentCategoryCard({
         "transition-all duration-200 ease-out",
         "hover:-translate-y-0.5 hover:shadow-md hover:border-border",
         "focus-visible:outline-none focus-calm",
-        config.bg,
+        style.bg,
         className
       )}
     >
@@ -93,10 +70,10 @@ export function IncidentCategoryCard({
         <div
           className={cn(
             "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-            config.iconBg
+            style.iconBg
           )}
         >
-          <Icon className={cn("w-5 h-5", config.color)} strokeWidth={1.75} />
+          <Icon className={cn("w-5 h-5", style.color)} strokeWidth={1.75} />
         </div>
         {trendValue !== undefined && (
           <div className={cn("flex items-center gap-1 text-xs font-medium", trendColor)}>
@@ -110,19 +87,18 @@ export function IncidentCategoryCard({
       <p className="text-2xl font-bold text-foreground tabular-nums mb-0.5">
         {count}
       </p>
-      <p className={cn("text-sm font-semibold mb-1", config.color)}>
-        {config.label}
+      <p className={cn("text-sm font-semibold mb-1", style.color)}>
+        {label}
       </p>
       <p className="text-xs text-muted-foreground leading-snug">
-        {config.description}
+        {description}
       </p>
 
       {/* Open count */}
       {openCount > 0 && (
         <div className="mt-3 pt-3 border-t border-border/40">
-          <span className="text-xs text-muted-foreground">
-            <span className={cn("font-semibold", config.color)}>{openCount}</span>
-            {" "}open
+          <span className={cn("text-xs font-semibold", style.color)}>
+            {t('incidents.openCount', { count: openCount })}
           </span>
         </div>
       )}

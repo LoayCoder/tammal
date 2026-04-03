@@ -1,4 +1,5 @@
 import { CheckCircle2, Circle, Clock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/utils/utils";
 import { Progress } from "@/shared/components/ui/progress";
 
@@ -11,42 +12,6 @@ export interface WorkflowStep {
   dueDate?: string;
 }
 
-const DEFAULT_STEPS: WorkflowStep[] = [
-  {
-    id: "reported",
-    title: "Reported",
-    description: "Incident has been submitted and acknowledged",
-    assignee: "System",
-    completedAt: "Today, 09:15",
-  },
-  {
-    id: "review",
-    title: "Under Review",
-    description: "Initial review and priority classification",
-    assignee: "Safety Manager",
-    completedAt: "Today, 10:30",
-  },
-  {
-    id: "investigating",
-    title: "Investigating",
-    description: "Gathering facts and interviewing witnesses",
-    assignee: "Investigations Team",
-    dueDate: "Tomorrow",
-  },
-  {
-    id: "resolution",
-    title: "Resolution",
-    description: "Corrective actions and preventive measures",
-    assignee: "Department Head",
-    dueDate: "In 3 days",
-  },
-  {
-    id: "closed",
-    title: "Closed",
-    description: "Incident resolved and documented",
-    dueDate: "In 5 days",
-  },
-];
 
 interface InvestigationWorkflowProps {
   steps?: WorkflowStep[];
@@ -56,12 +21,23 @@ interface InvestigationWorkflowProps {
 }
 
 export function InvestigationWorkflow({
-  steps = DEFAULT_STEPS,
+  steps,
   currentStepIndex = 2,
   className,
 }: InvestigationWorkflowProps) {
+  const { t } = useTranslation();
+
+  const DEFAULT_STEPS: WorkflowStep[] = [
+    { id: "reported",      title: t('incidents.workflow.defaultSteps.reported.title'),      description: t('incidents.workflow.defaultSteps.reported.description'),      assignee: "System",             completedAt: "Today, 09:15" },
+    { id: "review",        title: t('incidents.workflow.defaultSteps.review.title'),        description: t('incidents.workflow.defaultSteps.review.description'),        assignee: "Safety Manager",      completedAt: "Today, 10:30" },
+    { id: "investigating", title: t('incidents.workflow.defaultSteps.investigating.title'), description: t('incidents.workflow.defaultSteps.investigating.description'), assignee: "Investigations Team", dueDate: "Tomorrow"         },
+    { id: "resolution",    title: t('incidents.workflow.defaultSteps.resolution.title'),    description: t('incidents.workflow.defaultSteps.resolution.description'),    assignee: "Department Head",     dueDate: "In 3 days"        },
+    { id: "closed",        title: t('incidents.workflow.defaultSteps.closed.title'),        description: t('incidents.workflow.defaultSteps.closed.description'),        dueDate: "In 5 days"            },
+  ];
+
+  const resolvedSteps = steps ?? DEFAULT_STEPS;
   const completedCount = currentStepIndex;
-  const progressPercent = steps.length > 1 ? Math.round((completedCount / (steps.length - 1)) * 100) : 0;
+  const progressPercent = resolvedSteps.length > 1 ? Math.round((completedCount / (resolvedSteps.length - 1)) * 100) : 0;
 
   return (
     <div className={cn("flex flex-col gap-5", className)}>
@@ -69,9 +45,9 @@ export function InvestigationWorkflow({
       <div>
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h3 className="text-base font-semibold text-foreground">Investigation Progress</h3>
+            <h3 className="text-base font-semibold text-foreground">{t('incidents.workflow.title')}</h3>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Step {currentStepIndex + 1} of {steps.length}
+              {t('incidents.workflow.stepCounter', { current: currentStepIndex + 1, total: resolvedSteps.length })}
             </p>
           </div>
           <span className="text-sm font-semibold text-primary tabular-nums">
@@ -86,7 +62,7 @@ export function InvestigationWorkflow({
 
       {/* Steps */}
       <ol className="flex flex-col gap-0">
-        {steps.map((step, index) => {
+        {resolvedSteps.map((step, index) => {
           const isCompleted = index < currentStepIndex;
           const isCurrent  = index === currentStepIndex;
           const isPending   = index > currentStepIndex;
@@ -122,7 +98,7 @@ export function InvestigationWorkflow({
                 </div>
 
                 {/* Vertical connector */}
-                {index < steps.length - 1 && (
+                {index < resolvedSteps.length - 1 && (
                   <div
                     className={cn(
                       "w-px flex-1 my-1 min-h-[2rem] transition-colors duration-300",
@@ -136,7 +112,7 @@ export function InvestigationWorkflow({
               <div
                 className={cn(
                   "flex-1 pb-6",
-                  index === steps.length - 1 && "pb-0"
+                  index === resolvedSteps.length - 1 && "pb-0"
                 )}
               >
                 <div

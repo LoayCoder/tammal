@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -29,66 +30,32 @@ const CATEGORY_STATS: Array<{
   trend: "up" | "down" | "neutral";
   trendValue: number;
 }> = [
-  { category: "safety",        count: 12, openCount: 3, trend: "down", trendValue: 15 },
-  { category: "injury",        count: 5,  openCount: 1, trend: "down", trendValue: 40 },
-  { category: "property",      count: 8,  openCount: 2, trend: "neutral", trendValue: 0 },
-  { category: "environmental", count: 3,  openCount: 0, trend: "down", trendValue: 25 },
-  { category: "security",      count: 7,  openCount: 2, trend: "up",  trendValue: 12 },
+  { category: "safety",        count: 12, openCount: 3, trend: "down",    trendValue: 15 },
+  { category: "injury",        count: 5,  openCount: 1, trend: "down",    trendValue: 40 },
+  { category: "property",      count: 8,  openCount: 2, trend: "neutral", trendValue: 0  },
+  { category: "environmental", count: 3,  openCount: 0, trend: "down",    trendValue: 25 },
+  { category: "security",      count: 7,  openCount: 2, trend: "up",      trendValue: 12 },
 ];
 
 const RECENT_INCIDENTS = [
-  {
-    id: "INC-0042",
-    title: "Slip hazard near loading dock",
-    category: "safety" as IncidentCategory,
-    status: "investigating",
-    priority: "high",
-    reportedBy: "J. Rivera",
-    date: "Today, 08:45",
-  },
-  {
-    id: "INC-0041",
-    title: "Minor hand laceration — packaging area",
-    category: "injury" as IncidentCategory,
-    status: "review",
-    priority: "medium",
-    reportedBy: "M. Chen",
-    date: "Yesterday, 14:20",
-  },
-  {
-    id: "INC-0040",
-    title: "Forklift bumper damage",
-    category: "property" as IncidentCategory,
-    status: "resolved",
-    priority: "low",
-    reportedBy: "A. Patel",
-    date: "2 days ago",
-  },
-  {
-    id: "INC-0039",
-    title: "Unauthorised access — server room",
-    category: "security" as IncidentCategory,
-    status: "closed",
-    priority: "high",
-    reportedBy: "S. Kim",
-    date: "3 days ago",
-  },
+  { id: "INC-0042", title: "Slip hazard near loading dock",        category: "safety"   as IncidentCategory, status: "investigating", priority: "high",   reportedBy: "J. Rivera", date: "Today, 08:45"    },
+  { id: "INC-0041", title: "Minor hand laceration — packaging area", category: "injury"  as IncidentCategory, status: "review",        priority: "medium", reportedBy: "M. Chen",   date: "Yesterday, 14:20" },
+  { id: "INC-0040", title: "Forklift bumper damage",               category: "property" as IncidentCategory, status: "resolved",      priority: "low",    reportedBy: "A. Patel",  date: "2 days ago"      },
+  { id: "INC-0039", title: "Unauthorised access — server room",    category: "security" as IncidentCategory, status: "closed",        priority: "high",   reportedBy: "S. Kim",    date: "3 days ago"      },
 ];
 
-// ── Status + Priority config ─────────────────────────────────────────
-
-const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
-  reported:      { label: "Reported",      className: "bg-muted text-muted-foreground" },
-  review:        { label: "Under Review",  className: "bg-info/10 text-info border-info/20" },
-  investigating: { label: "Investigating", className: "bg-warning/10 text-warning border-warning/20" },
-  resolved:      { label: "Resolved",      className: "bg-success/10 text-success border-success/20" },
-  closed:        { label: "Closed",        className: "bg-muted/60 text-muted-foreground" },
+const STATUS_CLASS: Record<string, string> = {
+  reported:      "bg-muted text-muted-foreground",
+  review:        "bg-info/10 text-info border-info/20",
+  investigating: "bg-warning/10 text-warning border-warning/20",
+  resolved:      "bg-success/10 text-success border-success/20",
+  closed:        "bg-muted/60 text-muted-foreground",
 };
 
-const PRIORITY_CONFIG: Record<string, { label: string; dot: string }> = {
-  high:   { label: "High",   dot: "bg-toolkit-coral" },
-  medium: { label: "Medium", dot: "bg-toolkit-amber" },
-  low:    { label: "Low",    dot: "bg-toolkit-sage" },
+const PRIORITY_DOT: Record<string, string> = {
+  high:   "bg-toolkit-coral",
+  medium: "bg-toolkit-amber",
+  low:    "bg-toolkit-sage",
 };
 
 const CATEGORY_COLOR: Record<IncidentCategory, string> = {
@@ -133,61 +100,74 @@ interface IncidentDashboardProps {
 }
 
 export function IncidentDashboard({ showEmptyState = false, className }: IncidentDashboardProps) {
+  const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState<IncidentCategory | null>(null);
   const [activeTab, setActiveTab] = useState<"overview" | "investigate" | "evidence">("overview");
 
   const tabs = [
-    { id: "overview" as const,    label: "Overview" },
-    { id: "investigate" as const, label: "Investigation" },
-    { id: "evidence" as const,    label: "Evidence" },
+    { id: "overview"    as const, label: t('incidents.tabs.overview') },
+    { id: "investigate" as const, label: t('incidents.tabs.investigation') },
+    { id: "evidence"    as const, label: t('incidents.tabs.evidence') },
   ];
+
+  const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+    reported:      { label: t('incidents.status.reported'),      className: STATUS_CLASS.reported      },
+    review:        { label: t('incidents.status.review'),        className: STATUS_CLASS.review        },
+    investigating: { label: t('incidents.status.investigating'), className: STATUS_CLASS.investigating },
+    resolved:      { label: t('incidents.status.resolved'),      className: STATUS_CLASS.resolved      },
+    closed:        { label: t('incidents.status.closed'),        className: STATUS_CLASS.closed        },
+  };
+
+  const PRIORITY_CONFIG: Record<string, { label: string; dot: string }> = {
+    high:   { label: t('incidents.priority.high'),   dot: PRIORITY_DOT.high   },
+    medium: { label: t('incidents.priority.medium'), dot: PRIORITY_DOT.medium },
+    low:    { label: t('incidents.priority.low'),    dot: PRIORITY_DOT.low    },
+  };
 
   return (
     <div className={cn(spacing.pageWrapper, animations.fadeIn, className)}>
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className={typography.pageTitle}>Incident Management</h1>
-          <p className={cn(typography.subtitle, "mt-1")}>
-            Track, investigate, and resolve workplace incidents with care and clarity.
-          </p>
+          <h1 className={typography.pageTitle}>{t('incidents.pageTitle')}</h1>
+          <p className={cn(typography.subtitle, "mt-1")}>{t('incidents.pageSubtitle')}</p>
         </div>
         <Button className="rounded-xl h-10 px-5 gap-2 shrink-0 font-medium">
           <Plus className="w-4 h-4" />
-          Report Incident
+          {t('incidents.reportButton')}
         </Button>
       </div>
 
       {/* Stat row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         <StatCard
-          label="Total Open"
+          label={t('incidents.stats.totalOpen')}
           value={8}
-          subtext="across all categories"
+          subtext={t('incidents.stats.totalOpenSub')}
           icon={AlertTriangle}
           iconBg="bg-toolkit-amber/15"
           iconColor="text-toolkit-amber"
         />
         <StatCard
-          label="Resolved This Month"
+          label={t('incidents.stats.resolved')}
           value={23}
-          subtext="↓ 12% from last month"
+          subtext={t('incidents.stats.resolvedSub')}
           icon={CheckCircle2}
           iconBg="bg-success/10"
           iconColor="text-success"
         />
         <StatCard
-          label="Avg Resolution"
+          label={t('incidents.stats.avgResolution')}
           value="2.4d"
-          subtext="target is 3 days"
+          subtext={t('incidents.stats.avgResolutionSub')}
           icon={Clock}
           iconBg="bg-info/10"
           iconColor="text-info"
         />
         <StatCard
-          label="Critical"
+          label={t('incidents.stats.critical')}
           value={2}
-          subtext="require immediate action"
+          subtext={t('incidents.stats.criticalSub')}
           icon={Zap}
           iconBg="bg-toolkit-coral/12"
           iconColor="text-toolkit-coral"
@@ -197,13 +177,13 @@ export function IncidentDashboard({ showEmptyState = false, className }: Inciden
       {/* Category grid */}
       <section className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className={typography.sectionTitle}>Categories</h2>
+          <h2 className={typography.sectionTitle}>{t('incidents.categories')}</h2>
           {selectedCategory && (
             <button
               onClick={() => setSelectedCategory(null)}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              Clear filter ×
+              {t('incidents.clearFilter')} ×
             </button>
           )}
         </div>
@@ -258,9 +238,9 @@ export function IncidentDashboard({ showEmptyState = false, className }: Inciden
           ) : (
             <div className="glass-card rounded-xl border-0 overflow-hidden">
               <div className="flex items-center justify-between px-6 py-4 border-b border-border/50">
-                <h2 className={typography.cardTitle}>Recent Incidents</h2>
+                <h2 className={typography.cardTitle}>{t('incidents.recentTitle')}</h2>
                 <button className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium transition-colors">
-                  View all
+                  {t('incidents.viewAll')}
                   <ArrowUpRight className="w-3 h-3" />
                 </button>
               </div>
@@ -277,15 +257,13 @@ export function IncidentDashboard({ showEmptyState = false, className }: Inciden
                       key={incident.id}
                       className="flex items-center gap-4 px-6 py-4 hover:bg-muted/30 transition-colors cursor-pointer group"
                     >
-                      {/* Priority dot */}
                       <div className={cn("w-2 h-2 rounded-full shrink-0", priority.dot)} />
 
-                      {/* Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-xs font-mono text-muted-foreground">{incident.id}</span>
                           <span className={cn("text-xs font-medium", CATEGORY_COLOR[incident.category])}>
-                            {incident.category.charAt(0).toUpperCase() + incident.category.slice(1)}
+                            {t(`incidents.category.${incident.category}.label`)}
                           </span>
                         </div>
                         <p className="text-sm font-medium text-foreground mt-0.5 truncate">
@@ -303,7 +281,6 @@ export function IncidentDashboard({ showEmptyState = false, className }: Inciden
                         </div>
                       </div>
 
-                      {/* Status badge */}
                       <Badge
                         variant="outline"
                         className={cn("shrink-0 text-xs rounded-full px-2.5 py-0.5 border", status.className)}

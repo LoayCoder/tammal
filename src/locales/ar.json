@@ -4167,5 +4167,88 @@
     "previousSlide": "الشريحة السابقة",
     "nextSlide": "الشريحة التالية",
     "close": "إغلاق"
+  },
+  "incidents": {
+    "pageTitle": "إدارة الحوادث",
+    "pageSubtitle": "تتبع الحوادث في مكان العمل والتحقيق فيها وحلها بعناية ووضوح.",
+    "reportButton": "الإبلاغ عن حادثة",
+    "categories": "الفئات",
+    "clearFilter": "إلغاء التصفية",
+    "recentTitle": "الحوادث الأخيرة",
+    "viewAll": "عرض الكل",
+    "openCount": "{{count}} مفتوح",
+    "stats": {
+      "totalOpen": "إجمالي المفتوحة",
+      "totalOpenSub": "عبر جميع الفئات",
+      "resolved": "تم حلها هذا الشهر",
+      "resolvedSub": "↓ 12% مقارنة بالشهر الماضي",
+      "avgResolution": "متوسط وقت الحل",
+      "avgResolutionSub": "الهدف 3 أيام",
+      "critical": "حرجة",
+      "criticalSub": "تتطلب إجراءً فورياً"
+    },
+    "tabs": {
+      "overview": "نظرة عامة",
+      "investigation": "التحقيق",
+      "evidence": "الأدلة"
+    },
+    "status": {
+      "reported": "تم الإبلاغ",
+      "review": "قيد المراجعة",
+      "investigating": "جارٍ التحقيق",
+      "resolved": "تم الحل",
+      "closed": "مغلق"
+    },
+    "priority": {
+      "high": "عالية",
+      "medium": "متوسطة",
+      "low": "منخفضة"
+    },
+    "category": {
+      "safety":        { "label": "السلامة",       "description": "أحداث سلامة مكان العمل" },
+      "injury":        { "label": "الإصابات",      "description": "تقارير إصابات الموظفين" },
+      "property":      { "label": "الممتلكات",     "description": "تلف الأصول والممتلكات" },
+      "environmental": { "label": "البيئة",         "description": "الحوادث البيئية" },
+      "security":      { "label": "الأمن",          "description": "أحداث الأمن والوصول" }
+    },
+    "evidence": {
+      "title": "جمع الأدلة",
+      "subtitle": "أرفق ملفات داعمة لتعزيز التحقيق.",
+      "dropDefault": "رفع المستندات والصور أو الملفات الداعمة",
+      "dropDragging": "أفلت هنا للرفع",
+      "dropHint": "اسحب وأفلت أو انقر للتصفح · PDF، صور، فيديو، صوت",
+      "filterAll": "الكل",
+      "typePhoto": "صورة",
+      "typeDocument": "مستند",
+      "typeVideo": "فيديو",
+      "typeAudio": "صوت",
+      "typeOther": "أخرى",
+      "contextLabel": "السياق والملاحظات",
+      "contextPlaceholder": "صف ما تُظهره هذه الأدلة وكيف ترتبط بالحادثة...",
+      "submitButton": "إرسال الأدلة",
+      "submitWithCount_one": "إرسال الأدلة (ملف واحد)",
+      "submitWithCount_other": "إرسال الأدلة ({{count}} ملفات)",
+      "submitted": "تم إرسال الأدلة"
+    },
+    "workflow": {
+      "title": "تقدم التحقيق",
+      "stepCounter": "الخطوة {{current}} من {{total}}",
+      "defaultSteps": {
+        "reported":      { "title": "تم الإبلاغ",    "description": "تم تقديم الحادثة والإقرار بها" },
+        "review":        { "title": "قيد المراجعة", "description": "المراجعة الأولية وتصنيف الأولوية" },
+        "investigating": { "title": "جارٍ التحقيق", "description": "جمع الحقائق واستجواب الشهود" },
+        "resolution":    { "title": "الحل",          "description": "الإجراءات التصحيحية والتدابير الوقائية" },
+        "closed":        { "title": "مغلق",          "description": "تمت معالجة الحادثة وتوثيقها" }
+      }
+    },
+    "empty": {
+      "safety":        { "headline": "كل شيء على ما يرام — لا حوادث سلامة",  "copy": "لم يُبلَّغ عن أي حوادث سلامة في مكان العمل. استمروا في العمل الرائع للحفاظ على بيئة آمنة." },
+      "injury":        { "headline": "لا إصابات مسجلة",                       "copy": "لم يُبلَّغ عن أي إصابات للموظفين. فريقك يهتم بنفسه جيداً." },
+      "property":      { "headline": "جميع الممتلكات سليمة",                   "copy": "لم يُبلَّغ عن أي تلف في الممتلكات أو الأصول. مرافقكم في أيدٍ أمينة." },
+      "environmental": { "headline": "البيئة تبدو بصحة جيدة",                  "copy": "لم يُبلَّغ عن أي حوادث بيئية. شكراً لاهتمامكم بمساحاتنا المشتركة." },
+      "security":      { "headline": "لا أحداث أمنية",                          "copy": "لم يُبلَّغ عن أي حوادث أمنية أو تتعلق بالوصول. يقظة فريقكم موضع تقدير." },
+      "default":       { "headline": "كل شيء على ما يرام",                      "copy": "لم يُبلَّغ عن أي حوادث. فريقك يقوم بعمل رائع — واصلوا التميز." },
+      "reportAction": "الإبلاغ عن حادثة"
+    }
   }
 }

@@ -1,36 +1,9 @@
 import { ShieldCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/utils/utils";
 import { Button } from "@/shared/components/ui/button";
 import type { IncidentCategory } from "@/theme/tokens";
 import { incidentCategories } from "@/theme/tokens";
-
-const CATEGORY_MESSAGES: Record<IncidentCategory, { headline: string; copy: string }> = {
-  safety: {
-    headline: "All clear — no safety incidents",
-    copy: "No workplace safety incidents have been reported. Keep up the great work maintaining a safe environment.",
-  },
-  injury: {
-    headline: "No injuries on record",
-    copy: "No personnel injuries have been reported. Your team is taking good care of themselves.",
-  },
-  property: {
-    headline: "All property accounted for",
-    copy: "No property or asset damage has been reported. Your facilities are in good hands.",
-  },
-  environmental: {
-    headline: "Environment looks healthy",
-    copy: "No environmental incidents have been reported. Thank you for caring for our shared spaces.",
-  },
-  security: {
-    headline: "No security events",
-    copy: "No security or access incidents have been reported. Your team's vigilance is appreciated.",
-  },
-};
-
-const DEFAULT_MESSAGE = {
-  headline: "All clear",
-  copy: "No incidents have been reported. Your team is doing great — keep up the excellent work.",
-};
 
 interface IncidentEmptyStateProps {
   category?: IncidentCategory;
@@ -43,6 +16,20 @@ export function IncidentEmptyState({
   onCreateNew,
   className,
 }: IncidentEmptyStateProps) {
+  const { t } = useTranslation();
+
+  const CATEGORY_MESSAGES: Record<IncidentCategory, { headline: string; copy: string }> = {
+    safety:        { headline: t('incidents.empty.safety.headline'),        copy: t('incidents.empty.safety.copy')        },
+    injury:        { headline: t('incidents.empty.injury.headline'),        copy: t('incidents.empty.injury.copy')        },
+    property:      { headline: t('incidents.empty.property.headline'),      copy: t('incidents.empty.property.copy')      },
+    environmental: { headline: t('incidents.empty.environmental.headline'), copy: t('incidents.empty.environmental.copy') },
+    security:      { headline: t('incidents.empty.security.headline'),      copy: t('incidents.empty.security.copy')      },
+  };
+  const DEFAULT_MESSAGE = {
+    headline: t('incidents.empty.default.headline'),
+    copy:     t('incidents.empty.default.copy'),
+  };
+
   const message = category ? CATEGORY_MESSAGES[category] : DEFAULT_MESSAGE;
   const categoryToken = category ? incidentCategories[category] : null;
 
@@ -81,7 +68,7 @@ export function IncidentEmptyState({
         onClick={onCreateNew}
         className="rounded-xl px-6 h-10 text-sm font-medium border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all duration-200"
       >
-        Report an Incident
+        {t('incidents.empty.reportAction')}
       </Button>
     </div>
   );

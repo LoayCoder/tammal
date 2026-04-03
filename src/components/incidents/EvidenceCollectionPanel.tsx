@@ -9,6 +9,7 @@ import {
   X,
   CheckCircle2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/utils/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
@@ -31,13 +32,6 @@ const TYPE_ICONS: Record<EvidenceType, React.ElementType> = {
   other:    File,
 };
 
-const TYPE_LABELS: Record<EvidenceType, string> = {
-  photo:    "Photo",
-  document: "Document",
-  video:    "Video",
-  audio:    "Audio",
-  other:    "Other",
-};
 
 function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -64,6 +58,14 @@ export function EvidenceCollectionPanel({
   onUpload,
   className,
 }: EvidenceCollectionPanelProps) {
+  const { t } = useTranslation();
+  const TYPE_LABELS: Record<EvidenceType, string> = {
+    photo:    t('incidents.evidence.typePhoto'),
+    document: t('incidents.evidence.typeDocument'),
+    video:    t('incidents.evidence.typeVideo'),
+    audio:    t('incidents.evidence.typeAudio'),
+    other:    t('incidents.evidence.typeOther'),
+  };
   const [files, setFiles] = useState<EvidenceFile[]>([]);
   const [description, setDescription] = useState("");
   const [activeType, setActiveType] = useState<EvidenceType | "all">("all");
@@ -105,9 +107,9 @@ export function EvidenceCollectionPanel({
     <div className={cn("flex flex-col gap-5", className)}>
       {/* Header */}
       <div>
-        <h3 className="text-base font-semibold text-foreground">Evidence Collection</h3>
+        <h3 className="text-base font-semibold text-foreground">{t('incidents.evidence.title')}</h3>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Attach supporting files to strengthen the investigation.
+          {t('incidents.evidence.subtitle')}
         </p>
       </div>
 
@@ -136,10 +138,10 @@ export function EvidenceCollectionPanel({
         </div>
         <div className="text-center">
           <p className="text-sm font-medium text-foreground">
-            {isDragging ? "Release to upload" : "Upload supporting documents, photos, or files"}
+            {isDragging ? t('incidents.evidence.dropDragging') : t('incidents.evidence.dropDefault')}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            Drag & drop or click to browse · PDF, images, video, audio
+            {t('incidents.evidence.dropHint')}
           </p>
         </div>
       </div>
@@ -147,21 +149,21 @@ export function EvidenceCollectionPanel({
       {/* Type filter pills */}
       {files.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {(["all", "photo", "document", "video", "audio", "other"] as const).map((t) => (
+          {(["all", "photo", "document", "video", "audio", "other"] as const).map((type) => (
             <button
-              key={t}
-              onClick={() => setActiveType(t)}
+              key={type}
+              onClick={() => setActiveType(type)}
               className={cn(
                 "px-3 py-1 rounded-full text-xs font-medium transition-all duration-150",
-                activeType === t
+                activeType === type
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               )}
             >
-              {t === "all" ? "All" : TYPE_LABELS[t]}
-              {t !== "all" && (
+              {type === "all" ? t('incidents.evidence.filterAll') : TYPE_LABELS[type]}
+              {type !== "all" && (
                 <span className="ml-1 opacity-70">
-                  ({files.filter((f) => f.type === t).length})
+                  ({files.filter((f) => f.type === type).length})
                 </span>
               )}
             </button>
@@ -203,12 +205,12 @@ export function EvidenceCollectionPanel({
       {/* Description */}
       <div className="flex flex-col gap-2">
         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Context & Notes
+          {t('incidents.evidence.contextLabel')}
         </label>
         <Textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Describe what this evidence shows and how it relates to the incident..."
+          placeholder={t('incidents.evidence.contextPlaceholder')}
           rows={3}
           className={cn(
             "resize-none rounded-xl border-border/60 bg-card",
@@ -230,10 +232,12 @@ export function EvidenceCollectionPanel({
         {submitted ? (
           <span className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4" />
-            Evidence submitted
+            {t('incidents.evidence.submitted')}
           </span>
+        ) : files.length > 0 ? (
+          t('incidents.evidence.submitWithCount', { count: files.length })
         ) : (
-          `Submit Evidence${files.length > 0 ? ` (${files.length} file${files.length !== 1 ? "s" : ""})` : ""}`
+          t('incidents.evidence.submitButton')
         )}
       </Button>
     </div>

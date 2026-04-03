@@ -4329,5 +4329,88 @@
     "previousSlide": "Previous slide",
     "nextSlide": "Next slide",
     "close": "Close"
+  },
+  "incidents": {
+    "pageTitle": "Incident Management",
+    "pageSubtitle": "Track, investigate, and resolve workplace incidents with care and clarity.",
+    "reportButton": "Report Incident",
+    "categories": "Categories",
+    "clearFilter": "Clear filter",
+    "recentTitle": "Recent Incidents",
+    "viewAll": "View all",
+    "openCount": "{{count}} open",
+    "stats": {
+      "totalOpen": "Total Open",
+      "totalOpenSub": "across all categories",
+      "resolved": "Resolved This Month",
+      "resolvedSub": "↓ 12% from last month",
+      "avgResolution": "Avg Resolution",
+      "avgResolutionSub": "target is 3 days",
+      "critical": "Critical",
+      "criticalSub": "require immediate action"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "investigation": "Investigation",
+      "evidence": "Evidence"
+    },
+    "status": {
+      "reported": "Reported",
+      "review": "Under Review",
+      "investigating": "Investigating",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "priority": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "category": {
+      "safety":        { "label": "Safety",        "description": "Workplace safety events" },
+      "injury":        { "label": "Injury",         "description": "Personnel injury reports" },
+      "property":      { "label": "Property",       "description": "Asset & property damage" },
+      "environmental": { "label": "Environmental",  "description": "Environmental incidents" },
+      "security":      { "label": "Security",       "description": "Security & access events" }
+    },
+    "evidence": {
+      "title": "Evidence Collection",
+      "subtitle": "Attach supporting files to strengthen the investigation.",
+      "dropDefault": "Upload supporting documents, photos, or files",
+      "dropDragging": "Release to upload",
+      "dropHint": "Drag & drop or click to browse · PDF, images, video, audio",
+      "filterAll": "All",
+      "typePhoto": "Photo",
+      "typeDocument": "Document",
+      "typeVideo": "Video",
+      "typeAudio": "Audio",
+      "typeOther": "Other",
+      "contextLabel": "Context & Notes",
+      "contextPlaceholder": "Describe what this evidence shows and how it relates to the incident...",
+      "submitButton": "Submit Evidence",
+      "submitWithCount_one": "Submit Evidence ({{count}} file)",
+      "submitWithCount_other": "Submit Evidence ({{count}} files)",
+      "submitted": "Evidence submitted"
+    },
+    "workflow": {
+      "title": "Investigation Progress",
+      "stepCounter": "Step {{current}} of {{total}}",
+      "defaultSteps": {
+        "reported":      { "title": "Reported",       "description": "Incident has been submitted and acknowledged" },
+        "review":        { "title": "Under Review",   "description": "Initial review and priority classification" },
+        "investigating": { "title": "Investigating",  "description": "Gathering facts and interviewing witnesses" },
+        "resolution":    { "title": "Resolution",     "description": "Corrective actions and preventive measures" },
+        "closed":        { "title": "Closed",         "description": "Incident resolved and documented" }
+      }
+    },
+    "empty": {
+      "safety":        { "headline": "All clear — no safety incidents",  "copy": "No workplace safety incidents have been reported. Keep up the great work maintaining a safe environment." },
+      "injury":        { "headline": "No injuries on record",            "copy": "No personnel injuries have been reported. Your team is taking good care of themselves." },
+      "property":      { "headline": "All property accounted for",       "copy": "No property or asset damage has been reported. Your facilities are in good hands." },
+      "environmental": { "headline": "Environment looks healthy",        "copy": "No environmental incidents have been reported. Thank you for caring for our shared spaces." },
+      "security":      { "headline": "No security events",               "copy": "No security or access incidents have been reported. Your team's vigilance is appreciated." },
+      "default":       { "headline": "All clear",                        "copy": "No incidents have been reported. Your team is doing great — keep up the excellent work." },
+      "reportAction": "Report an Incident"
+    }
   }
 }
