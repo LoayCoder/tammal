@@ -295,14 +295,14 @@
 
   /* ── Segmented Control Tabs ── */
   .glass-tabs {
-    background: hsl(var(--muted) / 0.5);
+    background: hsl(220 13% 91% / 0.6);
     border: none;
     border-radius: 0.75rem;
     padding: 0.25rem;
   }
 
   .dark .glass-tabs {
-    background: hsl(var(--muted) / 0.4);
+    background: hsl(220 14% 14% / 0.8);
   }
 }
 
