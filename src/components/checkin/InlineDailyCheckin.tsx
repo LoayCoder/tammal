@@ -89,28 +89,33 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
         />
       )}
 
-      <Card className="premium-card-vip overflow-hidden">
-        <CardContent className="p-5 sm:p-6 space-y-4">
+      <Card className="premium-card-vip overflow-hidden rounded-2xl">
+        <CardContent className="p-5 sm:p-6 space-y-5">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5">
-                <span className="text-lg">💭</span>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 via-primary/8 to-transparent shadow-sm">
+                <span className="text-xl">💭</span>
               </div>
-              <h3 className="font-bold text-base">{t('nav.dailyCheckin')}</h3>
+              <div>
+                <h3 className="font-bold text-base text-foreground">{t('nav.dailyCheckin')}</h3>
+                <p className="text-2xs text-muted-foreground mt-0.5">{t('wellness.howAreYou', 'How are you feeling today?')}</p>
+              </div>
             </div>
             <div className="flex gap-1.5">
-              <Badge variant="outline" className="gap-1 px-2 py-0.5 rounded-full text-xs">
+              <Badge variant="outline" className="gap-1 px-2 py-0.5 rounded-full text-xs bg-card/50">
                 <Flame className="h-3 w-3 text-chart-4" /> {streak}
               </Badge>
-              <Badge variant="outline" className="gap-1 px-2 py-0.5 rounded-full text-xs">
+              <Badge variant="outline" className="gap-1 px-2 py-0.5 rounded-full text-xs bg-card/50">
                 <Star className="h-3 w-3 text-chart-1" /> {totalPoints}
               </Badge>
             </div>
           </div>
 
           {/* 1. Mood Selection — always visible */}
-          <MoodStep selectedMood={selectedMood} onSelect={setSelectedMood} tenantId={tenantId} />
+          <div className="rounded-xl bg-muted/5 p-3">
+            <MoodStep selectedMood={selectedMood} onSelect={setSelectedMood} tenantId={tenantId} />
+          </div>
 
           {/* 2. Mood Pathway Questions — the single source of follow-up questions */}
           {selectedMood && moodObj && (
@@ -131,7 +136,7 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
                 onChange={e => setComment(e.target.value)}
                 placeholder={t('wellness.addComment')}
                 rows={2}
-                className="resize-none text-sm rounded-xl"
+                className="resize-none text-sm rounded-xl border-border/40 bg-card/50"
                 dir="auto"
               />
             </div>
@@ -150,7 +155,7 @@ export function InlineDailyCheckin({ employeeId, tenantId, userId }: InlineDaily
           {/* Submit button */}
           {selectedMood && (
             <Button
-              className="w-full rounded-xl h-11 text-sm gap-2 font-semibold animate-in fade-in slide-in-from-bottom-2 duration-300"
+              className="w-full rounded-xl h-11 text-sm gap-2 font-semibold animate-in fade-in slide-in-from-bottom-2 duration-300 shadow-sm"
               onClick={handleSubmit}
               disabled={submitting}
             >
