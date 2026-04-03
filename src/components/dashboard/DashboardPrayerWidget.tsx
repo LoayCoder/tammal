@@ -144,7 +144,7 @@ export function DashboardPrayerWidget() {
                   {t(`spiritual.prayer.names.${activePrayer.toLowerCase()}`)}
                 </p>
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
+                  <Clock className="h-3 w-3" strokeWidth={ICON_STROKE} />
                   {activePrayer === 'Witr'
                     ? t('spiritual.prayer.witrTimeRange', { fajr: (timings.Fajr || '').replace(/\s*\(.*\)/, '').trim() || '--:--' })
                     : (timings[activePrayer as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()
