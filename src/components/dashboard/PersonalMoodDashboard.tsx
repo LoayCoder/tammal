@@ -80,7 +80,7 @@ export function PersonalMoodDashboard() {
         <div className="grid grid-cols-4 divide-x divide-border/40 rtl:divide-x-reverse px-1 py-4">
           {/* Streak */}
           <div className="flex flex-col items-center justify-start gap-0.5 px-1 text-center">
-            <Flame className="h-3.5 w-3.5 text-muted-foreground/60" strokeWidth={1.5} />
+            <Flame className="h-3.5 w-3.5 text-toolkit-lavender" strokeWidth={1.5} />
             <span className="text-lg font-bold tracking-tight text-foreground">{dashboard.streak}</span>
             <span className="text-[9px] text-muted-foreground leading-tight">{t("mentalToolkit.moodDashboard.currentStreak")}</span>
           </div>
@@ -94,7 +94,7 @@ export function PersonalMoodDashboard() {
 
           {/* Monthly Check-ins */}
           <div className="flex flex-col items-center justify-start gap-0.5 px-1 text-center">
-            <CalendarCheck className="h-3.5 w-3.5 text-muted-foreground/60" strokeWidth={1.5} />
+            <CalendarCheck className="h-3.5 w-3.5 text-toolkit-sage" strokeWidth={1.5} />
             <span className="text-lg font-bold tracking-tight text-foreground">
               {dashboard.monthlyCheckins}<span className="text-[10px] font-normal text-muted-foreground">/{dashboard.daysInMonth}</span>
             </span>
@@ -110,7 +110,7 @@ export function PersonalMoodDashboard() {
               </>
             ) : (
               <>
-                <Activity className="h-3.5 w-3.5 text-muted-foreground/50" strokeWidth={1.5} />
+                <Activity className="h-3.5 w-3.5 text-toolkit-sky" strokeWidth={1.5} />
                 <span className="text-[9px] text-muted-foreground leading-tight text-center">{t("mentalToolkit.moodDashboard.notCheckedIn")}</span>
               </>
             )}
@@ -124,7 +124,7 @@ export function PersonalMoodDashboard() {
         {/* ── Chart Area (dominant) ── */}
         <div className="px-4 pt-5 pb-4">
           <div className="flex items-center gap-2 mb-3">
-            <BarChart3 className="h-3.5 w-3.5 text-muted-foreground/60" strokeWidth={1.5} />
+            <BarChart3 className="h-3.5 w-3.5 text-toolkit-lavender" strokeWidth={1.5} />
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("mentalToolkit.moodDashboard.moodTrend")}</span>
           </div>
           <div className="h-64">
@@ -132,8 +132,8 @@ export function PersonalMoodDashboard() {
               <AreaChart data={chartData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="dashMoodGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={TOOLKIT.lavender} stopOpacity={0.25} />
-                    <stop offset="95%" stopColor={TOOLKIT.lavender} stopOpacity={0} />
+                    <stop offset="5%" stopColor={TOOLKIT.lavender} stopOpacity={0.45} />
+                    <stop offset="95%" stopColor={TOOLKIT.lavender} stopOpacity={0.05} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="label" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
@@ -159,7 +159,7 @@ export function PersonalMoodDashboard() {
                     ) : null
                   }
                 />
-                <Area type="monotone" dataKey="score" stroke={TOOLKIT.lavender} fill="url(#dashMoodGrad)" strokeWidth={2} dot={{ r: 2, fill: TOOLKIT.lavender }} connectNulls />
+                <Area type="monotone" dataKey="score" stroke={TOOLKIT.lavender} fill="url(#dashMoodGrad)" strokeWidth={2.5} dot={{ r: 3, fill: TOOLKIT.lavender, strokeWidth: 0 }} activeDot={{ r: 5, fill: TOOLKIT.lavender, strokeWidth: 2, stroke: "hsl(var(--card))" }} connectNulls />
                 {dashboard.hasOrgData && (
                   <Area type="monotone" dataKey="orgAvg" stroke={TOOLKIT.sage} fill="none" strokeWidth={1.5} strokeDasharray="5 3" dot={false} connectNulls />
                 )}
@@ -221,10 +221,10 @@ export function PersonalMoodDashboard() {
                   <div key={dayKey} className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
                     <span className="text-[10px] font-medium text-muted-foreground">{t(`wellness.days.${dayKey}`)}</span>
                     <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
                       style={{
-                        backgroundColor: count === 0 ? "hsl(var(--muted) / 0.5)" : `hsl(var(--primary) / ${0.1 + intensity * 0.35})`,
-                        color: count > 0 ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))",
+                        backgroundColor: count === 0 ? "hsl(var(--muted) / 0.4)" : `hsl(var(--primary) / ${0.15 + intensity * 0.55})`,
+                        color: count > 0 ? "hsl(var(--primary-foreground))" : "hsl(var(--muted-foreground))",
                       }}
                     >
                       {count}
@@ -243,7 +243,7 @@ export function PersonalMoodDashboard() {
         <div className="px-4 py-4 space-y-3">
           {/* Survey */}
           <div className="flex items-center gap-2 pb-3 border-b border-border/20">
-            <ClipboardList className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" strokeWidth={1.5} />
+            <ClipboardList className="h-3.5 w-3.5 text-toolkit-lavender shrink-0" strokeWidth={1.5} />
             <div className="flex-1 flex items-center divide-x divide-border/30 rtl:divide-x-reverse">
               <div className="flex-1 text-center">
                 <p className="text-base font-bold text-foreground">{dashboard.surveyStats.totalAnswered}</p>
@@ -262,7 +262,7 @@ export function PersonalMoodDashboard() {
 
           {/* Reframe */}
           <div className="flex items-center gap-2 pb-3 border-b border-border/20">
-            <RefreshCw className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" strokeWidth={1.5} />
+            <RefreshCw className="h-3.5 w-3.5 text-toolkit-sage shrink-0" strokeWidth={1.5} />
             <div className="flex-1 flex items-center divide-x divide-border/30 rtl:divide-x-reverse">
               <div className="flex-1 text-center">
                 <p className="text-base font-bold text-foreground">{dashboard.reframeStats.total}</p>
@@ -281,7 +281,7 @@ export function PersonalMoodDashboard() {
 
           {/* Breathing */}
           <div className="flex items-center gap-2">
-            <Wind className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" strokeWidth={1.5} />
+            <Wind className="h-3.5 w-3.5 text-toolkit-sky shrink-0" strokeWidth={1.5} />
             <div className="flex-1 flex items-center divide-x divide-border/30 rtl:divide-x-reverse">
               <div className="flex-1 text-center">
                 <p className="text-base font-bold text-foreground">{dashboard.breathingStats.totalSessions}</p>
