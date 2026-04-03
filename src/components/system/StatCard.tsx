@@ -23,7 +23,7 @@ const StatCard = memo(function StatCard({
     <Card className={cn(cardVariants.stat, className)}>
       <CardContent className={cn(spacing.cardCompact, "flex items-start gap-3")}>
         {icon && (
-          <div className={cn(iconBox.sm, "bg-primary/10 mt-0.5")}>
+          <div className={cn(iconBox.sm, "text-muted-foreground mt-0.5")}>
             {icon}
           </div>
         )}

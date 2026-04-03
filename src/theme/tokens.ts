@@ -1,5 +1,5 @@
 /**
- * Centralized Design Token Definitions — Orbitask Style
+ * Centralized Design Token Definitions — Linear/Notion Style
  */
 
 // ── Spacing ──────────────────────────────────────────────────────────
@@ -15,11 +15,11 @@ export const spacing = {
 
 // ── Typography ───────────────────────────────────────────────────────
 export const typography = {
-  pageTitle: 'text-2xl font-semibold text-foreground',
-  sectionTitle: 'text-lg font-semibold text-foreground',
+  pageTitle: 'text-xl font-semibold tracking-tight text-foreground',
+  sectionTitle: 'text-lg font-semibold tracking-tight text-foreground',
   cardTitle: 'text-base font-semibold text-foreground',
-  metric: 'text-2xl font-bold text-foreground',
-  statLabel: 'text-xs font-bold text-muted-foreground',
+  metric: 'text-2xl font-bold tracking-tight text-foreground',
+  statLabel: 'text-xs font-bold uppercase tracking-wide text-muted-foreground',
   subtitle: 'text-sm text-muted-foreground',
   caption: 'text-2xs text-muted-foreground',
 } as const;

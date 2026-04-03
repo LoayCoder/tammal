@@ -1,5 +1,5 @@
 import { ReactNode, memo } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { cardVariants, typography } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
@@ -12,8 +12,7 @@ interface MetricCardProps {
 }
 
 /**
- * Dashboard metric card — follows the existing glass-stat pattern
- * used across TeamWorkload, PortfolioDashboard, OrgStatCards, etc.
+ * Dashboard metric card — flat Linear-style layout
  */
 const MetricCard = memo(function MetricCard({
   title,
@@ -23,17 +22,15 @@ const MetricCard = memo(function MetricCard({
   className,
 }: MetricCardProps) {
   return (
-    <Card className={cn(cardVariants.stat, className)}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className={typography.statLabel}>{title}</CardTitle>
+    <Card className={cn(cardVariants.stat, "p-4", className)}>
+      <div className="flex items-center justify-between mb-2">
+        <p className={typography.statLabel}>{title}</p>
         {icon && <div className="text-muted-foreground">{icon}</div>}
-      </CardHeader>
-      <CardContent>
-        <div className={typography.metric}>{value}</div>
-        {description && (
-          <p className={cn(typography.caption, "mt-1")}>{description}</p>
-        )}
-      </CardContent>
+      </div>
+      <div className={typography.metric}>{value}</div>
+      {description && (
+        <p className={cn(typography.caption, "mt-1")}>{description}</p>
+      )}
     </Card>
   );
 });
