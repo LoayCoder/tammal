@@ -163,37 +163,21 @@ export default function EmployeeHome() {
         {/* Personal Mood Dashboard */}
         <PersonalMoodDashboard />
 
-        {/* Quick Actions */}
+        {/* Support Hub */}
         <div className="space-y-3">
           <h2 className={typography.sectionTitle}>{t('dashboard.quickActions')}</h2>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-2.5">
             <Link to="/crisis-support">
-              <Card className={cn(cardVariants.premium, "cursor-pointer")}>
-                <CardContent className="flex items-center gap-4 p-5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-destructive/15 to-destructive/5">
-                    <Phone className="h-6 w-6 text-destructive" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm">{t('crisisSupport.nav.crisisSupport')}</h3>
-                    <p className="text-muted-foreground text-xs mt-0.5">{t('dashboard.crisisSupportDesc')}</p>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
-                </CardContent>
-              </Card>
+              <div className="flex flex-col items-center gap-1.5 rounded-xl py-4 px-2 cursor-pointer transition-colors bg-destructive/[0.04] hover:bg-destructive/[0.08]">
+                <Phone className="h-5 w-5 text-destructive" strokeWidth={1.5} />
+                <span className="text-xs font-medium text-center leading-tight">{t('crisisSupport.nav.crisisSupport')}</span>
+              </div>
             </Link>
             <div onClick={() => setShowFirstAider(true)} className="cursor-pointer">
-              <Card className={cn(cardVariants.premium, "cursor-pointer")}>
-                <CardContent className="flex items-center gap-4 p-5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-chart-1/15 to-chart-1/5">
-                    <HeartHandshake className="h-6 w-6 text-chart-1" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm">{t('crisisSupport.nav.firstAider')}</h3>
-                    <p className="text-muted-foreground text-xs mt-0.5">{t('dashboard.firstAiderDesc')}</p>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
-                </CardContent>
-              </Card>
+              <div className="flex flex-col items-center gap-1.5 rounded-xl py-4 px-2 transition-colors bg-chart-1/[0.04] hover:bg-chart-1/[0.08]">
+                <HeartHandshake className="h-5 w-5 text-chart-1" strokeWidth={1.5} />
+                <span className="text-xs font-medium text-center leading-tight">{t('crisisSupport.nav.firstAider')}</span>
+              </div>
             </div>
           </div>
         </div>
