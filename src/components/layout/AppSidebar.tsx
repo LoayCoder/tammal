@@ -482,11 +482,9 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                       </button>
                     </CollapsibleTrigger>
 
-                    {/* Sub-items with dot bullets */}
+                    {/* Sub-items */}
                     <CollapsibleContent>
-                      <div className="relative ms-7 mt-1 flex flex-col gap-1">
-                        {/* Vertical connector line */}
-                        <div className="absolute start-[0.5625rem] top-[1.125rem] bottom-[1.125rem] w-px bg-muted-foreground/20" />
+                      <div className="ms-7 mt-1 flex flex-col gap-0.5">
                         {group.items.map((item) => {
                           const active = isItemActive(item.url);
                           return (
@@ -495,16 +493,13 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                               to={item.url}
                               end={item.url === '/'}
                               className={cn(
-                                "flex h-9 items-center gap-3 rounded-lg px-2.5 text-sm transition-colors",
-                                "text-sidebar-foreground hover:bg-[hsl(var(--sidebar-hover-bg))]"
+                                "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
+                                "text-sidebar-foreground/80 hover:bg-muted/50 hover:text-sidebar-foreground"
                               )}
-                              activeClassName="text-sidebar-primary font-medium"
+                              activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
                               onClick={handleNavClick}
                             >
-                              <span className={cn(
-                                "h-2.5 w-2.5 rounded-full shrink-0",
-                                active ? "bg-sidebar-primary" : "bg-muted-foreground/40"
-                              )} />
+                              <item.icon className="h-4 w-4 shrink-0" />
                               <span className="truncate">{item.title}</span>
                               {item.badge && (
                                 <span className="ms-auto inline-flex items-center rounded-lg bg-sidebar-primary px-1.5 py-0.5 text-xs font-medium text-sidebar-primary-foreground">
