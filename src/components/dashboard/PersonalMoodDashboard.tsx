@@ -80,7 +80,7 @@ export function PersonalMoodDashboard() {
         <div className="grid grid-cols-4 divide-x divide-border/40 rtl:divide-x-reverse px-1 py-4">
           {/* Streak */}
           <div className="flex flex-col items-center justify-start gap-0.5 px-1 text-center">
-            <Flame className="h-3.5 w-3.5 text-muted-foreground/60" strokeWidth={1.5} />
+            <Flame className="h-3.5 w-3.5 text-toolkit-lavender" strokeWidth={1.5} />
             <span className="text-lg font-bold tracking-tight text-foreground">{dashboard.streak}</span>
             <span className="text-[9px] text-muted-foreground leading-tight">{t("mentalToolkit.moodDashboard.currentStreak")}</span>
           </div>
