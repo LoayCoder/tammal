@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { House, HeartPulse, MessageCircle, CircleUserRound, AlignJustify } from 'lucide-react';
+import { Dot, Waves, Send, Fingerprint, Grip } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 
 const navItems = [
