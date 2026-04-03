@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import {
-  Music, BookMarked, Calendar, ChevronRight,
-} from 'lucide-react';
+import { Waves, BookMarked, Calendar, ChevronRight } from 'lucide-react';
 import MeditationLibraryTool from '@/components/mental-toolkit/practices/MeditationLibraryTool';
 import PsychoeducationArticles from '@/components/mental-toolkit/resources/PsychoeducationArticles';
 import IslamicCalendar from '@/pages/spiritual/IslamicCalendar';
@@ -13,8 +11,8 @@ import { cn } from "@/lib/utils";
 
 type ResourceKey = 'meditation' | 'articles' | 'calendar';
 
-const RESOURCES: { key: ResourceKey; icon: typeof Music; color: string; titleKey: string; descKey: string }[] = [
-  { key: 'meditation', icon: Music,      color: 'primary', titleKey: 'home.meditationLibrary',         descKey: 'home.meditationLibraryDesc' },
+const RESOURCES: { key: ResourceKey; icon: typeof Waves; color: string; titleKey: string; descKey: string }[] = [
+  { key: 'meditation', icon: Waves,      color: 'primary', titleKey: 'home.meditationLibrary',         descKey: 'home.meditationLibraryDesc' },
   { key: 'articles',   icon: BookMarked, color: 'chart-5', titleKey: 'home.psychoeducationArticles',   descKey: 'home.psychoeducationArticlesDesc' },
   { key: 'calendar',   icon: Calendar,   color: 'chart-3', titleKey: 'home.islamicCalendar',           descKey: 'home.islamicCalendarDesc' },
 ];
@@ -52,7 +50,7 @@ export function MentalHealthResourcesHub() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Music className="h-5 w-5 text-primary" />
+              <Waves className="h-5 w-5 text-primary" />
               {t('home.meditationLibrary', 'Meditation Library')}
             </DialogTitle>
           </DialogHeader>

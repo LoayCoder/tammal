@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { SkeletonList } from '@/shared/loading/Skeletons';
 import { EmptyState } from '@/shared/empty/EmptyState';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Sparkles, RefreshCw, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { Sparkles, RefreshCw, Shield, AlertTriangle } from 'lucide-react';
 import { TopControlBar } from '@/features/ai-generator/components/TopControlBar';
 import { ConfigPanel } from '@/features/ai-generator/components/ConfigPanel';
 import { QuestionCard } from '@/features/ai-generator/components/QuestionCard';
@@ -83,7 +83,7 @@ export default function AIQuestionGenerator() {
                   </span>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={g.handleValidate} disabled={g.isValidating}>
-                      {g.isValidating ? <RefreshCw className="h-4 w-4 animate-spin me-1" /> : <ShieldCheck className="h-4 w-4 me-1" />}
+                      {g.isValidating ? <RefreshCw className="h-4 w-4 animate-spin me-1" /> : <Shield className="h-4 w-4 me-1" />}
                       {t('aiGenerator.runValidation')}
                     </Button>
                     {g.isStrict && g.hasFailures && (

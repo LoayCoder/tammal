@@ -10,7 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, Loader2, ChevronDown, Settings2, ChevronsUpDown, ClipboardList, Heart, CalendarClock, Plus, Minus, Lock, Trash2, TimerOff, CheckCircle2, XCircle, Calculator } from 'lucide-react';
+import { Sparkles, Loader2, ChevronDown, Settings2, ChevronsUpDown, FileText, Heart, Calendar, Plus, Minus, Lock, Trash2, Clock, Check, X, Hash } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
@@ -154,7 +154,7 @@ export function ConfigPanel() {
                 value="survey"
                 className="flex flex-col items-center gap-1 py-3 px-2 data-[state=on]:bg-primary/10 data-[state=on]:border-primary"
               >
-                <ClipboardList className="h-5 w-5" />
+                <FileText className="h-5 w-5" />
                 <span className="text-xs font-medium">{t('aiGenerator.purposeSurvey')}</span>
               </ToggleGroupItem>
               <ToggleGroupItem
@@ -195,7 +195,7 @@ export function ConfigPanel() {
           {/* Generation Period Selector */}
           <div className="space-y-2">
             <Label className="flex items-center gap-2 text-sm font-medium">
-              <CalendarClock className="h-4 w-4" />
+              <Calendar className="h-4 w-4" />
               {t('aiGenerator.generationPeriod')}
             </Label>
             <div className="flex gap-2">
@@ -247,7 +247,7 @@ export function ConfigPanel() {
                   </span>
                   <div className="flex gap-1 ms-2">
                     <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => g.handleExpirePeriod(g.activePeriodForPurpose.id)}>
-                      <TimerOff className="h-3 w-3 me-1" />
+                      <Clock className="h-3 w-3 me-1" />
                       {t('aiGenerator.periodExpire')}
                     </Button>
                     <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-destructive" onClick={() => g.handleDeletePeriod(g.activePeriodForPurpose.id)}>
@@ -444,7 +444,7 @@ export function ConfigPanel() {
             <div className="space-y-3">
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
-                  <Calculator className="h-4 w-4" />
+                  <Hash className="h-4 w-4" />
                   {t('aiGenerator.questionsPerDay')}
                 </Label>
                 <p className="text-xs text-muted-foreground">{t('aiGenerator.questionsPerDayDesc')}</p>
@@ -616,7 +616,7 @@ export function ConfigPanel() {
                 <p className="font-medium mb-1">{t('aiGenerator.prerequisitesNotMet')}</p>
                 <ul className="space-y-1">
                   <li className="flex items-center gap-1.5">
-                    {activeCategories.length >= 3 ? <CheckCircle2 className="h-3 w-3 text-chart-2" /> : <XCircle className="h-3 w-3" />}
+                    {activeCategories.length >= 3 ? <Check className="h-3 w-3 text-chart-2" /> : <X className="h-3 w-3" />}
                     {t('aiGenerator.prerequisiteMinCategories')}
                   </li>
                 </ul>

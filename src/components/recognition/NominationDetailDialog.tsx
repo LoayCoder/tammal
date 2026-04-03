@@ -11,7 +11,7 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Nomination } from '@/hooks/recognition/useNominations';
-import { FileText, ThumbsUp, User, Calendar, Tag } from 'lucide-react';
+import { FileText, Star, User, Calendar, Hash } from 'lucide-react';
 import { format } from 'date-fns';
 import { typography } from "@/theme/tokens";
 
@@ -90,7 +90,7 @@ export function NominationDetailDialog({
           <div className="rounded-lg border border-border p-3 space-y-2">
             {themeName && (
               <div className="flex items-center gap-2 text-sm">
-                <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                <Hash className="h-3.5 w-3.5 text-muted-foreground" />
                 <span className="text-muted-foreground">{t('recognition.nominations.theme')}:</span>
                 <Badge variant="secondary">{themeName}</Badge>
               </div>
@@ -156,7 +156,7 @@ export function NominationDetailDialog({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-medium flex items-center gap-2">
-                <ThumbsUp className="h-4 w-4" />
+                <Star className="h-4 w-4" />
                 {t('recognition.endorsements.title')}
               </h4>
               <Badge variant="outline">

@@ -9,10 +9,7 @@ import { useSessionScheduling, useSupportSessions } from '@/hooks/crisis/useSess
 import { useAuth } from '@/hooks/auth/useAuth';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
-import {
-  Clock, ArrowLeft, AlertTriangle, FileText,
-  Phone, Video, CheckCircle, RotateCw, MessageSquare,
-} from 'lucide-react';
+import { Clock, ArrowLeft, AlertTriangle, FileText, Phone, Play, Check, RefreshCw, Send } from 'lucide-react';
 import EnhancedChatPanel from './EnhancedChatPanel';
 import { cardVariants } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
@@ -68,8 +65,8 @@ export default function SessionWorkspace({ caseId, sessionId, tenantId, isFirstA
               {currentSession?.channel && (
                 <Badge variant="outline" className="text-2xs">
                   {currentSession.channel === 'voice' ? <Phone className="h-3 w-3 me-1" /> :
-                   currentSession.channel === 'video' ? <Video className="h-3 w-3 me-1" /> :
-                   <MessageSquare className="h-3 w-3 me-1" />}
+                   currentSession.channel === 'video' ? <Play className="h-3 w-3 me-1" /> :
+                   <Send className="h-3 w-3 me-1" />}
                   {currentSession.channel}
                 </Badge>
               )}
@@ -83,7 +80,7 @@ export default function SessionWorkspace({ caseId, sessionId, tenantId, isFirstA
           </div>
           {isFirstAider && isActive && (
             <Button size="sm" variant="outline" className="text-destructive" onClick={() => setShowOutcomeForm(true)}>
-              <CheckCircle className="h-3 w-3 me-1" />
+              <Check className="h-3 w-3 me-1" />
               {t('crisisSupport.session.endSession')}
             </Button>
           )}
@@ -111,7 +108,7 @@ export default function SessionWorkspace({ caseId, sessionId, tenantId, isFirstA
                 {t('crisisSupport.session.escalateEmergency')}
               </Button>
               <Button variant="outline" size="sm" className="w-full text-xs">
-                <RotateCw className="h-3 w-3 me-1" />
+                <RefreshCw className="h-3 w-3 me-1" />
                 {t('crisisSupport.session.rerouteCase')}
               </Button>
             </CardContent>

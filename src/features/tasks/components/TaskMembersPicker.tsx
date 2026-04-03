@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { EmployeePicker } from '@/components/workload/EmployeePicker';
 import { Badge } from '@/components/ui/badge';
-import { User, UserCheck, Shield, Eye } from 'lucide-react';
+import { User, Fingerprint, Shield, Eye } from 'lucide-react';
 
 interface TaskMembersPickerProps {
   assigneeId: string | null;
@@ -33,7 +33,7 @@ export function TaskMembersPicker({
       </div>
       <div className="space-y-1.5">
         <label className="text-sm font-medium flex items-center gap-1.5">
-          <UserCheck className="h-3.5 w-3.5" />
+          <Fingerprint className="h-3.5 w-3.5" />
           {t('tasks.members.reviewer')}
         </label>
         <EmployeePicker value={reviewerId} onChange={onReviewerChange} departmentId={departmentId} disabled={disabled} />

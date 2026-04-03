@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useEndorsements } from '@/hooks/recognition/useEndorsements';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ThumbsUp, ChevronRight } from 'lucide-react';
+import { Star, ChevronRight } from 'lucide-react';
 import { cardVariants } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
@@ -54,7 +54,7 @@ export function DashboardEndorsementRequests() {
             {/* Icon with pulse indicator */}
             <div className="relative shrink-0">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-chart-3/10 ring-1 ring-chart-3/20 transition-colors group-hover:bg-chart-3/20">
-                <ThumbsUp className="h-6 w-6 text-chart-3" />
+                <Star className="h-6 w-6 text-chart-3" />
               </div>
               {/* Pulse dot */}
               <span className="absolute -top-1 -end-1 flex h-3 w-3">

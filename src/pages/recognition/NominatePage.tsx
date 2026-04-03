@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { NominationWizard } from '@/components/recognition/NominationWizard';
 import { useAwardCycles } from '@/hooks/recognition/useAwardCycles';
 import { useAwardThemes } from '@/hooks/recognition/useAwardThemes';
-import { Trophy, ArrowLeft } from 'lucide-react';
+import { Star, ArrowLeft } from 'lucide-react';
 import { typography } from "@/theme/tokens";
 
 export default function NominatePage() {
@@ -45,7 +45,7 @@ export default function NominatePage() {
         </Button>
         <div>
           <h1 className={`${typography.pageTitle} flex items-center gap-2`}>
-            <Trophy className="h-6 w-6 text-primary" />
+            <Star className="h-6 w-6 text-primary" />
             {t('recognition.nominations.nominate')}
           </h1>
           <p className="text-muted-foreground">{t('recognition.nominations.nominateDesc')}</p>
@@ -55,7 +55,7 @@ export default function NominatePage() {
       {activeCycles.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <Trophy className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+            <Star className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
             <p className="text-muted-foreground">{t('recognition.nominations.noActiveCycles')}</p>
           </CardContent>
         </Card>

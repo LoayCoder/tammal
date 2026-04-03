@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Link2, X, Plus, AlertTriangle, CheckCircle, ArrowRight } from 'lucide-react';
+import { Link2, X, Plus, AlertTriangle, Check, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { typography } from "@/theme/tokens";
@@ -113,7 +113,7 @@ export function TaskDependenciesPanel({ taskId }: { taskId: string }) {
               const isResolved = task?.status === 'completed';
               return (
                 <div key={dep.id} className="flex items-center gap-2 p-2 rounded-lg bg-muted/20 group">
-                  {isResolved ? <CheckCircle className="h-3.5 w-3.5 text-chart-1 shrink-0" /> : <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0" />}
+                  {isResolved ? <Check className="h-3.5 w-3.5 text-chart-1 shrink-0" /> : <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0" />}
                   <button className="text-xs text-start flex-1 truncate hover:underline" onClick={() => navigate(`/tasks/${task?.id}`)}>
                     {task?.title ?? dep.depends_on_task_id.slice(0, 8)}
                   </button>

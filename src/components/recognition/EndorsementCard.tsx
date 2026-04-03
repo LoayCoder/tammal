@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { ThumbsUp, CheckCircle } from 'lucide-react';
+import { Star, Check } from 'lucide-react';
 import type { PeerEndorsement, CreateEndorsementInput } from '@/hooks/recognition/useEndorsements';
 import { typography } from "@/theme/tokens";
 
@@ -36,7 +36,7 @@ export function EndorsementForm({ nominationId, onSubmit, isSubmitting }: Endors
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          <ThumbsUp className="h-4 w-4" />
+          <Star className="h-4 w-4" />
           {t('recognition.endorsements.submitEndorsement')}
         </CardTitle>
       </CardHeader>
@@ -81,7 +81,7 @@ export function EndorsementForm({ nominationId, onSubmit, isSubmitting }: Endors
           disabled={!relationship || !statement.trim() || isSubmitting}
           className="w-full"
         >
-          <CheckCircle className="h-4 w-4 me-2" />
+          <Check className="h-4 w-4 me-2" />
           {t('recognition.endorsements.submit')}
         </Button>
       </CardContent>
@@ -99,7 +99,7 @@ export function EndorsementListItem({ endorsement, endorserName }: EndorsementLi
 
   return (
     <div className="flex items-start gap-3 rounded-lg border border-border p-3">
-      <ThumbsUp className="h-4 w-4 mt-0.5 text-chart-2 shrink-0" />
+      <Star className="h-4 w-4 mt-0.5 text-chart-2 shrink-0" />
       <div className="flex-1 min-w-0 space-y-1">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-medium text-sm">{endorserName || t('common.unassigned')}</span>

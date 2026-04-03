@@ -29,9 +29,7 @@ import {
 import type { StatusBadgeConfig } from '@/shared/status-badge';
 import { StatCard, MetricCard, ChartCard, InsightCard, DashboardGrid, PageHeader, EmptyState } from '@/components/system';
 import { spacing, typography, cardVariants } from '@/theme/tokens';
-import {
-  BarChart3, TrendingUp, CheckCircle, Star, AlertCircle, Lightbulb, Users
-} from 'lucide-react';
+import { Activity, ArrowUp, Check, Star, Info, Sparkles, Users } from 'lucide-react';
 
 /* ── Section wrapper ─── */
 function ShowcaseSection({ label, children, code }: { label: string; children: React.ReactNode; code?: string }) {
@@ -97,7 +95,7 @@ export default function ComponentShowcase() {
 
       <ShowcaseSection label="PageHeader" code={`import { PageHeader } from "@/components/system";\n<PageHeader icon={…} title="…" subtitle="…" actions={…} />`}>
         <PageHeader
-          icon={<BarChart3 className="h-5 w-5 text-primary" />}
+          icon={<Activity className="h-5 w-5 text-primary" />}
           title="Example Page Header"
           subtitle="Standard header used across all modules"
           actions={<Button size="sm">Action</Button>}
@@ -106,18 +104,18 @@ export default function ComponentShowcase() {
 
       <ShowcaseSection label="StatCard" code={`import { StatCard, DashboardGrid } from "@/components/system";\n<DashboardGrid columns={3}>\n  <StatCard title="…" value="…" icon={…} trend={…} />\n</DashboardGrid>`}>
         <DashboardGrid columns={3}>
-          <StatCard title="Total Users" value="1,245" icon={<TrendingUp className="h-4 w-4 text-primary" />} trend={<span className="text-2xs text-chart-1">+12%</span>} />
+          <StatCard title="Total Users" value="1,245" icon={<ArrowUp className="h-4 w-4 text-primary" />} trend={<span className="text-2xs text-chart-1">+12%</span>} />
           <StatCard title="Active" value="387" icon={<Users className="h-4 w-4 text-primary" />} />
-          <StatCard title="Rate" value="94%" icon={<CheckCircle className="h-4 w-4 text-primary" />} />
+          <StatCard title="Rate" value="94%" icon={<Check className="h-4 w-4 text-primary" />} />
         </DashboardGrid>
       </ShowcaseSection>
 
       <ShowcaseSection label="MetricCard" code={`import { MetricCard } from "@/components/system";\n<MetricCard title="…" value="…" icon={…} description="…" />`}>
         <DashboardGrid columns={4}>
           <MetricCard title="Revenue" value="$12.5K" icon={<Star className="h-4 w-4" />} description="+8.2%" />
-          <MetricCard title="Tasks" value="156" icon={<CheckCircle className="h-4 w-4" />} />
-          <MetricCard title="Alerts" value="3" icon={<AlertCircle className="h-4 w-4" />} />
-          <MetricCard title="Score" value="92" icon={<TrendingUp className="h-4 w-4" />} />
+          <MetricCard title="Tasks" value="156" icon={<Check className="h-4 w-4" />} />
+          <MetricCard title="Alerts" value="3" icon={<Info className="h-4 w-4" />} />
+          <MetricCard title="Score" value="92" icon={<ArrowUp className="h-4 w-4" />} />
         </DashboardGrid>
       </ShowcaseSection>
 
@@ -129,9 +127,9 @@ export default function ComponentShowcase() {
 
       <ShowcaseSection label="InsightCard" code={`import { InsightCard } from "@/components/system";\n<InsightCard icon={…} title="…" description="…" badge={…} />`}>
         <DashboardGrid columns={3}>
-          <InsightCard icon={<Lightbulb className="h-4 w-4 text-primary" />} title="AI Insight" description="Productivity up 15%" badge={<Badge variant="secondary">New</Badge>} />
-          <InsightCard icon={<AlertCircle className="h-4 w-4 text-destructive" />} title="Risk" description="3 overdue tasks" />
-          <InsightCard icon={<TrendingUp className="h-4 w-4 text-chart-1" />} title="Trend" description="Scores trending up" />
+          <InsightCard icon={<Sparkles className="h-4 w-4 text-primary" />} title="AI Insight" description="Productivity up 15%" badge={<Badge variant="secondary">New</Badge>} />
+          <InsightCard icon={<Info className="h-4 w-4 text-destructive" />} title="Risk" description="3 overdue tasks" />
+          <InsightCard icon={<ArrowUp className="h-4 w-4 text-chart-1" />} title="Trend" description="Scores trending up" />
         </DashboardGrid>
       </ShowcaseSection>
 

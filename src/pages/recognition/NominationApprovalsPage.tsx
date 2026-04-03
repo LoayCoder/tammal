@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Shield } from 'lucide-react';
 import { useNominationApprovals } from '@/hooks/recognition/useNominationApprovals';
 import { ManagerApprovalCard } from '@/components/recognition/ManagerApprovalCard';
 import { useQuery } from '@tanstack/react-query';
@@ -75,7 +75,7 @@ export default function NominationApprovalsPage() {
         </Button>
         <div>
           <h1 className={`${typography.pageTitle} flex items-center gap-2`}>
-            <ShieldCheck className="h-6 w-6 text-primary" />
+            <Shield className="h-6 w-6 text-primary" />
             {t('recognition.nominations.managerApproval')}
           </h1>
           <p className="text-muted-foreground">{t('recognition.nominations.requiresManagerApproval')}</p>
@@ -89,7 +89,7 @@ export default function NominationApprovalsPage() {
       ) : pendingApprovals.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <ShieldCheck className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+            <Shield className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
             <p className="text-muted-foreground">{t('recognition.nominations.noPendingApprovals')}</p>
           </CardContent>
         </Card>

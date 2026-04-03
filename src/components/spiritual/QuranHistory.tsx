@@ -8,7 +8,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
-import { ChevronDown, Flame, CalendarIcon, History, Clock, BookOpen, Calendar as CalendarIconSolid } from 'lucide-react';
+import { ChevronDown, Flame, CalendarIcon, History, Clock, FileText, Calendar as CalendarIconSolid } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuranHistory, type QuranHistoryRange } from '@/hooks/spiritual/useQuranHistory';
 import { cardVariants } from "@/theme/tokens";
@@ -104,12 +104,12 @@ export const QuranHistory = React.memo(function QuranHistory() {
                     label={t('spiritual.quran.history.totalMinutes')}
                   />
                   <StatCard
-                    icon={<BookOpen className="h-4 w-4 text-primary" />}
+                    icon={<FileText className="h-4 w-4 text-primary" />}
                     value={totalSessions}
                     label={t('spiritual.quran.history.totalSessions')}
                   />
                   <StatCard
-                    icon={<BookOpen className="h-4 w-4 text-primary" />}
+                    icon={<FileText className="h-4 w-4 text-primary" />}
                     value={totalAyahsRead}
                     label={t('spiritual.quran.history.totalAyahs', 'Total Ayahs')}
                   />

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Brain, RefreshCw, Lightbulb, AlertTriangle, TrendingUp } from 'lucide-react';
+import { Sparkles, RefreshCw, AlertTriangle, ArrowUp } from 'lucide-react';
 import { useWellnessInsights, type WellnessInsight } from '@/hooks/analytics/useWellnessInsights';
 import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
@@ -16,8 +16,8 @@ interface Props {
 
 const PRIORITY_STYLES: Record<string, { variant: 'destructive' | 'secondary' | 'outline'; icon: React.ComponentType<any> }> = {
   high: { variant: 'destructive', icon: AlertTriangle },
-  medium: { variant: 'secondary', icon: Lightbulb },
-  low: { variant: 'outline', icon: TrendingUp },
+  medium: { variant: 'secondary', icon: Sparkles },
+  low: { variant: 'outline', icon: ArrowUp },
 };
 
 export function AIInsightsCard({ analyticsData, isLoading: parentLoading }: Props) {
@@ -39,7 +39,7 @@ export function AIInsightsCard({ analyticsData, isLoading: parentLoading }: Prop
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base flex items-center gap-2">
-            <Brain className="h-4 w-4 text-primary" />
+            <Sparkles className="h-4 w-4 text-primary" />
             {t('orgDashboard.aiInsights')}
           </CardTitle>
           {!enabled ? (
@@ -57,7 +57,7 @@ export function AIInsightsCard({ analyticsData, isLoading: parentLoading }: Prop
       <CardContent>
         {!enabled ? (
           <div className="text-center py-8">
-            <Brain className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+            <Sparkles className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
             <p className={typography.subtitle}>{t('orgDashboard.aiInsightsPrompt')}</p>
           </div>
         ) : isLoading ? (
@@ -99,7 +99,7 @@ export function AIInsightsCard({ analyticsData, isLoading: parentLoading }: Prop
                 <h4 className={typography.statLabel}>{t('orgDashboard.positiveHighlights')}</h4>
                 {insights.positiveHighlights.map((h, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-sm">
-                    <TrendingUp className="h-3 w-3 text-chart-2 shrink-0" />
+                    <ArrowUp className="h-3 w-3 text-chart-2 shrink-0" />
                     <span>{h}</span>
                   </div>
                 ))}

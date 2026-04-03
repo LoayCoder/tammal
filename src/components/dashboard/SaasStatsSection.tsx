@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Building2, CreditCard, DollarSign, Ticket } from 'lucide-react';
+import { Building2, CreditCard, DollarSign, Hash } from 'lucide-react';
 import { MetricCard } from '@/components/system';
 import { useDashboardStats } from '@/hooks/analytics/useDashboardStats';
 import { formatCurrency } from '@/lib/utils';
@@ -25,7 +25,7 @@ export function SaasStatsSection() {
     { title: t('dashboard.totalTenants'), value: isLoading ? null : stats?.totalTenants ?? 0, icon: Building2 },
     { title: t('dashboard.activeSubscriptions'), value: isLoading ? null : stats?.activeSubscriptions ?? 0, icon: CreditCard },
     { title: t('dashboard.monthlyRevenue'), value: isLoading ? null : formatCurrency(stats?.monthlyRevenue ?? 0, i18n.language), icon: DollarSign },
-    { title: t('dashboard.pendingTickets'), value: '—', icon: Ticket },
+    { title: t('dashboard.pendingTickets'), value: '—', icon: Hash },
   ];
 
   const subscriptionChartData = stats?.subscriptionsByStatus

@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { SkipForward, ClipboardList, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { SkipForward, FileText, ArrowLeft, Check } from 'lucide-react';
 import type { CheckinScheduledQuestion } from '@/hooks/questions/useCheckinScheduledQuestions';
 import { typography } from "@/theme/tokens";
 
@@ -154,7 +154,7 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
                 }`}>
                   <RadioGroupItem value={label} id={`sq-mc-${i}`} />
                   <Label htmlFor={`sq-mc-${i}`} className="cursor-pointer flex-1">{label}</Label>
-                  {isSelected && <CheckCircle2 className="h-4 w-4 text-primary shrink-0 animate-in zoom-in-50 duration-200" />}
+                  {isSelected && <Check className="h-4 w-4 text-primary shrink-0 animate-in zoom-in-50 duration-200" />}
                 </div>
               );
             })}
@@ -177,7 +177,7 @@ export function ScheduledQuestionsStep({ questions, answers, onAnswersChange, on
     <div className="space-y-4">
       <div className="text-center space-y-1">
         <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 mb-2">
-          <ClipboardList className="h-5 w-5 text-primary" />
+          <FileText className="h-5 w-5 text-primary" />
         </div>
         <h3 className={typography.sectionTitle}>{t('wellness.scheduledQuestion')}</h3>
       </div>

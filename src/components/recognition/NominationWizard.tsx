@@ -20,7 +20,7 @@ import { useTenantId } from '@/hooks/org/useTenantId';
 import { supabase } from '@/integrations/supabase/client';
 import { useNominationCriteria } from '@/hooks/recognition/useNominationCriteria';
 import type { CriterionEvaluation } from './CriteriaEvaluationForm';
-import { User, FileText, Scale, ThumbsUp, CheckCircle, ChevronLeft, ChevronRight, Users, AlertCircle } from 'lucide-react';
+import { User, FileText, Scale, Star, Check, ChevronLeft, ChevronRight, Users, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -240,7 +240,7 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onBac
 
             {isPreselectedAlreadyNominated && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
+                <Info className="h-4 w-4" />
                 <AlertDescription>
                   {t('recognition.nominations.alreadyNominatedInCycle', 'You have already nominated this person in this cycle. Please select a different colleague.')}
                 </AlertDescription>
@@ -348,7 +348,7 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onBac
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <CheckCircle className="h-5 w-5" />
+              <Check className="h-5 w-5" />
               {t('recognition.nominations.review')}
             </CardTitle>
           </CardHeader>
@@ -378,7 +378,7 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onBac
               )}
               {allowAppeals && !selectedEmployee?.manager_id && (
                 <Alert className="mt-2">
-                  <AlertCircle className="h-4 w-4" />
+                  <Info className="h-4 w-4" />
                   <AlertDescription>
                     {t('recognition.nominations.noManagerNote', 'This nominee has no manager assigned — manager approval will be skipped.')}
                   </AlertDescription>
@@ -407,7 +407,7 @@ export function NominationWizard({ cycleId, themeId, preselectedNomineeId, onBac
       {step === 'request_endorsements' && createdNominationId && (
         <div className="space-y-4">
           <div className="text-center py-4">
-            <CheckCircle className="h-10 w-10 text-chart-2 mx-auto mb-2" />
+            <Check className="h-10 w-10 text-chart-2 mx-auto mb-2" />
             <p className="font-medium text-lg">{t('recognition.nominations.submitted')}</p>
             <p className="text-sm text-muted-foreground mt-1">
               {t('recognition.endorsements.endorsementStepDescription')}

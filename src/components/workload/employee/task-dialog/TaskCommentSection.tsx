@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessageSquare } from 'lucide-react';
+import { Send } from 'lucide-react';
 import type { TaskComment } from '@/features/workload/hooks/useUnifiedTasks';
 
 interface TaskCommentSectionProps {
@@ -37,7 +37,7 @@ export function TaskCommentSection({ comments, employeeId, currentEmployeeName, 
   return (
     <div className="space-y-2 border-t pt-3">
       <Label className="flex items-center gap-1.5">
-        <MessageSquare className="h-3.5 w-3.5" />{t('workload.comments.title')} ({comments.length})
+        <Send className="h-3.5 w-3.5" />{t('workload.comments.title')} ({comments.length})
       </Label>
       {comments.length > 0 && (
         <ScrollArea className="max-h-32">

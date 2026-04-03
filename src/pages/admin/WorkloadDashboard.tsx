@@ -7,9 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useWorkloadAnalytics, useWorkloadMetrics } from '@/features/workload';
 import { classifyUtilization } from '@/services/workload-intelligence.service';
 import type { TeamMemberLoad } from '@/features/workload/hooks/useWorkloadAnalytics';
-import {
-  Users, AlertTriangle, Clock, Target, TrendingUp, Moon, Activity, Shield,
-} from 'lucide-react';
+import { Users, AlertTriangle, Clock, Target, ArrowUp, Moon, Activity, Shield } from 'lucide-react';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
 } from 'recharts';

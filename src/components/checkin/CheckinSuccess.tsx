@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Flame, Star, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Flame, Star, Sparkles, Check } from 'lucide-react';
 import { typography } from "@/theme/tokens";
 
 interface CheckinSuccessProps {

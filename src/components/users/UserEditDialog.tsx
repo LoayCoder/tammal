@@ -44,7 +44,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { AvatarCropperDialog } from '@/components/ui/avatar-cropper-dialog';
-import { Camera, Trash2, KeyRound, Loader2 } from 'lucide-react';
+import { Image, Trash2, Key, Loader2 } from 'lucide-react';
 import { useAvatarUpload } from '@/hooks/admin/useAvatarUpload';
 import { toast } from 'sonner';
 import { readFile } from '@/lib/cropImage';
@@ -257,7 +257,7 @@ export function UserEditDialog({
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
             >
-              <Camera className="me-2 h-4 w-4" />
+              <Image className="me-2 h-4 w-4" />
               {t('users.uploadPhoto')}
             </Button>
             {avatarUrl && (
@@ -412,7 +412,7 @@ export function UserEditDialog({
                           {isResettingPassword ? (
                             <Loader2 className="me-2 h-4 w-4 animate-spin" />
                           ) : (
-                            <KeyRound className="me-2 h-4 w-4" />
+                            <Key className="me-2 h-4 w-4" />
                           )}
                           {t('users.sendPasswordReset')}
                         </Button>

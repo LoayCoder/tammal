@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Mail, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, Mail, Info, Check } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -112,7 +112,7 @@ export function ChangeEmailDialog({
         {verificationSent ? (
           <div className="space-y-4 py-4">
             <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
-              <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
               <AlertDescription className="text-green-800 dark:text-green-200">
                 {t('profile.emailVerificationSentDescription')}
               </AlertDescription>
@@ -153,7 +153,7 @@ export function ChangeEmailDialog({
                 />
 
                 <Alert>
-                  <AlertCircle className="h-4 w-4" />
+                  <Info className="h-4 w-4" />
                   <AlertDescription>
                     {t('profile.emailChangeWarning')}
                   </AlertDescription>

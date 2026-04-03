@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar, Loader2, BarChart3, ChevronDown, Filter, X, Building2, GitBranch, MapPin } from 'lucide-react';
+import { Calendar, Loader2, Activity, ChevronDown, Filter, X, Building2, Network, MapPin } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { typography } from "@/theme/tokens";
 
@@ -416,7 +416,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                   className="h-9"
                   onClick={() => setShowAnalytics(prev => !prev)}
                 >
-                  <BarChart3 className="h-3.5 w-3.5 me-1.5" />
+                  <Activity className="h-3.5 w-3.5 me-1.5" />
                   {t('common.analytics')}
                 </Button>
               </div>
@@ -534,7 +534,7 @@ export default function SchedulePreviewDialog({ open, onOpenChange, previewQuest
                       <Card>
                         <CardContent className="p-4">
                           <div className="flex items-center gap-2 mb-3">
-                            <GitBranch className="h-4 w-4 text-muted-foreground" />
+                            <Network className="h-4 w-4 text-muted-foreground" />
                             <p className="text-sm font-medium">{t('users.department')} — {t('common.statusDistribution')}</p>
                           </div>
                           <ResponsiveContainer width="100%" height={200}>

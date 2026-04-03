@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Trash2, Calendar, User, Hash, ClipboardList, Heart, Send, Ban, CheckCircle, Pencil, Check, X } from 'lucide-react';
+import { Trash2, Calendar, User, Hash, FileText, Heart, Send, Ban, Check, Pencil, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { BatchQuestionTable } from './BatchQuestionTable';
 import type { BatchQuestion } from '@/hooks/questions/useQuestionBatches';
@@ -110,7 +110,7 @@ export function BatchAccordionItem({
               {batch.purpose === 'wellness' ? (
                 <><Heart className="h-3 w-3 me-1" />{t('aiGenerator.purposeWellness', 'Daily Check-in')}</>
               ) : (
-                <><ClipboardList className="h-3 w-3 me-1" />{t('aiGenerator.purposeSurvey', 'Survey')}</>
+                <><FileText className="h-3 w-3 me-1" />{t('aiGenerator.purposeSurvey', 'Survey')}</>
               )}
             </Badge>
             <Badge variant="outline" className={`text-xs ${statusColor(batch.status)}`}>
@@ -159,7 +159,7 @@ export function BatchAccordionItem({
                     onClick={e => { e.stopPropagation(); onActivateSelected(batch.id, batch.purpose); }}
                     disabled={isPending.activateQuestions}
                   >
-                    <CheckCircle className="h-4 w-4 me-1" />
+                    <Check className="h-4 w-4 me-1" />
                     {t('batches.activateSelected', { count: selectedCount })}
                   </Button>
                 )}
@@ -173,7 +173,7 @@ export function BatchAccordionItem({
           )}
           {batch.status === 'inactive' && (
             <Button variant="default" size="sm" onClick={e => { e.stopPropagation(); onActivateBatch(batch.id); }} disabled={isPending.activateBatch}>
-              <CheckCircle className="h-4 w-4 me-1" />{t('batches.activate')}
+              <Check className="h-4 w-4 me-1" />{t('batches.activate')}
             </Button>
           )}
           {batch.status !== 'inactive' && (

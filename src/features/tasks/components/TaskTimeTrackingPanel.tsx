@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Play, Square, Plus, Trash2, Clock, Timer } from 'lucide-react';
+import { Play, Square, Plus, Trash2, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -52,14 +52,14 @@ export function TaskTimeTrackingPanel({ taskId }: { taskId: string }) {
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm flex items-center gap-2">
-            <Timer className="h-4 w-4" />
+            <Clock className="h-4 w-4" />
             {t('timeTracking.title')}
           </CardTitle>
           <span className="text-xs text-muted-foreground">{t('timeTracking.total')}: <span className="font-semibold text-foreground">{formatDuration(totalMinutes)}</span></span>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        {/* Timer controls */}
+        {/* Clock controls */}
         <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
           {activeEntry ? (
             <>

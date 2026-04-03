@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { ClipboardCheck, AlertTriangle, TrendingDown, BarChart } from 'lucide-react';
+import { FileText, AlertTriangle, ArrowUp, Activity } from 'lucide-react';
 import type { SurveyStructuralMetrics } from '@/lib/analytics/types';
 import { cardVariants, typography } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
@@ -19,17 +19,17 @@ export function SurveyStructuralCard({ data, isLoading }: Props) {
     {
       label: t('synthesis.categoryHealth'),
       value: data?.categoryHealthScore ? `${data.categoryHealthScore}/5` : '—',
-      icon: BarChart,
+      icon: Activity,
     },
     {
       label: t('synthesis.lowestCategory'),
       value: data?.lowestCategory ? `${data.lowestCategory.name} (${data.lowestCategory.score})` : '—',
-      icon: TrendingDown,
+      icon: ArrowUp,
     },
     {
       label: t('synthesis.surveyQuality'),
       value: data ? `${data.participationQuality}%` : '—',
-      icon: ClipboardCheck,
+      icon: FileText,
     },
     {
       label: t('synthesis.riskCategories'),
@@ -43,7 +43,7 @@ export function SurveyStructuralCard({ data, isLoading }: Props) {
     <Card className={cardVariants.glass}>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          <ClipboardCheck className="h-4 w-4 text-primary" />
+          <FileText className="h-4 w-4 text-primary" />
           {t('synthesis.surveyStructural')}
         </CardTitle>
         <p className="text-xs text-muted-foreground">{t('synthesis.surveyStructuralDesc')}</p>

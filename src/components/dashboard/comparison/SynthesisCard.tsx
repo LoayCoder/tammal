@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { Brain, Shield, Target, Gauge, Lightbulb } from 'lucide-react';
+import { Sparkles, Shield, Target, Activity } from 'lucide-react';
 import type { SynthesisResult } from '@/lib/analytics/types';
 import { cardVariants, typography} from "@/theme/tokens";
 
@@ -40,7 +40,7 @@ export function SynthesisCard({ data, isLoading }: Props) {
     <Card className={cardVariants.glass}>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          <Brain className="h-4 w-4 text-primary" />
+          <Sparkles className="h-4 w-4 text-primary" />
           {t('synthesis.title')}
         </CardTitle>
         <p className="text-xs text-muted-foreground">{t('synthesis.titleDesc')}</p>
@@ -72,14 +72,14 @@ export function SynthesisCard({ data, isLoading }: Props) {
 
           {/* Confidence */}
           <div className="text-center space-y-1">
-            <Gauge className="h-5 w-5 mx-auto text-primary" />
+            <Activity className="h-5 w-5 mx-auto text-primary" />
             <p className={typography.metric}>{data.confidenceScore}%</p>
             <p className="text-xs text-muted-foreground">{t('synthesis.confidence')}</p>
           </div>
 
           {/* Action */}
           <div className="text-center space-y-1 col-span-2 md:col-span-1">
-            <Lightbulb className="h-5 w-5 mx-auto text-primary" />
+            <Sparkles className="h-5 w-5 mx-auto text-primary" />
             <p className="text-xs font-medium">{t(data.recommendedActionKey)}</p>
             <p className="text-xs text-muted-foreground">{t('synthesis.action')}</p>
           </div>

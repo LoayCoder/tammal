@@ -7,7 +7,7 @@ import {
   useOrgIntelligenceScore, useRunAnalyticsSnapshot, useRunAIPredictions,
 } from '@/features/workload';
 import { toast } from 'sonner';
-import { Brain, RefreshCw } from 'lucide-react';
+import { Sparkles, RefreshCw } from 'lucide-react';
 
 import { TammalIndexCard } from '@/features/workload/components/executive/TammalIndexCard';
 import { ExecutiveKPIRow } from '@/features/workload/components/executive/ExecutiveKPIRow';
@@ -114,7 +114,7 @@ export default function ExecutiveDashboard() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleAIPredictions} disabled={aiMutation.isPending} className="gap-2">
-            <Brain className={`h-3.5 w-3.5 ${aiMutation.isPending ? 'animate-spin' : ''}`} />
+            <Sparkles className={`h-3.5 w-3.5 ${aiMutation.isPending ? 'animate-spin' : ''}`} />
             {aiMutation.isPending ? t('executive.aiRunning') : t('executive.runAI')}
           </Button>
           <Button variant="outline" size="sm" onClick={handleSnapshot} disabled={snapshotMutation.isPending} className="gap-2">

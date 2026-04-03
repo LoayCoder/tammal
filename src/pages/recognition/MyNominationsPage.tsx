@@ -16,7 +16,7 @@ import { useEndorsements } from '@/hooks/recognition/useEndorsements';
 import { useHasRole } from '@/hooks/auth/useUserPermissions';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Trophy, Plus, Send, Inbox, ShieldCheck, ThumbsUp } from 'lucide-react';
+import { Star, Plus, Send, Shield } from 'lucide-react';
 import type { Nomination } from '@/hooks/recognition/useNominations';
 import { PageHeader } from '@/components/system';
 
@@ -65,7 +65,7 @@ export default function MyNominationsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={<Trophy className="h-5 w-5 text-primary" />}
+        icon={<Star className="h-5 w-5 text-primary" />}
         title={t('recognition.nominations.myNominations')}
         subtitle={t('recognition.nominations.myNominationsDesc')}
         variant="card"
@@ -84,16 +84,16 @@ export default function MyNominationsPage() {
             {t('recognition.nominations.sent')} ({myNominations.length})
           </TabsTrigger>
           <TabsTrigger value="received" className="flex items-center gap-1.5">
-            <Inbox className="h-3.5 w-3.5" />
+            <Send className="h-3.5 w-3.5" />
             {t('recognition.nominations.received')} ({receivedNominations.length})
           </TabsTrigger>
           <TabsTrigger value="endorse" className="flex items-center gap-1.5">
-            <ThumbsUp className="h-3.5 w-3.5" />
+            <Star className="h-3.5 w-3.5" />
             {t('recognition.endorsements.endorseTab')} ({myEndorsementRequests.length})
           </TabsTrigger>
           {showApprovalsTab && (
             <TabsTrigger value="approvals" className="flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5" />
+              <Shield className="h-3.5 w-3.5" />
               {t('recognition.nominations.managerApproval')} ({pendingApprovals.length})
             </TabsTrigger>
           )}
@@ -139,7 +139,7 @@ export default function MyNominationsPage() {
           ) : receivedNominations.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <Inbox className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                <Send className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
                 <p className="text-muted-foreground">{t('recognition.nominations.noReceived')}</p>
               </CardContent>
             </Card>
@@ -165,7 +165,7 @@ export default function MyNominationsPage() {
           ) : myEndorsementRequests.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <ThumbsUp className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                <Star className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
                 <p className="text-muted-foreground">{t('recognition.endorsements.noEndorseRequests')}</p>
               </CardContent>
             </Card>
@@ -186,7 +186,7 @@ export default function MyNominationsPage() {
                       </p>
                     )}
                     <Button variant="outline" size="sm" className="mt-2">
-                      <ThumbsUp className="h-3.5 w-3.5 me-1.5" />
+                      <Star className="h-3.5 w-3.5 me-1.5" />
                       {t('recognition.endorsements.submitEndorsement')}
                     </Button>
                   </CardContent>
@@ -205,7 +205,7 @@ export default function MyNominationsPage() {
             ) : pendingApprovals.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
-                  <ShieldCheck className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                  <Shield className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
                   <p className="text-muted-foreground">{t('recognition.nominations.noPendingApprovals')}</p>
                 </CardContent>
               </Card>

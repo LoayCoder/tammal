@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { BookOpen, ChevronRight, ChevronLeft, Search, ArrowUp, Timer } from 'lucide-react';
+import { FileText, ChevronRight, ChevronLeft, Search, ArrowUp, Clock } from 'lucide-react';
 import { useQuranSurahList, useQuranSurah, SurahMeta } from '@/hooks/spiritual/useQuranText';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { useReadingTimer } from '@/hooks/spiritual/useReadingTimer';
@@ -171,7 +171,7 @@ function SurahViewer({ surahNumber, onBack, onStopAndSave, elapsedSeconds, forma
 
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="gap-1.5 text-xs font-mono">
-            <Timer className="h-3 w-3" />
+            <Clock className="h-3 w-3" />
             {formatTime(elapsedSeconds)}
           </Badge>
           <Button
@@ -180,7 +180,7 @@ function SurahViewer({ surahNumber, onBack, onStopAndSave, elapsedSeconds, forma
             onClick={onStopAndSave}
             className="gap-1.5"
           >
-            <BookOpen className="h-3.5 w-3.5" />
+            <FileText className="h-3.5 w-3.5" />
             {t('spiritual.quranReader.stopAndSave', 'Stop & Save')}
           </Button>
         </div>
@@ -301,7 +301,7 @@ function SurahViewer({ surahNumber, onBack, onStopAndSave, elapsedSeconds, forma
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <Badge variant="outline" className="gap-1.5 text-xs font-mono shrink-0">
-              <Timer className="h-3 w-3" />
+              <Clock className="h-3 w-3" />
               {formatTime(elapsedSeconds)}
             </Badge>
             <span className="text-sm text-muted-foreground truncate">
@@ -314,7 +314,7 @@ function SurahViewer({ surahNumber, onBack, onStopAndSave, elapsedSeconds, forma
             onClick={onStopAndSave}
             className="gap-1.5 shrink-0"
           >
-            <BookOpen className="h-3.5 w-3.5" />
+            <FileText className="h-3.5 w-3.5" />
             {t('spiritual.quranReader.stopAndSave', 'Stop & Save')}
           </Button>
         </div>
@@ -426,7 +426,7 @@ export default function QuranTextReader() {
       <div className="container mx-auto py-6">
         <Card className={cardVariants.glass}>
           <CardContent className="p-12 text-center space-y-4">
-            <BookOpen className="h-12 w-12 mx-auto text-muted-foreground" />
+            <FileText className="h-12 w-12 mx-auto text-muted-foreground" />
             <h2 className="text-xl font-semibold">{t('spiritual.quran.notEnabled')}</h2>
             <p className="text-muted-foreground">{t('spiritual.quran.enablePrompt')}</p>
             <Button onClick={() => navigate('/settings/profile')}>{t('spiritual.prayer.goToSettings')}</Button>
@@ -443,7 +443,7 @@ export default function QuranTextReader() {
         <Button variant="ghost" size="icon" onClick={() => navigate('/spiritual/quran')} className="shrink-0">
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
         </Button>
-        <BookOpen className="h-7 w-7 text-primary" />
+        <FileText className="h-7 w-7 text-primary" />
         <div>
           <h1 className={typography.metric}>{t('spiritual.quranReader.title', 'Read the Qur\'an')}</h1>
           <p className="text-muted-foreground text-sm">

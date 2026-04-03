@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
-import { Users, CreditCard, Headphones, Building2, FileText, Shield, UserPlus } from 'lucide-react';
+import { Users, CreditCard, Waves, Building2, FileText, Shield, Plus } from 'lucide-react';
 
 export interface TenantSettings {
   allow_signup: boolean;
@@ -38,7 +38,7 @@ interface TenantModuleControlProps {
 const MODULE_ICONS = {
   user_management: Users,
   billing: CreditCard,
-  support: Headphones,
+  support: Waves,
   org_structure: Building2,
   documents: FileText,
 };
@@ -83,7 +83,7 @@ export function TenantModuleControl({ settings, onChange }: TenantModuleControlP
         <div className="space-y-4">
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div className="flex items-center gap-3">
-              <UserPlus className="h-5 w-5 text-muted-foreground" />
+              <Plus className="h-5 w-5 text-muted-foreground" />
               <div>
                 <Label className="text-sm font-medium">{t('tenants.allowSignup')}</Label>
                 <p className="text-xs text-muted-foreground">{t('tenants.allowSignupDescription')}</p>

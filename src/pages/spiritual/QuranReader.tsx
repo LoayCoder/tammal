@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { BookOpenCheck, Clock, TrendingUp, Plus, BookOpen, PlayCircle, RotateCcw } from 'lucide-react';
+import { FileText, Clock, ArrowUp, Plus, Play, RefreshCw } from 'lucide-react';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { useQuranSessions, useLastQuranSession } from '@/hooks/spiritual/useQuranSessions';
 import { useNavigate } from 'react-router-dom';
@@ -109,7 +109,7 @@ export default function QuranReader() {
       <div className="container mx-auto py-6">
         <Card className={cardVariants.glass}>
           <CardContent className="p-12 text-center space-y-4">
-            <BookOpenCheck className="h-12 w-12 mx-auto text-muted-foreground" />
+            <FileText className="h-12 w-12 mx-auto text-muted-foreground" />
             <h2 className="text-xl font-semibold">{t('spiritual.quran.notEnabled')}</h2>
             <p className="text-muted-foreground">{t('spiritual.quran.enablePrompt')}</p>
             <Button onClick={() => navigate('/settings/profile')}>{t('spiritual.prayer.goToSettings')}</Button>
@@ -124,7 +124,7 @@ export default function QuranReader() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
-          <BookOpenCheck className="h-8 w-8 text-primary" />
+          <FileText className="h-8 w-8 text-primary" />
           <div>
             <h1 className={typography.metric}>{t('spiritual.quran.title')}</h1>
             <p className="text-muted-foreground">{t('spiritual.quran.subtitle')}</p>
@@ -142,7 +142,7 @@ export default function QuranReader() {
             }}
             className="gap-2"
           >
-            <BookOpen className="h-4 w-4" />
+            <FileText className="h-4 w-4" />
             {t('spiritual.quran.startReading', 'Start Reading')}
           </Button>
           <Button onClick={() => setShowForm(!showForm)} className="gap-2">
@@ -158,7 +158,7 @@ export default function QuranReader() {
           <CardContent className="p-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="rounded-full bg-primary/10 p-2">
-                <RotateCcw className="h-5 w-5 text-primary" />
+                <RefreshCw className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="font-medium text-sm">{t('spiritual.quran.resumeSession', 'Resume Last Session')}</p>
@@ -171,7 +171,7 @@ export default function QuranReader() {
               </div>
             </div>
             <Button size="sm" onClick={() => handleResume(lastSession.surah_name!, lastSession.last_ayah_position ?? undefined)} className="gap-1.5 shrink-0">
-              <PlayCircle className="h-4 w-4" />
+              <Play className="h-4 w-4" />
               {t('spiritual.quran.resumeReading', 'Resume')}
             </Button>
           </CardContent>
@@ -183,7 +183,7 @@ export default function QuranReader() {
         <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="rounded-full bg-primary/10 p-2">
-              <BookOpen className="h-5 w-5 text-primary" />
+              <FileText className="h-5 w-5 text-primary" />
             </div>
             <div>
               <p className={typography.metric}>{totalSessions}</p>
@@ -205,7 +205,7 @@ export default function QuranReader() {
         <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="rounded-full bg-primary/10 p-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
+              <ArrowUp className="h-5 w-5 text-primary" />
             </div>
             <div>
               <p className={typography.metric}>{totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0}</p>
@@ -325,7 +325,7 @@ export default function QuranReader() {
                         onClick={() => handleResume(session.surah_name!, session.last_ayah_position ?? undefined)}
                         title={t('spiritual.quran.resumeReading', 'Resume')}
                       >
-                        <PlayCircle className="h-4 w-4 text-primary" />
+                        <Play className="h-4 w-4 text-primary" />
                       </Button>
                     )}
                   </div>

@@ -5,9 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, LineChart, Line, Area, AreaChart,
 } from 'recharts';
-import {
-  CheckCircle, Clock, TrendingUp, Users, AlertTriangle, Target,
-} from 'lucide-react';
+import { Check, Clock, ArrowUp, Users, AlertTriangle, Target } from 'lucide-react';
 import { format, subDays, startOfDay, eachDayOfInterval } from 'date-fns';
 import { useMemo, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -146,8 +144,8 @@ export default function TaskPerformanceAnalytics() {
           {/* KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <KPICard icon={Target} label={t('taskAnalytics.totalTasks')} value={metrics.total} />
-            <KPICard icon={CheckCircle} label={t('taskAnalytics.completionRate')} value={`${metrics.completionRate}%`} />
-            <KPICard icon={TrendingUp} label={t('taskAnalytics.avgProgress')} value={`${metrics.avgProgress}%`} />
+            <KPICard icon={Check} label={t('taskAnalytics.completionRate')} value={`${metrics.completionRate}%`} />
+            <KPICard icon={ArrowUp} label={t('taskAnalytics.avgProgress')} value={`${metrics.avgProgress}%`} />
             <KPICard icon={Clock} label={t('taskAnalytics.avgCompletionTime')} value={metrics.avgCompletionDisplay} />
             <KPICard icon={AlertTriangle} label={t('taskAnalytics.inProgress')} value={metrics.inProgress} />
           </div>

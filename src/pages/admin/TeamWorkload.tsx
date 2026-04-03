@@ -19,7 +19,7 @@ import { WorkloadDistributionChart } from '@/components/workload/team/WorkloadDi
 import { ExecutionMetricsCard } from '@/components/workload/team/ExecutionMetricsCard';
 import { RiskAlertsCard } from '@/components/workload/team/RiskAlertsCard';
 import { PageHeader } from '@/components/system';
-import { Users, AlertTriangle, TrendingUp, CheckCircle2, Plus, Search, Lock, Unlock, Trash2 } from 'lucide-react';
+import { Users, AlertTriangle, ArrowUp, Check, Plus, Search, Lock, Unlock, Trash2 } from 'lucide-react';
 import { TeamMemberAccordion } from '@/components/workload/team/TeamMemberAccordion';
 import { format } from 'date-fns';
 import { cardVariants, typography} from "@/theme/tokens";
@@ -129,8 +129,8 @@ export default function TeamWorkload() {
   const statCards = [
     { title: t('teamWorkload.teamSize'), value: teamLoad.length, icon: Users },
     { title: t('teamWorkload.atRiskMembers'), value: riskMembers.length, icon: AlertTriangle },
-    { title: t('teamWorkload.objContributing'), value: objectives.length, icon: TrendingUp },
-    { title: t('teamWorkload.initActive'), value: initiatives.filter(i => i.status !== 'completed').length, icon: CheckCircle2 },
+    { title: t('teamWorkload.objContributing'), value: objectives.length, icon: ArrowUp },
+    { title: t('teamWorkload.initActive'), value: initiatives.filter(i => i.status !== 'completed').length, icon: Check },
   ];
 
   const memberTaskColumns = [

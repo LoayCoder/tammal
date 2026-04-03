@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Lock, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { Loader2, Lock, Eye, EyeOff, Check } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -118,7 +118,7 @@ export function ChangePasswordDialog({
         {passwordChanged ? (
           <div className="space-y-4 py-4">
             <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
-              <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
               <AlertDescription className="text-green-800 dark:text-green-200">
                 {t('profile.passwordChangedSuccessfully')}
               </AlertDescription>
@@ -177,7 +177,7 @@ export function ChangePasswordDialog({
                         req.met ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'
                       }`}
                     >
-                      <CheckCircle2 className={`h-3 w-3 ${req.met ? 'opacity-100' : 'opacity-40'}`} />
+                      <Check className={`h-3 w-3 ${req.met ? 'opacity-100' : 'opacity-40'}`} />
                       <span>{req.label}</span>
                     </div>
                   ))}

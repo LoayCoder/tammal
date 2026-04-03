@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { FlaskConical, CheckCircle2, XCircle } from 'lucide-react';
+import { Sparkles, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSandboxEvaluations, type SandboxEvaluation } from '@/features/ai-governance/hooks/useSandboxEvaluations';
 import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
@@ -45,7 +45,7 @@ export function SandboxMonitor() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <FlaskConical className="h-5 w-5" />
+          <Sparkles className="h-5 w-5" />
           {t('aiGovernance.autonomous.sandboxTitle')}
         </CardTitle>
       </CardHeader>
@@ -71,11 +71,11 @@ export function SandboxMonitor() {
                     {isSuperAdmin && ev.status === 'active' && (
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" onClick={() => manageSandbox.mutate({ action: 'promote_sandbox', sandboxId: ev.id })}>
-                          <CheckCircle2 className="h-3 w-3 me-1" />
+                          <Check className="h-3 w-3 me-1" />
                           {t('aiGovernance.autonomous.promote')}
                         </Button>
                         <Button variant="outline" size="sm" onClick={() => manageSandbox.mutate({ action: 'disable_sandbox', sandboxId: ev.id })}>
-                          <XCircle className="h-3 w-3 me-1" />
+                          <X className="h-3 w-3 me-1" />
                           {t('aiGovernance.autonomous.disable')}
                         </Button>
                       </div>

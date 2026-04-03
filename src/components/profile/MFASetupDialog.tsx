@@ -13,16 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Shield, 
-  Loader2, 
-  CheckCircle2, 
-  XCircle,
-  Smartphone,
-  Copy,
-  Key,
-  AlertTriangle
-} from 'lucide-react';
+import { Shield, Loader2, Check, X, Monitor, Copy, Key, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/auth/useAuth';
@@ -188,9 +179,9 @@ export function MFASetupDialog({ open, onOpenChange }: MFASetupDialogProps) {
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-lg ${isEnrolled ? 'bg-green-100 text-green-600' : 'bg-muted'}`}>
                     {isEnrolled ? (
-                      <CheckCircle2 className="h-5 w-5" />
+                      <Check className="h-5 w-5" />
                     ) : (
-                      <XCircle className="h-5 w-5 text-muted-foreground" />
+                      <X className="h-5 w-5 text-muted-foreground" />
                     )}
                   </div>
                   <div>
@@ -215,7 +206,7 @@ export function MFASetupDialog({ open, onOpenChange }: MFASetupDialogProps) {
                 </Button>
               ) : (
                 <Button className="w-full" onClick={handleStartSetup}>
-                  <Smartphone className="me-2 h-4 w-4" />
+                  <Monitor className="me-2 h-4 w-4" />
                   {t('profile.enableMFA')}
                 </Button>
               )}
@@ -223,7 +214,7 @@ export function MFASetupDialog({ open, onOpenChange }: MFASetupDialogProps) {
           ) : step === 'setup' ? (
             <div className="space-y-4">
               <Alert>
-                <Smartphone className="h-4 w-4" />
+                <Monitor className="h-4 w-4" />
                 <AlertDescription>
                   {t('profile.scanQRCode')}
                 </AlertDescription>
@@ -285,7 +276,7 @@ export function MFASetupDialog({ open, onOpenChange }: MFASetupDialogProps) {
             <div className="space-y-4 text-center">
               <div className="flex justify-center">
                 <div className="p-3 bg-green-100 rounded-full text-green-600">
-                  <CheckCircle2 className="h-8 w-8" />
+                  <Check className="h-8 w-8" />
                 </div>
               </div>
               <div>

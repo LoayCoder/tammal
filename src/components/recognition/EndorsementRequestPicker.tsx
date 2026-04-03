@@ -10,7 +10,7 @@ import { useEmployees } from '@/hooks/org/useEmployees';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { useEndorsementRequests } from '@/hooks/recognition/useEndorsementRequests';
-import { Users, Search, Send, CheckCircle } from 'lucide-react';
+import { Users, Search, Send, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface EndorsementRequestPickerProps {
@@ -78,7 +78,7 @@ export function EndorsementRequestPicker({ nominationId, nomineeId, managerAppro
     return (
       <Card>
         <CardContent className="py-8 text-center">
-          <CheckCircle className="h-10 w-10 text-chart-2 mx-auto mb-2" />
+          <Check className="h-10 w-10 text-chart-2 mx-auto mb-2" />
           <p className="font-medium">{t('recognition.endorsements.requestsSent')}</p>
           <p className="text-sm text-muted-foreground mt-1">
             {managerApprovalPending

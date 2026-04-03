@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { StatusBadge, SCHEDULE_STATUS_CONFIG } from '@/shared/status-badge';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Package, Building2, UserCheck } from 'lucide-react';
+import { Plus, Calendar, Pause, Trash2, Users, Loader2, Play, Pencil, Eye, Layers, Building2, Fingerprint } from 'lucide-react';
 import type { QuestionSchedule } from '@/hooks/questions/useQuestionSchedules';
 import { resolveAudience } from '@/hooks/admin/useAudienceResolver';
 
@@ -68,7 +68,7 @@ export function ScheduleListTable({
     if (schedule.target_audience?.specific_employees?.length) {
       return (
         <div className="flex items-center gap-1.5">
-          <UserCheck className="h-4 w-4" />
+          <Fingerprint className="h-4 w-4" />
           <span>{t('schedules.employeesSelected', { count: schedule.target_audience.specific_employees.length })}</span>
           <Badge variant="secondary" className="text-xs">{countLabel}</Badge>
         </div>
@@ -136,7 +136,7 @@ export function ScheduleListTable({
                   <TableCell>
                     {(schedule.batch_ids?.length || 0) > 0 ? (
                       <Badge variant="secondary">
-                        <Package className="h-3 w-3 me-1" />
+                        <Layers className="h-3 w-3 me-1" />
                         {schedule.batch_ids.length} {schedule.batch_ids.length === 1 ? 'batch' : 'batches'}
                       </Badge>
                     ) : (

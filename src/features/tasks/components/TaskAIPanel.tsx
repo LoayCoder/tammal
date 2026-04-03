@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Brain, Users, Clock, AlertTriangle, Sparkles, ArrowUpDown, ListChecks, GitBranch } from 'lucide-react';
+import { Sparkles, Users, Clock, AlertTriangle, ArrowUpDown, ListChecks, Network } from 'lucide-react';
 import { useTaskAI } from '@/features/tasks/hooks/useTaskAI';
 
 interface TaskAIPanelProps {
@@ -55,7 +55,7 @@ export function TaskAIPanel({ taskId }: TaskAIPanelProps) {
     <Card className="border-0 bg-gradient-to-b from-primary/5 to-transparent">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm flex items-center gap-2">
-          <Brain className="h-4 w-4 text-primary" />
+          <Sparkles className="h-4 w-4 text-primary" />
           {t('taskAI.title')}
         </CardTitle>
       </CardHeader>
@@ -83,7 +83,7 @@ export function TaskAIPanel({ taskId }: TaskAIPanelProps) {
             {t('taskAI.suggestChecklist')}
           </Button>
           <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => suggestDependencies.mutate()} disabled={isLoading}>
-            <GitBranch className="h-3.5 w-3.5" />
+            <Network className="h-3.5 w-3.5" />
             {t('taskAI.suggestDependencies')}
           </Button>
         </div>
@@ -241,7 +241,7 @@ export function TaskAIPanel({ taskId }: TaskAIPanelProps) {
         {suggestDependencies.data?.suggestions && (
           <div className="space-y-2">
             <h4 className="text-xs font-semibold flex items-center gap-1.5">
-              <GitBranch className="h-3.5 w-3.5 text-chart-4" />
+              <Network className="h-3.5 w-3.5 text-chart-4" />
               {t('taskAI.dependencySuggestion')}
             </h4>
             <div className="p-3 rounded-lg bg-muted/30 space-y-2">

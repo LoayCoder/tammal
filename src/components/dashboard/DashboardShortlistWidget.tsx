@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Award, Trophy, CheckCircle2 } from 'lucide-react';
+import { Star, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { cardVariants } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
@@ -116,8 +116,8 @@ export function DashboardShortlistWidget() {
   if (!entries.length) return null;
 
   const getRankIcon = (rank: number) => {
-    if (rank === 1) return <Trophy className="h-7 w-7 text-chart-1" />;
-    return <Award className="h-7 w-7 text-chart-2" />;
+    if (rank === 1) return <Star className="h-7 w-7 text-chart-1" />;
+    return <Star className="h-7 w-7 text-chart-2" />;
   };
 
   const getRankLabel = (rank: number) => {
@@ -157,11 +157,11 @@ export function DashboardShortlistWidget() {
                 disabled={acknowledge.isPending}
                 className="shrink-0"
               >
-                <CheckCircle2 className="h-4 w-4 me-1" />
+                <Check className="h-4 w-4 me-1" />
                 {t('recognition.shortlist.acknowledge')}
               </Button>
             ) : (
-              <CheckCircle2 className="h-6 w-6 text-chart-1 shrink-0" />
+              <Check className="h-6 w-6 text-chart-1 shrink-0" />
             )}
           </CardContent>
         </Card>

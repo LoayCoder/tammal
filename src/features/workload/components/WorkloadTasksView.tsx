@@ -9,9 +9,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { UnifiedTaskList } from '@/components/workload/employee/UnifiedTaskList';
-import {
-  Search, ListChecks, CheckCircle2, AlertTriangle,
-} from 'lucide-react';
+import { Search, ListChecks, Check, AlertTriangle } from 'lucide-react';
 import type { UnifiedTask } from '@/features/workload/hooks/useUnifiedTasks';
 
 const STATUSES = ['all', 'draft', 'open', 'in_progress', 'under_review', 'pending_approval', 'completed', 'verified', 'rejected', 'archived'] as const;
@@ -103,7 +101,7 @@ export function WorkloadTasksView({ tasks, isPending, onDelete }: WorkloadTasksV
                 <AlertTriangle className="h-3.5 w-3.5" />{t('tasks.tabs.overdue')} ({stats.overdue.length})
               </TabsTrigger>
               <TabsTrigger value="completed" className="gap-1.5 text-xs">
-                <CheckCircle2 className="h-3.5 w-3.5" />{t('tasks.tabs.completed')} ({stats.completed.length})
+                <Check className="h-3.5 w-3.5" />{t('tasks.tabs.completed')} ({stats.completed.length})
               </TabsTrigger>
             </TabsList>
             {(['active', 'overdue', 'completed'] as const).map(key => (

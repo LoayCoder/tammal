@@ -17,7 +17,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Pencil, Trash2, FileText, Search, CheckSquare } from 'lucide-react';
+import { Plus, Pencil, Trash2, FileText, Search, Check } from 'lucide-react';
 import { useTaskTemplates, type CreateTemplateInput } from '@/features/tasks/hooks/useTaskTemplates';
 import { typography } from "@/theme/tokens";
 
@@ -187,7 +187,7 @@ export default function TaskTemplates() {
                   )}
                   {Array.isArray(tpl.checklist_items) && tpl.checklist_items.length > 0 && (
                     <Badge variant="outline" className="gap-1">
-                      <CheckSquare className="h-3 w-3" />
+                      <Check className="h-3 w-3" />
                       {tpl.checklist_items.length}
                     </Badge>
                   )}

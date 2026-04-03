@@ -9,20 +9,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  Monitor, 
-  Smartphone, 
-  Tablet, 
-  Globe,
-  Clock,
-  MapPin,
-  CheckCircle2,
-  XCircle,
-  Shield,
-  LogIn,
-  LogOut,
-  History
-} from 'lucide-react';
+import { Monitor, Tablet, Globe, Clock, MapPin, Check, X, Shield, LogIn, LogOut, History } from 'lucide-react';
 import { useLoginHistory } from '@/hooks/auth/useLoginHistory';
 import { formatDistanceToNow } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
@@ -40,7 +27,7 @@ export function LoginActivityDialog({ open, onOpenChange }: LoginActivityDialogP
   const getDeviceIcon = (deviceType: string | null) => {
     switch (deviceType?.toLowerCase()) {
       case 'mobile':
-        return <Smartphone className="h-4 w-4" />;
+        return <Monitor className="h-4 w-4" />;
       case 'tablet':
         return <Tablet className="h-4 w-4" />;
       default:
@@ -49,13 +36,13 @@ export function LoginActivityDialog({ open, onOpenChange }: LoginActivityDialogP
   };
 
   const getEventIcon = (eventType: string, success: boolean) => {
-    if (!success) return <XCircle className="h-4 w-4 text-destructive" />;
+    if (!success) return <X className="h-4 w-4 text-destructive" />;
     
     switch (eventType) {
       case 'logout':
         return <LogOut className="h-4 w-4 text-muted-foreground" />;
       case 'failed_login':
-        return <XCircle className="h-4 w-4 text-destructive" />;
+        return <X className="h-4 w-4 text-destructive" />;
       default:
         return <LogIn className="h-4 w-4 text-green-600" />;
     }

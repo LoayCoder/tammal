@@ -6,10 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
-import {
-  RefreshCw, Edit2, Copy, ChevronDown, Check, X,
-  AlertTriangle, CheckCircle, XCircle, Info, Sparkles, Loader2, Plus
-} from 'lucide-react';
+import { RefreshCw, Pencil, Copy, ChevronDown, Check, X, AlertTriangle, Info, Sparkles, Loader2, Plus } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { EnhancedGeneratedQuestion } from '@/hooks/questions/useEnhancedAIGeneration';
@@ -40,9 +37,9 @@ const typeLabels: Record<string, string> = {
 };
 
 const statusIcons: Record<string, React.ReactNode> = {
-  passed: <CheckCircle className="h-4 w-4 text-primary" />,
+  passed: <Check className="h-4 w-4 text-primary" />,
   warning: <AlertTriangle className="h-4 w-4 text-chart-4" />,
-  failed: <XCircle className="h-4 w-4 text-destructive" />,
+  failed: <X className="h-4 w-4 text-destructive" />,
   pending: <Info className="h-4 w-4 text-muted-foreground" />,
 };
 
@@ -363,7 +360,7 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
             <Copy className="h-3.5 w-3.5" />
           </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditText(question.question_text); setEditTextAr(question.question_text_ar); setIsEditing(true); }}>
-            <Edit2 className="h-3.5 w-3.5" />
+            <Pencil className="h-3.5 w-3.5" />
           </Button>
           <Tooltip>
             <TooltipTrigger asChild>

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Coins, AlertTriangle } from 'lucide-react';
+import { DollarSign, AlertTriangle } from 'lucide-react';
 
 interface PointsBalanceCardProps {
   balance: number;
@@ -17,7 +17,7 @@ export function PointsBalanceCard({ balance, expiringWithin30Days }: PointsBalan
         <CardTitle className="text-sm font-medium">
           {t('recognition.points.balance')}
         </CardTitle>
-        <Coins className="h-4 w-4 text-muted-foreground" />
+        <DollarSign className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
         <div className="text-3xl font-bold">{balance.toLocaleString()}</div>

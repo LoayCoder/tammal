@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Network, Building2, Layers, GitBranch, MapPin } from 'lucide-react';
+import { Network, Building2, Layers, MapPin } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProfile } from '@/hooks/auth/useProfile';
@@ -39,7 +39,7 @@ export default function OrgStructure() {
       <Tabs defaultValue="branches">
         <TabsList className="glass-tabs flex-wrap">
           <TabsTrigger value="branches" className="gap-2 rounded-xl">
-            <GitBranch className="h-4 w-4" /> {t('branches.title')}
+            <Network className="h-4 w-4" /> {t('branches.title')}
           </TabsTrigger>
           <TabsTrigger value="divisions" className="gap-2 rounded-xl">
             <Network className="h-4 w-4" /> {t('divisions.title')}

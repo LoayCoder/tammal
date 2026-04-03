@@ -12,10 +12,7 @@ import { InlineDailyCheckin } from '@/components/checkin/InlineDailyCheckin';
 import { PersonalMoodDashboard } from '@/components/dashboard/PersonalMoodDashboard';
 import { MentalHealthToolsHub } from '@/components/dashboard/MentalHealthToolsHub';
 import { MentalHealthResourcesHub } from '@/components/dashboard/MentalHealthResourcesHub';
-import {
-  Flame, Star, CheckCircle2, ClipboardList, ChevronRight,
-  Phone, HeartHandshake, Crown,
-} from 'lucide-react';
+import { Flame, Star, Check, FileText, ChevronRight, Phone, Heart, Crown } from 'lucide-react';
 import { DashboardPrayerWidget } from '@/components/dashboard/DashboardPrayerWidget';
 import { DashboardIslamicCalendarWidget } from '@/components/dashboard/DashboardIslamicCalendarWidget';
 import { DashboardWorkloadWidget } from '@/components/dashboard/DashboardWorkloadWidget';
@@ -115,7 +112,7 @@ export default function EmployeeHome() {
                 <h3 className="font-semibold text-base">{t('home.checkinDone')}</h3>
                 <p className="text-muted-foreground text-sm mt-0.5">{t('home.checkinDoneDesc')}</p>
               </div>
-              <CheckCircle2 className="h-6 w-6 text-chart-1 shrink-0" />
+              <Check className="h-6 w-6 text-chart-1 shrink-0" />
             </CardContent>
           </Card>
         )}
@@ -133,7 +130,7 @@ export default function EmployeeHome() {
             <Card className={cn(cardVariants.premium, "cursor-pointer")}>
               <CardContent className="flex items-center gap-4 p-6">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-chart-2/15 to-chart-2/5">
-                  <ClipboardList className="h-7 w-7 text-chart-2" />
+                  <FileText className="h-7 w-7 text-chart-2" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-base">{t('home.surveyCard')}</h3>
@@ -185,7 +182,7 @@ export default function EmployeeHome() {
               <Card className={cn(cardVariants.premium, "cursor-pointer")}>
                 <CardContent className="flex items-center gap-4 p-5">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-chart-1/15 to-chart-1/5">
-                    <HeartHandshake className="h-6 w-6 text-chart-1" />
+                    <Heart className="h-6 w-6 text-chart-1" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-sm">{t('crisisSupport.nav.firstAider')}</h3>

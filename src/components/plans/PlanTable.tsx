@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Grip, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -74,7 +74,7 @@ export function PlanTable({ plans, isLoading, onEdit, onDelete }: PlanTableProps
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
-              <MoreHorizontal className="h-4 w-4" />
+              <Grip className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

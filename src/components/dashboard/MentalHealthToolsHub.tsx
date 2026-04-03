@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import {
-  Wind, BookOpen, CheckSquare, ClipboardCheck, ChevronRight,
-} from 'lucide-react';
+import { Waves, FileText, Check, ChevronRight } from 'lucide-react';
 import BreathingGroundingTool from '@/components/mental-toolkit/tools/BreathingGroundingTool';
 import JournalingPromptsTool from '@/components/mental-toolkit/practices/JournalingPromptsTool';
 import HabitsPlanner from '@/components/mental-toolkit/practices/HabitsPlanner';
@@ -14,11 +12,11 @@ import { cn } from "@/lib/utils";
 
 type ToolKey = 'breathing' | 'journaling' | 'habits' | 'assessment';
 
-const TOOLS: { key: ToolKey; icon: typeof Wind; color: string; titleKey: string; descKey: string }[] = [
-  { key: 'breathing',   icon: Wind,           color: 'chart-3', titleKey: 'home.breathingGrounding',  descKey: 'home.breathingGroundingDesc' },
-  { key: 'journaling',  icon: BookOpen,       color: 'chart-4', titleKey: 'home.dailyJournaling',     descKey: 'home.dailyJournalingDesc' },
-  { key: 'habits',      icon: CheckSquare,    color: 'chart-1', titleKey: 'home.habitsPlanner',       descKey: 'home.habitsPlannerDesc' },
-  { key: 'assessment',  icon: ClipboardCheck, color: 'chart-2', titleKey: 'home.selfAssessment',      descKey: 'home.selfAssessmentDesc' },
+const TOOLS: { key: ToolKey; icon: typeof Waves; color: string; titleKey: string; descKey: string }[] = [
+  { key: 'breathing',   icon: Waves,           color: 'chart-3', titleKey: 'home.breathingGrounding',  descKey: 'home.breathingGroundingDesc' },
+  { key: 'journaling',  icon: FileText,       color: 'chart-4', titleKey: 'home.dailyJournaling',     descKey: 'home.dailyJournalingDesc' },
+  { key: 'habits',      icon: Check,    color: 'chart-1', titleKey: 'home.habitsPlanner',       descKey: 'home.habitsPlannerDesc' },
+  { key: 'assessment',  icon: FileText, color: 'chart-2', titleKey: 'home.selfAssessment',      descKey: 'home.selfAssessmentDesc' },
 ];
 
 export function MentalHealthToolsHub() {
@@ -54,7 +52,7 @@ export function MentalHealthToolsHub() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Wind className="h-5 w-5 text-chart-3" />
+              <Waves className="h-5 w-5 text-chart-3" />
               {t('home.breathingGrounding', 'Breathing & Grounding')}
             </DialogTitle>
           </DialogHeader>
@@ -66,7 +64,7 @@ export function MentalHealthToolsHub() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-chart-4" />
+              <FileText className="h-5 w-5 text-chart-4" />
               {t('home.dailyJournaling', 'Daily Journaling Prompts')}
             </DialogTitle>
           </DialogHeader>
@@ -78,7 +76,7 @@ export function MentalHealthToolsHub() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CheckSquare className="h-5 w-5 text-chart-1" />
+              <Check className="h-5 w-5 text-chart-1" />
               {t('home.habitsPlanner', 'Positive Habits Planner')}
             </DialogTitle>
           </DialogHeader>
@@ -90,7 +88,7 @@ export function MentalHealthToolsHub() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ClipboardCheck className="h-5 w-5 text-chart-2" />
+              <FileText className="h-5 w-5 text-chart-2" />
               {t('home.selfAssessment', 'Self-Assessment Quizzes')}
             </DialogTitle>
           </DialogHeader>

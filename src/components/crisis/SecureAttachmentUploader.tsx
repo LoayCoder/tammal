@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useSecureAttachments } from '@/hooks/crisis/useSecureAttachments';
 import { toast } from 'sonner';
-import { Upload, FileText, Image, Music, Shield, Clock } from 'lucide-react';
+import { Upload, FileText, Image, Waves, Shield, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { typography } from "@/theme/tokens";
 
@@ -25,7 +25,7 @@ const MAX_SIZE = 10 * 1024 * 1024;
 
 function getFileIcon(type: string) {
   if (type.startsWith('image/')) return <Image className="h-4 w-4" />;
-  if (type.startsWith('audio/')) return <Music className="h-4 w-4" />;
+  if (type.startsWith('audio/')) return <Waves className="h-4 w-4" />;
   return <FileText className="h-4 w-4" />;
 }
 

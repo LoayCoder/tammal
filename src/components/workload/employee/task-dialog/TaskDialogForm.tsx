@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertCircle } from 'lucide-react';
+import { Info } from 'lucide-react';
 import type { UnifiedTask, UnifiedTaskUpdate } from '@/features/workload/hooks/useUnifiedTasks';
 
 interface TaskDialogFormProps {
@@ -137,7 +137,7 @@ export function TaskDialogForm({
           />
           {closureError && (
             <p className="text-xs text-destructive flex items-center gap-1">
-              <AlertCircle className="h-3 w-3" /> {t('workload.tasks.closureCommentRequired')}
+              <Info className="h-3 w-3" /> {t('workload.tasks.closureCommentRequired')}
             </p>
           )}
         </div>

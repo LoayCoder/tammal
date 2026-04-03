@@ -7,9 +7,7 @@ import { useEnhancedChat, EnhancedMessage } from '@/hooks/crisis/useEnhancedChat
 import { useAuth } from '@/hooks/auth/useAuth';
 import { format, isToday, isYesterday } from 'date-fns';
 import { uploadVoiceNote } from '@/hooks/crisis/useVoiceNoteUpload';
-import {
-  Send, Smile, Reply, Check, CheckCheck, Mic, MicOff, X,
-} from 'lucide-react';
+import { Send, Smile, Reply, Check, Mic, MicOff, X } from 'lucide-react';
 
 interface Props {
   caseId: string;
@@ -218,7 +216,7 @@ export default function EnhancedChatPanel({ caseId, tenantId }: Props) {
                           </span>
                           {isMe && (
                             isRead
-                              ? <CheckCheck className="h-3 w-3 text-primary-foreground/90" />
+                              ? <Check className="h-3 w-3 text-primary-foreground/90" />
                               : <Check className="h-3 w-3 opacity-60" />
                           )}
                         </div>

@@ -15,10 +15,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { 
-  Plus, Edit, Trash2, ToggleLeft, RefreshCw, 
-  Building2, CreditCard, Users, Layers, Eye 
-} from 'lucide-react';
+import { Plus, Pencil, Trash2, ToggleLeft, RefreshCw, Building2, CreditCard, Users, Layers, Eye } from 'lucide-react';
 import type { AuditLog } from '@/hooks/audit/useAuditLog';
 
 interface AuditLogTableProps {
@@ -29,7 +26,7 @@ interface AuditLogTableProps {
 
 const actionIcons: Record<string, React.ElementType> = {
   create: Plus,
-  update: Edit,
+  update: Pencil,
   delete: Trash2,
   module_toggle: ToggleLeft,
   status_change: RefreshCw,
@@ -103,7 +100,7 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
       <ScrollArea className="h-[300px]">
         <div className="space-y-3">
           {logs.map((log) => {
-            const ActionIcon = actionIcons[log.action] || Edit;
+            const ActionIcon = actionIcons[log.action] || Pencil;
             const EntityIcon = entityIcons[log.entity_type] || Building2;
             
             return (
@@ -150,7 +147,7 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
       </TableHeader>
       <TableBody>
         {logs.map((log) => {
-          const ActionIcon = actionIcons[log.action] || Edit;
+          const ActionIcon = actionIcons[log.action] || Pencil;
           const EntityIcon = entityIcons[log.entity_type] || Building2;
           
           return (
@@ -214,7 +211,7 @@ function AuditLogDetailsModal({ log, open, onOpenChange }: AuditLogDetailsModalP
 
   if (!log) return null;
 
-  const ActionIcon = actionIcons[log.action] || Edit;
+  const ActionIcon = actionIcons[log.action] || Pencil;
   const EntityIcon = entityIcons[log.entity_type] || Building2;
 
   return (

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Brain, Info } from 'lucide-react';
+import { Sparkles, Info } from 'lucide-react';
 import { useMoodQuestionConfig, type MoodQuestionConfig } from '@/hooks/wellness/useMoodQuestionConfig';
 import { useMoodDefinitions, type MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';
 import { useQuestions } from '@/hooks/questions/useQuestions';
@@ -95,7 +95,7 @@ export default function MoodPathwaySettings() {
       {/* Page header */}
       <div className="flex items-start gap-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 shrink-0">
-          <Brain className="h-6 w-6 text-primary" />
+          <Sparkles className="h-6 w-6 text-primary" />
         </div>
         <div>
           <h1 className={typography.pageTitle}>{t('moodPathway.settingsTitle')}</h1>

@@ -1,15 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import {
-  Users, Building2, CreditCard,
-  HelpCircle, Palette, FileText, LayoutDashboard,
-  Layers, BarChart3, Network, Building, Download, History, GitBranch,
-  MessageSquare, Tags, UserCheck, Sparkles, Calendar, ClipboardList,
-  User, Heart, Settings, Package, Brain, SmilePlus, RefreshCw, Wind,
-  BookOpen, Music, CheckSquare, BookMarked, Phone, ClipboardCheck,
-  ChevronRight, Shield, HeartHandshake, Inbox, Moon, BookOpenCheck, UtensilsCrossed, CalendarDays,
-  Activity, Target, Gauge, Users2, Plug, Trophy, Award, Star, Vote, Coins, Gift, UserCog, Briefcase, BarChart,
-  ListChecks, AlertTriangle, ChevronsLeft, ChevronsRight
-} from 'lucide-react';
+import { Users, Building2, CreditCard, Info, Palette, FileText, Dot, Layers, Activity, Network, Building, Download, History, Send, Tags, Fingerprint, Sparkles, Calendar, User, Heart, Settings, Waves, RefreshCw, Check, BookMarked, Phone, ChevronRight, Shield, Moon, UtensilsCrossed, Target, Users2, Plug, Star, DollarSign, ListChecks, AlertTriangle, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -124,24 +114,24 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     {
       label: t('mentalToolkit.tabs.tools'),
       items: [
-        { title: t('mentalToolkit.moodTracker.title'), url: '/mental-toolkit/mood-tracker', icon: SmilePlus },
+        { title: t('mentalToolkit.moodTracker.title'), url: '/mental-toolkit/mood-tracker', icon: Waves },
         { title: t('mentalToolkit.thoughtReframer.title'), url: '/mental-toolkit/thought-reframer', icon: RefreshCw },
-        { title: t('mentalToolkit.breathing.title'), url: '/mental-toolkit/breathing', icon: Wind },
+        { title: t('mentalToolkit.breathing.title'), url: '/mental-toolkit/breathing', icon: Waves },
       ],
     },
     {
       label: t('mentalToolkit.tabs.practices'),
       items: [
-        { title: t('mentalToolkit.journaling.title'), url: '/mental-toolkit/journaling', icon: BookOpen },
-        { title: t('mentalToolkit.meditation.title'), url: '/mental-toolkit/meditation', icon: Music },
-        { title: t('mentalToolkit.habits.title'), url: '/mental-toolkit/habits', icon: CheckSquare },
+        { title: t('mentalToolkit.journaling.title'), url: '/mental-toolkit/journaling', icon: FileText },
+        { title: t('mentalToolkit.meditation.title'), url: '/mental-toolkit/meditation', icon: Waves },
+        { title: t('mentalToolkit.habits.title'), url: '/mental-toolkit/habits', icon: Check },
       ],
     },
     {
       label: t('mentalToolkit.tabs.resources'),
       items: [
         { title: t('mentalToolkit.articles.title'), url: '/mental-toolkit/articles', icon: BookMarked },
-        { title: t('mentalToolkit.quiz.title'), url: '/mental-toolkit/assessment', icon: ClipboardCheck },
+        { title: t('mentalToolkit.quiz.title'), url: '/mental-toolkit/assessment', icon: FileText },
       ],
     },
   ];
@@ -156,9 +146,9 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     {
       label: t('nav.dashboard'),
       access: 'all',
-      icon: LayoutDashboard,
+      icon: Dot,
       items: [
-        { title: t('nav.overview'), url: "/", icon: LayoutDashboard },
+        { title: t('nav.overview'), url: "/", icon: Dot },
       ]
     },
     {
@@ -169,24 +159,24 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         { title: t('nav.tenantManagement'), url: "/admin/tenants", icon: Building2 },
         { title: t('nav.planManagement'), url: "/admin/plans", icon: Layers },
         { title: t('nav.subscriptionManagement'), url: "/admin/subscriptions", icon: CreditCard },
-        { title: t('nav.componentSandbox', 'Component Sandbox'), url: "/dev/components", icon: Package },
+        { title: t('nav.componentSandbox', 'Component Sandbox'), url: "/dev/components", icon: Layers },
         { title: t('nav.designSystem', 'Design System'), url: "/dev/design-system", icon: Palette },
       ]
     },
     {
       label: t('nav.surveySystem'),
       access: 'admin',
-      icon: ClipboardList,
+      icon: FileText,
       items: [
-        { title: t('nav.questions'), url: "/admin/questions", icon: MessageSquare },
+        { title: t('nav.questions'), url: "/admin/questions", icon: Send },
         { title: t('nav.aiGenerator'), url: "/admin/questions/generate", icon: Sparkles },
         { title: t('nav.schedules'), url: "/admin/schedules", icon: Calendar },
         { title: t('nav.categories'), url: "/admin/question-categories", icon: Tags },
-        { title: t('nav.subcategories'), url: "/admin/question-subcategories", icon: GitBranch },
-        { title: t('nav.moodPathways'), url: "/admin/mood-pathways", icon: Brain },
-        { title: t('nav.surveyMonitor'), url: "/admin/survey-monitor", icon: BarChart3 },
+        { title: t('nav.subcategories'), url: "/admin/question-subcategories", icon: Network },
+        { title: t('nav.moodPathways'), url: "/admin/mood-pathways", icon: Sparkles },
+        { title: t('nav.surveyMonitor'), url: "/admin/survey-monitor", icon: Activity },
         { title: t('nav.checkinMonitor'), url: "/admin/checkin-monitor", icon: Activity },
-        { title: t('nav.employeeSurvey'), url: "/employee/survey", icon: ClipboardList, access: 'all' },
+        { title: t('nav.employeeSurvey'), url: "/employee/survey", icon: FileText, access: 'all' },
       ]
     },
     {
@@ -198,11 +188,11 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     {
       label: t('crisisSupport.nav.firstAider'),
       access: 'employee',
-      icon: HeartHandshake,
+      icon: Heart,
       items: [
         { title: t('crisisSupport.nav.crisisSupport'), url: "/crisis-support", icon: Phone, access: 'employee' },
-        { title: t('crisisSupport.nav.mySupport'), url: "/my-support", icon: Inbox, access: 'employee' },
-        { title: t('crisisSupport.nav.firstAider'), url: "/first-aider", icon: HeartHandshake, access: 'employee' },
+        { title: t('crisisSupport.nav.mySupport'), url: "/my-support", icon: Send, access: 'employee' },
+        { title: t('crisisSupport.nav.firstAider'), url: "/first-aider", icon: Heart, access: 'employee' },
         { title: t('crisisSupport.admin.title'), url: "/admin/crisis-settings", icon: Shield, access: 'admin' },
       ]
     },
@@ -211,15 +201,15 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       access: 'all',
       icon: Target,
       items: [
-        { title: t('nav.myWorkload'), url: "/my-workload", icon: ClipboardList, access: 'employee' },
+        { title: t('nav.myWorkload'), url: "/my-workload", icon: FileText, access: 'employee' },
         { title: t('nav.objectives'), url: "/admin/workload/objectives", icon: Target, access: 'all' },
-        { title: t('nav.workloadDashboard'), url: "/admin/workload/dashboard", icon: Gauge, access: 'admin' },
+        { title: t('nav.workloadDashboard'), url: "/admin/workload/dashboard", icon: Activity, access: 'admin' },
         { title: t('nav.teamWorkload'), url: "/admin/workload/team", icon: Users2, access: 'admin' },
         { title: t('nav.taskConnectors'), url: "/admin/workload/connectors", icon: Plug, access: 'all' },
-        { title: t('nav.representativeWorkload'), url: "/admin/workload/representative", icon: UserCog, access: 'all' },
-        { title: t('nav.portfolio'), url: "/admin/workload/portfolio", icon: Briefcase, access: 'admin' },
-        { title: t('nav.executive'), url: "/admin/workload/executive", icon: BarChart, access: 'admin' },
-        { title: t('nav.taskAnalytics'), url: "/tasks/analytics", icon: BarChart, access: 'admin' },
+        { title: t('nav.representativeWorkload'), url: "/admin/workload/representative", icon: Fingerprint, access: 'all' },
+        { title: t('nav.portfolio'), url: "/admin/workload/portfolio", icon: Layers, access: 'admin' },
+        { title: t('nav.executive'), url: "/admin/workload/executive", icon: Activity, access: 'admin' },
+        { title: t('nav.taskAnalytics'), url: "/tasks/analytics", icon: Activity, access: 'admin' },
         { title: t('nav.recurringTasks'), url: "/tasks/recurring", icon: RefreshCw, access: 'admin' },
         { title: t('nav.overdueTasks'), url: "/admin/workload/overdue", icon: AlertTriangle, access: 'admin' },
         { title: t('nav.escalationSettings'), url: "/admin/workload/escalation", icon: Shield, access: 'admin' },
@@ -229,25 +219,25 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     {
       label: t('nav.recognitionAwards'),
       access: 'all',
-      icon: Trophy,
+      icon: Star,
       items: [
-        { title: t('nav.recognition'), url: "/admin/recognition", icon: Trophy, access: 'admin' },
+        { title: t('nav.recognition'), url: "/admin/recognition", icon: Star, access: 'admin' },
         { title: t('recognition.monitor.navTitle'), url: "/admin/recognition/monitor", icon: Activity, access: 'admin' },
-        { title: t('recognition.results.navTitle'), url: "/admin/recognition/results", icon: BarChart3, access: 'admin' },
-        { title: t('recognition.points.managementNav'), url: "/admin/recognition/redemption", icon: Gift, access: 'admin' },
+        { title: t('recognition.results.navTitle'), url: "/admin/recognition/results", icon: Activity, access: 'admin' },
+        { title: t('recognition.points.managementNav'), url: "/admin/recognition/redemption", icon: Sparkles, access: 'admin' },
         
         { title: t('recognition.nominations.myNominations'), url: "/recognition/my-nominations", icon: Star, access: 'employee' },
-        { title: t('recognition.voting.title'), url: "/recognition/vote", icon: Vote, access: 'employee' },
-        { title: t('recognition.points.myPoints'), url: "/recognition/points", icon: Coins, access: 'employee' },
-        { title: t('recognition.points.rewards'), url: "/recognition/rewards", icon: Gift, access: 'employee' },
+        { title: t('recognition.voting.title'), url: "/recognition/vote", icon: Check, access: 'employee' },
+        { title: t('recognition.points.myPoints'), url: "/recognition/points", icon: DollarSign, access: 'employee' },
+        { title: t('recognition.points.rewards'), url: "/recognition/rewards", icon: Sparkles, access: 'employee' },
       ]
     },
     {
       label: t('nav.aiPlatform'),
       access: 'admin',
-      icon: Brain,
+      icon: Sparkles,
       items: [
-        { title: t('nav.aiGovernance'), url: "/admin/ai-governance", icon: Gauge },
+        { title: t('nav.aiGovernance'), url: "/admin/ai-governance", icon: Activity },
       ]
     },
     {
@@ -265,7 +255,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       icon: Settings,
       items: [
         { title: t('nav.userProfile'), url: "/settings/profile", icon: User },
-        { title: t('nav.usageBilling'), url: "/settings/usage", icon: BarChart3, access: 'admin' },
+        { title: t('nav.usageBilling'), url: "/settings/usage", icon: Activity, access: 'admin' },
         { title: t('nav.brandManagement'), url: "/admin/branding", icon: Palette, access: 'admin' },
         { title: t('nav.documentSettings'), url: "/admin/docs", icon: FileText, access: 'admin' },
         { title: t('crisisSupport.admin.title'), url: "/admin/crisis-settings", icon: Shield, access: 'admin' },
@@ -275,9 +265,9 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     {
       label: t('nav.help'),
       access: 'all',
-      icon: HelpCircle,
+      icon: Info,
       items: [
-        { title: t('nav.support'), url: "/support", icon: HelpCircle },
+        { title: t('nav.support'), url: "/support", icon: Info },
         { title: t('nav.installApp'), url: "/install", icon: Download },
       ]
     }

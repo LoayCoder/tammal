@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useTenantUsage } from '@/hooks/org/useTenantUsage';
 import { useProfile } from '@/hooks/auth/useProfile';
 import { useSubscriptions } from '@/hooks/org/useSubscriptions';
-import { Users, HardDrive, Activity, TrendingUp, TrendingDown, CreditCard } from 'lucide-react';
+import { Users, HardDrive, Activity, ArrowUp, CreditCard } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
@@ -37,7 +37,7 @@ export default function UsageBilling() {
     if (trend === undefined || trend === null) return null;
     return (
       <Badge variant={trend >= 0 ? 'secondary' : 'outline'} className="text-xs gap-1">
-        {trend >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+        {trend >= 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowUp className="h-3 w-3" />}
         {Math.abs(trend)}%
       </Badge>
     );

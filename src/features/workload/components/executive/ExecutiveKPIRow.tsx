@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Target, Activity, AlertTriangle, TrendingUp } from 'lucide-react';
+import { Target, Activity, AlertTriangle, ArrowUp } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 interface KPI {
@@ -48,7 +48,7 @@ export function ExecutiveKPIRow({ strategicProgress, utilization, burnoutRiskCou
     {
       title: t('teamWorkload.completionRate'),
       value: `${completionRate}%`,
-      icon: TrendingUp,
+      icon: ArrowUp,
       accentColor: 'border-s-amber-500',
       iconBg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
     },

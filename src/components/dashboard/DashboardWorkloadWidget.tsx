@@ -8,10 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useUnifiedTasks } from '@/features/workload/hooks/useUnifiedTasks';
 import { useApprovalQueue } from '@/features/tasks/hooks/useApprovalQueue';
-import {
-  ClipboardList, ChevronRight, CheckCircle2, AlertTriangle,
-  Clock, SquareCheckBig,
-} from 'lucide-react';
+import { FileText, ChevronRight, Check, AlertTriangle, Clock, SquareCheckBig } from 'lucide-react';
 import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
@@ -57,7 +54,7 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
 
   const statItems = [
     { label: t('common.active'), value: stats.active, icon: Clock, color: 'text-primary' },
-    { label: t('common.done'), value: stats.completed, icon: CheckCircle2, color: 'text-chart-1' },
+    { label: t('common.done'), value: stats.completed, icon: Check, color: 'text-chart-1' },
     { label: t('common.overdue'), value: stats.overdue, icon: AlertTriangle, color: 'text-destructive' },
     { label: t('dashboard.workloadWidget.pendingApprovals'), value: stats.pending, icon: SquareCheckBig, color: 'text-chart-2' },
   ];
@@ -67,7 +64,7 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between p-6 pb-0">
         <div className="flex items-center gap-2">
-          <ClipboardList className="h-5 w-5 text-primary" />
+          <FileText className="h-5 w-5 text-primary" />
           <h3 className="font-semibold text-base">{t('dashboard.workloadWidget.title')}</h3>
         </div>
         <Link

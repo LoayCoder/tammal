@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, CalendarDays, CalendarRange } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Calendar } from 'lucide-react';
 import { cardVariants, typography} from "@/theme/tokens";
 
 const MONTHS_EN = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -45,11 +45,11 @@ export function CalendarNavigation({
         <Tabs value={calendarView} onValueChange={(v) => onViewChange(v as CalendarView)}>
           <TabsList>
             <TabsTrigger value="week" className="gap-1.5">
-              <CalendarRange className="h-4 w-4" />
+              <Calendar className="h-4 w-4" />
               {t('spiritual.calendar.weekView', 'Week')}
             </TabsTrigger>
             <TabsTrigger value="month" className="gap-1.5">
-              <CalendarDays className="h-4 w-4" />
+              <Calendar className="h-4 w-4" />
               {t('spiritual.calendar.monthView', 'Month')}
             </TabsTrigger>
           </TabsList>

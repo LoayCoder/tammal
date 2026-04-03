@@ -6,15 +6,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useSystemHealth } from '@/features/workload';
 import { type HealthCheckKey } from '@/services/governance-health.service';
-import { RefreshCw, ShieldCheck, AlertTriangle, XCircle, Activity } from 'lucide-react';
+import { RefreshCw, Shield, AlertTriangle, X, Activity } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 
-const HEALTH_CHECKS: { key: HealthCheckKey; icon: typeof ShieldCheck }[] = [
+const HEALTH_CHECKS: { key: HealthCheckKey; icon: typeof Shield }[] = [
   { key: 'queueSync', icon: Activity },
-  { key: 'slaMonitor', icon: ShieldCheck },
+  { key: 'slaMonitor', icon: Shield },
   { key: 'escalation', icon: AlertTriangle },
-  { key: 'auditLogs', icon: ShieldCheck },
-  { key: 'tenantIsolation', icon: ShieldCheck },
+  { key: 'auditLogs', icon: Shield },
+  { key: 'tenantIsolation', icon: Shield },
   { key: 'capacity', icon: Activity },
 ];
 
@@ -25,9 +25,9 @@ function StatusBadgeCell({ status }: { status: 'ok' | 'warning' | 'error' }) {
 }
 
 function StatusIcon({ status }: { status: 'ok' | 'warning' | 'error' }) {
-  if (status === 'ok') return <ShieldCheck className="h-4 w-4 text-chart-2" />;
+  if (status === 'ok') return <Shield className="h-4 w-4 text-chart-2" />;
   if (status === 'warning') return <AlertTriangle className="h-4 w-4 text-chart-4" />;
-  return <XCircle className="h-4 w-4 text-destructive" />;
+  return <X className="h-4 w-4 text-destructive" />;
 }
 
 export default function SystemHealth() {
@@ -55,7 +55,7 @@ export default function SystemHealth() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5" />
+            <Shield className="h-5 w-5" />
             {t('systemHealth.governanceStatus')}
           </CardTitle>
           <CardDescription>{t('systemHealth.governanceDesc')}</CardDescription>

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, AlertTriangle, XCircle, ChevronDown, ArrowRight } from 'lucide-react';
+import { Check, AlertTriangle, X, ChevronDown, ArrowRight } from 'lucide-react';
 import { ValidationReport as ValidationReportType } from '@/hooks/questions/useEnhancedAIGeneration';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -14,9 +14,9 @@ interface ValidationReportProps {
 }
 
 const resultIcons: Record<string, React.ReactNode> = {
-  passed: <CheckCircle className="h-4 w-4 text-primary" />,
+  passed: <Check className="h-4 w-4 text-primary" />,
   warning: <AlertTriangle className="h-4 w-4 text-chart-4" />,
-  failed: <XCircle className="h-4 w-4 text-destructive" />,
+  failed: <X className="h-4 w-4 text-destructive" />,
 };
 
 const resultBadgeVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
@@ -74,7 +74,7 @@ export function ValidationReport({ report, isStrictMode }: ValidationReportProps
       <CardContent className="space-y-3">
         {isStrictMode && hasFailures && (
           <Alert variant="destructive">
-            <XCircle className="h-4 w-4" />
+            <X className="h-4 w-4" />
             <AlertTitle>{t('aiGenerator.strictModeBlocked')}</AlertTitle>
             <AlertDescription>{t('aiGenerator.strictModeMessage')}</AlertDescription>
           </Alert>

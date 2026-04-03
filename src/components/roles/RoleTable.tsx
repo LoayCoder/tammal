@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Edit, Key, Trash2, Shield } from 'lucide-react';
+import { Grip, Pencil, Key, Trash2, Shield } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { DataTable } from '@/shared/data-table/DataTable';
 import { ConfirmDialog } from '@/shared/dialogs/ConfirmDialog';
@@ -94,12 +94,12 @@ export function RoleTable({ roles, isLoading, onEdit, onManagePermissions, onDel
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="h-4 w-4" />
+              <Grip className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onEdit(role)}>
-              <Edit className="me-2 h-4 w-4" />
+              <Pencil className="me-2 h-4 w-4" />
               {t('common.edit')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onManagePermissions(role)}>

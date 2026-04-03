@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, ZoomIn, RotateCw } from 'lucide-react';
+import { Loader2, Search, RefreshCw } from 'lucide-react';
 import { getCroppedImg, type PixelCrop } from '@/lib/cropImage';
 
 interface AvatarCropperDialogProps {
@@ -133,7 +133,7 @@ export function AvatarCropperDialog({
             {/* Zoom Control */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <ZoomIn className="h-4 w-4 text-muted-foreground" />
+                <Search className="h-4 w-4 text-muted-foreground" />
                 <Label>{t('profile.zoom')}</Label>
               </div>
               <Slider
@@ -148,7 +148,7 @@ export function AvatarCropperDialog({
             {/* Rotation Control */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <RotateCw className="h-4 w-4 text-muted-foreground" />
+                <RefreshCw className="h-4 w-4 text-muted-foreground" />
                 <Label>{t('profile.rotation')}</Label>
               </div>
               <div className="flex items-center gap-4">
@@ -167,7 +167,7 @@ export function AvatarCropperDialog({
                   onClick={handleRotate}
                   className="shrink-0"
                 >
-                  <RotateCw className="h-4 w-4" />
+                  <RefreshCw className="h-4 w-4" />
                 </Button>
               </div>
             </div>

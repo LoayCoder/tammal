@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Plus, CalendarClock, Loader2 } from 'lucide-react';
+import { Plus, Calendar, Loader2 } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import SchedulePreviewDialog from '@/components/schedules/SchedulePreviewDialog';
 import ScheduleForm from '@/components/schedules/ScheduleForm';
@@ -131,7 +131,7 @@ export default function ScheduleManagement() {
     <div className="space-y-6">
       {/* Header */}
       <PageHeader
-        icon={<CalendarClock className="h-5 w-5 text-primary" />}
+        icon={<Calendar className="h-5 w-5 text-primary" />}
         title={t('schedules.title')}
         subtitle={t('schedules.subtitle')}
         variant="card"

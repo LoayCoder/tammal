@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { CheckCircle2, Clock, AlertTriangle, CircleDot, MoreHorizontal, Pencil, Trash2, CalendarClock } from 'lucide-react';
+import { Check, Clock, AlertTriangle, CircleDot, Grip, Pencil, Trash2, Calendar } from 'lucide-react';
 import { useRepresentativeTasks } from '@/features/workload';
 import { EditTaskDialog } from './EditTaskDialog';
 import { DeleteTaskDialog } from './DeleteTaskDialog';
@@ -19,8 +19,8 @@ interface BatchDetailDialogProps {
   batchTitle: string;
 }
 
-const STATUS_CONFIG: Record<string, { icon: typeof CheckCircle2; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-  done: { icon: CheckCircle2, variant: 'default' },
+const STATUS_CONFIG: Record<string, { icon: typeof Check; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  done: { icon: Check, variant: 'default' },
   in_progress: { icon: Clock, variant: 'secondary' },
   blocked: { icon: AlertTriangle, variant: 'destructive' },
   todo: { icon: CircleDot, variant: 'outline' },
@@ -112,7 +112,7 @@ export function BatchDetailDialog({ open, onOpenChange, batchId, batchTitle }: B
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="icon" className="h-7 w-7">
-                                <MoreHorizontal className="h-4 w-4" />
+                                <Grip className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -121,7 +121,7 @@ export function BatchDetailDialog({ open, onOpenChange, batchId, batchTitle }: B
                                 {t('representative.editTask')}
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => setExtendTask(task)}>
-                                <CalendarClock className="h-3.5 w-3.5 me-2" />
+                                <Calendar className="h-3.5 w-3.5 me-2" />
                                 {t('representative.extendDueDate')}
                               </DropdownMenuItem>
                               <DropdownMenuItem className="text-destructive" onClick={() => setDeleteTask({ id: task.id, title: task.title })}>

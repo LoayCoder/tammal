@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { format, addDays, differenceInDays } from 'date-fns';
-import { Calendar, Play, Clock, StopCircle, CalendarPlus } from 'lucide-react';
+import { Calendar, Play, Clock, Square } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -145,7 +145,7 @@ export function TenantTrialControl({
                   onClick={() => setShowExtendDialog(true)}
                   disabled={isUpdating}
                 >
-                  <CalendarPlus className="me-2 h-4 w-4" />
+                  <Calendar className="me-2 h-4 w-4" />
                   {t('tenants.extendTrial')}
                 </Button>
                 <Button
@@ -154,7 +154,7 @@ export function TenantTrialControl({
                   onClick={() => setShowEndDialog(true)}
                   disabled={isUpdating}
                 >
-                  <StopCircle className="me-2 h-4 w-4" />
+                  <Square className="me-2 h-4 w-4" />
                   {t('tenants.endTrial')}
                 </Button>
               </>

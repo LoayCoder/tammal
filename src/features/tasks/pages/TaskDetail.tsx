@@ -13,11 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
-import {
-  Lock, MessageSquare, ListChecks,
-  Activity, Paperclip, Clock, CalendarDays, ChevronLeft,
-  Plus, Upload, FileIcon, X, Trash2,
-} from 'lucide-react';
+import { Lock, Send, ListChecks, Activity, Paperclip, Clock, Calendar, ChevronLeft, Plus, Upload, FileIcon, X, Trash2 } from 'lucide-react';
 import { useTaskChecklists } from '@/features/tasks/hooks/useTaskChecklists';
 import { TaskDependenciesPanel } from '@/features/tasks/components/TaskDependenciesPanel';
 import { TaskTimeTrackingPanel } from '@/features/tasks/components/TaskTimeTrackingPanel';
@@ -164,7 +160,7 @@ export default function TaskDetail() {
         <div className="flex flex-col items-end gap-2 text-sm text-muted-foreground">
           {task.due_date && (
             <span className="flex items-center gap-1.5">
-              <CalendarDays className="h-4 w-4" />
+              <Calendar className="h-4 w-4" />
               {t('tasks.fields.dueDate')}: {format(new Date(task.due_date), 'PPP')}
             </span>
           )}
@@ -241,7 +237,7 @@ export default function TaskDetail() {
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="mb-4 flex-wrap">
               <TabsTrigger value="comments" className="gap-1.5 text-xs">
-                <MessageSquare className="h-3.5 w-3.5" />{t('tasks.comments.title')} ({comments.length})
+                <Send className="h-3.5 w-3.5" />{t('tasks.comments.title')} ({comments.length})
               </TabsTrigger>
               <TabsTrigger value="checklist" className="gap-1.5 text-xs">
                 <ListChecks className="h-3.5 w-3.5" />{t('tasks.checklist.title')} ({checklists.length})

@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
-import { Users, Clock, CheckCircle, TrendingUp, HelpCircle, FileCheck } from 'lucide-react';
+import { Users, Clock, Check, ArrowUp, Info, FileText } from 'lucide-react';
 import type { EmployeeStats, QuestionStats } from '@/hooks/analytics/useSurveyMonitor';
 import { cardVariants, typography } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
@@ -29,15 +29,15 @@ export function ParticipationOverview({ employeeStats, questionStats, isLoading 
 
   const employeeCards = [
     { label: t('surveyMonitor.stats.employeesTargeted'), value: employeeStats.totalEmployees, icon: Users, colorClass: 'text-primary' },
-    { label: t('surveyMonitor.stats.employeesCompleted'), value: employeeStats.employeesCompleted, icon: CheckCircle, colorClass: 'text-chart-1' },
-    { label: t('surveyMonitor.stats.employeesInProgress'), value: employeeStats.employeesInProgress, icon: TrendingUp, colorClass: 'text-chart-4' },
+    { label: t('surveyMonitor.stats.employeesCompleted'), value: employeeStats.employeesCompleted, icon: Check, colorClass: 'text-chart-1' },
+    { label: t('surveyMonitor.stats.employeesInProgress'), value: employeeStats.employeesInProgress, icon: ArrowUp, colorClass: 'text-chart-4' },
     { label: t('surveyMonitor.stats.employeesNotStarted'), value: employeeStats.employeesNotStarted, icon: Clock, colorClass: 'text-muted-foreground' },
   ];
 
   const questionCards = [
-    { label: t('surveyMonitor.stats.totalQuestions'), value: questionStats.totalQuestions, icon: HelpCircle },
-    { label: t('surveyMonitor.stats.questionsAnswered'), value: questionStats.questionsAnswered, icon: FileCheck },
-    { label: t('surveyMonitor.stats.completionPercent'), value: `${questionStats.questionCompletionPercent}%`, icon: TrendingUp },
+    { label: t('surveyMonitor.stats.totalQuestions'), value: questionStats.totalQuestions, icon: Info },
+    { label: t('surveyMonitor.stats.questionsAnswered'), value: questionStats.questionsAnswered, icon: FileText },
+    { label: t('surveyMonitor.stats.completionPercent'), value: `${questionStats.questionCompletionPercent}%`, icon: ArrowUp },
   ];
 
   return (

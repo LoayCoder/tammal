@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Users, HardDrive, Activity, TrendingUp, TrendingDown } from 'lucide-react';
+import { Users, HardDrive, Activity, ArrowUp } from 'lucide-react';
 import type { Tenant } from '@/hooks/org/useTenants';
 import type { Plan } from '@/hooks/org/usePlans';
 import { typography } from "@/theme/tokens";
@@ -46,7 +46,7 @@ export function UsageStatsCards({ usage, tenant, plan, isLoading }: UsageStatsCa
   const TrendIndicator = ({ value }: { value?: number }) => {
     if (value === undefined) return null;
     const isPositive = value >= 0;
-    const Icon = isPositive ? TrendingUp : TrendingDown;
+    const Icon = isPositive ? ArrowUp : ArrowUp;
     const colorClass = isPositive ? 'text-emerald-600' : 'text-destructive';
     
     return (

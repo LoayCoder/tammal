@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { VotingBooth } from '@/components/recognition/VotingBooth';
 import { useVoting } from '@/hooks/recognition/useVoting';
 import { useAwardCycles } from '@/hooks/recognition/useAwardCycles';
-import { Vote } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 export default function VotingBoothPage() {
   const { t } = useTranslation();
@@ -33,7 +33,7 @@ export default function VotingBoothPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={<Vote className="h-5 w-5 text-primary" />}
+        icon={<Check className="h-5 w-5 text-primary" />}
         title={t('recognition.voting.title')}
         subtitle={t('recognition.voting.subtitle')}
         variant="card"

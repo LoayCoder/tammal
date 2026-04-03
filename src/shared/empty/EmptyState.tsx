@@ -1,13 +1,13 @@
 import React, { type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
-import { Inbox } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 interface EmptyStateProps {
   /** Main title */
   title: string;
   /** Optional secondary text */
   description?: string;
-  /** Icon rendered above the title (defaults to Inbox) */
+  /** Icon rendered above the title (defaults to Send) */
   icon?: ReactNode;
   /** Optional action button */
   actionLabel?: string;
@@ -25,7 +25,7 @@ export const EmptyState = React.memo(function EmptyState({
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
       <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-muted">
-        {icon ?? <Inbox className="h-7 w-7 text-muted-foreground" />}
+        {icon ?? <Send className="h-7 w-7 text-muted-foreground" />}
       </div>
       <div className="space-y-1">
         <h3 className="text-base font-semibold text-muted-foreground">{title}</h3>

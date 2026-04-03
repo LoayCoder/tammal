@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Send, Package, Ban, CheckCircle } from 'lucide-react';
+import { Send, Layers, Ban, Check } from 'lucide-react';
 import { cardVariants } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
@@ -13,9 +13,9 @@ interface BatchStatusKPIsProps {
 
 const STATUS_CONFIG = [
   { key: 'published', icon: Send, colorClass: 'bg-green-500/10', iconClass: 'text-green-600 dark:text-green-400', labelKey: 'batches.statusPublished' },
-  { key: 'draft', icon: Package, colorClass: 'bg-muted/30', iconClass: 'text-muted-foreground', labelKey: 'batches.statusDraft' },
+  { key: 'draft', icon: Layers, colorClass: 'bg-muted/30', iconClass: 'text-muted-foreground', labelKey: 'batches.statusDraft' },
   { key: 'inactive', icon: Ban, colorClass: 'bg-orange-500/10', iconClass: 'text-orange-600 dark:text-orange-400', labelKey: 'batches.statusInactive' },
-  { key: 'validated', icon: CheckCircle, colorClass: 'bg-green-500/10', iconClass: 'text-green-600 dark:text-green-400', labelKey: 'batches.statusValidated' },
+  { key: 'validated', icon: Check, colorClass: 'bg-green-500/10', iconClass: 'text-green-600 dark:text-green-400', labelKey: 'batches.statusValidated' },
 ] as const;
 
 export function BatchStatusKPIs({ batches }: BatchStatusKPIsProps) {

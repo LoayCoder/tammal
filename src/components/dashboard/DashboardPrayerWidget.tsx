@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building2, Home, Briefcase, ChevronRight, Clock, Timer, Check } from 'lucide-react';
+import { Building2, Dot, Layers, ChevronRight, Clock, Check } from 'lucide-react';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { usePrayerTimes, PRAYER_NAMES } from '@/hooks/spiritual/usePrayerTimes';
 import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
@@ -31,7 +31,7 @@ function PrayerCountdownBadge({ prayerTime }: { prayerTime: string }) {
 
   return (
     <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30">
-      <Timer className="h-3 w-3" />
+      <Clock className="h-3 w-3" />
       {i18n.language === 'ar' ? `${minutesLeft}د` : `${minutesLeft}m`}
     </span>
   );
@@ -152,7 +152,7 @@ export function DashboardPrayerWidget() {
               {activePrayer === 'Witr' ? (
                 witrCountdown.isPrayerTime && !witrCountdown.isExpired && witrCountdown.minutesLeft != null ? (
                   <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30">
-                    <Timer className="h-3 w-3" />
+                    <Clock className="h-3 w-3" />
                     {i18n.language === 'ar' ? `${witrCountdown.minutesLeft}د` : `${witrCountdown.minutesLeft}m`}
                   </span>
                 ) : null
@@ -165,10 +165,10 @@ export function DashboardPrayerWidget() {
                 <Building2 className="h-3 w-3" /> {t('spiritual.prayer.mosque')}
               </Button>
               <Button size="sm" variant="outline" onClick={() => handleLog('completed_home')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
-                <Home className="h-3 w-3" /> {t('spiritual.prayer.home')}
+                <Dot className="h-3 w-3" /> {t('spiritual.prayer.home')}
               </Button>
               <Button size="sm" variant="outline" onClick={() => handleLog('completed_work')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
-                <Briefcase className="h-3 w-3" /> {t('spiritual.prayer.work')}
+                <Layers className="h-3 w-3" /> {t('spiritual.prayer.work')}
               </Button>
             </div>
             {/* Rawatib Sunnah toggles */}
@@ -256,7 +256,7 @@ export function DashboardPrayerWidget() {
                 >
                   {logged && !isMissed ? <Check className="h-3 w-3" /> : null}
                   {isMissed ? '✕' : null}
-                  {!logged && isActive ? <Timer className="h-3 w-3" /> : null}
+                  {!logged && isActive ? <Clock className="h-3 w-3" /> : null}
                 </div>
                 <span className="text-2xs text-muted-foreground leading-none">
                   {t(`spiritual.prayer.names.${name.toLowerCase()}`).slice(0, 3)}

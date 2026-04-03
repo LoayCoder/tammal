@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useFirstAiders, type FirstAider } from '@/hooks/crisis/useCrisisSupport';
 import { useProfile } from '@/hooks/auth/useProfile';
 import { useEmployees } from '@/hooks/org/useEmployees';
-import { Plus, Trash2, Edit } from 'lucide-react';
+import { Plus, Trash2, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function FirstAidersTab() {
@@ -171,7 +171,7 @@ export default function FirstAidersTab() {
                   <TableCell>
                     <div className="flex gap-1">
                       <Button variant="ghost" size="icon" onClick={() => openEdit(fa)}>
-                        <Edit className="h-4 w-4" />
+                        <Pencil className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => deleteFirstAider.mutate(fa.id)}>
                         <Trash2 className="h-4 w-4 text-destructive" />

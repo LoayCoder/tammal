@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Send, Trash2, Pencil, X, Check, MessageSquare } from 'lucide-react';
+import { Send, Trash2, Pencil, X, Check } from 'lucide-react';
 import { format } from 'date-fns';
 import type { TaskComment } from '@/features/tasks/hooks/useTaskComments';
 
@@ -57,7 +57,7 @@ export function TaskCommentsPanel({
       <ScrollArea className="max-h-[500px]">
         {comments.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-            <MessageSquare className="h-8 w-8 mb-2 opacity-40" />
+            <Send className="h-8 w-8 mb-2 opacity-40" />
             <p className="text-sm">{t('tasks.comments.empty')}</p>
           </div>
         ) : (

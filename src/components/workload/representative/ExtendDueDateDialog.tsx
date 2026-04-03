@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, CalendarClock } from 'lucide-react';
+import { Loader2, Calendar } from 'lucide-react';
 import { typography } from "@/theme/tokens";
 
 interface DueDateHistoryEntry {
@@ -48,7 +48,7 @@ export function ExtendDueDateDialog({ open, onOpenChange, taskId, taskTitle, cur
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <CalendarClock className="h-5 w-5" />
+            <Calendar className="h-5 w-5" />
             {t('representative.extendDueDate')}
           </DialogTitle>
         </DialogHeader>

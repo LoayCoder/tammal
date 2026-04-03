@@ -5,7 +5,7 @@ import { format, parseISO } from 'date-fns';
 import type { TFunction } from 'i18next';
 import type { OrgAnalyticsData } from '@/lib/analytics/types';
 import type { StatCard, TrendDataPoint, DistributionDataPoint, AIPayload } from '../types';
-import { Users, Heart, TrendingUp, AlertTriangle, Flame, ClipboardCheck } from 'lucide-react';
+import { Users, Heart, ArrowUp, AlertTriangle, Flame, FileText } from 'lucide-react';
 
 const MOOD_COLORS: Record<string, string> = {
   great: 'hsl(var(--chart-1))',
@@ -19,8 +19,8 @@ export function buildStatCards(stats: OrgAnalyticsData | undefined, t: TFunction
   return [
     { title: t('orgDashboard.activeEmployees'), value: stats?.activeEmployees ?? 0, icon: Users },
     { title: t('orgDashboard.teamWellness'), value: stats?.avgMoodScore ? `${stats.avgMoodScore}/5` : '—', icon: Heart },
-    { title: t('orgDashboard.participation'), value: stats?.participationRate !== undefined ? `${stats.participationRate}%` : '—', icon: TrendingUp },
-    { title: t('orgDashboard.surveyResponseRate'), value: stats?.surveyResponseRate !== undefined ? `${stats.surveyResponseRate}%` : '—', icon: ClipboardCheck },
+    { title: t('orgDashboard.participation'), value: stats?.participationRate !== undefined ? `${stats.participationRate}%` : '—', icon: ArrowUp },
+    { title: t('orgDashboard.surveyResponseRate'), value: stats?.surveyResponseRate !== undefined ? `${stats.surveyResponseRate}%` : '—', icon: FileText },
     { title: t('orgDashboard.riskIndicator'), value: stats?.riskPercentage !== undefined ? `${stats.riskPercentage}%` : '—', icon: AlertTriangle },
     { title: t('orgDashboard.engagementStreak'), value: stats?.avgStreak ? `${stats.avgStreak}d` : '—', icon: Flame },
   ];

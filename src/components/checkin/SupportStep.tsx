@@ -1,14 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Heart, Wind, Phone, Coffee, CheckCircle2 } from 'lucide-react';
+import { Heart, Waves, Phone, Check } from 'lucide-react';
 import { typography } from "@/theme/tokens";
 
 const SUPPORT_ACTIONS = [
   { key: 'meditation', icon: Heart, emoji: '🧘' },
-  { key: 'breathing', icon: Wind, emoji: '🌬️' },
+  { key: 'breathing', icon: Waves, emoji: '🌬️' },
   { key: 'talk', icon: Phone, emoji: '💬' },
-  { key: 'break', icon: Coffee, emoji: '☕' },
+  { key: 'break', icon: Waves, emoji: '☕' },
 ] as const;
 
 interface SupportStepProps {
@@ -44,7 +44,7 @@ export function SupportStep({ showSupport, supportActions, onToggleAction, comme
                   <span className="text-2xl">{action.emoji}</span>
                   <span className="text-sm font-medium">{t(`wellness.support.${action.key}`)}</span>
                   {isActive && (
-                    <CheckCircle2 className="absolute top-2 end-2 h-4 w-4 text-primary animate-in zoom-in-50 duration-200" />
+                    <Check className="absolute top-2 end-2 h-4 w-4 text-primary animate-in zoom-in-50 duration-200" />
                   )}
                 </button>
               );

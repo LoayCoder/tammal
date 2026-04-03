@@ -8,11 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Popover, PopoverContent, PopoverTrigger,
 } from '@/components/ui/popover';
-import {
-  Bell, Check, Send, AlertTriangle, Plus,
-  Shield, X, Clock, ListChecks,
-  Fingerprint, Star,
-} from 'lucide-react';
+import { Bell, Check, Send, AlertTriangle, Plus, Shield, X, Clock, ListChecks, Fingerprint, Star } from 'lucide-react';
 import { useTaskNotifications, type TaskNotification } from '@/features/tasks/hooks/useTaskNotifications';
 import { useCrisisNotifications, type CrisisNotification } from '@/hooks/crisis/useCrisisNotifications';
 import { useRecognitionNotifications, type RecognitionNotification } from '@/hooks/recognition/useRecognitionNotifications';

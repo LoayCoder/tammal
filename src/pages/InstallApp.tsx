@@ -2,21 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  Download, 
-  Check, 
-  Smartphone, 
-  Monitor, 
-  Share, 
-  Plus,
-  MoreVertical,
-  Wifi,
-  Zap,
-  Bell,
-  ArrowLeft,
-  BellRing,
-  BellOff
-} from 'lucide-react';
+import { Download, Check, Monitor, Share, Plus, Grip, Wifi, Zap, Bell, ArrowLeft, BellRing, BellOff } from 'lucide-react';
 import { usePWAInstall } from '@/hooks/ui/usePWAInstall';
 import { usePushNotifications } from '@/hooks/ui/usePushNotifications';
 import { useBranding } from '@/hooks/branding/useBranding';
@@ -33,7 +19,7 @@ export default function InstallApp() {
   const features = [
     { icon: Wifi, key: 'featureOffline' },
     { icon: Zap, key: 'featureFast' },
-    { icon: Smartphone, key: 'featureNative' },
+    { icon: Monitor, key: 'featureNative' },
     { icon: Bell, key: 'featureNotifications' },
   ];
 
@@ -156,7 +142,7 @@ export default function InstallApp() {
               <Card className={cardVariants.glass}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    <Smartphone className="h-5 w-5" />
+                    <Monitor className="h-5 w-5" />
                     {t('install.iosTitle')}
                   </CardTitle>
                 </CardHeader>
@@ -188,7 +174,7 @@ export default function InstallApp() {
               <Card className={cardVariants.glass}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    <Smartphone className="h-5 w-5" />
+                    <Monitor className="h-5 w-5" />
                     {t('install.androidTitle')}
                   </CardTitle>
                 </CardHeader>
@@ -197,7 +183,7 @@ export default function InstallApp() {
                     <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">1</div>
                     <div className="flex items-center gap-2">
                       <span>{t('install.androidStep1')}</span>
-                      <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                      <Grip className="h-4 w-4 text-muted-foreground" />
                     </div>
                   </div>
                   <div className="flex items-start gap-3">

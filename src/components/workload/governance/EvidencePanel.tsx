@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { FileText, Upload, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { FileText, Upload, Check, X, Clock } from 'lucide-react';
 import { cardVariants } from "@/theme/tokens";
 
 export interface EvidenceItem {
@@ -22,8 +22,8 @@ interface Props {
 
 const statusConfig: Record<string, { icon: typeof Clock; variant: 'default' | 'secondary' | 'destructive' }> = {
   pending: { icon: Clock, variant: 'secondary' },
-  approved: { icon: CheckCircle, variant: 'default' },
-  rejected: { icon: XCircle, variant: 'destructive' },
+  approved: { icon: Check, variant: 'default' },
+  rejected: { icon: X, variant: 'destructive' },
 };
 
 export function EvidencePanel({ evidence, onUpload, readOnly }: Props) {

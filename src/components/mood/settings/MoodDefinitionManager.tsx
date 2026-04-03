@@ -4,7 +4,7 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Edit2, ChevronUp, ChevronDown, Trash2, Settings2 } from 'lucide-react';
+import { Plus, Pencil, ChevronUp, ChevronDown, Trash2, Settings2 } from 'lucide-react';
 import type { MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';
 import { cardVariants } from "@/theme/tokens";
 
@@ -88,7 +88,7 @@ export function MoodDefinitionManager({
                   </div>
                   <Switch checked={mood.is_active} onCheckedChange={v => onToggle(mood.id, v)} />
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(mood)}>
-                    <Edit2 className="h-3.5 w-3.5" />
+                    <Pencil className="h-3.5 w-3.5" />
                   </Button>
                   <Button
                     variant="ghost" size="icon" className="h-8 w-8 text-destructive"

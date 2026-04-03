@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Flame, MessageSquare } from 'lucide-react';
+import { Flame, Send } from 'lucide-react';
 import type { TopEngager } from '@/hooks/analytics/useOrgAnalytics';
 import { cardVariants } from "@/theme/tokens";
 
@@ -46,7 +46,7 @@ export function TopEngagersCard({ data, isLoading }: Props) {
                     <span>{eng.streak}d</span>
                   </div>
                   <div className="flex items-center gap-1 text-xs" title={t('orgDashboard.responses')}>
-                    <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Send className="h-3.5 w-3.5 text-muted-foreground" />
                     <span>{eng.responseCount}</span>
                   </div>
                 </div>

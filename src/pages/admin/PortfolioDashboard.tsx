@@ -5,9 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useObjectives, useInitiatives, useWorkloadAnalytics, useDelayPredictions } from '@/features/workload';
-import {
-  Target, TrendingUp, AlertTriangle, Layers, Brain, Clock,
-} from 'lucide-react';
+import { Target, ArrowUp, AlertTriangle, Layers, Sparkles, Clock } from 'lucide-react';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
   PieChart, Pie, Cell, Legend,
@@ -54,7 +52,7 @@ export default function PortfolioDashboard() {
     { title: t('portfolio.totalObjectives'), value: objectives.length, icon: Target },
     { title: t('portfolio.activeInitiatives'), value: activeInits.length, icon: Layers },
     { title: t('portfolio.atRisk'), value: atRiskObjs.length, icon: AlertTriangle },
-    { title: t('portfolio.avgProgress'), value: `${objectives.length > 0 ? Math.round(objectives.reduce((s, o) => s + (o.progress ?? 0), 0) / objectives.length) : 0}%`, icon: TrendingUp },
+    { title: t('portfolio.avgProgress'), value: `${objectives.length > 0 ? Math.round(objectives.reduce((s, o) => s + (o.progress ?? 0), 0) / objectives.length) : 0}%`, icon: ArrowUp },
   ];
 
   // Status distribution for pie chart
@@ -105,7 +103,7 @@ export default function PortfolioDashboard() {
           <TabsTrigger value="initiatives">{t('portfolio.tabs.initiatives')}</TabsTrigger>
           <TabsTrigger value="risk">{t('portfolio.tabs.risk')}</TabsTrigger>
           <TabsTrigger value="predictions">
-            <Brain className="h-3.5 w-3.5 me-1.5" />
+            <Sparkles className="h-3.5 w-3.5 me-1.5" />
             {t('portfolio.tabs.predictions')}
           </TabsTrigger>
         </TabsList>
@@ -262,7 +260,7 @@ export default function PortfolioDashboard() {
           <Card className={cardVariants.glass}>
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2">
-                <Brain className="h-4 w-4 text-primary" />
+                <Sparkles className="h-4 w-4 text-primary" />
                 {t('portfolio.delayPredictions')}
               </CardTitle>
             </CardHeader>

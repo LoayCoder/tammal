@@ -13,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CalendarClock, Package } from 'lucide-react';
+import { Calendar, Layers } from 'lucide-react';
 import type { ScheduleFormState } from '@/hooks/admin/useScheduleReducer';
 
 interface ScheduleFormProps {
@@ -80,7 +80,7 @@ export default function ScheduleForm({ state, dispatch, setField, batches, perio
       {/* Link to Generation Period */}
       <div className="space-y-2">
         <Label className="flex items-center gap-2">
-          <CalendarClock className="h-4 w-4" />
+          <Calendar className="h-4 w-4" />
           {t('aiGenerator.generationPeriod')}
         </Label>
         <Select
@@ -121,7 +121,7 @@ export default function ScheduleForm({ state, dispatch, setField, batches, perio
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" className="w-full justify-start font-normal">
-              <Package className="h-4 w-4 me-2" />
+              <Layers className="h-4 w-4 me-2" />
               {state.selectedBatchIds.length > 0
                 ? t('schedules.batchesSelected', { count: state.selectedBatchIds.length })
                 : t('schedules.selectBatches')}

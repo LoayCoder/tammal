@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { MoreHorizontal, Pencil, Trash2, ExternalLink, Lock, MessageSquare, CheckCircle2, ShieldCheck, CalendarDays, Clock } from 'lucide-react';
+import { Grip, Pencil, Trash2, ExternalLink, Lock, Send, Check, Shield, Calendar, Clock } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import type { UnifiedTask } from '@/features/workload/hooks/useUnifiedTasks';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -34,13 +34,13 @@ const PRIORITY_COLORS: Record<number, string> = {
   5: 'bg-secondary text-secondary-foreground',
 };
 
-const STATUS_BADGE: Record<string, { className: string; icon: typeof CheckCircle2 | null; label: string }> = {
+const STATUS_BADGE: Record<string, { className: string; icon: typeof Check | null; label: string }> = {
   draft: { className: 'bg-muted text-muted-foreground', icon: null, label: 'Draft' },
   open: { className: 'bg-chart-2/10 text-chart-2', icon: null, label: 'Open' },
   in_progress: { className: 'bg-chart-2/10 text-chart-2', icon: null, label: 'In Progress' },
   under_review: { className: 'bg-chart-4/10 text-chart-4', icon: null, label: 'Under Review' },
   pending_approval: { className: 'bg-chart-5/10 text-chart-5', icon: null, label: 'Pending Approval' },
-  completed: { className: 'bg-chart-1/10 text-chart-1', icon: CheckCircle2, label: 'Completed' },
+  completed: { className: 'bg-chart-1/10 text-chart-1', icon: Check, label: 'Completed' },
   rejected: { className: 'bg-destructive/10 text-destructive', icon: null, label: 'Rejected' },
   archived: { className: 'bg-muted text-muted-foreground', icon: null, label: 'Archived' },
 };
@@ -78,9 +78,9 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
             <div className="mt-1 shrink-0 flex flex-col items-center gap-0.5">
               <div className="relative h-9 w-9 rounded-full border-2 border-border flex items-center justify-center text-2xs font-bold">
                 {isVerified ? (
-                  <ShieldCheck className="h-4 w-4 text-primary" />
+                  <Shield className="h-4 w-4 text-primary" />
                 ) : task.status === 'completed' ? (
-                  <CheckCircle2 className="h-4 w-4 text-chart-1" />
+                  <Check className="h-4 w-4 text-chart-1" />
                 ) : (
                   <span className="text-muted-foreground">{task.progress}%</span>
                 )}
@@ -110,7 +110,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
                 </Badge>
                 {commentCount > 0 && (
                   <Badge variant="outline" className="text-2xs px-1.5 py-0 gap-0.5">
-                    <MessageSquare className="h-3 w-3" />{commentCount}
+                    <Send className="h-3 w-3" />{commentCount}
                   </Badge>
                 )}
               </div>
@@ -131,7 +131,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
                 )}
                 {task.scheduled_start && (
                   <span className="flex items-center gap-1">
-                    <CalendarDays className="h-3 w-3" />
+                    <Calendar className="h-3 w-3" />
                     {new Date(task.scheduled_start).toLocaleDateString()}
                   </span>
                 )}
@@ -151,7 +151,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
                   className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <MoreHorizontal className="h-4 w-4" />
+                  <Grip className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -160,7 +160,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
                 </DropdownMenuItem>
                 {onComment && (
                   <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onComment(task); }}>
-                    <MessageSquare className="h-3.5 w-3.5 me-2" />{t('workload.comments.add')}
+                    <Send className="h-3.5 w-3.5 me-2" />{t('workload.comments.add')}
                   </DropdownMenuItem>
                 )}
                 {task.external_url && (

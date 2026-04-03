@@ -6,7 +6,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, Plus, FolderPlus } from 'lucide-react';
+import { AlertTriangle, Plus } from 'lucide-react';
 import type { QuestionBatch } from '@/hooks/questions/useQuestionBatches';
 
 interface BatchSaveDialogProps {
@@ -66,7 +66,7 @@ export function BatchSaveDialog({
               <div className="flex items-start gap-2 p-3 rounded-lg border cursor-pointer hover:bg-muted/50" onClick={() => setMode('existing')}>
                 <RadioGroupItem value="existing" id="existing" className="mt-1" />
                 <Label htmlFor="existing" className="cursor-pointer flex items-center gap-2 flex-1">
-                  <FolderPlus className="h-4 w-4" />
+                  <Plus className="h-4 w-4" />
                   {t('batches.addToExisting')}
                 </Label>
               </div>

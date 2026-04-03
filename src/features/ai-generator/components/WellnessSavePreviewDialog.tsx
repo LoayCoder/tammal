@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Heart, Package, Plus } from 'lucide-react';
+import { Heart, Layers, Plus } from 'lucide-react';
 import type { QuestionBatch } from '@/hooks/questions/useQuestionBatches';
 
 const MOOD_META: Record<string, { emoji: string; labelKey: string }> = {
@@ -153,7 +153,7 @@ export function WellnessSavePreviewDialog({
                 <RadioGroupItem value="existing" id="batch-existing" className="mt-1" />
                 <div className="flex-1">
                   <Label htmlFor="batch-existing" className="flex items-center gap-1.5 cursor-pointer">
-                    <Package className="h-3.5 w-3.5" />
+                    <Layers className="h-3.5 w-3.5" />
                     {t('aiGenerator.wellnessBatchExisting')}
                   </Label>
 

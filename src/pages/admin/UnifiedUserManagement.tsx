@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Building2, FolderOpen, Users, Shield, Mail, UserCheck } from 'lucide-react';
+import { Building2, Layers, Users, Shield, Mail, Fingerprint } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { RepresentativeTab } from '@/components/users/RepresentativeTab';
 import { useUnifiedUsers } from '@/hooks/org/useUnifiedUsers';
@@ -174,11 +174,11 @@ export default function UnifiedUserManagement() {
 
       <Tabs defaultValue="directory" className="space-y-4">
         <TabsList className="glass-tabs">
-          <TabsTrigger value="directory" className="flex items-center gap-2 rounded-xl"><FolderOpen className="h-4 w-4" />{t('userManagement.directoryTab')}</TabsTrigger>
+          <TabsTrigger value="directory" className="flex items-center gap-2 rounded-xl"><Layers className="h-4 w-4" />{t('userManagement.directoryTab')}</TabsTrigger>
           <TabsTrigger value="access" className="flex items-center gap-2 rounded-xl"><Users className="h-4 w-4" />{t('userManagement.accessTab')}</TabsTrigger>
           <TabsTrigger value="roles" className="flex items-center gap-2 rounded-xl"><Shield className="h-4 w-4" />{t('userManagement.rolesTab')}</TabsTrigger>
           <TabsTrigger value="invitations" className="flex items-center gap-2 rounded-xl"><Mail className="h-4 w-4" />{t('userManagement.invitationsTab')}</TabsTrigger>
-          <TabsTrigger value="representatives" className="flex items-center gap-2 rounded-xl"><UserCheck className="h-4 w-4" />{t('userManagement.representativesTab')}</TabsTrigger>
+          <TabsTrigger value="representatives" className="flex items-center gap-2 rounded-xl"><Fingerprint className="h-4 w-4" />{t('userManagement.representativesTab')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="directory" className="space-y-4">

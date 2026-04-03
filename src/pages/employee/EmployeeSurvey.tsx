@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { CheckCircle2, Loader2, Save, Send, Clock, AlertCircle, Lock, PartyPopper, Sparkles } from 'lucide-react';
+import { Check, Loader2, Save, Send, Clock, Info, Lock, Sparkles } from 'lucide-react';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useScheduledQuestions, useAnsweredSurveyCheck } from '@/hooks/questions/useScheduledQuestions';
 import { useEmployeeResponses, useDraftResponses } from '@/hooks/wellness/useEmployeeResponses';
@@ -144,7 +144,7 @@ export default function EmployeeSurvey() {
   if (pendingQuestions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <CheckCircle2 className="h-16 w-16 text-primary mb-4" />
+        <Check className="h-16 w-16 text-primary mb-4" />
         <h2 className={`${typography.pageTitle} mb-2`}>
           {hasAnswered ? t('survey.surveyCompleted', 'Survey Completed') : t('survey.allCaughtUp')}
         </h2>
@@ -203,7 +203,7 @@ export default function EmployeeSurvey() {
 
       {isClosed && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <Info className="h-4 w-4" />
           <AlertDescription>
             {t('survey.closedMessage', 'This survey is closed. You can no longer edit or submit your responses.')}
           </AlertDescription>
@@ -276,9 +276,9 @@ export default function EmployeeSurvey() {
           <div className="flex flex-col items-center gap-4 py-4">
             <div className="relative">
               <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
-                <CheckCircle2 className="h-10 w-10 text-primary" />
+                <Check className="h-10 w-10 text-primary" />
               </div>
-              <PartyPopper className="h-6 w-6 text-primary absolute -top-1 -end-1 animate-bounce" />
+              <Sparkles className="h-6 w-6 text-primary absolute -top-1 -end-1 animate-bounce" />
               <Sparkles className="h-5 w-5 text-primary absolute -bottom-1 -start-1 animate-pulse" />
             </div>
 

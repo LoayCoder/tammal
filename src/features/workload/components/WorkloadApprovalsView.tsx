@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CheckCircle2, XCircle, Eye, CalendarDays } from 'lucide-react';
+import { Check, X, Eye, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { EmptyState } from '@/shared/empty/EmptyState';
 import { useApprovalQueue } from '@/features/tasks/hooks/useApprovalQueue';
@@ -43,7 +43,7 @@ export function WorkloadApprovalsView() {
                 {task.description && <p className="text-xs text-muted-foreground line-clamp-2">{task.description}</p>}
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   {task.due_date && (
-                    <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{format(new Date(task.due_date), 'PP')}</span>
+                    <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{format(new Date(task.due_date), 'PP')}</span>
                   )}
                   <span>{t('tasks.fields.progress')}: {task.progress}%</span>
                 </div>
@@ -53,10 +53,10 @@ export function WorkloadApprovalsView() {
                   <Eye className="h-3.5 w-3.5" />{t('common.view')}
                 </Button>
                 <Button size="sm" variant="default" onClick={() => handleApprove(task.id)} className="gap-1" disabled={updateStatus.isPending}>
-                  <CheckCircle2 className="h-3.5 w-3.5" />{t('tasks.approve')}
+                  <Check className="h-3.5 w-3.5" />{t('tasks.approve')}
                 </Button>
                 <Button size="sm" variant="destructive" onClick={() => handleReject(task.id)} className="gap-1" disabled={updateStatus.isPending}>
-                  <XCircle className="h-3.5 w-3.5" />{t('tasks.reject')}
+                  <X className="h-3.5 w-3.5" />{t('tasks.reject')}
                 </Button>
               </div>
             </div>

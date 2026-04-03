@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { TrendingUp, TrendingDown, Minus, ShieldAlert } from 'lucide-react';
+import { ArrowUp, Minus, Shield } from 'lucide-react';
 import type { PeriodComparison, EarlyWarning } from '@/lib/analytics/types';
 import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
@@ -41,7 +41,7 @@ function DeltaIndicator({ value, suffix = '', inverse = false }: { value: number
 
   return (
     <span className={`inline-flex items-center gap-0.5 text-sm font-medium ${isNeutral ? 'text-muted-foreground' : isPositive ? 'text-chart-2' : 'text-destructive'}`}>
-      {isNeutral ? <Minus className="h-3 w-3" /> : isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+      {isNeutral ? <Minus className="h-3 w-3" /> : isPositive ? <ArrowUp className="h-3 w-3" /> : <ArrowUp className="h-3 w-3" />}
       {value > 0 ? '+' : ''}{value}{suffix}
     </span>
   );
@@ -104,7 +104,7 @@ export function ExecutiveSummary({ healthScore, periodComparison, warnings, isLo
           {/* Top Alerts */}
           <div className="space-y-2">
             <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-              <ShieldAlert className="h-3 w-3" />
+              <Shield className="h-3 w-3" />
               {t('orgDashboard.criticalAlerts')}
             </p>
             {topWarnings.length > 0 ? topWarnings.map(w => (

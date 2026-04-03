@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, Calculator, Eye, Scale } from 'lucide-react';
+import { Star, Hash, Eye, Scale } from 'lucide-react';
 import { useAwardCycles } from '@/hooks/recognition/useAwardCycles';
 import { useResults } from '@/hooks/recognition/useResults';
 import { useAppeals } from '@/hooks/recognition/useAppeals';
@@ -67,7 +67,7 @@ export default function RecognitionResults() {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className={`${typography.pageTitle} flex items-center gap-2`}>
-            <Trophy className="h-6 w-6 text-primary" />
+            <Star className="h-6 w-6 text-primary" />
             {t('recognition.results.title')}
           </h1>
           <p className="text-muted-foreground">{t('recognition.results.subtitle')}</p>
@@ -85,7 +85,7 @@ export default function RecognitionResults() {
           </Select>
           {selectedCycle && ['voting', 'calculating', 'announced'].includes(selectedCycle.status) && (
             <Button onClick={handleCalculate} disabled={calculateResults.isPending}>
-              <Calculator className="h-4 w-4 me-2" />
+              <Hash className="h-4 w-4 me-2" />
               {t('recognition.results.calculate')}
             </Button>
           )}
@@ -95,7 +95,7 @@ export default function RecognitionResults() {
       {!selectedCycleId ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <Trophy className="h-12 w-12 text-muted-foreground mb-4" />
+            <Star className="h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-muted-foreground">{t('recognition.results.selectCyclePrompt')}</p>
           </CardContent>
         </Card>
@@ -106,7 +106,7 @@ export default function RecognitionResults() {
       ) : results.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <Calculator className="h-12 w-12 text-muted-foreground mb-4" />
+            <Hash className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className={typography.sectionTitle}>{t('recognition.results.noResults')}</h3>
             <p className="text-sm text-muted-foreground mt-1">{t('recognition.results.noResultsDesc')}</p>
           </CardContent>

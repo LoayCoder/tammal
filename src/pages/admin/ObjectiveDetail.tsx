@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Plus, ArrowRight, Pencil, Trash2, ChevronLeft, Rocket, FolderOpen, Lock, Unlock, AlertTriangle } from 'lucide-react';
+import { Plus, ArrowRight, Pencil, Trash2, ChevronLeft, Zap, Layers, Lock, Unlock, AlertTriangle } from 'lucide-react';
 import { SlaBadge } from '@/components/workload/governance/SlaBadge';
 import { EscalationPanel } from '@/components/workload/governance/EscalationPanel';
 import { JustificationDialog } from '@/components/workload/governance/JustificationDialog';
@@ -148,7 +148,7 @@ export default function ObjectiveDetail() {
 
       {/* Initiatives Section */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold flex items-center gap-2"><Rocket className="h-5 w-5 text-primary" />{t('workload.initiatives.sectionTitle')}</h2>
+        <h2 className="text-xl font-semibold flex items-center gap-2"><Zap className="h-5 w-5 text-primary" />{t('workload.initiatives.sectionTitle')}</h2>
         {!objective.is_locked && canManage && (
           <Button onClick={() => { setSelectedInit(null); setInitDialogOpen(true); }}><Plus className="me-2 h-4 w-4" />{t('workload.initiatives.add')}</Button>
         )}
@@ -159,7 +159,7 @@ export default function ObjectiveDetail() {
       ) : initiatives.length === 0 ? (
         <Card className={cardVariants.glass}>
           <CardContent className="flex flex-col items-center justify-center py-8 text-center">
-            <FolderOpen className="h-10 w-10 text-muted-foreground/40 mb-3" />
+            <Layers className="h-10 w-10 text-muted-foreground/40 mb-3" />
             <p className="text-muted-foreground">{t('workload.initiatives.empty')}</p>
           </CardContent>
         </Card>

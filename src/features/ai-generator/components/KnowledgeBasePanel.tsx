@@ -9,10 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import {
-  Upload, ChevronDown, Trash2, FileText, Loader2,
-  Wand2, Brain, Info,
-} from 'lucide-react';
+import { Upload, ChevronDown, Trash2, FileText, Loader2, Wand2, Sparkles, Info } from 'lucide-react';
 import { KnowledgeDocument } from '@/hooks/questions/useAIKnowledge';
 
 interface KnowledgeBasePanelProps {
@@ -90,7 +87,7 @@ export function KnowledgeBasePanel({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-base">
-            <Brain className="h-5 w-5 text-primary" />
+            <Sparkles className="h-5 w-5 text-primary" />
             {t('aiGenerator.knowledgeBase')}
           </CardTitle>
           {activeDocCount > 0 && (

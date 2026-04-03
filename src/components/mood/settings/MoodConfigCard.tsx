@@ -4,7 +4,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Save, RotateCcw, Link2, Plus, X, ChevronUp, ChevronDown } from 'lucide-react';
+import { Save, RefreshCw, Link2, Plus, X, ChevronUp, ChevronDown } from 'lucide-react';
 import type { MoodQuestionConfig } from '@/hooks/wellness/useMoodQuestionConfig';
 import type { MoodDefinition } from '@/hooks/wellness/useMoodDefinitions';
 import { cardVariants } from "@/theme/tokens";
@@ -153,7 +153,7 @@ export function MoodConfigCard({
             size="sm" onClick={() => onSave(moodLevel)} disabled={isSaving}
             className="gap-1.5 h-8 px-4 rounded-lg text-xs"
           >
-            {isSaving ? <RotateCcw className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+            {isSaving ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
             {t('moodPathway.saveSettings')}
           </Button>
         </div>

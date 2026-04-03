@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Bot, Shield, Clock, RotateCcw } from 'lucide-react';
+import { Sparkles, Shield, Clock, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAutonomousState, type AutonomousStateRow } from '@/features/ai-governance/hooks/useAutonomousState';
 import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
@@ -88,7 +88,7 @@ export function AutonomousStatus() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Bot className="h-5 w-5" />
+            <Sparkles className="h-5 w-5" />
             {t('aiGovernance.autonomous.title')}
           </CardTitle>
         </CardHeader>
@@ -131,7 +131,7 @@ export function AutonomousStatus() {
                           onClick={() => rollback.mutate({ tenantId: s.tenant_id, feature: s.feature })}
                           disabled={(s.previous_weights_history || []).length === 0}
                         >
-                          <RotateCcw className="h-3 w-3 me-1" />
+                          <RefreshCw className="h-3 w-3 me-1" />
                           {t('aiGovernance.autonomous.rollback')}
                         </Button>
                       </>

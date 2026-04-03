@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Upload, CheckCircle2, XCircle } from 'lucide-react';
+import { Loader2, Upload, Check, X } from 'lucide-react';
 import { parseCsv, type CsvRow } from './csvTemplate';
 import { useResolveEmployeeEmails } from '@/hooks/org/useEmployeesList';
 import type { BulkTaskPayload } from '@/features/workload/hooks/useRepresentativeTasks';
@@ -134,10 +134,10 @@ export function BulkImportDialog({ open, onOpenChange, onSubmit, isSubmitting }:
                         <td className="px-2 py-1.5">{i + 1}</td>
                         <td className="px-2 py-1.5">
                           {row.valid ? (
-                            <CheckCircle2 className="h-4 w-4 text-chart-1" />
+                            <Check className="h-4 w-4 text-chart-1" />
                           ) : (
                             <span className="flex items-center gap-1 text-destructive">
-                              <XCircle className="h-4 w-4" />
+                              <X className="h-4 w-4" />
                               <span className="truncate max-w-[120px]">{row.error}</span>
                             </span>
                           )}

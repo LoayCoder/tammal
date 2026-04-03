@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Save, RotateCcw, Palette } from 'lucide-react';
+import { Save, RefreshCw, Palette } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -157,7 +157,7 @@ export default function AdminBranding() {
         actions={
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleReset} disabled={isSaving}>
-              <RotateCcw className="h-4 w-4 me-2 rtl:-scale-x-100" />
+              <RefreshCw className="h-4 w-4 me-2 rtl:-scale-x-100" />
               {t('branding.resetToDefault')}
             </Button>
             <Button onClick={handleSave} disabled={isSaving}>

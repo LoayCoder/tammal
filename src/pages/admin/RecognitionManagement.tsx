@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, Trophy, Calendar, MoreVertical, Pencil, Trash2, ChevronRight } from 'lucide-react';
+import { Plus, Star, Calendar, Grip, Pencil, Trash2, ChevronRight } from 'lucide-react';
 import { useAwardCycles, type AwardCycle, type CycleStatus } from '@/hooks/recognition/useAwardCycles';
 import { CycleStatusBadge } from '@/components/recognition/CycleStatusBadge';
 import { CycleTimeline } from '@/components/recognition/CycleTimeline';
@@ -93,7 +93,7 @@ export default function RecognitionManagement() {
   return (
     <div className="space-y-6 p-6">
       <PageHeader
-        icon={<Trophy className="h-5 w-5 text-primary" />}
+        icon={<Star className="h-5 w-5 text-primary" />}
         title={t('recognition.title')}
         subtitle={t('recognition.subtitle')}
         variant="card"
@@ -112,7 +112,7 @@ export default function RecognitionManagement() {
       ) : cycles.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <Trophy className="h-12 w-12 text-muted-foreground mb-4" />
+            <Star className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className={typography.sectionTitle}>{t('recognition.cycles.empty')}</h3>
             <p className="text-sm text-muted-foreground mt-1 max-w-md">{t('recognition.cycles.emptyDescription')}</p>
             <Button className="mt-4" onClick={() => setShowBuilder(true)}>
@@ -138,7 +138,7 @@ export default function RecognitionManagement() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4" />
+                            <Grip className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">

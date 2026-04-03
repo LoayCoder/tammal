@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useEmergencyContacts, type EmergencyContact } from '@/hooks/crisis/useCrisisSupport';
 import { useProfile } from '@/hooks/auth/useProfile';
-import { Plus, Trash2, Edit } from 'lucide-react';
+import { Plus, Trash2, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function EmergencyContactsTab() {
@@ -96,7 +96,7 @@ export default function EmergencyContactsTab() {
                   <TableCell>
                     <div className="flex gap-1">
                       <Button variant="ghost" size="icon" onClick={() => openEdit(c)}>
-                        <Edit className="h-4 w-4" />
+                        <Pencil className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => deleteContact.mutate(c.id)}>
                         <Trash2 className="h-4 w-4 text-destructive" />

@@ -6,10 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useSecureAttachments } from '@/hooks/crisis/useSecureAttachments';
 import { toast } from 'sonner';
 import { formatDistanceToNow, format } from 'date-fns';
-import {
-  Eye, Trash2, Shield, Clock, FileText, Image, Music,
-  Users, ChevronDown, ChevronUp,
-} from 'lucide-react';
+import { Eye, Trash2, Shield, Clock, FileText, Image, Waves, Users, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface Props {
   caseId: string;
@@ -18,7 +15,7 @@ interface Props {
 
 function getFileIcon(type: string) {
   if (type.startsWith('image/')) return <Image className="h-5 w-5" />;
-  if (type.startsWith('audio/')) return <Music className="h-5 w-5" />;
+  if (type.startsWith('audio/')) return <Waves className="h-5 w-5" />;
   return <FileText className="h-5 w-5" />;
 }
 

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, UserX, TrendingDown, Building2 } from 'lucide-react';
+import { AlertTriangle, X, ArrowUp, Building2 } from 'lucide-react';
 import type { RiskAlert } from '@/hooks/analytics/useCheckinMonitor';
 import { cardVariants, typography} from "@/theme/tokens";
 
@@ -10,8 +10,8 @@ interface Props {
 }
 
 const iconMap = {
-  low_mood: TrendingDown,
-  disengaged: UserX,
+  low_mood: ArrowUp,
+  disengaged: X,
   low_department: Building2,
 };
 

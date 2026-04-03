@@ -12,7 +12,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Pencil, Trash2, ArrowRight, Rocket, FolderOpen, Lock, Unlock, Target, Crosshair } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowRight, Zap, Layers, Lock, Unlock, Target } from 'lucide-react';
 import { typography } from "@/theme/tokens";
 import type { Objective } from '@/features/workload/hooks/useObjectives';
 import type { Initiative } from '@/features/workload/hooks/useInitiatives';
@@ -139,7 +139,7 @@ export function StrategicHierarchyTab({
       ) : objectives.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-            <Crosshair className="h-12 w-12 text-muted-foreground/40 mb-4" />
+            <Target className="h-12 w-12 text-muted-foreground/40 mb-4" />
             <p>{t('workload.objectives.empty')}</p>
           </CardContent>
         </Card>
@@ -183,7 +183,7 @@ export function StrategicHierarchyTab({
                 {isObjExpanded && (
                   <CardContent className="pt-0 space-y-3">
                     <div className="flex items-center justify-between mt-2">
-                      <h3 className="text-sm font-semibold flex items-center gap-2"><Rocket className="h-4 w-4 text-primary" />{t('workload.initiatives.sectionTitle')}</h3>
+                      <h3 className="text-sm font-semibold flex items-center gap-2"><Zap className="h-4 w-4 text-primary" />{t('workload.initiatives.sectionTitle')}</h3>
                       {!obj.is_locked && (
                         <Button variant="outline" size="sm" onClick={() => { setSelectedInit(null); setInitDialogOpen(true); }}>
                           <Plus className="me-1 h-3.5 w-3.5" />{t('workload.initiatives.add')}
@@ -192,7 +192,7 @@ export function StrategicHierarchyTab({
                     </div>
 
                     {initLoading ? <Skeleton className="h-16" /> : initiatives.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-4"><FolderOpen className="h-8 w-8 mx-auto mb-2 text-muted-foreground/40" />{t('workload.initiatives.empty')}</p>
+                      <p className="text-sm text-muted-foreground text-center py-4"><Layers className="h-8 w-8 mx-auto mb-2 text-muted-foreground/40" />{t('workload.initiatives.empty')}</p>
                     ) : (
                       <div className="space-y-2">
                         {initiatives.map(init => {

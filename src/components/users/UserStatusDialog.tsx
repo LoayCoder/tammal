@@ -9,7 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { UserX, Ban, Trash2, UserCheck } from 'lucide-react';
+import { X, Ban, Trash2, Fingerprint } from 'lucide-react';
 import type { UserWithRoles } from '@/hooks/org/useUsers';
 import { typography } from "@/theme/tokens";
 
@@ -40,7 +40,7 @@ export function UserStatusDialog({
         return {
           title: t('users.deactivateUser'),
           description: t('users.confirmDeactivate'),
-          icon: UserX,
+          icon: X,
           variant: 'default' as const,
           buttonText: t('users.deactivateUser'),
         };
@@ -56,7 +56,7 @@ export function UserStatusDialog({
         return {
           title: t('users.reactivateUser'),
           description: t('users.confirmReactivate'),
-          icon: UserCheck,
+          icon: Fingerprint,
           variant: 'default' as const,
           buttonText: t('users.reactivateUser'),
         };

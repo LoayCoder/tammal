@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCycleImpactCounts } from '@/hooks/recognition/useCycleImpactCounts';
-import { Trophy, Users, Vote } from 'lucide-react';
+import { Star, Users, Check } from 'lucide-react';
 
 interface CycleDeleteDialogProps {
   cycleId: string | null;
@@ -59,7 +59,7 @@ export const CycleDeleteDialog = React.memo(function CycleDeleteDialog({
             <ul className="space-y-1.5 text-sm text-muted-foreground">
               {counts.themes > 0 && (
                 <li className="flex items-center gap-2">
-                  <Trophy className="h-3.5 w-3.5 text-destructive/70" />
+                  <Star className="h-3.5 w-3.5 text-destructive/70" />
                   {t('recognition.cycles.deleteImpact.themes', { count: counts.themes })}
                 </li>
               )}
@@ -71,7 +71,7 @@ export const CycleDeleteDialog = React.memo(function CycleDeleteDialog({
               )}
               {counts.votes > 0 && (
                 <li className="flex items-center gap-2">
-                  <Vote className="h-3.5 w-3.5 text-destructive/70" />
+                  <Check className="h-3.5 w-3.5 text-destructive/70" />
                   {t('recognition.cycles.deleteImpact.votes', { count: counts.votes })}
                 </li>
               )}

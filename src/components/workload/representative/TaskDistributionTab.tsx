@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Plus, Users, CheckCircle2, Clock, AlertTriangle, Download, Upload } from 'lucide-react';
+import { Plus, Users, Check, Clock, AlertTriangle, Download, Upload } from 'lucide-react';
 import { DistributeTaskDialog } from '@/components/workload/representative/DistributeTaskDialog';
 import { BatchDetailDialog } from '@/components/workload/representative/BatchDetailDialog';
 import { BulkImportDialog } from '@/components/workload/representative/BulkImportDialog';
@@ -66,7 +66,7 @@ export function TaskDistributionTab({ tasks, assignments, distributeTask, isDist
                 <CardContent className="space-y-3">
                   <div className="flex items-center gap-4 text-xs">
                     <span className="flex items-center gap-1 text-muted-foreground"><Users className="h-3 w-3" /> {batch.total}</span>
-                    <span className="flex items-center gap-1 text-chart-1"><CheckCircle2 className="h-3 w-3" /> {batch.done}</span>
+                    <span className="flex items-center gap-1 text-chart-1"><Check className="h-3 w-3" /> {batch.done}</span>
                     <span className="flex items-center gap-1 text-chart-4"><Clock className="h-3 w-3" /> {batch.inProgress}</span>
                     {batch.blocked > 0 && <span className="flex items-center gap-1 text-destructive"><AlertTriangle className="h-3 w-3" /> {batch.blocked}</span>}
                   </div>

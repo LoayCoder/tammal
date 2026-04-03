@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Trash2, Settings2, BarChart3, Eye } from 'lucide-react';
+import { Grip, Trash2, Settings2, Activity, Eye } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TenantStatusBadge } from './TenantStatusBadge';
 import { formatDate } from '@/lib/utils';
@@ -97,7 +97,7 @@ export function TenantTable({ tenants, isLoading, onEdit, onDelete, onViewDetail
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="h-4 w-4" />
+                    <Grip className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -108,7 +108,7 @@ export function TenantTable({ tenants, isLoading, onEdit, onDelete, onViewDetail
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem onClick={() => navigate(`/admin/tenants/${tenant.id}`)}>
-                    <BarChart3 className="me-2 h-4 w-4" />
+                    <Activity className="me-2 h-4 w-4" />
                     {t('tenants.viewDashboard')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onEdit(tenant)}>

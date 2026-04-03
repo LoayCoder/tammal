@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertTriangle, TrendingDown, Zap, Users, RotateCcw } from 'lucide-react';
+import { AlertTriangle, ArrowUp, Zap, Users, RefreshCw } from 'lucide-react';
 import type { EarlyWarning } from '@/lib/analytics/types';
 import { cardVariants, typography} from "@/theme/tokens";
 
@@ -12,10 +12,10 @@ interface Props {
 }
 
 const TYPE_CONFIG: Record<string, { icon: React.ComponentType<any>; label: string }> = {
-  declining_trend: { icon: TrendingDown, label: 'orgDashboard.warningDeclining' },
+  declining_trend: { icon: ArrowUp, label: 'orgDashboard.warningDeclining' },
   spike_detected: { icon: Zap, label: 'orgDashboard.warningSpike' },
   low_engagement: { icon: Users, label: 'orgDashboard.warningLowEngagement' },
-  recurring_risk: { icon: RotateCcw, label: 'orgDashboard.warningRecurring' },
+  recurring_risk: { icon: RefreshCw, label: 'orgDashboard.warningRecurring' },
 };
 
 export function EarlyWarningPanel({ warnings, isLoading }: Props) {

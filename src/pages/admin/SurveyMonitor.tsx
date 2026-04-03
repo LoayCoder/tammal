@@ -11,7 +11,7 @@ import { OrgFilterBar } from '@/components/survey-monitor/OrgFilterBar';
 import { EmployeeStatusTable } from '@/components/survey-monitor/EmployeeStatusTable';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { BarChart3 } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import { cardVariants } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
@@ -44,7 +44,7 @@ export default function SurveyMonitor() {
     <div className="space-y-6">
       {/* Header */}
       <PageHeader
-        icon={<BarChart3 className="h-5 w-5 text-primary" />}
+        icon={<Activity className="h-5 w-5 text-primary" />}
         title={t('surveyMonitor.title')}
         subtitle={t('surveyMonitor.subtitle')}
         variant="card"

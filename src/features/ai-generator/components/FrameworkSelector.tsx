@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 
-import { BookOpen, ChevronDown, Plus, Pencil, Trash2, Check, Search, CheckCheck, XCircle, FileText } from 'lucide-react';
+import { FileText, ChevronDown, Plus, Pencil, Trash2, Check, Search, X } from 'lucide-react';
 import { ReferenceFramework } from '@/hooks/questions/useReferenceFrameworks';
 import { FrameworkDialog } from './FrameworkDialog';
 import { FrameworkDocuments } from './FrameworkDocuments';
@@ -112,7 +112,7 @@ export function FrameworkSelector({
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-base">
-              <BookOpen className="h-5 w-5 text-primary" />
+              <FileText className="h-5 w-5 text-primary" />
               {t('aiGenerator.referenceFrameworks')}
             </CardTitle>
             {selectedFrameworkIds.length > 0 && (
@@ -134,7 +134,7 @@ export function FrameworkSelector({
                 onClick={selectAll}
                 disabled={selectedFrameworkIds.length === frameworks.length}
               >
-                <CheckCheck className="h-3.5 w-3.5" />
+                <Check className="h-3.5 w-3.5" />
                 {t('aiGenerator.selectAll')}
               </Button>
               <Button
@@ -144,7 +144,7 @@ export function FrameworkSelector({
                 onClick={deselectAll}
                 disabled={selectedFrameworkIds.length === 0}
               >
-                <XCircle className="h-3.5 w-3.5" />
+                <X className="h-3.5 w-3.5" />
                 {t('aiGenerator.deselectAll')}
               </Button>
             </div>
@@ -170,7 +170,7 @@ export function FrameworkSelector({
             /* Empty state */
             <div className="flex flex-col items-center justify-center py-8 text-center space-y-3">
               <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center">
-                <BookOpen className="h-7 w-7 text-primary/60" />
+                <FileText className="h-7 w-7 text-primary/60" />
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-foreground">{t('aiGenerator.noFrameworksYet')}</p>

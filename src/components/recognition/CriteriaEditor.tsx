@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import { Plus, Trash2, GripVertical, Pencil } from 'lucide-react';
+import { Plus, Trash2, Grip, Pencil } from 'lucide-react';
 import { useJudgingCriteria, type JudgingCriterion } from '@/hooks/recognition/useJudgingCriteria';
 
 interface CriteriaEditorProps {
@@ -137,7 +137,7 @@ export function CriteriaEditor({ themeId }: CriteriaEditorProps) {
                 </div>
               ) : (
                 <div className="flex items-start gap-3">
-                  <GripVertical className="h-5 w-5 text-muted-foreground mt-1 shrink-0 cursor-grab" />
+                  <Grip className="h-5 w-5 text-muted-foreground mt-1 shrink-0 cursor-grab" />
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-sm">{criterion.name}</span>

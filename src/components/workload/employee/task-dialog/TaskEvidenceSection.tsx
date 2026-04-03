@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { Upload, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Upload, Shield, Info } from 'lucide-react';
 
 interface EvidenceItem {
   id: string;
@@ -59,12 +59,12 @@ export function TaskEvidenceSection({
       )}
       {isCompleted && hasApprovedEvidence && (
         <Button type="button" variant="default" size="sm" className="gap-1.5" onClick={onMarkVerified}>
-          <ShieldCheck className="h-3.5 w-3.5" /> {t('workload.tasks.verified')}
+          <Shield className="h-3.5 w-3.5" /> {t('workload.tasks.verified')}
         </Button>
       )}
       {isCompleted && !hasApprovedEvidence && (
         <p className="text-xs text-chart-4 flex items-center gap-1">
-          <AlertCircle className="h-3 w-3" />
+          <Info className="h-3 w-3" />
           {hasAnyEvidence ? t('workload.tasks.completedNotVerified') : t('workload.tasks.evidenceRequired')}
         </p>
       )}

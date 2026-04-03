@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { CriteriaEvaluationForm, isCriteriaWeightValid, type CriterionEvaluation } from './CriteriaEvaluationForm';
-import { User, Calendar, CheckCircle, XCircle, Scale, Users, Search, ChevronDown } from 'lucide-react';
+import { User, Calendar, Check, X, Scale, Users, Search, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { useEmployees } from '@/hooks/org/useEmployees';
 import { useQuery } from '@tanstack/react-query';
@@ -235,7 +235,7 @@ export function ManagerApprovalCard({
               onClick={handleApprove}
               disabled={isApproving || isRejecting || !criteriaValid}
             >
-              <CheckCircle className="h-4 w-4 me-1" />
+              <Check className="h-4 w-4 me-1" />
               {t('recognition.nominations.approveNomination')}
             </Button>
             <Button
@@ -244,7 +244,7 @@ export function ManagerApprovalCard({
               onClick={() => setShowRejectDialog(true)}
               disabled={isApproving || isRejecting}
             >
-              <XCircle className="h-4 w-4 me-1" />
+              <X className="h-4 w-4 me-1" />
               {t('recognition.nominations.rejectNomination')}
             </Button>
           </div>

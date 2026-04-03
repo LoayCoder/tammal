@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, CheckCircle, Shield, Eye, TrendingDown, TrendingUp } from 'lucide-react';
+import { AlertTriangle, Check, Shield, Eye, ArrowUp } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { typography } from "@/theme/tokens";
 
@@ -43,7 +43,7 @@ export function FairnessReport({ report }: FairnessReportProps) {
         <CardContent>
           {cliques.length === 0 ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <CheckCircle className="h-4 w-4 text-chart-2" />
+              <Check className="h-4 w-4 text-chart-2" />
               {t('recognition.results.noCliques')}
             </div>
           ) : (
@@ -70,7 +70,7 @@ export function FairnessReport({ report }: FairnessReportProps) {
         <CardContent>
           {anomalies.length === 0 ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <CheckCircle className="h-4 w-4 text-chart-2" />
+              <Check className="h-4 w-4 text-chart-2" />
               {t('recognition.results.noAnomalies')}
             </div>
           ) : (
@@ -109,7 +109,7 @@ export function FairnessReport({ report }: FairnessReportProps) {
           {parity.underrepresented?.length > 0 && (
             <div className="space-y-1">
               <p className="text-xs font-medium flex items-center gap-1">
-                <TrendingDown className="h-3 w-3 text-destructive" />
+                <ArrowUp className="h-3 w-3 text-destructive" />
                 {t('recognition.results.underrepresented')}
               </p>
               <div className="flex flex-wrap gap-1">
@@ -123,7 +123,7 @@ export function FairnessReport({ report }: FairnessReportProps) {
           {parity.overrepresented?.length > 0 && (
             <div className="space-y-1">
               <p className="text-xs font-medium flex items-center gap-1">
-                <TrendingUp className="h-3 w-3 text-chart-4" />
+                <ArrowUp className="h-3 w-3 text-chart-4" />
                 {t('recognition.results.overrepresented')}
               </p>
               <div className="flex flex-wrap gap-1">
@@ -165,7 +165,7 @@ export function FairnessReport({ report }: FairnessReportProps) {
         <CardContent>
           {visibility.applied ? (
             <div className="flex items-center gap-2 text-sm">
-              <CheckCircle className="h-4 w-4 text-chart-2" />
+              <Check className="h-4 w-4 text-chart-2" />
               <span>{t('recognition.results.correctionApplied')}</span>
             </div>
           ) : (

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { BarChart3 } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import {
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip as RechartsTooltip,
 } from 'recharts';
@@ -84,7 +84,7 @@ export function WorkforceHealthCard({ distribution, heatmapLoading, riskMetrics,
       <Card className={cn(cardVariants.glass, "shadow-sm")}>
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 text-destructive" />
+            <Activity className="h-4 w-4 text-destructive" />
             {t('executive.initiativeRiskRadar')}
           </CardTitle>
         </CardHeader>

@@ -1,7 +1,4 @@
-import {
-  CheckCircle, Clock, UserX, Ban,
-  Building2, Home, Briefcase, X,
-} from 'lucide-react';
+import { Check, Clock, X, Ban, Building2, Dot, Layers } from 'lucide-react';
 import type { StatusBadgeConfig } from './StatusBadge';
 
 // ── Tenant ───────────────────────────────────────────────────────────────────
@@ -14,11 +11,11 @@ export const TENANT_STATUS_CONFIG: StatusBadgeConfig = {
 
 // ── Account ──────────────────────────────────────────────────────────────────
 export const ACCOUNT_STATUS_CONFIG: StatusBadgeConfig = {
-  not_invited: { variant: 'outline',      icon: UserX,       labelKey: 'userManagement.notInvited' },
+  not_invited: { variant: 'outline',      icon: X,       labelKey: 'userManagement.notInvited' },
   invited:     { variant: 'secondary',    icon: Clock,       labelKey: 'userManagement.invitationSent' },
-  active:      { variant: 'default',      icon: CheckCircle, labelKey: 'userManagement.activeUser' },
+  active:      { variant: 'default',      icon: Check, labelKey: 'userManagement.activeUser' },
   suspended:   { variant: 'destructive',  icon: Ban,         labelKey: 'userManagement.suspendedUser' },
-  inactive:    { variant: 'secondary',    icon: UserX,       labelKey: 'userManagement.inactiveUser' },
+  inactive:    { variant: 'secondary',    icon: X,       labelKey: 'userManagement.inactiveUser' },
 };
 
 // ── Employee ─────────────────────────────────────────────────────────────────
@@ -75,7 +72,7 @@ export const OKR_STATUS_CONFIG: StatusBadgeConfig = {
 // ── Prayer Status ────────────────────────────────────────────────────────────
 export const PRAYER_STATUS_CONFIG: StatusBadgeConfig = {
   completed_mosque: { variant: 'outline', icon: Building2, className: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30' },
-  completed_home:   { variant: 'outline', icon: Home,      className: 'bg-amber-500/15 text-amber-800 dark:text-amber-400 border-amber-500/30' },
-  completed_work:   { variant: 'outline', icon: Briefcase,  className: 'bg-muted text-muted-foreground' },
+  completed_home:   { variant: 'outline', icon: Dot,      className: 'bg-amber-500/15 text-amber-800 dark:text-amber-400 border-amber-500/30' },
+  completed_work:   { variant: 'outline', icon: Layers,  className: 'bg-muted text-muted-foreground' },
   missed:           { variant: 'outline', icon: X,          className: 'bg-destructive/15 text-destructive border-destructive/30' },
 };

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Trophy } from 'lucide-react';
+import { Star } from 'lucide-react';
 import type { NomineeRanking } from '@/hooks/recognition/useResults';
 
 interface RankingsTableProps {
@@ -37,7 +37,7 @@ export function RankingsTable({ rankings, nomineeNames }: RankingsTableProps) {
             <TableRow key={r.id}>
               <TableCell>
                 <div className="flex items-center gap-1">
-                  {r.rank <= 3 && <Trophy className={`h-4 w-4 ${rankColors[r.rank] || ''}`} />}
+                  {r.rank <= 3 && <Star className={`h-4 w-4 ${rankColors[r.rank] || ''}`} />}
                   <span className="font-medium">#{r.rank}</span>
                 </div>
               </TableCell>

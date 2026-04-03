@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useCrisisAnalytics } from '@/hooks/analytics/useCrisisAnalytics';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import { Activity, Clock, AlertTriangle, CheckCircle, TrendingUp, Users } from 'lucide-react';
+import { Activity, Clock, AlertTriangle, Check, ArrowUp, Users } from 'lucide-react';
 import { cardVariants, typography} from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
@@ -37,9 +37,9 @@ export default function CrisisAnalyticsTab({ tenantId }: { tenantId?: string }) 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <KPICard icon={Activity} label={t('crisisSupport.analytics.totalCases')} value={analytics.totalCases} />
         <KPICard icon={Clock} label={t('crisisSupport.analytics.activeCases')} value={analytics.activeCases} />
-        <KPICard icon={CheckCircle} label={t('crisisSupport.analytics.resolvedCases')} value={analytics.resolvedCases} />
+        <KPICard icon={Check} label={t('crisisSupport.analytics.resolvedCases')} value={analytics.resolvedCases} />
         <KPICard icon={AlertTriangle} label={t('crisisSupport.analytics.escalatedCases')} value={analytics.escalatedCases} variant="destructive" />
-        <KPICard icon={TrendingUp} label={t('crisisSupport.analytics.avgResponse')} value={analytics.avgFirstResponseMinutes != null ? `${analytics.avgFirstResponseMinutes}m` : '—'} />
+        <KPICard icon={ArrowUp} label={t('crisisSupport.analytics.avgResponse')} value={analytics.avgFirstResponseMinutes != null ? `${analytics.avgFirstResponseMinutes}m` : '—'} />
         <KPICard icon={Clock} label={t('crisisSupport.analytics.avgResolution')} value={analytics.avgResolutionHours != null ? `${analytics.avgResolutionHours}h` : '—'} />
       </div>
 

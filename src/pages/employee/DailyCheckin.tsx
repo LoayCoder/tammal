@@ -9,7 +9,7 @@ import { useTodayEntry } from '@/hooks/checkin/useTodayEntry';
 import { useCheckinSubmit } from '@/hooks/checkin/useCheckinSubmit';
 import { useMoodDefinitions } from '@/hooks/wellness/useMoodDefinitions';
 import { toast } from 'sonner';
-import { Flame, Star, Loader2, ArrowRight, ArrowLeft, Send, AlertCircle, RefreshCw, UserX } from 'lucide-react';
+import { Flame, Star, Loader2, ArrowRight, ArrowLeft, Send, Info, RefreshCw, X } from 'lucide-react';
 import { MoodStep } from '@/components/checkin/MoodStep';
 import { SupportStep } from '@/components/checkin/SupportStep';
 import { CheckinSuccess } from '@/components/checkin/CheckinSuccess';
@@ -98,7 +98,7 @@ export default function DailyCheckin() {
     return (
       <div className="container mx-auto max-w-md py-16 px-4">
         <div className="text-center space-y-4 p-8 rounded-lg border border-dashed border-destructive/30 bg-destructive/5">
-          <UserX className="h-12 w-12 mx-auto text-destructive/60" />
+          <X className="h-12 w-12 mx-auto text-destructive/60" />
           <h2 className={typography.sectionTitle}>{t('wellness.profileNotFound', 'Profile Not Found')}</h2>
           <p className={typography.subtitle}>{t('wellness.profileNotFoundDesc', 'Your employee profile could not be found. Please contact your administrator.')}</p>
         </div>
@@ -182,7 +182,7 @@ export default function DailyCheckin() {
 
             {submitError && (
               <Alert variant="destructive" className="rounded-xl">
-                <AlertCircle className="h-4 w-4" />
+                <Info className="h-4 w-4" />
                 <AlertDescription className="flex items-center justify-between">
                   <span className="text-sm">{submitError}</span>
                   <Button variant="ghost" size="sm" onClick={handleSubmit} className="gap-1 shrink-0">

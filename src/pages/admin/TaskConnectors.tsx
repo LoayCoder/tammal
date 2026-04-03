@@ -8,10 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTenantId } from '@/hooks/org/useTenantId';
 import { toast } from 'sonner';
-import {
-  Plug, Unplug, RefreshCw, ExternalLink, CheckCircle2, XCircle,
-  FileSpreadsheet, Upload,
-} from 'lucide-react';
+import { Plug, Unplug, RefreshCw, ExternalLink, Check, X, FileSpreadsheet, Upload } from 'lucide-react';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '@/components/ui/dialog';
@@ -93,7 +90,7 @@ export default function TaskConnectors() {
             {connectors.map(c => (
               <div key={c.id} className="flex items-center justify-between py-2 border-b border-border/10 last:border-0">
                 <div className="flex items-center gap-3">
-                  <CheckCircle2 className="h-4 w-4 text-chart-1" />
+                  <Check className="h-4 w-4 text-chart-1" />
                   <span className="font-medium text-sm capitalize">{c.provider.replace('_', ' ')}</span>
                 </div>
                 <Badge variant={c.status === 'active' ? 'default' : 'secondary'} className="text-xs">{c.status}</Badge>

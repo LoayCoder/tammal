@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { usePermissions, useRolePermissions } from '@/hooks/auth/usePermissions';
 import type { Role } from '@/hooks/auth/useRoles';
-import { Key, Loader2, Shield, Users, FileText, Settings, BarChart3, Calendar, ClipboardList } from 'lucide-react';
+import { Key, Loader2, Shield, Users, FileText, Settings, Activity, Calendar } from 'lucide-react';
 import { typography } from "@/theme/tokens";
 
 interface PermissionMatrixProps {
@@ -31,9 +31,9 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Roles: <Shield className="h-4 w-4" />,
   Admin: <Settings className="h-4 w-4" />,
   Employees: <Users className="h-4 w-4" />,
-  Reports: <BarChart3 className="h-4 w-4" />,
+  Reports: <Activity className="h-4 w-4" />,
   Settings: <Settings className="h-4 w-4" />,
-  Questions: <ClipboardList className="h-4 w-4" />,
+  Questions: <FileText className="h-4 w-4" />,
   Schedules: <Calendar className="h-4 w-4" />,
 };
 

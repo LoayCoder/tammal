@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Shield, UserCog, Pencil, UserX, Ban, UserCheck, Trash2 } from 'lucide-react';
+import { Grip, Shield, Fingerprint, Pencil, X, Ban, Trash2 } from 'lucide-react';
 import { cardVariants } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 import type { UserWithRoles } from '@/hooks/org/useUsers';
@@ -83,12 +83,12 @@ export function UserMobileCard({
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0">
-              <MoreHorizontal className="h-4 w-4" />
+              <Grip className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onViewDetails(user); }}>
-              <UserCog className="me-2 h-4 w-4" />{t('users.viewDetails')}
+              <Fingerprint className="me-2 h-4 w-4" />{t('users.viewDetails')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEditRoles(user); }}>
               <Shield className="me-2 h-4 w-4" />{t('users.manageRoles')}
@@ -103,7 +103,7 @@ export function UserMobileCard({
               <>
                 {onDeactivate && (
                   <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDeactivate(user); }}>
-                    <UserX className="me-2 h-4 w-4" />{t('users.deactivateUser')}
+                    <X className="me-2 h-4 w-4" />{t('users.deactivateUser')}
                   </DropdownMenuItem>
                 )}
                 {onSuspend && (
@@ -115,7 +115,7 @@ export function UserMobileCard({
             ) : (
               onReactivate && (
                 <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onReactivate(user); }}>
-                  <UserCheck className="me-2 h-4 w-4" />{t('users.reactivateUser')}
+                  <Fingerprint className="me-2 h-4 w-4" />{t('users.reactivateUser')}
                 </DropdownMenuItem>
               )
             )}

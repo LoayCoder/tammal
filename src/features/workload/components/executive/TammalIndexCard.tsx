@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
-import { Gauge } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import type { OrgIntelligenceScore } from '@/features/workload';
 import { cardVariants } from "@/theme/tokens";
@@ -42,14 +42,14 @@ export function TammalIndexCard({ score, isPending }: Props) {
     <Card className={cn(cardVariants.glass, "shadow-sm")}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <Gauge className="h-4 w-4 text-primary" />
+          <Activity className="h-4 w-4 text-primary" />
           {t('executive.tammalIndex')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         {isPending ? <Skeleton className="h-[200px]" /> : (
           <div className="grid gap-6 md:grid-cols-5 items-center">
-            {/* Gauge */}
+            {/* Activity */}
             <div className="md:col-span-2 flex justify-center relative">
               <ResponsiveContainer width={200} height={130}>
                 <PieChart>

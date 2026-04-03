@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Plus, Target, ChevronRight, Pencil, Trash2, Crosshair } from 'lucide-react';
+import { Plus, Target, ChevronRight, Pencil, Trash2 } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -73,7 +73,7 @@ export default function ObjectivesManagement() {
       ) : objectives.length === 0 ? (
         <Card className={cardVariants.glass}>
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <Crosshair className="h-12 w-12 text-muted-foreground/40 mb-4" />
+            <Target className="h-12 w-12 text-muted-foreground/40 mb-4" />
             <p className="text-muted-foreground">{t('workload.objectives.empty')}</p>
             <Button variant="outline" className="mt-4" onClick={handleCreate}><Plus className="me-2 h-4 w-4" />{t('workload.objectives.add')}</Button>
           </CardContent>

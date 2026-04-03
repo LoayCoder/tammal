@@ -16,9 +16,7 @@ import { CreateTaskModal } from '@/features/tasks/components/CreateTaskModal';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { typography } from "@/theme/tokens";
-import {
-  Plus, ListChecks, CalendarDays, CheckCircle2, AlertTriangle, Flame, CheckSquare, ChevronDown, Star,
-} from 'lucide-react';
+import { Plus, ListChecks, Calendar, Check, AlertTriangle, Flame, ChevronDown, Star } from 'lucide-react';
 
 type ViewType = 'tasks' | 'calendar' | 'approvals';
 
@@ -84,7 +82,7 @@ export default function PersonalCommandCenter() {
         </Card>
         <Card className="border-0 bg-muted/30">
           <CardContent className="p-3 flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-chart-1/10"><CheckCircle2 className="h-4 w-4 text-chart-1" /></div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-chart-1/10"><Check className="h-4 w-4 text-chart-1" /></div>
             <div><div className="text-lg font-bold">{stats.completed.length}</div><p className="text-muted-foreground text-xs">{t('commandCenter.completed')}</p></div>
           </CardContent>
         </Card>
@@ -96,7 +94,7 @@ export default function PersonalCommandCenter() {
         </Card>
         <Card className="border-0 bg-muted/30">
           <CardContent className="p-3 flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-chart-5/10"><CheckSquare className="h-4 w-4 text-chart-5" /></div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-chart-5/10"><Check className="h-4 w-4 text-chart-5" /></div>
             <div><div className="text-lg font-bold">{pendingCount}</div><p className="text-muted-foreground text-xs">{t('workload.views.approvals')}</p></div>
           </CardContent>
         </Card>
@@ -137,10 +135,10 @@ export default function PersonalCommandCenter() {
             <ListChecks className="h-3.5 w-3.5" />{t('workload.views.tasks')}
           </ToggleGroupItem>
           <ToggleGroupItem value="calendar" className="gap-1.5 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm px-4">
-            <CalendarDays className="h-3.5 w-3.5" />{t('workload.views.calendar')}
+            <Calendar className="h-3.5 w-3.5" />{t('workload.views.calendar')}
           </ToggleGroupItem>
           <ToggleGroupItem value="approvals" className="gap-1.5 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm px-4 relative">
-            <CheckSquare className="h-3.5 w-3.5" />{t('workload.views.approvals')}
+            <Check className="h-3.5 w-3.5" />{t('workload.views.approvals')}
             {pendingCount > 0 && (
               <Badge className="h-4 min-w-[16px] px-1 text-2xs absolute -top-1.5 -end-1.5">{pendingCount}</Badge>
             )}

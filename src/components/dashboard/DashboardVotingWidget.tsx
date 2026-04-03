@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Vote, ChevronRight } from 'lucide-react';
+import { Check, ChevronRight } from 'lucide-react';
 import { useAwardCycles } from '@/hooks/recognition/useAwardCycles';
 import { useVoting } from '@/hooks/recognition/useVoting';
 import { cardVariants } from "@/theme/tokens";
@@ -35,7 +35,7 @@ function VotingCycleCard({ cycleId, cycleName }: { cycleId: string; cycleName: s
       <CardContent className="flex flex-col gap-4 p-6">
         <div className="flex items-center gap-4">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-            <Vote className="h-7 w-7 text-primary" />
+            <Check className="h-7 w-7 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-base">{t('home.votingWidget.title')}</h3>

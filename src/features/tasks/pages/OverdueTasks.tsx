@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertTriangle, CalendarDays, Clock, Eye, Flame } from 'lucide-react';
+import { AlertTriangle, Calendar, Clock, Eye, Flame } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/shared/empty/EmptyState';
@@ -79,7 +79,7 @@ export default function OverdueTasks() {
                       {(task as any).employee?.full_name && <p className="text-xs text-muted-foreground">{t('tasks.fields.assignee')}: {(task as any).employee.full_name}</p>}
                       {task.description && <p className="text-xs text-muted-foreground line-clamp-1">{task.description}</p>}
                       <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{t('tasks.fields.dueDate')}: {format(new Date(task.due_date), 'PP')}</span>
+                        <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{t('tasks.fields.dueDate')}: {format(new Date(task.due_date), 'PP')}</span>
                         <span>{t('tasks.fields.progress')}: {task.progress}%</span>
                         <span>{t('tasks.fields.status')}: {t(`tasks.status.${task.status}`)}</span>
                       </div>

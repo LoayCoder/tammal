@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCrisisCases } from '@/hooks/crisis/useCrisisSupport';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { MessageSquare, Clock, ArrowLeft, X, Plus, Calendar, FileText } from 'lucide-react';
+import { Send, Clock, ArrowLeft, X, Plus, Calendar, FileText } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import { format } from 'date-fns';
 import EnhancedChatPanel from '@/components/crisis/EnhancedChatPanel';
@@ -53,7 +53,7 @@ export default function MySupportPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={<MessageSquare className="h-5 w-5 text-primary" />}
+        icon={<Send className="h-5 w-5 text-primary" />}
         title={t('crisisSupport.mySupport.title')}
         subtitle={t('crisisSupport.mySupport.subtitle')}
         variant="card"
@@ -70,7 +70,7 @@ export default function MySupportPage() {
       ) : myCases.length === 0 ? (
         <Card className={cardVariants.glass}>
           <CardContent className="py-12 text-center">
-            <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <Send className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">{t('crisisSupport.mySupport.noCases')}</p>
             <Button onClick={() => navigate('/crisis-support')} className="mt-4">{t('crisisSupport.mySupport.newRequest')}</Button>
           </CardContent>
@@ -114,7 +114,7 @@ function CaseCardList({ cases, onSelect }: { cases: any[]; onSelect: (id: string
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-                  <MessageSquare className="h-5 w-5 text-muted-foreground" />
+                  <Send className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div>
                   <p className="font-medium text-sm">{resolveIntentLabel((key) => String(t(key)), c.intent)}</p>

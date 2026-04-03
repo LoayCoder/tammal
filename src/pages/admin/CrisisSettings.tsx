@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Users, Clock, Phone, BarChart3 } from 'lucide-react';
+import { Shield, Users, Clock, Phone, Activity } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import FirstAidersTab from '@/components/crisis/FirstAidersTab';
 import SchedulesTab from '@/components/crisis/SchedulesTab';
@@ -41,7 +41,7 @@ export default function CrisisSettings() {
             {t('crisisSupport.admin.rulesTab')}
           </TabsTrigger>
           <TabsTrigger value="analytics" className="gap-1.5 rounded-xl">
-            <BarChart3 className="h-4 w-4" />
+            <Activity className="h-4 w-4" />
             {t('crisisSupport.admin.analyticsTab')}
           </TabsTrigger>
         </TabsList>

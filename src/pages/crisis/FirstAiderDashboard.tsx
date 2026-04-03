@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCrisisCases, useIsFirstAider, useFirstAiderSchedule } from '@/hooks/crisis/useCrisisSupport';
 import { useSupportSessions } from '@/hooks/crisis/useSessionScheduling';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { MessageSquare, Clock, Check, X, AlertTriangle, Shield, Star, Calendar, Timer, CircleDot } from 'lucide-react';
+import { Send, Clock, Check, X, AlertTriangle, Shield, Star, Calendar, CircleDot } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import { format, isToday } from 'date-fns';
 import { toast } from 'sonner';
@@ -126,7 +126,7 @@ export default function FirstAiderDashboard() {
         <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="pt-6 text-center">
             <div className="mx-auto w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
-              <MessageSquare className="h-5 w-5 text-primary" />
+              <Send className="h-5 w-5 text-primary" />
             </div>
             <p className={typography.metric}>{activeCases.length}</p>
             <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.activeCases')}</p>
@@ -144,7 +144,7 @@ export default function FirstAiderDashboard() {
         <Card className={cn(cardVariants.stat, "rounded-xl")}>
           <CardContent className="pt-6 text-center">
             <div className="mx-auto w-10 h-10 rounded-xl bg-chart-3/10 flex items-center justify-center mb-2">
-              <Timer className="h-5 w-5 text-chart-3" />
+              <Clock className="h-5 w-5 text-chart-3" />
             </div>
             <p className={typography.metric}>{avgResponseMin}<span className="text-sm font-normal text-muted-foreground">m</span></p>
             <p className="text-xs text-muted-foreground">{t('crisisSupport.firstAider.avgResponse')}</p>
@@ -255,7 +255,7 @@ function CaseList({ cases, isPending, onSelect, actions }: { cases: any[]; isPen
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-                  <MessageSquare className="h-5 w-5 text-muted-foreground" />
+                  <Send className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div>
                   <p className="font-medium text-sm">{t(`crisisSupport.intents.${c.intent}`)}</p>

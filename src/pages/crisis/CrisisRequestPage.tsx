@@ -13,7 +13,7 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useFirstAiders, useEmergencyContacts, useCrisisCases, mapIntentToRisk } from '@/hooks/crisis/useCrisisSupport';
 import { useSmartMatching, MatchResult } from '@/hooks/crisis/useSmartMatching';
-import { Phone, MessageSquare, Shield, AlertTriangle, ArrowRight, Clock, User, EyeOff, Star, Languages, Video, Loader2, CalendarDays, Activity } from 'lucide-react';
+import { Phone, Send, Shield, AlertTriangle, ArrowRight, Clock, User, EyeOff, Star, Languages, Play, Loader2, Calendar, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 import CrisisSupport from '@/components/mental-toolkit/resources/CrisisSupport';
 import EmployeeBookingWidget from '@/components/crisis/EmployeeBookingWidget';
@@ -22,13 +22,13 @@ import { cn } from "@/lib/utils";
 
 
 const INTENTS = [
-  { key: 'talk', icon: MessageSquare, color: 'bg-chart-2/20 text-chart-2' },
+  { key: 'talk', icon: Send, color: 'bg-chart-2/20 text-chart-2' },
   { key: 'work_stress', icon: Clock, color: 'bg-chart-4/20 text-chart-4' },
   { key: 'anxiety', icon: AlertTriangle, color: 'bg-chart-3/20 text-chart-3' },
   { key: 'overwhelmed', icon: Shield, color: 'bg-chart-5/20 text-chart-5' },
   { key: 'unsafe', icon: AlertTriangle, color: 'bg-destructive/20 text-destructive' },
   { key: 'self_harm', icon: Phone, color: 'bg-destructive/20 text-destructive' },
-  { key: 'other', icon: MessageSquare, color: 'bg-muted text-muted-foreground' },
+  { key: 'other', icon: Send, color: 'bg-muted text-muted-foreground' },
 ];
 
 const URGENCY_COLORS = [
@@ -269,9 +269,9 @@ export default function CrisisRequestPage() {
                   <Label className="text-sm font-medium">{t('crisisSupport.request.preferredContact')}</Label>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { key: 'chat', icon: MessageSquare, label: t('crisisSupport.request.contactChat') },
+                      { key: 'chat', icon: Send, label: t('crisisSupport.request.contactChat') },
                       { key: 'voice', icon: Phone, label: t('crisisSupport.request.contactVoice') },
-                      { key: 'video', icon: Video, label: t('crisisSupport.request.contactVideo') },
+                      { key: 'video', icon: Play, label: t('crisisSupport.request.contactVideo') },
                     ].map(method => (
                       <button
                         key={method.key}
@@ -498,7 +498,7 @@ export default function CrisisRequestPage() {
                               className="w-full gap-2 rounded-xl"
                               size="lg"
                             >
-                              <MessageSquare className="h-5 w-5" />
+                              <Send className="h-5 w-5" />
                               {t('crisisSupport.request.startChat')}
                             </Button>
                             <Button
@@ -516,7 +516,7 @@ export default function CrisisRequestPage() {
                               className="w-full gap-2 rounded-xl"
                               size="lg"
                             >
-                              <CalendarDays className="h-5 w-5" />
+                              <Calendar className="h-5 w-5" />
                               {t('crisisSupport.request.bookSession')}
                             </Button>
                           </CardContent>

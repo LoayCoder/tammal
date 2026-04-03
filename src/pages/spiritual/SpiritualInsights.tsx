@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, TrendingDown, Minus, Sparkles, Moon, BookOpenCheck, UtensilsCrossed, FileText, RefreshCw, Loader2, Trash2 } from 'lucide-react';
+import { ArrowUp, Minus, Sparkles, Moon, FileText, UtensilsCrossed, RefreshCw, Loader2, Trash2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
@@ -32,8 +32,8 @@ interface InsightCard {
 function CorrelationCards({ insights }: { insights: InsightCard[] }) {
   const { t } = useTranslation();
   const TrendIcon = ({ trend }: { trend: string }) => {
-    if (trend === 'up') return <TrendingUp className="h-4 w-4 text-chart-1" />;
-    if (trend === 'down') return <TrendingDown className="h-4 w-4 text-destructive" />;
+    if (trend === 'up') return <ArrowUp className="h-4 w-4 text-chart-1" />;
+    if (trend === 'down') return <ArrowUp className="h-4 w-4 text-destructive" />;
     return <Minus className="h-4 w-4 text-muted-foreground" />;
   };
 
@@ -120,7 +120,7 @@ function ReportCard({ report, onDelete }: { report: SpiritualReport; onDelete: (
           )}
           {data.quranStats && (
             <div className="text-center p-2 rounded-md bg-muted/50">
-              <BookOpenCheck className="h-4 w-4 mx-auto mb-1 text-primary" />
+              <FileText className="h-4 w-4 mx-auto mb-1 text-primary" />
               <p className="text-lg font-bold">{data.quranStats.totalMinutes}</p>
               <p className="text-2xs text-muted-foreground">{t('spiritual.insights.quranMinutes')}</p>
             </div>
@@ -231,7 +231,7 @@ export default function SpiritualInsights() {
       const diff = avgQuran - avgNonQuran;
       if (moodOnQuranDays.length >= 2) {
         result.push({
-          icon: BookOpenCheck, title: t('spiritual.insights.quranCorrelation'),
+          icon: FileText, title: t('spiritual.insights.quranCorrelation'),
           value: diff > 0 ? `+${(diff * 20).toFixed(0)}%` : `${(diff * 20).toFixed(0)}%`,
           description: diff > 0 ? t('spiritual.insights.quranPositive', { minutes: Math.round(quranMinutes / quranSessions.length) }) : t('spiritual.insights.quranNeutral'),
           trend: diff > 0.2 ? 'up' : diff < -0.2 ? 'down' : 'neutral', color: 'text-primary',

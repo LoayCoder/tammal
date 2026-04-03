@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Coins, Gift, Clock, Coffee, Heart, ShoppingBag } from 'lucide-react';
+import { DollarSign, Sparkles, Clock, Waves, Heart, Layers } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,11 +26,11 @@ interface RedemptionCardProps {
 const categoryIcon = (category: string) => {
   switch (category) {
     case 'time_off': return Clock;
-    case 'cash_equivalent': return Coins;
-    case 'experience': return Coffee;
+    case 'cash_equivalent': return DollarSign;
+    case 'experience': return Waves;
     case 'charity': return Heart;
-    case 'merchandise': return ShoppingBag;
-    default: return Gift;
+    case 'merchandise': return Layers;
+    default: return Sparkles;
   }
 };
 
@@ -50,7 +50,7 @@ export function RedemptionCard({ option, balance, onRedeem, isRedeeming }: Redem
             {t(`recognition.points.categories.${option.category}`, option.category)}
           </Badge>
           <span className="text-sm font-semibold text-primary flex items-center gap-1">
-            <Coins className="h-3.5 w-3.5" />
+            <DollarSign className="h-3.5 w-3.5" />
             {option.points_cost}
           </span>
         </div>

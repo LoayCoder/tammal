@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Lock, ShieldCheck } from 'lucide-react';
+import { Lock, Shield } from 'lucide-react';
 import type { UnifiedTask, UnifiedTaskInsert, UnifiedTaskUpdate, TaskComment } from '@/features/workload/hooks/useUnifiedTasks';
 
 const taskSchema = z.object({
@@ -132,7 +132,7 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
           <DialogTitle className="flex items-center gap-2">
             {isEdit ? t('commandCenter.editTask') : t('commandCenter.addTask')}
             {isLocked && <Lock className="h-4 w-4 text-chart-4" />}
-            {isVerified && <ShieldCheck className="h-4 w-4 text-primary" />}
+            {isVerified && <Shield className="h-4 w-4 text-primary" />}
           </DialogTitle>
           <DialogDescription>{isEdit ? t('commandCenter.editTaskDesc') : t('commandCenter.addTaskDesc')}</DialogDescription>
         </DialogHeader>

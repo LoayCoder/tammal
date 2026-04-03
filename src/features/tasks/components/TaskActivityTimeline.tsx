@@ -4,10 +4,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Activity, CheckCircle2, Circle, MessageSquare, Paperclip,
-  UserPlus, ArrowRightLeft, AlertTriangle, Clock, Filter,
-} from 'lucide-react';
+import { Activity, Check, Circle, Send, Paperclip, Plus, ArrowRightLeft, AlertTriangle, Clock, Filter } from 'lucide-react';
 import { format } from 'date-fns';
 import type { TaskActivityLog } from '@/features/tasks/hooks/useTaskActivity';
 
@@ -19,10 +16,10 @@ interface TaskActivityTimelineProps {
 const ACTION_ICONS: Record<string, { icon: typeof Activity; className: string }> = {
   created: { icon: Circle, className: 'text-chart-2' },
   status_changed: { icon: ArrowRightLeft, className: 'text-chart-4' },
-  completed: { icon: CheckCircle2, className: 'text-chart-1' },
-  comment_added: { icon: MessageSquare, className: 'text-chart-2' },
+  completed: { icon: Check, className: 'text-chart-1' },
+  comment_added: { icon: Send, className: 'text-chart-2' },
   attachment_added: { icon: Paperclip, className: 'text-muted-foreground' },
-  member_added: { icon: UserPlus, className: 'text-chart-5' },
+  member_added: { icon: Plus, className: 'text-chart-5' },
   priority_changed: { icon: AlertTriangle, className: 'text-chart-5' },
   due_date_changed: { icon: Clock, className: 'text-chart-4' },
 };

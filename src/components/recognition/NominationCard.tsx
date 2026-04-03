@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { User, Calendar, ThumbsUp, Trash2, Pencil } from 'lucide-react';
+import { User, Calendar, Star, Trash2, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Nomination } from '@/hooks/recognition/useNominations';
 
@@ -101,7 +101,7 @@ export function NominationCard({
         <div className="flex items-center justify-between pt-1">
           <div className="flex items-center gap-3">
             <Badge className={endorsementColors[displayedEndorsementStatus] || ''} variant="outline">
-              <ThumbsUp className="h-3 w-3 me-1" />
+              <Star className="h-3 w-3 me-1" />
               {t(`recognition.endorsements.status.${displayedEndorsementStatus}`, displayedEndorsementStatus)}
             </Badge>
             {nomination.submitted_at && (

@@ -1,5 +1,5 @@
 import React, { Component, type ErrorInfo, type ReactNode } from 'react';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Dot } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import i18n from 'i18next';
@@ -24,7 +24,7 @@ interface PageErrorBoundaryState {
  * to prevent a single page crash from tearing down the entire layout.
  *
  * - Logs to logger.error (→ Sentry in production)
- * - Shows a safe fallback with Retry + Back to Home
+ * - Shows a safe fallback with Retry + Back to Dot
  * - Never exposes stack traces to the UI
  */
 export class PageErrorBoundary extends Component<PageErrorBoundaryProps, PageErrorBoundaryState> {
@@ -96,8 +96,8 @@ export class PageErrorBoundary extends Component<PageErrorBoundaryProps, PageErr
                 {i18n.t('common.tryAgain', 'Try Again')}
               </Button>
               <Button variant="default" size="sm" onClick={this.handleGoHome}>
-                <Home className="h-4 w-4 me-2" />
-                {i18n.t('common.backToHome', 'Back to Home')}
+                <Dot className="h-4 w-4 me-2" />
+                {i18n.t('common.backToHome', 'Back to Dot')}
               </Button>
             </div>
           </CardContent>

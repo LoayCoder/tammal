@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
-import { Users, UserCheck, UserX, TrendingUp, TrendingDown, SmilePlus, Flame, Percent, type LucideIcon } from 'lucide-react';
+import { Users, Fingerprint, X, ArrowUp, Waves, Flame, Percent, type LucideIcon } from 'lucide-react';
 import type { ParticipationStats } from '@/hooks/analytics/useCheckinMonitor';
 import { cardVariants, typography} from "@/theme/tokens";
 
@@ -30,17 +30,17 @@ export function CheckinOverview({ stats, isLoading }: Props) {
 
   const cards: { label: string; value: string | number; icon: LucideIcon; colorClass: string; suffix?: ReactNode }[] = [
     { label: t('checkinMonitor.stats.totalEmployees'), value: stats.totalEmployees, icon: Users, colorClass: 'text-primary' },
-    { label: t('checkinMonitor.stats.checkedIn'), value: stats.checkedInToday, icon: UserCheck, colorClass: 'text-chart-1' },
-    { label: t('checkinMonitor.stats.notCheckedIn'), value: stats.notCheckedIn, icon: UserX, colorClass: 'text-muted-foreground' },
+    { label: t('checkinMonitor.stats.checkedIn'), value: stats.checkedInToday, icon: Fingerprint, colorClass: 'text-chart-1' },
+    { label: t('checkinMonitor.stats.notCheckedIn'), value: stats.notCheckedIn, icon: X, colorClass: 'text-muted-foreground' },
     { label: t('checkinMonitor.stats.participationRate'), value: `${stats.participationRate}%`, icon: Percent, colorClass: 'text-chart-2' },
     {
       label: t('checkinMonitor.stats.avgMood'),
       value: stats.avgMoodScore.toFixed(1),
-      icon: SmilePlus,
+      icon: Waves,
       colorClass: 'text-chart-4',
       suffix: moodTrend !== null ? (
         <span className={`text-xs flex items-center gap-0.5 ${moodTrend >= 0 ? 'text-chart-1' : 'text-destructive'}`}>
-          {moodTrend >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+          {moodTrend >= 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowUp className="h-3 w-3" />}
           {moodTrend > 0 ? '+' : ''}{moodTrend.toFixed(1)}
         </span>
       ) : null,

@@ -11,7 +11,7 @@ import { useFirstAiders, useCrisisCases } from '@/hooks/crisis/useCrisisSupport'
 import { useAuth } from '@/hooks/auth/useAuth';
 import EmployeeBookingWidget from '@/components/crisis/EmployeeBookingWidget';
 import EnhancedChatPanel from '@/components/crisis/EnhancedChatPanel';
-import { Phone, MessageSquare, CalendarDays, Languages, Loader2, HeartHandshake, ArrowLeft } from 'lucide-react';
+import { Phone, Send, Calendar, Languages, Loader2, Heart, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { cardVariants } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
@@ -106,7 +106,7 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
               <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
             </Button>
             <div className="flex items-center gap-2 min-w-0">
-              <MessageSquare className="h-4 w-4 text-primary shrink-0" />
+              <Send className="h-4 w-4 text-primary shrink-0" />
               <h3 className="font-semibold text-sm truncate">
                 {t('crisisSupport.chatWith', 'Chat with {{name}}', { name: chatAiderName })}
               </h3>
@@ -137,7 +137,7 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto flex flex-col">
         <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
-            <HeartHandshake className="h-5 w-5 text-chart-1" />
+            <Heart className="h-5 w-5 text-chart-1" />
             {t('crisisSupport.connectFirstAider', 'Connect with a First Aider')}
           </DialogTitle>
         </DialogHeader>
@@ -222,7 +222,7 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
                           {loadingAction === `${aider.id}-chat` ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
                           ) : (
-                            <MessageSquare className="h-3.5 w-3.5" />
+                            <Send className="h-3.5 w-3.5" />
                           )}
                           {t('crisisSupport.request.contactChat', 'Chat')}
                         </Button>
@@ -232,7 +232,7 @@ export default function FirstAiderQuickConnect({ open, onOpenChange, tenantId }:
                           className="gap-1.5"
                           onClick={() => setActiveBookingId(isBooking ? null : aider.id)}
                         >
-                          <CalendarDays className="h-3.5 w-3.5" />
+                          <Calendar className="h-3.5 w-3.5" />
                           {t('crisisSupport.bookSession', 'Book Session')}
                         </Button>
                       </div>

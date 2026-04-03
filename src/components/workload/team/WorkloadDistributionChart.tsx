@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { BarChart3 } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell } from 'recharts';
 
 const GLASS_TOOLTIP = {
@@ -31,7 +31,7 @@ export function WorkloadDistributionChart({ data, isLoading }: WorkloadDistribut
     <Card className="glass-chart border-0">
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <BarChart3 className="h-4 w-4 text-primary" />
+          <Activity className="h-4 w-4 text-primary" />
           {t('teamWorkload.workloadDistribution')}
         </CardTitle>
       </CardHeader>

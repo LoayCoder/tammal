@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Minus, Activity, BarChart3, Zap, Heart } from 'lucide-react';
+import { ArrowUp, Minus, Activity, Zap, Heart } from 'lucide-react';
 import type { CheckinPulseMetrics } from '@/lib/analytics/types';
 import { cardVariants, typography} from "@/theme/tokens";
 
@@ -14,7 +14,7 @@ interface Props {
 export function CheckinPulseCard({ data, isLoading }: Props) {
   const { t } = useTranslation();
 
-  const TrendIcon = data?.energyTrend === 'up' ? TrendingUp : data?.energyTrend === 'down' ? TrendingDown : Minus;
+  const TrendIcon = data?.energyTrend === 'up' ? ArrowUp : data?.energyTrend === 'down' ? ArrowUp : Minus;
   const trendColor = data?.energyTrend === 'up' ? 'text-emerald-500' : data?.energyTrend === 'down' ? 'text-destructive' : 'text-muted-foreground';
 
   const metrics = [
@@ -27,7 +27,7 @@ export function CheckinPulseCard({ data, isLoading }: Props) {
     {
       label: t('synthesis.participationStability'),
       value: data ? `${Math.round((1 - data.participationStability) * 100)}%` : '—',
-      icon: BarChart3,
+      icon: Activity,
     },
     {
       label: t('synthesis.energyTrend'),

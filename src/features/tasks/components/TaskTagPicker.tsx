@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, X, Tag } from 'lucide-react';
+import { Plus, X, Hash } from 'lucide-react';
 import { useTaskTags, type TaskTag } from '@/features/tasks/hooks/useTaskTags';
 
 interface TaskTagPickerProps {
@@ -56,7 +56,7 @@ export function TaskTagPicker({ selectedTagIds, onChange, disabled }: TaskTagPic
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="h-6 gap-1 text-xs">
-                <Tag className="h-3 w-3" />
+                <Hash className="h-3 w-3" />
                 <Plus className="h-3 w-3" />
               </Button>
             </PopoverTrigger>

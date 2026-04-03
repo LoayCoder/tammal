@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Home, Building2, Briefcase, Clock, Check, Pencil, Timer } from 'lucide-react';
+import { Dot, Building2, Layers, Clock, Check, Pencil } from 'lucide-react';
 import type { PrayerLog } from '@/hooks/spiritual/usePrayerLogs';
 import { PrayerStatusBadge } from './PrayerStatusBadge';
 import { cn } from '@/lib/utils';
@@ -95,7 +95,7 @@ export function PrayerCard({
             {/* Countdown badge */}
             {!isLogged && isPrayerTimeFlag && !isExpired && countdownMinutes != null && (
               <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30">
-                <Timer className="h-3 w-3" />
+                <Clock className="h-3 w-3" />
                 {i18n.language === 'ar' ? `${countdownMinutes}د` : `${countdownMinutes}m`}
               </span>
             )}
@@ -117,11 +117,11 @@ export function PrayerCard({
               {t('spiritual.prayer.mosque')}
             </Button>
             <Button size="sm" variant="outline" onClick={() => handleLog('completed_home')} disabled={isPending} className="gap-1">
-              <Home className="h-3.5 w-3.5" />
+              <Dot className="h-3.5 w-3.5" />
               {t('spiritual.prayer.home')}
             </Button>
             <Button size="sm" variant="outline" onClick={() => handleLog('completed_work')} disabled={isPending} className="gap-1">
-              <Briefcase className="h-3.5 w-3.5" />
+              <Layers className="h-3.5 w-3.5" />
               {t('spiritual.prayer.work')}
             </Button>
             <Button size="sm" variant="ghost" onClick={() => handleLog('missed')} disabled={isPending} className="text-muted-foreground">

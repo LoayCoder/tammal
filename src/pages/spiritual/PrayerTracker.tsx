@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Moon, TrendingUp, Check } from 'lucide-react';
+import { Moon, ArrowUp, Check } from 'lucide-react';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { usePrayerTimes, PRAYER_NAMES } from '@/hooks/spiritual/usePrayerTimes';
 import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
@@ -225,7 +225,7 @@ export default function PrayerTracker() {
           <Card className={cardVariants.glass}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <TrendingUp className="h-5 w-5" />
+                <ArrowUp className="h-5 w-5" />
                 {t('spiritual.prayer.weeklySummary')}
               </CardTitle>
               <CardDescription>{t('spiritual.prayer.weeklyDescription')}</CardDescription>

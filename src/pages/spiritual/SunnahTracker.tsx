@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Star, Check, TrendingUp } from 'lucide-react';
+import { Star, Check, ArrowUp } from 'lucide-react';
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { useSunnahLogs, SUNNAH_PRACTICES } from '@/hooks/spiritual/useSunnahLogs';
 import { useNavigate } from 'react-router-dom';
@@ -111,7 +111,7 @@ export default function SunnahTracker() {
       <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-primary" />
+            <ArrowUp className="h-5 w-5 text-primary" />
             {t('spiritual.sunnah.last30')}
           </CardTitle>
         </CardHeader>

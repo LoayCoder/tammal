@@ -12,17 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Monitor, 
-  Smartphone, 
-  Tablet, 
-  Globe, 
-  Loader2, 
-  LogOut,
-  Shield,
-  Clock,
-  MapPin
-} from 'lucide-react';
+import { Monitor, Tablet, Globe, Loader2, LogOut, Shield, Clock, MapPin } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/auth/useAuth';
@@ -52,7 +42,7 @@ export function SessionManagementDialog({ open, onOpenChange }: SessionManagemen
   // Get device icon based on user agent
   const getDeviceIcon = (device: string) => {
     if (device.toLowerCase().includes('mobile') || device.toLowerCase().includes('phone')) {
-      return <Smartphone className="h-5 w-5" />;
+      return <Monitor className="h-5 w-5" />;
     }
     if (device.toLowerCase().includes('tablet') || device.toLowerCase().includes('ipad')) {
       return <Tablet className="h-5 w-5" />;

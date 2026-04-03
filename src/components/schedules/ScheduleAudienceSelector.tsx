@@ -11,7 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
-import { Users, Building2, UserCheck, Search } from 'lucide-react';
+import { Users, Building2, Fingerprint, Search } from 'lucide-react';
 import type { ScheduleFormState } from '@/hooks/admin/useScheduleReducer';
 import type { AudienceResult, AudienceEmployee } from '@/hooks/admin/useAudienceResolver';
 import { typography } from "@/theme/tokens";
@@ -58,7 +58,7 @@ export default function ScheduleAudienceSelector({
         <div className="flex items-center gap-2">
           <RadioGroupItem value="specific" id="audience-specific" />
           <Label htmlFor="audience-specific" className="font-normal cursor-pointer flex items-center gap-1.5">
-            <UserCheck className="h-4 w-4" />
+            <Fingerprint className="h-4 w-4" />
             {t('schedules.specificEmployees')}
           </Label>
         </div>

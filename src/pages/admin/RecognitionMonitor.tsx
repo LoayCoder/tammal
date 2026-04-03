@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Activity, Users, Building2, Vote, CheckCircle, XCircle, ShieldCheck, Clock, ShieldX, Scale } from 'lucide-react';
+import { Activity, Users, Building2, Check, X, Shield, Clock, Scale } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -96,9 +96,9 @@ export default function RecognitionMonitor() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <StatCard title={t('recognition.monitor.totalNominations')} value={totalNominations} icon={<Activity className="h-4 w-4 text-primary" />} />
               <StatCard title={t('recognition.monitor.uniqueNominees')} value={uniqueNominees} icon={<Users className="h-4 w-4 text-primary" />} />
-              <StatCard title={t('recognition.monitor.deptsParticipating')} value={participatingDepts} icon={<CheckCircle className="h-4 w-4 text-chart-2" />} />
-              <StatCard title={t('recognition.monitor.deptsMissing')} value={missingDepts} icon={<XCircle className="h-4 w-4 text-destructive" />} />
-              <StatCard title={t('recognition.monitor.totalVotes')} value={totalVotes} icon={<Vote className="h-4 w-4 text-primary" />} />
+              <StatCard title={t('recognition.monitor.deptsParticipating')} value={participatingDepts} icon={<Check className="h-4 w-4 text-chart-2" />} />
+              <StatCard title={t('recognition.monitor.deptsMissing')} value={missingDepts} icon={<X className="h-4 w-4 text-destructive" />} />
+              <StatCard title={t('recognition.monitor.totalVotes')} value={totalVotes} icon={<Check className="h-4 w-4 text-primary" />} />
               <StatCard title={t('recognition.monitor.votingCompletion')} value={`${votingCompletion}%`} icon={<Building2 className="h-4 w-4 text-primary" />} />
             </div>
 
@@ -108,7 +108,7 @@ export default function RecognitionMonitor() {
                 <TabsTrigger value="nominations">{t('recognition.monitor.nominationsTab')}</TabsTrigger>
                 {allowAppeals && (
                   <TabsTrigger value="approvals">
-                    <ShieldCheck className="h-3.5 w-3.5 me-1" />
+                    <Shield className="h-3.5 w-3.5 me-1" />
                     {t('recognition.monitor.approvalsTab', 'Manager Approvals')}
                     {pendingApprovals > 0 && (
                       <Badge variant="destructive" className="ms-1.5 text-xs px-1.5 py-0">{pendingApprovals}</Badge>
@@ -255,8 +255,8 @@ export default function RecognitionMonitor() {
                   {/* Approval KPIs */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <StatCard title={t('recognition.monitor.pendingApprovals', 'Pending Approvals')} value={pendingApprovals} icon={<Clock className="h-4 w-4 text-warning" />} />
-                    <StatCard title={t('recognition.monitor.approved', 'Approved')} value={approvedNominations} icon={<ShieldCheck className="h-4 w-4 text-chart-2" />} />
-                    <StatCard title={t('recognition.monitor.rejectedByManager', 'Rejected by Manager')} value={rejectedByManager} icon={<ShieldX className="h-4 w-4 text-destructive" />} />
+                    <StatCard title={t('recognition.monitor.approved', 'Approved')} value={approvedNominations} icon={<Shield className="h-4 w-4 text-chart-2" />} />
+                    <StatCard title={t('recognition.monitor.rejectedByManager', 'Rejected by Manager')} value={rejectedByManager} icon={<Shield className="h-4 w-4 text-destructive" />} />
                     <StatCard
                       title={t('recognition.monitor.approvalRate', 'Approval Rate')}
                       value={
@@ -264,7 +264,7 @@ export default function RecognitionMonitor() {
                           ? `${Math.round((approvedNominations / (approvedNominations + rejectedByManager)) * 100)}%`
                           : '—'
                       }
-                      icon={<CheckCircle className="h-4 w-4 text-primary" />}
+                      icon={<Check className="h-4 w-4 text-primary" />}
                     />
                   </div>
 

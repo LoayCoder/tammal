@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Slider } from '@/components/ui/slider';
-import { Brain, CheckCircle2, ChevronDown } from 'lucide-react';
+import { Sparkles, Check, ChevronDown } from 'lucide-react';
 import { useMoodPathwayQuestions } from '@/hooks/wellness/useMoodPathwayQuestions';
 import { useMoodQuestionConfig } from '@/hooks/wellness/useMoodQuestionConfig';
 import { Question } from '@/hooks/questions/useQuestions';
@@ -136,7 +136,7 @@ export function MoodPathwayQuestions({
                   onClick={() => selectAndAdvance(q.id, label)}
                 >
                   {label}
-                  {isSelected && <CheckCircle2 className="h-3.5 w-3.5" />}
+                  {isSelected && <Check className="h-3.5 w-3.5" />}
                 </Button>
               );
             })}
@@ -171,7 +171,7 @@ export function MoodPathwayQuestions({
                   >
                     {label}
                   </Label>
-                  {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
+                  {isSelected && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
                 </div>
               );
             })}
@@ -217,7 +217,7 @@ export function MoodPathwayQuestions({
                   >
                     {opt}
                   </Label>
-                  {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
+                  {isSelected && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
                 </div>
               );
             })}
@@ -247,7 +247,7 @@ export function MoodPathwayQuestions({
       <div className="space-y-3 animate-in fade-in duration-300">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10">
-            <Brain className="h-3.5 w-3.5 text-primary animate-pulse" />
+            <Sparkles className="h-3.5 w-3.5 text-primary animate-pulse" />
           </div>
           <p className="text-sm font-semibold">{t('moodPathway.loadingQuestions')}</p>
         </div>
@@ -264,7 +264,7 @@ export function MoodPathwayQuestions({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10">
-            <Brain className="h-3.5 w-3.5 text-primary" />
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
           </div>
           <h4 className="text-sm font-semibold">{t('moodPathway.title')}</h4>
         </div>

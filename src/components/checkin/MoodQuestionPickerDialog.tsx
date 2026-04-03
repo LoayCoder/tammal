@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, Tag } from 'lucide-react';
+import { Search, Hash } from 'lucide-react';
 import { useQuestions, Question } from '@/hooks/questions/useQuestions';
 import { useQuestionCategories } from '@/hooks/questions/useQuestionCategories';
 
@@ -91,7 +91,7 @@ export function MoodQuestionPickerDialog({
       <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col gap-0 p-0">
         <DialogHeader className="p-6 pb-4 border-b">
           <div className="flex items-center gap-2">
-            <Tag className="h-4 w-4 text-primary" />
+            <Hash className="h-4 w-4 text-primary" />
             <DialogTitle>
               {t('moodPathway.browseQuestions')}
               {moodMeta && <span className="ms-1">{moodMeta.emoji}</span>}

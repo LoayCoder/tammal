@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Brain } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import type { BurnoutPrediction } from '@/features/workload';
 import { cardVariants } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,7 @@ export function BurnoutPredictionsCard({ predictions, isPending, empMap }: Props
     <Card className={cn(cardVariants.glass, "shadow-sm")}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <Brain className="h-4 w-4 text-destructive" />
+          <Sparkles className="h-4 w-4 text-destructive" />
           {t('executive.aiBurnoutPredictions')}
         </CardTitle>
       </CardHeader>

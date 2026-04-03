@@ -6,7 +6,7 @@ import { RedemptionCard } from '@/components/recognition/RedemptionCard';
 import { PointsBalanceCard } from '@/components/recognition/PointsBalanceCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Gift } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 
 const CATEGORIES = ['all', 'time_off', 'cash_equivalent', 'experience', 'charity', 'merchandise'] as const;
@@ -27,7 +27,7 @@ export default function RedemptionCatalog() {
   return (
     <div className="space-y-6 p-6">
       <PageHeader
-        icon={<Gift className="h-5 w-5 text-primary" />}
+        icon={<Sparkles className="h-5 w-5 text-primary" />}
         title={t('recognition.points.catalogTitle')}
         subtitle={t('recognition.points.catalogSubtitle')}
         variant="card"
