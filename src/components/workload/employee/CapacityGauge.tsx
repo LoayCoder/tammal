@@ -19,11 +19,11 @@ export function CapacityGauge({ scheduledMinutes, totalMinutes = 480 }: Capacity
         <span className="text-muted-foreground">{t('commandCenter.capacity')}</span>
         <span className={`font-semibold ${color}`}>{hours}/{totalHours}h</span>
       </div>
-      <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-secondary/30">
+      <div className="relative h-3 w-full overflow-hidden rounded-full bg-secondary/30">
         <div className={`h-full rounded-full transition-all duration-700 ${barColor}`} style={{ width: `${pct}%` }} />
       </div>
       <div className="flex justify-between text-xs text-muted-foreground">
-        <span>{pct}%</span>
+        <span className="font-bold">{pct}%</span>
         <span className={color}>
           {pct > 90 ? t('commandCenter.overloaded') : pct > 70 ? t('commandCenter.busy') : t('commandCenter.healthy')}
         </span>

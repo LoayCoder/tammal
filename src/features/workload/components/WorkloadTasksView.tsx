@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -91,35 +90,33 @@ export function WorkloadTasksView({ tasks, isPending, onDelete }: WorkloadTasksV
         </Select>
       </div>
 
-      {/* Tabbed list */}
-      <Card className="border-0">
-        <CardContent className="p-4">
-          <Tabs value={tab} onValueChange={setTab}>
-            <TabsList className="mb-4">
-              <TabsTrigger value="active" className="gap-1.5 text-xs">
-                <ListChecks className="h-3.5 w-3.5" />{t('tasks.tabs.active')} ({stats.active.length})
-              </TabsTrigger>
-              <TabsTrigger value="overdue" className="gap-1.5 text-xs">
-                <AlertTriangle className="h-3.5 w-3.5" />{t('tasks.tabs.overdue')} ({stats.overdue.length})
-              </TabsTrigger>
-              <TabsTrigger value="completed" className="gap-1.5 text-xs">
-                <CheckCircle2 className="h-3.5 w-3.5" />{t('tasks.tabs.completed')} ({stats.completed.length})
-              </TabsTrigger>
-            </TabsList>
-            {(['active', 'overdue', 'completed'] as const).map(key => (
-              <TabsContent key={key} value={key}>
-                {isPending ? <Skeleton className="h-40" /> : (
-                  <UnifiedTaskList
-                    tasks={stats[key]}
-                    onEdit={handleEdit}
-                    onDelete={onDelete}
-                  />
-                )}
-              </TabsContent>
-            ))}
-          </Tabs>
-        </CardContent>
-      </Card>
+      {/* Tabbed list — no card wrapper, direct flow */}
+      <div className="premium-card p-4">
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="active" className="gap-1.5 text-xs">
+              <ListChecks className="h-3.5 w-3.5" />{t('tasks.tabs.active')} ({stats.active.length})
+            </TabsTrigger>
+            <TabsTrigger value="overdue" className="gap-1.5 text-xs">
+              <AlertTriangle className="h-3.5 w-3.5" />{t('tasks.tabs.overdue')} ({stats.overdue.length})
+            </TabsTrigger>
+            <TabsTrigger value="completed" className="gap-1.5 text-xs">
+              <CheckCircle2 className="h-3.5 w-3.5" />{t('tasks.tabs.completed')} ({stats.completed.length})
+            </TabsTrigger>
+          </TabsList>
+          {(['active', 'overdue', 'completed'] as const).map(key => (
+            <TabsContent key={key} value={key}>
+              {isPending ? <Skeleton className="h-40" /> : (
+                <UnifiedTaskList
+                  tasks={stats[key]}
+                  onEdit={handleEdit}
+                  onDelete={onDelete}
+                />
+              )}
+            </TabsContent>
+          ))}
+        </Tabs>
+      </div>
     </div>
   );
 }
