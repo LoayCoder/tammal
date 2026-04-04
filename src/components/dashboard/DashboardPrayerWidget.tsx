@@ -145,6 +145,32 @@ export function DashboardPrayerWidget() {
     logPrayer.mutate({ prayer_name: 'Witr', prayer_date: today, status: 'missed' });
   }, [activePrayer, witrCountdown.isExpired, todayLogs, logPrayer, today]);
 
+  // Find the next upcoming prayer (time not yet started)
+  const nextUpcomingPrayer = useMemo(() => {
+    if (!timings) return null;
+    const now = new Date();
+
+    for (const name of ALL_PRAYERS) {
+      if (name === 'Duha') {
+        if (isDuhaCompleted) continue;
+        const sunriseDate = parseTime(timings.Sunrise);
+        if (sunriseDate && sunriseDate > now) {
+          const minsUntil = Math.ceil((sunriseDate.getTime() - now.getTime()) / 60000);
+          return { name, minsUntil };
+        }
+        continue;
+      }
+      if (name === 'Witr') continue;
+      if (todayLogs[name]) continue;
+      const pDate = parseTime(timings[name as keyof typeof timings]);
+      if (pDate && pDate > now) {
+        const minsUntil = Math.ceil((pDate.getTime() - now.getTime()) / 60000);
+        return { name, minsUntil };
+      }
+    }
+    return null;
+  }, [timings, todayLogs, isDuhaCompleted]);
+
   if (!isPrayerEnabled || !timings) return null;
 
   const handleLog = (status: string) => {
