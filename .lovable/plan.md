@@ -1,40 +1,54 @@
 
+## Fix Dashboard Overlap by Enforcing Real Section Gaps
 
-## Fix Install UI, Layout Spacing, and Pending Questions Enhancement
+### What I will change
 
-### 1. PWA Manifest Branding Fix (`vite.config.ts`)
+**`src/pages/EmployeeHome.tsx`**
 
-The manifest currently says "SaaS Admin Platform" — this is what the browser install dialog shows. Fix:
+1. **Fix the real cause of the missing gap**
+   - The page uses `space-y-8`, but the **Pending Surveys** section is wrapped in a top-level `Link`, which renders as an **inline element** by default.
+   - Margin spacing from `space-y-*` does not behave reliably on inline children, so the gap can visually collapse.
+   - I will make that `Link` a **block-level wrapper** (`className="block"`) or wrap it in a block container so spacing works correctly.
 
-- Change `name` to `"Tammal"` and `short_name` to `"Tammal"`
-- Change `description` to `"Tammal – Employee Wellness Platform"`
-- Update `theme_color` to match the brand primary color
+2. **Add explicit spacing between Support Hub and the next section**
+   - I will not rely only on the parent stack.
+   - I will add a dedicated wrapper with clear spacing like:
+     - `space-y-4 sm:space-y-6` for the card group below Support Hub
+     - optional `pt-1 sm:pt-2` where needed for extra breathing room
+   - This ensures a visible, premium gap on mobile and desktop.
 
-The install dialog icon itself comes from `public/pwa-192x192.png` and `public/pwa-512x512.png` — these are generic. The user should replace them with brand-aligned icons, but the manifest metadata is the critical fix we can make now.
+3. **Reduce visual collision from hover effects**
+   - The survey card already uses `cardVariants.premiumVip`, which includes interactive motion.
+   - It also adds another hover lift class on top of that.
+   - I will remove the duplicated lift so the card does not visually jump upward into the Support Hub.
 
-### 2. Layout Spacing Fix — Support Hub vs Pending Questions (`src/pages/EmployeeHome.tsx`)
+4. **Keep the layout premium and stable**
+   - Preserve the current order:
+     1. Greeting
+     2. Support Hub
+     3. Recognition / Voting widgets
+     4. Pending Surveys
+     5. Daily Check-in
+   - Keep rounded corners, premium shadows, and clean vertical rhythm without overlap.
 
-The current layout uses `space-y-8` on the parent container, which should provide consistent gaps. Looking at the screenshot, the overlap likely comes from the Collapsible's `overflow-hidden` clipping hover shadows. Fix:
+### Expected result
 
-- Ensure `space-y-8` is maintained (already present)
-- Remove `overflow-hidden` from the Support Hub Collapsible (it clips the shadow/lift effects and can cause visual crowding)
-- Validate all cards have consistent `rounded-2xl` treatment
+- Clear visible gap between **Support Hub** and **Pending Surveys**
+- No touching/stacking effect on hover
+- Better mobile spacing on small screens
+- Cleaner premium layout with more intentional separation between sections
 
-### 3. Pending Questions Enhancement (`src/pages/EmployeeHome.tsx`)
+### Technical details
 
-Currently the Pending Surveys card shows only count + generic text. Upgrade to show survey name and due date using the already-available `surveyMeta` data from `useScheduledQuestions`:
+- Root issue: `space-y-8` + direct child `Link` (inline by default)
+- Fix:
+  - make top-level `Link` wrappers `block`
+  - add explicit section wrapper spacing
+  - remove duplicate hover translation from the survey card
+- No backend or data changes required
 
-- The hook already returns `surveyMeta` (with `schedule_name`, `end_date`) — just not used on the home page
-- Add `surveyMeta` to the destructured return
-- Display `surveyMeta.schedule_name` as the survey title
-- Display `surveyMeta.end_date` as "Due: {formatted date}" with a `Clock` icon
-- If due date is within 2 days, show a subtle urgency indicator (amber text)
-- Keep the card clickable linking to `/employee/survey`
-
-### Files Modified
+### Files to modify
 
 | File | Change |
 |------|--------|
-| `vite.config.ts` | Update manifest name/short_name/description to "Tammal" |
-| `src/pages/EmployeeHome.tsx` | Remove overflow-hidden from Support Hub; enhance Pending Questions card with survey name + due date from surveyMeta |
-
+| `src/pages/EmployeeHome.tsx` | Make survey wrapper block-level, add explicit section spacing, reduce hover collision |
