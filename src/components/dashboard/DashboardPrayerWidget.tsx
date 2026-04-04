@@ -445,6 +445,20 @@ export function DashboardPrayerWidget() {
           })}
         </div>
 
+        {/* Progress bar */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+            <span className="font-medium">{i18n.language === 'ar' ? 'التقدم' : 'Progress'}</span>
+            <span className="font-semibold text-foreground">{completedCount}/{totalPrayers} — {progressPercent}%</span>
+          </div>
+          <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+            <div
+              className="h-full rounded-full bg-[hsl(var(--state-completed))] transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+        </div>
+
         {/* Next prayer countdown */}
         {(() => {
           if (!timings) return null;
