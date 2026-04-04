@@ -202,6 +202,23 @@
     --info-foreground: 0 0% 100%;
 
     --org-default: 220 89% 62%;
+
+    /* Semantic state colors (dark) */
+    --state-completed: 122 39% 55%;
+    --state-completed-bg: 122 30% 15%;
+    --state-overdue: 4 80% 55%;
+    --state-overdue-bg: 4 40% 15%;
+    --state-missed: 4 70% 50%;
+    --state-missed-bg: 4 35% 14%;
+    --state-pending: 220 89% 62%;
+    --state-pending-bg: 220 40% 16%;
+    --state-important: 25 90% 55%;
+    --state-important-bg: 25 50% 15%;
+    --state-normal: 220 9% 60%;
+    --state-normal-bg: 220 10% 16%;
+    --state-checked: 122 39% 55%;
+    --state-checked-bg: 122 30% 15%;
+
     --sidebar: 0 0% 14%;
 
     --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.08);

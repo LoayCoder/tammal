@@ -74,8 +74,8 @@ export const OKR_STATUS_CONFIG: StatusBadgeConfig = {
 
 // ── Prayer Status ────────────────────────────────────────────────────────────
 export const PRAYER_STATUS_CONFIG: StatusBadgeConfig = {
-  completed_mosque: { variant: 'outline', icon: Building2, className: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30' },
-  completed_home:   { variant: 'outline', icon: Home,      className: 'bg-amber-500/15 text-amber-800 dark:text-amber-400 border-amber-500/30' },
-  completed_work:   { variant: 'outline', icon: Briefcase,  className: 'bg-muted text-muted-foreground' },
-  missed:           { variant: 'outline', icon: X,          className: 'bg-destructive/15 text-destructive border-destructive/30' },
+  completed_mosque: { variant: 'outline', icon: Building2, className: 'bg-[hsl(var(--state-completed))]/15 text-[hsl(var(--state-completed))] border-[hsl(var(--state-completed))]/30' },
+  completed_home:   { variant: 'outline', icon: Home,      className: 'bg-[hsl(var(--state-important))]/15 text-[hsl(var(--state-important))] border-[hsl(var(--state-important))]/30' },
+  completed_work:   { variant: 'outline', icon: Briefcase,  className: 'bg-[hsl(var(--state-normal-bg))] text-[hsl(var(--state-normal))]' },
+  missed:           { variant: 'outline', icon: X,          className: 'bg-[hsl(var(--state-missed))]/15 text-[hsl(var(--state-missed))] border-[hsl(var(--state-missed))]/30' },
 };
