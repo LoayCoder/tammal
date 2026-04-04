@@ -191,24 +191,6 @@ export default function EmployeeHome() {
         {/* Personal Mood Dashboard */}
         <PersonalMoodDashboard />
 
-        {/* Support Hub */}
-        <div className="space-y-3">
-          <h2 className={typography.sectionTitle}>{t('dashboard.quickActions')}</h2>
-          <div className="grid grid-cols-2 gap-2.5">
-            <Link to="/crisis-support">
-              <div className="flex flex-col items-center gap-1.5 rounded-xl py-4 px-2 cursor-pointer transition-colors bg-destructive/[0.04] hover:bg-destructive/[0.08]">
-                <Phone className="h-5 w-5 text-destructive" strokeWidth={1.5} />
-                <span className="text-xs font-medium text-center leading-tight">{t('crisisSupport.nav.crisisSupport')}</span>
-              </div>
-            </Link>
-            <div onClick={() => setShowFirstAider(true)} className="cursor-pointer">
-              <div className="flex flex-col items-center gap-1.5 rounded-xl py-4 px-2 transition-colors bg-chart-1/[0.04] hover:bg-chart-1/[0.08]">
-                <HeartHandshake className="h-5 w-5 text-chart-1" strokeWidth={1.5} />
-                <span className="text-xs font-medium text-center leading-tight">{t('crisisSupport.nav.firstAider')}</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
