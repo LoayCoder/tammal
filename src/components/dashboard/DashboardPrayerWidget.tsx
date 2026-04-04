@@ -285,7 +285,7 @@ export function DashboardPrayerWidget() {
         {/* ── Header ── */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-lg">🕌</span>
+            
             <div>
               <h3 className="font-semibold text-sm">{t('spiritual.prayer.title')}</h3>
               {hijri && (
