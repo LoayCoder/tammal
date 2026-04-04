@@ -256,7 +256,7 @@ export function DashboardPrayerWidget() {
         {/* Active prayer card */}
         {activePrayer && !allCompleted ? (
           <div className="space-y-2.5 border-t border-border/50 pt-3">
-            {/* Row 1: Name + time + countdown + location buttons */}
+            {/* Row 1: Name + time + countdown + action buttons */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="min-w-0">
@@ -265,14 +265,27 @@ export function DashboardPrayerWidget() {
                   </p>
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
                     <Clock className="h-3 w-3 shrink-0" strokeWidth={ICON_STROKE} />
-                    {activePrayer === 'Witr'
-                      ? t('spiritual.prayer.witrTimeRange', { fajr: (timings.Fajr || '').replace(/\s*\(.*\)/, '').trim() || '--:--' })
-                      : (timings[activePrayer as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()
+                    {activePrayer === 'Duha'
+                      ? `${(timings.Sunrise || '').replace(/\s*\(.*\)/, '').trim()} – ${(timings.Dhuhr || '').replace(/\s*\(.*\)/, '').trim()}`
+                      : activePrayer === 'Witr'
+                        ? t('spiritual.prayer.witrTimeRange', { fajr: (timings.Fajr || '').replace(/\s*\(.*\)/, '').trim() || '--:--' })
+                        : (timings[activePrayer as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()
                     }
                   </p>
                 </div>
                 {/* Countdown badge inline */}
-                {activePrayer === 'Witr' ? (
+                {activePrayer === 'Duha' ? (() => {
+                  const dhuhrDate = parseTime(timings.Dhuhr);
+                  if (!dhuhrDate) return null;
+                  const minsLeft = Math.ceil((dhuhrDate.getTime() - Date.now()) / 60000);
+                  if (minsLeft <= 0) return null;
+                  return (
+                    <span className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[hsl(var(--prayer-countdown))]/10 text-[hsl(var(--prayer-countdown))] border border-[hsl(var(--prayer-countdown))]/30 shrink-0">
+                      <Timer className="h-2.5 w-2.5" strokeWidth={ICON_STROKE} />
+                      {i18n.language === 'ar' ? `${minsLeft}د` : `${minsLeft}m`}
+                    </span>
+                  );
+                })() : activePrayer === 'Witr' ? (
                   witrCountdown.isPrayerTime && !witrCountdown.isExpired && witrCountdown.minutesLeft != null ? (
                     <span className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[hsl(var(--prayer-countdown))]/10 text-[hsl(var(--prayer-countdown))] border border-[hsl(var(--prayer-countdown))]/30 shrink-0">
                       <Timer className="h-2.5 w-2.5" strokeWidth={ICON_STROKE} />
@@ -283,18 +296,31 @@ export function DashboardPrayerWidget() {
                   <PrayerCountdownBadge prayerTime={timings[activePrayer as keyof typeof timings]} />
                 )}
               </div>
-              {/* Location buttons inline */}
-              <div className="flex gap-1 shrink-0">
-                <Button size="sm" variant="ghost" onClick={() => handleLog('completed_mosque')} disabled={logPrayer.isPending} className="gap-0.5 h-6 px-1.5 text-[10px] border border-border/50 hover:border-primary/30">
-                  <Landmark className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.mosque')}
+              {/* Action buttons: Duha gets Done toggle, others get location buttons */}
+              {activePrayer === 'Duha' ? (
+                <Button
+                  size="sm"
+                  variant={isDuhaCompleted ? 'default' : 'ghost'}
+                  onClick={() => togglePractice.mutate({ practice_type: 'duha', completed: !isDuhaCompleted })}
+                  disabled={togglePractice.isPending}
+                  className={cn('gap-1 h-6 px-2 text-[10px] border', isDuhaCompleted ? 'border-primary/40' : 'border-border/50 hover:border-primary/30')}
+                >
+                  {isDuhaCompleted ? <Check className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
+                  {isDuhaCompleted ? (i18n.language === 'ar' ? 'تم ✓' : 'Done ✓') : (i18n.language === 'ar' ? 'تم' : 'Done')}
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => handleLog('completed_home')} disabled={logPrayer.isPending} className="gap-0.5 h-6 px-1.5 text-[10px] border border-border/50 hover:border-primary/30">
-                  <House className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.home')}
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => handleLog('completed_work')} disabled={logPrayer.isPending} className="gap-0.5 h-6 px-1.5 text-[10px] border border-border/50 hover:border-primary/30">
-                  <Building className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.work')}
-                </Button>
-              </div>
+              ) : (
+                <div className="flex gap-1 shrink-0">
+                  <Button size="sm" variant="ghost" onClick={() => handleLog('completed_mosque')} disabled={logPrayer.isPending} className="gap-0.5 h-6 px-1.5 text-[10px] border border-border/50 hover:border-primary/30">
+                    <Landmark className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.mosque')}
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => handleLog('completed_home')} disabled={logPrayer.isPending} className="gap-0.5 h-6 px-1.5 text-[10px] border border-border/50 hover:border-primary/30">
+                    <House className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.home')}
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => handleLog('completed_work')} disabled={logPrayer.isPending} className="gap-0.5 h-6 px-1.5 text-[10px] border border-border/50 hover:border-primary/30">
+                    <Building className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.work')}
+                  </Button>
+                </div>
+              )}
             </div>
             {/* Rawatib Sunnah toggles */}
             {hasActiveRawatib && (
