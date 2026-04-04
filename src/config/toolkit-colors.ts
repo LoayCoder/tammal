@@ -92,3 +92,33 @@ export const ORG_DEFAULT_COLOR = 'hsl(var(--org-default))';
  * This is the only place hex is acceptable — for the HTML color input element.
  */
 export const ORG_DEFAULT_COLOR_HEX = '#3B82F6';
+
+/** Action/audit log colors */
+export const ACTION_COLORS = {
+  create: 'hsl(var(--action-create))',
+  update: 'hsl(var(--action-update))',
+  delete: 'hsl(var(--destructive))',
+  toggle: 'hsl(var(--action-toggle))',
+  status: 'hsl(var(--action-status))',
+} as const;
+
+/** Ranking medal colors */
+export const RANK_COLORS = {
+  gold: 'hsl(var(--rank-gold))',
+  silver: 'hsl(var(--rank-silver))',
+  bronze: 'hsl(var(--rank-bronze))',
+} as const;
+
+/** Prayer completion location colors */
+export const PRAYER_COLORS = {
+  mosque: 'hsl(var(--prayer-mosque))',
+  home: 'hsl(var(--prayer-home))',
+  work: 'hsl(var(--prayer-work))',
+  missed: 'hsl(var(--state-missed))',
+} as const;
+
+/** Trend direction colors */
+export const TREND_COLORS = {
+  positive: 'hsl(var(--trend-positive))',
+  negative: 'hsl(var(--destructive))',
+} as const;

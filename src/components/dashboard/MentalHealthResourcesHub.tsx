@@ -32,7 +32,7 @@ export function MentalHealthResourcesHub() {
             <div
               key={key}
               onClick={() => setOpenResource(key)}
-              className="flex flex-col items-center gap-1.5 rounded-xl py-4 px-2 cursor-pointer transition-colors bg-[#6feb9d]/[0.04]"
+              className="flex flex-col items-center gap-1.5 rounded-xl py-4 px-2 cursor-pointer transition-colors bg-[hsl(var(--trend-positive))]/[0.04]"
             >
               <Icon className={"h-5 w-5 text-" + color} strokeWidth={1.5} />
               <span className="text-xs font-medium text-center leading-tight">{t(titleKey)}</span>

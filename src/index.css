@@ -106,7 +106,25 @@
     --state-checked: 122 39% 49%;
     --state-checked-bg: 122 39% 95%;
 
-    --sidebar: 0 0% 100%;
+    /* Action audit colors */
+    --action-create: 142 71% 45%;
+    --action-update: 217 91% 60%;
+    --action-toggle: 38 92% 50%;
+    --action-status: 271 81% 56%;
+
+    /* Trend colors */
+    --trend-positive: 142 71% 45%;
+
+    /* Rank colors */
+    --rank-gold: 48 96% 53%;
+    --rank-silver: 0 0% 70%;
+    --rank-bronze: 33 90% 45%;
+
+    /* Prayer completion colors */
+    --prayer-mosque: 142 71% 45%;
+    --prayer-home: 38 92% 50%;
+    --prayer-work: 0 0% 55%;
+
 
     --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
     --font-serif: 'Lora', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
@@ -218,6 +236,25 @@
     --state-normal-bg: 220 10% 16%;
     --state-checked: 122 39% 55%;
     --state-checked-bg: 122 30% 15%;
+
+    /* Action audit colors (dark) */
+    --action-create: 142 60% 50%;
+    --action-update: 217 80% 65%;
+    --action-toggle: 38 80% 55%;
+    --action-status: 271 70% 62%;
+
+    /* Trend colors (dark) */
+    --trend-positive: 142 60% 50%;
+
+    /* Rank colors (dark) */
+    --rank-gold: 48 85% 58%;
+    --rank-silver: 0 0% 65%;
+    --rank-bronze: 33 80% 50%;
+
+    /* Prayer completion colors (dark) */
+    --prayer-mosque: 142 60% 50%;
+    --prayer-home: 38 80% 55%;
+    --prayer-work: 0 0% 50%;
 
     --sidebar: 0 0% 14%;
 

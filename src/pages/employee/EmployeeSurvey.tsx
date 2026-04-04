@@ -220,7 +220,7 @@ export default function EmployeeSurvey() {
           const isPending = question?.validation_status === 'pending';
 
           return (
-            <Card key={sq.id} className={cn(cardVariants.glass, "rounded-xl overflow-hidden", isPending && "border-amber-500/50 bg-amber-500/5")}>
+            <Card key={sq.id} className={cn(cardVariants.glass, "rounded-xl overflow-hidden", isPending && "border-[hsl(var(--action-toggle))]/50 bg-[hsl(var(--action-toggle))]/5")}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -228,7 +228,7 @@ export default function EmployeeSurvey() {
                       {t('survey.question')} {index + 1}
                     </span>
                     {isPending && (
-                      <Badge variant="outline" className="border-amber-500 text-amber-600 text-xs">
+                      <Badge variant="outline" className="border-[hsl(var(--action-toggle))] text-[hsl(var(--action-toggle))] text-xs">
                         {t('survey.pendingReview', 'Pending Review')}
                       </Badge>
                     )}

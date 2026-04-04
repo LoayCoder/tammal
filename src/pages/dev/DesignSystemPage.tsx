@@ -7,7 +7,7 @@ import { StatCard, MetricCard, ChartCard, InsightCard, DashboardGrid, PageHeader
 import { EmptyState } from "@/shared/empty/EmptyState";
 import { spacing, typography, cardVariants, layout, iconBox } from "@/theme/tokens";
 import { DESIGN_SYSTEM } from "@/theme/version";
-import { TOOLKIT, ZONE_COLORS, STATE_COLORS } from "@/config/toolkit-colors";
+import { TOOLKIT, ZONE_COLORS, STATE_COLORS, ACTION_COLORS, RANK_COLORS, PRAYER_COLORS, TREND_COLORS } from "@/config/toolkit-colors";
 import {
   Palette, Type, Maximize, LayoutGrid, BarChart3,
   TrendingUp, Lightbulb, AlertCircle, CheckCircle, Star,
@@ -607,6 +607,94 @@ export default function DesignSystemPage() {
           <p>JS: <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"import { STATE_COLORS } from '@/config/toolkit-colors'"}</code></p>
           <p>Inline: <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"style={{ color: STATE_COLORS.overdue }}"}</code></p>
         </RuleCard>
+      </Section>
+
+      <Separator />
+
+      {/* ─── 10. Action Colors ─── */}
+      <Section title="Action Colors" icon={<AlertCircle className="h-5 w-5 text-primary" />}>
+        <p className="text-sm text-muted-foreground">
+          Semantic tokens for audit log actions. Use CSS variables <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">--action-*</code> or <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">ACTION_COLORS</code>.
+        </p>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard}`}>
+            <div className="flex flex-wrap gap-4">
+              <Swatch name="Create" cssVar="action-create" />
+              <Swatch name="Update" cssVar="action-update" />
+              <Swatch name="Toggle" cssVar="action-toggle" />
+              <Swatch name="Status" cssVar="action-status" />
+              <Swatch name="Delete" cssVar="destructive" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card className={cardVariants.glass}>
+          <CardHeader className="pb-2"><CardTitle className={typography.cardTitle}>Live Badge Preview</CardTitle></CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            {([
+              { label: 'Create', v: 'action-create' },
+              { label: 'Update', v: 'action-update' },
+              { label: 'Toggle', v: 'action-toggle' },
+              { label: 'Status', v: 'action-status' },
+            ] as const).map((b) => (
+              <span
+                key={b.v}
+                className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+                style={{
+                  backgroundColor: `hsl(var(--${b.v}) / 0.1)`,
+                  color: `hsl(var(--${b.v}))`,
+                  borderColor: `hsl(var(--${b.v}) / 0.2)`,
+                }}
+              >
+                {b.label}
+              </span>
+            ))}
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Separator />
+
+      {/* ─── 11. Rank Colors ─── */}
+      <Section title="Rank Colors" icon={<Star className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard}`}>
+            <div className="flex flex-wrap gap-4">
+              <Swatch name="Gold" cssVar="rank-gold" />
+              <Swatch name="Silver" cssVar="rank-silver" />
+              <Swatch name="Bronze" cssVar="rank-bronze" />
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Separator />
+
+      {/* ─── 12. Prayer Colors ─── */}
+      <Section title="Prayer Colors" icon={<CheckCircle className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard}`}>
+            <div className="flex flex-wrap gap-4">
+              <Swatch name="Mosque" cssVar="prayer-mosque" />
+              <Swatch name="Home" cssVar="prayer-home" />
+              <Swatch name="Work" cssVar="prayer-work" />
+              <Swatch name="Missed" cssVar="state-missed" />
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Separator />
+
+      {/* ─── 13. Trend Colors ─── */}
+      <Section title="Trend Colors" icon={<TrendingUp className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard}`}>
+            <div className="flex flex-wrap gap-4">
+              <Swatch name="Positive" cssVar="trend-positive" />
+              <Swatch name="Negative" cssVar="destructive" />
+            </div>
+          </CardContent>
+        </Card>
       </Section>
 
       <Separator />

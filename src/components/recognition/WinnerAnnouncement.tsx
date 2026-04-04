@@ -30,7 +30,7 @@ export function WinnerAnnouncement({ winners, themeName }: WinnerAnnouncementPro
               }`}
             >
               <Medal className={`h-6 w-6 mb-2 ${
-                w.rank === 1 ? 'text-yellow-500' : w.rank === 2 ? 'text-gray-400' : 'text-amber-600'
+                w.rank === 1 ? 'text-[hsl(var(--rank-gold))]' : w.rank === 2 ? 'text-[hsl(var(--rank-silver))]' : 'text-[hsl(var(--rank-bronze))]'
               }`} />
               <span className="text-xs text-muted-foreground">
                 {t(`recognition.results.place${w.rank}` as any)}

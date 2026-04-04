@@ -43,11 +43,11 @@ const entityIcons: Record<string, React.ElementType> = {
 };
 
 const actionColors: Record<string, string> = {
-  create: 'bg-emerald-500/10 text-emerald-600 border-emerald-200',
-  update: 'bg-blue-500/10 text-blue-600 border-blue-200',
+  create: 'bg-[hsl(var(--action-create))]/10 text-[hsl(var(--action-create))] border-[hsl(var(--action-create))]/20',
+  update: 'bg-[hsl(var(--action-update))]/10 text-[hsl(var(--action-update))] border-[hsl(var(--action-update))]/20',
   delete: 'bg-destructive/10 text-destructive border-destructive/20',
-  module_toggle: 'bg-amber-500/10 text-amber-600 border-amber-200',
-  status_change: 'bg-purple-500/10 text-purple-600 border-purple-200',
+  module_toggle: 'bg-[hsl(var(--action-toggle))]/10 text-[hsl(var(--action-toggle))] border-[hsl(var(--action-toggle))]/20',
+  status_change: 'bg-[hsl(var(--action-status))]/10 text-[hsl(var(--action-status))] border-[hsl(var(--action-status))]/20',
 };
 
 export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTableProps) {

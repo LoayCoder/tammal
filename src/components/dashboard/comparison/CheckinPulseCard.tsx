@@ -15,7 +15,7 @@ export function CheckinPulseCard({ data, isLoading }: Props) {
   const { t } = useTranslation();
 
   const TrendIcon = data?.energyTrend === 'up' ? TrendingUp : data?.energyTrend === 'down' ? TrendingDown : Minus;
-  const trendColor = data?.energyTrend === 'up' ? 'text-emerald-500' : data?.energyTrend === 'down' ? 'text-destructive' : 'text-muted-foreground';
+  const trendColor = data?.energyTrend === 'up' ? 'text-[hsl(var(--trend-positive))]' : data?.energyTrend === 'down' ? 'text-destructive' : 'text-muted-foreground';
 
   const metrics = [
     {

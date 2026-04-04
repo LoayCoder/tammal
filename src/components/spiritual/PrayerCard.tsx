@@ -36,10 +36,10 @@ interface PrayerCardProps {
 }
 
 const STATUS_STYLES: Record<string, { border: string; bg: string }> = {
-  completed_mosque: { border: 'border-emerald-500/40', bg: 'bg-emerald-500/[0.01]' },
-  completed_home:   { border: 'border-amber-500/40',   bg: 'bg-amber-500/[0.01]' },
-  completed_work:   { border: 'border-gray-500/40',     bg: 'bg-gray-500/[0.01]' },
-  missed:           { border: 'border-red-500/40',       bg: 'bg-red-500/[0.01]' },
+  completed_mosque: { border: 'border-[hsl(var(--prayer-mosque))]/40', bg: 'bg-[hsl(var(--prayer-mosque))]/[0.01]' },
+  completed_home:   { border: 'border-[hsl(var(--prayer-home))]/40',   bg: 'bg-[hsl(var(--prayer-home))]/[0.01]' },
+  completed_work:   { border: 'border-[hsl(var(--prayer-work))]/40',   bg: 'bg-[hsl(var(--prayer-work))]/[0.01]' },
+  missed:           { border: 'border-[hsl(var(--state-missed))]/40',  bg: 'bg-[hsl(var(--state-missed))]/[0.01]' },
 };
 
 export function PrayerCard({
@@ -94,7 +94,7 @@ export function PrayerCard({
           <div className="flex items-center gap-2">
             {/* Countdown badge */}
             {!isLogged && isPrayerTimeFlag && !isExpired && countdownMinutes != null && (
-              <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30">
+              <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-[hsl(var(--action-toggle))]/10 text-[hsl(var(--action-toggle))] border border-[hsl(var(--action-toggle))]/30">
                 <Timer className="h-3 w-3" />
                 {i18n.language === 'ar' ? `${countdownMinutes}د` : `${countdownMinutes}m`}
               </span>

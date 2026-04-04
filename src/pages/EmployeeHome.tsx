@@ -70,7 +70,7 @@ export default function EmployeeHome() {
               {getGreeting(t)}{firstName ? <>, <span className={typography.vipName}>{firstName}</span></> : ''} 👋
             </h1>
             <Badge className="premium-badge gap-1 px-2.5 py-1 text-xs font-semibold">
-              <Crown className="h-3 w-3 text-amber-500" /> VIP
+              <Crown className="h-3 w-3 text-[hsl(var(--rank-gold))]" /> VIP
             </Badge>
           </div>
           <div className="flex items-center justify-between gap-2">

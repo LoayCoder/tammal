@@ -10,9 +10,9 @@ interface RankingsTableProps {
 }
 
 const rankColors: Record<number, string> = {
-  1: 'text-yellow-500',
-  2: 'text-gray-400',
-  3: 'text-amber-600',
+  1: 'text-[hsl(var(--rank-gold))]',
+  2: 'text-[hsl(var(--rank-silver))]',
+  3: 'text-[hsl(var(--rank-bronze))]',
 };
 
 export function RankingsTable({ rankings, nomineeNames }: RankingsTableProps) {
