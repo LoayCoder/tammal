@@ -1,10 +1,10 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutGrid, Waves, Send, Heart, Menu } from 'lucide-react';
+import { LayoutGrid, ListChecks, Send, Heart, Menu } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 
 const navItems = [
   { key: 'dashboard', icon: LayoutGrid, path: '/' },
-  { key: 'wellness', icon: Waves, path: '/employee/wellness' },
+  { key: 'workload', icon: ListChecks, path: '/my-workload' },
   { key: 'support', icon: Send, path: '/support' },
   { key: 'wellness-hub', icon: Heart, path: '/wellness' },
 ];
