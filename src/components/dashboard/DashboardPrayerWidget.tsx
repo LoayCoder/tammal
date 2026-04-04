@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Landmark, House, Building, ChevronRight, Clock, Timer, Check } from 'lucide-react';
+import { Landmark, House, Building, ChevronRight, Clock, Timer, Check, ClockAlert, XOctagon } from 'lucide-react';
 
 const ICON_STROKE = 1.5;
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
@@ -387,8 +387,10 @@ export function DashboardPrayerWidget() {
         <div className="flex items-center justify-between gap-0.5">
         {ALL_PRAYERS.map(name => {
             const isDuha = name === 'Duha';
-            const logged = isDuha ? isDuhaCompleted : !!todayLogs[name];
-            const isMissed = !isDuha && todayLogs[name]?.status === 'missed';
+            const logEntry = !isDuha ? todayLogs[name] : null;
+            const logged = isDuha ? isDuhaCompleted : !!logEntry;
+            const isMissed = !isDuha && logEntry?.status === 'missed';
+            const isMosque = !isDuha && logEntry?.status === 'completed_mosque';
             const isActive = name === activePrayer;
             const rawatib = RAWATIB_CONFIG[name];
             const hasBefore = !!rawatib?.before;
@@ -406,8 +408,12 @@ export function DashboardPrayerWidget() {
                     !logged && !isActive && 'bg-muted border-border text-muted-foreground',
                   )}
                 >
-                  {logged && !isMissed ? (isDuha ? <span className="text-[10px]">☀</span> : <Check className="h-3 w-3" strokeWidth={ICON_STROKE} />) : null}
-                  {isMissed ? '✕' : null}
+                  {logged && !isMissed ? (
+                    isDuha ? <span className="text-[10px]">☀</span>
+                    : isMosque ? <Check className="h-3 w-3" strokeWidth={ICON_STROKE} />
+                    : <ClockAlert className="h-3 w-3" strokeWidth={ICON_STROKE} />
+                  ) : null}
+                  {isMissed ? <XOctagon className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                   {!logged && isActive ? <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                   {!logged && !isActive && isDuha ? <span className="text-[10px]">☀</span> : null}
                 </div>
