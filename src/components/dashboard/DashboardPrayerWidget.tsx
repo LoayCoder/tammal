@@ -70,6 +70,7 @@ function PrayerCountdownBadge({ prayerTime }: { prayerTime: string }) {
 
 export function DashboardPrayerWidget() {
   const { t, i18n } = useTranslation();
+  useAutoRefreshOnDayChange();
   const isAr = i18n.language === 'ar';
   const { isPrayerEnabled, preferences } = useSpiritualPreferences();
   const { data: prayerData } = usePrayerTimes(

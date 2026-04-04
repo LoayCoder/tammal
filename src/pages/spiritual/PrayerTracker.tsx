@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { cardVariants, typography} from "@/theme/tokens";
 import { getLocalDateString } from '@/utils/getLocalDate';
+import { useAutoRefreshOnDayChange } from '@/hooks/useAutoRefreshOnDayChange';
 
 export default function PrayerTracker() {
   const { t, i18n } = useTranslation();
