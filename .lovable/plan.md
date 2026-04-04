@@ -1,35 +1,49 @@
 
 
-## Fix Runtime Error + Prayer Auto-Miss Countdown + Premium UI Polish
+## Prayer Tracker Layout Refinements
 
-### 1. Fix Runtime Error (Critical)
-The `DashboardIslamicCalendarWidget is not defined` error is a **stale Vite chunk** — the file was deleted and all source references removed, but the browser cached an old bundle. The `vite:preloadError` handler added earlier covers dynamic imports but not this case. A hard refresh resolves it. No code change needed for this specific error.
+### Changes
 
-### 2. Auto-Miss Logic (Already Exists — Needs Refinement)
-The `usePrayerCountdown` hook already counts down 60 minutes from prayer start time. The `PrayerCard` component has auto-miss via `useEffect`. However, the **dashboard widget** (`DashboardPrayerWidget`) does NOT trigger auto-miss — it only shows the countdown badge passively.
+```text
+UPDATED LAYOUT:
 
-**Changes to `DashboardPrayerWidget.tsx`:**
-- Add auto-miss logic: when `usePrayerCountdown` returns `isExpired: true` and no log exists for that prayer, automatically call `logPrayer.mutate({ status: 'missed' })`
-- Use a ref to prevent duplicate auto-miss calls
-- The countdown badge already shows remaining minutes — keep it
+┌─────────────────────────────────────────┐
+│ 🕌 Prayer Tracker          [More →]    │
+│     16 Shawwāl 1447 AH                 │
+├─────────────────────────────────────────┤
+│ (event banner if any)                   │
+├─────────────────────────────────────────┤
+│ Active: Maghrib 18:16  ⏱ 45m           │
+│ [🏛 Mosque] [🏠 Home] [🏢 Work]        │
+│ (rawatib toggles)                       │
+├─────────────────────────────────────────┤
+│  ✓    ✓    ⏱    ○    ○    ○            │
+│ Fajr Dhuhr  Asr  Mgh  Isha Witr       │
+│ 5:03 12:08 15:28 18:16 19:36  —        │
+│  ·    ··        ··    ·               │
+├─────────────────────────────────────────┤
+│ Next: Isha in 32m                       │
+└─────────────────────────────────────────┘
+```
 
-### 3. Premium Minimal UI Redesign of Active Prayer Section
-Current issues: the active prayer area uses `bg-[hsl(var(--islamic-accent))]/[0.13]` which is fine, but the countdown badge uses `--prayer-home` (orange) which doesn't semantically fit a timer.
+### What changes vs current
 
-**Add a new CSS token** `--prayer-countdown` in `index.css` for the countdown timer badge, and register it in the design system.
+1. **Move Mosque/Home/Work buttons next to active prayer name** — combine into one row: prayer name + time on the left, location buttons on the right (same row)
 
-**UI changes to `DashboardPrayerWidget.tsx`:**
-- Replace countdown badge color from `--prayer-home` to new `--prayer-countdown` token
-- Simplify the active prayer card: remove the rounded-xl inner container, use a subtle top border separator instead (more premium/minimal)
-- Use softer, quieter styling for action buttons — ghost-like with semantic token borders
-- Add a thin progress bar showing elapsed time (0–60 min) as a visual countdown under the active prayer
+2. **Align vertical circles consistently** — all 6 circles are already in a flex row, but some have rawatib dots and some don't, causing uneven heights. Fix: give every prayer column a fixed min-height so all align at the same baseline regardless of rawatib dots
 
-### 4. Design System Registration
-- Add `--prayer-countdown` token to `index.css` (light + dark)
-- Add the token to the Prayer section in `DesignSystemPage.tsx` so it's editable
+3. **Smaller font in progress row** — reduce prayer name from `text-[10px]` to `text-[9px]`, time from `text-[9px]` to `text-[8px]`
 
-### Files Modified
-1. `src/index.css` — add `--prayer-countdown` token (light + dark)
-2. `src/components/dashboard/DashboardPrayerWidget.tsx` — add auto-miss logic, use new countdown token, premium UI polish
-3. `src/pages/dev/DesignSystemPage.tsx` — register `--prayer-countdown` in Prayer colors section
+4. **Remove "3/6 completed" text** — delete lines 387-390
+
+5. **Add "Next prayer in Xm" countdown** — after the progress row, show a small muted badge with time until the next unstarted prayer (computed from timings)
+
+### File Modified
+
+**`src/components/dashboard/DashboardPrayerWidget.tsx`**
+- Lines 237-277: Restructure active prayer section — move location buttons (Mosque/Home/Work) inline next to prayer name+time in a single compact row
+- Lines 351-383: Add `min-h-[3.5rem]` to each prayer column so circles/names/times align vertically even when some have rawatib dots and others don't
+- Lines 365-369: Reduce font sizes (`text-[9px]` for name, `text-[8px]` for time)
+- Lines 387-390: Delete the "X/6 completed" paragraph
+- After progress row: Add computed `nextPrayerCountdown` — find first prayer whose time is in the future and not yet logged, show "Next: [name] in [X]m" using `--prayer-countdown` token
 
