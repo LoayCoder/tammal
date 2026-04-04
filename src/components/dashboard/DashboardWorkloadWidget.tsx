@@ -1,17 +1,20 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { isAfter, format } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useUnifiedTasks } from '@/features/workload/hooks/useUnifiedTasks';
 import { useApprovalQueue } from '@/features/tasks/hooks/useApprovalQueue';
 import {
   ChevronRight, CheckCircle2, AlertTriangle,
-  Clock, SquareCheckBig, ClipboardList,
+  Clock, SquareCheckBig, ClipboardList, EyeOff, Eye,
 } from 'lucide-react';
 import { cardVariants, typography } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
+
+const HIDDEN_KEY = 'workload-widget-hidden';
 
 interface Props {
   employeeId: string;
@@ -21,6 +24,9 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const isAr = i18n.language === 'ar';
+  const [isHidden, setIsHidden] = useState(() => localStorage.getItem(HIDDEN_KEY) === '1');
+  const hide = useCallback(() => { localStorage.setItem(HIDDEN_KEY, '1'); setIsHidden(true); }, []);
+  const show = useCallback(() => { localStorage.removeItem(HIDDEN_KEY); setIsHidden(false); }, []);
   const { tasks, isPending } = useUnifiedTasks(employeeId);
   const { pendingTasks } = useApprovalQueue();
 
@@ -44,7 +50,7 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
       .slice(0, 3);
   }, [tasks]);
 
-  if (isPending) {
+  if (isPending && !isHidden) {
     return <Skeleton className="h-48 w-full rounded-xl" />;
   }
 
@@ -94,18 +100,39 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
       ? 'from-[hsl(var(--state-important))] to-[hsl(var(--state-pending))]'
       : 'from-[hsl(var(--state-overdue))] to-[hsl(var(--state-important))]';
 
+  if (isHidden) {
+    return (
+      <Card className={cn(cardVariants.premiumVip, "opacity-80")}>
+        <CardContent className="p-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ClipboardList className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+            <span className="text-xs text-muted-foreground font-medium">
+              {isAr ? 'أعبائي مخفية' : 'My Workload hidden'}
+            </span>
+          </div>
+          <Button variant="ghost" size="sm" onClick={show} className="gap-1 text-xs h-7 text-muted-foreground hover:text-foreground">
+            <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />
+            {isAr ? 'إظهار' : 'Show'}
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className={cn(cardVariants.premiumVip)}>
       {/* Header */}
       <div className="flex items-center justify-between p-6 pb-0">
         <h3 className="font-semibold text-base">{t('dashboard.workloadWidget.title')}</h3>
-        <Link
-          to="/my-workload"
-          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
-        >
-          {t('dashboard.workloadWidget.viewAll')}
-          <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
-        </Link>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="sm" onClick={hide} className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground" title={isAr ? 'إخفاء' : 'Hide'}>
+            <EyeOff className="h-3.5 w-3.5" strokeWidth={1.5} />
+          </Button>
+          <Link to="/my-workload" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
+            {t('dashboard.workloadWidget.viewAll')}
+            <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
+          </Link>
+        </div>
       </div>
 
       <CardContent className="space-y-5 pt-5">
