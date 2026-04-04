@@ -92,7 +92,7 @@ export function CreateTaskModal({
       });
       resetForm(); onOpenChange(false);
     } catch {}
-  }, [title, titleAr, description, assigneeId, priority, visibility, dueDate, startDate, estimatedMinutes, departmentId, defaultInitiativeId, defaultObjectiveId, reviewerId, approverId, reminderDate, selectedTagIds, employeeId, createTaskAsync, resetForm, onOpenChange]);
+  }, [title, titleAr, description, descriptionAr, assigneeId, priority, visibility, dueDate, startDate, estimatedMinutes, departmentId, defaultInitiativeId, defaultObjectiveId, reviewerId, approverId, reminderDate, selectedTagIds, employeeId, createTaskAsync, resetForm, onOpenChange]);
 
   const handleTemplateSelect = useCallback((tpl: any) => {
     setTitle(tpl.title);
