@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { Landmark, House, Building, ChevronRight, Clock, Timer, Check } from 'lucide-react';
 
 const ICON_STROKE = 1.5;
@@ -32,11 +33,17 @@ function PrayerCountdownBadge({ prayerTime }: { prayerTime: string }) {
 
   if (!isPrayerTime || isExpired || minutesLeft == null) return null;
 
+  const elapsed = 60 - minutesLeft;
+  const progressPercent = Math.min(100, Math.round((elapsed / 60) * 100));
+
   return (
-    <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-[hsl(var(--prayer-home))]/10 text-[hsl(var(--prayer-home))] border border-[hsl(var(--prayer-home))]/30">
-      <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} />
-      {i18n.language === 'ar' ? `${minutesLeft}د` : `${minutesLeft}m`}
-    </span>
+    <div className="flex flex-col items-end gap-1">
+      <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-[hsl(var(--prayer-countdown))]/10 text-[hsl(var(--prayer-countdown))] border border-[hsl(var(--prayer-countdown))]/30">
+        <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} />
+        {i18n.language === 'ar' ? `${minutesLeft}د` : `${minutesLeft}m`}
+      </span>
+      <Progress value={progressPercent} className="h-1 w-20 bg-muted/30 [&>div]:bg-[hsl(var(--prayer-countdown))]" />
+    </div>
   );
 }
 
@@ -91,6 +98,37 @@ export function DashboardPrayerWidget() {
   }, [timings, todayLogs, witrCountdown.isPrayerTime, witrCountdown.isExpired]);
 
   const allCompleted = ALL_PRAYERS.every(n => todayLogs[n]?.status?.startsWith('completed'));
+
+  // ── Auto-miss logic ──
+  const activePrayerTime = activePrayer && activePrayer !== 'Witr' && timings
+    ? timings[activePrayer as keyof typeof timings]
+    : undefined;
+  const countdown = usePrayerCountdown(activePrayerTime);
+  const autoMissedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!activePrayer || activePrayer === 'Witr') return;
+    if (!countdown.isExpired) return;
+    if (todayLogs[activePrayer]) return;
+    if (autoMissedRef.current === activePrayer) return;
+
+    autoMissedRef.current = activePrayer;
+    const today = new Date().toISOString().split('T')[0];
+    logPrayer.mutate({ prayer_name: activePrayer, prayer_date: today, status: 'missed' });
+  }, [activePrayer, countdown.isExpired, todayLogs, logPrayer]);
+
+  // Witr auto-miss
+  const witrAutoMissedRef = useRef(false);
+  useEffect(() => {
+    if (activePrayer !== 'Witr') return;
+    if (!witrCountdown.isExpired) return;
+    if (todayLogs['Witr']) return;
+    if (witrAutoMissedRef.current) return;
+
+    witrAutoMissedRef.current = true;
+    const today = new Date().toISOString().split('T')[0];
+    logPrayer.mutate({ prayer_name: 'Witr', prayer_date: today, status: 'missed' });
+  }, [activePrayer, witrCountdown.isExpired, todayLogs, logPrayer]);
 
   if (!isPrayerEnabled || !timings) return null;
 
@@ -195,7 +233,7 @@ export function DashboardPrayerWidget() {
 
         {/* Active prayer card */}
         {activePrayer && !allCompleted ? (
-          <div className="rounded-xl p-3 space-y-2.5 bg-[hsl(var(--islamic-accent))]/[0.13]">
+          <div className="space-y-2.5 border-t border-border/50 pt-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-semibold text-sm">
@@ -211,23 +249,29 @@ export function DashboardPrayerWidget() {
               </div>
               {activePrayer === 'Witr' ? (
                 witrCountdown.isPrayerTime && !witrCountdown.isExpired && witrCountdown.minutesLeft != null ? (
-                  <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-[hsl(var(--prayer-home))]/10 text-[hsl(var(--prayer-home))] border border-[hsl(var(--prayer-home))]/30">
-                    <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} />
-                    {i18n.language === 'ar' ? `${witrCountdown.minutesLeft}د` : `${witrCountdown.minutesLeft}m`}
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-[hsl(var(--prayer-countdown))]/10 text-[hsl(var(--prayer-countdown))] border border-[hsl(var(--prayer-countdown))]/30">
+                      <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} />
+                      {i18n.language === 'ar' ? `${witrCountdown.minutesLeft}د` : `${witrCountdown.minutesLeft}m`}
+                    </span>
+                    <Progress
+                      value={Math.min(100, Math.round(((60 - (witrCountdown.minutesLeft ?? 60)) / 60) * 100))}
+                      className="h-1 w-20 bg-muted/30 [&>div]:bg-[hsl(var(--prayer-countdown))]"
+                    />
+                  </div>
                 ) : null
               ) : (
                 <PrayerCountdownBadge prayerTime={timings[activePrayer as keyof typeof timings]} />
               )}
             </div>
             <div className="flex flex-wrap gap-1.5">
-              <Button size="sm" variant="outline" onClick={() => handleLog('completed_mosque')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
+              <Button size="sm" variant="ghost" onClick={() => handleLog('completed_mosque')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs border border-border/50 hover:border-primary/30">
                 <Landmark className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.mosque')}
               </Button>
-              <Button size="sm" variant="outline" onClick={() => handleLog('completed_home')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
+              <Button size="sm" variant="ghost" onClick={() => handleLog('completed_home')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs border border-border/50 hover:border-primary/30">
                 <House className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.home')}
               </Button>
-              <Button size="sm" variant="outline" onClick={() => handleLog('completed_work')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs">
+              <Button size="sm" variant="ghost" onClick={() => handleLog('completed_work')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs border border-border/50 hover:border-primary/30">
                 <Building className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.work')}
               </Button>
             </div>
