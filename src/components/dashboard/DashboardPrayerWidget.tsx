@@ -538,7 +538,7 @@ export function DashboardPrayerWidget() {
             <span className="font-medium">{isAr ? 'التقدم' : 'Progress'}</span>
             <span className="font-semibold text-foreground">{completedCount}/{totalPrayers} — {progressPercent}%</span>
           </div>
-          <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+          <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
             <div
               className="h-full rounded-full bg-[hsl(var(--state-completed))] transition-all duration-500"
               style={{ width: `${progressPercent}%` }}
