@@ -55,20 +55,43 @@ export function DashboardPrayerWidget() {
   const timings = prayerData?.timings;
   const hijri = prayerData?.date?.hijri;
 
+  // Helper: parse time string to Date
+  const parseTime = (timeStr: string | undefined) => {
+    if (!timeStr) return null;
+    const clean = timeStr.replace(/\s*\(.*\)/, '').trim();
+    const [h, m] = clean.split(':').map(Number);
+    if (isNaN(h) || isNaN(m)) return null;
+    const d = new Date();
+    d.setHours(h, m, 0, 0);
+    return d;
+  };
+
+  const isDuhaCompleted = todayCompleted.has('duha');
+
   // Determine active prayer (first unlogged whose time has passed, or next upcoming)
   const activePrayer = useMemo(() => {
     if (!timings) return null;
     const now = new Date();
 
-    // Check 5 obligatory prayers first
+    // Check Fajr first
+    if (!todayLogs['Fajr']) {
+      const fajrDate = parseTime(timings.Fajr);
+      if (fajrDate && now >= fajrDate) return 'Fajr' as const;
+    }
+
+    // Check Duha: active between Sunrise and Dhuhr, if not completed
+    if (!isDuhaCompleted) {
+      const sunriseDate = parseTime(timings.Sunrise);
+      const dhuhrDate = parseTime(timings.Dhuhr);
+      if (sunriseDate && dhuhrDate && now >= sunriseDate && now < dhuhrDate) return 'Duha' as const;
+    }
+
+    // Check remaining obligatory prayers
     for (const name of PRAYER_NAMES) {
+      if (name === 'Fajr') continue; // already checked
       if (todayLogs[name]) continue;
-      const clean = (timings[name] || '').replace(/\s*\(.*\)/, '').trim();
-      const [h, m] = clean.split(':').map(Number);
-      if (isNaN(h) || isNaN(m)) continue;
-      const pDate = new Date(now);
-      pDate.setHours(h, m, 0, 0);
-      if (now >= pDate) return name;
+      const pDate = parseTime(timings[name]);
+      if (pDate && now >= pDate) return name;
     }
 
     // Check Witr (active when 22:00+ or before Fajr and not logged)
@@ -82,13 +105,19 @@ export function DashboardPrayerWidget() {
       return name;
     }
 
+    // Check Duha if still before Dhuhr and not completed
+    if (!isDuhaCompleted) {
+      const dhuhrDate = parseTime(timings.Dhuhr);
+      if (dhuhrDate && new Date() < dhuhrDate) return 'Duha' as const;
+    }
+
     // Check if Witr is still pending (before its window)
     if (!todayLogs['Witr'] && !witrCountdown.isExpired) {
       return 'Witr' as const;
     }
 
-    return null; // All logged (but not necessarily all completed)
-  }, [timings, todayLogs, witrCountdown.isPrayerTime, witrCountdown.isExpired]);
+    return null;
+  }, [timings, todayLogs, isDuhaCompleted, witrCountdown.isPrayerTime, witrCountdown.isExpired]);
 
   const allCompleted = ALL_PRAYERS.every(n => todayLogs[n]?.status?.startsWith('completed'));
 
