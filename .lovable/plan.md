@@ -1,115 +1,157 @@
 
 
-## Color System Audit & Centralization Plan
+## Color Audit: Remaining Unintegrated Colors
 
-### Current State
+### Summary
+After the v1.2.0 state color tokens were added, **~260 hardcoded Tailwind color usages remain across 30 files**, plus **~50 hex values across 10 files**. Here is the full breakdown and migration plan.
 
-**Integrated (documented in Design System page):**
-- Core semantic: primary, secondary, accent, destructive, muted, background, card, border
-- Chart colors: chart-1 through chart-5
-- Toolkit palette: 10 colors (lavender, sage, plum, sky, gold, peach, warm, coral, amber, rose)
-- Zone colors: thriving, watch, atRisk
-- Status semantic: success, warning, info + their tint backgrounds
+---
 
-**NOT Integrated (hardcoded across 30+ files):**
+### Unintegrated Colors by Category
 
-| Color Pattern | Used In | Count |
-|---|---|---|
-| `text-green-500/600/700`, `bg-green-500/10/20` | Status badges, KPIs, install page | ~40 uses |
-| `text-red-500/600/700`, `bg-red-500/10/20` | Destructive states, overdue, risk | ~35 uses |
-| `text-blue-500/600/700`, `bg-blue-500/10/20` | Info states, trial, active links | ~25 uses |
-| `text-orange-500/600`, `bg-orange-500/10` | Warning states, inactive | ~15 uses |
-| `text-yellow-500`, `text-amber-500/800` | Rankings, prayer badges, mood | ~20 uses |
-| `text-emerald-500/700`, `bg-emerald-500/15` | Prayer completed, mood "great" | ~15 uses |
-| `#69cbfc`, `#2a0909`, `#919191` | Islamic Calendar widget | 3 uses |
-| `#6366f1`, `#8b5cf6`, `#ec4899` + 7 more hex | Role color picker | 10 colors |
-| `#EF4444`, `#F97316` + preset hex | Category color picker | ~12 colors |
-| `#3B82F6` | Org default fallback | 1 use |
+**1. Action/Audit Colors** (`src/components/audit/AuditLogTable.tsx`)
+- `bg-emerald-500/10 text-emerald-600` → create action
+- `bg-blue-500/10 text-blue-600` → update action
+- `bg-purple-500/10 text-purple-600` → status_change action
+- `bg-amber-500/10 text-amber-600` → module_toggle action
 
-**Missing semantic states (no token exists):**
-- `overdue` — no token, uses raw `red-500` or `destructive`
-- `normal` / `default` — no token, uses `muted` inconsistently
-- `missed` — uses `destructive` (prayer), raw `red` (tasks)
-- `checked` / `completed` — uses `green-500`, `emerald-500`, `chart-2` inconsistently
-- `important` / `urgent` — no token, uses `orange` or `red` arbitrarily
-- `pending` — uses `blue-500` or `secondary` inconsistently
+**2. Risk/Synthesis Colors** (`SynthesisCard.tsx`)
+- `bg-emerald-500/15 text-emerald-700` → green risk
+- `bg-yellow-500/15 text-yellow-700` → yellow risk
+- `bg-orange-500/15 text-orange-700` → orange risk
+
+**3. Trend Colors** (`CheckinPulseCard.tsx`)
+- `text-emerald-500` → positive trend
+
+**4. Recognition/Ranking Colors** (`RankingsTable.tsx`, `WinnerAnnouncement.tsx`)
+- `text-yellow-500` → gold rank
+- `text-gray-400` → silver rank
+- `text-amber-600` → bronze rank
+
+**5. Prayer/Spiritual Colors** (`PrayerCard.tsx`)
+- `border-emerald-500/40` → completed_mosque
+- `border-amber-500/40` → completed_home
+- `border-gray-500/40` → completed_work
+- `border-red-500/40` → missed
+
+**6. MFA/Profile Colors** (`MFASetupDialog.tsx`)
+- `bg-green-100 text-green-600` → success state
+
+**7. AI Generator Colors** (`FrameworkDocuments.tsx`, `QuestionCard.tsx`)
+- `bg-green-500/10 text-green-600` → extracted
+- `bg-amber-500/10 text-amber-600` → pending
+- `bg-amber-50 dark:bg-amber-950/30` → alert highlight
+
+**8. Survey Colors** (`EmployeeSurvey.tsx`)
+- `border-amber-500/50 bg-amber-500/5` → pending review
+- `border-amber-500 text-amber-600` → pending badge
+
+**9. Mood Palette Colors** (`MoodDefinitionDialog.tsx`, `moods.ts`)
+- `text-teal-500`, `text-indigo-500`, `text-rose-500`, `text-orange-500`, `text-emerald-500`, `text-amber-500` — user-selectable mood colors
+
+**10. VIP Badge** (`EmployeeHome.tsx`)
+- `text-amber-500` → crown icon
+
+**11. Dashboard Widget** (`MentalHealthResourcesHub.tsx`)
+- `bg-[#6feb9d]/[0.04]` → green tint
+
+**12. Color Picker Hex Palettes** (intentional exceptions)
+- `RoleDialog.tsx`: 10 hex colors
+- `CategoryDialog.tsx`: 17 hex colors
+- `TaskTagPicker.tsx`: 8 hex colors
+- `DivisionSheet.tsx`, `DepartmentSheet.tsx`: `#3B82F6` default
+
+**13. Toast Component** (`toast.tsx`)
+- `text-red-300`, `text-red-50`, `ring-red-400`, `ring-offset-red-600` — shadcn default destructive styling
 
 ---
 
 ### Plan
 
-#### 1. Add Semantic State CSS Variables to `index.css`
+#### Phase 1: Add New CSS Tokens (index.css)
 
-Add new CSS custom properties for task/item states in both `:root` and `.dark`:
+Add these new semantic variables for light + dark modes:
 
 ```text
---state-completed:      122 39% 49%    (green)
---state-completed-bg:   122 39% 95%
---state-overdue:        4 90% 58%      (red)
---state-overdue-bg:     4 90% 95%
---state-missed:         4 80% 55%      (dark red)
---state-missed-bg:      4 80% 95%
---state-pending:        220 89% 56%    (blue)
---state-pending-bg:     220 89% 96%
---state-important:      25 95% 53%     (orange)
---state-important-bg:   25 95% 96%
---state-normal:         220 9% 46%     (neutral)
---state-normal-bg:      220 9% 96%
---state-checked:        122 39% 49%    (alias of completed)
---state-checked-bg:     122 39% 95%
+/* Action audit */
+--action-create:     142 71% 45%
+--action-update:     217 91% 60%
+--action-delete:     (use existing --destructive)
+--action-toggle:     38 92% 50%
+--action-status:     271 81% 56%
+
+/* Trend */
+--trend-positive:    142 71% 45%
+--trend-negative:    (use existing --destructive)
+
+/* Rank */
+--rank-gold:         48 96% 53%
+--rank-silver:       0 0% 70%
+--rank-bronze:       33 90% 45%
+
+/* Prayer completion */
+--prayer-mosque:     142 71% 45%
+--prayer-home:       38 92% 50%
+--prayer-work:       0 0% 55%
+--prayer-missed:     (use existing --state-missed)
 ```
 
-#### 2. Add State Color Tokens to `src/config/toolkit-colors.ts`
+#### Phase 2: Export Token Maps (toolkit-colors.ts)
 
-Export a new `STATE_COLORS` map:
 ```ts
-export const STATE_COLORS = {
-  completed: 'hsl(var(--state-completed))',
-  overdue:   'hsl(var(--state-overdue))',
-  missed:    'hsl(var(--state-missed))',
-  pending:   'hsl(var(--state-pending))',
-  important: 'hsl(var(--state-important))',
-  normal:    'hsl(var(--state-normal))',
-  checked:   'hsl(var(--state-checked))',
-};
+export const ACTION_COLORS = { create, update, toggle, status };
+export const RANK_COLORS = { gold, silver, bronze };
+export const PRAYER_COLORS = { mosque, home, work, missed };
+export const TREND_COLORS = { positive, negative };
 ```
 
-#### 3. Migrate Status Badge Presets
+#### Phase 3: Migrate Components (30 files)
 
-Update `src/shared/status-badge/presets.ts` to use CSS variables instead of hardcoded Tailwind colors:
-- `bg-green-500/20 text-green-700` → `bg-[hsl(var(--state-completed))]/20 text-[hsl(var(--state-completed))]`
-- Same pattern for all 9 preset configs
+Replace all hardcoded Tailwind color classes with CSS variable equivalents:
+- `text-emerald-500` → `text-[hsl(var(--trend-positive))]`
+- `text-yellow-500` → `text-[hsl(var(--rank-gold))]`
+- etc.
 
-#### 4. Update Design System Page
+**Exempt from migration** (documented exceptions):
+- Color picker hex arrays (RoleDialog, CategoryDialog, TaskTagPicker) — HTML input requires hex
+- Toast component — shadcn internal, don't modify
+- Mood definition palette — user-selectable, needs special handling
 
-Add a new **"State Colors"** section in `DesignSystemPage.tsx` showing:
-- All 7 state colors as swatches with names: Completed, Overdue, Missed, Pending, Important, Normal, Checked
-- Each swatch shows both the solid color and its tint background
-- A live preview showing badges in each state
-- Code snippets for usage
+#### Phase 4: Design System Page Update
 
-#### 5. Document Hardcoded Hex Colors
+Add sections:
+- **Action Colors** — audit log action swatches
+- **Rank Colors** — gold/silver/bronze
+- **Prayer Colors** — mosque/home/work/missed
+- **Trend Colors** — positive/negative
+- **Documented Hex Exceptions** — color pickers, mood palette
 
-Add a **"Widget Accent Colors"** subsection documenting:
-- `#69cbfc` (Islamic calendar border)
-- Role picker palette (10 hex colors)
-- Category picker palette
+#### Phase 5: Version Bump
 
-These remain hex because they're used in color-picker inputs where CSS vars don't work, but they'll be documented as exceptions.
-
-#### 6. Version Bump
-
-Update `src/theme/version.ts` to `1.2.0` with date `2026-04-04`.
+Update to `1.3.0` dated `2026-04-04`.
 
 ---
 
 ### Files Modified
-1. `src/index.css` — add 14 new CSS variables (light + dark)
-2. `src/config/toolkit-colors.ts` — add `STATE_COLORS` export
-3. `src/shared/status-badge/presets.ts` — migrate from Tailwind colors to CSS variables
-4. `src/pages/dev/DesignSystemPage.tsx` — add State Colors section + Widget Accent Colors
-5. `src/theme/version.ts` — bump to 1.2.0
+1. `src/index.css` — ~24 new CSS variables (light + dark)
+2. `src/config/toolkit-colors.ts` — 4 new token maps
+3. `src/components/audit/AuditLogTable.tsx` — migrate action colors
+4. `src/components/dashboard/comparison/SynthesisCard.tsx` — migrate risk colors
+5. `src/components/dashboard/comparison/CheckinPulseCard.tsx` — migrate trend
+6. `src/components/recognition/RankingsTable.tsx` — migrate rank colors
+7. `src/components/recognition/WinnerAnnouncement.tsx` — migrate rank colors
+8. `src/components/spiritual/PrayerCard.tsx` — migrate prayer colors
+9. `src/components/profile/MFASetupDialog.tsx` — use state-completed token
+10. `src/features/ai-generator/components/FrameworkDocuments.tsx` — use state tokens
+11. `src/features/ai-generator/components/QuestionCard.tsx` — use warning token
+12. `src/pages/employee/EmployeeSurvey.tsx` — use state-pending token
+13. `src/pages/EmployeeHome.tsx` — use rank-gold token
+14. `src/components/dashboard/MentalHealthResourcesHub.tsx` — use toolkit token
+15. `src/pages/dev/DesignSystemPage.tsx` — add 4 new sections
+16. `src/theme/version.ts` — bump to 1.3.0
 
-### Not Changed (Phase 2, separate task)
-- Migrating 30+ component files that use raw `text-green-500` etc. — this is a larger refactor that should be done module-by-module after the tokens exist
+### Not Changed (documented exceptions)
+- `RoleDialog.tsx`, `CategoryDialog.tsx`, `TaskTagPicker.tsx` — hex color pickers
+- `toast.tsx` — shadcn internal component
+- `MoodDefinitionDialog.tsx` / `moods.ts` — user-selectable mood palette (Phase 2 candidate)
 
