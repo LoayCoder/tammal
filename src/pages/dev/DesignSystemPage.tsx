@@ -7,7 +7,7 @@ import { StatCard, MetricCard, ChartCard, InsightCard, DashboardGrid, PageHeader
 import { EmptyState } from "@/shared/empty/EmptyState";
 import { spacing, typography, cardVariants, layout, iconBox } from "@/theme/tokens";
 import { DESIGN_SYSTEM } from "@/theme/version";
-import { TOOLKIT, ZONE_COLORS, STATE_COLORS, ACTION_COLORS, RANK_COLORS, PRAYER_COLORS, TREND_COLORS } from "@/config/toolkit-colors";
+import { TOOLKIT, ZONE_COLORS, STATE_COLORS, ACTION_COLORS, RANK_COLORS, PRAYER_COLORS, TREND_COLORS, KPI_COLORS, SEVERITY_COLORS, SYSTEM_ROLE_COLORS } from "@/config/toolkit-colors";
 import {
   Palette, Type, Maximize, LayoutGrid, BarChart3,
   TrendingUp, Lightbulb, AlertCircle, CheckCircle, Star,
