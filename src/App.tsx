@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorBoundary } from "@/shared/resilience/ErrorBoundary";
 import { PageErrorBoundary } from "@/components/errors/PageErrorBoundary";
 import { Sentry } from "@/lib/sentry";
+import { AuthProvider } from "@/providers/AuthProvider";
 
 // ── Eager-loaded (critical path) ──
 import Auth from "@/pages/Auth";
@@ -134,6 +135,7 @@ const SentryErrorFallback = () => (
 const App = () => (
   <Sentry.ErrorBoundary fallback={<SentryErrorFallback />}>
   <ErrorBoundary>
+  <AuthProvider>
   <QueryClientProvider client={queryClient}>
     <I18nDirection />
     <TooltipProvider>
@@ -261,6 +263,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  </AuthProvider>
   </ErrorBoundary>
   </Sentry.ErrorBoundary>
 );
