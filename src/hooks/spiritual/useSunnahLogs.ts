@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { getLocalDateString } from '@/utils/getLocalDate';
 
 export const SUNNAH_PRACTICES = [
   { key: 'fasting', emoji: '🍽️', labelEn: 'Fasting', labelAr: 'الصيام' },
@@ -28,8 +29,8 @@ export function useSunnahLogs() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const today = new Date().toISOString().split('T')[0];
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0];
+  const today = getLocalDateString();
+  const thirtyDaysAgo = getLocalDateString(new Date(Date.now() - 30 * 86400000));
 
   const { data: logs = [], isPending } = useQuery({
     queryKey: ['sunnah-logs', user?.id, thirtyDaysAgo, today],
@@ -53,7 +54,6 @@ export function useSunnahLogs() {
       if (!user?.id) throw new Error('Not authenticated');
 
       if (completed) {
-        // Upsert as completed
         const { error } = await supabase
           .from('spiritual_sunnah_logs')
           .upsert(
@@ -62,7 +62,6 @@ export function useSunnahLogs() {
           );
         if (error) throw error;
       } else {
-        // Delete the log entry to undo
         const { error } = await supabase
           .from('spiritual_sunnah_logs')
           .delete()
@@ -80,11 +79,9 @@ export function useSunnahLogs() {
     },
   });
 
-  // Today's completed practices
   const todayLogs = logs.filter(l => l.log_date === today && l.completed);
   const todayCompleted = new Set(todayLogs.map(l => l.practice_type));
 
-  // 30-day stats per practice
   const stats = SUNNAH_PRACTICES.map(p => ({
     key: p.key,
     count: logs.filter(l => l.practice_type === p.key && l.completed).length,

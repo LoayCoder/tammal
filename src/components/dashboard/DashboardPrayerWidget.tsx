@@ -15,6 +15,7 @@ import { useWitrCountdown } from '@/hooks/spiritual/useWitrCountdown';
 import { useSunnahLogs } from '@/hooks/spiritual/useSunnahLogs';
 import { cn } from '@/lib/utils';
 import { cardVariants } from "@/theme/tokens";
+import { getLocalDateString } from '@/utils/getLocalDate';
 
 const ALL_PRAYERS = ['Fajr', 'Duha', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Witr'] as const;
 
@@ -40,6 +41,17 @@ function PrayerCountdownBadge({ prayerTime }: { prayerTime: string }) {
   );
 }
 
+// Helper: parse time string to Date
+const parseTime = (timeStr: string | undefined) => {
+  if (!timeStr) return null;
+  const clean = timeStr.replace(/\s*\(.*\)/, '').trim();
+  const [h, m] = clean.split(':').map(Number);
+  if (isNaN(h) || isNaN(m)) return null;
+  const d = new Date();
+  d.setHours(h, m, 0, 0);
+  return d;
+};
+
 export function DashboardPrayerWidget() {
   const { t, i18n } = useTranslation();
   const { isPrayerEnabled, preferences } = useSpiritualPreferences();
@@ -55,73 +67,56 @@ export function DashboardPrayerWidget() {
   const timings = prayerData?.timings;
   const hijri = prayerData?.date?.hijri;
 
-  // Helper: parse time string to Date
-  const parseTime = (timeStr: string | undefined) => {
-    if (!timeStr) return null;
-    const clean = timeStr.replace(/\s*\(.*\)/, '').trim();
-    const [h, m] = clean.split(':').map(Number);
-    if (isNaN(h) || isNaN(m)) return null;
-    const d = new Date();
-    d.setHours(h, m, 0, 0);
-    return d;
-  };
-
   const isDuhaCompleted = todayCompleted.has('duha');
 
-  // Determine active prayer (first unlogged whose time has passed, or next upcoming)
+  // Determine active prayer — ONLY if its time window has actually started
   const activePrayer = useMemo(() => {
     if (!timings) return null;
     const now = new Date();
 
-    // Check Fajr first
+    // Check Fajr
     if (!todayLogs['Fajr']) {
       const fajrDate = parseTime(timings.Fajr);
       if (fajrDate && now >= fajrDate) return 'Fajr' as const;
     }
 
-    // Check Duha: active between Sunrise and Dhuhr, if not completed
+    // Check Duha: active between Sunrise and Dhuhr
     if (!isDuhaCompleted) {
       const sunriseDate = parseTime(timings.Sunrise);
       const dhuhrDate = parseTime(timings.Dhuhr);
       if (sunriseDate && dhuhrDate && now >= sunriseDate && now < dhuhrDate) return 'Duha' as const;
     }
 
-    // Check remaining obligatory prayers
+    // Check remaining obligatory prayers — only if time has started
     for (const name of PRAYER_NAMES) {
-      if (name === 'Fajr') continue; // already checked
+      if (name === 'Fajr') continue;
       if (todayLogs[name]) continue;
       const pDate = parseTime(timings[name]);
       if (pDate && now >= pDate) return name;
     }
 
-    // Check Witr (active when 22:00+ or before Fajr and not logged)
+    // Check Witr
     if (!todayLogs['Witr'] && witrCountdown.isPrayerTime) {
       return 'Witr' as const;
     }
 
-    // Find next upcoming unlogged obligatory prayer
-    for (const name of PRAYER_NAMES) {
-      if (todayLogs[name]) continue;
-      return name;
-    }
-
-    // Check Duha if still before Dhuhr and not completed
-    if (!isDuhaCompleted) {
-      const dhuhrDate = parseTime(timings.Dhuhr);
-      if (dhuhrDate && new Date() < dhuhrDate) return 'Duha' as const;
-    }
-
-    // Check if Witr is still pending (before its window)
-    if (!todayLogs['Witr'] && !witrCountdown.isExpired) {
-      return 'Witr' as const;
-    }
-
+    // NO fallback to future unstarted prayers — return null if nothing is active
     return null;
-  }, [timings, todayLogs, isDuhaCompleted, witrCountdown.isPrayerTime, witrCountdown.isExpired]);
+  }, [timings, todayLogs, isDuhaCompleted, witrCountdown.isPrayerTime]);
 
-  const allCompleted = ALL_PRAYERS.every(n => n === 'Duha' ? isDuhaCompleted : todayLogs[n]?.status?.startsWith('completed'));
+  // Completion: only count status starting with 'completed', never 'missed'
+  const completedCount = ALL_PRAYERS.filter(n => {
+    if (n === 'Duha') return isDuhaCompleted;
+    const log = todayLogs[n];
+    return log?.status?.startsWith('completed');
+  }).length;
 
-  // ── Auto-miss logic (skip Duha — voluntary) ──
+  const totalPrayers = ALL_PRAYERS.length;
+  const progressPercent = Math.round((completedCount / totalPrayers) * 100);
+  const allCompleted = completedCount === totalPrayers;
+
+  // ── Auto-miss logic ──
+  const today = getLocalDateString();
   const activePrayerTime = activePrayer && activePrayer !== 'Witr' && activePrayer !== 'Duha' && timings
     ? timings[activePrayer as keyof typeof timings]
     : undefined;
@@ -135,9 +130,8 @@ export function DashboardPrayerWidget() {
     if (autoMissedRef.current === activePrayer) return;
 
     autoMissedRef.current = activePrayer;
-    const today = new Date().toISOString().split('T')[0];
     logPrayer.mutate({ prayer_name: activePrayer, prayer_date: today, status: 'missed' });
-  }, [activePrayer, countdown.isExpired, todayLogs, logPrayer]);
+  }, [activePrayer, countdown.isExpired, todayLogs, logPrayer, today]);
 
   // Witr auto-miss
   const witrAutoMissedRef = useRef(false);
@@ -148,16 +142,36 @@ export function DashboardPrayerWidget() {
     if (witrAutoMissedRef.current) return;
 
     witrAutoMissedRef.current = true;
-    const today = new Date().toISOString().split('T')[0];
     logPrayer.mutate({ prayer_name: 'Witr', prayer_date: today, status: 'missed' });
-  }, [activePrayer, witrCountdown.isExpired, todayLogs, logPrayer]);
+  }, [activePrayer, witrCountdown.isExpired, todayLogs, logPrayer, today]);
+
+  // Find the next upcoming prayer (time not yet started)
+  const nextUpcomingPrayer = useMemo(() => {
+    if (!timings) return null;
+    const now = new Date();
+
+    for (const name of ALL_PRAYERS) {
+      if (name === 'Duha') {
+        if (isDuhaCompleted) continue;
+        const sunriseDate = parseTime(timings.Sunrise);
+        if (sunriseDate && sunriseDate > now) {
+          const minsUntil = Math.ceil((sunriseDate.getTime() - now.getTime()) / 60000);
+          return { name, minsUntil };
+        }
+        continue;
+      }
+      if (name === 'Witr') continue;
+      if (todayLogs[name]) continue;
+      const pDate = parseTime(timings[name as keyof typeof timings]);
+      if (pDate && pDate > now) {
+        const minsUntil = Math.ceil((pDate.getTime() - now.getTime()) / 60000);
+        return { name, minsUntil };
+      }
+    }
+    return null;
+  }, [timings, todayLogs, isDuhaCompleted]);
 
   if (!isPrayerEnabled || !timings) return null;
-
-  const today = new Date().toISOString().split('T')[0];
-  const completedCount = ALL_PRAYERS.filter(n => n === 'Duha' ? isDuhaCompleted : todayLogs[n]?.status?.startsWith('completed')).length;
-  const totalPrayers = ALL_PRAYERS.length;
-  const progressPercent = Math.round((completedCount / totalPrayers) * 100);
 
   const handleLog = (status: string) => {
     if (!activePrayer) return;
@@ -171,6 +185,9 @@ export function DashboardPrayerWidget() {
 
   const activeRawatib = activePrayer ? RAWATIB_CONFIG[activePrayer] : null;
   const hasActiveRawatib = activeRawatib && (activeRawatib.before || activeRawatib.after);
+
+
+
 
   return (
     <Card className={cn(cardVariants.premiumVip, "border-[hsl(var(--islamic-accent))]/[0.49]")}>
@@ -298,7 +315,7 @@ export function DashboardPrayerWidget() {
                   <PrayerCountdownBadge prayerTime={timings[activePrayer as keyof typeof timings]} />
                 )}
               </div>
-              {/* Action buttons: Duha gets Done toggle, others get location buttons */}
+              {/* Action buttons */}
               {activePrayer === 'Duha' ? (
                 <Button
                   size="sm"
@@ -362,7 +379,7 @@ export function DashboardPrayerWidget() {
               </div>
             )}
           </div>
-        ) : (
+        ) : allCompleted ? (
           <div className="rounded-xl bg-gradient-to-br from-chart-1/10 via-primary/5 to-chart-1/10 border border-chart-1/20 p-4 space-y-2.5">
             <div className="flex items-center justify-center gap-3">
               <span className="text-3xl">🎉</span>
@@ -373,7 +390,7 @@ export function DashboardPrayerWidget() {
             </div>
             <div className="rounded-xl bg-muted/5 border border-border/30 p-4 space-y-1.5">
               <p className="text-xs font-semibold text-primary text-center">📖 {i18n.language === 'ar' ? 'حديث شريف' : 'Hadith'}</p>
-              <p className="text-xs text-muted-foreground leading-relaxed italic font-light text-left">
+              <p className="text-xs text-muted-foreground leading-relaxed italic font-light text-start">
                 {i18n.language === 'ar'
                   ? '«أَرَأَيْتُمْ لَوْ أَنَّ نَهْرًا بِبَابِ أَحَدِكُمْ يَغْتَسِلُ مِنْهُ كُلَّ يَوْمٍ خَمْسَ مَرَّاتٍ، هَلْ يَبْقَى مِنْ دَرَنِهِ شَيْءٌ؟» قَالُوا: لاَ يَبْقَى مِنْ دَرَنِهِ شَيْءٌ. قَالَ: «فَذَلِكَ مَثَلُ الصَّلَوَاتِ الْخَمْسِ، يَمْحُو اللَّهُ بِهِنَّ الْخَطَايَا»'
                   : '"If there was a river at the door of anyone of you and he took a bath in it five times a day, would any dirt remain on him?" They said, "No." He ﷺ said, "That is the example of the five prayers with which Allah erases sins."'}
@@ -383,14 +400,29 @@ export function DashboardPrayerWidget() {
               </p>
             </div>
           </div>
+        ) : (
+          /* No active prayer and not all completed — show "Next prayer" info */
+          nextUpcomingPrayer ? (
+            <div className="border-t border-border/50 pt-3">
+              <div className="flex items-center justify-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={ICON_STROKE} />
+                <span className="text-xs text-muted-foreground font-medium">
+                  {i18n.language === 'ar'
+                    ? `التالي: ${t(`spiritual.prayer.names.${nextUpcomingPrayer.name.toLowerCase()}`)} بعد ${nextUpcomingPrayer.minsUntil >= 60 ? `${Math.floor(nextUpcomingPrayer.minsUntil / 60)}س ${nextUpcomingPrayer.minsUntil % 60}د` : `${nextUpcomingPrayer.minsUntil}د`}`
+                    : `Next: ${t(`spiritual.prayer.names.${nextUpcomingPrayer.name.toLowerCase()}`)} in ${nextUpcomingPrayer.minsUntil >= 60 ? `${Math.floor(nextUpcomingPrayer.minsUntil / 60)}h ${nextUpcomingPrayer.minsUntil % 60}m` : `${nextUpcomingPrayer.minsUntil}m`}`
+                  }
+                </span>
+              </div>
+            </div>
+          ) : null
         )}
 
-        {/* Progress row — 7 prayer indicators (5 obligatory + Duha + Witr) */}
+        {/* Progress row — 7 prayer indicators */}
         <div className="flex items-center justify-between gap-0.5">
         {ALL_PRAYERS.map(name => {
             const isDuha = name === 'Duha';
             const logEntry = !isDuha ? todayLogs[name] : null;
-            const logged = isDuha ? isDuhaCompleted : !!logEntry;
+            const logged = isDuha ? isDuhaCompleted : (logEntry?.status?.startsWith('completed') ?? false);
             const isMissed = !isDuha && logEntry?.status === 'missed';
             const isMosque = !isDuha && logEntry?.status === 'completed_mosque';
             const isActive = name === activePrayer;
@@ -407,7 +439,7 @@ export function DashboardPrayerWidget() {
                     logged && !isMissed && 'bg-[hsl(var(--state-completed))]/20 border-[hsl(var(--state-completed))]/40 text-[hsl(var(--state-completed))]',
                     isMissed && 'bg-destructive/10 border-destructive/30 text-destructive',
                     !logged && isActive && 'bg-primary/10 border-primary/40 text-primary ring-2 ring-primary/20 animate-pulse',
-                    !logged && !isActive && 'bg-muted border-border text-muted-foreground',
+                    !logged && !isActive && !isMissed && 'bg-muted border-border text-muted-foreground',
                   )}
                 >
                   {logged && !isMissed ? (
@@ -416,8 +448,8 @@ export function DashboardPrayerWidget() {
                     : <ClockAlert className="h-3 w-3" strokeWidth={ICON_STROKE} />
                   ) : null}
                   {isMissed ? <XLineTop className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
-                  {!logged && isActive ? <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
-                  {!logged && !isActive && isDuha ? <span className="text-[10px]">☀</span> : null}
+                  {!logged && !isMissed && isActive ? <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
+                  {!logged && !isMissed && !isActive && isDuha ? <span className="text-[10px]">☀</span> : null}
                 </div>
                 <span className="text-[9px] font-medium text-foreground leading-none">
                   {t(`spiritual.prayer.names.${name.toLowerCase()}`, { defaultValue: name })}
@@ -459,48 +491,17 @@ export function DashboardPrayerWidget() {
           </div>
         </div>
 
-        {/* Next prayer countdown */}
-        {(() => {
-          if (!timings) return null;
-          const now = new Date();
-          for (const name of ALL_PRAYERS) {
-            if (name === 'Duha') {
-              if (isDuhaCompleted) continue;
-              const sunriseDate = parseTime(timings.Sunrise);
-              if (sunriseDate && sunriseDate > now) {
-                const minsUntil = Math.ceil((sunriseDate.getTime() - now.getTime()) / 60000);
-                return (
-                  <div className="flex items-center justify-center gap-1.5 pt-1">
-                    <span className="text-[10px] text-muted-foreground font-medium">
-                      {i18n.language === 'ar' 
-                        ? `التالي: ${t('spiritual.prayer.names.duha')} بعد ${minsUntil}د`
-                        : `Next: ${t('spiritual.prayer.names.duha')} in ${minsUntil >= 60 ? `${Math.floor(minsUntil / 60)}h ${minsUntil % 60}m` : `${minsUntil}m`}`
-                      }
-                    </span>
-                  </div>
-                );
+        {/* Next prayer countdown — only when there's an active prayer */}
+        {activePrayer && !allCompleted && nextUpcomingPrayer && (
+          <div className="flex items-center justify-center gap-1.5 pt-1">
+            <span className="text-[10px] text-muted-foreground font-medium">
+              {i18n.language === 'ar' 
+                ? `التالي: ${t(`spiritual.prayer.names.${nextUpcomingPrayer.name.toLowerCase()}`)} بعد ${nextUpcomingPrayer.minsUntil >= 60 ? `${Math.floor(nextUpcomingPrayer.minsUntil / 60)}س ${nextUpcomingPrayer.minsUntil % 60}د` : `${nextUpcomingPrayer.minsUntil}د`}`
+                : `Next: ${t(`spiritual.prayer.names.${nextUpcomingPrayer.name.toLowerCase()}`)} in ${nextUpcomingPrayer.minsUntil >= 60 ? `${Math.floor(nextUpcomingPrayer.minsUntil / 60)}h ${nextUpcomingPrayer.minsUntil % 60}m` : `${nextUpcomingPrayer.minsUntil}m`}`
               }
-              continue;
-            }
-            if (todayLogs[name]) continue;
-            if (name === 'Witr') continue;
-            const pDate = parseTime(timings[name as keyof typeof timings]);
-            if (pDate && pDate > now) {
-              const minsUntil = Math.ceil((pDate.getTime() - now.getTime()) / 60000);
-              return (
-                <div className="flex items-center justify-center gap-1.5 pt-1">
-                  <span className="text-[10px] text-muted-foreground font-medium">
-                    {i18n.language === 'ar' 
-                      ? `التالي: ${t(`spiritual.prayer.names.${name.toLowerCase()}`)} بعد ${minsUntil}د`
-                      : `Next: ${t(`spiritual.prayer.names.${name.toLowerCase()}`)} in ${minsUntil >= 60 ? `${Math.floor(minsUntil / 60)}h ${minsUntil % 60}m` : `${minsUntil}m`}`
-                    }
-                  </span>
-                </div>
-              );
-            }
-          }
-          return null;
-        })()}
+            </span>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { cardVariants, typography} from "@/theme/tokens";
+import { getLocalDateString } from '@/utils/getLocalDate';
 
 export default function PrayerTracker() {
   const { t, i18n } = useTranslation();
@@ -29,12 +30,12 @@ export default function PrayerTracker() {
     preferences?.calculation_method
   );
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDateString();
 
   const weekAgo = useMemo(() => {
     const d = new Date();
     d.setDate(d.getDate() - 6);
-    return d.toISOString().split('T')[0];
+    return getLocalDateString(d);
   }, []);
 
   const { logs, todayLogs, logPrayer, isPending: logsLoading } = usePrayerLogs({ from: weekAgo, to: today });

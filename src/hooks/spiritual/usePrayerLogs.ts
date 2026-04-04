@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { getLocalDateString } from '@/utils/getLocalDate';
 
 export interface PrayerLog {
   id: string;
@@ -16,7 +17,7 @@ export function usePrayerLogs(dateRange?: { from: string; to: string }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDateString();
   const from = dateRange?.from ?? today;
   const to = dateRange?.to ?? today;
 
@@ -40,7 +41,6 @@ export function usePrayerLogs(dateRange?: { from: string; to: string }) {
   const logPrayer = useMutation({
     mutationFn: async (input: { prayer_name: string; prayer_date: string; status: string }) => {
       if (!user?.id) throw new Error('Not authenticated');
-      // Upsert: use unique constraint
       const { data, error } = await supabase
         .from('spiritual_prayer_logs')
         .upsert(
