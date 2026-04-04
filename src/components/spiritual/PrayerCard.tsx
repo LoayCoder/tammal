@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { cardVariants } from "@/theme/tokens";
 
 const RAWATIB_CONFIG: Record<string, { before?: number; after?: number }> = {
-  Fajr:    { after: 2 },
+  Fajr:    { before: 2 },
   Dhuhr:   { before: 2, after: 2 },
   Asr:     {},
   Maghrib: { after: 2 },
