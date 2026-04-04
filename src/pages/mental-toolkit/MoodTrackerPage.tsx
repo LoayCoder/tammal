@@ -57,9 +57,9 @@ export default function MoodTrackerPage() {
     <div className="min-h-screen bg-background">
       <ToolkitPageHeader icon={<SmilePlus className="h-5 w-5 text-primary" />} title={t("mentalToolkit.moodDashboard.pageTitle")} subtitle={t("mentalToolkit.moodDashboard.pageSubtitle")} maxWidth="4xl" />
 
-      <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 space-y-6">
+      <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 space-y-5">
         {noData ? (
-          <Card className={cn(cardVariants.glass, "rounded-lg border-dashed")}>
+          <Card className={cn("premium-card rounded-2xl")}>
             <CardContent className="py-10 text-center space-y-2">
               <SmilePlus className="h-12 w-12 mx-auto text-muted-foreground" />
               <p className={typography.sectionTitle}>{t("mentalToolkit.moodDashboard.noDataYet")}</p>

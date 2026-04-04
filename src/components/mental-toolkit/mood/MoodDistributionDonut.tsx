@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart } from "lucide-react";
 import { PieChart as RechartsPie, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
 import { TOOLKIT, DONUT_COLORS } from "@/config/toolkit-colors";
-import { cardVariants } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 interface DonutDataItem {
@@ -19,10 +18,10 @@ export function MoodDistributionDonut({ data }: MoodDistributionDonutProps) {
   const { t } = useTranslation();
 
   return (
-    <Card className={cn(cardVariants.glass, "rounded-lg")}>
+    <Card className={cn("premium-card rounded-2xl")}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <PieChart className="h-4 w-4" style={{ color: TOOLKIT.sage }} />
+          <PieChart className="h-4 w-4" style={{ color: TOOLKIT.sage }} strokeWidth={1.75} />
           {t("mentalToolkit.moodDashboard.moodDistribution")}
         </CardTitle>
       </CardHeader>
@@ -33,7 +32,7 @@ export function MoodDistributionDonut({ data }: MoodDistributionDonutProps) {
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <RechartsPie>
-                <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={3}>
+                <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={4}>
                   {data.map((_, idx) => <Cell key={idx} fill={DONUT_COLORS[idx % DONUT_COLORS.length]} />)}
                 </Pie>
                 <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />

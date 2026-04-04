@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClipboardList, RefreshCw, ArrowRight, Wind } from "lucide-react";
 import { TOOLKIT } from "@/config/toolkit-colors";
-import { cardVariants, typography} from "@/theme/tokens";
+import { typography } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 interface MoodToolsSuggestionsProps {
@@ -12,19 +12,21 @@ interface MoodToolsSuggestionsProps {
   breathingStats: { totalSessions: number; thisMonth: number; currentStreak: number; avgMoodImprovement: number };
 }
 
+const glassCard = "premium-card rounded-2xl hover:shadow-md hover:-translate-y-0.5 transition-all duration-200";
+
 export function MoodToolsSuggestions({ surveyStats, reframeStats, breathingStats }: MoodToolsSuggestionsProps) {
   const { t } = useTranslation();
 
   return (
     <>
-      <Card className={cn(cardVariants.glass, "rounded-lg")}>
+      <Card className={cn(glassCard)}>
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
-            <ClipboardList className="h-4 w-4" style={{ color: TOOLKIT.lavender }} />
+            <ClipboardList className="h-4 w-4" style={{ color: TOOLKIT.lavender }} strokeWidth={1.75} />
             {t("mentalToolkit.moodDashboard.surveyStats")}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-5 pt-0">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div><p className={typography.metric}>{surveyStats.totalAnswered}</p><p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.totalAnswered")}</p></div>
             <div><p className={typography.metric}>{surveyStats.avgScore}</p><p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.avgResponseScore")}</p></div>
@@ -33,33 +35,33 @@ export function MoodToolsSuggestions({ surveyStats, reframeStats, breathingStats
         </CardContent>
       </Card>
 
-      <Card className="rounded-lg">
+      <Card className={cn(glassCard)}>
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
-            <RefreshCw className="h-4 w-4" style={{ color: TOOLKIT.sage }} />
+            <RefreshCw className="h-4 w-4" style={{ color: TOOLKIT.sage }} strokeWidth={1.75} />
             {t("mentalToolkit.moodDashboard.reframeActivity")}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-5 pt-0">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div><p className={typography.metric}>{reframeStats.total}</p><p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.totalReframes")}</p></div>
             <div><p className={typography.metric}>{reframeStats.thisMonth}</p><p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.reframesThisMonth")}</p></div>
             <div><p className={typography.metric}>{reframeStats.streak}d</p><p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.reframeStreak")}</p></div>
           </div>
-          <Link to="/mental-toolkit/thought-reframer" className="mt-3 block text-center text-sm font-medium hover:underline" style={{ color: TOOLKIT.sage }}>
+          <Link to="/mental-toolkit/thought-reframer" className="mt-4 block text-center text-sm font-medium transition-opacity hover:opacity-80" style={{ color: TOOLKIT.sage }}>
             {t("mentalToolkit.moodDashboard.goToReframer")} <ArrowRight className="inline h-4 w-4 ms-1 rtl:-scale-x-100" />
           </Link>
         </CardContent>
       </Card>
 
-      <Card className="rounded-lg">
+      <Card className={cn(glassCard)}>
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
-            <Wind className="h-4 w-4" style={{ color: TOOLKIT.lavender }} />
+            <Wind className="h-4 w-4" style={{ color: TOOLKIT.lavender }} strokeWidth={1.75} />
             {t("mentalToolkit.moodDashboard.breathingActivity")}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-5 pt-0">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div><p className={typography.metric}>{breathingStats.totalSessions}</p><p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.breathingSessions")}</p></div>
             <div><p className={typography.metric}>{breathingStats.thisMonth}</p><p className="text-xs text-muted-foreground">{t("mentalToolkit.moodDashboard.breathingThisMonth")}</p></div>
@@ -70,7 +72,7 @@ export function MoodToolsSuggestions({ surveyStats, reframeStats, breathingStats
               {breathingStats.avgMoodImprovement > 0 ? "+" : ""}{breathingStats.avgMoodImprovement} avg mood change
             </p>
           )}
-          <Link to="/mental-toolkit/breathing" className="mt-3 block text-center text-sm font-medium hover:underline" style={{ color: TOOLKIT.lavender }}>
+          <Link to="/mental-toolkit/breathing" className="mt-4 block text-center text-sm font-medium transition-opacity hover:opacity-80" style={{ color: TOOLKIT.lavender }}>
             {t("mentalToolkit.moodDashboard.goToBreathing")} <ArrowRight className="inline h-4 w-4 ms-1 rtl:-scale-x-100" />
           </Link>
         </CardContent>
