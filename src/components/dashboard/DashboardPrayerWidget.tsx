@@ -204,7 +204,7 @@ export function DashboardPrayerWidget() {
                     ? `${hijri.day} ${hijri.month.ar} ${hijri.year}`
                     : `${hijri.day} ${hijri.month.en} ${hijri.year}`}
                   {prayerData?.date?.readable && (
-                    <span className="text-muted-foreground/70"> · {prayerData.date.readable}</span>
+                    <span className="text-muted-foreground/70"> | {prayerData.date.readable}</span>
                   )}
                 </p>
               )}
