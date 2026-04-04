@@ -82,6 +82,7 @@ export function DashboardPrayerWidget() {
   const { todayLogs, logPrayer } = usePrayerLogs();
   const { todayCompleted, togglePractice } = useSunnahLogs();
   const witrCountdown = useWitrCountdown(prayerData?.timings?.Fajr);
+  const { isHidden, hide, show } = usePrayerTrackerVisibility(prayerData?.timings?.Isha);
 
   const timings = prayerData?.timings;
   const hijri = prayerData?.date?.hijri;
