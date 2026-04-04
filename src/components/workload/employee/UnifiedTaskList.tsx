@@ -59,7 +59,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
   }
 
   return (
-    <div className="divide-y divide-border/50">
+    <div className="divide-y divide-border/30">
       {tasks.map((task) => {
         const isCompleted = task.status === 'completed';
         const isVerified = !!(task.metadata as Record<string, unknown>)?.verified;
@@ -73,7 +73,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
         return (
           <div
             key={task.id}
-            className={`flex items-start gap-3 px-1 py-3 group cursor-pointer hover:bg-muted/30 rounded-lg transition-colors ${isCompleted ? 'opacity-60' : ''}`}
+            className={`flex items-start gap-3 px-2 py-4 group cursor-pointer hover:bg-muted/20 rounded-lg transition-colors ${isCompleted ? 'opacity-60' : ''}`}
             onClick={() => onEdit(task)}
           >
             {/* Progress circle */}
