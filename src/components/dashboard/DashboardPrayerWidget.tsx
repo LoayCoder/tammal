@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Landmark, House, Building, ChevronRight, Clock, Timer, Check, X, Pencil, EyeOff, Eye } from 'lucide-react';
+import { Landmark, House, Building, ChevronRight, Clock, Timer, Check, X, Pencil, EyeOff, Eye, Moon } from 'lucide-react';
 
 const ICON_STROKE = 1.5;
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
@@ -187,7 +187,7 @@ export function DashboardPrayerWidget() {
       <Card className={cn(cardVariants.premiumVip, "border-[hsl(var(--islamic-accent))]/[0.25] opacity-80")}>
         <CardContent className="p-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-base">🕌</span>
+            <Moon className="h-4 w-4 text-muted-foreground" strokeWidth={ICON_STROKE} />
             <span className="text-xs text-muted-foreground font-medium">
               {isAr ? 'متتبع الصلاة مخفي' : 'Prayer Tracker hidden'}
             </span>
