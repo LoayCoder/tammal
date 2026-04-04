@@ -131,7 +131,21 @@ export default function TaskDetail() {
 
         {/* Title */}
         <div className="space-y-1">
-          <h1 className="text-lg font-semibold leading-tight tracking-tight">{task.title}</h1>
+          <div className="flex items-center gap-2">
+            {task.task_number && (
+              <Badge
+                variant="outline"
+                className="text-2xs px-1.5 py-0 text-muted-foreground cursor-pointer hover:bg-muted/50 transition-colors tabular-nums shrink-0"
+                onClick={() => {
+                  navigator.clipboard.writeText(`#${task.task_number}`);
+                  toast.success(t('common.copied'));
+                }}
+              >
+                #{task.task_number}
+              </Badge>
+            )}
+            <h1 className="text-lg font-semibold leading-tight tracking-tight">{task.title}</h1>
+          </div>
           {task.title_ar && (
             <p className="text-sm text-muted-foreground leading-relaxed" dir="rtl">{task.title_ar}</p>
           )}

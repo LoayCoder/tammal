@@ -89,6 +89,9 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
 
             <div className="flex-1 min-w-0 space-y-1.5">
               <div className="flex items-center gap-2 flex-wrap">
+                {task.task_number && (
+                  <span className="text-2xs text-muted-foreground tabular-nums shrink-0">#{task.task_number}</span>
+                )}
                 <span className={`text-sm font-medium ${isCompleted ? 'line-through' : ''}`}>{task.title}</span>
                 {isLocked && (
                   <Tooltip>

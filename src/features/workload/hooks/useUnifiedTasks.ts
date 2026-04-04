@@ -41,6 +41,7 @@ export interface UnifiedTask {
   comments: TaskComment[];
   created_by: string | null;
   created_at: string;
+  task_number: number | null;
   updated_at: string;
   deleted_at: string | null;
 }
