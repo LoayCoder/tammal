@@ -58,7 +58,8 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
   const { register, handleSubmit, setValue, watch, reset } = useForm({
     resolver: zodResolver(taskSchema),
     defaultValues: {
-      title: task?.title ?? '', description: task?.description ?? '',
+      title: task?.title ?? '', title_ar: task?.title_ar ?? '',
+      description: task?.description ?? '', description_ar: (task as any)?.description_ar ?? '',
       priority: task?.priority ?? 3, status: task?.status ?? 'draft',
       estimated_minutes: task?.estimated_minutes ?? null,
       due_date: task?.due_date ? task.due_date.split('T')[0] : '',
