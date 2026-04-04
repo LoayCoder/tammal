@@ -1,12 +1,12 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutGrid, Waves, Send, Fingerprint, Menu } from 'lucide-react';
+import { LayoutGrid, Waves, Send, Heart, Menu } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 
 const navItems = [
   { key: 'dashboard', icon: LayoutGrid, path: '/' },
   { key: 'wellness', icon: Waves, path: '/employee/wellness' },
   { key: 'support', icon: Send, path: '/support' },
-  { key: 'profile', icon: Fingerprint, path: '/settings/profile' },
+  { key: 'wellness-hub', icon: Heart, path: '/wellness' },
 ];
 
 export function MobileBottomNav() {

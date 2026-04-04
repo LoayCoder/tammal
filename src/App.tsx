@@ -51,6 +51,7 @@ const HabitsPage = lazy(() => import("@/pages/mental-toolkit/HabitsPage"));
 const ArticlesPage = lazy(() => import("@/pages/mental-toolkit/ArticlesPage"));
 
 const AssessmentPage = lazy(() => import("@/pages/mental-toolkit/AssessmentPage"));
+const WellnessResources = lazy(() => import("@/pages/WellnessResources"));
 const PrayerTracker = lazy(() => import("@/pages/spiritual/PrayerTracker"));
 const QuranReader = lazy(() => import("@/pages/spiritual/QuranReader"));
 const QuranTextReader = lazy(() => import("@/pages/spiritual/QuranTextReader"));
@@ -228,6 +229,7 @@ const App = () => (
               <Route path="/settings/usage" element={<UsageBilling />} />
               <Route path="/settings/profile" element={<UserProfile />} />
               <Route path="/support" element={<Support />} />
+              <Route path="/wellness" element={<WellnessResources />} />
 
               {/* ── Mental Toolkit routes ── */}
               <Route element={<PageErrorBoundary routeGroup="toolkit"><Outlet /></PageErrorBoundary>}>
