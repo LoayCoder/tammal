@@ -47,7 +47,8 @@ const STATUS_BADGE: Record<string, { className: string; icon: typeof CheckCircle
 };
 
 export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedTaskListProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
 
   if (tasks.length === 0) {
     return (
