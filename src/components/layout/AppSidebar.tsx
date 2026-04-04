@@ -330,7 +330,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         return false;
       })
     }))
-    .filter(group => group.items.length > 0);
+    .filter(group => group.items.length > 0 || (group.label === t('nav.wellness') && spiritualEnabled));
 
   const handleNavClick = () => {
     if (isMobile) setOpenMobile(false);
