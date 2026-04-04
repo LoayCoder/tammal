@@ -17,7 +17,7 @@ import {
   Phone, HeartHandshake, Crown,
 } from 'lucide-react';
 import { DashboardPrayerWidget } from '@/components/dashboard/DashboardPrayerWidget';
-import { DashboardIslamicCalendarWidget } from '@/components/dashboard/DashboardIslamicCalendarWidget';
+
 import { DashboardWorkloadWidget } from '@/components/dashboard/DashboardWorkloadWidget';
 import FirstAiderQuickConnect from '@/components/crisis/FirstAiderQuickConnect';
 import { DashboardEndorsementRequests } from '@/components/dashboard/DashboardEndorsementRequests';
