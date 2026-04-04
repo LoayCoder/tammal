@@ -6,7 +6,7 @@ const navItems = [
   { key: 'dashboard', icon: LayoutGrid, path: '/' },
   { key: 'wellness', icon: Waves, path: '/employee/wellness' },
   { key: 'support', icon: Send, path: '/support' },
-  { key: 'profile', icon: Fingerprint, path: '/settings/profile' },
+  { key: 'wellness-hub', icon: Heart, path: '/wellness' },
 ];
 
 export function MobileBottomNav() {

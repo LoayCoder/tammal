@@ -229,6 +229,7 @@ const App = () => (
               <Route path="/settings/usage" element={<UsageBilling />} />
               <Route path="/settings/profile" element={<UserProfile />} />
               <Route path="/support" element={<Support />} />
+              <Route path="/wellness" element={<WellnessResources />} />
 
               {/* ── Mental Toolkit routes ── */}
               <Route element={<PageErrorBoundary routeGroup="toolkit"><Outlet /></PageErrorBoundary>}>
