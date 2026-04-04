@@ -119,7 +119,7 @@ export function DashboardPrayerWidget() {
     return null;
   }, [timings, todayLogs, isDuhaCompleted, witrCountdown.isPrayerTime, witrCountdown.isExpired]);
 
-  const allCompleted = ALL_PRAYERS.every(n => todayLogs[n]?.status?.startsWith('completed'));
+  const allCompleted = ALL_PRAYERS.every(n => n === 'Duha' ? isDuhaCompleted : todayLogs[n]?.status?.startsWith('completed'));
 
   // ── Auto-miss logic ──
   const activePrayerTime = activePrayer && activePrayer !== 'Witr' && timings
