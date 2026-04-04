@@ -144,7 +144,7 @@ interface NotificationContentProps {
   onMarkAllRead: () => void;
   onItemClick: (n: UnifiedNotification) => void;
   isMobile: boolean;
-  t: (key: string, fallback?: string) => string;
+  t: any;
 }
 
 function NotificationContent({
