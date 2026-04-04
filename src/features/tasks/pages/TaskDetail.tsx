@@ -131,7 +131,7 @@ export default function TaskDetail() {
           {task.is_locked && <Lock className="h-4 w-4 text-chart-4" />}
         </div>
 
-        {/* Title */}
+        {/* Title — language-aware */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             {task.task_number && (
@@ -146,10 +146,15 @@ export default function TaskDetail() {
                 #{task.task_number}
               </Badge>
             )}
-            <h1 className="text-lg font-semibold leading-tight tracking-tight">{task.title}</h1>
+            <h1 className="text-lg font-semibold leading-tight tracking-tight" dir={isAr ? 'rtl' : 'ltr'}>
+              {isAr ? (task.title_ar || task.title) : task.title}
+            </h1>
           </div>
-          {task.title_ar && (
-            <p className="text-sm text-muted-foreground leading-relaxed" dir="rtl">{task.title_ar}</p>
+          {/* Secondary title in opposite language */}
+          {(isAr ? task.title : task.title_ar) && (
+            <p className="text-sm text-muted-foreground leading-relaxed" dir={isAr ? 'ltr' : 'rtl'}>
+              {isAr ? task.title : task.title_ar}
+            </p>
           )}
         </div>
 
