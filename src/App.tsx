@@ -263,6 +263,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  </AuthProvider>
   </ErrorBoundary>
   </Sentry.ErrorBoundary>
 );
