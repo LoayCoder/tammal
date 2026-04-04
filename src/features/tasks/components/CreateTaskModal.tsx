@@ -55,7 +55,8 @@ export function CreateTaskModal({
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const resetForm = useCallback(() => {
-    setTitle(''); setTitleAr(''); setDescription(''); setStatus('draft');
+    setTitle(''); setTitleAr(''); setDescription(''); setDescriptionAr(''); setStatus('draft');
+    setValidationErrors({});
     setPriority(2); setVisibility('department'); setDueDate(undefined);
     setStartDate(undefined); setReminderDate(undefined); setEstimatedMinutes('');
     setAssigneeId(employeeId); setReviewerId(null); setApproverId(null);
