@@ -132,6 +132,18 @@ export function DashboardPrayerWidget() {
   const progressPercent = Math.round((completedCount / totalPrayers) * 100);
   const allCompleted = completedCount === totalPrayers;
 
+  // ─── Day Done detection: all prayer windows have expired ───
+  const isDayDone = useMemo(() => {
+    if (!timings) return false;
+    const ishaExpired = isWindowExpired(timings.Isha);
+    const duhaExpired = (() => {
+      const dhuhrDate = parseTime(timings.Dhuhr);
+      return dhuhrDate ? new Date() >= dhuhrDate : false;
+    })();
+    const witrDone = witrCountdown.isExpired || !!todayLogs['Witr'];
+    return ishaExpired && duhaExpired && witrDone;
+  }, [timings, witrCountdown.isExpired, todayLogs]);
+
   // NO auto-miss useEffect — prayers are visual-only until user acts
 
   // ─── Next upcoming prayer ───
