@@ -182,7 +182,7 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
                     )}
                   >
                     <div className="flex-1 min-w-0">
-                      <span className="block text-sm truncate group-hover:text-primary transition-colors">
+                      <span className="block truncate group-hover:text-primary transition-colors text-xs">
                         {task.title}
                       </span>
                     </div>
