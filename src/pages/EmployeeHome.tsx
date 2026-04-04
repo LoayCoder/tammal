@@ -122,7 +122,7 @@ export default function EmployeeHome() {
 
         {/* Spiritual Wellbeing Widgets */}
         <DashboardPrayerWidget />
-        <DashboardIslamicCalendarWidget />
+        
 
         {/* Workload Overview Widget */}
         {employee && <DashboardWorkloadWidget employeeId={employee.id} />}
