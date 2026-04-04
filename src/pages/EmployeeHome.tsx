@@ -44,7 +44,7 @@ export default function EmployeeHome() {
   const { employee, isPending: empLoading } = useCurrentEmployee();
   const { streak, totalPoints, isPending: gamLoading } = useGamification(employee?.id ?? null);
   const { todayEntry } = useMoodHistory(employee?.id ?? null);
-  const { pendingQuestions, isPending: sqLoading } = useScheduledQuestions(employee?.id, undefined);
+  const { pendingQuestions, surveyMeta, isPending: sqLoading } = useScheduledQuestions(employee?.id, undefined);
   const [showFirstAider, setShowFirstAider] = useState(false);
 
   const firstName = employee?.full_name?.split(' ')[0] ?? '';
