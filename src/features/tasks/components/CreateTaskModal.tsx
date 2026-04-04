@@ -98,6 +98,7 @@ export function CreateTaskModal({
     setTitle(tpl.title);
     if (tpl.title_ar) setTitleAr(tpl.title_ar);
     if (tpl.description) setDescription(tpl.description);
+    if (tpl.description_ar) setDescriptionAr(tpl.description_ar);
     if (tpl.priority) setPriority(tpl.priority === 'critical' ? 0 : tpl.priority === 'high' ? 1 : tpl.priority === 'low' ? 3 : 2);
     if (tpl.visibility) setVisibility(tpl.visibility);
     if (tpl.estimated_minutes) setEstimatedMinutes(String(tpl.estimated_minutes));
