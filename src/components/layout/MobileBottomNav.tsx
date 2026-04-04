@@ -5,7 +5,7 @@ import { useSidebar } from '@/components/ui/sidebar';
 const navItems = [
   { key: 'dashboard', icon: LayoutGrid, path: '/' },
   { key: 'workload', icon: ListChecks, path: '/my-workload' },
-  { key: 'support', icon: Send, path: '/support' },
+  { key: 'peer-support', icon: Send, path: '/crisis-support' },
   { key: 'wellness-hub', icon: Heart, path: '/wellness' },
 ];
 
