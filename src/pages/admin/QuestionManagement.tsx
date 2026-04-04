@@ -36,8 +36,8 @@ export default function QuestionManagement() {
 
   const statusColor = (status: string) => {
     switch (status) {
-      case 'validated': case 'published': return 'bg-green-500/10 text-green-700 dark:text-green-400';
-      case 'inactive': return 'bg-orange-500/10 text-orange-700 dark:text-orange-400';
+      case 'validated': case 'published': return 'bg-[hsl(var(--state-completed))]/10 text-[hsl(var(--state-completed))]';
+      case 'inactive': return 'bg-[hsl(var(--state-important))]/10 text-[hsl(var(--state-important))]';
       default: return 'bg-muted text-muted-foreground';
     }
   };

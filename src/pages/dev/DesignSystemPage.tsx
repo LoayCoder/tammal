@@ -7,7 +7,7 @@ import { StatCard, MetricCard, ChartCard, InsightCard, DashboardGrid, PageHeader
 import { EmptyState } from "@/shared/empty/EmptyState";
 import { spacing, typography, cardVariants, layout, iconBox } from "@/theme/tokens";
 import { DESIGN_SYSTEM } from "@/theme/version";
-import { TOOLKIT, ZONE_COLORS, STATE_COLORS, ACTION_COLORS, RANK_COLORS, PRAYER_COLORS, TREND_COLORS } from "@/config/toolkit-colors";
+import { TOOLKIT, ZONE_COLORS, STATE_COLORS, ACTION_COLORS, RANK_COLORS, PRAYER_COLORS, TREND_COLORS, KPI_COLORS, SEVERITY_COLORS, SYSTEM_ROLE_COLORS } from "@/config/toolkit-colors";
 import {
   Palette, Type, Maximize, LayoutGrid, BarChart3,
   TrendingUp, Lightbulb, AlertCircle, CheckCircle, Star,
@@ -692,6 +692,64 @@ export default function DesignSystemPage() {
             <div className="flex flex-wrap gap-4">
               <Swatch name="Positive" cssVar="trend-positive" />
               <Swatch name="Negative" cssVar="destructive" />
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Separator />
+
+      {/* ─── 14. KPI Accent Colors ─── */}
+      <Section title="KPI Accent Colors" icon={<BarChart3 className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard}`}>
+            <div className="flex flex-wrap gap-4">
+              <Swatch name="Progress" cssVar="kpi-progress" />
+              <Swatch name="Utilization" cssVar="kpi-utilization" />
+              <Swatch name="Risk" cssVar="kpi-risk" />
+              <Swatch name="Trend" cssVar="kpi-trend" />
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Separator />
+
+      {/* ─── 15. Severity Colors ─── */}
+      <Section title="Severity Colors" icon={<AlertCircle className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard}`}>
+            <div className="flex flex-wrap gap-4">
+              <Swatch name="Medium" cssVar="severity-medium" />
+              <Swatch name="High (destructive)" cssVar="destructive" />
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Separator />
+
+      {/* ─── 16. Islamic Accent ─── */}
+      <Section title="Islamic Widget Accent" icon={<CheckCircle className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard}`}>
+            <div className="flex flex-wrap gap-4">
+              <Swatch name="Islamic Accent" cssVar="islamic-accent" />
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Separator />
+
+      {/* ─── 17. System Role Colors ─── */}
+      <Section title="System Role Colors" icon={<Shield className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard}`}>
+            <div className="flex flex-wrap gap-4">
+              {Object.entries(SYSTEM_ROLE_COLORS).map(([name, value]) => (
+                <ToolkitSwatch key={name} name={name} value={value} />
+              ))}
             </div>
           </CardContent>
         </Card>

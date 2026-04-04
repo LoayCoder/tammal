@@ -122,3 +122,29 @@ export const TREND_COLORS = {
   positive: 'hsl(var(--trend-positive))',
   negative: 'hsl(var(--destructive))',
 } as const;
+
+/** KPI accent colors for executive dashboards */
+export const KPI_COLORS = {
+  progress: 'hsl(var(--kpi-progress))',
+  utilization: 'hsl(var(--kpi-utilization))',
+  risk: 'hsl(var(--kpi-risk))',
+  trend: 'hsl(var(--kpi-trend))',
+} as const;
+
+/** Severity colors for alerts and heatmaps */
+export const SEVERITY_COLORS = {
+  low: 'hsl(var(--state-completed))',
+  medium: 'hsl(var(--severity-medium))',
+  high: 'hsl(var(--destructive))',
+} as const;
+
+/** Islamic widget accent */
+export const ISLAMIC_ACCENT = 'hsl(var(--islamic-accent))' as const;
+
+/** System role colors (hex — used in inline style for dynamic badge coloring) */
+export const SYSTEM_ROLE_COLORS: Record<string, string> = {
+  super_admin: 'hsl(var(--destructive))',
+  tenant_admin: 'hsl(var(--state-important))',
+  manager: 'hsl(var(--state-pending))',
+  user: 'hsl(var(--state-completed))',
+};

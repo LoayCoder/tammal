@@ -126,6 +126,18 @@
     --prayer-work: 0 0% 55%;
 
 
+    /* KPI accent colors */
+    --kpi-progress: 142 71% 45%;
+    --kpi-utilization: 217 91% 60%;
+    --kpi-risk: 4 90% 58%;
+    --kpi-trend: 38 92% 50%;
+
+    /* Severity colors */
+    --severity-medium: 48 96% 53%;
+
+    /* Islamic widget accent */
+    --islamic-accent: 197 96% 70%;
+
     --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
     --font-serif: 'Lora', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-mono: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
@@ -256,6 +268,18 @@
     --prayer-home: 38 80% 55%;
     --prayer-work: 0 0% 50%;
 
+
+    /* KPI accent colors (dark) */
+    --kpi-progress: 142 60% 50%;
+    --kpi-utilization: 217 80% 65%;
+    --kpi-risk: 4 80% 55%;
+    --kpi-trend: 38 80% 55%;
+
+    /* Severity colors (dark) */
+    --severity-medium: 48 85% 58%;
+
+    /* Islamic widget accent (dark) */
+    --islamic-accent: 197 85% 65%;
     --sidebar: 0 0% 14%;
 
     --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.08);

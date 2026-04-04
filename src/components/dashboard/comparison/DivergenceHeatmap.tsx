@@ -17,9 +17,9 @@ interface Props {
 }
 
 const CELL_COLORS: Record<string, string> = {
-  green: 'bg-emerald-500/20 border-emerald-500/40 text-emerald-700',
-  yellow: 'bg-yellow-500/20 border-yellow-500/40 text-yellow-700',
-  orange: 'bg-orange-500/20 border-orange-500/40 text-orange-700',
+  green: 'bg-[hsl(var(--trend-positive))]/20 border-[hsl(var(--trend-positive))]/40 text-[hsl(var(--trend-positive))]',
+  yellow: 'bg-[hsl(var(--severity-medium))]/20 border-[hsl(var(--severity-medium))]/40 text-[hsl(var(--severity-medium))]',
+  orange: 'bg-[hsl(var(--state-important))]/20 border-[hsl(var(--state-important))]/40 text-[hsl(var(--state-important))]',
   red: 'bg-destructive/20 border-destructive/40 text-destructive',
 };
 

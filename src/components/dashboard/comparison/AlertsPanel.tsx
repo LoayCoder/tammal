@@ -18,7 +18,7 @@ const SEVERITY_ICONS = {
 
 const SEVERITY_STYLES = {
   high: 'border-destructive/30 bg-destructive/5',
-  medium: 'border-yellow-500/30 bg-yellow-500/5',
+  medium: 'border-[hsl(var(--severity-medium))]/30 bg-[hsl(var(--severity-medium))]/5',
   low: 'border-muted bg-muted/5',
 };
 
