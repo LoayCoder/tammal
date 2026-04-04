@@ -1,0 +1,1 @@
+ALTER TABLE public.unified_tasks ADD COLUMN description_ar TEXT;

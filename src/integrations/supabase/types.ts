@@ -7539,6 +7539,7 @@ export type Database = {
           deleted_at: string | null
           department_id: string | null
           description: string | null
+          description_ar: string | null
           due_date: string | null
           due_date_history: Json | null
           employee_id: string
@@ -7586,6 +7587,7 @@ export type Database = {
           deleted_at?: string | null
           department_id?: string | null
           description?: string | null
+          description_ar?: string | null
           due_date?: string | null
           due_date_history?: Json | null
           employee_id: string
@@ -7633,6 +7635,7 @@ export type Database = {
           deleted_at?: string | null
           department_id?: string | null
           description?: string | null
+          description_ar?: string | null
           due_date?: string | null
           due_date_history?: Json | null
           employee_id?: string
