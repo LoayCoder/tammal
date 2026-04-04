@@ -20,6 +20,7 @@ import { useAutoRefreshOnDayChange } from '@/hooks/useAutoRefreshOnDayChange';
 
 export default function PrayerTracker() {
   const { t, i18n } = useTranslation();
+  useAutoRefreshOnDayChange();
   const navigate = useNavigate();
   const { preferences, isPending: prefsLoading } = useSpiritualPreferences();
 
