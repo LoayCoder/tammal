@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -46,7 +47,8 @@ const STATUS_BADGE: Record<string, { className: string; icon: typeof CheckCircle
 };
 
 export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedTaskListProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
 
   if (tasks.length === 0) {
     return (
@@ -89,10 +91,25 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
 
             <div className="flex-1 min-w-0 space-y-1.5">
               <div className="flex items-center gap-2 flex-wrap">
-                {task.task_number && (
-                  <span className="text-2xs text-muted-foreground tabular-nums shrink-0">#{task.task_number}</span>
-                )}
-                <span className={`text-sm font-medium ${isCompleted ? 'line-through' : ''}`}>{task.title}</span>
+                {(() => {
+                  const tenantName = (task as any).tenant?.name;
+                  const branchName = (task as any).employee?.branch?.name;
+                  const year = task.created_at ? new Date(task.created_at).getFullYear().toString().slice(-2) : '';
+                  const compositeId = tenantName && branchName && task.task_number
+                    ? `${tenantName} - ${branchName} - ${task.task_number} - ${year}`
+                    : task.task_number ? `#${task.task_number}` : null;
+                  return compositeId ? (
+                    <span
+                      className="text-2xs text-muted-foreground tabular-nums shrink-0 cursor-pointer hover:text-foreground"
+                      onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(compositeId); toast.success(t('common.copied')); }}
+                    >
+                      {compositeId}
+                    </span>
+                  ) : null;
+                })()}
+                <span className={`text-sm font-medium ${isCompleted ? 'line-through' : ''}`} dir={isAr ? 'rtl' : 'ltr'}>
+                  {isAr ? (task.title_ar || task.title) : task.title}
+                </span>
                 {isLocked && (
                   <Tooltip>
                     <TooltipTrigger>
@@ -118,8 +135,10 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
                 )}
               </div>
 
-              {task.description && (
-                <p className="text-xs text-muted-foreground line-clamp-1">{task.description}</p>
+              {(isAr ? ((task as any).description_ar || task.description) : task.description) && (
+                <p className="text-xs text-muted-foreground line-clamp-1" dir={isAr ? 'rtl' : 'ltr'}>
+                  {isAr ? ((task as any).description_ar || task.description) : task.description}
+                </p>
               )}
 
               {/* Progress bar */}

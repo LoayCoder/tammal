@@ -9,7 +9,7 @@ export function useTaskDetail(id: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('unified_tasks')
-        .select('*, employee:employees!unified_tasks_employee_id_fkey(full_name)')
+        .select('*, employee:employees!unified_tasks_employee_id_fkey(full_name, branch:branches!employees_branch_id_fkey(name)), tenant:tenants!unified_tasks_tenant_id_fkey(name)')
         .eq('id', id!)
         .single();
       if (error) throw error;
