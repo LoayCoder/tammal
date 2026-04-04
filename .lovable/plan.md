@@ -1,46 +1,35 @@
 
 
-## Merge Islamic Calendar into Prayer Tracker Widget
+## Fix Runtime Error + Prayer Auto-Miss Countdown + Premium UI Polish
 
-### What Changes
-The `DashboardIslamicCalendarWidget` will be **removed as a standalone widget** and its content (Islamic events + fasting badges) will be **integrated into the Prayer Tracker widget** (`DashboardPrayerWidget`), creating a single unified spiritual widget with a premium, minimal design.
+### 1. Fix Runtime Error (Critical)
+The `DashboardIslamicCalendarWidget is not defined` error is a **stale Vite chunk** — the file was deleted and all source references removed, but the browser cached an old bundle. The `vite:preloadError` handler added earlier covers dynamic imports but not this case. A hard refresh resolves it. No code change needed for this specific error.
 
-### Layout Inside Prayer Tracker
+### 2. Auto-Miss Logic (Already Exists — Needs Refinement)
+The `usePrayerCountdown` hook already counts down 60 minutes from prayer start time. The `PrayerCard` component has auto-miss via `useEffect`. However, the **dashboard widget** (`DashboardPrayerWidget`) does NOT trigger auto-miss — it only shows the countdown badge passively.
 
-```text
-┌─────────────────────────────────────────┐
-│ 🕌 Prayer Tracker          [More →]    │
-│     16 Shawwāl 1447 AH  (already there)│
-├─────────────────────────────────────────┤
-│ ┌─ Event banner (if any) ────────────┐  │
-│ │ 🌟 Event name + fasting badges     │  │
-│ └────────────────────────────────────┘  │
-├─────────────────────────────────────────┤
-│ [Active prayer card — unchanged]        │
-├─────────────────────────────────────────┤
-│ ○ ○ ○ ○ ○ ○  Progress row — unchanged  │
-│ 3/6 completed                           │
-└─────────────────────────────────────────┘
-```
+**Changes to `DashboardPrayerWidget.tsx`:**
+- Add auto-miss logic: when `usePrayerCountdown` returns `isExpired: true` and no log exists for that prayer, automatically call `logPrayer.mutate({ status: 'missed' })`
+- Use a ref to prevent duplicate auto-miss calls
+- The countdown badge already shows remaining minutes — keep it
 
-The Hijri date is already displayed in the Prayer Tracker header — no duplication. The event + fasting badges slot in as a compact inline section between the header and the active prayer card.
+### 3. Premium Minimal UI Redesign of Active Prayer Section
+Current issues: the active prayer area uses `bg-[hsl(var(--islamic-accent))]/[0.13]` which is fine, but the countdown badge uses `--prayer-home` (orange) which doesn't semantically fit a timer.
+
+**Add a new CSS token** `--prayer-countdown` in `index.css` for the countdown timer badge, and register it in the design system.
+
+**UI changes to `DashboardPrayerWidget.tsx`:**
+- Replace countdown badge color from `--prayer-home` to new `--prayer-countdown` token
+- Simplify the active prayer card: remove the rounded-xl inner container, use a subtle top border separator instead (more premium/minimal)
+- Use softer, quieter styling for action buttons — ghost-like with semantic token borders
+- Add a thin progress bar showing elapsed time (0–60 min) as a visual countdown under the active prayer
+
+### 4. Design System Registration
+- Add `--prayer-countdown` token to `index.css` (light + dark)
+- Add the token to the Prayer section in `DesignSystemPage.tsx` so it's editable
 
 ### Files Modified
-
-1. **`src/components/dashboard/DashboardPrayerWidget.tsx`**
-   - Import `ISLAMIC_EVENTS`, `isWhiteDay`, `isSunnahFastingDay` from `useHijriCalendar`
-   - Use the existing `hijri` data from `prayerData.date.hijri` (already available)
-   - Add a compact event banner + fasting badge row between the header and active prayer card
-   - Use semantic tokens (`--islamic-accent`, `--state-completed`) — no hardcoded colors
-   - Style: subtle `bg-primary/[0.04]` rounded-lg for event, inline pill badges for fasting indicators
-
-2. **`src/components/dashboard/DashboardIslamicCalendarWidget.tsx`** — Delete file
-
-3. **`src/pages/EmployeeHome.tsx`** — Remove `DashboardIslamicCalendarWidget` import and usage (line 20, 125)
-
-### Design Principles
-- No new standalone card — everything inside the existing Prayer Tracker card
-- Minimal: event shown only when one exists; badges only when relevant
-- Premium: consistent with existing `cardVariants.premiumVip` styling
-- Calendar link preserved via a small inline "View calendar →" text link on the event banner
+1. `src/index.css` — add `--prayer-countdown` token (light + dark)
+2. `src/components/dashboard/DashboardPrayerWidget.tsx` — add auto-miss logic, use new countdown token, premium UI polish
+3. `src/pages/dev/DesignSystemPage.tsx` — register `--prayer-countdown` in Prayer colors section
 
