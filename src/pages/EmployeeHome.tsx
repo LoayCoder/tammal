@@ -14,8 +14,9 @@ import { MentalHealthToolsHub } from '@/components/dashboard/MentalHealthToolsHu
 import { MentalHealthResourcesHub } from '@/components/dashboard/MentalHealthResourcesHub';
 import {
   Flame, Star, CheckCircle2, ClipboardList, ChevronRight,
-  Phone, HeartHandshake, Crown,
+  Phone, HeartHandshake, Crown, ChevronDown,
 } from 'lucide-react';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { DashboardPrayerWidget } from '@/components/dashboard/DashboardPrayerWidget';
 
 import { DashboardWorkloadWidget } from '@/components/dashboard/DashboardWorkloadWidget';
