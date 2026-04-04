@@ -136,26 +136,6 @@ export default {
 					'Noto Sans',
 					'sans-serif'
 				],
-				serif: [
-					'Lora',
-					'ui-serif',
-					'Georgia',
-					'Cambria',
-					'Times New Roman',
-					'Times',
-					'serif'
-				],
-				mono: [
-					'Space Mono',
-					'ui-monospace',
-					'SFMono-Regular',
-					'Menlo',
-					'Monaco',
-					'Consolas',
-					'Liberation Mono',
-					'Courier New',
-					'monospace'
-				]
 			},
 			fontSize: {
 				'2xs': ['0.625rem', { lineHeight: '0.875rem' }],
