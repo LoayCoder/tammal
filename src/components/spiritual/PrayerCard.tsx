@@ -144,50 +144,70 @@ export function PrayerCard({
         )}
 
         {/* Rawatib Sunnah toggles */}
-        {hasRawatib && onToggleSunnah && (
-          <div className="flex flex-wrap gap-2 pt-1 border-t border-border/50">
-            {rawatib.before && (
-              <button
-                onClick={() => onToggleSunnah('before', !sunnahBefore)}
-                disabled={sunnahPending}
-                className={cn(
-                  'flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium border transition-all duration-200',
-                  sunnahBefore
-                    ? 'border-primary/40 bg-primary/10 text-primary'
-                    : 'border-border bg-card text-muted-foreground hover:border-primary/40'
-                )}
-              >
-                📿
-                {sunnahBefore && <Check className="h-3 w-3" />}
-                <span>
-                  {i18n.language === 'ar'
-                    ? `${rawatib.before} ركعات قبل`
-                    : `${rawatib.before} Rak'ahs before`}
+        {hasRawatib && onToggleSunnah && (() => {
+          const totalRakahs = (rawatib.before || 0) + (rawatib.after || 0);
+          const completedRakahs = (sunnahBefore ? (rawatib.before || 0) : 0) + (sunnahAfter ? (rawatib.after || 0) : 0);
+          return (
+            <div className="space-y-2 pt-2 border-t border-border/50">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                  📿 {i18n.language === 'ar' ? 'السنن الرواتب' : 'Rawatib Sunnah'}
                 </span>
-              </button>
-            )}
-            {rawatib.after && (
-              <button
-                onClick={() => onToggleSunnah('after', !sunnahAfter)}
-                disabled={sunnahPending}
-                className={cn(
-                  'flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium border transition-all duration-200',
-                  sunnahAfter
-                    ? 'border-primary/40 bg-primary/10 text-primary'
-                    : 'border-border bg-card text-muted-foreground hover:border-primary/40'
-                )}
-              >
-                📿
-                {sunnahAfter && <Check className="h-3 w-3" />}
-                <span>
-                  {i18n.language === 'ar'
-                    ? `${rawatib.after} ركعات بعد`
-                    : `${rawatib.after} Rak'ahs after`}
+                <span className={cn(
+                  'text-[10px] font-semibold px-2 py-0.5 rounded-full',
+                  completedRakahs === totalRakahs
+                    ? 'bg-primary/10 text-primary'
+                    : 'bg-muted text-muted-foreground'
+                )}>
+                  {completedRakahs}/{totalRakahs} {i18n.language === 'ar' ? 'ركعات' : "Rak'ahs"}
                 </span>
-              </button>
-            )}
-          </div>
-        )}
+              </div>
+
+              {/* Toggle pills */}
+              <div className="flex flex-wrap gap-2">
+                {rawatib.before && (
+                  <button
+                    onClick={() => onToggleSunnah('before', !sunnahBefore)}
+                    disabled={sunnahPending}
+                    className={cn(
+                      'flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium border transition-all duration-200',
+                      sunnahBefore
+                        ? 'border-primary/40 bg-primary/10 text-primary'
+                        : 'border-border bg-card text-muted-foreground hover:border-primary/40'
+                    )}
+                  >
+                    {sunnahBefore ? <Check className="h-3.5 w-3.5" /> : <span className="h-3.5 w-3.5 rounded-full border border-current opacity-40" />}
+                    <span>
+                      {i18n.language === 'ar'
+                        ? `${rawatib.before} ركعات قبل`
+                        : `${rawatib.before} Rak'ahs before`}
+                    </span>
+                  </button>
+                )}
+                {rawatib.after && (
+                  <button
+                    onClick={() => onToggleSunnah('after', !sunnahAfter)}
+                    disabled={sunnahPending}
+                    className={cn(
+                      'flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium border transition-all duration-200',
+                      sunnahAfter
+                        ? 'border-primary/40 bg-primary/10 text-primary'
+                        : 'border-border bg-card text-muted-foreground hover:border-primary/40'
+                    )}
+                  >
+                    {sunnahAfter ? <Check className="h-3.5 w-3.5" /> : <span className="h-3.5 w-3.5 rounded-full border border-current opacity-40" />}
+                    <span>
+                      {i18n.language === 'ar'
+                        ? `${rawatib.after} ركعات بعد`
+                        : `${rawatib.after} Rak'ahs after`}
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })()}
       </CardContent>
     </Card>
   );
