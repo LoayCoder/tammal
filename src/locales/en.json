@@ -2624,6 +2624,7 @@
       "weeklyDetail": "{{completed}} of {{total}} prayers completed",
       "names": {
         "fajr": "Fajr",
+        "duha": "Duha",
         "dhuhr": "Dhuhr",
         "asr": "Asr",
         "maghrib": "Maghrib",

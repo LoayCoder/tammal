@@ -155,7 +155,9 @@ export function DashboardPrayerWidget() {
   if (!isPrayerEnabled || !timings) return null;
 
   const today = new Date().toISOString().split('T')[0];
-  const completedCount = ALL_PRAYERS.filter(n => todayLogs[n] && todayLogs[n].status?.startsWith('completed')).length;
+  const completedCount = ALL_PRAYERS.filter(n => n === 'Duha' ? isDuhaCompleted : todayLogs[n]?.status?.startsWith('completed')).length;
+  const totalPrayers = ALL_PRAYERS.length;
+  const progressPercent = Math.round((completedCount / totalPrayers) * 100);
 
   const handleLog = (status: string) => {
     if (!activePrayer) return;
