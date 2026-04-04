@@ -177,9 +177,7 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
         ) : (
           /* Empty state */
           <div className="flex flex-col items-center justify-center py-6 gap-2">
-            <div className="w-10 h-10 rounded-full bg-[hsl(var(--state-completed))]/10 flex items-center justify-center">
-              <ClipboardList className="h-5 w-5 text-[hsl(var(--state-completed))]" strokeWidth={1.5} />
-            </div>
+            <ClipboardList className="h-6 w-6 text-[hsl(var(--state-completed))]" strokeWidth={1.5} />
             <p className="text-sm font-medium text-foreground">
               {isAr ? 'لا توجد مهام قادمة 🎉' : 'No upcoming tasks 🎉'}
             </p>
