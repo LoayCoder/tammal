@@ -91,10 +91,25 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
 
             <div className="flex-1 min-w-0 space-y-1.5">
               <div className="flex items-center gap-2 flex-wrap">
-                {task.task_number && (
-                  <span className="text-2xs text-muted-foreground tabular-nums shrink-0">#{task.task_number}</span>
-                )}
-                <span className={`text-sm font-medium ${isCompleted ? 'line-through' : ''}`}>{task.title}</span>
+                {(() => {
+                  const tenantName = (task as any).tenant?.name;
+                  const branchName = (task as any).employee?.branch?.name;
+                  const year = task.created_at ? new Date(task.created_at).getFullYear().toString().slice(-2) : '';
+                  const compositeId = tenantName && branchName && task.task_number
+                    ? `${tenantName} - ${branchName} - ${task.task_number} - ${year}`
+                    : task.task_number ? `#${task.task_number}` : null;
+                  return compositeId ? (
+                    <span
+                      className="text-2xs text-muted-foreground tabular-nums shrink-0 cursor-pointer hover:text-foreground"
+                      onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(compositeId); toast.success(t('common.copied')); }}
+                    >
+                      {compositeId}
+                    </span>
+                  ) : null;
+                })()}
+                <span className={`text-sm font-medium ${isCompleted ? 'line-through' : ''}`} dir={isAr ? 'rtl' : 'ltr'}>
+                  {isAr ? (task.title_ar || task.title) : task.title}
+                </span>
                 {isLocked && (
                   <Tooltip>
                     <TooltipTrigger>
