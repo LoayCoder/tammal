@@ -1,17 +1,20 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { isAfter, format } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useUnifiedTasks } from '@/features/workload/hooks/useUnifiedTasks';
 import { useApprovalQueue } from '@/features/tasks/hooks/useApprovalQueue';
 import {
   ChevronRight, CheckCircle2, AlertTriangle,
-  Clock, SquareCheckBig, ClipboardList,
+  Clock, SquareCheckBig, ClipboardList, EyeOff, Eye,
 } from 'lucide-react';
 import { cardVariants, typography } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
+
+const HIDDEN_KEY = 'workload-widget-hidden';
 
 interface Props {
   employeeId: string;
