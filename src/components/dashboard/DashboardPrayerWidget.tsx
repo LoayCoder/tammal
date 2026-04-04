@@ -147,7 +147,13 @@ export function DashboardPrayerWidget() {
         }
         continue;
       }
-      if (name === 'Witr') continue;
+      if (name === 'Witr') {
+        // Witr: show countdown to Fajr if Witr window is active
+        if (!todayLogs['Witr'] && witrCountdown.isPrayerTime && !witrCountdown.isExpired && witrCountdown.minutesLeft != null) {
+          return { name: 'Witr', minsUntil: witrCountdown.minutesLeft };
+        }
+        continue;
+      }
       if (todayLogs[name]) continue;
       const pDate = parseTime(timings[name as keyof typeof timings]);
       if (pDate && pDate > now) {
