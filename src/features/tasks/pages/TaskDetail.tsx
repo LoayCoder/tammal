@@ -45,15 +45,17 @@ const PRIORITY_LABELS: Record<number, { label: string; className: string }> = {
 
 export default function TaskDetail() {
   const { id } = useParams<{ id: string }>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { employee } = useCurrentEmployee();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isAr = i18n.language === 'ar';
 
   const [tab, setTab] = useState('comments');
   const [newChecklistTitle, setNewChecklistTitle] = useState('');
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [editDesc, setEditDesc] = useState('');
+  const [editDescAr, setEditDescAr] = useState('');
 
   const { task, taskLoading } = useTaskDetail(id);
   const updateTask = useTaskUpdate(id);
