@@ -8,6 +8,7 @@ import { Landmark, House, Building, ChevronRight, Clock, Timer, Check } from 'lu
 const ICON_STROKE = 1.5;
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { usePrayerTimes, PRAYER_NAMES } from '@/hooks/spiritual/usePrayerTimes';
+import { ISLAMIC_EVENTS, isWhiteDay, isSunnahFastingDay } from '@/hooks/spiritual/useHijriCalendar';
 import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
 import { usePrayerCountdown } from '@/hooks/spiritual/usePrayerCountdown';
 import { useWitrCountdown } from '@/hooks/spiritual/useWitrCountdown';
@@ -134,6 +135,63 @@ export function DashboardPrayerWidget() {
             </Button>
           </Link>
         </div>
+
+        {/* Islamic event banner + fasting badges */}
+        {(() => {
+          if (!hijri) return null;
+          const hijriDay = parseInt(hijri.day, 10);
+          const eventKey = `${hijri.month.number}-${hijriDay}`;
+          const event = ISLAMIC_EVENTS[eventKey];
+          const whiteDay = isWhiteDay(hijriDay);
+          const sunnahDay = isSunnahFastingDay(new Date());
+          const isRamadan = hijri.month.number === 9;
+          const hasFasting = whiteDay || sunnahDay || event?.isFastingDay || isRamadan;
+          const isAr = i18n.language === 'ar';
+
+          if (!event && !hasFasting) return null;
+
+          return (
+            <div className="space-y-1.5">
+              {event && (
+                <div className="rounded-lg bg-primary/[0.04] px-3 py-2 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-medium text-foreground">{isAr ? event.ar : event.en}</p>
+                    {(isAr ? event.descAr : event.descEn) && (
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{isAr ? event.descAr : event.descEn}</p>
+                    )}
+                  </div>
+                  <Link to="/spiritual/calendar" className="text-[10px] text-muted-foreground hover:text-foreground transition-colors shrink-0 ms-2">
+                    {isAr ? 'التقويم' : 'Calendar'} →
+                  </Link>
+                </div>
+              )}
+              {hasFasting && (
+                <div className="flex flex-wrap gap-1.5">
+                  {isRamadan && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/[0.06] text-foreground/70 font-medium">
+                      🌙 {isAr ? 'رمضان' : 'Ramadan'}
+                    </span>
+                  )}
+                  {event?.isFastingDay && !isRamadan && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/[0.06] text-foreground/70 font-medium">
+                      🍽️ {isAr ? 'يوم صيام' : 'Fasting Day'}
+                    </span>
+                  )}
+                  {whiteDay && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full text-muted-foreground font-medium border border-border bg-transparent">
+                      🤍 {isAr ? 'الأيام البيض' : 'White Day'}
+                    </span>
+                  )}
+                  {sunnahDay && !isRamadan && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground font-medium">
+                      📿 {isAr ? (new Date().getDay() === 1 ? 'الاثنين' : 'الخميس') : (new Date().getDay() === 1 ? 'Monday' : 'Thursday')}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Active prayer card */}
         {activePrayer && !allCompleted ? (
