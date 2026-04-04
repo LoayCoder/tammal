@@ -6,10 +6,10 @@
  */
 
 export const DESIGN_SYSTEM = {
-  version: '1.2.0',
+  version: '1.3.0',
   lastUpdated: '2026-04-04',
   description:
-    'Core SaaS design system with tokens, system components, dashboard architecture, UI governance framework, and semantic state colors.',
+    'Core SaaS design system with tokens, system components, dashboard architecture, UI governance framework, semantic state colors, action/rank/prayer/trend color tokens.',
   protectedPaths: [
     'src/components/system',
     'src/components/ui',
