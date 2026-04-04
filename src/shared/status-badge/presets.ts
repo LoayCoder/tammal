@@ -47,7 +47,7 @@ export const RISK_LEVEL_CONFIG: StatusBadgeConfig = {
 
 // ── Schedule Status ──────────────────────────────────────────────────────────
 export const SCHEDULE_STATUS_CONFIG: StatusBadgeConfig = {
-  active: { variant: 'default',   className: 'bg-green-500' },
+  active: { variant: 'default',   className: 'bg-[hsl(var(--state-completed))]' },
   paused: { variant: 'secondary' },
   draft:  { variant: 'outline' },
 };

@@ -130,10 +130,10 @@ export default function DailyCheckin() {
       {/* Header stats */}
       <div className="flex items-center justify-center gap-3">
         <Badge variant="outline" className="gap-1.5 px-3 py-1.5 rounded-full text-xs">
-          <Flame className="h-3.5 w-3.5 text-orange-500" /> {streak} {t('wellness.dayStreak')}
+          <Flame className="h-3.5 w-3.5 text-[hsl(var(--rank-bronze))]" /> {streak} {t('wellness.dayStreak')}
         </Badge>
         <Badge variant="outline" className="gap-1.5 px-3 py-1.5 rounded-full text-xs">
-          <Star className="h-3.5 w-3.5 text-yellow-500" /> {totalPoints} {t('wellness.points')}
+          <Star className="h-3.5 w-3.5 text-[hsl(var(--rank-gold))]" /> {totalPoints} {t('wellness.points')}
         </Badge>
       </div>
 
