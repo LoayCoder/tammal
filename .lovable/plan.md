@@ -1,80 +1,67 @@
 
-Goal: make the dashboard show all recent Prayer Tracker updates reliably, and add the missing visible progress percentage the user is asking about.
+Problem found:
+- The screen you are on is `/employee/wellness`, but the Prayer dashboard widget is rendered on the home dashboard, not on that route. So part of what you are seeing is the wrong page for this widget.
+- There are also real logic issues in the prayer widget:
+  1. Date handling uses `new Date().toISOString().split('T')[0]`, which is UTC-based and can mark today’s logs incorrectly for users in local timezones.
+  2. The widget treats any existing log as “logged” for prayer flow, even when the timing logic and next/active logic should still be stricter.
+  3. `activePrayer` fallback returns the next unlogged prayer without checking whether its prayer time has started, which can make the widget feel wrong.
+  4. Duha translations already exist now, so the current Duha issue is not missing locale text anymore.
+  5. The agreed compact layout/progress row exists in `DashboardPrayerWidget.tsx`, but it only appears on the dashboard page, not the wellness page.
 
-What I found
-- The main Prayer Tracker widget file already includes the recent updates:
-  - Duha was added
-  - new icons are wired in
-  - the compact layout is present
-  - next-prayer countdown is present
-- The dashboard route is wrapped in an ErrorBoundary, which is why you see “Section error” when this widget crashes.
-- I also found 2 likely reasons the update still does not look complete:
+What to build:
+1. Fix local-date handling everywhere in spiritual hooks
+- Replace UTC date generation with a shared local-date helper.
+- Apply it in:
+  - `usePrayerLogs`
+  - `useSunnahLogs`
+  - `PrayerTracker`
+  - `DashboardPrayerWidget`
+- This should stop prayers appearing completed/missed on the wrong day.
 
-1. Missing percentage/progress UI
-- In `src/components/dashboard/DashboardPrayerWidget.tsx`, `completedCount` is computed but never shown.
-- So if you expected a percent or progress indicator, it is currently not rendered.
-- Also, the current count ignores Duha because it only counts prayer logs, while Duha is stored separately in sunnah logs.
+2. Correct dashboard prayer-state logic
+- Refine `activePrayer` so it only becomes active when its valid time window has actually started.
+- Do not fall back to a future prayer as active just because it is the next unlogged item.
+- Keep Duha visible only in its correct window and keep Witr handled separately.
 
-2. Missing Duha translation keys
-- In `src/locales/en.json` and `src/locales/ar.json`, `spiritual.prayer.names.duha` does not exist.
-- The widget uses `t('spiritual.prayer.names.duha')` in several places.
-- That can produce broken labels or contribute to unstable rendering/fallback behavior.
+3. Make completion state accurate
+- Use one consistent rule for:
+  - active prayer
+  - completed count
+  - all-completed message
+  - progress bar
+- Obligatory prayers + Witr should count from prayer logs with `status.startsWith('completed')`.
+- Duha should count only from `todayCompleted.has('duha')`.
+- “Missed” must never be treated as completed.
 
-Implementation plan
-1. Fix translation completeness
-- Add `duha` to:
+4. Verify Duha visibility behavior
+- Ensure Duha appears in the 7-item progress row at all times.
+- Ensure the Duha action appears only when appropriate for its time window, but its indicator still remains in the layout.
+- Keep the agreed count as 7 items total.
+
+5. Align routes so the user sees the right UI
+- Confirm whether you want this prayer widget:
+  - only on the dashboard `/`
+  - or also inside `/employee/wellness`
+- If it should also appear on wellness, add/reuse the same widget there rather than expecting the dashboard version to appear automatically.
+
+Technical details:
+- Main file with the current logic: `src/components/dashboard/DashboardPrayerWidget.tsx`
+- Related hooks:
+  - `src/hooks/spiritual/usePrayerLogs.ts`
+  - `src/hooks/spiritual/useSunnahLogs.ts`
+  - `src/hooks/spiritual/usePrayerTimes.ts`
+  - `src/hooks/spiritual/usePrayerCountdown.ts`
+  - `src/hooks/spiritual/useWitrCountdown.ts`
+- Translation keys for Duha already exist in:
   - `src/locales/en.json`
   - `src/locales/ar.json`
-- Use:
-  - English: `Duha`
-  - Arabic: `الضحى`
 
-2. Add visible progress percentage to the dashboard widget
-- Update `src/components/dashboard/DashboardPrayerWidget.tsx`
-- Compute progress from all 7 tracked items:
-  - Fajr, Duha, Dhuhr, Asr, Maghrib, Isha, Witr
-- Count Duha from `todayCompleted.has('duha')`
-- Count the others from prayer logs with `status.startsWith('completed')`
-- Render a compact progress row similar to the app’s other widgets:
-  - completed/total
-  - percentage
-  - slim progress bar
+Expected result after implementation:
+- Isha will not appear completed unless it was actually logged completed for the correct local day.
+- Duha will be available and counted correctly.
+- The 7-item count and percentage will match the agreed layout.
+- The widget behavior will feel consistent with prayer times.
+- You will see the correct UI on the correct page.
 
-Example target behavior:
-```text
-Progress: 4/7   57%
-[ slim progress bar ]
-```
-
-3. Make the percentage accurate everywhere
-- Replace the current `completedCount` logic so it includes Duha
-- Ensure “all completed” and percent use the same source of truth
-- Keep Witr included so the total stays 7
-
-4. Harden the widget against section crashes
-- In `DashboardPrayerWidget.tsx`, make label rendering safer when a translation key is missing
-- Keep fallback text for Duha/Witr names if translation resolution fails
-- Avoid any UI path depending on undefined text keys
-
-5. Verify dashboard-only rendering
-- Confirm the homepage route `/` uses `Dashboard -> EmployeeHome -> DashboardPrayerWidget`
-- Make sure the widget shows:
-  - Duha item in the 7-icon row
-  - requested icons
-  - next prayer text
-  - visible percentage/progress
-  - no section fallback
-
-Technical notes
-- Files to update:
-  - `src/components/dashboard/DashboardPrayerWidget.tsx`
-  - `src/locales/en.json`
-  - `src/locales/ar.json`
-- No backend/schema changes needed
-- This is a frontend consistency + localization fix, not a data-model issue
-
-Expected result
-- The dashboard will visibly reflect all the updates already added
-- Duha will display correctly by name
-- The widget will show a real percent/progress indicator
-- The “Section error” risk from missing translation-dependent rendering will be reduced significantly
+One clarification needed before implementation:
+- Should I keep the full prayer widget only on the dashboard home, or also place the same widget inside `/employee/wellness` so you can see it there too?
