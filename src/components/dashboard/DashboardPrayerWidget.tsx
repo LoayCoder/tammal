@@ -442,14 +442,28 @@ export function DashboardPrayerWidget() {
           if (!timings) return null;
           const now = new Date();
           for (const name of ALL_PRAYERS) {
+            if (name === 'Duha') {
+              if (isDuhaCompleted) continue;
+              const sunriseDate = parseTime(timings.Sunrise);
+              if (sunriseDate && sunriseDate > now) {
+                const minsUntil = Math.ceil((sunriseDate.getTime() - now.getTime()) / 60000);
+                return (
+                  <div className="flex items-center justify-center gap-1.5 pt-1">
+                    <span className="text-[10px] text-muted-foreground font-medium">
+                      {i18n.language === 'ar' 
+                        ? `التالي: ${t('spiritual.prayer.names.duha')} بعد ${minsUntil}د`
+                        : `Next: ${t('spiritual.prayer.names.duha')} in ${minsUntil >= 60 ? `${Math.floor(minsUntil / 60)}h ${minsUntil % 60}m` : `${minsUntil}m`}`
+                      }
+                    </span>
+                  </div>
+                );
+              }
+              continue;
+            }
             if (todayLogs[name]) continue;
             if (name === 'Witr') continue;
-            const clean = (timings[name as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim();
-            const [h, m] = clean.split(':').map(Number);
-            if (isNaN(h) || isNaN(m)) continue;
-            const pDate = new Date(now);
-            pDate.setHours(h, m, 0, 0);
-            if (pDate > now) {
+            const pDate = parseTime(timings[name as keyof typeof timings]);
+            if (pDate && pDate > now) {
               const minsUntil = Math.ceil((pDate.getTime() - now.getTime()) / 60000);
               return (
                 <div className="flex items-center justify-center gap-1.5 pt-1">
