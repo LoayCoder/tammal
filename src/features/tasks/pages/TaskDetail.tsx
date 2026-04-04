@@ -131,31 +131,33 @@ export default function TaskDetail() {
           {task.is_locked && <Lock className="h-4 w-4 text-chart-4" />}
         </div>
 
-        {/* Title — language-aware */}
+        {/* Title — language-aware (single language only) */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            {task.task_number && (
-              <Badge
-                variant="outline"
-                className="text-2xs px-1.5 py-0 text-muted-foreground cursor-pointer hover:bg-muted/50 transition-colors tabular-nums shrink-0"
-                onClick={() => {
-                  navigator.clipboard.writeText(`#${task.task_number}`);
-                  toast.success(t('common.copied'));
-                }}
-              >
-                #{task.task_number}
-              </Badge>
-            )}
-            <h1 className="text-lg font-semibold leading-tight tracking-tight" dir={isAr ? 'rtl' : 'ltr'}>
-              {isAr ? (task.title_ar || task.title) : task.title}
-            </h1>
+            {(() => {
+              const tenantName = (task as any).tenant?.name;
+              const branchName = (task as any).employee?.branch?.name;
+              const year = task.created_at ? new Date(task.created_at).getFullYear().toString().slice(-2) : '';
+              const compositeId = tenantName && branchName && task.task_number
+                ? `${tenantName} - ${branchName} - ${task.task_number} - ${year}`
+                : task.task_number ? `#${task.task_number}` : null;
+              return compositeId ? (
+                <Badge
+                  variant="outline"
+                  className="text-2xs px-1.5 py-0 text-muted-foreground cursor-pointer hover:bg-muted/50 transition-colors shrink-0"
+                  onClick={() => {
+                    navigator.clipboard.writeText(compositeId);
+                    toast.success(t('common.copied'));
+                  }}
+                >
+                  {compositeId}
+                </Badge>
+              ) : null;
+            })()}
           </div>
-          {/* Secondary title in opposite language */}
-          {(isAr ? task.title : task.title_ar) && (
-            <p className="text-sm text-muted-foreground leading-relaxed" dir={isAr ? 'ltr' : 'rtl'}>
-              {isAr ? task.title : task.title_ar}
-            </p>
-          )}
+          <h1 className="text-lg font-semibold leading-tight tracking-tight" dir={isAr ? 'rtl' : 'ltr'}>
+            {isAr ? (task.title_ar || task.title) : task.title}
+          </h1>
         </div>
 
         {/* Badges row: status + priority */}

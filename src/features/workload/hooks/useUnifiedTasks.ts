@@ -80,7 +80,7 @@ export function useUnifiedTasks(employeeId?: string) {
     queryFn: async () => {
       let query = supabase
         .from('unified_tasks')
-        .select('*')
+        .select('*, employee:employees!unified_tasks_employee_id_fkey(full_name, branch:branches!employees_branch_id_fkey(name)), tenant:tenants!unified_tasks_tenant_id_fkey(name)')
         .is('deleted_at', null)
         .order('priority', { ascending: true })
         .order('due_date', { ascending: true, nullsFirst: false });
