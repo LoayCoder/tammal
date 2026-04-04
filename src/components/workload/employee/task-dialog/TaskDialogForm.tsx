@@ -48,12 +48,20 @@ export function TaskDialogForm({
   return (
     <>
       <div className="space-y-2">
-        <Label>{t('commandCenter.taskTitle')}</Label>
+        <Label>{t('commandCenter.taskTitle')} (EN) *</Label>
         <Input {...register('title', { required: true })} placeholder={t('commandCenter.taskTitlePlaceholder')} disabled={isLocked} />
       </div>
       <div className="space-y-2">
-        <Label>{t('commandCenter.taskDescription')}</Label>
+        <Label>{t('commandCenter.taskTitle')} (AR) *</Label>
+        <Input {...register('title_ar', { required: true })} placeholder={t('commandCenter.taskTitlePlaceholder')} disabled={isLocked} dir="rtl" />
+      </div>
+      <div className="space-y-2">
+        <Label>{t('commandCenter.taskDescription')} (EN) *</Label>
         <Textarea {...register('description')} rows={2} disabled={isLocked} />
+      </div>
+      <div className="space-y-2">
+        <Label>{t('commandCenter.taskDescription')} (AR) *</Label>
+        <Textarea {...register('description_ar')} rows={2} disabled={isLocked} dir="rtl" />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">

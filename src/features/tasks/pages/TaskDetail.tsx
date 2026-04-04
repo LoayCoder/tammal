@@ -233,7 +233,7 @@ export default function TaskDetail() {
         <Progress value={task.progress} className="h-1.5 transition-all duration-500" />
       </div>
 
-      {/* ── 4. Description ── */}
+      {/* ── 4. Description — language-aware ── */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-muted-foreground">{t('tasks.fields.description')}</span>
@@ -242,28 +242,30 @@ export default function TaskDetail() {
               variant="ghost"
               size="sm"
               className="text-2xs h-6 px-2 text-muted-foreground"
-              onClick={() => { setEditDesc(task.description ?? ''); setIsEditingDesc(true); }}
+              onClick={() => { setEditDesc(task.description ?? ''); setEditDescAr((task as any).description_ar ?? ''); setIsEditingDesc(true); }}
             >
               {t('common.edit')}
             </Button>
           )}
         </div>
         {isEditingDesc ? (
-          <div className="space-y-2">
-            <Textarea
-              value={editDesc}
-              onChange={(e) => setEditDesc(e.target.value)}
-              rows={4}
-              className="text-sm"
-            />
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <span className="text-2xs text-muted-foreground">{t('tasks.fields.description')} (EN)</span>
+              <Textarea value={editDesc} onChange={(e) => setEditDesc(e.target.value)} rows={3} className="text-sm" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-2xs text-muted-foreground">{t('tasks.fields.descriptionAr')} (AR)</span>
+              <Textarea value={editDescAr} onChange={(e) => setEditDescAr(e.target.value)} rows={3} className="text-sm" dir="rtl" />
+            </div>
             <div className="flex gap-2 justify-end">
               <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setIsEditingDesc(false)}>{t('common.cancel')}</Button>
               <Button size="sm" className="h-7 text-xs" onClick={handleSaveDescription} disabled={updateTask.isPending}>{t('common.save')}</Button>
             </div>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground/80 whitespace-pre-wrap leading-relaxed">
-            {task.description || t('tasks.noDescription')}
+          <p className="text-sm text-muted-foreground/80 whitespace-pre-wrap leading-relaxed" dir={isAr ? 'rtl' : 'ltr'}>
+            {isAr ? ((task as any).description_ar || task.description || t('tasks.noDescription')) : (task.description || t('tasks.noDescription'))}
           </p>
         )}
       </div>

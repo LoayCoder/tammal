@@ -93,15 +93,18 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
         });
       }
       onUpdate({
-        id: task.id, title: data.title, description: data.description || null,
+        id: task.id, title: data.title, title_ar: data.title_ar,
+        description: data.description || null, description_ar: data.description_ar || null,
         priority: Number(data.priority), status: derivedStatus, progress,
         estimated_minutes: data.estimated_minutes ? Number(data.estimated_minutes) : null,
         due_date: data.due_date || null, scheduled_start: data.scheduled_start || null,
-      });
+      } as UnifiedTaskUpdate);
     } else {
       onCreate({
         tenant_id: tenantId, employee_id: employeeId, title: data.title,
-        description: data.description || null, priority: Number(data.priority),
+        title_ar: data.title_ar, description: data.description || null,
+        description_ar: data.description_ar || null,
+        priority: Number(data.priority),
         status: 'draft', estimated_minutes: data.estimated_minutes ? Number(data.estimated_minutes) : null,
         due_date: data.due_date || null, source_type: 'manual',
       });
