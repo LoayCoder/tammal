@@ -1,49 +1,47 @@
 
 
-## Bilingual Task Title & Description — Mandatory Both Languages
+## Fix Language Display & Task ID Format
 
-### Current State
-- `unified_tasks` has `title` (EN) and `title_ar` (AR), but **no `description_ar`** column
-- CreateTaskModal has `titleAr` field but it's optional — tasks can be created without it
-- TaskDetail shows `title` as primary and `title_ar` as a secondary subtitle — no language-aware switching
-- Description has no Arabic variant at all
+### Two Issues
 
-### Plan
+**Issue 1: Arabic text showing in English mode**
+Currently, the Task Detail always shows the secondary language subtitle (Arabic under English title, or vice versa). When UI is in English, only English title and description should display — no Arabic subtitle. Same in reverse.
 
-**1. Database Migration — Add `description_ar` column**
-- Add `description_ar TEXT NULL` to `unified_tasks`
-- Keep nullable in DB (existing tasks won't have it), enforce at app level for new tasks
+**Issue 2: Task ID format**
+Current format: `#8` (just the sequential number).
+Required format: `{Tenant Name} - {Branch Name} - {Task Number} - {Year}` e.g. `Golf Saudi - HQ - 10 - 26`
 
-**2. CreateTaskModal — Make both languages mandatory**
-- Add `descriptionAr` state field
-- Add Arabic description input (`TaskPrimaryForm`)
-- Add validation: block submit unless `title`, `titleAr`, `description`, and `descriptionAr` all have content
-- Show inline error messages when either language is missing
-- Pass `description_ar` to `createTaskAsync`
+---
 
-**3. Update `useEnterpriseTasks` hook**
-- Add `description_ar` to `CreateEnterpriseTaskInput` interface
-- Include `description_ar` in the insert mutation
+### Changes
 
-**4. TaskDetail — Language-aware display**
-- Use `i18n.language` to determine active language
-- Title: show `title_ar` when Arabic, `title` when English (show the other as subtitle)
-- Description: show `description_ar` when Arabic, `description` when English
-- Inline edit must save both `description` and `description_ar`
+**1. `src/features/tasks/hooks/useTaskDetail.ts`**
+- Expand the query to join through `employee → branch` and `tenant` to get branch name and tenant name:
+  ```
+  select('*, employee:employees!unified_tasks_employee_id_fkey(full_name, branch:branches!employees_branch_id_fkey(name)), tenant:tenants!unified_tasks_tenant_id_fkey(name)')
+  ```
 
-**5. Workload TaskDialog — Same bilingual enforcement**
-- Add `title_ar` and `description_ar` fields to the form schema
-- Make both required for create flow
-- Display based on current language
+**2. `src/features/tasks/pages/TaskDetail.tsx`**
+- **Remove the secondary title line entirely** — only show the active language's title (EN or AR based on `i18n.language`)
+- **Description**: already language-aware, keep as-is
+- **Task ID badge**: Build the composite reference string from tenant name, branch name, task number, and 2-digit year (from `created_at`):
+  ```
+  Golf Saudi - HQ - 10 - 26
+  ```
+- If tenant/branch data isn't available, fall back to just `#task_number`
 
-### Files to Change
+**3. `src/components/workload/employee/UnifiedTaskList.tsx`**
+- Show language-aware title (EN or AR based on `i18n.language`)
+- Update task number display to include the composite format if branch/tenant data is available (requires expanding the query in `useUnifiedTasks.ts`)
+
+**4. `src/features/workload/hooks/useUnifiedTasks.ts`**
+- Expand the select query to join `employees → branches` and `tenants` to get names for the composite ID
+
+### Files Modified
 | File | Change |
 |------|--------|
-| **Migration (new)** | `ALTER TABLE unified_tasks ADD COLUMN description_ar TEXT` |
-| `src/features/tasks/components/CreateTaskModal.tsx` | Add `descriptionAr` state, validation for both langs |
-| `src/features/tasks/components/create-modal/TaskPrimaryForm.tsx` | Add Arabic description textarea |
-| `src/features/tasks/hooks/useEnterpriseTasks.ts` | Add `description_ar` to interface and mutation |
-| `src/features/tasks/pages/TaskDetail.tsx` | Language-switch title/description display, bilingual inline edit |
-| `src/components/workload/employee/TaskDialog.tsx` | Add `title_ar`, `description_ar` fields with validation |
-| `src/components/workload/employee/task-dialog/TaskDialogForm.tsx` | Add Arabic input fields |
+| `src/features/tasks/hooks/useTaskDetail.ts` | Add branch + tenant joins |
+| `src/features/tasks/pages/TaskDetail.tsx` | Remove secondary title, build composite task ID, language-only display |
+| `src/features/workload/hooks/useUnifiedTasks.ts` | Add branch + tenant joins |
+| `src/components/workload/employee/UnifiedTaskList.tsx` | Language-aware title, composite task ID |
 
