@@ -127,6 +127,31 @@ export default function EmployeeHome() {
         {/* Voting Booth Widget */}
         <DashboardVotingWidget />
 
+        {/* Pending Surveys Card */}
+        {(sqLoading || pendingQuestions.length > 0) && (
+          <Link to="/employee/survey">
+            <Card className={cn(cardVariants.premiumVip, "rounded-2xl cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200")}>
+              <CardContent className="flex items-center gap-4 p-6">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-chart-2/10 to-chart-2/5">
+                  <ClipboardList className="h-7 w-7 text-chart-2" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-base">{t('home.surveyCard')}</h3>
+                    {!sqLoading && pendingQuestions.length > 0 && (
+                      <Badge variant="secondary" className="text-2xs px-1.5 py-0">{pendingQuestions.length}</Badge>
+                    )}
+                  </div>
+                  <p className="text-muted-foreground text-sm mt-0.5">
+                    {sqLoading ? '...' : t('home.pendingSurveys', { count: pendingQuestions.length })}
+                  </p>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
+              </CardContent>
+            </Card>
+          </Link>
+        )}
+
         {/* Inline Daily Check-in */}
         {employee && !todayEntry && employee.user_id && (
           <InlineDailyCheckin employeeId={employee.id} tenantId={employee.tenant_id} userId={employee.user_id} />
@@ -155,25 +180,6 @@ export default function EmployeeHome() {
         {/* Workload Overview Widget */}
         {employee && <DashboardWorkloadWidget employeeId={employee.id} />}
 
-        {/* Pending Surveys Card */}
-        {(sqLoading || pendingQuestions.length > 0) && (
-          <Link to="/employee/survey">
-            <Card className={cn(cardVariants.premium, "cursor-pointer")}>
-              <CardContent className="flex items-center gap-4 p-6">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-chart-2/15 to-chart-2/5">
-                  <ClipboardList className="h-7 w-7 text-chart-2" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-base">{t('home.surveyCard')}</h3>
-                  <p className="text-muted-foreground text-sm mt-0.5">
-                    {sqLoading ? '...' : t('home.pendingSurveys', { count: pendingQuestions.length })}
-                  </p>
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
-              </CardContent>
-            </Card>
-          </Link>
-        )}
 
         {/* Mental Health Tools Hub */}
         <MentalHealthToolsHub />
