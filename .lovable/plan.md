@@ -1,28 +1,18 @@
 
 
-## Move Support Hub to Top as Premium Collapsible Card
+## Remove Crisis Support Contacts from /crisis-support
 
 ### What Changes
 
-**1. `src/pages/EmployeeHome.tsx`**
+**`src/pages/crisis/CrisisRequestPage.tsx`**
 
-- **Move** the Support Hub section from the bottom (lines 166-183) to right after the greeting section (after line 91, before DashboardEndorsementRequests)
-- **Replace** the current grid layout with a **collapsible card** using Radix `Collapsible` (already installed)
-- **Collapsed state** (default): A slim, elegant card showing a single row:
-  - Left: subtle icon (`HeartHandshake`, strokeWidth 1.5) + title "Support Hub" (bold, small)
-  - Right: `ChevronDown` icon that rotates 180° when open
-  - Entire card clickable as trigger
-- **Expanded state**: Smoothly reveals the 2-column grid of support buttons (Crisis Support + First Aider) below the trigger row
-- Card styling: `premium-card rounded-2xl` with `hover:shadow-sm transition-all duration-200`
-- Expanded content: `p-4 pt-0` with the existing 2-col grid, same icon/label cards but with `rounded-xl` and subtle hover lift
+- Remove lines 548-551: the `CrisisSupport` component rendering at the bottom of the page (the global emergency hotline directory section)
+- Remove the import of `CrisisSupport` from line 18
 
-**2. Interaction Details**
-- `ChevronDown` rotates with `transition-transform duration-200` → `rotate-180` when open
-- Content area uses `CollapsibleContent` with CSS animation for smooth expand/collapse
-- Support buttons keep existing navigation behavior (Link to `/crisis-support`, onClick for First Aider popup)
+This removes the hardcoded contact list (Emergency Services, Crisis Text Line, Samaritans, NAMI, etc.) that appears below the crisis request flow. The high-risk step still shows tenant-configured emergency contacts from the database, which is the correct behavior.
 
 ### Files Modified
 | File | Change |
 |------|--------|
-| `src/pages/EmployeeHome.tsx` | Move Support Hub to top, wrap in Collapsible with premium card styling |
+| `src/pages/crisis/CrisisRequestPage.tsx` | Remove CrisisSupport import and rendering block |
 
