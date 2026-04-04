@@ -1,36 +1,55 @@
 
 
-## Fix: Midnight Reset & Verify DB Persistence for Prayers + Rawatib
+## Improve Rawatib Logging UX & Layout Clarity
 
-### Issues Found
+### Current State
+Rawatib (Sunnah prayers tied to each obligatory prayer) are already fully saved to the database via `spiritual_sunnah_logs` with practice types like `rawatib_fajr_before`, `rawatib_dhuhr_after`, etc. The toggle buttons work and persist data correctly.
 
-1. **No midnight reset**: The widget uses `getLocalDateString()` which computes `today` once at render time. After midnight, the `today` value becomes stale — the widget still shows yesterday's data until a full page refresh. There is no mechanism to detect the day boundary and refresh queries.
-
-2. **DB persistence is working correctly**: Both `spiritual_prayer_logs` and `spiritual_sunnah_logs` tables exist with proper schemas. Prayer logs use upsert with `onConflict: 'user_id,prayer_name,prayer_date'`, and Rawatib sunnah logs use upsert with `onConflict: 'user_id,log_date,practice_type'`. All saves go to the database — no issues there.
-
-3. **Witr cross-midnight issue**: When it's 12:01 AM, `getLocalDateString()` returns the new date. But the Witr prayer logged at 12:01 AM should logically belong to the previous night's session. Currently it saves with today's new date, which is technically correct (the user is praying on the new day), but the widget resets and shows Witr as unlogged because `todayLogs` now filters by the new date.
+**However, the UX has issues:**
+1. **Inconsistent config**: `PrayerCard.tsx` has Fajr as `{ after: 2 }` but `DashboardPrayerWidget.tsx` has Fajr as `{ before: 2 }`. The correct Sunnah for Fajr is **2 Rak'ahs BEFORE** Fajr (not after).
+2. **Rawatib toggles are hidden** — in the dashboard widget, they only appear when the prayer row is expanded. Users may not know they exist.
+3. **No visual explanation** of what Rawatib are or how many each prayer has.
 
 ### Plan
 
-#### 1. Add a midnight auto-refresh hook
-**New file: `src/hooks/useAutoRefreshOnDayChange.ts`**
+#### 1. Fix Rawatib Config Consistency
+**Files: `PrayerCard.tsx` and `DashboardPrayerWidget.tsx`**
 
-A small hook that polls every 30 seconds (or uses `setTimeout` to the next midnight). When the date changes from the previously stored date, it invalidates all prayer and sunnah query keys, forcing the widget to re-fetch with the correct new date.
+Correct Rawatib per Islamic Sunnah (12 total Rak'ahs):
+- Fajr: **2 before** (not after)
+- Dhuhr: 2 before + 2 after
+- Asr: none
+- Maghrib: 2 after
+- Isha: 2 after
 
-#### 2. Apply the hook in `DashboardPrayerWidget.tsx`
-Call `useAutoRefreshOnDayChange()` at the top of the component. When midnight passes:
-- `getLocalDateString()` returns the new date
-- All query keys include the new date → fresh data fetched
-- Widget resets to show the new day's empty state automatically
+Update `PrayerCard.tsx` line 12 from `{ after: 2 }` to `{ before: 2 }`.
 
-#### 3. Apply the same hook in `PrayerTracker.tsx` (details page)
-Ensures the full prayer tracker page also resets at midnight without requiring a manual refresh.
+#### 2. Improve Rawatib Layout in PrayerCard (Details Page)
+**File: `PrayerCard.tsx`**
 
-### What's Already Working (No Changes Needed)
-- **Prayer logs → DB**: `usePrayerLogs.logPrayer` upserts to `spiritual_prayer_logs` ✅
-- **Rawatib logs → DB**: `useSunnahLogs.togglePractice` upserts to `spiritual_sunnah_logs` with practice types like `rawatib_fajr_before`, `rawatib_dhuhr_after` ✅
-- **Date consistency**: Both hooks use `getLocalDateString()` for browser-local dates ✅
+- Add a small label/header: "📿 Rawatib Sunnah" above the toggle pills
+- Show the total count (e.g., "2/4 Rak'ahs") as a subtle counter
+- Make the pills slightly larger and more tappable on mobile
+- Add a subtle info tooltip or text explaining what Rawatib are for first-time users
+
+#### 3. Make Rawatib More Visible in Dashboard Widget
+**File: `DashboardPrayerWidget.tsx`**
+
+- Show small Rawatib indicator dots below each prayer name in the compact row (already partially done with dots)
+- When a prayer row is expanded, keep the Rawatib toggles but add clearer labels
+- Add a small Rawatib summary in the progress section (e.g., "Rawatib: 4/10")
+
+#### 4. Add Rawatib Summary Section
+**File: `DashboardPrayerWidget.tsx`**
+
+Below the prayer progress bar, add a compact line:
+```
+📿 Rawatib: 4/10 completed
+```
+This gives users visibility into their Sunnah progress without expanding each prayer.
 
 ### Technical Details
-The hook will use `useRef` to track the last known date string and a 30-second interval to check if `getLocalDateString()` has changed. On change, it calls `queryClient.invalidateQueries` for `['prayer-logs']` and `['sunnah-logs']` keys.
+- **DB flow**: `togglePractice.mutate({ practice_type: 'rawatib_fajr_before', completed: true })` → upserts to `spiritual_sunnah_logs` with `onConflict: 'user_id,log_date,practice_type'`
+- **Read flow**: `todayCompleted` Set from `useSunnahLogs` contains all completed practice types for today
+- Config fix is a one-line change in `PrayerCard.tsx`; layout improvements are CSS/JSX only
 
