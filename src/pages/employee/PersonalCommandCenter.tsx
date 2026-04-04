@@ -13,9 +13,9 @@ import { WorkloadCalendarView } from '@/features/workload/components/WorkloadCal
 import { WorkloadApprovalsView } from '@/features/workload/components/WorkloadApprovalsView';
 import { CreateTaskModal } from '@/features/tasks/components/CreateTaskModal';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import PageHeader from '@/components/system/PageHeader';
+import { typography } from '@/theme/tokens';
 import {
-  Plus, ListChecks, CalendarDays, CheckCircle2, AlertTriangle, Flame, CheckSquare, Star, LayoutDashboard,
+  Plus, ListChecks, CalendarDays, CheckCircle2, AlertTriangle, Flame, CheckSquare, Star,
 } from 'lucide-react';
 
 type ViewType = 'tasks' | 'calendar' | 'approvals';
@@ -41,10 +41,10 @@ export default function PersonalCommandCenter() {
 
   if (empLoading) {
     return (
-      <div className="space-y-5 p-2">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-20" />
-        <Skeleton className="h-64" />
+      <div className="space-y-6 p-4">
+        <Skeleton className="h-12 w-48" />
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }
@@ -55,65 +55,68 @@ export default function PersonalCommandCenter() {
 
   const pendingCount = pendingTasks?.length ?? 0;
 
-  return (
-    <div className="space-y-5">
-      {/* Header */}
-      <PageHeader
-        icon={<LayoutDashboard className="h-5 w-5" />}
-        title={t('commandCenter.pageTitle')}
-        subtitle={t('commandCenter.pageDesc')}
-        variant="card"
-        actions={
-          <div className="flex items-center gap-3">
-            <Badge variant="secondary" className="gap-1">
-              <Star className="h-3 w-3 text-chart-1" />{totalPoints} {t('home.points')}
-            </Badge>
-            <Button onClick={() => setCreateOpen(true)} className="gap-2">
-              <Plus className="h-4 w-4" />{t('commandCenter.addTask')}
-            </Button>
-          </div>
-        }
-      />
+  const statItems = [
+    { icon: ListChecks, value: stats.active.length, label: t('commandCenter.activeTasks'), color: 'text-primary' },
+    { icon: CheckCircle2, value: stats.completed.length, label: t('commandCenter.completed'), color: 'text-chart-1' },
+    { icon: AlertTriangle, value: stats.overdue.length, label: t('commandCenter.overdue'), color: 'text-destructive' },
+    { icon: CheckSquare, value: pendingCount, label: t('workload.views.approvals'), color: 'text-chart-5' },
+    { icon: Flame, value: streak, label: t('commandCenter.streak'), color: 'text-chart-4' },
+  ];
 
-      {/* Stats Row — single premium panel with dividers */}
-      <div className="premium-card">
-        <div className="flex items-center divide-x divide-border/30 overflow-x-auto">
-          {[
-            { icon: ListChecks, color: 'text-primary', value: stats.active.length, label: t('commandCenter.activeTasks') },
-            { icon: CheckCircle2, color: 'text-chart-1', value: stats.completed.length, label: t('commandCenter.completed') },
-            { icon: AlertTriangle, color: 'text-destructive', value: stats.overdue.length, label: t('commandCenter.overdue') },
-            { icon: CheckSquare, color: 'text-chart-5', value: pendingCount, label: t('workload.views.approvals') },
-            { icon: Flame, color: 'text-chart-4', value: streak, label: t('commandCenter.streak') },
-          ].map((stat, i) => (
-            <div key={i} className="flex-1 min-w-0 flex flex-col items-center gap-1 py-4 px-3">
-              <stat.icon className={`h-4 w-4 ${stat.color}`} />
-              <span className="text-lg font-bold">{stat.value}</span>
-              <span className="text-2xs text-muted-foreground text-center whitespace-nowrap">{stat.label}</span>
-            </div>
-          ))}
+  return (
+    <div className="space-y-6 max-w-4xl mx-auto">
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <h1 className={typography.greeting}>{t('commandCenter.pageTitle')}</h1>
+          <p className="text-muted-foreground text-sm mt-1">{t('commandCenter.pageDesc')}</p>
+        </div>
+        <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Star className="h-3.5 w-3.5 text-chart-4" />
+            <span className="font-semibold text-foreground">{totalPoints}</span>
+            <span>{t('home.points')}</span>
+          </div>
+          <Button onClick={() => setCreateOpen(true)} size="sm" className="gap-1.5 rounded-lg">
+            <Plus className="h-3.5 w-3.5" />{t('commandCenter.addTask')}
+          </Button>
         </div>
       </div>
 
-      {/* Capacity Gauge — always visible */}
-      <div className="premium-card p-4">
+      {/* ── Stats Row ── */}
+      <div className="grid grid-cols-5 gap-px rounded-xl bg-border/40 overflow-hidden">
+        {statItems.map((s, i) => (
+          <div
+            key={i}
+            className="bg-background flex flex-col items-center justify-center py-4 px-2 transition-colors hover:bg-muted/10"
+          >
+            <s.icon className={`h-4 w-4 ${s.color} mb-1.5`} strokeWidth={1.75} />
+            <span className="text-xl font-bold tracking-tight">{s.value}</span>
+            <span className="text-2xs text-muted-foreground mt-0.5 text-center leading-tight">{s.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Capacity ── */}
+      <div className="px-1">
         <CapacityGauge scheduledMinutes={stats.scheduledMinutes} />
       </div>
 
-      {/* View Switcher */}
+      {/* ── View Switcher ── */}
       <div className="flex items-center justify-center">
         <ToggleGroup
           type="single"
           value={view}
           onValueChange={(v) => { if (v) setView(v as ViewType); }}
-          className="bg-muted/30 p-1 rounded-lg"
+          className="bg-muted/15 p-1 rounded-xl border border-border/50"
         >
-          <ToggleGroupItem value="tasks" className="gap-1.5 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm px-4">
+          <ToggleGroupItem value="tasks" className="gap-1.5 text-xs rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm px-5 transition-all duration-200">
             <ListChecks className="h-3.5 w-3.5" />{t('workload.views.tasks')}
           </ToggleGroupItem>
-          <ToggleGroupItem value="calendar" className="gap-1.5 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm px-4">
+          <ToggleGroupItem value="calendar" className="gap-1.5 text-xs rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm px-5 transition-all duration-200">
             <CalendarDays className="h-3.5 w-3.5" />{t('workload.views.calendar')}
           </ToggleGroupItem>
-          <ToggleGroupItem value="approvals" className="gap-1.5 text-xs data-[state=on]:bg-background data-[state=on]:shadow-sm px-4 relative">
+          <ToggleGroupItem value="approvals" className="gap-1.5 text-xs rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm px-5 relative transition-all duration-200">
             <CheckSquare className="h-3.5 w-3.5" />{t('workload.views.approvals')}
             {pendingCount > 0 && (
               <Badge className="h-4 min-w-[16px] px-1 text-2xs absolute -top-1.5 -end-1.5">{pendingCount}</Badge>
@@ -122,7 +125,7 @@ export default function PersonalCommandCenter() {
         </ToggleGroup>
       </div>
 
-      {/* Active View */}
+      {/* ── Active View ── */}
       {view === 'tasks' && (
         <WorkloadTasksView tasks={tasks} isPending={tasksLoading} onDelete={deleteTask} />
       )}
