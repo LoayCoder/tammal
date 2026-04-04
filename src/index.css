@@ -268,6 +268,18 @@
     --prayer-home: 38 80% 55%;
     --prayer-work: 0 0% 50%;
 
+
+    /* KPI accent colors (dark) */
+    --kpi-progress: 142 60% 50%;
+    --kpi-utilization: 217 80% 65%;
+    --kpi-risk: 4 80% 55%;
+    --kpi-trend: 38 80% 55%;
+
+    /* Severity colors (dark) */
+    --severity-medium: 48 85% 58%;
+
+    /* Islamic widget accent (dark) */
+    --islamic-accent: 197 85% 65%;
     --sidebar: 0 0% 14%;
 
     --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.08);
