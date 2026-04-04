@@ -16,7 +16,7 @@ import { useSunnahLogs } from '@/hooks/spiritual/useSunnahLogs';
 import { cn } from '@/lib/utils';
 import { cardVariants } from "@/theme/tokens";
 
-const ALL_PRAYERS = [...PRAYER_NAMES, 'Witr'] as const;
+const ALL_PRAYERS = ['Fajr', 'Duha', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Witr'] as const;
 
 const RAWATIB_CONFIG: Record<string, { before?: number; after?: number }> = {
   Fajr:    { before: 2 },
@@ -55,20 +55,43 @@ export function DashboardPrayerWidget() {
   const timings = prayerData?.timings;
   const hijri = prayerData?.date?.hijri;
 
+  // Helper: parse time string to Date
+  const parseTime = (timeStr: string | undefined) => {
+    if (!timeStr) return null;
+    const clean = timeStr.replace(/\s*\(.*\)/, '').trim();
+    const [h, m] = clean.split(':').map(Number);
+    if (isNaN(h) || isNaN(m)) return null;
+    const d = new Date();
+    d.setHours(h, m, 0, 0);
+    return d;
+  };
+
+  const isDuhaCompleted = todayCompleted.has('duha');
+
   // Determine active prayer (first unlogged whose time has passed, or next upcoming)
   const activePrayer = useMemo(() => {
     if (!timings) return null;
     const now = new Date();
 
-    // Check 5 obligatory prayers first
+    // Check Fajr first
+    if (!todayLogs['Fajr']) {
+      const fajrDate = parseTime(timings.Fajr);
+      if (fajrDate && now >= fajrDate) return 'Fajr' as const;
+    }
+
+    // Check Duha: active between Sunrise and Dhuhr, if not completed
+    if (!isDuhaCompleted) {
+      const sunriseDate = parseTime(timings.Sunrise);
+      const dhuhrDate = parseTime(timings.Dhuhr);
+      if (sunriseDate && dhuhrDate && now >= sunriseDate && now < dhuhrDate) return 'Duha' as const;
+    }
+
+    // Check remaining obligatory prayers
     for (const name of PRAYER_NAMES) {
+      if (name === 'Fajr') continue; // already checked
       if (todayLogs[name]) continue;
-      const clean = (timings[name] || '').replace(/\s*\(.*\)/, '').trim();
-      const [h, m] = clean.split(':').map(Number);
-      if (isNaN(h) || isNaN(m)) continue;
-      const pDate = new Date(now);
-      pDate.setHours(h, m, 0, 0);
-      if (now >= pDate) return name;
+      const pDate = parseTime(timings[name]);
+      if (pDate && now >= pDate) return name;
     }
 
     // Check Witr (active when 22:00+ or before Fajr and not logged)
@@ -82,25 +105,31 @@ export function DashboardPrayerWidget() {
       return name;
     }
 
+    // Check Duha if still before Dhuhr and not completed
+    if (!isDuhaCompleted) {
+      const dhuhrDate = parseTime(timings.Dhuhr);
+      if (dhuhrDate && new Date() < dhuhrDate) return 'Duha' as const;
+    }
+
     // Check if Witr is still pending (before its window)
     if (!todayLogs['Witr'] && !witrCountdown.isExpired) {
       return 'Witr' as const;
     }
 
-    return null; // All logged (but not necessarily all completed)
-  }, [timings, todayLogs, witrCountdown.isPrayerTime, witrCountdown.isExpired]);
+    return null;
+  }, [timings, todayLogs, isDuhaCompleted, witrCountdown.isPrayerTime, witrCountdown.isExpired]);
 
-  const allCompleted = ALL_PRAYERS.every(n => todayLogs[n]?.status?.startsWith('completed'));
+  const allCompleted = ALL_PRAYERS.every(n => n === 'Duha' ? isDuhaCompleted : todayLogs[n]?.status?.startsWith('completed'));
 
-  // ── Auto-miss logic ──
-  const activePrayerTime = activePrayer && activePrayer !== 'Witr' && timings
+  // ── Auto-miss logic (skip Duha — voluntary) ──
+  const activePrayerTime = activePrayer && activePrayer !== 'Witr' && activePrayer !== 'Duha' && timings
     ? timings[activePrayer as keyof typeof timings]
     : undefined;
   const countdown = usePrayerCountdown(activePrayerTime);
   const autoMissedRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!activePrayer || activePrayer === 'Witr') return;
+    if (!activePrayer || activePrayer === 'Witr' || activePrayer === 'Duha') return;
     if (!countdown.isExpired) return;
     if (todayLogs[activePrayer]) return;
     if (autoMissedRef.current === activePrayer) return;
@@ -227,7 +256,7 @@ export function DashboardPrayerWidget() {
         {/* Active prayer card */}
         {activePrayer && !allCompleted ? (
           <div className="space-y-2.5 border-t border-border/50 pt-3">
-            {/* Row 1: Name + time + countdown + location buttons */}
+            {/* Row 1: Name + time + countdown + action buttons */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="min-w-0">
@@ -236,14 +265,27 @@ export function DashboardPrayerWidget() {
                   </p>
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
                     <Clock className="h-3 w-3 shrink-0" strokeWidth={ICON_STROKE} />
-                    {activePrayer === 'Witr'
-                      ? t('spiritual.prayer.witrTimeRange', { fajr: (timings.Fajr || '').replace(/\s*\(.*\)/, '').trim() || '--:--' })
-                      : (timings[activePrayer as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()
+                    {activePrayer === 'Duha'
+                      ? `${(timings.Sunrise || '').replace(/\s*\(.*\)/, '').trim()} – ${(timings.Dhuhr || '').replace(/\s*\(.*\)/, '').trim()}`
+                      : activePrayer === 'Witr'
+                        ? t('spiritual.prayer.witrTimeRange', { fajr: (timings.Fajr || '').replace(/\s*\(.*\)/, '').trim() || '--:--' })
+                        : (timings[activePrayer as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()
                     }
                   </p>
                 </div>
                 {/* Countdown badge inline */}
-                {activePrayer === 'Witr' ? (
+                {activePrayer === 'Duha' ? (() => {
+                  const dhuhrDate = parseTime(timings.Dhuhr);
+                  if (!dhuhrDate) return null;
+                  const minsLeft = Math.ceil((dhuhrDate.getTime() - Date.now()) / 60000);
+                  if (minsLeft <= 0) return null;
+                  return (
+                    <span className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[hsl(var(--prayer-countdown))]/10 text-[hsl(var(--prayer-countdown))] border border-[hsl(var(--prayer-countdown))]/30 shrink-0">
+                      <Timer className="h-2.5 w-2.5" strokeWidth={ICON_STROKE} />
+                      {i18n.language === 'ar' ? `${minsLeft}د` : `${minsLeft}m`}
+                    </span>
+                  );
+                })() : activePrayer === 'Witr' ? (
                   witrCountdown.isPrayerTime && !witrCountdown.isExpired && witrCountdown.minutesLeft != null ? (
                     <span className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[hsl(var(--prayer-countdown))]/10 text-[hsl(var(--prayer-countdown))] border border-[hsl(var(--prayer-countdown))]/30 shrink-0">
                       <Timer className="h-2.5 w-2.5" strokeWidth={ICON_STROKE} />
@@ -254,18 +296,31 @@ export function DashboardPrayerWidget() {
                   <PrayerCountdownBadge prayerTime={timings[activePrayer as keyof typeof timings]} />
                 )}
               </div>
-              {/* Location buttons inline */}
-              <div className="flex gap-1 shrink-0">
-                <Button size="sm" variant="ghost" onClick={() => handleLog('completed_mosque')} disabled={logPrayer.isPending} className="gap-0.5 h-6 px-1.5 text-[10px] border border-border/50 hover:border-primary/30">
-                  <Landmark className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.mosque')}
+              {/* Action buttons: Duha gets Done toggle, others get location buttons */}
+              {activePrayer === 'Duha' ? (
+                <Button
+                  size="sm"
+                  variant={isDuhaCompleted ? 'default' : 'ghost'}
+                  onClick={() => togglePractice.mutate({ practice_type: 'duha', completed: !isDuhaCompleted })}
+                  disabled={togglePractice.isPending}
+                  className={cn('gap-1 h-6 px-2 text-[10px] border', isDuhaCompleted ? 'border-primary/40' : 'border-border/50 hover:border-primary/30')}
+                >
+                  {isDuhaCompleted ? <Check className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
+                  {isDuhaCompleted ? (i18n.language === 'ar' ? 'تم ✓' : 'Done ✓') : (i18n.language === 'ar' ? 'تم' : 'Done')}
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => handleLog('completed_home')} disabled={logPrayer.isPending} className="gap-0.5 h-6 px-1.5 text-[10px] border border-border/50 hover:border-primary/30">
-                  <House className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.home')}
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => handleLog('completed_work')} disabled={logPrayer.isPending} className="gap-0.5 h-6 px-1.5 text-[10px] border border-border/50 hover:border-primary/30">
-                  <Building className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.work')}
-                </Button>
-              </div>
+              ) : (
+                <div className="flex gap-1 shrink-0">
+                  <Button size="sm" variant="ghost" onClick={() => handleLog('completed_mosque')} disabled={logPrayer.isPending} className="gap-0.5 h-6 px-1.5 text-[10px] border border-border/50 hover:border-primary/30">
+                    <Landmark className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.mosque')}
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => handleLog('completed_home')} disabled={logPrayer.isPending} className="gap-0.5 h-6 px-1.5 text-[10px] border border-border/50 hover:border-primary/30">
+                    <House className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.home')}
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => handleLog('completed_work')} disabled={logPrayer.isPending} className="gap-0.5 h-6 px-1.5 text-[10px] border border-border/50 hover:border-primary/30">
+                    <Building className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.work')}
+                  </Button>
+                </div>
+              )}
             </div>
             {/* Rawatib Sunnah toggles */}
             {hasActiveRawatib && (
@@ -328,11 +383,12 @@ export function DashboardPrayerWidget() {
           </div>
         )}
 
-        {/* Progress row — 6 prayer indicators (5 obligatory + Witr) */}
-        <div className="flex items-center justify-between gap-1">
+        {/* Progress row — 7 prayer indicators (5 obligatory + Duha + Witr) */}
+        <div className="flex items-center justify-between gap-0.5">
         {ALL_PRAYERS.map(name => {
-            const logged = !!todayLogs[name];
-            const isMissed = todayLogs[name]?.status === 'missed';
+            const isDuha = name === 'Duha';
+            const logged = isDuha ? isDuhaCompleted : !!todayLogs[name];
+            const isMissed = !isDuha && todayLogs[name]?.status === 'missed';
             const isActive = name === activePrayer;
             const rawatib = RAWATIB_CONFIG[name];
             const hasBefore = !!rawatib?.before;
@@ -350,15 +406,18 @@ export function DashboardPrayerWidget() {
                     !logged && !isActive && 'bg-muted border-border text-muted-foreground',
                   )}
                 >
-                  {logged && !isMissed ? <Check className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
+                  {logged && !isMissed ? (isDuha ? <span className="text-[10px]">☀</span> : <Check className="h-3 w-3" strokeWidth={ICON_STROKE} />) : null}
                   {isMissed ? '✕' : null}
                   {!logged && isActive ? <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
+                  {!logged && !isActive && isDuha ? <span className="text-[10px]">☀</span> : null}
                 </div>
                 <span className="text-[9px] font-medium text-foreground leading-none">
                   {t(`spiritual.prayer.names.${name.toLowerCase()}`)}
                 </span>
                 <span className="text-[8px] text-muted-foreground leading-none">
-                  {name === 'Witr' ? '—' : (timings[name as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()}
+                  {isDuha ? (timings.Sunrise || '').replace(/\s*\(.*\)/, '').trim()
+                    : name === 'Witr' ? '—'
+                    : (timings[name as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()}
                 </span>
                 {/* Rawatib dots */}
                 {(hasBefore || hasAfter) ? (
@@ -383,14 +442,28 @@ export function DashboardPrayerWidget() {
           if (!timings) return null;
           const now = new Date();
           for (const name of ALL_PRAYERS) {
+            if (name === 'Duha') {
+              if (isDuhaCompleted) continue;
+              const sunriseDate = parseTime(timings.Sunrise);
+              if (sunriseDate && sunriseDate > now) {
+                const minsUntil = Math.ceil((sunriseDate.getTime() - now.getTime()) / 60000);
+                return (
+                  <div className="flex items-center justify-center gap-1.5 pt-1">
+                    <span className="text-[10px] text-muted-foreground font-medium">
+                      {i18n.language === 'ar' 
+                        ? `التالي: ${t('spiritual.prayer.names.duha')} بعد ${minsUntil}د`
+                        : `Next: ${t('spiritual.prayer.names.duha')} in ${minsUntil >= 60 ? `${Math.floor(minsUntil / 60)}h ${minsUntil % 60}m` : `${minsUntil}m`}`
+                      }
+                    </span>
+                  </div>
+                );
+              }
+              continue;
+            }
             if (todayLogs[name]) continue;
             if (name === 'Witr') continue;
-            const clean = (timings[name as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim();
-            const [h, m] = clean.split(':').map(Number);
-            if (isNaN(h) || isNaN(m)) continue;
-            const pDate = new Date(now);
-            pDate.setHours(h, m, 0, 0);
-            if (pDate > now) {
+            const pDate = parseTime(timings[name as keyof typeof timings]);
+            if (pDate && pDate > now) {
               const minsUntil = Math.ceil((pDate.getTime() - now.getTime()) / 60000);
               return (
                 <div className="flex items-center justify-center gap-1.5 pt-1">
