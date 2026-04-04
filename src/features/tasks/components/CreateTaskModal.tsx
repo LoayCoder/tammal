@@ -135,11 +135,12 @@ export function CreateTaskModal({
         <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
           <ScrollArea className="flex-1 p-4 space-y-4 md:border-e">
             <TaskPrimaryForm
-              titleId={titleId} titleArId={titleArId} descId={descId}
-              title={title} titleAr={titleAr} description={description}
-              onTitleChange={setTitle} onTitleArChange={setTitleAr} onDescriptionChange={setDescription}
+              titleId={titleId} titleArId={titleArId} descId={descId} descArId={descArId}
+              title={title} titleAr={titleAr} description={description} descriptionAr={descriptionAr}
+              onTitleChange={setTitle} onTitleArChange={setTitleAr} onDescriptionChange={setDescription} onDescriptionArChange={setDescriptionAr}
               checklistItems={checklistItems} onChecklistChange={setChecklistItems}
               files={files} onFilesChange={setFiles} onTemplateSelect={handleTemplateSelect}
+              validationErrors={validationErrors}
             />
           </ScrollArea>
 
