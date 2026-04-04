@@ -545,10 +545,6 @@ export default function CrisisRequestPage() {
           </div>
         )}
 
-        {/* Global Emergency Hotline Directory */}
-        {step !== 'high_risk' && step !== 'matching' && (
-          <CrisisSupport />
-        )}
       </div>
     </div>
   );
