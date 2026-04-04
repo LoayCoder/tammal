@@ -17,9 +17,9 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "robots.txt"],
       manifest: {
-        name: "SaaS Admin Platform",
-        short_name: "SaaS Admin",
-        description: "Multi-tenant SaaS Management Platform",
+        name: "Tammal",
+        short_name: "Tammal",
+        description: "Tammal – Employee Wellness Platform",
         theme_color: "#3b82f6",
         background_color: "#ffffff",
         display: "standalone",

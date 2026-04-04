@@ -14,8 +14,9 @@ import { MentalHealthToolsHub } from '@/components/dashboard/MentalHealthToolsHu
 import { MentalHealthResourcesHub } from '@/components/dashboard/MentalHealthResourcesHub';
 import {
   Flame, Star, CheckCircle2, ClipboardList, ChevronRight,
-  Phone, HeartHandshake, Crown, ChevronDown,
+  Phone, HeartHandshake, Crown, ChevronDown, Clock,
 } from 'lucide-react';
+import { format, differenceInDays } from 'date-fns';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { DashboardPrayerWidget } from '@/components/dashboard/DashboardPrayerWidget';
 
@@ -43,7 +44,7 @@ export default function EmployeeHome() {
   const { employee, isPending: empLoading } = useCurrentEmployee();
   const { streak, totalPoints, isPending: gamLoading } = useGamification(employee?.id ?? null);
   const { todayEntry } = useMoodHistory(employee?.id ?? null);
-  const { pendingQuestions, isPending: sqLoading } = useScheduledQuestions(employee?.id, undefined);
+  const { pendingQuestions, surveyMeta, isPending: sqLoading } = useScheduledQuestions(employee?.id, undefined);
   const [showFirstAider, setShowFirstAider] = useState(false);
 
   const firstName = employee?.full_name?.split(' ')[0] ?? '';
@@ -92,7 +93,7 @@ export default function EmployeeHome() {
         </div>
 
         {/* Support Hub — Collapsible Premium Card */}
-        <Collapsible className="premium-card rounded-2xl overflow-hidden hover:shadow-sm transition-all duration-200">
+        <Collapsible className="premium-card rounded-2xl hover:shadow-sm transition-all duration-200">
           <CollapsibleTrigger className="group flex items-center justify-between w-full p-4 cursor-pointer">
             <div className="flex items-center gap-2">
               <HeartHandshake className="h-4 w-4 text-primary" strokeWidth={1.5} />
@@ -137,7 +138,9 @@ export default function EmployeeHome() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-base">{t('home.surveyCard')}</h3>
+                    <h3 className="font-semibold text-base">
+                      {surveyMeta?.schedule_name || t('home.surveyCard')}
+                    </h3>
                     {!sqLoading && pendingQuestions.length > 0 && (
                       <Badge variant="secondary" className="text-2xs px-1.5 py-0">{pendingQuestions.length}</Badge>
                     )}
@@ -145,6 +148,17 @@ export default function EmployeeHome() {
                   <p className="text-muted-foreground text-sm mt-0.5">
                     {sqLoading ? '...' : t('home.pendingSurveys', { count: pendingQuestions.length })}
                   </p>
+                  {surveyMeta?.end_date && (() => {
+                    const daysLeft = differenceInDays(new Date(surveyMeta.end_date), new Date());
+                    const isUrgent = daysLeft <= 2;
+                    return (
+                      <p className={cn("text-xs mt-1 flex items-center gap-1", isUrgent ? "text-chart-4 font-medium" : "text-muted-foreground")}>
+                        <Clock className="h-3 w-3" />
+                        {t('home.dueDate', { date: format(new Date(surveyMeta.end_date), 'MMM d, yyyy') })}
+                        {isUrgent && daysLeft >= 0 && ` · ${daysLeft}d left`}
+                      </p>
+                    );
+                  })()}
                 </div>
                 <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
               </CardContent>
