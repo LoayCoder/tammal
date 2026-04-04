@@ -132,6 +132,18 @@ export function DashboardPrayerWidget() {
   const progressPercent = Math.round((completedCount / totalPrayers) * 100);
   const allCompleted = completedCount === totalPrayers;
 
+  // ─── Day Done detection: all prayer windows have expired ───
+  const isDayDone = useMemo(() => {
+    if (!timings) return false;
+    const ishaExpired = isWindowExpired(timings.Isha);
+    const duhaExpired = (() => {
+      const dhuhrDate = parseTime(timings.Dhuhr);
+      return dhuhrDate ? new Date() >= dhuhrDate : false;
+    })();
+    const witrDone = witrCountdown.isExpired || !!todayLogs['Witr'];
+    return ishaExpired && duhaExpired && witrDone;
+  }, [timings, witrCountdown.isExpired, todayLogs]);
+
   // NO auto-miss useEffect — prayers are visual-only until user acts
 
   // ─── Next upcoming prayer ───
@@ -332,11 +344,51 @@ export function DashboardPrayerWidget() {
               </p>
               <p className="text-2xs text-muted-foreground/70">{isAr ? '— متفق عليه' : '— Agreed upon (Bukhari & Muslim)'}</p>
             </div>
+            <Link to="/spiritual/prayer" className="block">
+              <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs h-8 border-border/60">
+                {isAr ? 'عرض التفاصيل' : 'View Details'}
+                <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
+              </Button>
+            </Link>
+          </div>
+        ) : isDayDone ? (
+          <div className="rounded-xl border border-border/40 bg-muted/20 p-4 space-y-3">
+            <div className="text-center space-y-1">
+              <p className="text-sm font-semibold text-foreground">
+                {isAr ? 'انتهى يوم الصلاة' : 'Prayer Day Complete'}
+              </p>
+              <p className="text-2xl font-bold text-foreground">
+                {completedCount}/{totalPrayers}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {completedCount === 0
+                  ? (isAr ? 'غدًا يوم جديد إن شاء الله' : 'Tomorrow is a new day, In Shaa Allah')
+                  : completedCount <= 3
+                    ? (isAr ? 'حاول أن تحافظ على المزيد غدًا' : 'Try to keep more tomorrow')
+                    : completedCount <= 5
+                      ? (isAr ? 'جهد طيب، واصل!' : 'Good effort, keep going!')
+                      : (isAr ? 'ما شاء الله، أداء ممتاز!' : "Masha'Allah, excellent!")}
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-3 text-[10px]">
+              <span className="flex items-center gap-1 text-[hsl(var(--state-completed))]">
+                <Check className="h-3 w-3" strokeWidth={2} /> {completedCount} {isAr ? 'مكتملة' : 'completed'}
+              </span>
+              <span className="flex items-center gap-1 text-destructive">
+                <X className="h-3 w-3" strokeWidth={2} /> {totalPrayers - completedCount} {isAr ? 'فائتة' : 'missed'}
+              </span>
+            </div>
+            <Link to="/spiritual/prayer" className="block">
+              <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs h-8 border-border/60">
+                {isAr ? 'عرض التفاصيل' : 'View Details'}
+                <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
+              </Button>
+            </Link>
           </div>
         ) : unloggedPrayers.length > 0 ? (
           <div className="space-y-2 border-t border-border/50 pt-3">
             {unloggedPrayers.map((prayerName) => {
-              const isExpanded = prayerName === activePrayer; // First one is expanded by default
+              const isExpanded = prayerName === activePrayer;
               return (
                 <div key={prayerName} className="space-y-2">
                   <div className="flex items-center justify-between gap-2">
@@ -360,7 +412,6 @@ export function DashboardPrayerWidget() {
                           }
                         </p>
                       </div>
-                      {/* Countdown badge */}
                       {prayerName === 'Duha' ? (() => {
                         const dhuhrDate = parseTime(timings.Dhuhr);
                         if (!dhuhrDate) return null;
@@ -386,7 +437,6 @@ export function DashboardPrayerWidget() {
                     {renderActionButtons(prayerName)}
                   </div>
 
-                  {/* Rawatib for expanded (first) prayer */}
                   {isExpanded && (() => {
                     const rawatib = RAWATIB_CONFIG[prayerName];
                     if (!rawatib || (!rawatib.before && !rawatib.after)) return null;
