@@ -6,10 +6,10 @@ import type { StatusBadgeConfig } from './StatusBadge';
 
 // ── Tenant ───────────────────────────────────────────────────────────────────
 export const TENANT_STATUS_CONFIG: StatusBadgeConfig = {
-  active:    { variant: 'default',     className: 'bg-green-500/20 text-green-700 dark:text-green-400 border-green-500/30' },
-  trial:     { variant: 'secondary',   className: 'bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-500/30' },
-  suspended: { variant: 'destructive', className: 'bg-red-500/20 text-red-700 dark:text-red-400 border-red-500/30' },
-  inactive:  { variant: 'outline',     className: 'bg-muted text-muted-foreground' },
+  active:    { variant: 'default',     className: 'bg-[hsl(var(--state-completed))]/20 text-[hsl(var(--state-completed))] border-[hsl(var(--state-completed))]/30' },
+  trial:     { variant: 'secondary',   className: 'bg-[hsl(var(--state-pending))]/20 text-[hsl(var(--state-pending))] border-[hsl(var(--state-pending))]/30' },
+  suspended: { variant: 'destructive', className: 'bg-[hsl(var(--state-overdue))]/20 text-[hsl(var(--state-overdue))] border-[hsl(var(--state-overdue))]/30' },
+  inactive:  { variant: 'outline',     className: 'bg-[hsl(var(--state-normal-bg))] text-[hsl(var(--state-normal))]' },
 };
 
 // ── Account ──────────────────────────────────────────────────────────────────
