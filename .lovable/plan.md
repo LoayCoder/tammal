@@ -1,54 +1,49 @@
 
 
-## Task Reference ID — Analysis & Plan
+## Bilingual Task Title & Description — Mandatory Both Languages
 
 ### Current State
-- Each task has only a UUID (`bdcea4ee-72dd-4dae-9343-a62e20f2ae9f`) — not displayed anywhere in the UI.
-- There is **no** short/human-readable reference ID (like `TASK-001`) on the `unified_tasks` table or in the UI.
+- `unified_tasks` has `title` (EN) and `title_ar` (AR), but **no `description_ar`** column
+- CreateTaskModal has `titleAr` field but it's optional — tasks can be created without it
+- TaskDetail shows `title` as primary and `title_ar` as a secondary subtitle — no language-aware switching
+- Description has no Arabic variant at all
 
-### What Needs to Happen
+### Plan
 
-**1. Database: Add `task_number` column + auto-increment trigger**
-- Add a `task_number INTEGER` column to `unified_tasks`
-- Create a trigger that auto-generates a sequential number per tenant on insert
-- This gives each task a short reference like `#142` scoped to the tenant
+**1. Database Migration — Add `description_ar` column**
+- Add `description_ar TEXT NULL` to `unified_tasks`
+- Keep nullable in DB (existing tasks won't have it), enforce at app level for new tasks
 
-**2. UI: Display the reference ID**
-- Show the reference in the Task Detail header (e.g., `#142` as a muted badge next to the title)
-- Show it in task list rows for quick identification
-- Make it copyable on click
+**2. CreateTaskModal — Make both languages mandatory**
+- Add `descriptionAr` state field
+- Add Arabic description input (`TaskPrimaryForm`)
+- Add validation: block submit unless `title`, `titleAr`, `description`, and `descriptionAr` all have content
+- Show inline error messages when either language is missing
+- Pass `description_ar` to `createTaskAsync`
+
+**3. Update `useEnterpriseTasks` hook**
+- Add `description_ar` to `CreateEnterpriseTaskInput` interface
+- Include `description_ar` in the insert mutation
+
+**4. TaskDetail — Language-aware display**
+- Use `i18n.language` to determine active language
+- Title: show `title_ar` when Arabic, `title` when English (show the other as subtitle)
+- Description: show `description_ar` when Arabic, `description` when English
+- Inline edit must save both `description` and `description_ar`
+
+**5. Workload TaskDialog — Same bilingual enforcement**
+- Add `title_ar` and `description_ar` fields to the form schema
+- Make both required for create flow
+- Display based on current language
 
 ### Files to Change
 | File | Change |
 |------|--------|
-| **Migration (new)** | Add `task_number` column, create auto-increment trigger per tenant, backfill existing tasks |
-| `src/features/tasks/pages/TaskDetail.tsx` | Display `#task_number` in header |
-| `src/features/tasks/components/` (task list items) | Show reference in list rows |
-
-### Migration SQL (Core Logic)
-```sql
-ALTER TABLE unified_tasks ADD COLUMN task_number INTEGER;
-
--- Auto-increment per tenant
-CREATE OR REPLACE FUNCTION generate_task_number()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.task_number := COALESCE(
-    (SELECT MAX(task_number) FROM unified_tasks WHERE tenant_id = NEW.tenant_id), 0
-  ) + 1;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_task_number
-  BEFORE INSERT ON unified_tasks
-  FOR EACH ROW EXECUTE FUNCTION generate_task_number();
-
--- Backfill existing tasks
-UPDATE unified_tasks SET task_number = sub.rn
-FROM (
-  SELECT id, ROW_NUMBER() OVER (PARTITION BY tenant_id ORDER BY created_at) AS rn
-  FROM unified_tasks
-) sub WHERE unified_tasks.id = sub.id;
-```
+| **Migration (new)** | `ALTER TABLE unified_tasks ADD COLUMN description_ar TEXT` |
+| `src/features/tasks/components/CreateTaskModal.tsx` | Add `descriptionAr` state, validation for both langs |
+| `src/features/tasks/components/create-modal/TaskPrimaryForm.tsx` | Add Arabic description textarea |
+| `src/features/tasks/hooks/useEnterpriseTasks.ts` | Add `description_ar` to interface and mutation |
+| `src/features/tasks/pages/TaskDetail.tsx` | Language-switch title/description display, bilingual inline edit |
+| `src/components/workload/employee/TaskDialog.tsx` | Add `title_ar`, `description_ar` fields with validation |
+| `src/components/workload/employee/task-dialog/TaskDialogForm.tsx` | Add Arabic input fields |
 
