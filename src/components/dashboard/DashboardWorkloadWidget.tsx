@@ -116,9 +116,7 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
               "flex flex-col items-center flex-1 gap-1.5",
               i < statItems.length - 1 && "border-e border-border/40"
             )}>
-              <div className={cn('w-7 h-7 rounded-lg flex items-center justify-center', item.bg)}>
-                <item.icon className={cn('h-3.5 w-3.5', item.color)} strokeWidth={1.5} />
-              </div>
+              <item.icon className={cn('h-4 w-4', item.color)} strokeWidth={1.5} />
               <span className="text-xl font-bold leading-none">{item.value}</span>
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider text-center leading-tight">{item.label}</span>
             </div>
