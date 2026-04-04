@@ -598,6 +598,30 @@ export function DashboardPrayerWidget() {
           </div>
         </div>
 
+        {/* ── Rawatib summary ── */}
+        {(() => {
+          const rawatibPrayers = ['Fajr', 'Dhuhr', 'Maghrib', 'Isha'] as const;
+          const totalRawatib = rawatibPrayers.reduce((sum, p) => {
+            const r = RAWATIB_CONFIG[p];
+            return sum + (r?.before || 0) + (r?.after || 0);
+          }, 0);
+          const completedRawatib = rawatibPrayers.reduce((sum, p) => {
+            const r = RAWATIB_CONFIG[p];
+            let c = 0;
+            if (r?.before && todayCompleted.has(`rawatib_${p.toLowerCase()}_before`)) c += r.before;
+            if (r?.after && todayCompleted.has(`rawatib_${p.toLowerCase()}_after`)) c += r.after;
+            return sum + c;
+          }, 0);
+          return (
+            <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+              <span className="flex items-center gap-1">📿 {isAr ? 'السنن الرواتب' : 'Rawatib Sunnah'}</span>
+              <span className={cn('font-semibold', completedRawatib === totalRawatib && totalRawatib > 0 ? 'text-primary' : 'text-foreground')}>
+                {completedRawatib}/{totalRawatib} {isAr ? 'ركعات' : "Rak'ahs"}
+              </span>
+            </div>
+          );
+        })()}
+
         {/* Next prayer info when active prayers exist */}
         {unloggedPrayers.length > 0 && !allCompleted && nextUpcomingPrayer && (
           <div className="flex items-center justify-center gap-1.5 pt-1">
