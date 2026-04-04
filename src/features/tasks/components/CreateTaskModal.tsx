@@ -65,11 +65,21 @@ export function CreateTaskModal({
   }, [employeeId, defaultDepartmentId]);
 
   const handleSubmit = useCallback(async (asDraft: boolean) => {
-    if (!title.trim() || !assigneeId) return;
+    const errors: Record<string, boolean> = {};
+    if (!title.trim()) errors.title = true;
+    if (!titleAr.trim()) errors.titleAr = true;
+    if (!description.trim()) errors.description = true;
+    if (!descriptionAr.trim()) errors.descriptionAr = true;
+    if (Object.keys(errors).length > 0 || !assigneeId) {
+      setValidationErrors(errors);
+      return;
+    }
+    setValidationErrors({});
     try {
       await createTaskAsync({
-        title: title.trim(), title_ar: titleAr.trim() || null,
-        description: description.trim() || null, employee_id: assigneeId,
+        title: title.trim(), title_ar: titleAr.trim(),
+        description: description.trim(), description_ar: descriptionAr.trim(),
+        employee_id: assigneeId,
         status: asDraft ? 'draft' : 'open', priority, visibility,
         due_date: dueDate?.toISOString() ?? null, scheduled_start: startDate?.toISOString() ?? null,
         estimated_minutes: estimatedMinutes ? parseInt(estimatedMinutes) : null,
