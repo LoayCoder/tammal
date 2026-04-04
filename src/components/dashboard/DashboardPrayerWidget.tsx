@@ -8,6 +8,7 @@ import { Landmark, House, Building, ChevronRight, Clock, Timer, Check } from 'lu
 const ICON_STROKE = 1.5;
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
 import { usePrayerTimes, PRAYER_NAMES } from '@/hooks/spiritual/usePrayerTimes';
+import { ISLAMIC_EVENTS, isWhiteDay, isSunnahFastingDay } from '@/hooks/spiritual/useHijriCalendar';
 import { usePrayerLogs } from '@/hooks/spiritual/usePrayerLogs';
 import { usePrayerCountdown } from '@/hooks/spiritual/usePrayerCountdown';
 import { useWitrCountdown } from '@/hooks/spiritual/useWitrCountdown';
