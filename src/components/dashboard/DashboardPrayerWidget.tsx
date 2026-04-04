@@ -18,7 +18,8 @@ import { cardVariants } from "@/theme/tokens";
 import { getLocalDateString } from '@/utils/getLocalDate';
 
 /** Canonical prayer order */
-const ALL_PRAYERS = ['Fajr', 'Duha', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Witr'] as const;
+/** Chronological order: Witr (last night) → Fajr → ... → Isha */
+const ALL_PRAYERS = ['Witr', 'Fajr', 'Duha', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
 
 const RAWATIB_CONFIG: Record<string, { before?: number; after?: number }> = {
   Fajr:    { before: 2 },
@@ -146,7 +147,13 @@ export function DashboardPrayerWidget() {
         }
         continue;
       }
-      if (name === 'Witr') continue;
+      if (name === 'Witr') {
+        // Witr: show countdown to Fajr if Witr window is active
+        if (!todayLogs['Witr'] && witrCountdown.isPrayerTime && !witrCountdown.isExpired && witrCountdown.minutesLeft != null) {
+          return { name: 'Witr', minsUntil: witrCountdown.minutesLeft };
+        }
+        continue;
+      }
       if (todayLogs[name]) continue;
       const pDate = parseTime(timings[name as keyof typeof timings]);
       if (pDate && pDate > now) {
