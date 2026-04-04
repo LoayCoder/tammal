@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { cardVariants } from "@/theme/tokens";
 import { getLocalDateString } from '@/utils/getLocalDate';
 import { useAutoRefreshOnDayChange } from '@/hooks/useAutoRefreshOnDayChange';
+import { usePrayerTrackerVisibility } from '@/hooks/spiritual/usePrayerTrackerVisibility';
 
 /** Canonical prayer order */
 /** Chronological order: Witr (last night) → Fajr → ... → Isha */
