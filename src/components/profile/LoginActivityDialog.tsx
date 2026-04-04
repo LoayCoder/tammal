@@ -57,7 +57,7 @@ export function LoginActivityDialog({ open, onOpenChange }: LoginActivityDialogP
       case 'failed_login':
         return <XCircle className="h-4 w-4 text-destructive" />;
       default:
-        return <LogIn className="h-4 w-4 text-green-600" />;
+        return <LogIn className="h-4 w-4 text-[hsl(var(--state-completed))]" />;
     }
   };
 
@@ -115,7 +115,7 @@ export function LoginActivityDialog({ open, onOpenChange }: LoginActivityDialogP
                 >
                   <div className={`p-2 rounded-lg ${
                     event.success 
-                      ? 'bg-green-100 text-green-600' 
+                      ? 'bg-[hsl(var(--state-completed-bg))] text-[hsl(var(--state-completed))]' 
                       : 'bg-destructive/10 text-destructive'
                   }`}>
                     {getEventIcon(event.event_type, event.success)}

@@ -83,7 +83,7 @@ export default function InstallApp() {
           {/* Install Button */}
           {isInstalled ? (
             <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 text-green-600 dark:text-green-400">
+              <div className="inline-flex items-center gap-2 text-[hsl(var(--state-completed))]">
                 <Check className="h-5 w-5" />
                 <span className="font-medium">{t('install.alreadyInstalled')}</span>
               </div>
@@ -129,7 +129,7 @@ export default function InstallApp() {
             </CardHeader>
             <CardContent>
               {isGranted ? (
-                <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                <div className="flex items-center gap-2 text-[hsl(var(--state-completed))]">
                   <BellRing className="h-5 w-5" />
                   <span className="font-medium">{t('install.notificationsEnabled')}</span>
                 </div>

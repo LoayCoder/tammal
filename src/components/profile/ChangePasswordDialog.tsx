@@ -117,9 +117,9 @@ export function ChangePasswordDialog({
 
         {passwordChanged ? (
           <div className="space-y-4 py-4">
-            <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
-              <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-              <AlertDescription className="text-green-800 dark:text-green-200">
+            <Alert className="border-[hsl(var(--state-completed))]/30 bg-[hsl(var(--state-completed-bg))]">
+              <CheckCircle2 className="h-4 w-4 text-[hsl(var(--state-completed))]" />
+              <AlertDescription className="text-[hsl(var(--state-completed))]">
                 {t('profile.passwordChangedSuccessfully')}
               </AlertDescription>
             </Alert>
@@ -174,7 +174,7 @@ export function ChangePasswordDialog({
                     <div
                       key={idx}
                       className={`flex items-center gap-1.5 text-xs ${
-                        req.met ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'
+                        req.met ? 'text-[hsl(var(--state-completed))]' : 'text-muted-foreground'
                       }`}
                     >
                       <CheckCircle2 className={`h-3 w-3 ${req.met ? 'opacity-100' : 'opacity-40'}`} />

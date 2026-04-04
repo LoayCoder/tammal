@@ -23,6 +23,7 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import type { UserWithRoles } from '@/hooks/org/useUsers';
 import { Shield, Loader2, AlertTriangle } from 'lucide-react';
 import { typography } from "@/theme/tokens";
+import { SYSTEM_ROLE_COLORS } from '@/config/toolkit-colors';
 
 interface UserRoleDialogProps {
   open: boolean;
@@ -33,13 +34,6 @@ interface UserRoleDialogProps {
 
 const SYSTEM_ROLES = ['super_admin', 'tenant_admin', 'manager', 'user'] as const;
 type SystemRole = typeof SYSTEM_ROLES[number];
-
-const SYSTEM_ROLE_COLORS: Record<SystemRole, string> = {
-  super_admin: '#dc2626',
-  tenant_admin: '#ea580c',
-  manager: '#2563eb',
-  user: '#16a34a',
-};
 
 export function UserRoleDialog({ open, onOpenChange, user, tenantId }: UserRoleDialogProps) {
   const { t, i18n } = useTranslation();
@@ -172,6 +166,8 @@ export function UserRoleDialog({ open, onOpenChange, user, tenantId }: UserRoleD
     return true;
   });
 
+  const getRoleColor = (role: string) => SYSTEM_ROLE_COLORS[role] || 'hsl(var(--muted-foreground))';
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -191,7 +187,7 @@ export function UserRoleDialog({ open, onOpenChange, user, tenantId }: UserRoleD
             <div className="flex items-center gap-2">
               <Label className="font-semibold text-sm">{t('roles.systemRole', 'System Role')}</Label>
               <Badge
-                style={{ backgroundColor: SYSTEM_ROLE_COLORS[currentSystemRole] + '20', color: SYSTEM_ROLE_COLORS[currentSystemRole] }}
+                style={{ backgroundColor: `color-mix(in srgb, ${getRoleColor(currentSystemRole)} 20%, transparent)`, color: getRoleColor(currentSystemRole) }}
                 variant="outline"
                 className="text-xs"
               >
@@ -210,7 +206,7 @@ export function UserRoleDialog({ open, onOpenChange, user, tenantId }: UserRoleD
                       <div className="flex items-center gap-2">
                         <span
                           className="h-2 w-2 rounded-full"
-                          style={{ backgroundColor: SYSTEM_ROLE_COLORS[role] }}
+                          style={{ backgroundColor: getRoleColor(role) }}
                         />
                         {role.replace('_', ' ')}
                       </div>

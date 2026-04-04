@@ -16,7 +16,7 @@ export function DistributionPreview({ subcategories, questionCount }: Distributi
   const perState = Math.max(1, Math.round(perSub / 3));
 
   const states = [
-    { key: 'positive', label: t('aiGenerator.affective_positive'), color: 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' },
+    { key: 'positive', label: t('aiGenerator.affective_positive'), color: 'bg-[hsl(var(--trend-positive))]/20 text-[hsl(var(--trend-positive))]' },
     { key: 'neutral', label: t('aiGenerator.affective_neutral'), color: 'bg-muted text-muted-foreground' },
     { key: 'negative', label: t('aiGenerator.affective_negative'), color: 'bg-destructive/20 text-destructive' },
   ];

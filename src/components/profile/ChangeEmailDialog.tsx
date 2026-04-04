@@ -111,9 +111,9 @@ export function ChangeEmailDialog({
 
         {verificationSent ? (
           <div className="space-y-4 py-4">
-            <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
-              <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-              <AlertDescription className="text-green-800 dark:text-green-200">
+            <Alert className="border-[hsl(var(--state-completed))]/30 bg-[hsl(var(--state-completed-bg))]">
+              <CheckCircle2 className="h-4 w-4 text-[hsl(var(--state-completed))]" />
+              <AlertDescription className="text-[hsl(var(--state-completed))]">
                 {t('profile.emailVerificationSentDescription')}
               </AlertDescription>
             </Alert>

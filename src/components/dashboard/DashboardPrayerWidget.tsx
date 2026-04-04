@@ -32,7 +32,7 @@ function PrayerCountdownBadge({ prayerTime }: { prayerTime: string }) {
   if (!isPrayerTime || isExpired || minutesLeft == null) return null;
 
   return (
-    <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30">
+    <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-[hsl(var(--prayer-home))]/10 text-[hsl(var(--prayer-home))] border border-[hsl(var(--prayer-home))]/30">
       <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} />
       {i18n.language === 'ar' ? `${minutesLeft}د` : `${minutesLeft}m`}
     </span>
@@ -110,7 +110,7 @@ export function DashboardPrayerWidget() {
   const hasActiveRawatib = activeRawatib && (activeRawatib.before || activeRawatib.after);
 
   return (
-    <Card className={cn(cardVariants.premiumVip, "border-[#69cbfc]/[0.49]")}>
+    <Card className={cn(cardVariants.premiumVip, "border-[hsl(var(--islamic-accent))]/[0.49]")}>
       <CardContent className="p-5 space-y-4 border-primary">
         {/* Header with Hijri date */}
         <div className="flex items-center justify-between">
@@ -137,7 +137,7 @@ export function DashboardPrayerWidget() {
 
         {/* Active prayer card */}
         {activePrayer && !allCompleted ? (
-          <div className="rounded-xl p-3 space-y-2.5 bg-[#69cbfc]/[0.13]">
+          <div className="rounded-xl p-3 space-y-2.5 bg-[hsl(var(--islamic-accent))]/[0.13]">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-semibold text-sm">
@@ -153,7 +153,7 @@ export function DashboardPrayerWidget() {
               </div>
               {activePrayer === 'Witr' ? (
                 witrCountdown.isPrayerTime && !witrCountdown.isExpired && witrCountdown.minutesLeft != null ? (
-                  <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/30">
+                  <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-[hsl(var(--prayer-home))]/10 text-[hsl(var(--prayer-home))] border border-[hsl(var(--prayer-home))]/30">
                     <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} />
                     {i18n.language === 'ar' ? `${witrCountdown.minutesLeft}د` : `${witrCountdown.minutesLeft}m`}
                   </span>
@@ -250,7 +250,7 @@ export function DashboardPrayerWidget() {
                 <div
                   className={cn(
                     'h-7 w-7 rounded-full flex items-center justify-center text-xs border transition-all',
-                    logged && !isMissed && 'bg-green-500/20 border-green-500/40 text-green-500',
+                    logged && !isMissed && 'bg-[hsl(var(--state-completed))]/20 border-[hsl(var(--state-completed))]/40 text-[hsl(var(--state-completed))]',
                     isMissed && 'bg-destructive/10 border-destructive/30 text-destructive',
                     !logged && isActive && 'bg-primary/10 border-primary/40 text-primary ring-2 ring-primary/20 animate-pulse',
                     !logged && !isActive && 'bg-muted border-border text-muted-foreground',
