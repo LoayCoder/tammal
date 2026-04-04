@@ -809,6 +809,7 @@ export default function DesignSystemPage() {
               <EditableSwatch name="Mosque" cssVar="prayer-mosque" {...swatchProps} />
               <EditableSwatch name="Home" cssVar="prayer-home" {...swatchProps} />
               <EditableSwatch name="Work" cssVar="prayer-work" {...swatchProps} />
+              <EditableSwatch name="Countdown" cssVar="prayer-countdown" {...swatchProps} />
               <EditableSwatch name="Missed" cssVar="state-missed" {...swatchProps} />
             </div>
           </CardContent>
