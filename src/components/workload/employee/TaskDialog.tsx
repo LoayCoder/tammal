@@ -11,7 +11,9 @@ import type { UnifiedTask, UnifiedTaskInsert, UnifiedTaskUpdate, TaskComment } f
 
 const taskSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
-  description: z.string().max(2000).optional().default(''),
+  title_ar: z.string().min(1, 'Arabic title is required').max(200),
+  description: z.string().min(1, 'Description is required').max(2000),
+  description_ar: z.string().min(1, 'Arabic description is required').max(2000),
   priority: z.number().int().min(1).max(5).default(3),
   status: z.string().default('draft'),
   estimated_minutes: z.number().int().positive().nullable().optional(),
