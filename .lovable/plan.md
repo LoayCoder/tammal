@@ -1,54 +1,35 @@
 
-## Fix Dashboard Overlap by Enforcing Real Section Gaps
 
-### What I will change
+## Fix Survey Card: Missing Translation, Minimal Design, Icon Consistency
 
-**`src/pages/EmployeeHome.tsx`**
+### Issues Found
 
-1. **Fix the real cause of the missing gap**
-   - The page uses `space-y-8`, but the **Pending Surveys** section is wrapped in a top-level `Link`, which renders as an **inline element** by default.
-   - Margin spacing from `space-y-*` does not behave reliably on inline children, so the gap can visually collapse.
-   - I will make that `Link` a **block-level wrapper** (`className="block"`) or wrap it in a block container so spacing works correctly.
+1. **`home.dueDate` translation key missing** — not in `en.json` or `ar.json`, so it renders the raw key
+2. **Card is too heavy** — oversized icon container (h-14 w-14), large padding, complex gradient
+3. **Icon style mismatch** — `ClipboardList` at h-7 w-7 with thick stroke doesn't match the page's thin outline standard (strokeWidth 1.5, h-5 w-5)
 
-2. **Add explicit spacing between Support Hub and the next section**
-   - I will not rely only on the parent stack.
-   - I will add a dedicated wrapper with clear spacing like:
-     - `space-y-4 sm:space-y-6` for the card group below Support Hub
-     - optional `pt-1 sm:pt-2` where needed for extra breathing room
-   - This ensures a visible, premium gap on mobile and desktop.
+### Changes
 
-3. **Reduce visual collision from hover effects**
-   - The survey card already uses `cardVariants.premiumVip`, which includes interactive motion.
-   - It also adds another hover lift class on top of that.
-   - I will remove the duplicated lift so the card does not visually jump upward into the Support Hub.
+**1. `src/locales/en.json`** — Add missing key:
+```json
+"dueDate": "Due: {{date}}"
+```
 
-4. **Keep the layout premium and stable**
-   - Preserve the current order:
-     1. Greeting
-     2. Support Hub
-     3. Recognition / Voting widgets
-     4. Pending Surveys
-     5. Daily Check-in
-   - Keep rounded corners, premium shadows, and clean vertical rhythm without overlap.
+**2. `src/locales/ar.json`** — Add missing key:
+```json
+"dueDate": "الموعد النهائي: {{date}}"
+```
 
-### Expected result
+**3. `src/pages/EmployeeHome.tsx`** — Simplify the survey card:
+- Shrink icon container from `h-14 w-14` → `h-10 w-10`, icon from `h-7 w-7` → `h-5 w-5`
+- Add `strokeWidth={1.5}` to `ClipboardList` to match other page icons
+- Reduce padding from `p-6` → `p-4`
+- Keep the due date + urgency logic as-is (it works, just needed the translation key)
 
-- Clear visible gap between **Support Hub** and **Pending Surveys**
-- No touching/stacking effect on hover
-- Better mobile spacing on small screens
-- Cleaner premium layout with more intentional separation between sections
-
-### Technical details
-
-- Root issue: `space-y-8` + direct child `Link` (inline by default)
-- Fix:
-  - make top-level `Link` wrappers `block`
-  - add explicit section wrapper spacing
-  - remove duplicate hover translation from the survey card
-- No backend or data changes required
-
-### Files to modify
-
+### Files Modified
 | File | Change |
 |------|--------|
-| `src/pages/EmployeeHome.tsx` | Make survey wrapper block-level, add explicit section spacing, reduce hover collision |
+| `src/locales/en.json` | Add `home.dueDate` translation |
+| `src/locales/ar.json` | Add `home.dueDate` translation |
+| `src/pages/EmployeeHome.tsx` | Reduce icon/padding size, match strokeWidth to page standard |
+
