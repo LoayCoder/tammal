@@ -16,6 +16,7 @@ import { useSunnahLogs } from '@/hooks/spiritual/useSunnahLogs';
 import { cn } from '@/lib/utils';
 import { cardVariants } from "@/theme/tokens";
 import { getLocalDateString } from '@/utils/getLocalDate';
+import { useAutoRefreshOnDayChange } from '@/hooks/useAutoRefreshOnDayChange';
 
 /** Canonical prayer order */
 /** Chronological order: Witr (last night) → Fajr → ... → Isha */
@@ -69,6 +70,7 @@ function PrayerCountdownBadge({ prayerTime }: { prayerTime: string }) {
 
 export function DashboardPrayerWidget() {
   const { t, i18n } = useTranslation();
+  useAutoRefreshOnDayChange();
   const isAr = i18n.language === 'ar';
   const { isPrayerEnabled, preferences } = useSpiritualPreferences();
   const { data: prayerData } = usePrayerTimes(
