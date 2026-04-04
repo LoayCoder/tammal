@@ -50,7 +50,7 @@ export function CheckinSuccess({ streak, totalPoints, aiTip, alreadyDone }: Chec
 
         <div className="flex justify-center gap-3 animate-in fade-in slide-in-from-bottom-3 duration-500" style={{ animationDelay: '200ms' }}>
           <Badge variant="secondary" className="text-sm px-4 py-2 rounded-full gap-1.5">
-            <Flame className="h-4 w-4 text-orange-500" /> {streak} {t('wellness.dayStreak')}
+            <Flame className="h-4 w-4 text-[hsl(var(--rank-bronze))]" /> {streak} {t('wellness.dayStreak')}
           </Badge>
           <Badge variant="secondary" className="text-sm px-4 py-2 rounded-full gap-1.5">
             <Star className="h-4 w-4 text-yellow-500" /> {totalPoints} {t('wellness.points')}
