@@ -298,12 +298,23 @@ export function DashboardPrayerWidget() {
               )}
             </div>
           </div>
-          <Link to="/spiritual/prayer">
-            <Button variant="ghost" size="sm" className="gap-1 text-xs h-7">
-              {t('common.more')}
-              <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={hide}
+              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+              title={isAr ? 'إخفاء المتتبع' : 'Hide Tracker'}
+            >
+              <EyeOff className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} />
             </Button>
-          </Link>
+            <Link to="/spiritual/prayer">
+              <Button variant="ghost" size="sm" className="gap-1 text-xs h-7">
+                {t('common.more')}
+                <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* ── Islamic event banner ── */}
