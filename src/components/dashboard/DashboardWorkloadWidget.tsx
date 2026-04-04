@@ -149,33 +149,26 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
                     key={task.id}
                     onClick={() => navigate(`/tasks/${task.id}`)}
                     className={cn(
-                      "flex items-center gap-2.5 py-2.5 w-full text-start group rounded-lg px-2 -mx-2",
-                      "hover:bg-muted/50 transition-all duration-200 cursor-pointer",
-                      i < upcoming.length - 1 && "border-b border-border/30"
+                      "flex items-center gap-2 py-2 w-full text-start group",
+                      "hover:bg-muted/30 transition-colors duration-150 cursor-pointer rounded px-1 -mx-1",
+                      i < upcoming.length - 1 && "border-b border-border/20"
                     )}
                   >
-                    {/* Status indicator */}
-                    <span className={cn('h-2 w-2 shrink-0 rounded-full ring-2 ring-offset-1 ring-offset-card', statusStyle.bg, statusStyle.color.replace('text-', 'ring-'))} />
-
-                    {/* Task info */}
                     <div className="flex-1 min-w-0">
-                      <span className="block text-sm font-medium truncate group-hover:text-primary transition-colors">
+                      <span className="block text-sm truncate group-hover:text-primary transition-colors">
                         {task.title}
                       </span>
-                      {task.due_date && (
-                        <span className="text-[10px] text-muted-foreground">
-                          {format(new Date(task.due_date), 'MMM d')}
-                        </span>
-                      )}
                     </div>
 
-                    {/* Status badge */}
-                    <span className={cn('text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full shrink-0', statusStyle.bg, statusStyle.color)}>
+                    {task.due_date && (
+                      <span className="text-[10px] text-muted-foreground shrink-0">
+                        {format(new Date(task.due_date), 'MMM d')}
+                      </span>
+                    )}
+
+                    <span className={cn('text-[9px] font-medium shrink-0', statusStyle.color)}>
                       {statusStyle.label}
                     </span>
-
-                    {/* Arrow on hover */}
-                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0 rtl:rotate-180" />
                   </button>
                 );
               })}
