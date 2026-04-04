@@ -305,7 +305,7 @@ export function DashboardPrayerWidget() {
                   disabled={togglePractice.isPending}
                   className={cn('gap-1 h-6 px-2 text-[10px] border', isDuhaCompleted ? 'border-primary/40' : 'border-border/50 hover:border-primary/30')}
                 >
-                  {isDuhaCompleted ? <Check className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
+                  {isDuhaCompleted ? <CheckLine className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                   {isDuhaCompleted ? (i18n.language === 'ar' ? 'تم ✓' : 'Done ✓') : (i18n.language === 'ar' ? 'تم' : 'Done')}
                 </Button>
               ) : (
