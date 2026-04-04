@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Landmark, House, Building, ChevronRight, Clock, Timer, Check } from 'lucide-react';
-import { Landmark, House, Building, ChevronRight, Clock, Timer, Check } from 'lucide-react';
 
 const ICON_STROKE = 1.5;
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
