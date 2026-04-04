@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorBoundary } from "@/shared/resilience/ErrorBoundary";
 import { PageErrorBoundary } from "@/components/errors/PageErrorBoundary";
 import { Sentry } from "@/lib/sentry";
+import { AuthProvider } from "@/providers/AuthProvider";
 
 // ── Eager-loaded (critical path) ──
 import Auth from "@/pages/Auth";

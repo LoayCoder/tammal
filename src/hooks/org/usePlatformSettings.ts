@@ -15,32 +15,42 @@ export function usePlatformSettings() {
   const { user } = useAuth();
 
   // Pre-auth: use public RPC; post-auth: use direct table query
+  const SAFE_DEFAULTS: PlatformSettings = {
+    id: '',
+    allow_public_signup: false,
+    show_invitation_link: true,
+    updated_at: '',
+    updated_by: null,
+  };
+
   const { data, isPending } = useQuery({
     queryKey: ['platform-settings', !!user],
     queryFn: async () => {
-      if (user) {
-        // Authenticated — full access
-        const { data, error } = await supabase
-          .from('platform_settings')
-          .select('*')
-          .limit(1)
-          .single();
-        if (error) throw error;
-        return data as unknown as PlatformSettings;
-      } else {
-        // Pre-auth — use public RPC (returns only safe fields)
-        const { data, error } = await supabase.rpc('get_public_platform_config');
-        if (error) throw error;
-        const row = Array.isArray(data) ? data[0] : data;
-        return {
-          id: '',
-          allow_public_signup: row?.allow_public_signup ?? false,
-          show_invitation_link: row?.show_invitation_link ?? true,
-          updated_at: '',
-          updated_by: null,
-        } as PlatformSettings;
+      try {
+        if (user) {
+          const { data, error } = await supabase
+            .from('platform_settings')
+            .select('*')
+            .limit(1)
+            .single();
+          if (error) throw error;
+          return data as unknown as PlatformSettings;
+        } else {
+          const { data, error } = await supabase.rpc('get_public_platform_config');
+          if (error) throw error;
+          const row = Array.isArray(data) ? data[0] : data;
+          return {
+            ...SAFE_DEFAULTS,
+            allow_public_signup: row?.allow_public_signup ?? false,
+            show_invitation_link: row?.show_invitation_link ?? true,
+          } as PlatformSettings;
+        }
+      } catch {
+        // Never let a failed RPC blank the auth page
+        return SAFE_DEFAULTS;
       }
     },
+    retry: false,
   });
 
   const updateSettings = useMutation({
