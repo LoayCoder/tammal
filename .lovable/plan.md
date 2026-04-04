@@ -1,47 +1,42 @@
 
 
-## Fix Language Display & Task ID Format
+## Premium VIP Upgrade for /my-workload Page
 
-### Two Issues
-
-**Issue 1: Arabic text showing in English mode**
-Currently, the Task Detail always shows the secondary language subtitle (Arabic under English title, or vice versa). When UI is in English, only English title and description should display — no Arabic subtitle. Same in reverse.
-
-**Issue 2: Task ID format**
-Current format: `#8` (just the sequential number).
-Required format: `{Tenant Name} - {Branch Name} - {Task Number} - {Year}` e.g. `Golf Saudi - HQ - 10 - 26`
-
----
+### Current State
+The page uses generic `Card className="border-0 bg-muted/30"` for all stat cards, capacity gauge, and task list — flat, muted style that doesn't match the Premium VIP design language used elsewhere in the app.
 
 ### Changes
 
-**1. `src/features/tasks/hooks/useTaskDetail.ts`**
-- Expand the query to join through `employee → branch` and `tenant` to get branch name and tenant name:
-  ```
-  select('*, employee:employees!unified_tasks_employee_id_fkey(full_name, branch:branches!employees_branch_id_fkey(name)), tenant:tenants!unified_tasks_tenant_id_fkey(name)')
-  ```
+**1. `src/pages/employee/PersonalCommandCenter.tsx` — Premium layout overhaul**
 
-**2. `src/features/tasks/pages/TaskDetail.tsx`**
-- **Remove the secondary title line entirely** — only show the active language's title (EN or AR based on `i18n.language`)
-- **Description**: already language-aware, keep as-is
-- **Task ID badge**: Build the composite reference string from tenant name, branch name, task number, and 2-digit year (from `created_at`):
-  ```
-  Golf Saudi - HQ - 10 - 26
-  ```
-- If tenant/branch data isn't available, fall back to just `#task_number`
+- **Header**: Use `PageHeader` system component (consistent with TeamWorkload) instead of raw `div` + `h1`
+- **Stats Row**: Replace 5 separate `Card` components with a single premium panel using horizontal stat layout with subtle vertical dividers (matches Premium VIP pattern). Use `premium-card` class instead of `bg-muted/30`
+- **Capacity Gauge**: Wrap in `premium-card` class, remove the `Collapsible` wrapper (keep it always visible — cleaner, less UI noise)
+- **View Switcher**: Already using pill toggle — keep as-is, just ensure it sits cleanly
+- **Spacing**: Use `space-y-5` for breathing room per VIP pattern
 
-**3. `src/components/workload/employee/UnifiedTaskList.tsx`**
-- Show language-aware title (EN or AR based on `i18n.language`)
-- Update task number display to include the composite format if branch/tenant data is available (requires expanding the query in `useUnifiedTasks.ts`)
+**2. `src/features/workload/components/WorkloadTasksView.tsx` — Cleaner task container**
 
-**4. `src/features/workload/hooks/useUnifiedTasks.ts`**
-- Expand the select query to join `employees → branches` and `tenants` to get names for the composite ID
+- Remove the wrapping `Card` around the `Tabs` — let the tab content flow directly (reduce card-in-card nesting per VIP rules)
+- Use `premium-card` for the outer container if border is needed
+- Tabs pill-style already fine
+
+**3. `src/components/workload/employee/UnifiedTaskList.tsx` — Refined task rows**
+
+- Simplify badge density: reduce the 4+ inline badges per row to essential ones only (status + priority), move source to metadata row
+- Increase row padding slightly (`py-4`) for breathing room
+- Use cleaner separator (`divide-border/30` instead of `/50`)
+
+**4. `src/components/workload/employee/CapacityGauge.tsx` — Visual refinement**
+
+- Increase bar height from `h-2.5` to `h-3` with smoother gradient
+- Use `font-bold` for percentage display
 
 ### Files Modified
 | File | Change |
 |------|--------|
-| `src/features/tasks/hooks/useTaskDetail.ts` | Add branch + tenant joins |
-| `src/features/tasks/pages/TaskDetail.tsx` | Remove secondary title, build composite task ID, language-only display |
-| `src/features/workload/hooks/useUnifiedTasks.ts` | Add branch + tenant joins |
-| `src/components/workload/employee/UnifiedTaskList.tsx` | Language-aware title, composite task ID |
+| `src/pages/employee/PersonalCommandCenter.tsx` | PageHeader, premium-card stats panel, remove Collapsible, VIP spacing |
+| `src/features/workload/components/WorkloadTasksView.tsx` | Remove Card wrapper, cleaner container |
+| `src/components/workload/employee/UnifiedTaskList.tsx` | Reduce badge clutter, better spacing |
+| `src/components/workload/employee/CapacityGauge.tsx` | Slightly taller bar, bolder text |
 
