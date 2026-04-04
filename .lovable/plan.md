@@ -1,28 +1,46 @@
 
 
-## Fix: DesignSystemPage "Failed to fetch dynamically imported module"
+## Merge Islamic Calendar into Prayer Tracker Widget
 
-### Problem
-The error `Failed to fetch dynamically imported module: .../DesignSystemPage-DZWI8JRj.js` is a **stale chunk hash** issue. After the v1.5.0 edits, Vite rebuilt the page with a new filename hash, but the browser's cached route manifest still references the old hash. The file itself has no syntax or runtime errors (confirmed via esbuild parse).
+### What Changes
+The `DashboardIslamicCalendarWidget` will be **removed as a standalone widget** and its content (Islamic events + fasting badges) will be **integrated into the Prayer Tracker widget** (`DashboardPrayerWidget`), creating a single unified spiritual widget with a premium, minimal design.
 
-### Solution
-This is a transient caching issue. Two fixes:
+### Layout Inside Prayer Tracker
 
-1. **Immediate**: Hard-refresh the preview (Ctrl+Shift+R / Cmd+Shift+R) to clear the stale manifest
-2. **Permanent**: Add a Vite error handler in `index.html` or `main.tsx` that auto-reloads when a dynamic import fails due to stale chunks — this prevents this class of error permanently
-
-### Implementation
-
-**File: `src/main.tsx`** — Add a window error listener that catches `Failed to fetch dynamically imported module` errors and triggers a single reload:
-
-```ts
-window.addEventListener('vite:preloadError', () => {
-  window.location.reload();
-});
+```text
+┌─────────────────────────────────────────┐
+│ 🕌 Prayer Tracker          [More →]    │
+│     16 Shawwāl 1447 AH  (already there)│
+├─────────────────────────────────────────┤
+│ ┌─ Event banner (if any) ────────────┐  │
+│ │ 🌟 Event name + fasting badges     │  │
+│ └────────────────────────────────────┘  │
+├─────────────────────────────────────────┤
+│ [Active prayer card — unchanged]        │
+├─────────────────────────────────────────┤
+│ ○ ○ ○ ○ ○ ○  Progress row — unchanged  │
+│ 3/6 completed                           │
+└─────────────────────────────────────────┘
 ```
 
-This is Vite's built-in event for exactly this scenario. One line, no side effects.
+The Hijri date is already displayed in the Prayer Tracker header — no duplication. The event + fasting badges slot in as a compact inline section between the header and the active prayer card.
 
 ### Files Modified
-1. `src/main.tsx` — add `vite:preloadError` auto-reload handler (1 line)
+
+1. **`src/components/dashboard/DashboardPrayerWidget.tsx`**
+   - Import `ISLAMIC_EVENTS`, `isWhiteDay`, `isSunnahFastingDay` from `useHijriCalendar`
+   - Use the existing `hijri` data from `prayerData.date.hijri` (already available)
+   - Add a compact event banner + fasting badge row between the header and active prayer card
+   - Use semantic tokens (`--islamic-accent`, `--state-completed`) — no hardcoded colors
+   - Style: subtle `bg-primary/[0.04]` rounded-lg for event, inline pill badges for fasting indicators
+
+2. **`src/components/dashboard/DashboardIslamicCalendarWidget.tsx`** — Delete file
+
+3. **`src/pages/EmployeeHome.tsx`** — Remove `DashboardIslamicCalendarWidget` import and usage (line 20, 125)
+
+### Design Principles
+- No new standalone card — everything inside the existing Prayer Tracker card
+- Minimal: event shown only when one exists; badges only when relevant
+- Premium: consistent with existing `cardVariants.premiumVip` styling
+- Calendar link preserved via a small inline "View calendar →" text link on the event banner
 
