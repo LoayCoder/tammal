@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Landmark, House, Building, ChevronRight, Clock, Timer, Check, X, Pencil } from 'lucide-react';
+import { Landmark, House, Building, ChevronRight, Clock, Timer, Check, X, Pencil, EyeOff, Eye } from 'lucide-react';
 
 const ICON_STROKE = 1.5;
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { cardVariants } from "@/theme/tokens";
 import { getLocalDateString } from '@/utils/getLocalDate';
 import { useAutoRefreshOnDayChange } from '@/hooks/useAutoRefreshOnDayChange';
+import { usePrayerTrackerVisibility } from '@/hooks/spiritual/usePrayerTrackerVisibility';
 
 /** Canonical prayer order */
 /** Chronological order: Witr (last night) → Fajr → ... → Isha */
@@ -81,6 +82,7 @@ export function DashboardPrayerWidget() {
   const { todayLogs, logPrayer } = usePrayerLogs();
   const { todayCompleted, togglePractice } = useSunnahLogs();
   const witrCountdown = useWitrCountdown(prayerData?.timings?.Fajr);
+  const { isHidden, hide, show } = usePrayerTrackerVisibility(prayerData?.timings?.Isha);
 
   const timings = prayerData?.timings;
   const hijri = prayerData?.date?.hijri;
@@ -179,6 +181,31 @@ export function DashboardPrayerWidget() {
 
   if (!isPrayerEnabled || !timings) return null;
 
+  // Hidden state — show a minimal collapsed bar
+  if (isHidden) {
+    return (
+      <Card className={cn(cardVariants.premiumVip, "border-[hsl(var(--islamic-accent))]/[0.25] opacity-80")}>
+        <CardContent className="p-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-base">🕌</span>
+            <span className="text-xs text-muted-foreground font-medium">
+              {isAr ? 'متتبع الصلاة مخفي' : 'Prayer Tracker hidden'}
+            </span>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={show}
+            className="gap-1 text-xs h-7 text-muted-foreground hover:text-foreground"
+          >
+            <Eye className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} />
+            {isAr ? 'إظهار' : 'Show'}
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const handleLog = (prayerName: string, status: string) => {
     logPrayer.mutate({ prayer_name: prayerName, prayer_date: today, status });
     setEditingPrayer(null);
@@ -271,12 +298,23 @@ export function DashboardPrayerWidget() {
               )}
             </div>
           </div>
-          <Link to="/spiritual/prayer">
-            <Button variant="ghost" size="sm" className="gap-1 text-xs h-7">
-              {t('common.more')}
-              <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={hide}
+              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+              title={isAr ? 'إخفاء المتتبع' : 'Hide Tracker'}
+            >
+              <EyeOff className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} />
             </Button>
-          </Link>
+            <Link to="/spiritual/prayer">
+              <Button variant="ghost" size="sm" className="gap-1 text-xs h-7">
+                {t('common.more')}
+                <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* ── Islamic event banner ── */}
