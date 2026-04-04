@@ -181,6 +181,31 @@ export function DashboardPrayerWidget() {
 
   if (!isPrayerEnabled || !timings) return null;
 
+  // Hidden state — show a minimal collapsed bar
+  if (isHidden) {
+    return (
+      <Card className={cn(cardVariants.premiumVip, "border-[hsl(var(--islamic-accent))]/[0.25] opacity-80")}>
+        <CardContent className="p-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-base">🕌</span>
+            <span className="text-xs text-muted-foreground font-medium">
+              {isAr ? 'متتبع الصلاة مخفي' : 'Prayer Tracker hidden'}
+            </span>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={show}
+            className="gap-1 text-xs h-7 text-muted-foreground hover:text-foreground"
+          >
+            <Eye className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} />
+            {isAr ? 'إظهار' : 'Show'}
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const handleLog = (prayerName: string, status: string) => {
     logPrayer.mutate({ prayer_name: prayerName, prayer_date: today, status });
     setEditingPrayer(null);
