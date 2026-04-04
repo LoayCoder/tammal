@@ -383,11 +383,12 @@ export function DashboardPrayerWidget() {
           </div>
         )}
 
-        {/* Progress row — 6 prayer indicators (5 obligatory + Witr) */}
-        <div className="flex items-center justify-between gap-1">
+        {/* Progress row — 7 prayer indicators (5 obligatory + Duha + Witr) */}
+        <div className="flex items-center justify-between gap-0.5">
         {ALL_PRAYERS.map(name => {
-            const logged = !!todayLogs[name];
-            const isMissed = todayLogs[name]?.status === 'missed';
+            const isDuha = name === 'Duha';
+            const logged = isDuha ? isDuhaCompleted : !!todayLogs[name];
+            const isMissed = !isDuha && todayLogs[name]?.status === 'missed';
             const isActive = name === activePrayer;
             const rawatib = RAWATIB_CONFIG[name];
             const hasBefore = !!rawatib?.before;
@@ -405,15 +406,18 @@ export function DashboardPrayerWidget() {
                     !logged && !isActive && 'bg-muted border-border text-muted-foreground',
                   )}
                 >
-                  {logged && !isMissed ? <Check className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
+                  {logged && !isMissed ? (isDuha ? <span className="text-[10px]">☀</span> : <Check className="h-3 w-3" strokeWidth={ICON_STROKE} />) : null}
                   {isMissed ? '✕' : null}
                   {!logged && isActive ? <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
+                  {!logged && !isActive && isDuha ? <span className="text-[10px]">☀</span> : null}
                 </div>
                 <span className="text-[9px] font-medium text-foreground leading-none">
                   {t(`spiritual.prayer.names.${name.toLowerCase()}`)}
                 </span>
                 <span className="text-[8px] text-muted-foreground leading-none">
-                  {name === 'Witr' ? '—' : (timings[name as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()}
+                  {isDuha ? (timings.Sunrise || '').replace(/\s*\(.*\)/, '').trim()
+                    : name === 'Witr' ? '—'
+                    : (timings[name as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()}
                 </span>
                 {/* Rawatib dots */}
                 {(hasBefore || hasAfter) ? (
