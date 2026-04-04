@@ -87,7 +87,7 @@ export default function TaskDetail() {
   };
 
   const handleSaveDescription = () => {
-    updateTask.mutate({ description: editDesc });
+    updateTask.mutate({ description: editDesc, description_ar: editDescAr });
     setIsEditingDesc(false);
   };
 
