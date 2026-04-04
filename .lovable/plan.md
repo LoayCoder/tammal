@@ -1,34 +1,26 @@
 
 
-## Align `/dev/design-system` with Current Styles
+## Fix Notification Panel for Mobile
 
 ### Problem
-The design system page (v1.0.0, last updated 2026-03-07) is missing several style additions made since then: premium/VIP card demos, shadow tokens, font family display, status/semantic colors, and the new Islamic Calendar widget style.
+The notification popover (`w-80` = 320px) overflows the viewport on mobile (384px wide), and the 4-tab bar with badges causes cramped/overlapping text. The popover also floats awkwardly over the dashboard content as seen in the screenshot.
 
-### Changes — Single File: `src/pages/dev/DesignSystemPage.tsx` + `src/theme/version.ts`
+### Approach
+Use a **Drawer** (bottom sheet) on mobile and keep the **Popover** on desktop — a common responsive pattern.
 
-**1. Add missing color sections**
-- Add **Status Colors** row: success, warning, info + their tint backgrounds
-- Add **Semantic Colors** swatches (success, warning, info, destructive)
+### Changes — Single File: `src/components/notifications/UnifiedNotificationBell.tsx`
 
-**2. Add Shadow Tokens section**
-- Display all shadow levels (2xs through 2xl + tooltip) as visual boxes with labels
+1. **Import `useIsMobile`** hook and Drawer components (`Drawer, DrawerContent, DrawerTrigger, DrawerTitle`)
+2. **Conditional rendering**:
+   - **Mobile**: Render a `Drawer` that slides up from the bottom, full-width, with `max-h-[85vh]`
+   - **Desktop**: Keep the existing `Popover` as-is
+3. **Shared notification content**: Extract the header, tabs, and notification list into a shared inner component to avoid duplication
+4. **Tab bar mobile fix**: On mobile, use shorter labels (icons only or abbreviated text) and smaller badge sizing to prevent overflow. Use `text-2xs` and remove badge `ms-1` margin on small screens
+5. **ScrollArea height**: On mobile, use `max-h-[60vh]` for the list to leave room for the tab bar and header
 
-**3. Add Font Families section**
-- Show Inter (sans), Lora (serif), Space Mono (mono) with sample text for each
-
-**4. Add Premium Card Variants showcase**
-- Live demos of `premium-card`, `premium-card-vip`, `vip-stat-chip`, `premium-badge` CSS classes
-- Show hover interaction on premium-interactive
-
-**5. Add Islamic Calendar widget style reference**
-- Document the border style pattern: `border bg-transparent border-[#69cbfc]/35 shadow-md`
-- Document the lightweight badge pattern
-
-**6. Update version metadata**
-- Bump version to `1.1.0` and `lastUpdated` to `2026-04-03` in `src/theme/version.ts`
-
-### Files Modified
-- `src/pages/dev/DesignSystemPage.tsx` — add 4 new sections
-- `src/theme/version.ts` — bump version
+### Technical Details
+- `useIsMobile()` detects `<768px` viewport
+- Drawer uses `vaul` (already installed) for native-feeling swipe-to-dismiss
+- The trigger button stays identical in both cases
+- RTL compliance maintained (logical properties only)
 
