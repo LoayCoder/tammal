@@ -59,7 +59,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
   }
 
   return (
-    <div className="divide-y divide-border/50">
+    <div className="divide-y divide-border/30">
       {tasks.map((task) => {
         const isCompleted = task.status === 'completed';
         const isVerified = !!(task.metadata as Record<string, unknown>)?.verified;
