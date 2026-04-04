@@ -1,21 +1,22 @@
 
 
-## Update Bottom Nav: Wellness → My Workload
+## Update Bottom Nav: Support Tickets → Peer Support
 
 ### What Changes
 
-The `Waves` icon (line 7) currently links to `/employee/wellness` (mood check-in). Change it to link to the **My Workload** page instead.
+The `Send` icon in the bottom nav currently links to `/support` (support tickets page). Change it to link to `/crisis-support` (the Peer Support / Crisis Request page).
 
 **`src/components/layout/MobileBottomNav.tsx`**
 
-- Change nav item on line 7:
-  - **key**: `wellness` → `workload`
-  - **icon**: `Waves` → `ListChecks` (matches the workload/tasks theme used elsewhere)
-  - **path**: `/employee/wellness` → `/my-workload`
-- Update import: replace `Waves` with `ListChecks` from lucide-react
+- Change nav item on line 8:
+  - **key**: `support` → `peer-support`
+  - **path**: `/support` → `/crisis-support`
+  - Icon stays as `Send` (fits the "reach out" concept)
+
+Support tickets remain accessible via the sidebar menu.
 
 ### Files Modified
 | File | Change |
 |------|--------|
-| `src/components/layout/MobileBottomNav.tsx` | Swap wellness nav item to My Workload |
+| `src/components/layout/MobileBottomNav.tsx` | Change support item path to `/crisis-support` |
 
