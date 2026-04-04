@@ -93,7 +93,7 @@ export default function EmployeeHome() {
         </div>
 
         {/* Support Hub — Collapsible Premium Card */}
-        <Collapsible className="premium-card rounded-2xl overflow-hidden hover:shadow-sm transition-all duration-200">
+        <Collapsible className="premium-card rounded-2xl hover:shadow-sm transition-all duration-200">
           <CollapsibleTrigger className="group flex items-center justify-between w-full p-4 cursor-pointer">
             <div className="flex items-center gap-2">
               <HeartHandshake className="h-4 w-4 text-primary" strokeWidth={1.5} />
