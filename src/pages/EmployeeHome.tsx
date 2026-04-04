@@ -91,6 +91,33 @@ export default function EmployeeHome() {
           </div>
         </div>
 
+        {/* Support Hub — Collapsible Premium Card */}
+        <Collapsible className="premium-card rounded-2xl overflow-hidden hover:shadow-sm transition-all duration-200">
+          <CollapsibleTrigger className="group flex items-center justify-between w-full p-4 cursor-pointer">
+            <div className="flex items-center gap-2">
+              <HeartHandshake className="h-4 w-4 text-primary" strokeWidth={1.5} />
+              <span className="text-sm font-bold text-foreground">{t('dashboard.quickActions')}</span>
+            </div>
+            <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="px-4 pb-4">
+            <div className="grid grid-cols-2 gap-2.5">
+              <Link to="/crisis-support">
+                <div className="flex flex-col items-center gap-1.5 rounded-xl py-4 px-2 cursor-pointer transition-all duration-200 bg-destructive/[0.04] hover:bg-destructive/[0.08] hover:shadow-sm hover:-translate-y-0.5">
+                  <Phone className="h-5 w-5 text-destructive" strokeWidth={1.5} />
+                  <span className="text-xs font-medium text-center leading-tight">{t('crisisSupport.nav.crisisSupport')}</span>
+                </div>
+              </Link>
+              <div onClick={() => setShowFirstAider(true)} className="cursor-pointer">
+                <div className="flex flex-col items-center gap-1.5 rounded-xl py-4 px-2 transition-all duration-200 bg-chart-1/[0.04] hover:bg-chart-1/[0.08] hover:shadow-sm hover:-translate-y-0.5">
+                  <HeartHandshake className="h-5 w-5 text-chart-1" strokeWidth={1.5} />
+                  <span className="text-xs font-medium text-center leading-tight">{t('crisisSupport.nav.firstAider')}</span>
+                </div>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
         {/* Pending Endorsement Requests */}
         <DashboardEndorsementRequests />
 
