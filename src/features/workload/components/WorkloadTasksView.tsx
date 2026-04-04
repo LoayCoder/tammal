@@ -61,19 +61,19 @@ export function WorkloadTasksView({ tasks, isPending, onDelete }: WorkloadTasksV
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      {/* Filters — light, borderless feel */}
+      <div className="flex flex-wrap items-center gap-2.5">
+        <div className="relative flex-1 min-w-[180px] max-w-sm">
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('tasks.searchPlaceholder')}
-            className="ps-9 h-9"
+            className="ps-9 h-9 border-border/50 bg-background focus:border-primary/30 focus:ring-primary/10 transition-all duration-200"
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[160px] h-9"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-[150px] h-9 border-border/50 bg-background"><SelectValue /></SelectTrigger>
           <SelectContent>
             {STATUSES.map(s => (
               <SelectItem key={s} value={s}>{s === 'all' ? t('common.allStatuses') : t(`tasks.status.${s}`)}</SelectItem>
@@ -81,7 +81,7 @@ export function WorkloadTasksView({ tasks, isPending, onDelete }: WorkloadTasksV
           </SelectContent>
         </Select>
         <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-          <SelectTrigger className="w-[140px] h-9"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-[130px] h-9 border-border/50 bg-background"><SelectValue /></SelectTrigger>
           <SelectContent>
             {PRIORITY_OPTIONS.map(p => (
               <SelectItem key={p.value} value={p.value}>{p.value === 'all' ? t('common.allPriorities') : t(p.labelKey)}</SelectItem>
@@ -90,33 +90,31 @@ export function WorkloadTasksView({ tasks, isPending, onDelete }: WorkloadTasksV
         </Select>
       </div>
 
-      {/* Tabbed list — no card wrapper, direct flow */}
-      <div className="premium-card p-4">
-        <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="active" className="gap-1.5 text-xs">
-              <ListChecks className="h-3.5 w-3.5" />{t('tasks.tabs.active')} ({stats.active.length})
-            </TabsTrigger>
-            <TabsTrigger value="overdue" className="gap-1.5 text-xs">
-              <AlertTriangle className="h-3.5 w-3.5" />{t('tasks.tabs.overdue')} ({stats.overdue.length})
-            </TabsTrigger>
-            <TabsTrigger value="completed" className="gap-1.5 text-xs">
-              <CheckCircle2 className="h-3.5 w-3.5" />{t('tasks.tabs.completed')} ({stats.completed.length})
-            </TabsTrigger>
-          </TabsList>
-          {(['active', 'overdue', 'completed'] as const).map(key => (
-            <TabsContent key={key} value={key}>
-              {isPending ? <Skeleton className="h-40" /> : (
-                <UnifiedTaskList
-                  tasks={stats[key]}
-                  onEdit={handleEdit}
-                  onDelete={onDelete}
-                />
-              )}
-            </TabsContent>
-          ))}
-        </Tabs>
-      </div>
+      {/* Tabs — clean, no heavy container */}
+      <Tabs value={tab} onValueChange={setTab}>
+        <TabsList className="mb-3 bg-transparent p-0 h-auto gap-1">
+          <TabsTrigger value="active" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-primary/8 data-[state=active]:text-primary px-3 py-1.5 transition-all duration-200">
+            <ListChecks className="h-3.5 w-3.5" />{t('tasks.tabs.active')} ({stats.active.length})
+          </TabsTrigger>
+          <TabsTrigger value="overdue" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-destructive/8 data-[state=active]:text-destructive px-3 py-1.5 transition-all duration-200">
+            <AlertTriangle className="h-3.5 w-3.5" />{t('tasks.tabs.overdue')} ({stats.overdue.length})
+          </TabsTrigger>
+          <TabsTrigger value="completed" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-chart-1/8 data-[state=active]:text-chart-1 px-3 py-1.5 transition-all duration-200">
+            <CheckCircle2 className="h-3.5 w-3.5" />{t('tasks.tabs.completed')} ({stats.completed.length})
+          </TabsTrigger>
+        </TabsList>
+        {(['active', 'overdue', 'completed'] as const).map(key => (
+          <TabsContent key={key} value={key} className="mt-0">
+            {isPending ? <Skeleton className="h-40 rounded-xl" /> : (
+              <UnifiedTaskList
+                tasks={stats[key]}
+                onEdit={handleEdit}
+                onDelete={onDelete}
+              />
+            )}
+          </TabsContent>
+        ))}
+      </Tabs>
     </div>
   );
 }
