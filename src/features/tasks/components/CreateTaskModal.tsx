@@ -36,6 +36,8 @@ export function CreateTaskModal({
   const [title, setTitle] = useState('');
   const [titleAr, setTitleAr] = useState('');
   const [description, setDescription] = useState('');
+  const [descriptionAr, setDescriptionAr] = useState('');
+  const [validationErrors, setValidationErrors] = useState<Record<string, boolean>>({});
   const [status, setStatus] = useState<string>('draft');
   const [priority, setPriority] = useState(2);
   const [visibility, setVisibility] = useState<string>('department');
