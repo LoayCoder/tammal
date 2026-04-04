@@ -1,18 +1,32 @@
 
 
-## Remove Crisis Support Contacts from /crisis-support
+## Move Pending Surveys Card Above Daily Check-in
 
 ### What Changes
 
-**`src/pages/crisis/CrisisRequestPage.tsx`**
+**`src/pages/EmployeeHome.tsx`**
 
-- Remove lines 548-551: the `CrisisSupport` component rendering at the bottom of the page (the global emergency hotline directory section)
-- Remove the import of `CrisisSupport` from line 18
+- **Move** the Pending Surveys block (lines 158-176) from its current position (after Workload widget) to **above** the Inline Daily Check-in (before line 131)
+- **Upgrade styling** to premium VIP treatment:
+  - Use `cardVariants.premiumVip` instead of `cardVariants.premium`
+  - Add `hover:shadow-md hover:-translate-y-0.5 transition-all duration-200` for smooth interaction
+  - Add a subtle pending count badge (`Badge` with `variant="secondary"`) showing the number of surveys
+  - Increase icon container to use a softer gradient tint (`from-chart-2/10 to-chart-2/5`)
+  - Use `rounded-2xl` on the card
 
-This removes the hardcoded contact list (Emergency Services, Crisis Text Line, Samaritans, NAMI, etc.) that appears below the crisis request flow. The high-risk step still shows tenant-configured emergency contacts from the database, which is the correct behavior.
+The new order after Support Hub will be:
+1. Support Hub (collapsible)
+2. Endorsement Requests
+3. Shortlist Widget
+4. Voting Widget
+5. **Pending Surveys** ← moved here
+6. Daily Check-in / Completed indicator
+7. Prayer Widget
+8. Workload
+9. Tools / Resources / Mood Dashboard
 
 ### Files Modified
 | File | Change |
 |------|--------|
-| `src/pages/crisis/CrisisRequestPage.tsx` | Remove CrisisSupport import and rendering block |
+| `src/pages/EmployeeHome.tsx` | Move survey card above check-in, upgrade to premiumVip styling with hover effects |
 
