@@ -115,6 +115,7 @@ export const PRAYER_COLORS = {
   home: 'hsl(var(--prayer-home))',
   work: 'hsl(var(--prayer-work))',
   missed: 'hsl(var(--state-missed))',
+  countdown: 'hsl(var(--prayer-countdown))',
 } as const;
 
 /** Trend direction colors */
