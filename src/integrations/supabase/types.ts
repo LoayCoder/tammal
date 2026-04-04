@@ -7565,6 +7565,7 @@ export type Database = {
           status: string
           synced_at: string | null
           tags: string[] | null
+          task_number: number | null
           template_id: string | null
           tenant_id: string
           title: string
@@ -7611,6 +7612,7 @@ export type Database = {
           status?: string
           synced_at?: string | null
           tags?: string[] | null
+          task_number?: number | null
           template_id?: string | null
           tenant_id: string
           title: string
@@ -7657,6 +7659,7 @@ export type Database = {
           status?: string
           synced_at?: string | null
           tags?: string[] | null
+          task_number?: number | null
           template_id?: string | null
           tenant_id?: string
           title?: string
