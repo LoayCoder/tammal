@@ -337,7 +337,7 @@ export function DashboardPrayerWidget() {
                     )}
                   >
                     📿
-                    {todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_before`) && <Check className="h-3 w-3" strokeWidth={ICON_STROKE} />}
+                    {todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_before`) && <CheckLine className="h-3 w-3" strokeWidth={ICON_STROKE} />}
                     <span>{i18n.language === 'ar' ? `${activeRawatib.before} ركعات قبل` : `${activeRawatib.before} Rak'ahs before`}</span>
                   </button>
                 )}
