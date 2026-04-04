@@ -529,6 +529,126 @@ export default function DesignSystemPage() {
           </CardContent>
         </Card>
       </Section>
+
+      <Separator />
+
+      {/* ─── 9. State Colors ─── */}
+      <Section title="State Colors" icon={<AlertCircle className="h-5 w-5 text-primary" />}>
+        <p className="text-sm text-muted-foreground">
+          Semantic state tokens for task/item lifecycle. Use CSS variables <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">--state-*</code> or the <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">STATE_COLORS</code> map from <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">@/config/toolkit-colors</code>.
+        </p>
+
+        {/* Swatches */}
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard}`}>
+            <div className="grid grid-cols-4 sm:grid-cols-7 gap-4">
+              {([
+                { name: 'Completed', cssVar: 'state-completed' },
+                { name: 'Overdue', cssVar: 'state-overdue' },
+                { name: 'Missed', cssVar: 'state-missed' },
+                { name: 'Pending', cssVar: 'state-pending' },
+                { name: 'Important', cssVar: 'state-important' },
+                { name: 'Normal', cssVar: 'state-normal' },
+                { name: 'Checked', cssVar: 'state-checked' },
+              ] as const).map((c) => (
+                <div key={c.cssVar} className="flex flex-col items-center gap-1.5">
+                  <div className="flex gap-1">
+                    <div
+                      className="w-10 h-10 rounded-lg border border-border/50"
+                      style={{ backgroundColor: `hsl(var(--${c.cssVar}))` }}
+                      title={`--${c.cssVar}`}
+                    />
+                    <div
+                      className="w-10 h-10 rounded-lg border border-border/50"
+                      style={{ backgroundColor: `hsl(var(--${c.cssVar}-bg))` }}
+                      title={`--${c.cssVar}-bg`}
+                    />
+                  </div>
+                  <span className="text-2xs text-muted-foreground text-center leading-tight">{c.name}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Live badge preview */}
+        <Card className={cardVariants.glass}>
+          <CardHeader className="pb-2">
+            <CardTitle className={typography.cardTitle}>Live Badge Preview</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            {([
+              { label: 'Completed', v: 'completed' },
+              { label: 'Overdue', v: 'overdue' },
+              { label: 'Missed', v: 'missed' },
+              { label: 'Pending', v: 'pending' },
+              { label: 'Important', v: 'important' },
+              { label: 'Normal', v: 'normal' },
+              { label: 'Checked', v: 'checked' },
+            ] as const).map((b) => (
+              <span
+                key={b.v}
+                className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+                style={{
+                  backgroundColor: `hsl(var(--state-${b.v}-bg))`,
+                  color: `hsl(var(--state-${b.v}))`,
+                  borderColor: `hsl(var(--state-${b.v}) / 0.3)`,
+                }}
+              >
+                {b.label}
+              </span>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Usage snippet */}
+        <RuleCard title="Usage">
+          <p>CSS: <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"bg-[hsl(var(--state-completed))]/20 text-[hsl(var(--state-completed))]"}</code></p>
+          <p>JS: <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"import { STATE_COLORS } from '@/config/toolkit-colors'"}</code></p>
+          <p>Inline: <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"style={{ color: STATE_COLORS.overdue }}"}</code></p>
+        </RuleCard>
+      </Section>
+
+      <Separator />
+
+      {/* ─── 10. Widget Accent Colors (Hex Exceptions) ─── */}
+      <Section title="Widget Accent Colors (Hex Exceptions)" icon={<Info className="h-5 w-5 text-primary" />}>
+        <p className="text-sm text-muted-foreground">
+          These hex values are used in color-picker inputs or inline SVG where CSS variables are not supported. They are documented here as exceptions to the HSL-only rule.
+        </p>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard} space-y-4`}>
+            <div>
+              <h4 className={typography.cardTitle}>Islamic Calendar Widget</h4>
+              <div className="flex gap-3 mt-2">
+                {[
+                  { hex: '#69cbfc', label: 'Border accent' },
+                  { hex: '#2a0909', label: 'Badge border' },
+                ].map((c) => (
+                  <div key={c.hex} className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-md border border-border/50" style={{ backgroundColor: c.hex }} />
+                    <div>
+                      <span className="text-xs font-semibold text-foreground">{c.hex}</span>
+                      <p className="text-2xs text-muted-foreground">{c.label}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <Separator />
+            <div>
+              <h4 className={typography.cardTitle}>Org Default Fallback</h4>
+              <div className="flex items-center gap-2 mt-2">
+                <div className="w-8 h-8 rounded-md border border-border/50" style={{ backgroundColor: '#3B82F6' }} />
+                <div>
+                  <span className="text-xs font-semibold text-foreground">#3B82F6</span>
+                  <p className="text-2xs text-muted-foreground">HTML color input fallback (ORG_DEFAULT_COLOR_HEX)</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
     </div>
   );
 }
