@@ -11,7 +11,9 @@ import type { UnifiedTask, UnifiedTaskInsert, UnifiedTaskUpdate, TaskComment } f
 
 const taskSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
-  description: z.string().max(2000).optional().default(''),
+  title_ar: z.string().min(1, 'Arabic title is required').max(200),
+  description: z.string().min(1, 'Description is required').max(2000),
+  description_ar: z.string().min(1, 'Arabic description is required').max(2000),
   priority: z.number().int().min(1).max(5).default(3),
   status: z.string().default('draft'),
   estimated_minutes: z.number().int().positive().nullable().optional(),
@@ -56,7 +58,8 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
   const { register, handleSubmit, setValue, watch, reset } = useForm({
     resolver: zodResolver(taskSchema),
     defaultValues: {
-      title: task?.title ?? '', description: task?.description ?? '',
+      title: task?.title ?? '', title_ar: task?.title_ar ?? '',
+      description: task?.description ?? '', description_ar: (task as any)?.description_ar ?? '',
       priority: task?.priority ?? 3, status: task?.status ?? 'draft',
       estimated_minutes: task?.estimated_minutes ?? null,
       due_date: task?.due_date ? task.due_date.split('T')[0] : '',
@@ -90,15 +93,18 @@ export function TaskDialog({ open, onOpenChange, task, employeeId, tenantId, onC
         });
       }
       onUpdate({
-        id: task.id, title: data.title, description: data.description || null,
+        id: task.id, title: data.title, title_ar: data.title_ar,
+        description: data.description || null, description_ar: data.description_ar || null,
         priority: Number(data.priority), status: derivedStatus, progress,
         estimated_minutes: data.estimated_minutes ? Number(data.estimated_minutes) : null,
         due_date: data.due_date || null, scheduled_start: data.scheduled_start || null,
-      });
+      } as UnifiedTaskUpdate);
     } else {
       onCreate({
         tenant_id: tenantId, employee_id: employeeId, title: data.title,
-        description: data.description || null, priority: Number(data.priority),
+        title_ar: data.title_ar, description: data.description || null,
+        description_ar: data.description_ar || null,
+        priority: Number(data.priority),
         status: 'draft', estimated_minutes: data.estimated_minutes ? Number(data.estimated_minutes) : null,
         due_date: data.due_date || null, source_type: 'manual',
       });

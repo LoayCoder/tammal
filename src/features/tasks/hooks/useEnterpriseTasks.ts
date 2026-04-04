@@ -44,6 +44,7 @@ export interface CreateEnterpriseTaskInput {
   title: string;
   title_ar?: string | null;
   description?: string | null;
+  description_ar?: string | null;
   employee_id: string;
   status?: string;
   priority?: number;

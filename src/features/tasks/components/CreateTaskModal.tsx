@@ -36,6 +36,8 @@ export function CreateTaskModal({
   const [title, setTitle] = useState('');
   const [titleAr, setTitleAr] = useState('');
   const [description, setDescription] = useState('');
+  const [descriptionAr, setDescriptionAr] = useState('');
+  const [validationErrors, setValidationErrors] = useState<Record<string, boolean>>({});
   const [status, setStatus] = useState<string>('draft');
   const [priority, setPriority] = useState(2);
   const [visibility, setVisibility] = useState<string>('department');
@@ -53,7 +55,8 @@ export function CreateTaskModal({
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const resetForm = useCallback(() => {
-    setTitle(''); setTitleAr(''); setDescription(''); setStatus('draft');
+    setTitle(''); setTitleAr(''); setDescription(''); setDescriptionAr(''); setStatus('draft');
+    setValidationErrors({});
     setPriority(2); setVisibility('department'); setDueDate(undefined);
     setStartDate(undefined); setReminderDate(undefined); setEstimatedMinutes('');
     setAssigneeId(employeeId); setReviewerId(null); setApproverId(null);
@@ -62,11 +65,21 @@ export function CreateTaskModal({
   }, [employeeId, defaultDepartmentId]);
 
   const handleSubmit = useCallback(async (asDraft: boolean) => {
-    if (!title.trim() || !assigneeId) return;
+    const errors: Record<string, boolean> = {};
+    if (!title.trim()) errors.title = true;
+    if (!titleAr.trim()) errors.titleAr = true;
+    if (!description.trim()) errors.description = true;
+    if (!descriptionAr.trim()) errors.descriptionAr = true;
+    if (Object.keys(errors).length > 0 || !assigneeId) {
+      setValidationErrors(errors);
+      return;
+    }
+    setValidationErrors({});
     try {
       await createTaskAsync({
-        title: title.trim(), title_ar: titleAr.trim() || null,
-        description: description.trim() || null, employee_id: assigneeId,
+        title: title.trim(), title_ar: titleAr.trim(),
+        description: description.trim(), description_ar: descriptionAr.trim(),
+        employee_id: assigneeId,
         status: asDraft ? 'draft' : 'open', priority, visibility,
         due_date: dueDate?.toISOString() ?? null, scheduled_start: startDate?.toISOString() ?? null,
         estimated_minutes: estimatedMinutes ? parseInt(estimatedMinutes) : null,
@@ -79,12 +92,13 @@ export function CreateTaskModal({
       });
       resetForm(); onOpenChange(false);
     } catch {}
-  }, [title, titleAr, description, assigneeId, priority, visibility, dueDate, startDate, estimatedMinutes, departmentId, defaultInitiativeId, defaultObjectiveId, reviewerId, approverId, reminderDate, selectedTagIds, employeeId, createTaskAsync, resetForm, onOpenChange]);
+  }, [title, titleAr, description, descriptionAr, assigneeId, priority, visibility, dueDate, startDate, estimatedMinutes, departmentId, defaultInitiativeId, defaultObjectiveId, reviewerId, approverId, reminderDate, selectedTagIds, employeeId, createTaskAsync, resetForm, onOpenChange]);
 
   const handleTemplateSelect = useCallback((tpl: any) => {
     setTitle(tpl.title);
     if (tpl.title_ar) setTitleAr(tpl.title_ar);
     if (tpl.description) setDescription(tpl.description);
+    if (tpl.description_ar) setDescriptionAr(tpl.description_ar);
     if (tpl.priority) setPriority(tpl.priority === 'critical' ? 0 : tpl.priority === 'high' ? 1 : tpl.priority === 'low' ? 3 : 2);
     if (tpl.visibility) setVisibility(tpl.visibility);
     if (tpl.estimated_minutes) setEstimatedMinutes(String(tpl.estimated_minutes));
@@ -100,6 +114,7 @@ export function CreateTaskModal({
   const titleId = `${formId}-title`;
   const titleArId = `${formId}-title-ar`;
   const descId = `${formId}-desc`;
+  const descArId = `${formId}-desc-ar`;
   const statusId = `${formId}-status`;
   const priorityId = `${formId}-priority`;
   const estMinId = `${formId}-est-min`;
@@ -120,11 +135,12 @@ export function CreateTaskModal({
         <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
           <ScrollArea className="flex-1 p-4 space-y-4 md:border-e">
             <TaskPrimaryForm
-              titleId={titleId} titleArId={titleArId} descId={descId}
-              title={title} titleAr={titleAr} description={description}
-              onTitleChange={setTitle} onTitleArChange={setTitleAr} onDescriptionChange={setDescription}
+              titleId={titleId} titleArId={titleArId} descId={descId} descArId={descArId}
+              title={title} titleAr={titleAr} description={description} descriptionAr={descriptionAr}
+              onTitleChange={setTitle} onTitleArChange={setTitleAr} onDescriptionChange={setDescription} onDescriptionArChange={setDescriptionAr}
               checklistItems={checklistItems} onChecklistChange={setChecklistItems}
               files={files} onFilesChange={setFiles} onTemplateSelect={handleTemplateSelect}
+              validationErrors={validationErrors}
             />
           </ScrollArea>
 
@@ -149,10 +165,10 @@ export function CreateTaskModal({
 
         <DialogFooter className="p-4 pt-3 gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isCreating}>{t('common.cancel')}</Button>
-          <Button variant="secondary" onClick={() => handleSubmit(true)} disabled={isCreating || !title.trim()}>
+          <Button variant="secondary" onClick={() => handleSubmit(true)} disabled={isCreating}>
             <Save className="h-4 w-4 me-1.5" />{t('tasks.saveDraft')}
           </Button>
-          <Button onClick={() => handleSubmit(false)} disabled={isCreating || !title.trim() || !assigneeId}>
+          <Button onClick={() => handleSubmit(false)} disabled={isCreating || !assigneeId}>
             <Send className="h-4 w-4 me-1.5" />{t('tasks.createTask')}
           </Button>
         </DialogFooter>

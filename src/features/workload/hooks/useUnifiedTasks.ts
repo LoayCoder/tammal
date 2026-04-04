@@ -52,6 +52,7 @@ export interface UnifiedTaskInsert {
   title: string;
   title_ar?: string | null;
   description?: string | null;
+  description_ar?: string | null;
   source_type?: string;
   estimated_minutes?: number | null;
   due_date?: string | null;
