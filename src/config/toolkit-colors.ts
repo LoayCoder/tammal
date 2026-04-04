@@ -73,6 +73,17 @@ export const ASSESSMENT_COLORS = {
   high: TOOLKIT.rose,
 } as const;
 
+/** Semantic state colors for task/item lifecycle */
+export const STATE_COLORS = {
+  completed: 'hsl(var(--state-completed))',
+  overdue: 'hsl(var(--state-overdue))',
+  missed: 'hsl(var(--state-missed))',
+  pending: 'hsl(var(--state-pending))',
+  important: 'hsl(var(--state-important))',
+  normal: 'hsl(var(--state-normal))',
+  checked: 'hsl(var(--state-checked))',
+} as const;
+
 /** Default org structure color */
 export const ORG_DEFAULT_COLOR = 'hsl(var(--org-default))';
 
