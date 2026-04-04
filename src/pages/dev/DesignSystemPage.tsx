@@ -378,16 +378,6 @@ export default function DesignSystemPage() {
               <p className="text-base font-semibold" style={{ fontFamily: 'var(--font-sans)' }}>The quick brown fox jumps over the lazy dog — 600</p>
               <p className="text-base font-bold" style={{ fontFamily: 'var(--font-sans)' }}>The quick brown fox jumps over the lazy dog — 700</p>
             </div>
-            <Separator />
-            <div className="space-y-1">
-              <code className="text-2xs font-mono text-muted-foreground bg-muted/30 px-2 py-0.5 rounded">Lora (--font-serif)</code>
-              <p className="text-base" style={{ fontFamily: 'var(--font-serif, serif)' }}>The quick brown fox jumps over the lazy dog</p>
-            </div>
-            <Separator />
-            <div className="space-y-1">
-              <code className="text-2xs font-mono text-muted-foreground bg-muted/30 px-2 py-0.5 rounded">Space Mono (--font-mono)</code>
-              <p className="text-base font-mono">The quick brown fox jumps over the lazy dog</p>
-            </div>
           </CardContent>
         </Card>
       </Section>
