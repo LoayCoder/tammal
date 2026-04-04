@@ -1,68 +1,58 @@
 
-Goal: fix the preview white screen so `/auth` and protected routes render reliably in the preview environment.
 
-What I found
-- The route setup itself is valid:
-  - `/auth` is public
-  - protected pages are behind `ProtectedRoute`
-- The preview is loading the HTML shell and `src/main.tsx`, so this is not a missing-route problem.
-- I did not find a captured React runtime error, which strongly suggests a startup/session state issue rather than a JSX crash.
-- The current preview context is on `/auth`.
-- Console context shows Vite HMR websocket failure in preview.
-- Auth logs show repeated invalid JWT / missing `sub` claim requests.
-- The auth logic is fragmented:
-  - `useAuth()` creates its own local state every time it is called
-  - `ProtectedRoute`, `Auth`, `MainLayout` dependencies, menus, and permission hooks can all read auth independently
-  - this can cause inconsistent loading, redirect, and session timing during preview startup
+## Fix Prayer Tracker: Auto-Miss Logic & Active Prayer Restoration
 
-Most likely problem
-- The app is vulnerable to preview boot inconsistency because authentication state is not centralized.
-- In preview, stale/invalid session state plus multiple independent auth subscriptions can leave the app in a blank or unresolved render state even without a visible runtime exception.
-- The HMR websocket warning is noisy but likely secondary; the bigger issue is auth/session boot resilience.
+### Problem Summary
+The prayer tracker code IS deployed and rendering, but the **auto-miss logic is too aggressive** — on every page load/refresh, it immediately marks all expired prayers as "missed" in the database before the user can log them. This means:
+- Prayers like Isha get auto-missed the moment you open the page after their 60-min window
+- Once auto-missed in the DB, the Mosque/Home/Work buttons never appear (no "active" prayer)
+- The user loses the ability to retroactively mark a prayer as completed at Mosque/Home/Work
+- The "Edit" functionality that existed in `PrayerCard.tsx` is not present in the dashboard widget
 
-Implementation plan
-1. Centralize authentication state
-- Introduce a single auth provider/context at the app root.
-- Move the `onAuthStateChange` subscription and session/user/loading state into that provider.
-- Make `useAuth()` consume the shared context instead of creating a new subscription per component.
+### Root Causes
+1. **Auto-miss fires on mount** (lines 128-143 of `DashboardPrayerWidget.tsx`): The `useEffect` runs immediately and mutates DB records for every expired prayer, with only an in-memory `useRef` guard that resets on page refresh.
+2. **No edit/override capability**: Once a prayer is logged as "missed", there's no way to change it to "completed_mosque/home/work" from the dashboard widget.
+3. **Active prayer detection** (lines 81-112): Only shows a prayer as "active" if it's within its 60-min window AND not yet logged. Once auto-missed, it's logged → no active prayer → no buttons.
 
-2. Harden auth boot behavior
-- Initialize from the current session once, then keep it updated from auth events.
-- Treat invalid or missing sessions as a clean signed-out state.
-- Ensure loading always resolves to `false`, even when preview auth is broken or expired.
+### Implementation Plan
 
-3. Make route guards fail safe
-- Keep `ProtectedRoute` simple:
-  - loading → skeleton
-  - no user → `/auth`
-  - user → render outlet
-- Avoid any route state that can stay unresolved indefinitely.
+#### 1. Remove automatic auto-miss on page load
+**File: `src/components/dashboard/DashboardPrayerWidget.tsx`**
 
-4. Stabilize pre-auth screens
-- Keep `/auth` independent of tenant/profile-dependent queries while booting.
-- Guard `usePlatformSettings()` so a failed pre-auth RPC does not blank the page; it should fall back to safe defaults.
+Remove the two `useEffect` blocks (lines 128-153) that auto-miss prayers. Instead:
+- Show unlogged expired prayers as visually "missed" in the UI (red indicator) WITHOUT writing to the database
+- Let the user still tap to log them as completed (Mosque/Home/Work) or explicitly mark as missed
+- This means `getPrayerStatus()` needs to check if the window expired for unlogged prayers and show them as "expired/missed" visually, but still allow interaction
 
-5. Reduce preview-specific white-screen risk
-- Keep the cache reset in `main.tsx`, but ensure it cannot contribute to repeated boot instability.
-- Treat preview HMR websocket failure as non-blocking.
-- Optionally add a minimal top-level startup fallback if auth/bootstrap throws unexpectedly.
+#### 2. Update `getPrayerStatus` to handle unlogged-expired state
+Add a new visual status `'expired'` for prayers whose window has passed but have no DB log. These show the red X indicator but remain interactive.
 
-6. Verify affected files
-- Likely files to update:
-  - `src/App.tsx`
-  - `src/hooks/auth/useAuth.ts`
-  - new auth context/provider file
-  - `src/components/auth/ProtectedRoute.tsx`
-  - `src/pages/Auth.tsx`
-  - `src/hooks/org/usePlatformSettings.ts`
+#### 3. Show action buttons for unlogged prayers (even expired ones)
+Modify the active prayer card section to show Mosque/Home/Work buttons for ANY unlogged prayer — not just the one within its 60-min window. Options:
+- Show a tappable row for each unlogged prayer with inline Mosque/Home/Work buttons
+- Or allow clicking on any unlogged prayer indicator to open its action buttons
 
-Expected result
-- Preview no longer gets stuck on a white screen.
-- `/auth` renders even when preview/session tokens are stale.
-- Protected routes redirect cleanly to login instead of failing silently.
-- Session state becomes consistent across the whole app.
+#### 4. Add inline edit capability for logged prayers
+When a prayer is already logged (even as "missed"), allow the user to tap the indicator or an edit icon to change the status (similar to the `PrayerCard.tsx` edit flow).
 
-Technical notes
-- This is primarily a frontend bootstrap/auth-state architecture fix.
-- No database/schema change is needed.
-- The invalid JWT logs are consistent with stale or malformed preview session state, so the UI must handle that gracefully instead of depending on perfect auth startup.
+#### 5. Keep visual "missed" styling for truly unlogged prayers at end of day
+Only auto-miss prayers at a safe boundary (e.g., midnight or next Fajr), not on every page load during the day.
+
+### Technical Changes
+
+**`src/components/dashboard/DashboardPrayerWidget.tsx`:**
+- Remove auto-miss `useEffect` blocks (lines 128-153)
+- Update `getPrayerStatus()` to return `'expired'` for unlogged prayers past their window
+- Update `activePrayer` logic: instead of finding ONE active prayer, find ALL unlogged prayers and show action buttons for each
+- Refactor the active prayer card into a list of actionable prayer rows for all unlogged prayers
+- Add edit/change capability for already-logged prayers (tap indicator → show Mosque/Home/Work/Missed options)
+- Keep progress calculation: only count `completed_*` statuses from DB; expired-unlogged counts as 0
+
+### Expected Result
+- Opening the page does NOT auto-miss prayers
+- Unlogged expired prayers show red styling but remain interactive
+- User can log any prayer at any time during the day
+- User can edit/change a logged prayer's status
+- Progress only counts genuinely completed prayers
+- Mosque/Home/Work buttons are always accessible for unlogged prayers
+
