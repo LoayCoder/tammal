@@ -555,22 +555,23 @@ export function DashboardPrayerWidget() {
 
             return (
               <div key={name} className="flex flex-col items-center gap-0.5 flex-1 min-h-[3.5rem] relative">
-                {/* Circle indicator — tappable for edit */}
+                {/* Icon indicator — tappable for edit */}
                 <button
                   onClick={() => canEdit ? setEditingPrayer(isEditing ? null : name) : undefined}
                   disabled={!canEdit}
                   className={cn(
-                    'h-7 w-7 rounded-full flex items-center justify-center border transition-all',
-                    isCompleted && 'bg-[hsl(var(--state-completed))]/20 border-[hsl(var(--state-completed))]/40 text-[hsl(var(--state-completed))]',
-                    (isMissed || isExpired) && 'bg-destructive/10 border-destructive/30 text-destructive',
-                    isActive && 'bg-primary/10 border-primary/40 text-primary ring-2 ring-primary/20 animate-pulse',
-                    !isCompleted && !isMissed && !isExpired && !isActive && 'bg-muted border-border text-muted-foreground',
-                    canEdit && 'cursor-pointer hover:ring-2 hover:ring-primary/20',
+                    'h-7 w-7 flex items-center justify-center transition-all',
+                    isCompleted && 'text-[hsl(var(--state-completed))]',
+                    (isMissed || isExpired) && 'text-[hsl(var(--state-overdue))]',
+                    isActive && 'text-primary animate-pulse',
+                    !isCompleted && !isMissed && !isExpired && !isActive && 'text-muted-foreground',
+                    canEdit && 'cursor-pointer hover:opacity-70',
                   )}
                 >
-                  {isCompleted && <Check className="h-3.5 w-3.5" strokeWidth={2} />}
-                  {(isMissed || isExpired) && <X className="h-3.5 w-3.5" strokeWidth={2} />}
-                  {isActive && <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} />}
+                  {isCompleted && <Check className="h-4 w-4" strokeWidth={1.5} />}
+                  {(isMissed || isExpired) && <X className="h-4 w-4" strokeWidth={1.5} />}
+                  {isActive && <Timer className="h-4 w-4" strokeWidth={1.5} />}
+                  {!isCompleted && !isMissed && !isExpired && !isActive && <Clock className="h-4 w-4" strokeWidth={1.5} />}
                 </button>
 
                 {/* Edit popover */}
