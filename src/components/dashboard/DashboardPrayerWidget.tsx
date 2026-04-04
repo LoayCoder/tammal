@@ -155,7 +155,9 @@ export function DashboardPrayerWidget() {
   if (!isPrayerEnabled || !timings) return null;
 
   const today = new Date().toISOString().split('T')[0];
-  const completedCount = ALL_PRAYERS.filter(n => todayLogs[n] && todayLogs[n].status?.startsWith('completed')).length;
+  const completedCount = ALL_PRAYERS.filter(n => n === 'Duha' ? isDuhaCompleted : todayLogs[n]?.status?.startsWith('completed')).length;
+  const totalPrayers = ALL_PRAYERS.length;
+  const progressPercent = Math.round((completedCount / totalPrayers) * 100);
 
   const handleLog = (status: string) => {
     if (!activePrayer) return;
@@ -418,7 +420,7 @@ export function DashboardPrayerWidget() {
                   {!logged && !isActive && isDuha ? <span className="text-[10px]">☀</span> : null}
                 </div>
                 <span className="text-[9px] font-medium text-foreground leading-none">
-                  {t(`spiritual.prayer.names.${name.toLowerCase()}`)}
+                  {t(`spiritual.prayer.names.${name.toLowerCase()}`, { defaultValue: name })}
                 </span>
                 <span className="text-[8px] text-muted-foreground leading-none">
                   {isDuha ? (timings.Sunrise || '').replace(/\s*\(.*\)/, '').trim()
@@ -441,6 +443,20 @@ export function DashboardPrayerWidget() {
               </div>
             );
           })}
+        </div>
+
+        {/* Progress bar */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+            <span className="font-medium">{i18n.language === 'ar' ? 'التقدم' : 'Progress'}</span>
+            <span className="font-semibold text-foreground">{completedCount}/{totalPrayers} — {progressPercent}%</span>
+          </div>
+          <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+            <div
+              className="h-full rounded-full bg-[hsl(var(--state-completed))] transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
         </div>
 
         {/* Next prayer countdown */}
