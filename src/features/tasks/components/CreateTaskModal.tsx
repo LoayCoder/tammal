@@ -165,10 +165,10 @@ export function CreateTaskModal({
 
         <DialogFooter className="p-4 pt-3 gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isCreating}>{t('common.cancel')}</Button>
-          <Button variant="secondary" onClick={() => handleSubmit(true)} disabled={isCreating || !title.trim()}>
+          <Button variant="secondary" onClick={() => handleSubmit(true)} disabled={isCreating}>
             <Save className="h-4 w-4 me-1.5" />{t('tasks.saveDraft')}
           </Button>
-          <Button onClick={() => handleSubmit(false)} disabled={isCreating || !title.trim() || !assigneeId}>
+          <Button onClick={() => handleSubmit(false)} disabled={isCreating || !assigneeId}>
             <Send className="h-4 w-4 me-1.5" />{t('tasks.createTask')}
           </Button>
         </DialogFooter>
