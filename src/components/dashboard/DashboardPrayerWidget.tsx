@@ -420,7 +420,7 @@ export function DashboardPrayerWidget() {
                   {!logged && !isActive && isDuha ? <span className="text-[10px]">☀</span> : null}
                 </div>
                 <span className="text-[9px] font-medium text-foreground leading-none">
-                  {t(`spiritual.prayer.names.${name.toLowerCase()}`)}
+                  {t(`spiritual.prayer.names.${name.toLowerCase()}`, { defaultValue: name })}
                 </span>
                 <span className="text-[8px] text-muted-foreground leading-none">
                   {isDuha ? (timings.Sunrise || '').replace(/\s*\(.*\)/, '').trim()
