@@ -699,6 +699,64 @@ export default function DesignSystemPage() {
 
       <Separator />
 
+      {/* ─── 14. KPI Accent Colors ─── */}
+      <Section title="KPI Accent Colors" icon={<BarChart3 className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard}`}>
+            <div className="flex flex-wrap gap-4">
+              <Swatch name="Progress" cssVar="kpi-progress" />
+              <Swatch name="Utilization" cssVar="kpi-utilization" />
+              <Swatch name="Risk" cssVar="kpi-risk" />
+              <Swatch name="Trend" cssVar="kpi-trend" />
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Separator />
+
+      {/* ─── 15. Severity Colors ─── */}
+      <Section title="Severity Colors" icon={<AlertCircle className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard}`}>
+            <div className="flex flex-wrap gap-4">
+              <Swatch name="Medium" cssVar="severity-medium" />
+              <Swatch name="High (destructive)" cssVar="destructive" />
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Separator />
+
+      {/* ─── 16. Islamic Accent ─── */}
+      <Section title="Islamic Widget Accent" icon={<CheckCircle className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard}`}>
+            <div className="flex flex-wrap gap-4">
+              <Swatch name="Islamic Accent" cssVar="islamic-accent" />
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Separator />
+
+      {/* ─── 17. System Role Colors ─── */}
+      <Section title="System Role Colors" icon={<Shield className="h-5 w-5 text-primary" />}>
+        <Card className={cardVariants.glass}>
+          <CardContent className={`${spacing.cardStandard}`}>
+            <div className="flex flex-wrap gap-4">
+              {Object.entries(SYSTEM_ROLE_COLORS).map(([name, value]) => (
+                <ToolkitSwatch key={name} name={name} value={value} />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
+
+      <Separator />
+
       {/* ─── 10. Widget Accent Colors (Hex Exceptions) ─── */}
       <Section title="Widget Accent Colors (Hex Exceptions)" icon={<Info className="h-5 w-5 text-primary" />}>
         <p className="text-sm text-muted-foreground">
