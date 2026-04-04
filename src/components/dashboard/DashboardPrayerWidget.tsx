@@ -346,8 +346,8 @@ export function DashboardPrayerWidget() {
             const hasAfter = !!rawatib?.after;
             const beforeDone = todayCompleted.has(`rawatib_${name.toLowerCase()}_before`);
             const afterDone = todayCompleted.has(`rawatib_${name.toLowerCase()}_after`);
-            return (
-              <div key={name} className="flex flex-col items-center gap-0.5 flex-1">
+             return (
+              <div key={name} className="flex flex-col items-center gap-0.5 flex-1 min-h-[3.5rem]">
                 <div
                   className={cn(
                     'h-7 w-7 rounded-full flex items-center justify-center text-xs border transition-all',
@@ -361,14 +361,14 @@ export function DashboardPrayerWidget() {
                   {isMissed ? '✕' : null}
                   {!logged && isActive ? <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                 </div>
-                <span className="text-[10px] font-medium text-foreground leading-none">
+                <span className="text-[9px] font-medium text-foreground leading-none">
                   {t(`spiritual.prayer.names.${name.toLowerCase()}`)}
                 </span>
-                <span className="text-[9px] text-muted-foreground leading-none">
+                <span className="text-[8px] text-muted-foreground leading-none">
                   {name === 'Witr' ? '—' : (timings[name as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()}
                 </span>
                 {/* Rawatib dots */}
-                {(hasBefore || hasAfter) && (
+                {(hasBefore || hasAfter) ? (
                   <div className="flex gap-0.5 mt-0.5">
                     {hasBefore && (
                       <span className={cn('h-1.5 w-1.5 rounded-full', beforeDone ? 'bg-primary' : 'bg-border')} />
@@ -377,16 +377,42 @@ export function DashboardPrayerWidget() {
                       <span className={cn('h-1.5 w-1.5 rounded-full', afterDone ? 'bg-primary' : 'bg-border')} />
                     )}
                   </div>
+                ) : (
+                  <div className="h-2 mt-0.5" /> 
                 )}
               </div>
             );
           })}
         </div>
 
-        {/* Completion stat */}
-        <p className="text-xs text-muted-foreground text-center">
-          {completedCount}/6 {i18n.language === 'ar' ? 'مكتملة' : 'completed'}
-        </p>
+        {/* Next prayer countdown */}
+        {(() => {
+          if (!timings) return null;
+          const now = new Date();
+          for (const name of ALL_PRAYERS) {
+            if (todayLogs[name]) continue;
+            if (name === 'Witr') continue;
+            const clean = (timings[name as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim();
+            const [h, m] = clean.split(':').map(Number);
+            if (isNaN(h) || isNaN(m)) continue;
+            const pDate = new Date(now);
+            pDate.setHours(h, m, 0, 0);
+            if (pDate > now) {
+              const minsUntil = Math.ceil((pDate.getTime() - now.getTime()) / 60000);
+              return (
+                <div className="flex items-center justify-center gap-1.5 pt-1">
+                  <span className="text-[10px] text-muted-foreground font-medium">
+                    {i18n.language === 'ar' 
+                      ? `التالي: ${t(`spiritual.prayer.names.${name.toLowerCase()}`)} بعد ${minsUntil}د`
+                      : `Next: ${t(`spiritual.prayer.names.${name.toLowerCase()}`)} in ${minsUntil >= 60 ? `${Math.floor(minsUntil / 60)}h ${minsUntil % 60}m` : `${minsUntil}m`}`
+                    }
+                  </span>
+                </div>
+              );
+            }
+          }
+          return null;
+        })()}
       </CardContent>
     </Card>
   );
