@@ -71,7 +71,7 @@ export function FrameworkDocuments({ frameworkId }: FrameworkDocumentsProps) {
                   {t('aiGenerator.extracted')}
                 </Badge>
               ) : (
-                <Badge variant="outline" className="text-2xs px-1.5 py-0 h-4 bg-amber-500/10 text-amber-600 border-amber-500/30 animate-pulse">
+                <Badge variant="outline" className="text-2xs px-1.5 py-0 h-4 bg-[hsl(var(--state-pending))]/10 text-[hsl(var(--action-toggle))] border-[hsl(var(--action-toggle))]/30 animate-pulse">
                   {t('aiGenerator.pending')}
                 </Badge>
               )}

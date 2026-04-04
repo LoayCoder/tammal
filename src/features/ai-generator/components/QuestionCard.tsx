@@ -108,7 +108,7 @@ export function QuestionCard({ question, index, onRemove, onUpdate, onRegenerate
       ? 'border-chart-4'
       : '';
 
-  const bgClass = hasAlerts ? 'bg-amber-50 dark:bg-amber-950/30' : '';
+  const bgClass = hasAlerts ? 'bg-[hsl(var(--action-toggle))]/5 dark:bg-[hsl(var(--action-toggle))]/10' : '';
 
   return (
     <Card className={`${borderClass} ${bgClass} relative overflow-hidden`} id={`question-card-${index}`}>

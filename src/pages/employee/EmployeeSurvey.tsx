@@ -228,7 +228,7 @@ export default function EmployeeSurvey() {
                       {t('survey.question')} {index + 1}
                     </span>
                     {isPending && (
-                      <Badge variant="outline" className="border-amber-500 text-amber-600 text-xs">
+                      <Badge variant="outline" className="border-[hsl(var(--action-toggle))] text-[hsl(var(--action-toggle))] text-xs">
                         {t('survey.pendingReview', 'Pending Review')}
                       </Badge>
                     )}

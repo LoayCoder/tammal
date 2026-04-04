@@ -12,9 +12,9 @@ interface Props {
 }
 
 const RISK_COLORS: Record<string, string> = {
-  green: 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30',
-  yellow: 'bg-yellow-500/15 text-yellow-700 border-yellow-500/30',
-  orange: 'bg-orange-500/15 text-orange-700 border-orange-500/30',
+  green: 'bg-[hsl(var(--trend-positive))]/15 text-[hsl(var(--trend-positive))] border-[hsl(var(--trend-positive))]/30',
+  yellow: 'bg-[hsl(var(--action-toggle))]/15 text-[hsl(var(--action-toggle))] border-[hsl(var(--action-toggle))]/30',
+  orange: 'bg-[hsl(var(--state-important))]/15 text-[hsl(var(--state-important))] border-[hsl(var(--state-important))]/30',
   red: 'bg-destructive/15 text-destructive border-destructive/30',
 };
 

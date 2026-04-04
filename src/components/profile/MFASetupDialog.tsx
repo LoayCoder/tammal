@@ -284,7 +284,7 @@ export function MFASetupDialog({ open, onOpenChange }: MFASetupDialogProps) {
           ) : step === 'success' ? (
             <div className="space-y-4 text-center">
               <div className="flex justify-center">
-                <div className="p-3 bg-green-100 rounded-full text-green-600">
+                <div className="p-3 bg-[hsl(var(--state-completed))]/15 rounded-full text-[hsl(var(--state-completed))]">
                   <CheckCircle2 className="h-8 w-8" />
                 </div>
               </div>
