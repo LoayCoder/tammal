@@ -16,7 +16,7 @@ import { useSunnahLogs } from '@/hooks/spiritual/useSunnahLogs';
 import { cn } from '@/lib/utils';
 import { cardVariants } from "@/theme/tokens";
 
-const ALL_PRAYERS = [...PRAYER_NAMES, 'Witr'] as const;
+const ALL_PRAYERS = ['Fajr', 'Duha', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Witr'] as const;
 
 const RAWATIB_CONFIG: Record<string, { before?: number; after?: number }> = {
   Fajr:    { before: 2 },
