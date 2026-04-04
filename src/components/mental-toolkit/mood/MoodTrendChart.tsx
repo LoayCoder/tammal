@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { TOOLKIT } from "@/config/toolkit-colors";
-import { cardVariants } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 interface ChartDataItem {
@@ -23,20 +22,20 @@ export function MoodTrendChart({ data, hasOrgData }: MoodTrendChartProps) {
   const { t } = useTranslation();
 
   return (
-    <Card className={cn(cardVariants.glass, "rounded-lg")}>
+    <Card className={cn("premium-card rounded-2xl")}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <BarChart3 className="h-4 w-4" style={{ color: TOOLKIT.lavender }} />
+          <BarChart3 className="h-4 w-4" style={{ color: TOOLKIT.lavender }} strokeWidth={1.75} />
           {t("mentalToolkit.moodDashboard.moodTrend")}
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-56">
+        <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
               <defs>
                 <linearGradient id="moodGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={TOOLKIT.lavender} stopOpacity={0.4} />
+                  <stop offset="5%" stopColor={TOOLKIT.lavender} stopOpacity={0.45} />
                   <stop offset="95%" stopColor={TOOLKIT.lavender} stopOpacity={0} />
                 </linearGradient>
               </defs>
@@ -44,7 +43,7 @@ export function MoodTrendChart({ data, hasOrgData }: MoodTrendChartProps) {
               <YAxis domain={[0, 5]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
               <Tooltip content={({ active, payload }) =>
                 active && payload?.length ? (
-                  <div className="bg-card border border-border rounded-lg px-3 py-2 text-sm shadow-md">
+                  <div className="bg-card/95 backdrop-blur-sm border border-border rounded-xl px-3 py-2 text-sm shadow-lg">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{payload[0]?.payload?.emoji || "—"}</span>
                       <div>
@@ -57,9 +56,9 @@ export function MoodTrendChart({ data, hasOrgData }: MoodTrendChartProps) {
                   </div>
                 ) : null
               } />
-              <Area type="monotone" dataKey="score" stroke={TOOLKIT.lavender} fill="url(#moodGrad)" strokeWidth={2} dot={{ r: 3, fill: TOOLKIT.lavender }} connectNulls />
+              <Area type="monotone" dataKey="score" stroke={TOOLKIT.lavender} fill="url(#moodGrad)" strokeWidth={2.5} dot={{ r: 3, fill: TOOLKIT.lavender, strokeWidth: 0 }} activeDot={{ r: 6, fill: TOOLKIT.lavender, strokeWidth: 3, stroke: "hsl(var(--card))" }} connectNulls />
               {hasOrgData && <Area type="monotone" dataKey="orgAvg" stroke={TOOLKIT.sage} fill="none" strokeWidth={1.5} strokeDasharray="5 3" dot={false} connectNulls />}
-              <ReferenceLine y={3} stroke="hsl(var(--border))" strokeDasharray="3 3" />
+              <ReferenceLine y={3} stroke="hsl(var(--border) / 0.4)" strokeDasharray="3 3" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
