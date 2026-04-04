@@ -1,22 +1,20 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
-  Music, BookMarked, Calendar, ChevronRight,
+  Music, BookMarked, Calendar,
 } from 'lucide-react';
 import MeditationLibraryTool from '@/components/mental-toolkit/practices/MeditationLibraryTool';
 import PsychoeducationArticles from '@/components/mental-toolkit/resources/PsychoeducationArticles';
 import IslamicCalendar from '@/pages/spiritual/IslamicCalendar';
-import { cardVariants, typography} from "@/theme/tokens";
-import { cn } from "@/lib/utils";
+import { typography } from "@/theme/tokens";
 
 type ResourceKey = 'meditation' | 'articles' | 'calendar';
 
-const RESOURCES: { key: ResourceKey; icon: typeof Music; color: string; titleKey: string; descKey: string }[] = [
-  { key: 'meditation', icon: Music,      color: 'primary', titleKey: 'home.meditationLibrary',         descKey: 'home.meditationLibraryDesc' },
-  { key: 'articles',   icon: BookMarked, color: 'chart-5', titleKey: 'home.psychoeducationArticles',   descKey: 'home.psychoeducationArticlesDesc' },
-  { key: 'calendar',   icon: Calendar,   color: 'chart-3', titleKey: 'home.islamicCalendar',           descKey: 'home.islamicCalendarDesc' },
+const RESOURCES: { key: ResourceKey; icon: typeof Music; color: string; titleKey: string }[] = [
+  { key: 'meditation', icon: Music,      color: 'text-primary',  titleKey: 'home.meditationLibrary' },
+  { key: 'articles',   icon: BookMarked, color: 'text-chart-5',  titleKey: 'home.psychoeducationArticles' },
+  { key: 'calendar',   icon: Calendar,   color: 'text-chart-3',  titleKey: 'home.islamicCalendar' },
 ];
 
 export function MentalHealthResourcesHub() {
@@ -25,18 +23,19 @@ export function MentalHealthResourcesHub() {
 
   return (
     <>
-      <div className="space-y-2">
+      <div className="space-y-4">
         <h2 className={typography.sectionTitle}>{t('home.mentalHealthResources', 'Mental Health Resources')}</h2>
-        <div className="grid grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-2 gap-3">
           {RESOURCES.map(({ key, icon: Icon, color, titleKey }) => (
-            <div
+            <button
               key={key}
+              type="button"
               onClick={() => setOpenResource(key)}
-              className="flex flex-col items-center gap-1.5 rounded-xl py-4 px-2 cursor-pointer transition-colors bg-[hsl(var(--trend-positive))]/[0.04]"
+              className="group flex flex-col items-center gap-2.5 rounded-2xl border border-border/40 bg-card p-5 cursor-pointer transition-all duration-200 hover:shadow-md hover:shadow-primary/5 hover:-translate-y-0.5 hover:border-primary/20 active:scale-[0.98]"
             >
-              <Icon className={"h-5 w-5 text-" + color} strokeWidth={1.5} />
-              <span className="text-xs font-medium text-center leading-tight">{t(titleKey)}</span>
-            </div>
+              <Icon className={`h-5 w-5 ${color} transition-transform duration-200 group-hover:scale-110`} strokeWidth={1.5} />
+              <span className="text-xs font-medium text-foreground/80 text-center leading-tight">{t(titleKey)}</span>
+            </button>
           ))}
         </div>
       </div>
@@ -46,7 +45,7 @@ export function MentalHealthResourcesHub() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Music className="h-5 w-5 text-primary" />
+              <Music className="h-5 w-5 text-primary" strokeWidth={1.5} />
               {t('home.meditationLibrary', 'Meditation Library')}
             </DialogTitle>
           </DialogHeader>
@@ -58,7 +57,7 @@ export function MentalHealthResourcesHub() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <BookMarked className="h-5 w-5 text-chart-5" />
+              <BookMarked className="h-5 w-5 text-chart-5" strokeWidth={1.5} />
               {t('home.psychoeducationArticles', 'Psychoeducation Articles')}
             </DialogTitle>
           </DialogHeader>
@@ -70,7 +69,7 @@ export function MentalHealthResourcesHub() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-chart-3" />
+              <Calendar className="h-5 w-5 text-chart-3" strokeWidth={1.5} />
               {t('home.islamicCalendar', 'Islamic Calendar')}
             </DialogTitle>
           </DialogHeader>
