@@ -18,7 +18,8 @@ import { cardVariants } from "@/theme/tokens";
 import { getLocalDateString } from '@/utils/getLocalDate';
 
 /** Canonical prayer order */
-const ALL_PRAYERS = ['Fajr', 'Duha', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Witr'] as const;
+/** Chronological order: Witr (last night) → Fajr → ... → Isha */
+const ALL_PRAYERS = ['Witr', 'Fajr', 'Duha', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
 
 const RAWATIB_CONFIG: Record<string, { before?: number; after?: number }> = {
   Fajr:    { before: 2 },
