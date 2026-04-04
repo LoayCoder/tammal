@@ -33,17 +33,11 @@ function PrayerCountdownBadge({ prayerTime }: { prayerTime: string }) {
 
   if (!isPrayerTime || isExpired || minutesLeft == null) return null;
 
-  const elapsed = 60 - minutesLeft;
-  const progressPercent = Math.min(100, Math.round((elapsed / 60) * 100));
-
   return (
-    <div className="flex flex-col items-end gap-1">
-      <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-[hsl(var(--prayer-countdown))]/10 text-[hsl(var(--prayer-countdown))] border border-[hsl(var(--prayer-countdown))]/30">
-        <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} />
-        {i18n.language === 'ar' ? `${minutesLeft}د` : `${minutesLeft}m`}
-      </span>
-      <Progress value={progressPercent} className="h-1 w-20 bg-muted/30 [&>div]:bg-[hsl(var(--prayer-countdown))]" />
-    </div>
+    <span className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[hsl(var(--prayer-countdown))]/10 text-[hsl(var(--prayer-countdown))] border border-[hsl(var(--prayer-countdown))]/30 shrink-0">
+      <Timer className="h-2.5 w-2.5" strokeWidth={ICON_STROKE} />
+      {i18n.language === 'ar' ? `${minutesLeft}د` : `${minutesLeft}m`}
+    </span>
   );
 }
 
