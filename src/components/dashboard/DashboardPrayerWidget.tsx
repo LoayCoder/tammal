@@ -234,46 +234,45 @@ export function DashboardPrayerWidget() {
         {/* Active prayer card */}
         {activePrayer && !allCompleted ? (
           <div className="space-y-2.5 border-t border-border/50 pt-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-sm">
-                  {t(`spiritual.prayer.names.${activePrayer.toLowerCase()}`)}
-                </p>
-                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Clock className="h-3 w-3" strokeWidth={ICON_STROKE} />
-                  {activePrayer === 'Witr'
-                    ? t('spiritual.prayer.witrTimeRange', { fajr: (timings.Fajr || '').replace(/\s*\(.*\)/, '').trim() || '--:--' })
-                    : (timings[activePrayer as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()
-                  }
-                </p>
-              </div>
-              {activePrayer === 'Witr' ? (
-                witrCountdown.isPrayerTime && !witrCountdown.isExpired && witrCountdown.minutesLeft != null ? (
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-[hsl(var(--prayer-countdown))]/10 text-[hsl(var(--prayer-countdown))] border border-[hsl(var(--prayer-countdown))]/30">
-                      <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} />
+            {/* Row 1: Name + time + countdown + location buttons */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="min-w-0">
+                  <p className="font-semibold text-sm leading-tight">
+                    {t(`spiritual.prayer.names.${activePrayer.toLowerCase()}`)}
+                  </p>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Clock className="h-3 w-3 shrink-0" strokeWidth={ICON_STROKE} />
+                    {activePrayer === 'Witr'
+                      ? t('spiritual.prayer.witrTimeRange', { fajr: (timings.Fajr || '').replace(/\s*\(.*\)/, '').trim() || '--:--' })
+                      : (timings[activePrayer as keyof typeof timings] || '').replace(/\s*\(.*\)/, '').trim()
+                    }
+                  </p>
+                </div>
+                {/* Countdown badge inline */}
+                {activePrayer === 'Witr' ? (
+                  witrCountdown.isPrayerTime && !witrCountdown.isExpired && witrCountdown.minutesLeft != null ? (
+                    <span className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[hsl(var(--prayer-countdown))]/10 text-[hsl(var(--prayer-countdown))] border border-[hsl(var(--prayer-countdown))]/30 shrink-0">
+                      <Timer className="h-2.5 w-2.5" strokeWidth={ICON_STROKE} />
                       {i18n.language === 'ar' ? `${witrCountdown.minutesLeft}د` : `${witrCountdown.minutesLeft}m`}
                     </span>
-                    <Progress
-                      value={Math.min(100, Math.round(((60 - (witrCountdown.minutesLeft ?? 60)) / 60) * 100))}
-                      className="h-1 w-20 bg-muted/30 [&>div]:bg-[hsl(var(--prayer-countdown))]"
-                    />
-                  </div>
-                ) : null
-              ) : (
-                <PrayerCountdownBadge prayerTime={timings[activePrayer as keyof typeof timings]} />
-              )}
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              <Button size="sm" variant="ghost" onClick={() => handleLog('completed_mosque')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs border border-border/50 hover:border-primary/30">
-                <Landmark className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.mosque')}
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => handleLog('completed_home')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs border border-border/50 hover:border-primary/30">
-                <House className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.home')}
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => handleLog('completed_work')} disabled={logPrayer.isPending} className="gap-1 h-7 text-xs border border-border/50 hover:border-primary/30">
-                <Building className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.work')}
-              </Button>
+                  ) : null
+                ) : (
+                  <PrayerCountdownBadge prayerTime={timings[activePrayer as keyof typeof timings]} />
+                )}
+              </div>
+              {/* Location buttons inline */}
+              <div className="flex gap-1 shrink-0">
+                <Button size="sm" variant="ghost" onClick={() => handleLog('completed_mosque')} disabled={logPrayer.isPending} className="gap-0.5 h-6 px-1.5 text-[10px] border border-border/50 hover:border-primary/30">
+                  <Landmark className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.mosque')}
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => handleLog('completed_home')} disabled={logPrayer.isPending} className="gap-0.5 h-6 px-1.5 text-[10px] border border-border/50 hover:border-primary/30">
+                  <House className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.home')}
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => handleLog('completed_work')} disabled={logPrayer.isPending} className="gap-0.5 h-6 px-1.5 text-[10px] border border-border/50 hover:border-primary/30">
+                  <Building className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.work')}
+                </Button>
+              </div>
             </div>
             {/* Rawatib Sunnah toggles */}
             {hasActiveRawatib && (
