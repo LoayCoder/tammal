@@ -53,7 +53,7 @@ export function CheckinSuccess({ streak, totalPoints, aiTip, alreadyDone }: Chec
             <Flame className="h-4 w-4 text-[hsl(var(--rank-bronze))]" /> {streak} {t('wellness.dayStreak')}
           </Badge>
           <Badge variant="secondary" className="text-sm px-4 py-2 rounded-full gap-1.5">
-            <Star className="h-4 w-4 text-yellow-500" /> {totalPoints} {t('wellness.points')}
+            <Star className="h-4 w-4 text-[hsl(var(--rank-gold))]" /> {totalPoints} {t('wellness.points')}
           </Badge>
         </div>
       </div>
