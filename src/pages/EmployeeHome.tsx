@@ -132,35 +132,35 @@ export default function EmployeeHome() {
         {(sqLoading || pendingQuestions.length > 0) && (
           <Link to="/employee/survey" className="block">
             <Card className={cn(cardVariants.premiumVip, "rounded-2xl cursor-pointer hover:shadow-md transition-all duration-200")}>
-              <CardContent className="flex items-center gap-4 p-6">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-chart-2/10 to-chart-2/5">
-                  <ClipboardList className="h-7 w-7 text-chart-2" />
+              <CardContent className="flex items-center gap-3 p-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-chart-2/[0.08]">
+                  <ClipboardList className="h-5 w-5 text-chart-2" strokeWidth={1.5} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-base">
+                    <h3 className="font-semibold text-sm">
                       {surveyMeta?.schedule_name || t('home.surveyCard')}
                     </h3>
                     {!sqLoading && pendingQuestions.length > 0 && (
                       <Badge variant="secondary" className="text-2xs px-1.5 py-0">{pendingQuestions.length}</Badge>
                     )}
                   </div>
-                  <p className="text-muted-foreground text-sm mt-0.5">
+                  <p className="text-muted-foreground text-xs mt-0.5">
                     {sqLoading ? '...' : t('home.pendingSurveys', { count: pendingQuestions.length })}
                   </p>
                   {surveyMeta?.end_date && (() => {
                     const daysLeft = differenceInDays(new Date(surveyMeta.end_date), new Date());
                     const isUrgent = daysLeft <= 2;
                     return (
-                      <p className={cn("text-xs mt-1 flex items-center gap-1", isUrgent ? "text-chart-4 font-medium" : "text-muted-foreground")}>
+                      <p className={cn("text-2xs mt-1 flex items-center gap-1", isUrgent ? "text-chart-4 font-medium" : "text-muted-foreground")}>
                         <Clock className="h-3 w-3" />
-                        {t('home.dueDate', { date: format(new Date(surveyMeta.end_date), 'MMM d, yyyy') })}
+                        {t('home.dueDate', { date: format(new Date(surveyMeta.end_date), 'MMM d, yyyy · HH:mm') })}
                         {isUrgent && daysLeft >= 0 && ` · ${daysLeft}d left`}
                       </p>
                     );
                   })()}
                 </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 rtl:rotate-180" />
+                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 rtl:rotate-180" />
               </CardContent>
             </Card>
           </Link>

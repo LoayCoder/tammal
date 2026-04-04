@@ -2385,6 +2385,7 @@
     "checkinDoneDesc": "Great job! You've checked in for today",
     "surveyCard": "Pending Questions",
     "pendingSurveys": "{{count}} questions waiting for you",
+    "dueDate": "Due: {{date}}",
     "moodHistory": "Mood History",
     "last14Days": "Your mood over the last 14 days",
     "noMoodData": "Start checking in to see your mood trends",
