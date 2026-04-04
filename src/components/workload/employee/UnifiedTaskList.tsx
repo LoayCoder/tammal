@@ -135,8 +135,10 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
                 )}
               </div>
 
-              {task.description && (
-                <p className="text-xs text-muted-foreground line-clamp-1">{task.description}</p>
+              {(isAr ? ((task as any).description_ar || task.description) : task.description) && (
+                <p className="text-xs text-muted-foreground line-clamp-1" dir={isAr ? 'rtl' : 'ltr'}>
+                  {isAr ? ((task as any).description_ar || task.description) : task.description}
+                </p>
               )}
 
               {/* Progress bar */}
