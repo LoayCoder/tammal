@@ -50,7 +50,7 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
       .slice(0, 3);
   }, [tasks]);
 
-  if (isPending) {
+  if (isPending && !isHidden) {
     return <Skeleton className="h-48 w-full rounded-xl" />;
   }
 
