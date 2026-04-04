@@ -24,6 +24,9 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const isAr = i18n.language === 'ar';
+  const [isHidden, setIsHidden] = useState(() => localStorage.getItem(HIDDEN_KEY) === '1');
+  const hide = useCallback(() => { localStorage.setItem(HIDDEN_KEY, '1'); setIsHidden(true); }, []);
+  const show = useCallback(() => { localStorage.removeItem(HIDDEN_KEY); setIsHidden(false); }, []);
   const { tasks, isPending } = useUnifiedTasks(employeeId);
   const { pendingTasks } = useApprovalQueue();
 
