@@ -1,3 +1,4 @@
+import { useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,31 +12,126 @@ import { TOOLKIT, ZONE_COLORS, STATE_COLORS, ACTION_COLORS, RANK_COLORS, PRAYER_
 import {
   Palette, Type, Maximize, LayoutGrid, BarChart3,
   TrendingUp, Lightbulb, AlertCircle, CheckCircle, Star,
-  Shield, BookOpen, Info
+  Shield, BookOpen, Info, RotateCcw, Copy, Download
 } from "lucide-react";
+import { toast } from "sonner";
 
-/* ── Color swatch helper ──────────────────────────────────────── */
-function Swatch({ name, cssVar }: { name: string; cssVar: string }) {
+/* ── HSL ↔ Hex conversion helpers ─────────────────────────────── */
+function hslToHex(h: number, s: number, l: number): string {
+  l /= 100;
+  const a = s * Math.min(l, 1 - l) / 100;
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12;
+    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * color).toString(16).padStart(2, '0');
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+function hexToHsl(hex: string): [number, number, number] {
+  let r = parseInt(hex.slice(1, 3), 16) / 255;
+  let g = parseInt(hex.slice(3, 5), 16) / 255;
+  let b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+}
+
+function getComputedHslFromVar(cssVar: string): string {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(`--${cssVar}`).trim();
+  return raw || '0 0% 50%';
+}
+
+function hslStringToHex(hslStr: string): string {
+  const parts = hslStr.replace(/,/g, ' ').split(/\s+/).map(Number);
+  if (parts.length >= 3) return hslToHex(parts[0], parts[1], parts[2]);
+  return '#808080';
+}
+
+/* ── Editable Swatch ──────────────────────────────────────────── */
+function EditableSwatch({
+  name, cssVar, overrides, onOverride, onReset,
+}: {
+  name: string;
+  cssVar: string;
+  overrides: Map<string, string>;
+  onOverride: (cssVar: string, hslValue: string) => void;
+  onReset: (cssVar: string) => void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const isOverridden = overrides.has(cssVar);
+
+  const currentHsl = isOverridden ? overrides.get(cssVar)! : getComputedHslFromVar(cssVar);
+  const currentHex = hslStringToHex(currentHsl);
+
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const [h, s, l] = hexToHsl(e.target.value);
+    const newHsl = `${h} ${s}% ${l}%`;
+    onOverride(cssVar, newHsl);
+  };
+
+  const handleReset = () => {
+    onReset(cssVar);
+    setIsEditing(false);
+  };
+
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div
-        className="w-12 h-12 rounded-xl border border-border/50 shadow-sm"
+        className={`w-12 h-12 rounded-xl border shadow-sm cursor-pointer transition-all hover:scale-110 ${isOverridden ? 'border-primary ring-2 ring-primary/30' : 'border-border/50'}`}
         style={{ backgroundColor: `hsl(var(--${cssVar}))` }}
+        onClick={() => setIsEditing(!isEditing)}
+        title={`Click to edit --${cssVar}`}
       />
       <span className="text-2xs text-muted-foreground text-center leading-tight">{name}</span>
+      {isEditing && (
+        <div className="flex flex-col items-center gap-1 animate-in fade-in zoom-in-95 duration-200">
+          <input
+            type="color"
+            value={currentHex}
+            onChange={handleColorChange}
+            className="w-10 h-7 rounded cursor-pointer border-0 p-0 bg-transparent"
+          />
+          <span className="text-[9px] font-mono text-muted-foreground">{currentHsl}</span>
+          {isOverridden && (
+            <button onClick={handleReset} className="text-[9px] text-destructive hover:underline flex items-center gap-0.5">
+              <RotateCcw className="h-2.5 w-2.5" /> Reset
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-function ToolkitSwatch({ name, value }: { name: string; value: string }) {
+/* ── Editable Toolkit Swatch (for value-based swatches) ──────── */
+function EditableToolkitSwatch({
+  name, cssVar, overrides, onOverride, onReset,
+}: {
+  name: string;
+  cssVar: string;
+  overrides: Map<string, string>;
+  onOverride: (cssVar: string, hslValue: string) => void;
+  onReset: (cssVar: string) => void;
+}) {
   return (
-    <div className="flex flex-col items-center gap-1.5">
-      <div
-        className="w-12 h-12 rounded-xl border border-border/50 shadow-sm"
-        style={{ backgroundColor: value }}
-      />
-      <span className="text-2xs text-muted-foreground text-center leading-tight">{name}</span>
-    </div>
+    <EditableSwatch
+      name={name}
+      cssVar={cssVar}
+      overrides={overrides}
+      onOverride={onOverride}
+      onReset={onReset}
+    />
   );
 }
 
@@ -64,8 +160,71 @@ function RuleCard({ title, children }: { title: string; children: React.ReactNod
   );
 }
 
+/* ── Toolkit CSS var map ──────────────────────────────────────── */
+const TOOLKIT_CSS_VARS: Record<string, string> = {
+  lavender: 'toolkit-lavender',
+  sage: 'toolkit-sage',
+  plum: 'toolkit-plum',
+  sky: 'toolkit-sky',
+  gold: 'toolkit-gold',
+  peach: 'toolkit-peach',
+  warm: 'toolkit-warm',
+  coral: 'toolkit-coral',
+  amber: 'toolkit-amber',
+  rose: 'toolkit-rose',
+};
+
+const ZONE_CSS_VARS: Record<string, string> = {
+  thriving: 'toolkit-zone-thriving',
+  watch: 'toolkit-zone-watch',
+  atRisk: 'toolkit-zone-at-risk',
+};
+
 export default function DesignSystemPage() {
   const { t } = useTranslation();
+  const [overrides, setOverrides] = useState<Map<string, string>>(new Map());
+
+  const handleOverride = useCallback((cssVar: string, hslValue: string) => {
+    document.documentElement.style.setProperty(`--${cssVar}`, hslValue);
+    setOverrides(prev => {
+      const next = new Map(prev);
+      next.set(cssVar, hslValue);
+      return next;
+    });
+  }, []);
+
+  const handleReset = useCallback((cssVar: string) => {
+    document.documentElement.style.removeProperty(`--${cssVar}`);
+    setOverrides(prev => {
+      const next = new Map(prev);
+      next.delete(cssVar);
+      return next;
+    });
+  }, []);
+
+  const handleResetAll = useCallback(() => {
+    overrides.forEach((_, cssVar) => {
+      document.documentElement.style.removeProperty(`--${cssVar}`);
+    });
+    setOverrides(new Map());
+    toast.success('All colors reset to defaults');
+  }, [overrides]);
+
+  const handleExportCSS = useCallback(() => {
+    if (overrides.size === 0) {
+      toast.info('No color overrides to export');
+      return;
+    }
+    const lines = Array.from(overrides.entries())
+      .map(([cssVar, value]) => `  --${cssVar}: ${value};`)
+      .join('\n');
+    const css = `:root {\n${lines}\n}`;
+    navigator.clipboard.writeText(css);
+    toast.success(`Copied ${overrides.size} overrides to clipboard`);
+  }, [overrides]);
+
+  // Shared swatch props
+  const swatchProps = { overrides, onOverride: handleOverride, onReset: handleReset };
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto px-4 py-6 sm:px-6">
@@ -94,21 +253,42 @@ export default function DesignSystemPage() {
         </CardContent>
       </Card>
 
+      {/* ─── Color Editor Toolbar ─── */}
+      {overrides.size > 0 && (
+        <div className="sticky top-2 z-50 flex items-center gap-3 bg-card/95 backdrop-blur-sm border border-primary/20 rounded-xl px-4 py-3 shadow-lg animate-in fade-in slide-in-from-top-2 duration-300">
+          <Palette className="h-4 w-4 text-primary shrink-0" />
+          <span className="text-sm font-semibold text-foreground">{overrides.size} color{overrides.size > 1 ? 's' : ''} modified</span>
+          <div className="flex-1" />
+          <Button variant="outline" size="sm" className="gap-1.5 rounded-lg" onClick={handleExportCSS}>
+            <Copy className="h-3.5 w-3.5" /> Copy CSS
+          </Button>
+          <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg text-destructive hover:text-destructive" onClick={handleResetAll}>
+            <RotateCcw className="h-3.5 w-3.5" /> Reset All
+          </Button>
+        </div>
+      )}
+
       <Separator />
 
       {/* ─── 1. Colors ─── */}
       <Section title="Core Colors" icon={<Palette className="h-5 w-5 text-primary" />}>
         <Card className={cardVariants.glass}>
-          <CardHeader><CardTitle className={typography.cardTitle}>Semantic Palette</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className={typography.cardTitle}>Semantic Palette
+              <span className="text-2xs text-muted-foreground font-normal ms-2">Click any swatch to edit</span>
+            </CardTitle>
+          </CardHeader>
           <CardContent className="flex flex-wrap gap-4">
-            <Swatch name="Primary" cssVar="primary" />
-            <Swatch name="Secondary" cssVar="secondary" />
-            <Swatch name="Accent" cssVar="accent" />
-            <Swatch name="Destructive" cssVar="destructive" />
-            <Swatch name="Muted" cssVar="muted" />
-            <Swatch name="Background" cssVar="background" />
-            <Swatch name="Card" cssVar="card" />
-            <Swatch name="Border" cssVar="border" />
+            {[
+              { name: 'Primary', cssVar: 'primary' },
+              { name: 'Secondary', cssVar: 'secondary' },
+              { name: 'Accent', cssVar: 'accent' },
+              { name: 'Destructive', cssVar: 'destructive' },
+              { name: 'Muted', cssVar: 'muted' },
+              { name: 'Background', cssVar: 'background' },
+              { name: 'Card', cssVar: 'card' },
+              { name: 'Border', cssVar: 'border' },
+            ].map(s => <EditableSwatch key={s.cssVar} {...s} {...swatchProps} />)}
           </CardContent>
         </Card>
 
@@ -116,7 +296,7 @@ export default function DesignSystemPage() {
           <CardHeader><CardTitle className={typography.cardTitle}>Chart Colors</CardTitle></CardHeader>
           <CardContent className="flex flex-wrap gap-4">
             {[1,2,3,4,5].map(n => (
-              <Swatch key={n} name={`Chart ${n}`} cssVar={`chart-${n}`} />
+              <EditableSwatch key={n} name={`Chart ${n}`} cssVar={`chart-${n}`} {...swatchProps} />
             ))}
           </CardContent>
         </Card>
@@ -124,8 +304,8 @@ export default function DesignSystemPage() {
         <Card className={cardVariants.glass}>
           <CardHeader><CardTitle className={typography.cardTitle}>Toolkit Palette</CardTitle></CardHeader>
           <CardContent className="flex flex-wrap gap-4">
-            {Object.entries(TOOLKIT).map(([name, value]) => (
-              <ToolkitSwatch key={name} name={name} value={value} />
+            {Object.entries(TOOLKIT_CSS_VARS).map(([name, cssVar]) => (
+              <EditableSwatch key={cssVar} name={name} cssVar={cssVar} {...swatchProps} />
             ))}
           </CardContent>
         </Card>
@@ -133,8 +313,8 @@ export default function DesignSystemPage() {
         <Card className={cardVariants.glass}>
           <CardHeader><CardTitle className={typography.cardTitle}>Zone Colors</CardTitle></CardHeader>
           <CardContent className="flex flex-wrap gap-4">
-            {Object.entries(ZONE_COLORS).map(([name, value]) => (
-              <ToolkitSwatch key={name} name={name} value={value} />
+            {Object.entries(ZONE_CSS_VARS).map(([name, cssVar]) => (
+              <EditableSwatch key={cssVar} name={name} cssVar={cssVar} {...swatchProps} />
             ))}
           </CardContent>
         </Card>
@@ -145,19 +325,23 @@ export default function DesignSystemPage() {
         <Card className={cardVariants.glass}>
           <CardHeader><CardTitle className={typography.cardTitle}>Semantic Status</CardTitle></CardHeader>
           <CardContent className="flex flex-wrap gap-4">
-            <Swatch name="Success" cssVar="success" />
-            <Swatch name="Warning" cssVar="warning" />
-            <Swatch name="Info" cssVar="info" />
-            <Swatch name="Destructive" cssVar="destructive" />
+            {[
+              { name: 'Success', cssVar: 'success' },
+              { name: 'Warning', cssVar: 'warning' },
+              { name: 'Info', cssVar: 'info' },
+              { name: 'Destructive', cssVar: 'destructive' },
+            ].map(s => <EditableSwatch key={s.cssVar} {...s} {...swatchProps} />)}
           </CardContent>
         </Card>
         <Card className={cardVariants.glass}>
           <CardHeader><CardTitle className={typography.cardTitle}>Status Tint Backgrounds</CardTitle></CardHeader>
           <CardContent className="flex flex-wrap gap-4">
-            <Swatch name="Success BG" cssVar="status-success-bg" />
-            <Swatch name="Info BG" cssVar="status-info-bg" />
-            <Swatch name="Warning BG" cssVar="status-warning-bg" />
-            <Swatch name="Error BG" cssVar="status-error-bg" />
+            {[
+              { name: 'Success BG', cssVar: 'status-success-bg' },
+              { name: 'Info BG', cssVar: 'status-info-bg' },
+              { name: 'Warning BG', cssVar: 'status-warning-bg' },
+              { name: 'Error BG', cssVar: 'status-error-bg' },
+            ].map(s => <EditableSwatch key={s.cssVar} {...s} {...swatchProps} />)}
           </CardContent>
         </Card>
       </Section>
@@ -246,7 +430,6 @@ export default function DesignSystemPage() {
           </CardContent>
         </Card>
 
-        {/* Spacing rules table */}
         <Card className={cardVariants.glass}>
           <CardHeader><CardTitle className={typography.cardTitle}>Spacing Rules</CardTitle></CardHeader>
           <CardContent>
@@ -294,8 +477,6 @@ export default function DesignSystemPage() {
 
       {/* ─── 5. System Components ─── */}
       <Section title="Dashboard Components" icon={<LayoutGrid className="h-5 w-5 text-primary" />}>
-
-        {/* PageHeader */}
         <div className="space-y-2">
           <Badge variant="outline" className="text-2xs">PageHeader</Badge>
           <PageHeader
@@ -305,30 +486,15 @@ export default function DesignSystemPage() {
           />
         </div>
 
-        {/* StatCard */}
         <div className="space-y-2">
           <Badge variant="outline" className="text-2xs">StatCard</Badge>
           <DashboardGrid columns={3}>
-            <StatCard
-              title="Total Users"
-              value="1,245"
-              icon={<TrendingUp className="h-4 w-4 text-primary" />}
-              trend={<span className="text-2xs text-chart-1">+12% this month</span>}
-            />
-            <StatCard
-              title="Active Sessions"
-              value="387"
-              icon={<BarChart3 className="h-4 w-4 text-primary" />}
-            />
-            <StatCard
-              title="Completion Rate"
-              value="94%"
-              icon={<CheckCircle className="h-4 w-4 text-primary" />}
-            />
+            <StatCard title="Total Users" value="1,245" icon={<TrendingUp className="h-4 w-4 text-primary" />} trend={<span className="text-2xs text-chart-1">+12% this month</span>} />
+            <StatCard title="Active Sessions" value="387" icon={<BarChart3 className="h-4 w-4 text-primary" />} />
+            <StatCard title="Completion Rate" value="94%" icon={<CheckCircle className="h-4 w-4 text-primary" />} />
           </DashboardGrid>
         </div>
 
-        {/* MetricCard */}
         <div className="space-y-2">
           <Badge variant="outline" className="text-2xs">MetricCard</Badge>
           <DashboardGrid columns={4}>
@@ -339,7 +505,6 @@ export default function DesignSystemPage() {
           </DashboardGrid>
         </div>
 
-        {/* ChartCard */}
         <div className="space-y-2">
           <Badge variant="outline" className="text-2xs">ChartCard</Badge>
           <ChartCard title="Weekly Trend" description="Example chart card wrapper">
@@ -349,40 +514,20 @@ export default function DesignSystemPage() {
           </ChartCard>
         </div>
 
-        {/* InsightCard */}
         <div className="space-y-2">
           <Badge variant="outline" className="text-2xs">InsightCard</Badge>
           <DashboardGrid columns={3}>
-            <InsightCard
-              icon={<Lightbulb className="h-4 w-4 text-primary" />}
-              title="AI Insight"
-              description="Team productivity increased 15% this sprint"
-              badge={<Badge variant="secondary">New</Badge>}
-            />
-            <InsightCard
-              icon={<AlertCircle className="h-4 w-4 text-destructive" />}
-              title="Risk Alert"
-              description="3 overdue tasks require attention"
-            />
-            <InsightCard
-              icon={<TrendingUp className="h-4 w-4 text-chart-1" />}
-              title="Trend"
-              description="Wellness scores trending upward"
-            />
+            <InsightCard icon={<Lightbulb className="h-4 w-4 text-primary" />} title="AI Insight" description="Team productivity increased 15% this sprint" badge={<Badge variant="secondary">New</Badge>} />
+            <InsightCard icon={<AlertCircle className="h-4 w-4 text-destructive" />} title="Risk Alert" description="3 overdue tasks require attention" />
+            <InsightCard icon={<TrendingUp className="h-4 w-4 text-chart-1" />} title="Trend" description="Wellness scores trending upward" />
           </DashboardGrid>
         </div>
 
-        {/* EmptyState */}
         <div className="space-y-2">
           <Badge variant="outline" className="text-2xs">EmptyState</Badge>
           <Card className={cardVariants.glass}>
             <CardContent>
-              <EmptyState
-                title="No data yet"
-                description="This is the standard empty state component"
-                actionLabel="Get Started"
-                onAction={() => {}}
-              />
+              <EmptyState title="No data yet" description="This is the standard empty state component" actionLabel="Get Started" onAction={() => {}} />
             </CardContent>
           </Card>
         </div>
@@ -397,9 +542,7 @@ export default function DesignSystemPage() {
             <Card key={key} className={classes}>
               <CardContent className={spacing.cardStandard}>
                 <p className={typography.cardTitle}>{key}</p>
-                <code className="text-2xs font-mono text-muted-foreground mt-1 block">
-                  {classes}
-                </code>
+                <code className="text-2xs font-mono text-muted-foreground mt-1 block">{classes}</code>
               </CardContent>
             </Card>
           ))}
@@ -538,7 +681,6 @@ export default function DesignSystemPage() {
           Semantic state tokens for task/item lifecycle. Use CSS variables <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">--state-*</code> or the <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">STATE_COLORS</code> map from <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">@/config/toolkit-colors</code>.
         </p>
 
-        {/* Swatches */}
         <Card className={cardVariants.glass}>
           <CardContent className={`${spacing.cardStandard}`}>
             <div className="grid grid-cols-4 sm:grid-cols-7 gap-4">
@@ -553,16 +695,8 @@ export default function DesignSystemPage() {
               ] as const).map((c) => (
                 <div key={c.cssVar} className="flex flex-col items-center gap-1.5">
                   <div className="flex gap-1">
-                    <div
-                      className="w-10 h-10 rounded-lg border border-border/50"
-                      style={{ backgroundColor: `hsl(var(--${c.cssVar}))` }}
-                      title={`--${c.cssVar}`}
-                    />
-                    <div
-                      className="w-10 h-10 rounded-lg border border-border/50"
-                      style={{ backgroundColor: `hsl(var(--${c.cssVar}-bg))` }}
-                      title={`--${c.cssVar}-bg`}
-                    />
+                    <EditableSwatch name="" cssVar={c.cssVar} {...swatchProps} />
+                    <EditableSwatch name="" cssVar={`${c.cssVar}-bg`} {...swatchProps} />
                   </div>
                   <span className="text-2xs text-muted-foreground text-center leading-tight">{c.name}</span>
                 </div>
@@ -571,7 +705,6 @@ export default function DesignSystemPage() {
           </CardContent>
         </Card>
 
-        {/* Live badge preview */}
         <Card className={cardVariants.glass}>
           <CardHeader className="pb-2">
             <CardTitle className={typography.cardTitle}>Live Badge Preview</CardTitle>
@@ -601,7 +734,6 @@ export default function DesignSystemPage() {
           </CardContent>
         </Card>
 
-        {/* Usage snippet */}
         <RuleCard title="Usage">
           <p>CSS: <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"bg-[hsl(var(--state-completed))]/20 text-[hsl(var(--state-completed))]"}</code></p>
           <p>JS: <code className="text-2xs bg-muted/30 px-1.5 py-0.5 rounded">{"import { STATE_COLORS } from '@/config/toolkit-colors'"}</code></p>
@@ -619,11 +751,11 @@ export default function DesignSystemPage() {
         <Card className={cardVariants.glass}>
           <CardContent className={`${spacing.cardStandard}`}>
             <div className="flex flex-wrap gap-4">
-              <Swatch name="Create" cssVar="action-create" />
-              <Swatch name="Update" cssVar="action-update" />
-              <Swatch name="Toggle" cssVar="action-toggle" />
-              <Swatch name="Status" cssVar="action-status" />
-              <Swatch name="Delete" cssVar="destructive" />
+              <EditableSwatch name="Create" cssVar="action-create" {...swatchProps} />
+              <EditableSwatch name="Update" cssVar="action-update" {...swatchProps} />
+              <EditableSwatch name="Toggle" cssVar="action-toggle" {...swatchProps} />
+              <EditableSwatch name="Status" cssVar="action-status" {...swatchProps} />
+              <EditableSwatch name="Delete" cssVar="destructive" {...swatchProps} />
             </div>
           </CardContent>
         </Card>
@@ -659,9 +791,9 @@ export default function DesignSystemPage() {
         <Card className={cardVariants.glass}>
           <CardContent className={`${spacing.cardStandard}`}>
             <div className="flex flex-wrap gap-4">
-              <Swatch name="Gold" cssVar="rank-gold" />
-              <Swatch name="Silver" cssVar="rank-silver" />
-              <Swatch name="Bronze" cssVar="rank-bronze" />
+              <EditableSwatch name="Gold" cssVar="rank-gold" {...swatchProps} />
+              <EditableSwatch name="Silver" cssVar="rank-silver" {...swatchProps} />
+              <EditableSwatch name="Bronze" cssVar="rank-bronze" {...swatchProps} />
             </div>
           </CardContent>
         </Card>
@@ -674,10 +806,10 @@ export default function DesignSystemPage() {
         <Card className={cardVariants.glass}>
           <CardContent className={`${spacing.cardStandard}`}>
             <div className="flex flex-wrap gap-4">
-              <Swatch name="Mosque" cssVar="prayer-mosque" />
-              <Swatch name="Home" cssVar="prayer-home" />
-              <Swatch name="Work" cssVar="prayer-work" />
-              <Swatch name="Missed" cssVar="state-missed" />
+              <EditableSwatch name="Mosque" cssVar="prayer-mosque" {...swatchProps} />
+              <EditableSwatch name="Home" cssVar="prayer-home" {...swatchProps} />
+              <EditableSwatch name="Work" cssVar="prayer-work" {...swatchProps} />
+              <EditableSwatch name="Missed" cssVar="state-missed" {...swatchProps} />
             </div>
           </CardContent>
         </Card>
@@ -690,8 +822,8 @@ export default function DesignSystemPage() {
         <Card className={cardVariants.glass}>
           <CardContent className={`${spacing.cardStandard}`}>
             <div className="flex flex-wrap gap-4">
-              <Swatch name="Positive" cssVar="trend-positive" />
-              <Swatch name="Negative" cssVar="destructive" />
+              <EditableSwatch name="Positive" cssVar="trend-positive" {...swatchProps} />
+              <EditableSwatch name="Negative" cssVar="destructive" {...swatchProps} />
             </div>
           </CardContent>
         </Card>
@@ -704,10 +836,10 @@ export default function DesignSystemPage() {
         <Card className={cardVariants.glass}>
           <CardContent className={`${spacing.cardStandard}`}>
             <div className="flex flex-wrap gap-4">
-              <Swatch name="Progress" cssVar="kpi-progress" />
-              <Swatch name="Utilization" cssVar="kpi-utilization" />
-              <Swatch name="Risk" cssVar="kpi-risk" />
-              <Swatch name="Trend" cssVar="kpi-trend" />
+              <EditableSwatch name="Progress" cssVar="kpi-progress" {...swatchProps} />
+              <EditableSwatch name="Utilization" cssVar="kpi-utilization" {...swatchProps} />
+              <EditableSwatch name="Risk" cssVar="kpi-risk" {...swatchProps} />
+              <EditableSwatch name="Trend" cssVar="kpi-trend" {...swatchProps} />
             </div>
           </CardContent>
         </Card>
@@ -720,8 +852,8 @@ export default function DesignSystemPage() {
         <Card className={cardVariants.glass}>
           <CardContent className={`${spacing.cardStandard}`}>
             <div className="flex flex-wrap gap-4">
-              <Swatch name="Medium" cssVar="severity-medium" />
-              <Swatch name="High (destructive)" cssVar="destructive" />
+              <EditableSwatch name="Medium" cssVar="severity-medium" {...swatchProps} />
+              <EditableSwatch name="High (destructive)" cssVar="destructive" {...swatchProps} />
             </div>
           </CardContent>
         </Card>
@@ -734,7 +866,7 @@ export default function DesignSystemPage() {
         <Card className={cardVariants.glass}>
           <CardContent className={`${spacing.cardStandard}`}>
             <div className="flex flex-wrap gap-4">
-              <Swatch name="Islamic Accent" cssVar="islamic-accent" />
+              <EditableSwatch name="Islamic Accent" cssVar="islamic-accent" {...swatchProps} />
             </div>
           </CardContent>
         </Card>
@@ -747,9 +879,15 @@ export default function DesignSystemPage() {
         <Card className={cardVariants.glass}>
           <CardContent className={`${spacing.cardStandard}`}>
             <div className="flex flex-wrap gap-4">
-              {Object.entries(SYSTEM_ROLE_COLORS).map(([name, value]) => (
-                <ToolkitSwatch key={name} name={name} value={value} />
-              ))}
+              {Object.entries(SYSTEM_ROLE_COLORS).map(([name]) => {
+                const cssVarMap: Record<string, string> = {
+                  super_admin: 'destructive',
+                  tenant_admin: 'state-important',
+                  manager: 'state-pending',
+                  user: 'state-completed',
+                };
+                return <EditableSwatch key={name} name={name} cssVar={cssVarMap[name] || 'primary'} {...swatchProps} />;
+              })}
             </div>
           </CardContent>
         </Card>
@@ -757,7 +895,7 @@ export default function DesignSystemPage() {
 
       <Separator />
 
-      {/* ─── 10. Widget Accent Colors (Hex Exceptions) ─── */}
+      {/* ─── 18. Widget Accent Colors (Hex Exceptions) ─── */}
       <Section title="Widget Accent Colors (Hex Exceptions)" icon={<Info className="h-5 w-5 text-primary" />}>
         <p className="text-sm text-muted-foreground">
           These hex values are used in color-picker inputs or inline SVG where CSS variables are not supported. They are documented here as exceptions to the HSL-only rule.
