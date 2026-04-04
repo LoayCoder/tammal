@@ -1,35 +1,49 @@
 
 
-## Fix Survey Card: Missing Translation, Minimal Design, Icon Consistency
+## Replace Fingerprint (Profile) with Wellness Resources Page in Bottom Nav
 
-### Issues Found
+### What Changes
 
-1. **`home.dueDate` translation key missing** — not in `en.json` or `ar.json`, so it renders the raw key
-2. **Card is too heavy** — oversized icon container (h-14 w-14), large padding, complex gradient
-3. **Icon style mismatch** — `ClipboardList` at h-7 w-7 with thick stroke doesn't match the page's thin outline standard (strokeWidth 1.5, h-5 w-5)
+The bottom navigation bar's **Fingerprint** icon currently links to `/settings/profile`. The user wants it to instead open a **Wellness Resources** page showing all mental toolkit tools as clean, premium cards.
 
-### Changes
+### 1. Create New Page: `src/pages/WellnessResources.tsx`
 
-**1. `src/locales/en.json`** — Add missing key:
-```json
-"dueDate": "Due: {{date}}"
-```
+A dedicated page displaying all 8 wellness toolkit items as a responsive card grid:
 
-**2. `src/locales/ar.json`** — Add missing key:
-```json
-"dueDate": "الموعد النهائي: {{date}}"
-```
+| Card | Icon | Route |
+|------|------|-------|
+| Mood Tracker | `Activity` | `/mental-toolkit/mood-tracker` |
+| Thought Reframer | `Brain` | `/mental-toolkit/thought-reframer` |
+| Breathing & Grounding | `Wind` | `/mental-toolkit/breathing` |
+| Journaling | `BookOpen` | `/mental-toolkit/journaling` |
+| Meditation Library | `Music` | `/mental-toolkit/meditation` |
+| Habits Planner | `CheckSquare` | `/mental-toolkit/habits` |
+| Articles | `BookMarked` | `/mental-toolkit/articles` |
+| Self-Assessment | `ClipboardCheck` | `/mental-toolkit/assessment` |
 
-**3. `src/pages/EmployeeHome.tsx`** — Simplify the survey card:
-- Shrink icon container from `h-14 w-14` → `h-10 w-10`, icon from `h-7 w-7` → `h-5 w-5`
-- Add `strokeWidth={1.5}` to `ClipboardList` to match other page icons
-- Reduce padding from `p-6` → `p-4`
-- Keep the due date + urgency logic as-is (it works, just needed the translation key)
+- Cards use the same premium style as `MentalHealthResourcesHub` (rounded-2xl, border, hover effects)
+- 2-column grid on mobile, clean spacing
+- Each card navigates to its dedicated route
+- Page has a `PageHeader` with a wellness-themed title
+
+### 2. Register Route in `src/App.tsx`
+
+Add `/wellness` route pointing to the new `WellnessResources` page, inside the authenticated layout.
+
+### 3. Update Bottom Nav: `src/components/layout/MobileBottomNav.tsx`
+
+- Change the `profile` nav item:
+  - **Icon**: `Fingerprint` → `Heart` (or `Sparkles`) — a wellness-aligned icon
+  - **Path**: `/settings/profile` → `/wellness`
+  - **Key**: `profile` → `wellness-hub`
+
+Profile remains accessible via the sidebar menu and the hamburger (Menu) button — no functionality is lost.
 
 ### Files Modified
+
 | File | Change |
 |------|--------|
-| `src/locales/en.json` | Add `home.dueDate` translation |
-| `src/locales/ar.json` | Add `home.dueDate` translation |
-| `src/pages/EmployeeHome.tsx` | Reduce icon/padding size, match strokeWidth to page standard |
+| `src/pages/WellnessResources.tsx` | New page with wellness resource cards grid |
+| `src/App.tsx` | Add `/wellness` route |
+| `src/components/layout/MobileBottomNav.tsx` | Change fingerprint item to wellness hub |
 
