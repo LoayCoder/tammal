@@ -1,32 +1,54 @@
 
 
-## Remove Serif & Mono Font Families — Use Inter Only
+## Task Reference ID — Analysis & Plan
 
-### Summary
-Remove `Lora` (serif) and `Space Mono` (mono) font imports and definitions. Replace all `font-mono` and `font-serif` usages across ~23 source files with `font-sans` (Inter).
+### Current State
+- Each task has only a UUID (`bdcea4ee-72dd-4dae-9343-a62e20f2ae9f`) — not displayed anywhere in the UI.
+- There is **no** short/human-readable reference ID (like `TASK-001`) on the `unified_tasks` table or in the UI.
 
-### Changes
+### What Needs to Happen
 
-**1. `src/index.css`** — Remove Google Fonts imports for Lora and Space Mono (lines 2-3). Remove `--font-serif` and `--font-mono` CSS variables (lines 143-144). Point `--font-mono` to the same Inter stack as `--font-sans` (keeps `font-mono` class working without breaking anything).
+**1. Database: Add `task_number` column + auto-increment trigger**
+- Add a `task_number INTEGER` column to `unified_tasks`
+- Create a trigger that auto-generates a sequential number per tenant on insert
+- This gives each task a short reference like `#142` scoped to the tenant
 
-**2. `tailwind.config.ts`** — Remove the `serif` and `mono` entries from `fontFamily` (lines 139-157), or point them to the same Inter stack.
+**2. UI: Display the reference ID**
+- Show the reference in the Task Detail header (e.g., `#142` as a muted badge next to the title)
+- Show it in task list rows for quick identification
+- Make it copyable on click
 
-**3. `src/pages/dev/DesignSystemPage.tsx`** — Remove the Lora and Space Mono preview sections from the Font Families showcase. Keep only the Inter section.
+### Files to Change
+| File | Change |
+|------|--------|
+| **Migration (new)** | Add `task_number` column, create auto-increment trigger per tenant, backfill existing tasks |
+| `src/features/tasks/pages/TaskDetail.tsx` | Display `#task_number` in header |
+| `src/features/tasks/components/` (task list items) | Show reference in list rows |
 
-**4. ~20 source files** — Replace every `font-mono` class with `font-sans tabular-nums` (for numeric/code contexts that need monospaced alignment) or just remove it. Key files:
-- `TaskTimeTrackingPanel.tsx` — timer display
-- `HSLColorPicker.tsx` — hex/RGB values
-- `GovernanceAuditLog.tsx` — IDs
-- `AutonomousStatus.tsx` — percentages
-- `MoodDefinitionManager.tsx`, `MoodDefinitionDialog.tsx`
-- `InvitationManagement.tsx` — invitation codes
-- `DesignSystemPage.tsx` — code snippets
-- `ComponentShowcase.tsx` — code blocks
-- Several other governance/admin components
+### Migration SQL (Core Logic)
+```sql
+ALTER TABLE unified_tasks ADD COLUMN task_number INTEGER;
 
-No `font-serif` usages found in components (only in config), so that's config-only cleanup.
+-- Auto-increment per tenant
+CREATE OR REPLACE FUNCTION generate_task_number()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.task_number := COALESCE(
+    (SELECT MAX(task_number) FROM unified_tasks WHERE tenant_id = NEW.tenant_id), 0
+  ) + 1;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-### Approach
-- Safest path: redefine `--font-mono` CSS variable to use Inter stack, so all existing `font-mono` classes automatically render in Inter without touching every file individually. Then remove the Google Fonts imports and Tailwind config entries.
-- Still update the Design System page to remove the Lora/Space Mono showcase sections.
+CREATE TRIGGER trg_task_number
+  BEFORE INSERT ON unified_tasks
+  FOR EACH ROW EXECUTE FUNCTION generate_task_number();
+
+-- Backfill existing tasks
+UPDATE unified_tasks SET task_number = sub.rn
+FROM (
+  SELECT id, ROW_NUMBER() OVER (PARTITION BY tenant_id ORDER BY created_at) AS rn
+  FROM unified_tasks
+) sub WHERE unified_tasks.id = sub.id;
+```
 
