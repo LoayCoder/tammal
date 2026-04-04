@@ -130,8 +130,8 @@ export default function EmployeeHome() {
 
         {/* Pending Surveys Card */}
         {(sqLoading || pendingQuestions.length > 0) && (
-          <Link to="/employee/survey">
-            <Card className={cn(cardVariants.premiumVip, "rounded-2xl cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200")}>
+          <Link to="/employee/survey" className="block">
+            <Card className={cn(cardVariants.premiumVip, "rounded-2xl cursor-pointer hover:shadow-md transition-all duration-200")}>
               <CardContent className="flex items-center gap-4 p-6">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-chart-2/10 to-chart-2/5">
                   <ClipboardList className="h-7 w-7 text-chart-2" />
