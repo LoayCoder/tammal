@@ -114,6 +114,7 @@ export function CreateTaskModal({
   const titleId = `${formId}-title`;
   const titleArId = `${formId}-title-ar`;
   const descId = `${formId}-desc`;
+  const descArId = `${formId}-desc-ar`;
   const statusId = `${formId}-status`;
   const priorityId = `${formId}-priority`;
   const estMinId = `${formId}-est-min`;
