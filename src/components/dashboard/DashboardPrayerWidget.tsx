@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Landmark, House, Building, ChevronRight, Clock, Timer, Check, ClockAlert, XOctagon } from 'lucide-react';
+import { Landmark, House, Building, ChevronRight, Clock, Timer, CheckLine, ClockAlert, XLineTop } from 'lucide-react';
 
 const ICON_STROKE = 1.5;
 import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferences';
@@ -305,7 +305,7 @@ export function DashboardPrayerWidget() {
                   disabled={togglePractice.isPending}
                   className={cn('gap-1 h-6 px-2 text-[10px] border', isDuhaCompleted ? 'border-primary/40' : 'border-border/50 hover:border-primary/30')}
                 >
-                  {isDuhaCompleted ? <Check className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
+                  {isDuhaCompleted ? <CheckLine className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                   {isDuhaCompleted ? (i18n.language === 'ar' ? 'تم ✓' : 'Done ✓') : (i18n.language === 'ar' ? 'تم' : 'Done')}
                 </Button>
               ) : (
@@ -337,7 +337,7 @@ export function DashboardPrayerWidget() {
                     )}
                   >
                     📿
-                    {todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_before`) && <Check className="h-3 w-3" strokeWidth={ICON_STROKE} />}
+                    {todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_before`) && <CheckLine className="h-3 w-3" strokeWidth={ICON_STROKE} />}
                     <span>{i18n.language === 'ar' ? `${activeRawatib.before} ركعات قبل` : `${activeRawatib.before} Rak'ahs before`}</span>
                   </button>
                 )}
@@ -353,7 +353,7 @@ export function DashboardPrayerWidget() {
                     )}
                   >
                     📿
-                    {todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_after`) && <Check className="h-3 w-3" strokeWidth={ICON_STROKE} />}
+                    {todayCompleted.has(`rawatib_${activePrayer.toLowerCase()}_after`) && <CheckLine className="h-3 w-3" strokeWidth={ICON_STROKE} />}
                     <span>{i18n.language === 'ar' ? `${activeRawatib.after} ركعات بعد` : `${activeRawatib.after} Rak'ahs after`}</span>
                   </button>
                 )}
@@ -410,10 +410,10 @@ export function DashboardPrayerWidget() {
                 >
                   {logged && !isMissed ? (
                     isDuha ? <span className="text-[10px]">☀</span>
-                    : isMosque ? <Check className="h-3 w-3" strokeWidth={ICON_STROKE} />
+                    : isMosque ? <CheckLine className="h-3 w-3" strokeWidth={ICON_STROKE} />
                     : <ClockAlert className="h-3 w-3" strokeWidth={ICON_STROKE} />
                   ) : null}
-                  {isMissed ? <XOctagon className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
+                  {isMissed ? <XLineTop className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                   {!logged && isActive ? <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                   {!logged && !isActive && isDuha ? <span className="text-[10px]">☀</span> : null}
                 </div>
