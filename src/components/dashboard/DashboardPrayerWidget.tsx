@@ -121,15 +121,15 @@ export function DashboardPrayerWidget() {
 
   const allCompleted = ALL_PRAYERS.every(n => n === 'Duha' ? isDuhaCompleted : todayLogs[n]?.status?.startsWith('completed'));
 
-  // ── Auto-miss logic ──
-  const activePrayerTime = activePrayer && activePrayer !== 'Witr' && timings
+  // ── Auto-miss logic (skip Duha — voluntary) ──
+  const activePrayerTime = activePrayer && activePrayer !== 'Witr' && activePrayer !== 'Duha' && timings
     ? timings[activePrayer as keyof typeof timings]
     : undefined;
   const countdown = usePrayerCountdown(activePrayerTime);
   const autoMissedRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!activePrayer || activePrayer === 'Witr') return;
+    if (!activePrayer || activePrayer === 'Witr' || activePrayer === 'Duha') return;
     if (!countdown.isExpired) return;
     if (todayLogs[activePrayer]) return;
     if (autoMissedRef.current === activePrayer) return;
