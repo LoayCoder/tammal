@@ -413,7 +413,7 @@ export function DashboardPrayerWidget() {
                     : isMosque ? <CheckLine className="h-3 w-3" strokeWidth={ICON_STROKE} />
                     : <ClockAlert className="h-3 w-3" strokeWidth={ICON_STROKE} />
                   ) : null}
-                  {isMissed ? <XOctagon className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
+                  {isMissed ? <XLineTop className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                   {!logged && isActive ? <Timer className="h-3 w-3" strokeWidth={ICON_STROKE} /> : null}
                   {!logged && !isActive && isDuha ? <span className="text-[10px]">☀</span> : null}
                 </div>
