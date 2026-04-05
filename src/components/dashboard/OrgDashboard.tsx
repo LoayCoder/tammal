@@ -12,9 +12,12 @@ import {
   ComparisonTab,
 } from '@/features/org-dashboard';
 import { OrgWorkloadIndicator } from '@/features/org-dashboard/components/OrgWorkloadIndicator';
+import { TeamPulseCard } from '@/features/team-pulse';
+import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 
 export function OrgDashboard() {
   const { t } = useTranslation();
+  const { employee } = useCurrentEmployee();
   const {
     timeRange, setTimeRange,
     customStart, customEnd, handleCustomChange,
@@ -38,6 +41,10 @@ export function OrgDashboard() {
       <StatCards cards={statCards} isLoading={isLoading} />
 
       <ErrorBoundary><OrgWorkloadIndicator /></ErrorBoundary>
+
+      {employee?.id && (
+        <ErrorBoundary><TeamPulseCard employeeId={employee.id} /></ErrorBoundary>
+      )}
 
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="h-auto gap-1">
