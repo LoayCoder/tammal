@@ -90,7 +90,7 @@ export default function WorkloadDashboard() {
       />
 
       {/* KPI Cards */}
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-5">
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
         {statCards.map(stat => (
           <MetricCard
             key={stat.title}
