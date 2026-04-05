@@ -4205,7 +4205,15 @@
     "sla": {
       "within_sla": "Within SLA",
       "approaching": "Approaching Breach",
-      "breached": "Breached"
+      "breached": "Breached",
+      "overdue": "overdue",
+      "left": "left"
+    },
+    "unlock": {
+      "title": "Request Unlock",
+      "description": "Provide justification to unlock task: {{title}}",
+      "placeholder": "Why does this task need to be unlocked?",
+      "confirm": "Unlock Task"
     },
     "escalation": {
       "title": "Escalation History",
