@@ -100,17 +100,26 @@ export default function EmployeeHome() {
         {/* Engagement Rank Badge */}
         <EngagementRankBadge rank={rank} totalEmployees={totalEmployees} isPending={rankLoading} error={rankError} />
 
-        {/* Wellness Copilot */}
-        {employee && <WellnessCopilotCard employeeId={employee.id} />}
+        {/* Inline Daily Check-in */}
+        {employee && !todayEntry && employee.user_id && (
+          <InlineDailyCheckin employeeId={employee.id} tenantId={employee.tenant_id} userId={employee.user_id} />
+        )}
 
-        {/* Team Pulse Action Hub */}
-        {employee && <TeamPulseCard employeeId={employee.id} />}
-
-        {/* Quick Appreciation */}
-        <QuickAppreciationCard />
-
-        {/* Appreciation Activity Summary */}
-        {employee && <AppreciationActivityWidget mode="personal" />}
+        {/* Completed check-in indicator */}
+        {todayEntry && (
+          <Card className={cn(cardVariants.premiumVip)}>
+            <CardContent className="flex items-center gap-4 p-6">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-chart-1/15 to-chart-1/5 text-2xl">
+                {MOOD_EMOJIS[todayEntry.level] || '✅'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-base">{t('home.checkinDone')}</h3>
+                <p className="text-muted-foreground text-sm mt-0.5">{t('home.checkinDoneDesc')}</p>
+              </div>
+              <CheckCircle2 className="h-6 w-6 text-chart-1 shrink-0" />
+            </CardContent>
+          </Card>
+        )}
 
         {/* Support Hub — Collapsible Premium Card */}
         <Collapsible className="premium-card rounded-2xl hover:shadow-sm transition-all duration-200">
@@ -138,6 +147,18 @@ export default function EmployeeHome() {
             </div>
           </CollapsibleContent>
         </Collapsible>
+
+        {/* Wellness Copilot */}
+        {employee && <WellnessCopilotCard employeeId={employee.id} />}
+
+        {/* Team Pulse Action Hub */}
+        {employee && <TeamPulseCard employeeId={employee.id} />}
+
+        {/* Quick Appreciation */}
+        <QuickAppreciationCard />
+
+        {/* Appreciation Activity Summary */}
+        {employee && <AppreciationActivityWidget mode="personal" />}
 
         {/* Pending Endorsement Requests */}
         <DashboardEndorsementRequests />
@@ -186,35 +207,11 @@ export default function EmployeeHome() {
           </Link>
         )}
 
-        {/* Inline Daily Check-in */}
-        {employee && !todayEntry && employee.user_id && (
-          <InlineDailyCheckin employeeId={employee.id} tenantId={employee.tenant_id} userId={employee.user_id} />
-        )}
-
-        {/* Completed check-in indicator */}
-        {todayEntry && (
-          <Card className={cn(cardVariants.premiumVip)}>
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-chart-1/15 to-chart-1/5 text-2xl">
-                {MOOD_EMOJIS[todayEntry.level] || '✅'}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-base">{t('home.checkinDone')}</h3>
-                <p className="text-muted-foreground text-sm mt-0.5">{t('home.checkinDoneDesc')}</p>
-              </div>
-              <CheckCircle2 className="h-6 w-6 text-chart-1 shrink-0" />
-            </CardContent>
-          </Card>
-        )}
-
         {/* Spiritual Wellbeing Widgets */}
         <DashboardPrayerWidget />
-        
 
         {/* Workload Overview Widget */}
         {employee && <DashboardWorkloadWidget employeeId={employee.id} />}
-
-
 
         {/* First Aider Quick Connect */}
         <FirstAiderQuickConnect
