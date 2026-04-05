@@ -2523,7 +2523,12 @@
       "nomination_received": "ترشيح جديد",
       "nomination_approved": "تمت الموافقة على الترشيح",
       "nomination_rejected": "تم رفض الترشيح",
-      "award_won": "فزت بجائزة"
+      "award_won": "فزت بجائزة",
+      "engagement_drop": "درجة تفاعلك تحتاج اهتمامك",
+      "appreciation_reminder": "وقت لنشر التقدير اليوم",
+      "pulse_nudge": "كيف حالك اليوم؟",
+      "manager_team_alert": "تفاعل الفريق يحتاج اهتمامك",
+      "action_followup": "أكمل إجراء التفاعل الخاص بك"
     },
     "body": {
       "assigned": "تم تعيين مهمة جديدة لك.",
