@@ -82,6 +82,18 @@ export function TeamPulseCard({ employeeId }: Props) {
 
   if (error && !pulse && !insufficientData && !isPending) return null;
 
+  if (isHidden) {
+    return (
+      <button
+        onClick={show}
+        className="flex w-full items-center gap-2 rounded-2xl border border-border/30 bg-card/50 px-4 min-h-[44px] py-3 text-xs text-muted-foreground hover:text-foreground hover:bg-card transition-all active:scale-[0.98]"
+      >
+        <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />
+        <span>{t("pulse.title")}</span>
+      </button>
+    );
+  }
+
   return (
     <div className={cn(cardVariants.premiumVip, "rounded-2xl overflow-hidden")}>
       {/* Header */}
