@@ -13,6 +13,7 @@ import {
 } from '@/features/org-dashboard';
 import { OrgWorkloadIndicator } from '@/features/org-dashboard/components/OrgWorkloadIndicator';
 import { TeamPulseCard } from '@/features/team-pulse';
+import { WellnessCopilotCard } from '@/features/wellness-copilot';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 
 export function OrgDashboard() {
