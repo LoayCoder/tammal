@@ -294,12 +294,24 @@ serve(async (req) => {
         checkinScore * 0.35 + taskScore * 0.30 + recognitionScore * 0.20 + (participationRate > 50 ? 15 : participationRate * 0.15)
       );
 
+      // Team overdue tasks
+      const { count: teamOverdue } = await admin
+        .from("unified_tasks")
+        .select("id", { count: "exact", head: true })
+        .in("employee_id", reportIds)
+        .eq("tenant_id", emp.tenant_id)
+        .is("deleted_at", null)
+        .not("status", "in", '("completed","archived")')
+        .lt("due_date", todayStr)
+        .not("due_date", "is", null);
+
       scopeData = {
         engagementScore,
         teamSize: reportIds.length,
         participationRate,
         teamCompletedTasks: teamCompleted ?? 0,
         teamTotalTasks: teamTotal ?? 0,
+        teamOverdueTasks: teamOverdue ?? 0,
         teamAppreciations: teamAppreciations ?? 0,
         totalCheckins: (teamMoods ?? []).length,
       };
