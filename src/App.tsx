@@ -96,6 +96,7 @@ const RecurringTasks = lazy(() => import("@/features/tasks/pages/RecurringTasks"
 const TaskTemplates = lazy(() => import("@/features/tasks/pages/TaskTemplates"));
 const ComponentShowcase = lazy(() => import("@/pages/dev/ComponentShowcase"));
 const DesignSystemPage = lazy(() => import("@/pages/dev/DesignSystemPage"));
+const EngagementInsights = lazy(() => import("@/pages/EngagementInsights"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
