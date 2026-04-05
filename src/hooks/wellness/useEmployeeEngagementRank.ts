@@ -47,10 +47,19 @@ export function useEmployeeEngagementRank(
       });
 
       // Compute streak + count per employee, then sort
+      // Grace period: if no entry today, prepend yesterday as anchor so streak isn't zeroed
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
       const ranked = Object.entries(empMap)
         .map(([id, dates]) => {
           const unique = [...new Set(dates)].sort().reverse();
-          const streak = computeStreak(unique.map((d) => ({ entry_date: d })));
+          // Allow 1-day grace: if latest entry is yesterday (not today), still count streak
+          const needsGrace = unique[0] !== todayStr && unique[0] === yesterdayStr;
+          const streakDates = needsGrace ? [todayStr, ...unique] : unique;
+          const streak = computeStreak(streakDates.map((d) => ({ entry_date: d })));
           return { id, streak, count: unique.length };
         })
         .sort((a, b) => b.streak - a.streak || b.count - a.count);
