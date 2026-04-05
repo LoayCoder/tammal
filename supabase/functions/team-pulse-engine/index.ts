@@ -26,7 +26,7 @@ serve(async (req) => {
       );
     }
 
-    // Auth — use getClaims for local JWT validation (signing-keys system)
+    // Auth — pass the bearer token explicitly in edge runtime
     const authHeader = req.headers.get("authorization") ?? "";
     if (!authHeader.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -35,11 +35,9 @@ serve(async (req) => {
       });
     }
 
-    const anonClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { authorization: authHeader } },
-    });
-
-    const { data: { user }, error: authErr } = await anonClient.auth.getUser();
+    const token = authHeader.replace("Bearer ", "");
+    const anonClient = createClient(supabaseUrl, anonKey);
+    const { data: { user }, error: authErr } = await anonClient.auth.getUser(token);
     if (authErr || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
