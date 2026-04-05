@@ -4680,5 +4680,23 @@
     "noActions": "لم يتم تسجيل إجراءات بعد",
     "noActionsDesc": "ستظهر إجراءات المشاركة هنا عند تفاعلك مع ميزات النبض",
     "activeRecommendations": "التوصيات النشطة"
+  },
+  "capacityPlanner": {
+    "pageTitle": "مخطط القدرات",
+    "pageDesc": "موازنة أعباء العمل بصريًا — اسحب المهام بين أعضاء الفريق",
+    "searchEmployees": "بحث عن موظفين...",
+    "totalMembers": "أعضاء الفريق",
+    "overloaded": "محملون بشكل زائد",
+    "underutilized": "غير مستغلين",
+    "loaded": "محمّل",
+    "capacity": "السعة",
+    "noTasks": "لا توجد مهام نشطة",
+    "reassignTask": "إعادة تعيين المهمة",
+    "reassignDesc": "نقل هذه المهمة إلى عضو فريق آخر",
+    "from": "من",
+    "estimated": "التقدير",
+    "assignTo": "تعيين إلى",
+    "selectEmployee": "اختر موظفًا...",
+    "confirm": "إعادة تعيين"
   }
 }
