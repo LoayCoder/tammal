@@ -25,6 +25,8 @@ import FirstAiderQuickConnect from '@/components/crisis/FirstAiderQuickConnect';
 import { DashboardEndorsementRequests } from '@/components/dashboard/DashboardEndorsementRequests';
 import { DashboardShortlistWidget } from '@/components/dashboard/DashboardShortlistWidget';
 import { DashboardVotingWidget } from '@/components/dashboard/DashboardVotingWidget';
+import { EngagementRankBadge } from '@/components/dashboard/EngagementRankBadge';
+import { useEmployeeEngagementRank } from '@/hooks/wellness/useEmployeeEngagementRank';
 import { cardVariants, typography } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
