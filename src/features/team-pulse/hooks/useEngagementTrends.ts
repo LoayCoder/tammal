@@ -94,6 +94,7 @@ export function useEngagementTrends(mode: PulseMode, employeeId: string | null |
       const { data } = await supabase
         .from("engagement_action_log")
         .select("id, action_type, source, created_at")
+        .eq("tenant_id", tenantId!)
         .eq("employee_id", employee!.id)
         .is("deleted_at", null)
         .order("created_at", { ascending: false })
