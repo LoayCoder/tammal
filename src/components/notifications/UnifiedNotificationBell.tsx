@@ -125,6 +125,14 @@ const RECOGNITION_COLORS: Record<string, string> = {
   award_won: 'text-chart-5',
 };
 
+const ENGAGEMENT_COLORS: Record<string, string> = {
+  engagement_drop: 'text-destructive',
+  appreciation_reminder: 'text-chart-2',
+  pulse_nudge: 'text-chart-4',
+  manager_team_alert: 'text-chart-5',
+  action_followup: 'text-chart-3',
+};
+
 function normalizeTask(n: TaskNotification): UnifiedNotification {
   return {
     id: n.id, type: n.type, title: n.title, body: n.body,
