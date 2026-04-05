@@ -44,6 +44,13 @@ export function PulseInsightBlock({ insight, trend, engagementScore, impactReaso
 
       {/* Insight text */}
       <p className="text-sm text-foreground/90 leading-relaxed">{insight}</p>
+
+      {/* Impact reason */}
+      {impactReason && (
+        <p className="text-xs text-muted-foreground leading-relaxed italic">
+          {impactReason}
+        </p>
+      )}
     </div>
   );
 }
