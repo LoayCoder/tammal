@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { cardVariants } from "@/theme/tokens";
 import { Heart, Send, Users, Lightbulb, Shield, Award, Star, ChevronDown } from "lucide-react";
 import { useAppreciations, type AppreciationCategory } from "../hooks/useAppreciations";
+import { useEngagementActionLog } from "../hooks/useEngagementActionLog";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentEmployee } from "@/hooks/auth/useCurrentEmployee";
