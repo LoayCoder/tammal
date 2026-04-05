@@ -1,5 +1,6 @@
+import { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { Activity, RefreshCw, Megaphone, ChevronRight } from "lucide-react";
+import { Activity, RefreshCw, Megaphone, ChevronRight, EyeOff, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { cardVariants } from "@/theme/tokens";
@@ -29,9 +30,15 @@ const modeSubLabels: Record<string, string> = {
   organization: "pulse.modeOrganization",
 };
 
+const HIDDEN_KEY = 'team-pulse-card-hidden';
+
 export function TeamPulseCard({ employeeId }: Props) {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+  const [isHidden, setIsHidden] = useState(() => localStorage.getItem(HIDDEN_KEY) === '1');
+  const hide = useCallback(() => { localStorage.setItem(HIDDEN_KEY, '1'); setIsHidden(true); }, []);
+  const show = useCallback(() => { localStorage.removeItem(HIDDEN_KEY); setIsHidden(false); }, []);
   const { employee } = useCurrentEmployee();
   const { tenantId } = useTenantId();
   const { allowedModes, selectedMode, setMode, showModeSwitcher } = usePulseModes(employeeId);
@@ -75,8 +82,20 @@ export function TeamPulseCard({ employeeId }: Props) {
 
   if (error && !pulse && !insufficientData && !isPending) return null;
 
+  if (isHidden) {
+    return (
+      <button
+        onClick={show}
+        className="flex w-full items-center gap-2 rounded-2xl border border-border/30 bg-card/50 px-4 min-h-[44px] py-3 text-xs text-muted-foreground hover:text-foreground hover:bg-card transition-all active:scale-[0.98]"
+      >
+        <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />
+        <span>{t("pulse.title")}</span>
+      </button>
+    );
+  }
+
   return (
-    <div className={cn(cardVariants.premiumVip, "rounded-2xl overflow-hidden")}>
+    <div className={cn(cardVariants.premiumVip, "rounded-2xl overflow-hidden group")}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 pb-0">
         <div className="flex items-center gap-2">
@@ -89,6 +108,13 @@ export function TeamPulseCard({ employeeId }: Props) {
           </div>
         </div>
         <div className="flex items-center gap-1">
+          <button
+            onClick={hide}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/10 transition-all duration-200 md:opacity-0 md:group-hover:opacity-100"
+            title={isAr ? 'إخفاء' : 'Hide'}
+          >
+            <EyeOff className="h-3.5 w-3.5" strokeWidth={1.5} />
+          </button>
           <button
             onClick={() => navigate("/engagement-insights")}
             className="flex h-7 items-center gap-0.5 rounded-lg px-1.5 text-2xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/10 transition-all duration-200"
