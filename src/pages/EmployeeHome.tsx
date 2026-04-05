@@ -10,13 +10,13 @@ import { useMoodHistory } from '@/hooks/wellness/useMoodHistory';
 import { useScheduledQuestions } from '@/hooks/questions/useScheduledQuestions';
 import { InlineDailyCheckin } from '@/components/checkin/InlineDailyCheckin';
 import { PersonalMoodDashboard } from '@/components/dashboard/PersonalMoodDashboard';
-import { MentalHealthToolsHub } from '@/components/dashboard/MentalHealthToolsHub';
-import { MentalHealthResourcesHub } from '@/components/dashboard/MentalHealthResourcesHub';
 import {
   Flame, Star, CheckCircle2, ClipboardList, ChevronRight,
   Phone, HeartHandshake, Crown, ChevronDown, Clock,
 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
+import { ar as arLocale } from 'date-fns/locale/ar';
+import { enUS } from 'date-fns/locale/en-US';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { DashboardPrayerWidget } from '@/components/dashboard/DashboardPrayerWidget';
 
@@ -40,7 +40,8 @@ function getGreeting(t: (key: string) => string) {
 }
 
 export default function EmployeeHome() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language === 'ar' ? arLocale : enUS;
   const { employee, isPending: empLoading } = useCurrentEmployee();
   const { streak, totalPoints, isPending: gamLoading } = useGamification(employee?.id ?? null);
   const { todayEntry } = useMoodHistory(employee?.id ?? null);
@@ -154,8 +155,8 @@ export default function EmployeeHome() {
                     return (
                       <p className={cn("text-2xs mt-1 flex items-center gap-1", isUrgent ? "text-chart-4 font-medium" : "text-muted-foreground")}>
                         <Clock className="h-3 w-3" />
-                        {t('home.dueDate', { date: format(new Date(surveyMeta.end_date), 'MMM d, yyyy · HH:mm') })}
-                        {isUrgent && daysLeft >= 0 && ` · ${daysLeft}d left`}
+                        {t('home.dueDate', { date: format(new Date(surveyMeta.end_date), 'MMM d, yyyy · HH:mm', { locale: dateLocale }) })}
+                        {isUrgent && daysLeft >= 0 && ` · ${t('home.daysLeft', { days: daysLeft })}`}
                       </p>
                     );
                   })()}
@@ -195,11 +196,6 @@ export default function EmployeeHome() {
         {employee && <DashboardWorkloadWidget employeeId={employee.id} />}
 
 
-        {/* Mental Health Tools Hub */}
-        <MentalHealthToolsHub />
-
-        {/* Mental Health Resources Hub */}
-        <MentalHealthResourcesHub />
 
         {/* First Aider Quick Connect */}
         <FirstAiderQuickConnect

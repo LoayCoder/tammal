@@ -2412,7 +2412,8 @@
     "psychoeducationArticles": "Psychoeducation Articles",
     "psychoeducationArticlesDesc": "Learn about mental health topics",
     "islamicCalendar": "Islamic Calendar",
-    "islamicCalendarDesc": "Important Islamic dates and events"
+    "islamicCalendarDesc": "Important Islamic dates and events",
+    "daysLeft": "{{days}}d left"
   },
   "moodPathway": {
     "title": "Mood Follow-up",
@@ -2479,7 +2480,46 @@
     "crisis": "Crisis",
     "recognition": "Recognition",
     "endorsementRequested": "{{name}} requested your endorsement",
-    "endorsementRequestedBody": "Please review and endorse the nomination for \"{{headline}}\""
+    "endorsementRequestedBody": "Please review and endorse the nomination for \"{{headline}}\"",
+    "type": {
+      "assigned": "New task assigned: {{name}}",
+      "status_changed": "Task status changed: {{name}}",
+      "approved": "Task approved: {{name}}",
+      "rejected": "Task rejected: {{name}}",
+      "approval_requested": "Review requested: {{name}}",
+      "overdue": "Task overdue: {{name}}",
+      "deadline_approaching": "Deadline approaching: {{name}}",
+      "comment_added": "New comment on: {{name}}",
+      "checklist_completed": "Checklist completed: {{name}}",
+      "case_assigned": "New support case assigned",
+      "case_accepted": "Support case accepted",
+      "case_declined": "Support case declined",
+      "new_message": "New message",
+      "case_resolved": "Case resolved",
+      "escalation": "Case escalated",
+      "endorsement_requested": "Endorsement requested",
+      "nomination_endorsed": "Nomination endorsed",
+      "nomination_received": "New nomination received",
+      "nomination_approved": "Nomination approved",
+      "nomination_rejected": "Nomination rejected",
+      "award_won": "Award won"
+    },
+    "body": {
+      "assigned": "You have been assigned a new task.",
+      "approved": "Your task has been approved.",
+      "rejected": "Your task has been rejected.",
+      "status_changed": "A task status has been updated.",
+      "approval_requested": "A task needs your review.",
+      "overdue": "A task is overdue.",
+      "deadline_approaching": "A task deadline is approaching.",
+      "comment_added": "A new comment was added.",
+      "checklist_completed": "A checklist has been completed.",
+      "case_assigned": "A new support case has been assigned to you.",
+      "new_message": "You have a new message.",
+      "case_resolved": "A support case has been resolved.",
+      "endorsement_requested": "Someone requested your endorsement.",
+      "nomination_endorsed": "Your nomination has been endorsed."
+    }
   },
   "crisisSupport": {
     "nav": {

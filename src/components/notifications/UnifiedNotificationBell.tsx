@@ -20,7 +20,30 @@ import { useTaskNotifications, type TaskNotification } from '@/features/tasks/ho
 import { useCrisisNotifications, type CrisisNotification } from '@/hooks/crisis/useCrisisNotifications';
 import { useRecognitionNotifications, type RecognitionNotification } from '@/hooks/recognition/useRecognitionNotifications';
 import { formatDistanceToNow } from 'date-fns';
+import { ar as arLocale } from 'date-fns/locale/ar';
+import { enUS } from 'date-fns/locale/en-US';
 import { useIsMobile } from '@/hooks/ui/use-mobile';
+
+/** Extract task name from English title like "New task assigned: My Task" */
+function extractTaskName(title: string): string {
+  const colonIdx = title.indexOf(':');
+  return colonIdx >= 0 ? title.slice(colonIdx + 1).trim() : title;
+}
+
+/** Translate notification title using type-based mapping */
+function getTranslatedTitle(n: UnifiedNotification, t: (key: string, opts?: any) => string): string {
+  const typeKey = `notifications.type.${n.type}`;
+  const translated = t(typeKey, { name: extractTaskName(n.title), defaultValue: '' });
+  return translated || n.title;
+}
+
+/** Translate notification body using type-based mapping */
+function getTranslatedBody(n: UnifiedNotification, t: (key: string, opts?: any) => string): string | null {
+  if (!n.body) return null;
+  const bodyKey = `notifications.body.${n.type}`;
+  const translated = t(bodyKey, { defaultValue: '' });
+  return translated || n.body;
+}
 
 type NotificationSource = 'task' | 'crisis' | 'recognition';
 
@@ -151,6 +174,7 @@ function NotificationContent({
   tab, setTab, filtered, totalUnread, taskUnread, crisisUnread, recognitionUnread,
   onMarkAllRead, onItemClick, isMobile, t,
 }: NotificationContentProps) {
+  const { i18n } = useTranslation();
   const scrollH = isMobile ? 'max-h-[60vh]' : 'max-h-[340px]';
 
   return (
@@ -207,13 +231,13 @@ function NotificationContent({
                       <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${colorClass}`} />
                       <div className="flex-1 min-w-0 space-y-0.5">
                         <p className={`text-xs line-clamp-2 ${!n.is_read ? 'font-medium' : 'text-muted-foreground'}`}>
-                          {n.title}
+                          {getTranslatedTitle(n, t)}
                         </p>
-                        {n.body && (
-                          <p className="text-xs text-muted-foreground line-clamp-1">{n.body}</p>
+                        {getTranslatedBody(n, t) && (
+                          <p className="text-xs text-muted-foreground line-clamp-1">{getTranslatedBody(n, t)}</p>
                         )}
                         <p className="text-2xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
+                          {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: i18n.language === 'ar' ? arLocale : enUS })}
                         </p>
                       </div>
                       {!n.is_read && (
