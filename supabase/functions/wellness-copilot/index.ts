@@ -172,7 +172,7 @@ serve(async (req) => {
       const { data: workload } = await admin
         .from("employee_capacity")
         .select("daily_capacity_minutes, weekly_capacity_minutes")
-        .eq("user_id", emp.id)
+        .eq("user_id", user.id)
         .eq("tenant_id", emp.tenant_id)
         .is("deleted_at", null)
         .maybeSingle();

@@ -101,3 +101,9 @@ verify_jwt = false
 
 [functions.send-redemption-email]
 verify_jwt = false
+
+[functions.wellness-copilot]
+verify_jwt = false
+
+[functions.team-pulse-engine]
+verify_jwt = false

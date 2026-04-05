@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function CopilotSkeleton() {
   return (
-    <div className="space-y-4 animate-pulse">
+    <div className="space-y-4">
       <div className="flex items-start gap-2.5">
         <Skeleton className="h-8 w-8 rounded-lg shrink-0" />
         <div className="flex-1 space-y-2">
