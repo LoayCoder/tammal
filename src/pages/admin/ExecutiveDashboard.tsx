@@ -143,6 +143,7 @@ export default function ExecutiveDashboard() {
         burnoutRiskCount={burnoutRiskEmployees}
         completionRate={completionRate}
         isPending={isPending}
+        trends={trends}
       />
 
       <div className="grid gap-4 md:grid-cols-2">
