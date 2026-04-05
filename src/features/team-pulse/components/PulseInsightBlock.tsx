@@ -59,7 +59,7 @@ function ScoreGauge({ score, large }: { score: number; large?: boolean }) {
   );
 }
 
-export function PulseInsightBlock({ insight, trend, engagementScore, impactReason }: Props) {
+export const PulseInsightBlock = memo(function PulseInsightBlock({ insight, trend, engagementScore, impactReason }: Props) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
 
