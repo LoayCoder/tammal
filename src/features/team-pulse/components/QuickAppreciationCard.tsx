@@ -88,7 +88,7 @@ export function QuickAppreciationCard() {
           <select
             value={selectedEmployee}
             onChange={(e) => setSelectedEmployee(e.target.value)}
-            className="w-full rounded-xl border border-border/50 bg-background/50 px-3 py-2.5 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+            className="w-full rounded-xl border border-border/50 bg-background/50 px-3 h-11 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/20 transition-all"
           >
             <option value="">{t("pulse.selectColleague")}</option>
             {colleagues.map((c) => (
