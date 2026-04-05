@@ -17,6 +17,7 @@ export interface EngagementNotification {
 
 export function useEngagementNotifications() {
   const { employee } = useCurrentEmployee();
+  const { tenantId } = useTenantId();
   const queryClient = useQueryClient();
   const employeeId = employee?.id;
 
