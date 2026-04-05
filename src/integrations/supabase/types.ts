@@ -7493,6 +7493,7 @@ export type Database = {
           slug: string | null
           status: Database["public"]["Enums"]["tenant_status"]
           subscription_status: string | null
+          tammal_weights: Json | null
           trial_end_date: string | null
           trial_start_date: string | null
           updated_at: string
@@ -7527,6 +7528,7 @@ export type Database = {
           slug?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
           subscription_status?: string | null
+          tammal_weights?: Json | null
           trial_end_date?: string | null
           trial_start_date?: string | null
           updated_at?: string
@@ -7561,6 +7563,7 @@ export type Database = {
           slug?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
           subscription_status?: string | null
+          tammal_weights?: Json | null
           trial_end_date?: string | null
           trial_start_date?: string | null
           updated_at?: string
