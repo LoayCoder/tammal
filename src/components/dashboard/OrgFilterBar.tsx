@@ -25,13 +25,11 @@ export function OrgFilterBar({ value, onChange }: OrgFilterBarProps) {
 
   const hasFilters = !!(value.branchId || value.divisionId || value.departmentId || value.sectionId);
 
-  // Cascade: filter departments by division
   const filteredDepartments = useMemo(() => {
     if (value.divisionId) return departments.filter(d => d.division_id === value.divisionId);
     return departments;
   }, [departments, value.divisionId]);
 
-  // Cascade: filter sections by department
   const filteredSections = useMemo(() => {
     if (value.departmentId) return sites.filter(s => s.department_id === value.departmentId);
     return sites;
@@ -40,13 +38,13 @@ export function OrgFilterBar({ value, onChange }: OrgFilterBarProps) {
   const activeCount = [value.branchId, value.divisionId, value.departmentId, value.sectionId].filter(Boolean).length;
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="glass-card border-0 rounded-2xl p-4">
       <div className="flex items-center gap-2 flex-wrap">
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Filter className="h-4 w-4" />
+          <Filter className="h-4 w-4" strokeWidth={1.5} />
           {hasFilters && (
-            <Badge variant="secondary" className="text-xs">
-              {activeCount} {t('orgDashboard.filtersActive')}
+            <Badge variant="default" className="text-xs rounded-full">
+              {activeCount}
             </Badge>
           )}
         </div>
@@ -59,7 +57,7 @@ export function OrgFilterBar({ value, onChange }: OrgFilterBarProps) {
             onChange({ branchId, divisionId: undefined, departmentId: undefined, sectionId: undefined });
           }}
         >
-          <SelectTrigger className="w-[160px] h-8 text-xs">
+          <SelectTrigger className="w-[160px] h-8 text-xs rounded-full">
             <SelectValue placeholder={t('orgDashboard.filterByBranch')} />
           </SelectTrigger>
           <SelectContent>
@@ -75,11 +73,10 @@ export function OrgFilterBar({ value, onChange }: OrgFilterBarProps) {
           value={value.divisionId || '__all__'}
           onValueChange={(v) => {
             const divisionId = v === '__all__' ? undefined : v;
-            // Clear branchId too to prevent contradictory filters
             onChange({ divisionId, branchId: undefined, departmentId: undefined, sectionId: undefined });
           }}
         >
-          <SelectTrigger className="w-[160px] h-8 text-xs">
+          <SelectTrigger className="w-[160px] h-8 text-xs rounded-full">
             <SelectValue placeholder={t('orgDashboard.filterByDivision')} />
           </SelectTrigger>
           <SelectContent>
@@ -98,7 +95,7 @@ export function OrgFilterBar({ value, onChange }: OrgFilterBarProps) {
             onChange({ ...value, departmentId, sectionId: undefined });
           }}
         >
-          <SelectTrigger className="w-[160px] h-8 text-xs">
+          <SelectTrigger className="w-[160px] h-8 text-xs rounded-full">
             <SelectValue placeholder={t('orgDashboard.filterByDepartment')} />
           </SelectTrigger>
           <SelectContent>
@@ -117,7 +114,7 @@ export function OrgFilterBar({ value, onChange }: OrgFilterBarProps) {
             onChange({ ...value, sectionId });
           }}
         >
-          <SelectTrigger className="w-[160px] h-8 text-xs">
+          <SelectTrigger className="w-[160px] h-8 text-xs rounded-full">
             <SelectValue placeholder={t('orgDashboard.filterBySection')} />
           </SelectTrigger>
           <SelectContent>

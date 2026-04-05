@@ -17,8 +17,10 @@ import { TrendOverlayChart } from '@/components/dashboard/comparison/TrendOverla
 import { OrgComparisonChart } from '@/components/dashboard/OrgComparisonChart';
 import { TopEngagersCard } from '@/components/dashboard/TopEngagersCard';
 import { ResponseHeatmap } from '@/components/dashboard/ResponseHeatmap';
+import { EmptyAnalyticsState } from './EmptyAnalyticsState';
 import type { OrgAnalyticsData } from '@/lib/analytics/types';
 import type { DistributionDataPoint } from '../types';
+import { cardVariants } from '@/theme/tokens';
 
 const GLASS_TOOLTIP = {
   background: 'hsl(var(--card) / 0.6)',
@@ -40,7 +42,7 @@ export const ComparisonTab = React.memo(function ComparisonTab({ stats, distribu
   const { t } = useTranslation();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2">
         <CheckinPulseCard data={stats?.checkinPulse ?? null} isLoading={isLoading} />
         <SurveyStructuralCard data={stats?.surveyStructural ?? null} isLoading={isLoading} />
@@ -66,23 +68,23 @@ export const ComparisonTab = React.memo(function ComparisonTab({ stats, distribu
           <ChevronDown className="h-4 w-4 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
           {t('synthesis.orgBreakdown')}
         </CollapsibleTrigger>
-        <CollapsibleContent className="space-y-4 pt-2">
+        <CollapsibleContent className="space-y-4 pt-3 animate-in fade-in-0 duration-200">
           <OrgComparisonChart
             data={stats?.orgComparison ?? { branches: [], divisions: [], departments: [], sections: [] }}
             isLoading={isLoading}
           />
           <div className="grid gap-4 md:grid-cols-2">
-            <Card className="glass-chart border-0">
+            <Card className={`${cardVariants.glass} rounded-2xl`}>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">{t('orgDashboard.moodDistribution')}</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-5 pt-0">
                 {isLoading ? (
-                  <Skeleton className="h-[200px] w-full" />
+                  <Skeleton className="h-[200px] w-full rounded-xl" />
                 ) : distributionData.length > 0 ? (
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart data={distributionData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.4} />
                       <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
                       <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={24} />
                       <Tooltip contentStyle={GLASS_TOOLTIP} formatter={(value: number, _name: string, props: any) => [`${value} (${props.payload.percentage}%)`, t('orgDashboard.count')]} />
@@ -94,7 +96,7 @@ export const ComparisonTab = React.memo(function ComparisonTab({ stats, distribu
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <p className="text-muted-foreground text-sm text-center py-10">{t('common.noData')}</p>
+                  <EmptyAnalyticsState />
                 )}
               </CardContent>
             </Card>

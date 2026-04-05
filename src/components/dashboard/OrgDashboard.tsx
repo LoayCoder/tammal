@@ -24,7 +24,7 @@ export function OrgDashboard() {
   } = useOrgDashboard();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <DashboardHeader
         timeRange={timeRange}
         onTimeRangeChange={setTimeRange}
@@ -39,7 +39,7 @@ export function OrgDashboard() {
 
       <ErrorBoundary><OrgWorkloadIndicator /></ErrorBoundary>
 
-      <Tabs defaultValue="overview" className="space-y-4">
+      <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="h-auto gap-1">
           <TabsTrigger value="overview">{t('orgDashboard.tabs.overview')}</TabsTrigger>
           <TabsTrigger value="deep">{t('orgDashboard.tabs.deepAnalysis')}</TabsTrigger>
@@ -47,19 +47,19 @@ export function OrgDashboard() {
           <TabsTrigger value="comparison">{t('orgDashboard.tabs.comparison')}</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview">
+        <TabsContent value="overview" className="animate-in fade-in-0 duration-200">
           <ErrorBoundary><OverviewTab stats={stats} trendData={trendData} isLoading={isLoading} /></ErrorBoundary>
         </TabsContent>
 
-        <TabsContent value="deep">
+        <TabsContent value="deep" className="animate-in fade-in-0 duration-200">
           <ErrorBoundary><DeepAnalysisTab stats={stats} isLoading={isLoading} /></ErrorBoundary>
         </TabsContent>
 
-        <TabsContent value="alerts">
+        <TabsContent value="alerts" className="animate-in fade-in-0 duration-200">
           <ErrorBoundary><AlertsTab warnings={stats?.earlyWarnings ?? []} aiPayload={aiPayload} isLoading={isLoading} /></ErrorBoundary>
         </TabsContent>
 
-        <TabsContent value="comparison">
+        <TabsContent value="comparison" className="animate-in fade-in-0 duration-200">
           <ErrorBoundary><ComparisonTab stats={stats} distributionData={distributionData} isLoading={isLoading} /></ErrorBoundary>
         </TabsContent>
       </Tabs>
