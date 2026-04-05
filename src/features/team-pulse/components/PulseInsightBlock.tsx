@@ -60,6 +60,7 @@ function ScoreGauge({ score, large }: { score: number; large?: boolean }) {
 
 export function PulseInsightBlock({ insight, trend, engagementScore, impactReason }: Props) {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
 
   const trendConfig = {
     up: { icon: TrendingUp, color: "text-chart-1", bg: "bg-chart-1/10", label: t("pulse.trendUp") },
