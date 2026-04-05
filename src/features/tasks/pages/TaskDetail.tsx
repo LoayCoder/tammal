@@ -131,7 +131,15 @@ export default function TaskDetail() {
             <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
             <span className="text-xs">{t('common.back')}</span>
           </Button>
-          {task.is_locked && <Lock className="h-4 w-4 text-chart-4" />}
+          <div className="flex items-center gap-2">
+            {task.is_locked && <Lock className="h-4 w-4 text-chart-4" />}
+            {task.is_locked && (
+              <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => setUnlockDialogOpen(true)}>
+                <Unlock className="h-3.5 w-3.5" />{t('governance.unlock.title')}
+              </Button>
+            )}
+            <SlaCountdownBadge dueDate={task.due_date} />
+          </div>
         </div>
 
         {/* Title — language-aware (single language only) */}
