@@ -2,6 +2,8 @@ import { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Activity, RefreshCw, Megaphone, ChevronRight, EyeOff, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { cardVariants } from "@/theme/tokens";
 import { useTeamPulse } from "../hooks/useTeamPulse";

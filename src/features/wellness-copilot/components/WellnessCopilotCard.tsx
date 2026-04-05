@@ -2,6 +2,8 @@ import { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Sparkles, RefreshCw, EyeOff, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { cardVariants } from "@/theme/tokens";
 import { useCopilotInsight } from "../hooks/useCopilotInsight";
 import { useCopilotModes } from "../hooks/useCopilotModes";
