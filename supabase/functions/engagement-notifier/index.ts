@@ -180,7 +180,7 @@ Deno.serve(async (req) => {
         type: "action_followup",
         title: "Complete your engagement action",
         body: "You started an engagement action recently. Following through can boost your team's pulse.",
-        action_path: (cta.metadata as any)?.actionPath || "/",
+        action_path: (cta.metadata as any)?.path || "/",
         metadata: { source: cta.source },
       });
     }
