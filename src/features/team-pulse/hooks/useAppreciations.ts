@@ -90,11 +90,17 @@ export function useAppreciations() {
         });
       }
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       toast.success(t("pulse.appreciationSent"));
       queryClient.invalidateQueries({ queryKey: ["appreciations-sent"] });
       queryClient.invalidateQueries({ queryKey: ["appreciations-received"] });
       queryClient.invalidateQueries({ queryKey: ["points-transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["team-pulse"] });
+      logAction.mutate({
+        actionType: "appreciation_sent",
+        source: "appreciation_widget",
+        metadata: { category: variables.category },
+      });
     },
     onError: (err: any) => {
       toast.error(err?.message || t("common.somethingWentWrong"));
