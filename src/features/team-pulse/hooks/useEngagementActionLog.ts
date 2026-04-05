@@ -21,14 +21,14 @@ export function useEngagementActionLog() {
       if (!employee?.id || !tenantId) return;
 
       const { error } = await supabase
-        .from("engagement_action_log")
+        .from("engagement_action_log" as any)
         .insert({
           tenant_id: tenantId,
           employee_id: employee.id,
           action_type: actionType,
           source,
           metadata,
-        });
+        } as any);
 
       if (error) {
         console.error("Failed to log engagement action:", error);
