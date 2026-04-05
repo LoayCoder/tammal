@@ -75,6 +75,7 @@ const TaskConnectors = lazy(() => import("@/pages/admin/TaskConnectors"));
 const RepresentativeWorkload = lazy(() => import("@/pages/admin/RepresentativeWorkload"));
 const PortfolioDashboard = lazy(() => import("@/pages/admin/PortfolioDashboard"));
 const ExecutiveDashboard = lazy(() => import("@/pages/admin/ExecutiveDashboard"));
+const CapacityPlanner = lazy(() => import("@/pages/admin/CapacityPlanner"));
 const SystemHealth = lazy(() => import("@/pages/admin/SystemHealth"));
 const RecognitionManagement = lazy(() => import("@/pages/admin/RecognitionManagement"));
 const NominatePage = lazy(() => import("@/pages/recognition/NominatePage"));
