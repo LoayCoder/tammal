@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function PulseSkeleton() {
+export const PulseSkeleton = memo(function PulseSkeleton() {
   return (
     <div className="space-y-4 animate-pulse">
       <div className="flex items-center gap-3">
