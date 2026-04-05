@@ -1,88 +1,105 @@
 
 
-## Phase 8 — End-to-End Functional Integration
+## Phase 9 — Engagement Intelligence Detail Page
 
-### Current Integration Audit
+### Assessment
 
-| Integration Point | Status | Evidence |
-|---|---|---|
-| Survey engine | Connected | AI queries `employee_responses` for participation; PulseNudgeCard navigates to `/employee/survey` |
-| Check-ins | Connected | AI queries `mood_entries` for consistency + streak; InlineDailyCheckin on same dashboard page |
-| User profiles | Connected | `useCurrentEmployee` resolves employee; edge function resolves via `user_id → employees` |
-| Team hierarchy | Connected | `manager_id` used for direct reports; `usePulseModes` checks roles + direct reports |
-| Organization analytics | Connected | Org mode aggregates across `tenant_id`; admin dashboard includes `TeamPulseCard` |
-| Task/workload system | Connected | AI queries `unified_tasks` for completion + overdue; actionPath routes to `/my-workload` |
-| Appreciation/recognition | Connected | Sent/received counts fed to AI; `QuickAppreciationCard` on same page; points awarded |
-| AI insight generation | Connected | `team-pulse-engine` edge function with structured tool-calling, daily caching |
-| Dashboard views | Connected | EmployeeHome, DashboardOverviewTab both render `TeamPulseCard` |
-| Action logging | Partial | `PulseActionPath` and `PulseNudgeCard` log to `engagement_action_log`; but appreciation sends and nudge dismissals are NOT logged |
-| Notifications | Not connected | No notification sent when engagement drops or when a Kudos Nudge is received |
+There is currently **no dedicated detail page** for engagement intelligence. All pulse data lives in a compact card (`TeamPulseCard`) on the employee dashboard. The data infrastructure for a detail page already exists:
 
-### Gaps Requiring Implementation
+- **`pulse_targets`** table stores daily engagement scores, targets, and metrics per employee/scope — perfect for trend charts
+- **`engagement_action_log`** tracks CTA clicks, nudge dismissals, appreciations — provides action history
+- **`appreciations`** table has timestamped records for appreciation activity trends
+- **`mood_entries`** and **`employee_responses`** provide participation data
+- **`team-pulse-engine`** edge function already computes weighted composite scores
 
-**1. Appreciation sends not logged to engagement_action_log**
-The `useAppreciations` hook sends appreciation and awards points, but never calls `logAction.mutate({ actionType: "appreciation_sent", source: "appreciation_widget" })`. This breaks the Action Completion Rate KPI.
-
-**2. Nudge dismissal not tracked**
-`PulseNudgeCard` has no dismiss button — users can only act or ignore. Adding a dismiss option with `nudge_dismissed` logging would complete the nudge interaction loop and provide richer analytics.
-
-**3. Check-in from nudge not tracked**
-When a user navigates from `PulseNudgeCard` to `/employee/survey` and completes it, there's no way to attribute that action back to the nudge. The `checkin_from_nudge` action type exists in the type definition but is never used.
-
-**4. AI-generated action paths not validated**
-The AI can generate any `actionPath` string. If it produces an invalid route (e.g., `/admin/reports` which doesn't exist), the CTA navigates to a 404. The edge function should constrain `actionPath` to a whitelist of valid routes.
-
-**5. Cache invalidation after user action**
-After a user clicks a pulse CTA and performs the action (e.g., completes a survey), the pulse data remains stale for 24h (daily cache). The frontend should invalidate the `team-pulse` query after returning from an action route.
-
-**6. Appreciation send → pulse query invalidation**
-After sending an appreciation via `QuickAppreciationCard`, the pulse engagement score doesn't update because the `team-pulse` query is not invalidated.
+No existing route or page covers this domain.
 
 ### Plan
 
-#### 1. Log appreciation sends to engagement_action_log
+#### 1. Create new route `/engagement-insights`
 
-**File**: `src/features/team-pulse/hooks/useAppreciations.ts`
+**File**: `src/App.tsx`
 
-In the `onSuccess` callback of `sendAppreciation`, add a call to insert into `engagement_action_log` with `action_type: "appreciation_sent"` and `source: "appreciation_widget"`. Also invalidate the `team-pulse` query key so the engagement score refreshes.
+Add a new route accessible to all authenticated users (below employee routes). Lazy-load the page component.
 
-#### 2. Add nudge dismiss with logging
+#### 2. Create the feature page
 
-**File**: `src/features/team-pulse/components/PulseNudgeCard.tsx`
+**New file**: `src/pages/EngagementInsights.tsx`
 
-Add a small dismiss button (X icon, top-right). On click, log `nudge_dismissed` to engagement_action_log and hide the card for the session using local state.
+Premium executive-style page with `PageHeader` (card variant, Activity icon). Contains role-aware content using `usePulseModes` to determine scope. Five collapsible sections in a vertical stack:
 
-#### 3. Constrain AI action paths to valid routes
+1. **Pulse Trend** — Line chart showing engagement score over time (from `pulse_targets`)
+2. **Participation Overview** — Two mini stat cards: check-in consistency + survey response rate (from existing analytics)
+3. **Appreciation Activity** — Area chart of appreciation volume by week (from `appreciations` table, grouped by week)
+4. **Engagement Actions Log** — DataTable showing recent CTA/nudge/appreciation actions (from `engagement_action_log`)
+5. **Active Recommendations** — Current AI pulse insight + target + CTA (reuses existing `TeamPulseCard` sub-components inline)
 
-**File**: `supabase/functions/team-pulse-engine/index.ts`
+#### 3. Create data hook
 
-Add an `enum` constraint to the `actionPath` property in the tool-calling schema, limiting it to known valid routes: `/employee/survey`, `/employee/wellness`, `/my-workload`, `/admin/workload/dashboard`, `/admin/workload/team`, `/admin/org-analytics`. This prevents the AI from generating invalid routes.
+**New file**: `src/features/team-pulse/hooks/useEngagementTrends.ts`
 
-#### 4. Invalidate pulse cache after returning from action
+Single hook that queries:
+- `pulse_targets` — last 30 days of daily scores for the current scope (personal/team/org)
+- `appreciations` — count grouped by week for the last 90 days
+- `engagement_action_log` — last 50 actions for the current employee
 
-**File**: `src/features/team-pulse/components/PulseActionPath.tsx`
+Returns `{ pulseTrend, appreciationTrend, actionLog, isPending }`.
 
-This is already handled adequately — the 30-minute `staleTime` on the frontend query means the data refreshes on next visit. No change needed here. However, adding `team-pulse` to the invalidated queries after appreciation send (step 1) ensures the score updates immediately.
+#### 4. Build chart components
 
-#### 5. Add appreciation activity logging in QuickAppreciationCard
+**New files in `src/features/team-pulse/components/`**:
 
-**File**: `src/features/team-pulse/components/QuickAppreciationCard.tsx`
+- **`PulseTrendChart.tsx`** — Recharts line chart with `chart-2` color, premium glass tooltip, responsive. Shows engagement score (0-100) over time.
+- **`AppreciationTrendChart.tsx`** — Recharts area chart showing weekly appreciation volume with `chart-3` fill.
+- **`EngagementActionTable.tsx`** — Uses existing `DataTable` component. Columns: Date, Action Type (badge), Source. Capped at 50 rows, no pagination needed.
 
-Import and use `useEngagementActionLog` to log `appreciation_sent` with metadata including the category, directly in the `handleSend` success path.
+#### 5. Add navigation entry
+
+**File**: `src/features/team-pulse/components/TeamPulseCard.tsx`
+
+Add a subtle "View Details" link (`ChevronRight` icon) in the card header that navigates to `/engagement-insights`.
+
+#### 6. Add i18n keys
+
+**Files**: `src/locales/en.json`, `src/locales/ar.json`
+
+Add keys under `engagementInsights.*` for page title, section headers, empty states, and column labels.
+
+#### 7. Export from feature barrel
+
+**File**: `src/features/team-pulse/index.ts`
+
+Export new hook and page-level components.
+
+### Design Approach
+
+- `PageHeader` card variant with Activity icon
+- All charts in `ChartCard` wrappers (glass surface)
+- `CollapsibleCard` pattern (same as OrgDashboard OverviewTab) for show/hide
+- `PulseModeSwitcher` at top for scope selection
+- Mobile: single-column stack, charts at full width, table scrolls horizontally
+- All tokens from `@/theme/tokens` — no hardcoded colors
+- `animate-in fade-in` entrance on sections
 
 ### Files Summary
 
-| File | Change |
+| File | Action |
 |------|--------|
-| `src/features/team-pulse/hooks/useAppreciations.ts` | Log `appreciation_sent` to engagement_action_log; invalidate `team-pulse` query |
-| `src/features/team-pulse/components/PulseNudgeCard.tsx` | Add dismiss button with `nudge_dismissed` logging |
-| `src/features/team-pulse/components/QuickAppreciationCard.tsx` | Log `appreciation_sent` via `useEngagementActionLog` |
-| `supabase/functions/team-pulse-engine/index.ts` | Add `enum` constraint to `actionPath` in tool schema |
+| `src/pages/EngagementInsights.tsx` | **Create** — Main page |
+| `src/features/team-pulse/hooks/useEngagementTrends.ts` | **Create** — Data hook |
+| `src/features/team-pulse/components/PulseTrendChart.tsx` | **Create** — Line chart |
+| `src/features/team-pulse/components/AppreciationTrendChart.tsx` | **Create** — Area chart |
+| `src/features/team-pulse/components/EngagementActionTable.tsx` | **Create** — Action log table |
+| `src/features/team-pulse/components/TeamPulseCard.tsx` | **Modify** — Add "View Details" link |
+| `src/features/team-pulse/index.ts` | **Modify** — Export new components |
+| `src/App.tsx` | **Modify** — Add route |
+| `src/locales/en.json` | **Modify** — Add i18n keys |
+| `src/locales/ar.json` | **Modify** — Add i18n keys |
 
 ### What Is Not Changing
 
-- No new tables or migrations
-- No new routes or pages
-- Edge function data aggregation logic unchanged
-- Notification system integration deferred (requires notification infrastructure extension)
+- No database migrations — all tables exist
+- No edge function changes
+- No new dependencies (Recharts already installed)
+- Existing `TeamPulseCard` functionality unchanged
 
