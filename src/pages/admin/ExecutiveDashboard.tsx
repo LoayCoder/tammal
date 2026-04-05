@@ -108,21 +108,23 @@ export default function ExecutiveDashboard() {
   teamLoad.forEach(t => { empMap[t.employeeId] = t.employeeName; });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className={typography.pageTitle}>{t('executive.pageTitle')}</h1>
-          <p className="text-muted-foreground text-sm">{t('executive.pageDesc')}</p>
+          <p className="text-muted-foreground text-xs sm:text-sm">{t('executive.pageDesc')}</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleAIPredictions} disabled={aiMutation.isPending} className="gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Button variant="outline" size="sm" onClick={handleAIPredictions} disabled={aiMutation.isPending} className="gap-2 min-h-[44px] text-xs">
             <Brain className={`h-3.5 w-3.5 ${aiMutation.isPending ? 'animate-spin' : ''}`} />
-            {aiMutation.isPending ? t('executive.aiRunning') : t('executive.runAI')}
+            <span className="hidden sm:inline">{aiMutation.isPending ? t('executive.aiRunning') : t('executive.runAI')}</span>
+            <span className="sm:hidden">{t('executive.runAI')}</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={handleSnapshot} disabled={snapshotMutation.isPending} className="gap-2">
+          <Button variant="outline" size="sm" onClick={handleSnapshot} disabled={snapshotMutation.isPending} className="gap-2 min-h-[44px] text-xs">
             <RefreshCw className={`h-3.5 w-3.5 ${snapshotMutation.isPending ? 'animate-spin' : ''}`} />
-            {snapshotMutation.isPending ? t('executive.snapshotRunning') : t('executive.runSnapshot')}
+            <span className="hidden sm:inline">{snapshotMutation.isPending ? t('executive.snapshotRunning') : t('executive.runSnapshot')}</span>
+            <span className="sm:hidden">{t('executive.runSnapshot')}</span>
           </Button>
         </div>
       </div>

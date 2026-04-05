@@ -84,14 +84,14 @@ export default function PersonalCommandCenter() {
       </div>
 
       {/* ── Stats Row ── */}
-      <div className="grid grid-cols-5 gap-px rounded-xl bg-border/40 overflow-hidden">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-px rounded-xl bg-border/40 overflow-hidden">
         {statItems.map((s, i) => (
           <div
             key={i}
-            className="bg-background flex flex-col items-center justify-center py-4 px-2 transition-colors hover:bg-muted/10"
+            className="bg-background flex flex-col items-center justify-center py-3 sm:py-4 px-2 transition-colors hover:bg-muted/10 min-h-[44px] active:scale-[0.97]"
           >
-            <s.icon className={`h-4 w-4 ${s.color} mb-1.5`} strokeWidth={1.75} />
-            <span className="text-xl font-bold tracking-tight">{s.value}</span>
+            <s.icon className={`h-4 w-4 ${s.color} mb-1`} strokeWidth={1.75} />
+            <span className="text-lg sm:text-xl font-bold tracking-tight">{s.value}</span>
             <span className="text-2xs text-muted-foreground mt-0.5 text-center leading-tight">{s.label}</span>
           </div>
         ))}
@@ -103,20 +103,20 @@ export default function PersonalCommandCenter() {
       </div>
 
       {/* ── View Switcher ── */}
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center overflow-x-auto no-scrollbar">
         <ToggleGroup
           type="single"
           value={view}
           onValueChange={(v) => { if (v) setView(v as ViewType); }}
-          className="bg-muted/15 p-1 rounded-xl border border-border/50"
+          className="bg-muted/15 p-1 rounded-xl border border-border/50 whitespace-nowrap"
         >
-          <ToggleGroupItem value="tasks" className="gap-1.5 text-xs rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm px-5 transition-all duration-200">
+          <ToggleGroupItem value="tasks" className="gap-1.5 text-xs rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm px-3 sm:px-5 min-h-[44px] shrink-0 transition-all duration-200">
             <ListChecks className="h-3.5 w-3.5" />{t('workload.views.tasks')}
           </ToggleGroupItem>
-          <ToggleGroupItem value="calendar" className="gap-1.5 text-xs rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm px-5 transition-all duration-200">
+          <ToggleGroupItem value="calendar" className="gap-1.5 text-xs rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm px-3 sm:px-5 min-h-[44px] shrink-0 transition-all duration-200">
             <CalendarDays className="h-3.5 w-3.5" />{t('workload.views.calendar')}
           </ToggleGroupItem>
-          <ToggleGroupItem value="approvals" className="gap-1.5 text-xs rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm px-5 relative transition-all duration-200">
+          <ToggleGroupItem value="approvals" className="gap-1.5 text-xs rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm px-3 sm:px-5 min-h-[44px] shrink-0 relative transition-all duration-200">
             <CheckSquare className="h-3.5 w-3.5" />{t('workload.views.approvals')}
             {pendingCount > 0 && (
               <Badge className="h-4 min-w-[16px] px-1 text-2xs absolute -top-1.5 -end-1.5">{pendingCount}</Badge>

@@ -130,8 +130,9 @@ export function WorkloadCalendarView({ tasks, isPending }: WorkloadCalendarViewP
           <CardContent className="p-0">
             <div className="grid grid-cols-7 border-b">
               {weekDayHeaders.map(day => (
-                <div key={day} className="py-2 px-1 text-center text-xs font-medium text-muted-foreground">
-                  {day}
+                <div key={day} className="py-2 px-0.5 sm:px-1 text-center text-2xs sm:text-xs font-medium text-muted-foreground">
+                  <span className="hidden sm:inline">{day}</span>
+                  <span className="sm:hidden">{day.charAt(0)}</span>
                 </div>
               ))}
             </div>
@@ -147,9 +148,9 @@ export function WorkloadCalendarView({ tasks, isPending }: WorkloadCalendarViewP
                 return (
                   <div
                     key={dateKey}
-                    className={`border-b border-e min-h-[80px] p-1 transition-colors ${
+                    className={`border-b border-e min-h-[60px] sm:min-h-[80px] p-0.5 sm:p-1 transition-colors ${
                       !inMonth ? 'bg-muted/20' : 'hover:bg-muted/10'
-                    } ${view === 'week' ? 'min-h-[200px]' : ''}`}
+                    } ${view === 'week' ? 'min-h-[150px] sm:min-h-[200px]' : ''}`}
                   >
                     <div className={`text-xs font-medium mb-1 flex items-center justify-center w-6 h-6 rounded-full mx-auto ${
                       today ? 'bg-primary text-primary-foreground' : inMonth ? '' : 'text-muted-foreground/50'
