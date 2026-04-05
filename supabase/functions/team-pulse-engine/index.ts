@@ -207,12 +207,24 @@ serve(async (req) => {
         checkinScore * 0.30 + surveyScore * 0.20 + taskScore * 0.15 + recognitionScore * 0.20 + streakScore * 0.15
       );
 
+      // Overdue tasks
+      const { count: overdueTasks } = await admin
+        .from("unified_tasks")
+        .select("id", { count: "exact", head: true })
+        .eq("employee_id", emp.id)
+        .eq("tenant_id", emp.tenant_id)
+        .is("deleted_at", null)
+        .not("status", "in", '("completed","archived")')
+        .lt("due_date", todayStr)
+        .not("due_date", "is", null);
+
       scopeData = {
         engagementScore,
         checkinDays,
         surveyResponses: surveyResponses ?? 0,
         completedTasks: completedTasks ?? 0,
         totalTasks: totalTasks ?? 0,
+        overdueTasks: overdueTasks ?? 0,
         appreciationsReceived: appreciationsReceived ?? 0,
         appreciationsSent: appreciationsSent ?? 0,
         streak,
