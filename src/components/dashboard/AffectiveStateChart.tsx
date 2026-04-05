@@ -6,12 +6,22 @@ import {
 } from 'recharts';
 import type { AffectiveDistribution } from '@/hooks/analytics/useOrgAnalytics';
 import { cardVariants } from '@/theme/tokens';
-import { CHART_TOOLTIP_STYLE } from '@/config/chart-styles';
+import { EmptyAnalyticsState } from '@/features/org-dashboard/components/EmptyAnalyticsState';
 
 const STATE_COLORS: Record<string, string> = {
   positive: 'hsl(var(--chart-2))',
   neutral: 'hsl(var(--muted-foreground))',
   negative: 'hsl(var(--destructive))',
+};
+
+const GLASS_TOOLTIP = {
+  background: 'hsl(var(--card) / 0.6)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
+  border: '1px solid hsl(var(--border) / 0.25)',
+  borderRadius: '12px',
+  fontSize: 12,
+  boxShadow: '0 8px 32px hsl(0 0% 0% / 0.08)',
 };
 
 interface AffectiveStateChartProps {
@@ -34,13 +44,13 @@ export function AffectiveStateChart({ data, isLoading }: AffectiveStateChartProp
     }));
 
   return (
-    <Card className={cardVariants.glass}>
+    <Card className={`${cardVariants.glass} rounded-2xl`}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base">{t('orgDashboard.affectiveDistribution')}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-5 pt-0">
         {isLoading ? (
-          <Skeleton className="h-[250px] w-full" />
+          <Skeleton className="h-[250px] w-full rounded-xl" />
         ) : totalCount > 0 ? (
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
@@ -59,7 +69,7 @@ export function AffectiveStateChart({ data, isLoading }: AffectiveStateChartProp
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={CHART_TOOLTIP_STYLE}
+                contentStyle={GLASS_TOOLTIP}
                 formatter={(value: number, name: string) => [`${value} (${Math.round((value / totalCount) * 100)}%)`, name]}
               />
               <Legend
@@ -69,7 +79,7 @@ export function AffectiveStateChart({ data, isLoading }: AffectiveStateChartProp
             </PieChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-muted-foreground text-sm text-center py-10">{t('orgDashboard.noSurveyData')}</p>
+          <EmptyAnalyticsState />
         )}
       </CardContent>
     </Card>

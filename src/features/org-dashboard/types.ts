@@ -9,6 +9,9 @@ export interface StatCard {
   title: string;
   value: string | number;
   icon: LucideIcon;
+  trend?: number;
+  trendLabel?: string;
+  accentColor?: string;
 }
 
 export interface TrendDataPoint {

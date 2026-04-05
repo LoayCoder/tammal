@@ -693,7 +693,22 @@
     "offHoursWorkers": "Off-Hours Workers",
     "totalWorkforce": "Total Workforce",
     "overloadedEmployees": "Top Loaded Employees",
-    "hoursPerDay": "Avg Hours / Day by Department"
+    "hoursPerDay": "Avg Hours / Day by Department",
+    "noDataForInsight": "Insufficient data for insights",
+    "emptyState": {
+      "title": "No data available yet",
+      "description": "Start a survey to generate insights"
+    },
+    "insight": {
+      "moodUp": "Team wellness is improving",
+      "moodDown": "Team wellness is declining",
+      "participationUp": "Participation is trending upward",
+      "participationLow": "Participation rate remains low",
+      "riskRising": "Risk levels are rising — monitor closely",
+      "riskImproving": "Risk indicators are improving",
+      "manyWarnings": "Multiple warning signals detected",
+      "stable": "All indicators are stable — no action required"
+    }
   },
   "synthesis": {
     "checkinPulse": "Check-In Pulse",

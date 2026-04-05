@@ -6,7 +6,18 @@ import {
 } from 'recharts';
 import type { CategoryScore } from '@/hooks/analytics/useOrgAnalytics';
 import { cardVariants } from '@/theme/tokens';
-import { CHART_TOOLTIP_STYLE, CHART_AXIS_TICK, CHART_GRID_STROKE } from '@/config/chart-styles';
+import { CHART_AXIS_TICK, CHART_GRID_STROKE } from '@/config/chart-styles';
+import { EmptyAnalyticsState } from '@/features/org-dashboard/components/EmptyAnalyticsState';
+
+const GLASS_TOOLTIP = {
+  background: 'hsl(var(--card) / 0.6)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
+  border: '1px solid hsl(var(--border) / 0.25)',
+  borderRadius: '12px',
+  fontSize: 12,
+  boxShadow: '0 8px 32px hsl(0 0% 0% / 0.08)',
+};
 
 interface CategoryHealthChartProps {
   data: CategoryScore[];
@@ -25,21 +36,21 @@ export function CategoryHealthChart({ data, isLoading }: CategoryHealthChartProp
   }));
 
   return (
-    <Card className={cardVariants.glass}>
+    <Card className={`${cardVariants.glass} rounded-2xl`}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base">{t('orgDashboard.categoryHealth')}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-5 pt-0">
         {isLoading ? (
-          <Skeleton className="h-[280px] w-full" />
+          <Skeleton className="h-[280px] w-full rounded-xl" />
         ) : chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={Math.max(280, chartData.length * 44)}>
             <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} horizontal={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} horizontal={false} strokeOpacity={0.5} />
               <XAxis type="number" domain={[0, 5]} tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="name" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} width={120} />
               <Tooltip
-                contentStyle={CHART_TOOLTIP_STYLE}
+                contentStyle={GLASS_TOOLTIP}
                 formatter={(value: number, _name: string, props: any) => [
                   `${value}/5 (${props.payload.responses} ${t('orgDashboard.responses')})`,
                   t('orgDashboard.avgScore'),
@@ -53,7 +64,7 @@ export function CategoryHealthChart({ data, isLoading }: CategoryHealthChartProp
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-muted-foreground text-sm text-center py-10">{t('orgDashboard.noSurveyData')}</p>
+          <EmptyAnalyticsState />
         )}
       </CardContent>
     </Card>

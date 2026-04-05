@@ -8,7 +8,19 @@ import {
 } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { cardVariants } from '@/theme/tokens';
-import { CHART_TOOLTIP_STYLE, CHART_AXIS_TICK, CHART_GRID_STROKE } from '@/config/chart-styles';
+import { CHART_AXIS_TICK, CHART_GRID_STROKE } from '@/config/chart-styles';
+import { EmptyAnalyticsState } from '@/features/org-dashboard/components/EmptyAnalyticsState';
+import { AlertTriangle } from 'lucide-react';
+
+const GLASS_TOOLTIP = {
+  background: 'hsl(var(--card) / 0.6)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
+  border: '1px solid hsl(var(--border) / 0.25)',
+  borderRadius: '12px',
+  fontSize: 12,
+  boxShadow: '0 8px 32px hsl(0 0% 0% / 0.08)',
+};
 
 interface Props {
   data: RiskTrendPoint[];
@@ -24,50 +36,49 @@ export function RiskTrendChart({ data, isLoading, threshold = 20 }: Props) {
     .map(d => ({ ...d, label: format(parseISO(d.date), 'dd/MM') }));
 
   return (
-    <Card className={cardVariants.glass}>
+    <Card className={`${cardVariants.glass} rounded-2xl`}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base">{t('orgDashboard.riskTrend')}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-5 pt-0">
         {isLoading ? (
-          <Skeleton className="h-[240px] w-full" />
+          <Skeleton className="h-[240px] w-full rounded-xl" />
         ) : chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={240}>
             <ComposedChart data={chartData}>
               <defs>
                 <linearGradient id="riskGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="hsl(var(--destructive))" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="hsl(var(--destructive))" stopOpacity={0.05} />
+                  <stop offset="95%" stopColor="hsl(var(--destructive))" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} />
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} strokeOpacity={0.5} />
               <XAxis dataKey="label" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
               <YAxis domain={[0, 100]} tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} width={30} tickFormatter={v => `${v}%`} />
               <Tooltip
-                contentStyle={CHART_TOOLTIP_STYLE}
+                contentStyle={GLASS_TOOLTIP}
                 formatter={(value: number) => [`${value}%`, t('orgDashboard.riskPct')]}
-                labelFormatter={(label) => label}
               />
               <ReferenceLine
                 y={threshold}
                 stroke="hsl(var(--destructive))"
                 strokeDasharray="6 4"
-                strokeWidth={2}
+                strokeWidth={1.5}
                 label={{ value: t('orgDashboard.limit'), position: 'insideTopRight', fill: 'hsl(var(--destructive))', fontSize: 11 }}
               />
               <Area
-                type="monotone"
+                type="natural"
                 dataKey="riskPct"
                 stroke="hsl(var(--destructive))"
-                strokeWidth={2}
+                strokeWidth={2.5}
                 fill="url(#riskGradient)"
                 dot={{ r: 3, fill: 'hsl(var(--destructive))', strokeWidth: 0 }}
-                activeDot={{ r: 5 }}
+                activeDot={{ r: 6, stroke: 'hsl(var(--destructive))', strokeWidth: 2, fill: 'hsl(var(--background))' }}
               />
             </ComposedChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-muted-foreground text-sm text-center py-10">{t('common.noData')}</p>
+          <EmptyAnalyticsState icon={AlertTriangle} />
         )}
       </CardContent>
     </Card>

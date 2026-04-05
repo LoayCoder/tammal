@@ -56,9 +56,11 @@ export function AIInsightsCard({ analyticsData, isLoading: parentLoading }: Prop
       </CardHeader>
       <CardContent>
         {!enabled ? (
-          <div className="text-center py-8">
-            <Brain className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-            <p className={typography.subtitle}>{t('orgDashboard.aiInsightsPrompt')}</p>
+          <div className="flex flex-col items-center justify-center py-14 gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/5">
+              <Brain className="h-6 w-6 text-primary/40" strokeWidth={1.5} />
+            </div>
+            <p className="text-sm text-muted-foreground text-center max-w-xs">{t('orgDashboard.aiInsightsPrompt')}</p>
           </div>
         ) : isLoading ? (
           <div className="space-y-3">

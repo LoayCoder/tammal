@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { TimeRangeSelector } from '@/components/dashboard/TimeRangeSelector';
 import type { TimeRange } from '@/lib/analytics/types';
 import { typography } from '@/theme/tokens';
+import { format } from 'date-fns';
 
 interface Props {
   timeRange: TimeRange;
@@ -21,7 +22,9 @@ export const DashboardHeader = React.memo(function DashboardHeader({
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
         <h1 className={typography.pageTitle}>{t('orgDashboard.title')}</h1>
-        <p className="text-muted-foreground">{t('orgDashboard.subtitle')}</p>
+        <p className="text-sm text-muted-foreground">
+          {t('orgDashboard.subtitle')} · {format(new Date(), 'MMM d, yyyy')}
+        </p>
       </div>
       <TimeRangeSelector
         value={timeRange}

@@ -4,7 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle, TrendingDown, Zap, Users, RotateCcw } from 'lucide-react';
 import type { EarlyWarning } from '@/lib/analytics/types';
-import { cardVariants, typography} from "@/theme/tokens";
+import { cardVariants, typography } from '@/theme/tokens';
+import { EmptyAnalyticsState } from '@/features/org-dashboard/components/EmptyAnalyticsState';
 
 interface Props {
   warnings: EarlyWarning[];
@@ -23,23 +24,23 @@ export function EarlyWarningPanel({ warnings, isLoading }: Props) {
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className={cardVariants.glass}>
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4" />
+            <AlertTriangle className="h-4 w-4" strokeWidth={1.5} />
             {t('orgDashboard.earlyWarnings')}
           </CardTitle>
         </CardHeader>
-        <CardContent><Skeleton className="h-[200px] w-full" /></CardContent>
+        <CardContent><Skeleton className="h-[200px] w-full rounded-xl" /></CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className={cardVariants.glass}>
+    <Card className={`${cardVariants.glass} rounded-2xl`}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-chart-4" />
+          <AlertTriangle className="h-4 w-4 text-chart-4" strokeWidth={1.5} />
           {t('orgDashboard.earlyWarnings')}
           {warnings.length > 0 && (
             <Badge variant="secondary" className="text-2xs">{warnings.length}</Badge>
@@ -48,9 +49,7 @@ export function EarlyWarningPanel({ warnings, isLoading }: Props) {
       </CardHeader>
       <CardContent>
         {warnings.length === 0 ? (
-          <div className="text-center py-8">
-            <p className={typography.subtitle}>{t('orgDashboard.noAlerts')}</p>
-          </div>
+          <EmptyAnalyticsState icon={AlertTriangle} title={t('orgDashboard.noAlerts')} />
         ) : (
           <div className="space-y-3">
             {warnings.map(w => {
@@ -58,9 +57,9 @@ export function EarlyWarningPanel({ warnings, isLoading }: Props) {
               const Icon = config.icon;
 
               return (
-                <div key={w.id} className="flex items-start gap-3 p-3 rounded-lg glass-badge">
-                  <div className={`mt-0.5 p-1.5 rounded ${w.severity === 'high' ? 'bg-destructive/10 text-destructive' : 'bg-chart-4/10 text-chart-4'}`}>
-                    <Icon className="h-3.5 w-3.5" />
+                <div key={w.id} className="flex items-start gap-3 p-3 rounded-xl glass-badge hover:bg-muted/20 transition-colors duration-150">
+                  <div className={`mt-0.5 p-1.5 rounded-lg ${w.severity === 'high' ? 'bg-destructive/10 text-destructive' : 'bg-chart-4/10 text-chart-4'}`}>
+                    <Icon className="h-3.5 w-3.5" strokeWidth={1.5} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
