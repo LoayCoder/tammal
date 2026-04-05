@@ -26,17 +26,29 @@ serve(async (req) => {
       );
     }
 
-    // Auth
+    // Auth — use getClaims for local JWT validation (signing-keys system)
     const authHeader = req.headers.get("authorization") ?? "";
-    const anonClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { authorization: authHeader } },
-    });
-    const { data: { user }, error: authErr } = await anonClient.auth.getUser();
-    if (authErr || !user)
+    if (!authHeader.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    const anonClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { authorization: authHeader } },
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsErr } = await anonClient.auth.getClaims(token);
+    if (claimsErr || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const user = { id: claimsData.claims.sub as string };
 
     const { mode = "personal", language = "en" } = await req.json() as {
       mode?: PulseMode;
