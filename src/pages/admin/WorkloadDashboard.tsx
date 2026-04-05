@@ -296,35 +296,58 @@ export default function WorkloadDashboard() {
             </CardHeader>
             <CardContent>
               {isPending ? <Skeleton className="h-40" /> : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-border/30">
-                        <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.employee')}</th>
-                        <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.sessions')}</th>
-                        <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.totalOffHours')}</th>
-                        <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.riskLevel')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {teamLoad.filter(m => m.offHoursMinutes > 0).sort((a, b) => b.offHoursMinutes - a.offHoursMinutes).map(m => (
-                        <tr key={m.employeeId} className="border-b border-border/10">
-                          <td className="py-2.5 font-medium">{m.employeeName}</td>
-                          <td className="py-2.5">{m.offHoursSessions}</td>
-                          <td className="py-2.5">{Math.round(m.offHoursMinutes / 60 * 10) / 10}h</td>
-                          <td className="py-2.5">
-                            <Badge variant={m.offHoursMinutes > 300 ? 'destructive' : m.offHoursMinutes > 120 ? 'secondary' : 'default'} className="text-xs">
-                              {m.offHoursMinutes > 300 ? t('adminWorkload.highRisk') : m.offHoursMinutes > 120 ? t('adminWorkload.mediumRisk') : t('adminWorkload.lowRisk')}
-                            </Badge>
-                          </td>
+                <>
+                  {/* Desktop */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-border/30">
+                          <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.employee')}</th>
+                          <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.sessions')}</th>
+                          <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.totalOffHours')}</th>
+                          <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.riskLevel')}</th>
                         </tr>
-                      ))}
-                      {teamLoad.filter(m => m.offHoursMinutes > 0).length === 0 && (
-                        <tr><td colSpan={4} className="py-8 text-center text-muted-foreground">{t('adminWorkload.noOffHours')}</td></tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {teamLoad.filter(m => m.offHoursMinutes > 0).sort((a, b) => b.offHoursMinutes - a.offHoursMinutes).map(m => (
+                          <tr key={m.employeeId} className="border-b border-border/10">
+                            <td className="py-2.5 font-medium">{m.employeeName}</td>
+                            <td className="py-2.5">{m.offHoursSessions}</td>
+                            <td className="py-2.5">{Math.round(m.offHoursMinutes / 60 * 10) / 10}h</td>
+                            <td className="py-2.5">
+                              <Badge variant={m.offHoursMinutes > 300 ? 'destructive' : m.offHoursMinutes > 120 ? 'secondary' : 'default'} className="text-xs">
+                                {m.offHoursMinutes > 300 ? t('adminWorkload.highRisk') : m.offHoursMinutes > 120 ? t('adminWorkload.mediumRisk') : t('adminWorkload.lowRisk')}
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))}
+                        {teamLoad.filter(m => m.offHoursMinutes > 0).length === 0 && (
+                          <tr><td colSpan={4} className="py-8 text-center text-muted-foreground">{t('adminWorkload.noOffHours')}</td></tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile cards */}
+                  <div className="md:hidden space-y-3">
+                    {teamLoad.filter(m => m.offHoursMinutes > 0).length === 0 ? (
+                      <p className="py-8 text-center text-muted-foreground">{t('adminWorkload.noOffHours')}</p>
+                    ) : teamLoad.filter(m => m.offHoursMinutes > 0).sort((a, b) => b.offHoursMinutes - a.offHoursMinutes).map(m => (
+                      <div key={m.employeeId} className="rounded-xl bg-muted/20 p-3 active:scale-[0.98] transition-transform">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-sm truncate">{m.employeeName}</span>
+                          <Badge variant={m.offHoursMinutes > 300 ? 'destructive' : m.offHoursMinutes > 120 ? 'secondary' : 'default'} className="text-2xs shrink-0">
+                            {m.offHoursMinutes > 300 ? t('adminWorkload.highRisk') : m.offHoursMinutes > 120 ? t('adminWorkload.mediumRisk') : t('adminWorkload.lowRisk')}
+                          </Badge>
+                        </div>
+                        <div className="flex gap-4 text-xs text-muted-foreground">
+                          <span>{m.offHoursSessions} {t('adminWorkload.sessions')}</span>
+                          <span>{Math.round(m.offHoursMinutes / 60 * 10) / 10}h</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
