@@ -2544,7 +2544,12 @@
       "new_message": "You have a new message.",
       "case_resolved": "A support case has been resolved.",
       "endorsement_requested": "Someone requested your endorsement.",
-      "nomination_endorsed": "Your nomination has been endorsed."
+      "nomination_endorsed": "Your nomination has been endorsed.",
+      "engagement_drop": "Your engagement score has dropped below the healthy range.",
+      "appreciation_reminder": "It's been a while since you recognized a colleague.",
+      "pulse_nudge": "You haven't checked in recently. Take a moment to share how you're doing.",
+      "manager_team_alert": "Some team members have engagement scores below the healthy threshold.",
+      "action_followup": "You started an engagement action recently. Following through can boost your team's pulse."
     }
   },
   "crisisSupport": {

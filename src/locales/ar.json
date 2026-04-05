@@ -2544,7 +2544,12 @@
       "new_message": "لديك رسالة جديدة.",
       "case_resolved": "تم حل حالة الدعم.",
       "endorsement_requested": "شخص طلب تأييدك.",
-      "nomination_endorsed": "تم تأييد ترشيحك."
+      "nomination_endorsed": "تم تأييد ترشيحك.",
+      "engagement_drop": "انخفضت درجة تفاعلك عن النطاق الصحي.",
+      "appreciation_reminder": "مضى وقت منذ آخر تقدير أرسلته لزميل.",
+      "pulse_nudge": "لم تسجل حضورك مؤخراً. خذ لحظة لمشاركة حالتك.",
+      "manager_team_alert": "بعض أعضاء الفريق لديهم درجات تفاعل منخفضة.",
+      "action_followup": "بدأت إجراء تفاعل مؤخراً. المتابعة ستعزز نبض فريقك."
     }
   },
   "crisisSupport": {
