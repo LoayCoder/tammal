@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
