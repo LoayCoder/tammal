@@ -17,6 +17,7 @@ import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 
 export function OrgDashboard() {
   const { t } = useTranslation();
+  const { employee } = useCurrentEmployee();
   const {
     timeRange, setTimeRange,
     customStart, customEnd, handleCustomChange,
