@@ -2523,7 +2523,12 @@
       "nomination_received": "New nomination received",
       "nomination_approved": "Nomination approved",
       "nomination_rejected": "Nomination rejected",
-      "award_won": "Award won"
+      "award_won": "Award won",
+      "engagement_drop": "Your engagement score needs attention",
+      "appreciation_reminder": "Spread some recognition today",
+      "pulse_nudge": "How are you feeling today?",
+      "manager_team_alert": "Team engagement requires your attention",
+      "action_followup": "Complete your engagement action"
     },
     "body": {
       "assigned": "You have been assigned a new task.",
