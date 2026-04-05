@@ -44,4 +44,4 @@ export const PulseModeSwitcher = memo(function PulseModeSwitcher({ allowedModes,
       })}
     </div>
   );
-}
+});

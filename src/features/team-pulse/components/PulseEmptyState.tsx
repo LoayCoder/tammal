@@ -20,4 +20,4 @@ export const PulseEmptyState = memo(function PulseEmptyState({ fallbackCta }: Pr
       </div>
     </div>
   );
-}
+});

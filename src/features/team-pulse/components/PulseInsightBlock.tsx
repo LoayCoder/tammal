@@ -99,4 +99,4 @@ export const PulseInsightBlock = memo(function PulseInsightBlock({ insight, tren
       )}
     </div>
   );
-}
+});

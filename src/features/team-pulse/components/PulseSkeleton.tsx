@@ -17,4 +17,4 @@ export const PulseSkeleton = memo(function PulseSkeleton() {
       <Skeleton className="h-10 w-full rounded-xl premium-badge" />
     </div>
   );
-}
+});

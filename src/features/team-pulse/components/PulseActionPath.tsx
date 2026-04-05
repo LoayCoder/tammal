@@ -41,4 +41,4 @@ export const PulseActionPath = memo(function PulseActionPath({ recommendedAction
       </button>
     </div>
   );
-}
+});

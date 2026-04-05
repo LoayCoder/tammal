@@ -55,4 +55,4 @@ export const PulseTargetBlock = memo(function PulseTargetBlock({ targetMetric, c
       </div>
     </div>
   );
-}
+});
