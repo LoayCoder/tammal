@@ -3411,7 +3411,29 @@
     "aiPredictionsFailed": "فشلت توقعات الذكاء الاصطناعي",
     "trendUp": "↑ اتجاه صاعد",
     "trendDown": "↓ اتجاه هابط",
-    "trendStable": "→ مستقر"
+    "trendStable": "→ مستقر",
+    "narrative": {
+      "title": "رؤية تنفيذية بالذكاء الاصطناعي",
+      "noData": "بيانات غير كافية للتحليل التنفيذي",
+      "healthy": "صحة المنظمة قوية عند {{score}}%. يتصدر {{strongest}} بنسبة {{strongestVal}}%.",
+      "attention": "النتيجة {{score}}% تتطلب اهتمامًا. {{weakest}} هو الأدنى بنسبة {{weakestVal}}%. {{burnoutCount}} موظفين معرضين للإرهاق.",
+      "critical": "حرج: النتيجة {{score}}%. {{weakest}} عند {{weakestVal}}%. {{burnoutCount}} موظفين معرضين للإرهاق يحتاجون إلى تدخل فوري."
+    },
+    "tammal": {
+      "alignment": "المواءمة",
+      "velocity": "السرعة",
+      "capacity_balance": "توازن السعة",
+      "burnout_health": "صحة الإرهاق",
+      "capacity": "السعة",
+      "burnout": "الإرهاق"
+    },
+    "tammalWeights": {
+      "title": "أوزان مؤشر تمّل",
+      "customize": "تخصيص الأوزان",
+      "sum": "المجموع",
+      "mustEqual100": "يجب أن يساوي 100",
+      "saved": "تم حفظ الأوزان بنجاح"
+    }
   },
   "teamWorkload": {
     "pageTitle": "مركز قيادة الفريق",
@@ -4205,7 +4227,15 @@
     "sla": {
       "within_sla": "ضمن الاتفاقية",
       "approaching": "اقتراب الموعد",
-      "breached": "تجاوز الموعد"
+      "breached": "تجاوز الموعد",
+      "overdue": "متأخر",
+      "left": "متبقي"
+    },
+    "unlock": {
+      "title": "طلب فتح القفل",
+      "description": "قدم مبررًا لفتح قفل المهمة: {{title}}",
+      "placeholder": "لماذا تحتاج هذه المهمة إلى فتح القفل؟",
+      "confirm": "فتح قفل المهمة"
     },
     "escalation": {
       "title": "سجل التصعيد",
@@ -4270,6 +4300,11 @@
   },
   "tasks": {
     "createTask": "إنشاء مهمة",
+    "rejectTask": "رفض المهمة",
+    "rejectTaskDesc": "قدم سببًا لرفض: {{title}}",
+    "rejectionReason": "سبب الرفض",
+    "rejectionReasonPlaceholder": "اشرح سبب رفض هذه المهمة...",
+    "reject": "رفض",
     "saveDraft": "حفظ كمسودة",
     "advancedSettings": "إعدادات متقدمة",
     "reminderHint": "سيتم إشعارك قبل التاريخ المحدد.",
@@ -4645,5 +4680,23 @@
     "noActions": "لم يتم تسجيل إجراءات بعد",
     "noActionsDesc": "ستظهر إجراءات المشاركة هنا عند تفاعلك مع ميزات النبض",
     "activeRecommendations": "التوصيات النشطة"
+  },
+  "capacityPlanner": {
+    "pageTitle": "مخطط القدرات",
+    "pageDesc": "موازنة أعباء العمل بصريًا — اسحب المهام بين أعضاء الفريق",
+    "searchEmployees": "بحث عن موظفين...",
+    "totalMembers": "أعضاء الفريق",
+    "overloaded": "محملون بشكل زائد",
+    "underutilized": "غير مستغلين",
+    "loaded": "محمّل",
+    "capacity": "السعة",
+    "noTasks": "لا توجد مهام نشطة",
+    "reassignTask": "إعادة تعيين المهمة",
+    "reassignDesc": "نقل هذه المهمة إلى عضو فريق آخر",
+    "from": "من",
+    "estimated": "التقدير",
+    "assignTo": "تعيين إلى",
+    "selectEmployee": "اختر موظفًا...",
+    "confirm": "إعادة تعيين"
   }
 }

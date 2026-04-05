@@ -3411,7 +3411,29 @@
     "aiPredictionsFailed": "AI predictions failed",
     "trendUp": "↑ trending up",
     "trendDown": "↓ trending down",
-    "trendStable": "→ stable"
+    "trendStable": "→ stable",
+    "narrative": {
+      "title": "AI Executive Insight",
+      "noData": "Insufficient data for executive narrative",
+      "healthy": "Organization health is strong at {{score}}%. {{strongest}} leads at {{strongestVal}}%.",
+      "attention": "Score {{score}}% requires attention. {{weakest}} is lowest at {{weakestVal}}%. {{burnoutCount}} employees at burnout risk.",
+      "critical": "Critical: score {{score}}%. {{weakest}} is at {{weakestVal}}%. {{burnoutCount}} employees at burnout risk require immediate action."
+    },
+    "tammal": {
+      "alignment": "Alignment",
+      "velocity": "Velocity",
+      "capacity_balance": "Capacity Balance",
+      "burnout_health": "Burnout Health",
+      "capacity": "Capacity",
+      "burnout": "Burnout"
+    },
+    "tammalWeights": {
+      "title": "TAMMAL Index Weights",
+      "customize": "Customize Weights",
+      "sum": "Total",
+      "mustEqual100": "must equal 100",
+      "saved": "Weights saved successfully"
+    }
   },
   "teamWorkload": {
     "pageTitle": "Team Command Center",
@@ -4205,7 +4227,15 @@
     "sla": {
       "within_sla": "Within SLA",
       "approaching": "Approaching Breach",
-      "breached": "Breached"
+      "breached": "Breached",
+      "overdue": "overdue",
+      "left": "left"
+    },
+    "unlock": {
+      "title": "Request Unlock",
+      "description": "Provide justification to unlock task: {{title}}",
+      "placeholder": "Why does this task need to be unlocked?",
+      "confirm": "Unlock Task"
     },
     "escalation": {
       "title": "Escalation History",
@@ -4270,6 +4300,11 @@
   },
   "tasks": {
     "createTask": "Create Task",
+    "rejectTask": "Reject Task",
+    "rejectTaskDesc": "Provide a reason for rejecting: {{title}}",
+    "rejectionReason": "Rejection Reason",
+    "rejectionReasonPlaceholder": "Explain why this task is being rejected...",
+    "reject": "Reject",
     "saveDraft": "Save Draft",
     "advancedSettings": "Advanced Settings",
     "reminderHint": "You will be notified before the selected date.",
@@ -4645,5 +4680,23 @@
     "noActions": "No actions logged yet",
     "noActionsDesc": "Engagement actions will appear here as you interact with pulse features",
     "activeRecommendations": "Active Recommendations"
+  },
+  "capacityPlanner": {
+    "pageTitle": "Capacity Planner",
+    "pageDesc": "Visual workload balancing — drag tasks between team members",
+    "searchEmployees": "Search employees...",
+    "totalMembers": "team members",
+    "overloaded": "overloaded",
+    "underutilized": "underutilized",
+    "loaded": "loaded",
+    "capacity": "capacity",
+    "noTasks": "No active tasks",
+    "reassignTask": "Reassign Task",
+    "reassignDesc": "Move this task to another team member",
+    "from": "From",
+    "estimated": "Estimated",
+    "assignTo": "Assign to",
+    "selectEmployee": "Select employee...",
+    "confirm": "Reassign"
   }
 }
