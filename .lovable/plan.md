@@ -1,74 +1,35 @@
 
+Fix the Risk Trend card at the chart level and the mobile card/container level, because the current issue is not fully solved by Y-axis padding alone.
 
-## Mobile UX Improvements for Org Wellness Dashboard
+### What to change
 
-Three changes: collapsible filter bar on mobile, hideable cards, and chart clipping fixes.
+1. Fix Risk Trend chart overflow on mobile
+- In `src/components/dashboard/RiskTrendChart.tsx`:
+  - Increase chart top/bottom breathing room more aggressively for mobile.
+  - Change the Y-axis from fixed `domain={[0, 100]}` to a safer auto/padded setup so the top point at `100%` and bottom point at `0%` do not touch the edges.
+  - Reduce active dot size on small screens.
+  - Add `allowDataOverflow={false}` and slightly larger chart margins.
+  - Move or simplify the `ReferenceLine` label on mobile, because `insideTopRight` can visually collide with the chart edge.
 
----
+2. Prevent card content from being clipped by parent wrappers
+- In `src/features/org-dashboard/components/OverviewTab.tsx`:
+  - Update `CollapsibleCard` so the hide/show button is always visible on mobile, not only on hover.
+  - Ensure the wrapper around `RiskTrendChart` does not visually crop chart content when rendered inside the collapsible container.
+  - Add a mobile-safe spacing rule around chart cards so headers/buttons do not overlap the chart area.
 
-### 1. Collapsible Filter Bar on Mobile
+3. Match the same mobile-safe chart pattern used across analytics cards
+- Re-check `CategoryHealthChart.tsx` and `AffectiveStateChart.tsx` for consistency, but prioritize `RiskTrendChart` since that is the remaining broken card.
+- Keep all styles aligned with the existing design tokens and RTL-safe utilities.
 
-**File**: `src/components/dashboard/OrgFilterBar.tsx`
+### Likely root cause
+The session replay shows the active dot still rendering very close to the top and bottom edges (`cy` near chart limits), which means the line itself is still reaching the container boundary. Also, the current card wrapper uses an absolutely positioned control that may overlap the chart area on mobile.
 
-- Add `useState` for `isOpen` (default `false`)
-- On mobile (`md` breakpoint): show only a compact row with the Filter icon + active count badge + a toggle button
-- Clicking the filter icon toggles the dropdown with all 4 select inputs stacked vertically
-- On desktop: keep current inline layout (always visible)
-- Animate open/close with `overflow-hidden` + `max-height` transition
+### Files to update
+- `src/components/dashboard/RiskTrendChart.tsx`
+- `src/features/org-dashboard/components/OverviewTab.tsx`
 
-```text
-Mobile collapsed:  [🔍 Filter (2)]
-Mobile expanded:   [🔍 Filter (2)]
-                   [All Branches    ▼]
-                   [All Divisions   ▼]
-                   [All Departments ▼]
-                   [All Sections    ▼]
-                   [Clear Filters]
-```
-
----
-
-### 2. Hideable Cards (All Stat Cards + Chart Cards)
-
-**File**: `src/features/org-dashboard/components/StatCards.tsx`
-- Add an `EyeOff` icon button on each stat card (top-end corner)
-- Track hidden card keys in local state (or localStorage for persistence)
-- Hidden cards collapse with a smooth transition
-- Show a "Show all" button when any cards are hidden
-
-**File**: `src/features/org-dashboard/components/OverviewTab.tsx`
-- Wrap each chart card section (Engagement Trend, Risk Trend, Category Health, etc.) in a collapsible wrapper
-- Add an `EyeOff`/`Eye` toggle icon in each card header
-- Track visibility state with `useState` (keyed by card name)
-- When hidden, the card collapses to just its header row with an `Eye` icon to restore
-
----
-
-### 3. Fix Chart Clipping on Mobile
-
-The chart lines are being cut off at the top and bottom because the Y-axis domain doesn't include padding.
-
-**File**: `src/features/org-dashboard/components/OverviewTab.tsx` (Engagement Trend)
-- Change Y-axis domain from `[1, 5]` to `['auto', 'auto']` with `padding={{ top: 20, bottom: 20 }}`
-- Add `margin={{ top: 10, right: 10, bottom: 5, left: 0 }}` to `ComposedChart`
-
-**File**: `src/components/dashboard/RiskTrendChart.tsx`
-- Add `padding={{ top: 20, bottom: 10 }}` to YAxis
-- Add `margin={{ top: 10, right: 10, bottom: 5, left: 0 }}` to `ComposedChart`
-- Reduce `activeDot` radius on mobile for less overflow
-
-**Apply same pattern** to `CategoryHealthChart.tsx` and `AffectiveStateChart.tsx` — add chart margins and Y-axis padding to prevent clipping.
-
----
-
-### Files Modified
-
-| File | Change |
-|------|--------|
-| `src/components/dashboard/OrgFilterBar.tsx` | Collapsible on mobile with toggle |
-| `src/features/org-dashboard/components/StatCards.tsx` | Hide/show individual cards |
-| `src/features/org-dashboard/components/OverviewTab.tsx` | Hideable chart cards + chart margin fix |
-| `src/components/dashboard/RiskTrendChart.tsx` | Chart margin/padding fix + hideable |
-| `src/components/dashboard/CategoryHealthChart.tsx` | Chart margin/padding fix |
-| `src/components/dashboard/AffectiveStateChart.tsx` | Chart margin/padding fix |
-
+### Expected result
+- Risk Trend line and dots are fully visible on mobile
+- No top/bottom clipping at 0% or 100%
+- No overlap between the hide button and chart content
+- Card remains clean, premium, and responsive in Arabic and English
