@@ -103,6 +103,12 @@ export default function EmployeeHome() {
         {/* Wellness Copilot */}
         {employee && <WellnessCopilotCard employeeId={employee.id} />}
 
+        {/* Team Pulse Action Hub */}
+        {employee && <TeamPulseCard employeeId={employee.id} />}
+
+        {/* Quick Appreciation */}
+        <QuickAppreciationCard />
+
         {/* Support Hub — Collapsible Premium Card */}
         <Collapsible className="premium-card rounded-2xl hover:shadow-sm transition-all duration-200">
           <CollapsibleTrigger className="group flex items-center justify-between w-full p-4 cursor-pointer">
