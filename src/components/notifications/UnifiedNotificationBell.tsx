@@ -236,6 +236,10 @@ function NotificationContent({
             {isMobile ? <Award className="h-3.5 w-3.5" /> : t('notifications.recognition', 'Recognition')}
             {recognitionUnread > 0 && <Badge variant="secondary" className="ms-0.5 h-4 min-w-4 px-0.5 text-2xs">{recognitionUnread}</Badge>}
           </TabsTrigger>
+          <TabsTrigger value="engagement" className="flex-1 text-2xs h-7 px-1">
+            {isMobile ? <Activity className="h-3.5 w-3.5" /> : t('notifications.engagement', 'Engagement')}
+            {engagementUnread > 0 && <Badge variant="secondary" className="ms-0.5 h-4 min-w-4 px-0.5 text-2xs">{engagementUnread}</Badge>}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value={tab} className="mt-0">
