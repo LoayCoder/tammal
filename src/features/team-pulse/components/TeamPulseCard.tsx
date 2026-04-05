@@ -30,9 +30,15 @@ const modeSubLabels: Record<string, string> = {
   organization: "pulse.modeOrganization",
 };
 
+const HIDDEN_KEY = 'team-pulse-card-hidden';
+
 export function TeamPulseCard({ employeeId }: Props) {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+  const [isHidden, setIsHidden] = useState(() => localStorage.getItem(HIDDEN_KEY) === '1');
+  const hide = useCallback(() => { localStorage.setItem(HIDDEN_KEY, '1'); setIsHidden(true); }, []);
+  const show = useCallback(() => { localStorage.removeItem(HIDDEN_KEY); setIsHidden(false); }, []);
   const { employee } = useCurrentEmployee();
   const { tenantId } = useTenantId();
   const { allowedModes, selectedMode, setMode, showModeSwitcher } = usePulseModes(employeeId);
