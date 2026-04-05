@@ -141,71 +141,115 @@ export default function WorkloadDashboard() {
             </CardContent>
           </Card>
 
-          {/* Team Table */}
+          {/* Team — table on desktop, cards on mobile */}
           <Card className={cardVariants.glass}>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">{t('adminWorkload.teamOverview')}</CardTitle>
             </CardHeader>
             <CardContent>
               {isPending ? <Skeleton className="h-40" /> : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                       <tr className="border-b border-border/30">
-                         <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.employee')}</th>
-                         <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.activeTasks')}</th>
-                         <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.load')}</th>
-                         <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.utilization')}</th>
-                         <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.alignment')}</th>
-                         <th className="text-start py-2 font-medium text-muted-foreground">{t('commandCenter.overdue')}</th>
-                         <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.offHours')}</th>
-                         <th className="text-start py-2 font-medium text-muted-foreground">{t('common.status')}</th>
-                       </tr>
-                    </thead>
-                    <tbody>
-                      {teamLoad.map(m => (
-                         <tr key={m.employeeId} className="border-b border-border/10">
-                           <td className="py-2.5 font-medium">{m.employeeName}</td>
-                           <td className="py-2.5">{m.activeTasks}</td>
-                           <td className="py-2.5">{Math.round(m.estimatedMinutes / 60 * 10) / 10}h</td>
-                           <td className="py-2.5">
-                             {(() => {
-                               const metric = getMetric(m.employeeId);
-                               if (!metric) return '—';
-                               const cls = classifyUtilizationForDisplay(metric.utilization_percentage);
-                               return (
-                                 <Badge variant={cls.variant} className="text-xs">
-                                   {metric.utilization_percentage}% — {t(`adminWorkload.${cls.key}`)}
-                                 </Badge>
-                               );
-                             })()}
-                           </td>
-                           <td className="py-2.5">
-                             {(() => {
-                               const metric = getMetric(m.employeeId);
-                               if (!metric) return '—';
-                               return <span className="text-sm">{metric.alignment_score}%</span>;
-                             })()}
-                           </td>
-                           <td className="py-2.5">
-                             {m.overdueTasks > 0 ? (
-                               <Badge variant="destructive" className="text-xs">{m.overdueTasks}</Badge>
-                             ) : '—'}
-                           </td>
-                           <td className="py-2.5">{m.offHoursMinutes > 0 ? `${Math.round(m.offHoursMinutes / 60)}h` : '—'}</td>
-                           <td className="py-2.5">
-                             <Badge variant={m.estimatedMinutes > 480 ? 'destructive' : m.estimatedMinutes > 360 ? 'secondary' : 'default'} className="text-xs">
-                               {m.estimatedMinutes > 480 ? t('adminWorkload.overloaded') : m.estimatedMinutes > 360 ? t('commandCenter.busy') : t('commandCenter.healthy')}
-                             </Badge>
-                           </td>
+                <>
+                  {/* Desktop table */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                         <tr className="border-b border-border/30">
+                           <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.employee')}</th>
+                           <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.activeTasks')}</th>
+                           <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.load')}</th>
+                           <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.utilization')}</th>
+                           <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.alignment')}</th>
+                           <th className="text-start py-2 font-medium text-muted-foreground">{t('commandCenter.overdue')}</th>
+                           <th className="text-start py-2 font-medium text-muted-foreground">{t('adminWorkload.offHours')}</th>
+                           <th className="text-start py-2 font-medium text-muted-foreground">{t('common.status')}</th>
                          </tr>
-                      ))}
-                      {teamLoad.length === 0 && (
-                        <tr><td colSpan={8} className="py-8 text-center text-muted-foreground">{t('common.noData')}</td></tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {teamLoad.map(m => (
+                           <tr key={m.employeeId} className="border-b border-border/10">
+                             <td className="py-2.5 font-medium">{m.employeeName}</td>
+                             <td className="py-2.5">{m.activeTasks}</td>
+                             <td className="py-2.5">{Math.round(m.estimatedMinutes / 60 * 10) / 10}h</td>
+                             <td className="py-2.5">
+                               {(() => {
+                                 const metric = getMetric(m.employeeId);
+                                 if (!metric) return '—';
+                                 const cls = classifyUtilizationForDisplay(metric.utilization_percentage);
+                                 return (
+                                   <Badge variant={cls.variant} className="text-xs">
+                                     {metric.utilization_percentage}% — {t(`adminWorkload.${cls.key}`)}
+                                   </Badge>
+                                 );
+                               })()}
+                             </td>
+                             <td className="py-2.5">
+                               {(() => {
+                                 const metric = getMetric(m.employeeId);
+                                 if (!metric) return '—';
+                                 return <span className="text-sm">{metric.alignment_score}%</span>;
+                               })()}
+                             </td>
+                             <td className="py-2.5">
+                               {m.overdueTasks > 0 ? (
+                                 <Badge variant="destructive" className="text-xs">{m.overdueTasks}</Badge>
+                               ) : '—'}
+                             </td>
+                             <td className="py-2.5">{m.offHoursMinutes > 0 ? `${Math.round(m.offHoursMinutes / 60)}h` : '—'}</td>
+                             <td className="py-2.5">
+                               <Badge variant={m.estimatedMinutes > 480 ? 'destructive' : m.estimatedMinutes > 360 ? 'secondary' : 'default'} className="text-xs">
+                                 {m.estimatedMinutes > 480 ? t('adminWorkload.overloaded') : m.estimatedMinutes > 360 ? t('commandCenter.busy') : t('commandCenter.healthy')}
+                               </Badge>
+                             </td>
+                           </tr>
+                        ))}
+                        {teamLoad.length === 0 && (
+                          <tr><td colSpan={8} className="py-8 text-center text-muted-foreground">{t('common.noData')}</td></tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile cards */}
+                  <div className="md:hidden space-y-3">
+                    {teamLoad.length === 0 ? (
+                      <p className="py-8 text-center text-muted-foreground">{t('common.noData')}</p>
+                    ) : teamLoad.map(m => {
+                      const metric = getMetric(m.employeeId);
+                      const cls = metric ? classifyUtilizationForDisplay(metric.utilization_percentage) : null;
+                      return (
+                        <div key={m.employeeId} className="rounded-xl bg-muted/20 p-3 space-y-2 active:scale-[0.98] transition-transform">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-sm truncate">{m.employeeName}</span>
+                            <Badge variant={m.estimatedMinutes > 480 ? 'destructive' : m.estimatedMinutes > 360 ? 'secondary' : 'default'} className="text-2xs shrink-0">
+                              {m.estimatedMinutes > 480 ? t('adminWorkload.overloaded') : m.estimatedMinutes > 360 ? t('commandCenter.busy') : t('commandCenter.healthy')}
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                            <div>
+                              <p className="text-foreground font-semibold">{m.activeTasks}</p>
+                              <p>{t('adminWorkload.activeTasks')}</p>
+                            </div>
+                            <div>
+                              <p className="text-foreground font-semibold">{Math.round(m.estimatedMinutes / 60 * 10) / 10}h</p>
+                              <p>{t('adminWorkload.load')}</p>
+                            </div>
+                            <div>
+                              {cls ? (
+                                <>
+                                  <p className="text-foreground font-semibold">{metric!.utilization_percentage}%</p>
+                                  <p>{t(`adminWorkload.${cls.key}`)}</p>
+                                </>
+                              ) : <p>—</p>}
+                            </div>
+                          </div>
+                          {m.overdueTasks > 0 && (
+                            <Badge variant="destructive" className="text-2xs">{m.overdueTasks} {t('commandCenter.overdue')}</Badge>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
