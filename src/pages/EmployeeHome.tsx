@@ -15,6 +15,8 @@ import {
   Phone, HeartHandshake, Crown, ChevronDown, Clock,
 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
+import { ar as arLocale } from 'date-fns/locale/ar';
+import { enUS } from 'date-fns/locale/en-US';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { DashboardPrayerWidget } from '@/components/dashboard/DashboardPrayerWidget';
 
