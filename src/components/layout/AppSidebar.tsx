@@ -587,7 +587,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                               <CollapsibleTrigger asChild>
                                 <button
                                   className={cn(
-                                    "flex h-8 w-full items-center gap-2.5 rounded-lg px-2.5 text-sm transition-all duration-200",
+                                    "flex h-8 w-full items-center gap-2.5 rounded-lg px-2.5 text-xs transition-all duration-200",
                                     isSectionActive
                                       ? "text-sidebar-primary font-medium"
                                       : "text-sidebar-foreground/80 hover:bg-muted/50"
@@ -606,7 +606,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                                         key={item.url}
                                         to={item.url}
                                         className={cn(
-                                          "flex h-7 items-center gap-2 rounded-lg px-2.5 text-sm transition-colors",
+                                          "flex h-7 items-center gap-2 rounded-lg px-2.5 text-xs transition-colors",
                                           "text-sidebar-foreground/70 hover:bg-muted/50 hover:text-sidebar-foreground"
                                         )}
                                         activeClassName="text-sidebar-primary font-medium"
@@ -678,7 +678,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                             <NavLink
                               to="/spiritual/prayer"
                               className={cn(
-                                "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
+                                "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-xs transition-colors",
                                 "text-sidebar-foreground/80 hover:bg-muted/50"
                               )}
                               activeClassName="text-sidebar-primary font-medium"
@@ -691,7 +691,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                             <NavLink
                               to="/spiritual/quran"
                               className={cn(
-                                "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
+                                "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-xs transition-colors",
                                 "text-sidebar-foreground/80 hover:bg-muted/50"
                               )}
                               activeClassName="text-sidebar-primary font-medium"
@@ -704,7 +704,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                             <NavLink
                               to="/spiritual/sunnah"
                               className={cn(
-                                "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
+                              "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-xs transition-colors",
                                 "text-sidebar-foreground/80 hover:bg-muted/50"
                               )}
                               activeClassName="text-sidebar-primary font-medium"
@@ -716,7 +716,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                           <NavLink
                             to="/spiritual/calendar"
                             className={cn(
-                              "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
+                              "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-xs transition-colors",
                               "text-sidebar-foreground/80 hover:bg-muted/50"
                             )}
                             activeClassName="text-sidebar-primary font-medium"
@@ -727,7 +727,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                           <NavLink
                             to="/spiritual/insights"
                             className={cn(
-                              "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
+                              "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-xs transition-colors",
                               "text-sidebar-foreground/80 hover:bg-muted/50"
                             )}
                             activeClassName="text-sidebar-primary font-medium"
