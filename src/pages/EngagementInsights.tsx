@@ -17,6 +17,7 @@ import { PulseActionPath } from "@/features/team-pulse/components/PulseActionPat
 import StatCard from "@/components/system/StatCard";
 import ChartCard from "@/components/system/ChartCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorBoundary } from "@/shared/resilience/ErrorBoundary";
 
 export default function EngagementInsights() {
   const { t } = useTranslation();
@@ -54,7 +55,9 @@ export default function EngagementInsights() {
       ) : (
         <div className="space-y-6 animate-fade-in">
           {/* 1. Pulse Trend */}
-          <PulseTrendChart data={pulseTrend} />
+          <ErrorBoundary title={t("engagementInsights.pulseTrend")}>
+            <PulseTrendChart data={pulseTrend} />
+          </ErrorBoundary>
 
           {/* 2. Participation Overview */}
           {pulse && (
@@ -72,35 +75,41 @@ export default function EngagementInsights() {
           )}
 
           {/* 3. Appreciation Activity */}
-          <AppreciationTrendChart data={appreciationTrend} />
+          <ErrorBoundary title={t("engagementInsights.appreciationTrend")}>
+            <AppreciationTrendChart data={appreciationTrend} />
+          </ErrorBoundary>
 
           {/* 4. Action Log */}
-          <ChartCard title={t("engagementInsights.actionLog")} description={t("engagementInsights.actionLogDesc")}>
-            <EngagementActionTable data={actionLog} isLoading={isPending} />
-          </ChartCard>
+          <ErrorBoundary title={t("engagementInsights.actionLog")}>
+            <ChartCard title={t("engagementInsights.actionLog")} description={t("engagementInsights.actionLogDesc")}>
+              <EngagementActionTable data={actionLog} isLoading={isPending} />
+            </ChartCard>
+          </ErrorBoundary>
 
           {/* 5. Active Recommendations */}
           {pulse && !pulseLoading && (
-            <ChartCard title={t("engagementInsights.activeRecommendations")}>
-              <div className="space-y-4">
-                <PulseInsightBlock
-                  insight={pulse.primaryInsight}
-                  trend={pulse.trend}
-                  engagementScore={pulse.engagementScore}
-                  impactReason={pulse.impactReason}
-                />
-                <PulseTargetBlock
-                  targetMetric={pulse.targetMetric}
-                  currentValue={pulse.currentValue}
-                  targetValue={pulse.targetValue}
-                />
-                <PulseActionPath
-                  recommendedAction={pulse.recommendedAction}
-                  actionPath={pulse.actionPath}
-                  actionCta={pulse.actionCta}
-                />
-              </div>
-            </ChartCard>
+            <ErrorBoundary title={t("engagementInsights.activeRecommendations")}>
+              <ChartCard title={t("engagementInsights.activeRecommendations")}>
+                <div className="space-y-4">
+                  <PulseInsightBlock
+                    insight={pulse.primaryInsight}
+                    trend={pulse.trend}
+                    engagementScore={pulse.engagementScore}
+                    impactReason={pulse.impactReason}
+                  />
+                  <PulseTargetBlock
+                    targetMetric={pulse.targetMetric}
+                    currentValue={pulse.currentValue}
+                    targetValue={pulse.targetValue}
+                  />
+                  <PulseActionPath
+                    recommendedAction={pulse.recommendedAction}
+                    actionPath={pulse.actionPath}
+                    actionCta={pulse.actionCta}
+                  />
+                </div>
+              </ChartCard>
+            </ErrorBoundary>
           )}
         </div>
       )}

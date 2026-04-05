@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 import { useCurrentEmployee } from "@/hooks/auth/useCurrentEmployee";
 import { useTenantId } from "@/hooks/org/useTenantId";
 
@@ -9,7 +10,7 @@ type ActionSource = "pulse_card" | "nudge_card" | "appreciation_widget";
 interface LogActionInput {
   actionType: ActionType;
   source: ActionSource;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, unknown> | undefined;
 }
 
 export function useEngagementActionLog() {
@@ -21,14 +22,14 @@ export function useEngagementActionLog() {
       if (!employee?.id || !tenantId) return;
 
       const { error } = await supabase
-        .from("engagement_action_log" as any)
-        .insert({
+        .from("engagement_action_log")
+        .insert([{
           tenant_id: tenantId,
           employee_id: employee.id,
           action_type: actionType,
           source,
-          metadata,
-        } as any);
+          metadata: metadata as Json,
+        }]);
 
       if (error && import.meta.env.DEV) {
         console.error("Failed to log engagement action:", error);
