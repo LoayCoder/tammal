@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { Target } from "lucide-react";
 import { cn } from "@/lib/utils";
