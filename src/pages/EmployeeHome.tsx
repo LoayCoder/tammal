@@ -49,6 +49,7 @@ export default function EmployeeHome() {
   const { todayEntry } = useMoodHistory(employee?.id ?? null);
   const { pendingQuestions, surveyMeta, isPending: sqLoading } = useScheduledQuestions(employee?.id, undefined);
   const [showFirstAider, setShowFirstAider] = useState(false);
+  const { rank, totalEmployees, isPending: rankLoading } = useEmployeeEngagementRank(employee?.id, employee?.tenant_id);
 
   const firstName = employee?.full_name?.split(' ')[0] ?? '';
 
