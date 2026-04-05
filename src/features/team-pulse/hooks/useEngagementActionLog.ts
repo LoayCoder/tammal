@@ -28,7 +28,7 @@ export function useEngagementActionLog() {
           employee_id: employee.id,
           action_type: actionType,
           source,
-          metadata,
+          metadata: metadata as Json,
         }]);
 
       if (error && import.meta.env.DEV) {
