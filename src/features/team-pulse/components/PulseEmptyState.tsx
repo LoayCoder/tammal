@@ -6,7 +6,7 @@ interface Props {
   fallbackCta?: string;
 }
 
-export function PulseEmptyState({ fallbackCta }: Props) {
+export const PulseEmptyState = memo(function PulseEmptyState({ fallbackCta }: Props) {
   const { t } = useTranslation();
 
   return (
