@@ -6,6 +6,7 @@ interface Props {
   insight: string;
   trend: "up" | "down" | "stable";
   engagementScore: number;
+  impactReason?: string;
 }
 
 export function PulseInsightBlock({ insight, trend, engagementScore }: Props) {
