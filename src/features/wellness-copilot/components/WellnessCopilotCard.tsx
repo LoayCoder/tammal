@@ -1,5 +1,6 @@
+import { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { Sparkles, RefreshCw } from "lucide-react";
+import { Sparkles, RefreshCw, EyeOff, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { cardVariants } from "@/theme/tokens";
 import { useCopilotInsight } from "../hooks/useCopilotInsight";
