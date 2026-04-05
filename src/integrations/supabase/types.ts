@@ -4649,6 +4649,60 @@ export type Database = {
           },
         ]
       }
+      pulse_targets: {
+        Row: {
+          created_at: string
+          current_value: number
+          deleted_at: string | null
+          employee_id: string | null
+          id: string
+          scope: string
+          target_date: string
+          target_metric: string
+          target_value: number
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_value: number
+          deleted_at?: string | null
+          employee_id?: string | null
+          id?: string
+          scope: string
+          target_date?: string
+          target_metric: string
+          target_value: number
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          current_value?: number
+          deleted_at?: string | null
+          employee_id?: string | null
+          id?: string
+          scope?: string
+          target_date?: string
+          target_metric?: string
+          target_value?: number
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pulse_targets_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pulse_targets_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       question_categories: {
         Row: {
           color: string | null
