@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Zap, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { useEngagementActionLog } from "../hooks/useEngagementActionLog";
 
 interface Props {
   engagementScore: number;
@@ -9,6 +10,7 @@ interface Props {
 
 export function PulseNudgeCard({ engagementScore }: Props) {
   const { t } = useTranslation();
+  const { logAction } = useEngagementActionLog();
 
   if (engagementScore >= 50) return null;
 
