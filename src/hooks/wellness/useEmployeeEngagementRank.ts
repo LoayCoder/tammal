@@ -7,6 +7,7 @@ interface EngagementRankResult {
   totalEmployees: number;
   streak: number;
   isPending: boolean;
+  error: Error | null;
 }
 
 /**
