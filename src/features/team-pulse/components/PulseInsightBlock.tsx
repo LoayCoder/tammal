@@ -9,7 +9,7 @@ interface Props {
   impactReason?: string;
 }
 
-export function PulseInsightBlock({ insight, trend, engagementScore }: Props) {
+export function PulseInsightBlock({ insight, trend, engagementScore, impactReason }: Props) {
   const { t } = useTranslation();
 
   const trendConfig = {
