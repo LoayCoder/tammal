@@ -587,7 +587,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                               <CollapsibleTrigger asChild>
                                 <button
                                   className={cn(
-                                    "flex h-8 w-full items-center gap-2.5 rounded-lg px-2.5 text-sm transition-all duration-200",
+                                    "flex h-8 w-full items-center gap-2.5 rounded-lg px-2.5 text-xs transition-all duration-200",
                                     isSectionActive
                                       ? "text-sidebar-primary font-medium"
                                       : "text-sidebar-foreground/80 hover:bg-muted/50"
