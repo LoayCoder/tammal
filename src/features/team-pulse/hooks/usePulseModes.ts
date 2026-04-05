@@ -17,17 +17,18 @@ export function usePulseModes(employeeId: string | null | undefined) {
   const isManagerRole = isManager || isAdmin;
 
   const { data: hasDirectReports } = useQuery({
-    queryKey: ["pulse-direct-reports", employeeId],
+    queryKey: ["pulse-direct-reports", employeeId, tenantId],
     queryFn: async () => {
       if (!employeeId) return false;
       const { count } = await supabase
         .from("employees")
         .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId!)
         .eq("manager_id", employeeId)
         .is("deleted_at", null);
       return (count ?? 0) > 0;
     },
-    enabled: !!employeeId,
+    enabled: !!employeeId && !!tenantId,
     staleTime: 1000 * 60 * 10,
   });
 
