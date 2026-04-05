@@ -22,11 +22,11 @@ export function useEngagementNotifications() {
   const employeeId = employee?.id;
 
   const { data: notifications = [], isLoading } = useQuery({
-    queryKey: ["engagement-notifications", employeeId],
+    queryKey: ["engagement-notifications", tenantId, employeeId],
     enabled: !!employeeId && !!tenantId,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("engagement_notifications" as any)
+        .from("engagement_notifications")
         .select("id, type, title, body, is_read, created_at, action_path, metadata")
         .eq("tenant_id", tenantId!)
         .eq("recipient_id", employeeId!)
@@ -54,7 +54,7 @@ export function useEngagementNotifications() {
           filter: `recipient_id=eq.${employeeId}`,
         },
         () => {
-          queryClient.invalidateQueries({ queryKey: ["engagement-notifications", employeeId] });
+          queryClient.invalidateQueries({ queryKey: ["engagement-notifications", tenantId, employeeId] });
         }
       )
       .subscribe();
@@ -62,7 +62,7 @@ export function useEngagementNotifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [employeeId, queryClient]);
+  }, [employeeId, tenantId, queryClient]);
 
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.is_read).length,
@@ -72,13 +72,13 @@ export function useEngagementNotifications() {
   const markAsRead = useMutation({
     mutationFn: async (notificationId: string) => {
       const { error } = await supabase
-        .from("engagement_notifications" as any)
-        .update({ is_read: true } as any)
+        .from("engagement_notifications")
+        .update({ is_read: true })
         .eq("id", notificationId);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["engagement-notifications", employeeId] });
+      queryClient.invalidateQueries({ queryKey: ["engagement-notifications", tenantId, employeeId] });
     },
   });
 
@@ -87,13 +87,13 @@ export function useEngagementNotifications() {
       const unreadIds = notifications.filter((n) => !n.is_read).map((n) => n.id);
       if (unreadIds.length === 0) return;
       const { error } = await supabase
-        .from("engagement_notifications" as any)
-        .update({ is_read: true } as any)
+        .from("engagement_notifications")
+        .update({ is_read: true })
         .in("id", unreadIds);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["engagement-notifications", employeeId] });
+      queryClient.invalidateQueries({ queryKey: ["engagement-notifications", tenantId, employeeId] });
     },
   });
 

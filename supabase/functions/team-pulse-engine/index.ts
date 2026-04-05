@@ -520,7 +520,7 @@ Analyze this ${mode} engagement data and generate a structured engagement insigh
         target_value: insight.targetValue ?? 0,
         current_value: insight.currentValue ?? 0,
         target_date: todayStr,
-      }, { onConflict: "idx_pulse_targets_unique_daily", ignoreDuplicates: true });
+      }, { onConflict: "employee_id,scope,target_date", ignoreDuplicates: true });
     } catch (targetErr) {
       console.error("Failed to persist pulse target:", targetErr);
     }
