@@ -90,6 +90,14 @@ const RECOGNITION_ICONS: Record<string, typeof Rss> = {
   award_won: Award,
 };
 
+const ENGAGEMENT_ICONS: Record<string, typeof Rss> = {
+  engagement_drop: TrendingDown,
+  appreciation_reminder: Heart,
+  pulse_nudge: Activity,
+  manager_team_alert: AlertTriangle,
+  action_followup: BellRing,
+};
+
 const TASK_COLORS: Record<string, string> = {
   assigned: 'text-chart-2',
   status_changed: 'text-chart-4',
