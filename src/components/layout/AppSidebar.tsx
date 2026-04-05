@@ -490,36 +490,87 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                     {/* Sub-items */}
                     <CollapsibleContent>
                       <div className="ms-7 mt-1 flex flex-col gap-0.5">
-                        {group.items.map((item) => {
-                          const active = isItemActive(item.url);
-                          return (
-                            <React.Fragment key={item.url}>
-                              {item.sectionLabel && (
-                                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 mt-2 mb-0.5 px-2.5">
-                                  {item.sectionLabel}
-                                </span>
-                              )}
-                              <NavLink
-                                to={item.url}
-                                end={item.url === '/'}
-                                className={cn(
-                                  "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
-                                  "text-sidebar-foreground/80 hover:bg-muted/50 hover:text-sidebar-foreground"
-                                )}
-                                activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
-                                onClick={handleNavClick}
+                        {(() => {
+                          // Group items into sections for collapsible rendering
+                          const sections: { label: string | null; items: typeof group.items }[] = [];
+                          group.items.forEach((item) => {
+                            if (item.sectionLabel) {
+                              sections.push({ label: item.sectionLabel, items: [item] });
+                            } else if (sections.length > 0) {
+                              sections[sections.length - 1].items.push(item);
+                            } else {
+                              sections.push({ label: null, items: [item] });
+                            }
+                          });
+
+                          return sections.map((section, sIdx) => {
+                            if (!section.label) {
+                              return section.items.map((item) => (
+                                <NavLink
+                                  key={item.url}
+                                  to={item.url}
+                                  end={item.url === '/'}
+                                  className={cn(
+                                    "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
+                                    "text-sidebar-foreground/80 hover:bg-muted/50 hover:text-sidebar-foreground"
+                                  )}
+                                  activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
+                                  onClick={handleNavClick}
+                                >
+                                  <item.icon className="h-4 w-4 shrink-0" />
+                                  <span className="truncate">{item.title}</span>
+                                </NavLink>
+                              ));
+                            }
+
+                            const isSectionActive = section.items.some(i => isItemActive(i.url));
+
+                            return (
+                              <Collapsible
+                                key={section.label}
+                                defaultOpen={isSectionActive}
+                                className="group/section"
                               >
-                                <item.icon className="h-4 w-4 shrink-0" />
-                                <span className="truncate">{item.title}</span>
-                                {item.badge && (
-                                  <span className="ms-auto inline-flex items-center rounded-lg bg-sidebar-primary px-1.5 py-0.5 text-xs font-medium text-sidebar-primary-foreground">
-                                    {item.badge}
-                                  </span>
-                                )}
-                              </NavLink>
-                            </React.Fragment>
-                          );
-                        })}
+                                <CollapsibleTrigger asChild>
+                                  <button className={cn(
+                                    "flex h-7 w-full items-center gap-1.5 rounded-md px-2.5 mt-1.5 transition-colors",
+                                    isSectionActive
+                                      ? "text-sidebar-primary"
+                                      : "text-muted-foreground/60 hover:text-muted-foreground"
+                                  )}>
+                                    <ChevronRight className="h-3 w-3 shrink-0 transition-transform duration-200 group-data-[state=open]/section:rotate-90 rtl:-scale-x-100" />
+                                    <span className="text-[10px] font-semibold uppercase tracking-wider">{section.label}</span>
+                                  </button>
+                                </CollapsibleTrigger>
+                                <CollapsibleContent>
+                                  <div className="flex flex-col gap-0.5 mt-0.5">
+                                    {section.items.map((item) => (
+                                      <NavLink
+                                        key={item.url}
+                                        to={item.url}
+                                        end={item.url === '/'}
+                                        className={cn(
+                                          "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
+                                          "text-sidebar-foreground/80 hover:bg-muted/50 hover:text-sidebar-foreground"
+                                        )}
+                                        activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
+                                        onClick={handleNavClick}
+                                      >
+                                        <item.icon className="h-4 w-4 shrink-0" />
+                                        <span className="truncate">{item.title}</span>
+                                        {item.badge && (
+                                          <span className="ms-auto inline-flex items-center rounded-lg bg-sidebar-primary px-1.5 py-0.5 text-xs font-medium text-sidebar-primary-foreground">
+                                            {item.badge}
+                                          </span>
+                                        )}
+                                      </NavLink>
+                                    ))}
+                                  </div>
+                                </CollapsibleContent>
+                              </Collapsible>
+                            );
+                          });
+                        })()}
 
                         {/* Mental Toolkit nested sections inside Wellness */}
                         {isWellnessGroup && mentalToolkitSections.map((section, sectionIdx) => {
