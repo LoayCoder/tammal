@@ -200,7 +200,7 @@ interface NotificationContentProps {
 }
 
 function NotificationContent({
-  tab, setTab, filtered, totalUnread, taskUnread, crisisUnread, recognitionUnread,
+  tab, setTab, filtered, totalUnread, taskUnread, crisisUnread, recognitionUnread, engagementUnread,
   onMarkAllRead, onItemClick, isMobile, t,
 }: NotificationContentProps) {
   const { i18n } = useTranslation();
