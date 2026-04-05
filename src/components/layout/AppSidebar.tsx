@@ -44,6 +44,7 @@ interface MenuItem {
   icon: React.ComponentType<{ className?: string }>;
   access?: MenuAccess;
   badge?: number;
+  sectionLabel?: string;
 }
 
 interface MenuGroup {
@@ -211,18 +212,21 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       access: 'all',
       icon: Target,
       items: [
-        { title: t('nav.myWorkload'), url: "/my-workload", icon: ClipboardList, access: 'employee' },
+        // — Employee
+        { title: t('nav.myWorkload'), url: "/my-workload", icon: ClipboardList, access: 'employee', sectionLabel: t('nav.workloadGroupEmployee') },
         { title: t('nav.objectives'), url: "/admin/workload/objectives", icon: Target, access: 'all' },
-        { title: t('nav.workloadDashboard'), url: "/admin/workload/dashboard", icon: Gauge, access: 'admin' },
-        { title: t('nav.teamWorkload'), url: "/admin/workload/team", icon: Users2, access: 'admin' },
-        { title: t('nav.taskConnectors'), url: "/admin/workload/connectors", icon: Plug, access: 'all' },
+        // — Manager
+        { title: t('nav.teamWorkload'), url: "/admin/workload/team", icon: Users2, access: 'admin', sectionLabel: t('nav.workloadGroupManager') },
         { title: t('nav.representativeWorkload'), url: "/admin/workload/representative", icon: UserCog, access: 'all' },
+        { title: t('nav.capacityPlanner'), url: "/admin/workload/capacity", icon: BarChart3, access: 'admin' },
+        { title: t('nav.overdueTasks'), url: "/admin/workload/overdue", icon: AlertTriangle, access: 'admin' },
+        // — Admin
+        { title: t('nav.workloadDashboard'), url: "/admin/workload/dashboard", icon: Gauge, access: 'admin', sectionLabel: t('nav.workloadGroupAdmin') },
         { title: t('nav.portfolio'), url: "/admin/workload/portfolio", icon: Briefcase, access: 'admin' },
         { title: t('nav.executive'), url: "/admin/workload/executive", icon: BarChart, access: 'admin' },
-        { title: t('nav.capacityPlanner'), url: "/admin/workload/capacity", icon: BarChart3, access: 'admin' },
         { title: t('nav.taskAnalytics'), url: "/tasks/analytics", icon: BarChart, access: 'admin' },
         { title: t('nav.recurringTasks'), url: "/tasks/recurring", icon: RefreshCw, access: 'admin' },
-        { title: t('nav.overdueTasks'), url: "/admin/workload/overdue", icon: AlertTriangle, access: 'admin' },
+        { title: t('nav.taskConnectors'), url: "/admin/workload/connectors", icon: Plug, access: 'all' },
         { title: t('nav.escalationSettings'), url: "/admin/workload/escalation", icon: Shield, access: 'admin' },
         { title: t('nav.systemHealth'), url: "/admin/workload/system-health", icon: Shield, access: 'admin' },
       ]
@@ -489,25 +493,31 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                         {group.items.map((item) => {
                           const active = isItemActive(item.url);
                           return (
-                            <NavLink
-                              key={item.url}
-                              to={item.url}
-                              end={item.url === '/'}
-                              className={cn(
-                                "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
-                                "text-sidebar-foreground/80 hover:bg-muted/50 hover:text-sidebar-foreground"
-                              )}
-                              activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
-                              onClick={handleNavClick}
-                            >
-                              <item.icon className="h-4 w-4 shrink-0" />
-                              <span className="truncate">{item.title}</span>
-                              {item.badge && (
-                                <span className="ms-auto inline-flex items-center rounded-lg bg-sidebar-primary px-1.5 py-0.5 text-xs font-medium text-sidebar-primary-foreground">
-                                  {item.badge}
+                            <React.Fragment key={item.url}>
+                              {item.sectionLabel && (
+                                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 mt-2 mb-0.5 px-2.5">
+                                  {item.sectionLabel}
                                 </span>
                               )}
-                            </NavLink>
+                              <NavLink
+                                to={item.url}
+                                end={item.url === '/'}
+                                className={cn(
+                                  "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
+                                  "text-sidebar-foreground/80 hover:bg-muted/50 hover:text-sidebar-foreground"
+                                )}
+                                activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
+                                onClick={handleNavClick}
+                              >
+                                <item.icon className="h-4 w-4 shrink-0" />
+                                <span className="truncate">{item.title}</span>
+                                {item.badge && (
+                                  <span className="ms-auto inline-flex items-center rounded-lg bg-sidebar-primary px-1.5 py-0.5 text-xs font-medium text-sidebar-primary-foreground">
+                                    {item.badge}
+                                  </span>
+                                )}
+                              </NavLink>
+                            </React.Fragment>
                           );
                         })}
 
