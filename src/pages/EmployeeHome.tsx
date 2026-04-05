@@ -26,7 +26,7 @@ import { DashboardEndorsementRequests } from '@/components/dashboard/DashboardEn
 import { DashboardShortlistWidget } from '@/components/dashboard/DashboardShortlistWidget';
 import { DashboardVotingWidget } from '@/components/dashboard/DashboardVotingWidget';
 import { WellnessCopilotCard } from '@/features/wellness-copilot';
-import { TeamPulseCard, QuickAppreciationCard } from '@/features/team-pulse';
+import { TeamPulseCard, QuickAppreciationCard, AppreciationActivityWidget } from '@/features/team-pulse';
 import { EngagementRankBadge } from '@/components/dashboard/EngagementRankBadge';
 import { useEmployeeEngagementRank } from '@/hooks/wellness/useEmployeeEngagementRank';
 import { cardVariants, typography } from "@/theme/tokens";
