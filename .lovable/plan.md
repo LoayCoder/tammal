@@ -1,21 +1,43 @@
 
 
-## Fix: `/employee/command-center` → 404
+## Unified Gamification Dashboard
 
-### Root Cause
-The `PersonalCommandCenter` component is routed at `/my-workload` in `App.tsx`. There is no route for `/employee/command-center`. The user navigated to a non-existent path.
+### Overview
+Create a new page at `/gamification` that consolidates all gamification data into a single premium view: wellness streaks, recognition points balance, engagement rank, and full achievement/transaction history.
 
-### Recommended Fix
-Add a redirect in `App.tsx` so `/employee/command-center` redirects to `/my-workload` (keeping backward compatibility):
+### Data Sources (existing hooks, no new DB tables needed)
+- **Wellness streaks & points**: `useGamification(employeeId)` → streak, totalPoints
+- **Recognition points**: `usePoints()` → balance, expiringWithin30Days, transactions
+- **Engagement rank**: `useEmployeeEngagementRank(employeeId, tenantId)` → rank, totalEmployees
+- **Redemption history**: `useRedemptionRequests()` → requests
 
-**File: `src/App.tsx`**
-- After the existing redirect lines (~208-209), add:
-```tsx
-<Route path="/employee/command-center" element={<Navigate to="/my-workload" replace />} />
-```
+### Files to Create
 
-This is a single-line change. No other files need modification.
+**1. `src/pages/GamificationDashboard.tsx`**
+- Uses `PageHeader` (flush variant) with a Trophy icon
+- **Top row** — 4 `MetricCard` stats via `DashboardGrid columns={4}`:
+  - Current Streak (Flame icon, streak count + "days" description)
+  - Wellness Points (Star icon, totalPoints from mood entries)
+  - Recognition Balance (Coins icon, balance + expiring-soon warning)
+  - Engagement Rank (Medal icon, #rank / totalEmployees)
+- **Middle section** — `EngagementRankBadge` component (existing premium card, reused as-is)
+- **Bottom section** — `Tabs` with two tabs:
+  - "Points History" → reuses `TransactionHistory` component
+  - "Redemptions" → reuses redemption list from `PointsDashboard`
+- Loading state: skeleton placeholders
 
-### Alternative
-If you prefer `/employee/command-center` as the canonical URL, I would change the main route path and update all sidebar references. Let me know which approach you prefer.
+### Files to Modify
+
+**2. `src/App.tsx`**
+- Add lazy import for `GamificationDashboard`
+- Add route: `<Route path="/gamification" element={<GamificationDashboard />} />`
+
+**3. `src/components/layout/AppSidebar.tsx`**
+- Add "Gamification" nav item under the appropriate employee-facing group, pointing to `/gamification`
+
+### Design Approach
+- Reuses existing system components (`PageHeader`, `MetricCard`, `DashboardGrid`, `Tabs`) and design tokens (`cardVariants`, `typography`)
+- No new database tables or migrations
+- RTL-compatible using logical properties
+- All data via existing hooks — no direct Supabase calls in the page
 
