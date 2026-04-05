@@ -42,6 +42,10 @@ export function OrgDashboard() {
 
       <ErrorBoundary><OrgWorkloadIndicator /></ErrorBoundary>
 
+      {employee?.id && (
+        <ErrorBoundary><TeamPulseCard employeeId={employee.id} /></ErrorBoundary>
+      )}
+
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="h-auto gap-1">
           <TabsTrigger value="overview">{t('orgDashboard.tabs.overview')}</TabsTrigger>
