@@ -160,15 +160,25 @@ function normalizeRecognition(n: RecognitionNotification): UnifiedNotification {
   };
 }
 
+function normalizeEngagement(n: EngagementNotification): UnifiedNotification {
+  return {
+    id: n.id, type: n.type, title: n.title, body: n.body,
+    is_read: n.is_read, created_at: n.created_at, source: 'engagement',
+    navigateTo: n.action_path || '/',
+  };
+}
+
 function getIcon(n: UnifiedNotification) {
   if (n.source === 'task') return TASK_ICONS[n.type] ?? Rss;
   if (n.source === 'crisis') return CRISIS_ICONS[n.type] ?? Rss;
+  if (n.source === 'engagement') return ENGAGEMENT_ICONS[n.type] ?? Activity;
   return RECOGNITION_ICONS[n.type] ?? Award;
 }
 
 function getColor(n: UnifiedNotification) {
   if (n.source === 'task') return TASK_COLORS[n.type] ?? 'text-muted-foreground';
   if (n.source === 'crisis') return CRISIS_COLORS[n.type] ?? 'text-muted-foreground';
+  if (n.source === 'engagement') return ENGAGEMENT_COLORS[n.type] ?? 'text-muted-foreground';
   return RECOGNITION_COLORS[n.type] ?? 'text-muted-foreground';
 }
 
