@@ -2498,6 +2498,7 @@
     "tasks": "المهام",
     "crisis": "الأزمات",
     "recognition": "التقدير",
+    "engagement": "التفاعل",
     "endorsementRequested": "{{name}} طلب تأييدك",
     "endorsementRequestedBody": "يرجى مراجعة وتأييد الترشيح لـ \"{{headline}}\"",
     "empty": "لا توجد إشعارات بعد",
