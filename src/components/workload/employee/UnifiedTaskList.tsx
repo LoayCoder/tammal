@@ -6,6 +6,7 @@ import { MoreHorizontal, Pencil, Trash2, ExternalLink, Lock, MessageSquare, Chec
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import type { UnifiedTask } from '@/features/workload/hooks/useUnifiedTasks';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { SlaCountdownBadge } from '@/components/workload/governance/SlaCountdownBadge';
 
 interface UnifiedTaskListProps {
   tasks: UnifiedTask[];

@@ -47,7 +47,7 @@ export function TammalWeightsSettings() {
     mutationFn: async () => {
       const { error } = await supabase
         .from('tenants')
-        .update({ tammal_weights: local } as any)
+        .update({ tammal_weights: local } as Record<string, unknown>)
         .eq('id', tenantId!);
       if (error) throw error;
     },
