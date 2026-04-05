@@ -77,7 +77,7 @@ export function PulseInsightBlock({ insight, trend, engagementScore, impactReaso
 
       {/* Score gauge + Trend */}
       <div className="flex items-end gap-3">
-        <ScoreGauge score={engagementScore} />
+        <ScoreGauge score={engagementScore} large={isMobile} />
         <div className={cn("flex items-center gap-1 rounded-full px-2 py-0.5", bg)}>
           <TrendIcon className={cn("h-3 w-3", color)} strokeWidth={2} />
           <span className={cn("text-2xs font-medium", color)}>{label}</span>

@@ -4,6 +4,8 @@ import { SaasStatsSection } from './SaasStatsSection';
 import { AuditLogTable } from '@/components/audit/AuditLogTable';
 import { useAuditLog } from '@/hooks/audit/useAuditLog';
 import { cardVariants, typography } from '@/theme/tokens';
+import { TeamPulseCard } from '@/features/team-pulse/components/TeamPulseCard';
+import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 
 interface DashboardOverviewTabProps {
   isSuperAdmin: boolean;
@@ -12,6 +14,7 @@ interface DashboardOverviewTabProps {
 export function DashboardOverviewTab({ isSuperAdmin }: DashboardOverviewTabProps) {
   const { t } = useTranslation();
   const { logs, isPending: logsLoading } = useAuditLog({ limit: 5 });
+  const { employee } = useCurrentEmployee();
 
   return (
     <div className="space-y-6">
@@ -22,6 +25,10 @@ export function DashboardOverviewTab({ isSuperAdmin }: DashboardOverviewTabProps
           <h1 className={typography.pageTitle}>{t('dashboard.title')}</h1>
           <p className="text-muted-foreground">{t('dashboard.welcome')}</p>
         </div>
+      )}
+
+      {employee?.id && (
+        <TeamPulseCard employeeId={employee.id} />
       )}
 
       <Card className={cardVariants.glass}>
