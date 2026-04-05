@@ -29,6 +29,7 @@ const modeSubLabels: Record<string, string> = {
 };
 
 export function TeamPulseCard({ employeeId }: Props) {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { employee } = useCurrentEmployee();
   const { allowedModes, selectedMode, setMode, showModeSwitcher } = usePulseModes(employeeId);
