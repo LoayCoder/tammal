@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useHasRole } from "@/hooks/auth/useUserPermissions";
+import { useTenantId } from "@/hooks/org/useTenantId";
 import type { PulseMode } from "./useTeamPulse";
 
 const STORAGE_KEY = "pulse-last-mode";
