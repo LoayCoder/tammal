@@ -4546,5 +4546,28 @@
     "deleteError": "فشل حذف القالب",
     "deleteConfirm": "حذف القالب؟",
     "deleteDescription": "سيتم حذف هذا القالب. لن تتأثر المهام الموجودة التي تم إنشاؤها منه."
+  },
+  "copilot": {
+    "title": "مساعد الرفاهية",
+    "modePersonal": "شخصي",
+    "modeTeam": "الفريق",
+    "modeOrganization": "المنظمة",
+    "insight": "ملاحظة",
+    "action": "الإجراء الموصى به",
+    "whyMatters": "لماذا هذا مهم",
+    "basedOn": "بناءً على",
+    "urgencyOpportunity": "فرصة",
+    "urgencyNeutral": "عادي",
+    "urgencyAttention": "انتباه",
+    "urgencyUrgent": "عاجل",
+    "insufficientData": "نحتاج إلى مزيد من النشاط لتقديم تحليل موثوق.",
+    "ctaCheckin": "أكمل تسجيل الحضور",
+    "ctaWorkload": "مراجعة عبء العمل",
+    "ctaTeam": "عرض الفريق",
+    "ctaSurvey": "إطلاق استبيان",
+    "ctaInsights": "عرض التحليلات",
+    "ctaBreak": "خذ استراحة",
+    "ctaTasks": "مراجعة المهام",
+    "ctaManageTeam": "إدارة الفريق"
   }
 }

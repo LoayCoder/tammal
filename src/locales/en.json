@@ -4546,5 +4546,28 @@
     "deleteError": "Failed to delete template",
     "deleteConfirm": "Delete Template?",
     "deleteDescription": "This template will be removed. Existing tasks created from it won't be affected."
+  },
+  "copilot": {
+    "title": "Wellness Copilot",
+    "modePersonal": "Personal",
+    "modeTeam": "Team",
+    "modeOrganization": "Organization",
+    "insight": "Insight",
+    "action": "Recommended Action",
+    "whyMatters": "Why this matters",
+    "basedOn": "Based on",
+    "urgencyOpportunity": "Opportunity",
+    "urgencyNeutral": "Neutral",
+    "urgencyAttention": "Attention",
+    "urgencyUrgent": "Urgent",
+    "insufficientData": "We need a little more activity to generate a reliable insight.",
+    "ctaCheckin": "Complete Check-in",
+    "ctaWorkload": "Review Workload",
+    "ctaTeam": "View Team",
+    "ctaSurvey": "Launch Survey",
+    "ctaInsights": "View Insights",
+    "ctaBreak": "Take a Break",
+    "ctaTasks": "Review Tasks",
+    "ctaManageTeam": "Manage Team"
   }
 }

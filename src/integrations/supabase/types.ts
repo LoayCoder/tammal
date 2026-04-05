@@ -1549,6 +1549,41 @@ export type Database = {
           },
         ]
       }
+      copilot_insight_cache: {
+        Row: {
+          created_at: string
+          id: string
+          insight_data: Json
+          insight_date: string
+          scope_key: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          insight_data: Json
+          insight_date?: string
+          scope_key: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          insight_data?: Json
+          insight_date?: string
+          scope_key?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "copilot_insight_cache_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_question_schedule: {
         Row: {
           created_at: string
