@@ -1,88 +1,92 @@
 
 
-## Phase 6 — Premium VIP UX & Design System Integration
+## Phase 7 — Mobile App Integration
 
 ### Assessment
 
-The Team Pulse components already use `cardVariants.premiumVip`, semantic colors (`chart-1`, `chart-4`, `destructive`), and `strokeWidth={1.5}` consistently. However, several components have design system gaps that reduce the premium feel.
+The Team Pulse feature is **already integrated** into the employee dashboard (`EmployeeHome.tsx`) and renders on all viewports. The current state:
 
-### Identified Issues
+| Aspect | Status |
+|--------|--------|
+| Dashboard placement | Done — `TeamPulseCard` at position #4 in EmployeeHome |
+| Role-aware modes | Done — `usePulseModes` resolves personal/team/org based on roles |
+| Admin view | Done — Admins see personal tab via Dashboard.tsx `canSwitch` + org mode in PulseModeSwitcher |
+| Manager view | Done — Managers/those with direct reports get team mode |
+| Responsive layout | Partial — components use full-width but no mobile-specific optimizations |
 
-| Component | Issue |
-|-----------|-------|
-| `PulseInsightBlock` | No section label; score lacks a visual gauge; `impactReason` italic style feels weak |
-| `PulseTargetBlock` | Uses raw `bg-muted/5` instead of a token-derived surface; no subtle animation on progress bar |
-| `PulseActionPath` | CTA button uses inline gradient classes instead of a reusable premium CTA pattern; `recommendedAction` text has no section header |
-| `PulseNudgeCard` | Link-style CTA at bottom feels weak — should be a contained button matching premium style |
-| `PulseModeSwitcher` | Functional but uses raw `bg-muted/10` — needs premium-badge surface for active tab |
-| `TeamPulseCard` | Team Kudos Nudge button uses raw inline classes; overall section dividers missing between content blocks |
-| `AppreciationActivityWidget` | Category label translation uses brittle string concatenation that will break for some categories |
-| `PulseSkeleton` | Missing shimmer effect — uses plain `animate-pulse` without premium surface |
-| General | No entrance animations; no visual separators between insight/target/action blocks |
+### Gaps to Address
+
+| Gap | Description |
+|-----|-------------|
+| **No mobile-aware layout adjustments** | All pulse sub-blocks (gauge, target, action, nudge) render identically on 384px and 1920px — no density optimization |
+| **Touch targets too small** | Category chips in `QuickAppreciationCard` (py-1.5), mode switcher tabs (py-2), and CTA buttons could be larger on mobile |
+| **No swipe/gesture support on mode switcher** | Mode tabs are tap-only; on mobile a swipeable pill pattern feels more natural |
+| **Gauge SVG not size-adaptive** | Fixed 64px gauge; could be slightly larger on mobile where it's the hero element |
+| **Appreciation form not mobile-optimized** | Native `<select>` is fine but textarea lacks mobile keyboard handling (`enterKeyHint`) |
+| **No haptic-like feedback** | No `active:scale` press states on interactive elements |
+| **Admin/Manager don't see pulse on their admin dashboard tabs** | `DashboardOverviewTab` and `OrgDashboard` don't include pulse — only available via personal tab |
 
 ### Plan
 
-#### 1. Add Engagement Score Gauge to `PulseInsightBlock`
+#### 1. Mobile touch target and density optimization
 
-Replace the plain `text-3xl` score with a compact semi-circle gauge (SVG arc, ~64px) using semantic score colors. Add a `typography.statLabel` section header ("Engagement Score"). Move `impactReason` from italic to a bordered callout with a subtle `Sparkles` icon.
+**Files**: `PulseModeSwitcher.tsx`, `PulseActionPath.tsx`, `PulseNudgeCard.tsx`, `QuickAppreciationCard.tsx`
 
-#### 2. Elevate `PulseTargetBlock`
+- Increase tap targets to minimum 44px on mobile: mode switcher tabs `min-h-[44px]`, CTA buttons `py-3 sm:py-2.5`
+- Add `active:scale-[0.98]` press feedback to all interactive buttons
+- Add `enterKeyHint="send"` to appreciation textarea
+- Increase category chip padding on mobile: `py-2 sm:py-1.5`
 
-- Replace `bg-muted/5` with `premium-badge` surface class
-- Add `transition-all duration-700 ease-out` to the progress bar fill for smooth entrance
-- Use `typography.statLabel` for the target label
-- Add a percentage badge next to the progress bar
+#### 2. Responsive gauge sizing
 
-#### 3. Refine `PulseActionPath`
+**File**: `PulseInsightBlock.tsx`
 
-- Add a `typography.statLabel` section header ("Recommended Action")
-- Replace inline gradient classes with a reusable premium CTA style using `primary` tokens
-- Add subtle `hover:-translate-y-0.5` lift effect
-- Use `useNavigate` from react-router instead of `window.location.href`
+- Use `useIsMobile()` to render gauge at 72px on mobile (vs 64px desktop) — the gauge is the hero visual and deserves prominence on small screens
+- Adjust score text size accordingly: `text-xl` on mobile, `text-lg` on desktop
 
-#### 4. Upgrade `PulseNudgeCard`
+#### 3. Admin/Manager dashboard pulse integration
 
-- Replace the link-style CTA with a contained outline button matching the severity color
-- Add `rounded-xl` container with `premium-card` surface instead of raw color/opacity classes
-- Add entrance animation via `animate-in fade-in slide-in-from-bottom-2`
+**File**: `DashboardOverviewTab.tsx`
 
-#### 5. Polish `PulseModeSwitcher`
+- Add a compact `TeamPulseCard` to the admin overview tab so managers/admins see org-level pulse without switching to personal tab
+- Conditionally render only when employee data is available
 
-- Active tab: use `premium-badge` class for the selected state instead of raw `bg-primary/10`
-- Add `transition-all duration-200` for smoother tab transitions
+#### 4. Smooth transitions and motion
 
-#### 6. Refine `TeamPulseCard` Layout
+**Files**: `TeamPulseCard.tsx`, `PulseModeSwitcher.tsx`
 
-- Add thin separator lines (`border-t border-border/10`) between insight, target, and action blocks
-- Extract kudos nudge button to match the same premium CTA pattern as `PulseActionPath`
-- Add staggered entrance animations (`animate-in` with increasing delays) to child blocks
+- Add `scroll-smooth` to the card container so mode switches feel fluid
+- Add `transition-all duration-300` to mode content area for smooth content swap
+- Ensure staggered `animate-fade-in` delays on child blocks (already partially done)
 
-#### 7. Fix `AppreciationActivityWidget` Category Labels
+#### 5. Mobile-first appreciation form
 
-- Replace brittle string manipulation with a clean `CATEGORY_LABEL_KEYS` map for translation keys
-- Ensure RTL `text-end` is used consistently (already present)
+**File**: `QuickAppreciationCard.tsx`
 
-#### 8. Upgrade `PulseSkeleton`
+- Add `autoComplete="off"` and `enterKeyHint="send"` to textarea
+- Ensure colleague `<select>` has adequate height for touch (`h-11`)
+- Add send button `active:scale-[0.97]` for tactile press response
 
-- Use `premium-card` surface behind skeleton elements for visual consistency with loaded state
+#### 6. Localization keys for mobile-specific copy (if needed)
+
+No new keys required — existing labels are concise enough for mobile.
 
 ### Files Summary
 
 | File | Change |
 |------|--------|
-| `src/features/team-pulse/components/PulseInsightBlock.tsx` | Score gauge, section label, impactReason callout |
-| `src/features/team-pulse/components/PulseTargetBlock.tsx` | Premium surface, animated progress, percentage badge |
-| `src/features/team-pulse/components/PulseActionPath.tsx` | Section header, premium CTA, useNavigate |
-| `src/features/team-pulse/components/PulseNudgeCard.tsx` | Contained button, premium surface, entrance animation |
-| `src/features/team-pulse/components/PulseModeSwitcher.tsx` | Premium-badge active state |
-| `src/features/team-pulse/components/TeamPulseCard.tsx` | Separators, staggered entrance, refined kudos button |
-| `src/features/team-pulse/components/AppreciationActivityWidget.tsx` | Clean category label map |
-| `src/features/team-pulse/components/PulseSkeleton.tsx` | Premium surface |
+| `src/features/team-pulse/components/PulseInsightBlock.tsx` | Responsive gauge size |
+| `src/features/team-pulse/components/PulseModeSwitcher.tsx` | Touch targets, press states |
+| `src/features/team-pulse/components/PulseActionPath.tsx` | Touch targets, press states |
+| `src/features/team-pulse/components/PulseNudgeCard.tsx` | Touch targets, press states |
+| `src/features/team-pulse/components/QuickAppreciationCard.tsx` | Mobile form UX, touch targets |
+| `src/features/team-pulse/components/TeamPulseCard.tsx` | Smooth transitions, stagger |
+| `src/components/dashboard/DashboardOverviewTab.tsx` | Add TeamPulseCard for admin view |
 
 ### What Is Not Changing
 
-- No new tables or migrations
-- No edge function changes
+- No database or edge function changes
+- No new routes or pages
 - No new dependencies
-- All changes are purely visual/UX refinements using existing design tokens
+- Widget priority order in EmployeeHome stays the same
 
