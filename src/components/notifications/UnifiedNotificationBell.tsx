@@ -47,7 +47,7 @@ function getTranslatedBody(n: UnifiedNotification, t: (key: string, opts?: any) 
   return translated || n.body;
 }
 
-type NotificationSource = 'task' | 'crisis' | 'recognition';
+type NotificationSource = 'task' | 'crisis' | 'recognition' | 'engagement';
 
 interface UnifiedNotification {
   id: string;
