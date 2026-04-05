@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { useTenantId } from "@/hooks/org/useTenantId";
 import { useCurrentEmployee } from "@/hooks/auth/useCurrentEmployee";
+import { useEngagementActionLog } from "./useEngagementActionLog";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
