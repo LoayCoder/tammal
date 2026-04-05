@@ -12,6 +12,8 @@ import {
   ComparisonTab,
 } from '@/features/org-dashboard';
 import { OrgWorkloadIndicator } from '@/features/org-dashboard/components/OrgWorkloadIndicator';
+import { TeamPulseCard } from '@/features/team-pulse';
+import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 
 export function OrgDashboard() {
   const { t } = useTranslation();
