@@ -30,7 +30,7 @@ export const EngagementActionTable = memo(function EngagementActionTable({ data,
       header: t("engagementInsights.colDate"),
       cell: (row) => (
         <span className="text-xs text-muted-foreground tabular-nums">
-          {format(new Date(row.createdAt), "MMM dd, HH:mm")}
+          {format(new Date(row.createdAt), "MMM dd, HH:mm", { locale: i18n.language === "ar" ? arLocale : enUS })}
         </span>
       ),
     },

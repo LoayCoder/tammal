@@ -60,7 +60,7 @@ export function useAppreciations() {
       if (error) throw error;
       return data as unknown as Appreciation[];
     },
-    enabled: !!employee?.id,
+    enabled: !!employee?.id && !!tenantId,
   });
 
   const sendAppreciation = useMutation({
