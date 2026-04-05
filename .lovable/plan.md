@@ -1,35 +1,49 @@
 
-Fix the Risk Trend card at the chart level and the mobile card/container level, because the current issue is not fully solved by Y-axis padding alone.
 
-### What to change
+## Add Employee Engagement Rank Badge to Personal Dashboard
 
-1. Fix Risk Trend chart overflow on mobile
-- In `src/components/dashboard/RiskTrendChart.tsx`:
-  - Increase chart top/bottom breathing room more aggressively for mobile.
-  - Change the Y-axis from fixed `domain={[0, 100]}` to a safer auto/padded setup so the top point at `100%` and bottom point at `0%` do not touch the edges.
-  - Reduce active dot size on small screens.
-  - Add `allowDataOverflow={false}` and slightly larger chart margins.
-  - Move or simplify the `ReferenceLine` label on mobile, because `insideTopRight` can visually collide with the chart edge.
+### What We're Building
+A premium motivational widget on the employee's personal dashboard showing their engagement rank within the organization — e.g., "Rank #3 out of 142 employees" — with a visually distinct medal/trophy icon for top 3, and a clean badge for others.
 
-2. Prevent card content from being clipped by parent wrappers
-- In `src/features/org-dashboard/components/OverviewTab.tsx`:
-  - Update `CollapsibleCard` so the hide/show button is always visible on mobile, not only on hover.
-  - Ensure the wrapper around `RiskTrendChart` does not visually crop chart content when rendered inside the collapsible container.
-  - Add a mobile-safe spacing rule around chart cards so headers/buttons do not overlap the chart area.
+### How It Works
 
-3. Match the same mobile-safe chart pattern used across analytics cards
-- Re-check `CategoryHealthChart.tsx` and `AffectiveStateChart.tsx` for consistency, but prioritize `RiskTrendChart` since that is the remaining broken card.
-- Keep all styles aligned with the existing design tokens and RTL-safe utilities.
+**1. New Hook: `useEmployeeEngagementRank`**
+- **File**: `src/hooks/wellness/useEmployeeEngagementRank.ts`
+- Query the same data source as `computeTopEngagers` but scoped to the current employee
+- Steps:
+  1. Fetch all mood entries for the tenant in the last 30 days
+  2. Compute streak per employee (reuse `computeStreak` logic)
+  3. Sort all employees by streak desc, then response count desc
+  4. Find the current employee's position in the sorted list
+  5. Return `{ rank: number, totalEmployees: number, isLoading: boolean }`
+- Cache with React Query key `['engagement-rank', tenantId, employeeId]`, `staleTime: 5min`
 
-### Likely root cause
-The session replay shows the active dot still rendering very close to the top and bottom edges (`cy` near chart limits), which means the line itself is still reaching the container boundary. Also, the current card wrapper uses an absolutely positioned control that may overlap the chart area on mobile.
+**2. New Component: `EngagementRankBadge`**
+- **File**: `src/components/dashboard/EngagementRankBadge.tsx`
+- Premium VIP card design showing:
+  - Medal icon for top 3 (gold/silver/bronze using semantic rank tokens) or a `Trophy` icon for others
+  - Large bold rank number: "#3"
+  - Context line: "out of 142 employees" (localized AR/EN)
+  - Subtle motivational text for top 3: "You're a top performer!" / for others: "Keep engaging to climb the ranks!"
+- Design: `premium-card` surface, `rounded-2xl`, smooth hover state, compact layout fitting the greeting area or as a standalone widget
+- Full AR translation support
 
-### Files to update
-- `src/components/dashboard/RiskTrendChart.tsx`
-- `src/features/org-dashboard/components/OverviewTab.tsx`
+**3. Integration into Employee Dashboard**
+- **File**: `src/pages/EmployeeHome.tsx`
+- Place the rank badge in the greeting header area, next to the existing streak/points chips — or as a small standalone card right after the greeting section
+- Only show when rank data is available (not loading, employee has entries)
 
-### Expected result
-- Risk Trend line and dots are fully visible on mobile
-- No top/bottom clipping at 0% or 100%
-- No overlap between the hide button and chart content
-- Card remains clean, premium, and responsive in Arabic and English
+**4. Localization**
+- **Files**: `src/locales/en.json`, `src/locales/ar.json`
+- Keys: `home.engagementRank`, `home.outOfEmployees`, `home.topPerformer`, `home.keepEngaging`, `home.yourRank`
+
+### Files Summary
+
+| File | Change |
+|------|--------|
+| `src/hooks/wellness/useEmployeeEngagementRank.ts` | **New** — fetch employee's rank position |
+| `src/components/dashboard/EngagementRankBadge.tsx` | **New** — premium rank badge component |
+| `src/pages/EmployeeHome.tsx` | Add rank badge to dashboard |
+| `src/locales/en.json` | Add rank translation keys |
+| `src/locales/ar.json` | Add rank translation keys |
+
