@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBranches } from '@/hooks/org/useBranches';
 import { useDivisions } from '@/hooks/org/useDivisions';
@@ -5,7 +6,7 @@ import { useDepartments } from '@/hooks/org/useDepartments';
 import { useSites } from '@/hooks/org/useSites';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { X, Filter } from 'lucide-react';
+import { X, Filter, ChevronDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { OrgFilter } from '@/hooks/analytics/useOrgAnalytics';
 import { useMemo } from 'react';
@@ -22,6 +23,7 @@ export function OrgFilterBar({ value, onChange }: OrgFilterBarProps) {
   const { divisions } = useDivisions();
   const { departments } = useDepartments();
   const { sites } = useSites();
+  const [isOpen, setIsOpen] = useState(false);
 
   const hasFilters = !!(value.branchId || value.divisionId || value.departmentId || value.sectionId);
 
@@ -37,9 +39,131 @@ export function OrgFilterBar({ value, onChange }: OrgFilterBarProps) {
 
   const activeCount = [value.branchId, value.divisionId, value.departmentId, value.sectionId].filter(Boolean).length;
 
+  const filterSelects = (
+    <>
+      {/* Branch */}
+      <Select
+        value={value.branchId || '__all__'}
+        onValueChange={(v) => {
+          const branchId = v === '__all__' ? undefined : v;
+          onChange({ branchId, divisionId: undefined, departmentId: undefined, sectionId: undefined });
+        }}
+      >
+        <SelectTrigger className="w-full md:w-[160px] h-8 text-xs rounded-full">
+          <SelectValue placeholder={t('orgDashboard.filterByBranch')} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="__all__">{t('orgDashboard.allBranches')}</SelectItem>
+          {branches.map(b => (
+            <SelectItem key={b.id} value={b.id}>{isAr ? (b.name_ar || b.name) : b.name}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {/* Division */}
+      <Select
+        value={value.divisionId || '__all__'}
+        onValueChange={(v) => {
+          const divisionId = v === '__all__' ? undefined : v;
+          onChange({ divisionId, branchId: undefined, departmentId: undefined, sectionId: undefined });
+        }}
+      >
+        <SelectTrigger className="w-full md:w-[160px] h-8 text-xs rounded-full">
+          <SelectValue placeholder={t('orgDashboard.filterByDivision')} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="__all__">{t('orgDashboard.allDivisions')}</SelectItem>
+          {divisions.map(d => (
+            <SelectItem key={d.id} value={d.id}>{isAr ? (d.name_ar || d.name) : d.name}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {/* Department */}
+      <Select
+        value={value.departmentId || '__all__'}
+        onValueChange={(v) => {
+          const departmentId = v === '__all__' ? undefined : v;
+          onChange({ ...value, departmentId, sectionId: undefined });
+        }}
+      >
+        <SelectTrigger className="w-full md:w-[160px] h-8 text-xs rounded-full">
+          <SelectValue placeholder={t('orgDashboard.filterByDepartment')} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="__all__">{t('orgDashboard.allDepartments')}</SelectItem>
+          {filteredDepartments.map(d => (
+            <SelectItem key={d.id} value={d.id}>{isAr ? (d.name_ar || d.name) : d.name}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {/* Section */}
+      <Select
+        value={value.sectionId || '__all__'}
+        onValueChange={(v) => {
+          const sectionId = v === '__all__' ? undefined : v;
+          onChange({ ...value, sectionId });
+        }}
+      >
+        <SelectTrigger className="w-full md:w-[160px] h-8 text-xs rounded-full">
+          <SelectValue placeholder={t('orgDashboard.filterBySection')} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="__all__">{t('orgDashboard.allSections')}</SelectItem>
+          {filteredSections.map(s => (
+            <SelectItem key={s.id} value={s.id}>{isAr ? (s.name_ar || s.name) : s.name}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {hasFilters && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 text-xs gap-1"
+          onClick={() => onChange({})}
+        >
+          <X className="h-3.5 w-3.5" />
+          {t('orgDashboard.clearFilters')}
+        </Button>
+      )}
+    </>
+  );
+
   return (
     <div className="glass-card border-0 rounded-2xl p-4">
-      <div className="flex items-center gap-2 flex-wrap">
+      {/* Mobile: collapsible toggle */}
+      <div className="md:hidden">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-2 w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <Filter className="h-4 w-4" strokeWidth={1.5} />
+          <span className="font-medium">{t('orgDashboard.filters', 'Filters')}</span>
+          {activeCount > 0 && (
+            <Badge variant="default" className="text-xs rounded-full">
+              {activeCount}
+            </Badge>
+          )}
+          <ChevronDown className={`h-4 w-4 ms-auto transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+
+        <div
+          className={`grid transition-all duration-200 ease-in-out ${
+            isOpen ? 'grid-rows-[1fr] opacity-100 mt-3' : 'grid-rows-[0fr] opacity-0'
+          }`}
+        >
+          <div className="overflow-hidden">
+            <div className="flex flex-col gap-2">
+              {filterSelects}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop: inline */}
+      <div className="hidden md:flex items-center gap-2 flex-wrap">
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <Filter className="h-4 w-4" strokeWidth={1.5} />
           {hasFilters && (
@@ -48,94 +172,7 @@ export function OrgFilterBar({ value, onChange }: OrgFilterBarProps) {
             </Badge>
           )}
         </div>
-
-        {/* Branch */}
-        <Select
-          value={value.branchId || '__all__'}
-          onValueChange={(v) => {
-            const branchId = v === '__all__' ? undefined : v;
-            onChange({ branchId, divisionId: undefined, departmentId: undefined, sectionId: undefined });
-          }}
-        >
-          <SelectTrigger className="w-[160px] h-8 text-xs rounded-full">
-            <SelectValue placeholder={t('orgDashboard.filterByBranch')} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all__">{t('orgDashboard.allBranches')}</SelectItem>
-            {branches.map(b => (
-              <SelectItem key={b.id} value={b.id}>{isAr ? (b.name_ar || b.name) : b.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Division */}
-        <Select
-          value={value.divisionId || '__all__'}
-          onValueChange={(v) => {
-            const divisionId = v === '__all__' ? undefined : v;
-            onChange({ divisionId, branchId: undefined, departmentId: undefined, sectionId: undefined });
-          }}
-        >
-          <SelectTrigger className="w-[160px] h-8 text-xs rounded-full">
-            <SelectValue placeholder={t('orgDashboard.filterByDivision')} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all__">{t('orgDashboard.allDivisions')}</SelectItem>
-            {divisions.map(d => (
-              <SelectItem key={d.id} value={d.id}>{isAr ? (d.name_ar || d.name) : d.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Department */}
-        <Select
-          value={value.departmentId || '__all__'}
-          onValueChange={(v) => {
-            const departmentId = v === '__all__' ? undefined : v;
-            onChange({ ...value, departmentId, sectionId: undefined });
-          }}
-        >
-          <SelectTrigger className="w-[160px] h-8 text-xs rounded-full">
-            <SelectValue placeholder={t('orgDashboard.filterByDepartment')} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all__">{t('orgDashboard.allDepartments')}</SelectItem>
-            {filteredDepartments.map(d => (
-              <SelectItem key={d.id} value={d.id}>{isAr ? (d.name_ar || d.name) : d.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Section */}
-        <Select
-          value={value.sectionId || '__all__'}
-          onValueChange={(v) => {
-            const sectionId = v === '__all__' ? undefined : v;
-            onChange({ ...value, sectionId });
-          }}
-        >
-          <SelectTrigger className="w-[160px] h-8 text-xs rounded-full">
-            <SelectValue placeholder={t('orgDashboard.filterBySection')} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all__">{t('orgDashboard.allSections')}</SelectItem>
-            {filteredSections.map(s => (
-              <SelectItem key={s.id} value={s.id}>{isAr ? (s.name_ar || s.name) : s.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {hasFilters && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 text-xs gap-1"
-            onClick={() => onChange({})}
-          >
-            <X className="h-3.5 w-3.5" />
-            {t('orgDashboard.clearFilters')}
-          </Button>
-        )}
+        {filterSelects}
       </div>
     </div>
   );
