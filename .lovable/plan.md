@@ -1,99 +1,88 @@
 
 
-## Phase 5 — AI Integration for Actionable Engagement Insights
+## Phase 6 — Premium VIP UX & Design System Integration
 
 ### Assessment
 
-The AI integration is **already fully implemented** in `team-pulse-engine/index.ts` (505 lines). Here is what exists:
+The Team Pulse components already use `cardVariants.premiumVip`, semantic colors (`chart-1`, `chart-4`, `destructive`), and `strokeWidth={1.5}` consistently. However, several components have design system gaps that reduce the premium feel.
 
-| Requirement | Status | Evidence |
-|-------------|--------|----------|
-| Analyze engagement signals | Done | Lines 129-353 — weighted composite scoring across check-ins, surveys, tasks, appreciations, streaks |
-| Generate one clear insight | Done | `primaryInsight` field via structured tool-calling (line 417) |
-| Generate one recommended action | Done | `recommendedAction` field (line 418) |
-| Generate one measurable target | Done | `targetMetric` + `targetValue` + `currentValue` fields (lines 420-422) |
-| Explain why action matters | Done | Embedded in `primaryInsight` context via system prompt (line 376-389) |
-| Premium executive tone | Done | System prompt enforces "premium executive tone" (line 378) |
-| No invented data | Done | AI receives only real aggregated metrics; tool-calling schema constrains output shape |
-| No confidential details in team/org | Done | System prompt: "NEVER identify individual employees" (line 383); data is pre-aggregated |
-| No clinical language | Done | System prompt: "NEVER use clinical or medical language" (line 382) |
-| Graceful fallback if insufficient data | Done | Lines 356-372 return `{ insufficientData: true, fallbackCta }` |
-| Daily caching | Done | `copilot_insight_cache` upsert (lines 487-493) |
-| Target persistence | Done | `pulse_targets` upsert (lines 472-485) |
-| Rate limit handling (429/402) | Done | Lines 436-448 |
-| Bilingual (EN/AR) | Done | Language passed to system prompt (line 388) |
+### Identified Issues
 
-### Data Inputs Coverage
-
-| Signal | Used | How |
-|--------|------|-----|
-| Check-ins | Yes | `mood_entries` count (30d) |
-| Surveys | Yes | `employee_responses` count (30d) |
-| Tasks / overdue | Yes | `unified_tasks` completed vs total (30d) |
-| Appreciation activity | Yes | `appreciations` sent + received (30d) |
-| Streaks | Yes | Consecutive check-in days computed from mood dates |
-| Participation rate | Yes | Team/org: unique participants / total employees |
-| Engagement trends | Yes | AI infers `up/down/stable` from data patterns |
-| Workload patterns | Partial | Task volume used; dedicated workload hours not yet fed |
-| Pulse campaign activity | No | Campaigns not yet built (deferred feature) |
-| Response consistency | Partial | Survey response count used; per-question consistency not tracked |
-
-### Gaps to Address
-
-Only two meaningful gaps remain:
-
-**1. Workload signal enrichment** — The AI currently sees task counts but not workload hours or overdue task counts, which would improve insight quality.
-
-**2. 402 Payment Required handling** — The edge function handles 429 (rate limit) but does not explicitly handle 402 (credits exhausted).
+| Component | Issue |
+|-----------|-------|
+| `PulseInsightBlock` | No section label; score lacks a visual gauge; `impactReason` italic style feels weak |
+| `PulseTargetBlock` | Uses raw `bg-muted/5` instead of a token-derived surface; no subtle animation on progress bar |
+| `PulseActionPath` | CTA button uses inline gradient classes instead of a reusable premium CTA pattern; `recommendedAction` text has no section header |
+| `PulseNudgeCard` | Link-style CTA at bottom feels weak — should be a contained button matching premium style |
+| `PulseModeSwitcher` | Functional but uses raw `bg-muted/10` — needs premium-badge surface for active tab |
+| `TeamPulseCard` | Team Kudos Nudge button uses raw inline classes; overall section dividers missing between content blocks |
+| `AppreciationActivityWidget` | Category label translation uses brittle string concatenation that will break for some categories |
+| `PulseSkeleton` | Missing shimmer effect — uses plain `animate-pulse` without premium surface |
+| General | No entrance animations; no visual separators between insight/target/action blocks |
 
 ### Plan
 
-#### 1. Enrich AI context with workload and overdue data
+#### 1. Add Engagement Score Gauge to `PulseInsightBlock`
 
-**File**: `supabase/functions/team-pulse-engine/index.ts`
+Replace the plain `text-3xl` score with a compact semi-circle gauge (SVG arc, ~64px) using semantic score colors. Add a `typography.statLabel` section header ("Engagement Score"). Move `impactReason` from italic to a bordered callout with a subtle `Sparkles` icon.
 
-For each mode, add two additional queries before AI generation:
-- **Overdue tasks**: Count tasks where `due_date < today` and `status != 'completed'`
-- **Recent workload entries**: Count `daily_work_records` entries (if table exists) for hours-worked signal
+#### 2. Elevate `PulseTargetBlock`
 
-Add these to `scopeData` so the AI prompt receives richer context. No scoring weight change needed — this is supplementary context for better insight quality.
+- Replace `bg-muted/5` with `premium-badge` surface class
+- Add `transition-all duration-700 ease-out` to the progress bar fill for smooth entrance
+- Use `typography.statLabel` for the target label
+- Add a percentage badge next to the progress bar
 
-#### 2. Handle 402 Payment Required
+#### 3. Refine `PulseActionPath`
 
-**File**: `supabase/functions/team-pulse-engine/index.ts`
+- Add a `typography.statLabel` section header ("Recommended Action")
+- Replace inline gradient classes with a reusable premium CTA style using `primary` tokens
+- Add subtle `hover:-translate-y-0.5` lift effect
+- Use `useNavigate` from react-router instead of `window.location.href`
 
-Add explicit 402 handling alongside the existing 429 block (after line 443):
-```
-if (status === 402) {
-  return Response with { error: "AI credits exhausted" }, status 402
-}
-```
+#### 4. Upgrade `PulseNudgeCard`
 
-#### 3. Add "why it matters" field to tool-calling schema
+- Replace the link-style CTA with a contained outline button matching the severity color
+- Add `rounded-xl` container with `premium-card` surface instead of raw color/opacity classes
+- Add entrance animation via `animate-in fade-in slide-in-from-bottom-2`
 
-**File**: `supabase/functions/team-pulse-engine/index.ts`
+#### 5. Polish `PulseModeSwitcher`
 
-Add an `impactReason` property to the `generate_pulse_insight` tool schema — a one-sentence explanation of why the recommended action matters. Update the `PulseInsight` TypeScript type and render it in `PulseInsightBlock`.
+- Active tab: use `premium-badge` class for the selected state instead of raw `bg-primary/10`
+- Add `transition-all duration-200` for smoother tab transitions
 
-#### 4. Update frontend types and display
+#### 6. Refine `TeamPulseCard` Layout
 
-| File | Change |
-|------|--------|
-| `src/features/team-pulse/hooks/useTeamPulse.ts` | Add `impactReason` and `overdueTasks` to `PulseInsight` interface |
-| `src/features/team-pulse/components/PulseInsightBlock.tsx` | Render `impactReason` below the insight text in a subtle muted style |
+- Add thin separator lines (`border-t border-border/10`) between insight, target, and action blocks
+- Extract kudos nudge button to match the same premium CTA pattern as `PulseActionPath`
+- Add staggered entrance animations (`animate-in` with increasing delays) to child blocks
+
+#### 7. Fix `AppreciationActivityWidget` Category Labels
+
+- Replace brittle string manipulation with a clean `CATEGORY_LABEL_KEYS` map for translation keys
+- Ensure RTL `text-end` is used consistently (already present)
+
+#### 8. Upgrade `PulseSkeleton`
+
+- Use `premium-card` surface behind skeleton elements for visual consistency with loaded state
 
 ### Files Summary
 
 | File | Change |
 |------|--------|
-| `supabase/functions/team-pulse-engine/index.ts` | Add overdue task queries, workload context, 402 handling, `impactReason` tool field |
-| `src/features/team-pulse/hooks/useTeamPulse.ts` | Add `impactReason` to `PulseInsight` type |
-| `src/features/team-pulse/components/PulseInsightBlock.tsx` | Render impact reason text |
+| `src/features/team-pulse/components/PulseInsightBlock.tsx` | Score gauge, section label, impactReason callout |
+| `src/features/team-pulse/components/PulseTargetBlock.tsx` | Premium surface, animated progress, percentage badge |
+| `src/features/team-pulse/components/PulseActionPath.tsx` | Section header, premium CTA, useNavigate |
+| `src/features/team-pulse/components/PulseNudgeCard.tsx` | Contained button, premium surface, entrance animation |
+| `src/features/team-pulse/components/PulseModeSwitcher.tsx` | Premium-badge active state |
+| `src/features/team-pulse/components/TeamPulseCard.tsx` | Separators, staggered entrance, refined kudos button |
+| `src/features/team-pulse/components/AppreciationActivityWidget.tsx` | Clean category label map |
+| `src/features/team-pulse/components/PulseSkeleton.tsx` | Premium surface |
 
 ### What Is Not Changing
 
-- Scoring weights remain the same (already validated)
-- Cache strategy unchanged (daily per scope)
-- System prompt guardrails unchanged (already comprehensive)
-- Campaign activity deferred (campaigns not yet built)
+- No new tables or migrations
+- No edge function changes
+- No new dependencies
+- All changes are purely visual/UX refinements using existing design tokens
 
