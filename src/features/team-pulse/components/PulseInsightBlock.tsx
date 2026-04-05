@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { TrendingUp, TrendingDown, Minus, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { typography } from "@/theme/tokens";
+import { useIsMobile } from "@/hooks/ui/use-mobile";
 
 interface Props {
   insight: string;
