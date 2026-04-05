@@ -261,7 +261,7 @@ serve(async (req) => {
       // Org mood trend
       const { data: orgMoods } = await admin
         .from("mood_entries")
-        .select("level, entry_date")
+        .select("level, entry_date, employee_id")
         .eq("tenant_id", emp.tenant_id)
         .is("deleted_at", null)
         .gte("entry_date", fourteenDaysAgo.split("T")[0])
