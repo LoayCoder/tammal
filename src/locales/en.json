@@ -3411,7 +3411,29 @@
     "aiPredictionsFailed": "AI predictions failed",
     "trendUp": "↑ trending up",
     "trendDown": "↓ trending down",
-    "trendStable": "→ stable"
+    "trendStable": "→ stable",
+    "narrative": {
+      "title": "AI Executive Insight",
+      "noData": "Insufficient data for executive narrative",
+      "healthy": "Organization health is strong at {{score}}%. {{strongest}} leads at {{strongestVal}}%.",
+      "attention": "Score {{score}}% requires attention. {{weakest}} is lowest at {{weakestVal}}%. {{burnoutCount}} employees at burnout risk.",
+      "critical": "Critical: score {{score}}%. {{weakest}} is at {{weakestVal}}%. {{burnoutCount}} employees at burnout risk require immediate action."
+    },
+    "tammal": {
+      "alignment": "Alignment",
+      "velocity": "Velocity",
+      "capacity_balance": "Capacity Balance",
+      "burnout_health": "Burnout Health",
+      "capacity": "Capacity",
+      "burnout": "Burnout"
+    },
+    "tammalWeights": {
+      "title": "TAMMAL Index Weights",
+      "customize": "Customize Weights",
+      "sum": "Total",
+      "mustEqual100": "must equal 100",
+      "saved": "Weights saved successfully"
+    }
   },
   "teamWorkload": {
     "pageTitle": "Team Command Center",
