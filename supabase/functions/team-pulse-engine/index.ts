@@ -365,12 +365,23 @@ serve(async (req) => {
         checkinScore * 0.35 + taskScore * 0.30 + recognitionScore * 0.20 + (orgParticipationRate > 50 ? 15 : orgParticipationRate * 0.15)
       );
 
+      // Org overdue tasks
+      const { count: orgOverdue } = await admin
+        .from("unified_tasks")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", emp.tenant_id)
+        .is("deleted_at", null)
+        .not("status", "in", '("completed","archived")')
+        .lt("due_date", todayStr)
+        .not("due_date", "is", null);
+
       scopeData = {
         engagementScore,
         totalEmployees: totalEmps ?? 0,
         participationRate: orgParticipationRate,
         completedTasks: orgCompleted ?? 0,
         totalTasks: orgTotal ?? 0,
+        overdueTasks: orgOverdue ?? 0,
         totalAppreciations: orgAppreciations ?? 0,
         totalCheckins: (orgMoods ?? []).length,
       };
