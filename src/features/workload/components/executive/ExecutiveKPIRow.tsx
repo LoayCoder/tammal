@@ -2,14 +2,19 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Target, Activity, AlertTriangle, TrendingUp } from 'lucide-react';
+import { TrendIndicator } from '@/components/workload/TrendIndicator';
 import type { LucideIcon } from 'lucide-react';
+import type { WorkloadTrend } from '@/features/workload/hooks/useWorkloadTrends';
 
 interface KPI {
   title: string;
   value: string | number;
   icon: LucideIcon;
-  accentColor: string; // border-s color
+  accentColor: string;
   iconBg: string;
+  current: number;
+  previous: number;
+  higherIsBetter: boolean;
 }
 
 interface Props {
@@ -18,9 +23,10 @@ interface Props {
   burnoutRiskCount: number;
   completionRate: number;
   isPending: boolean;
+  trends?: WorkloadTrend | null;
 }
 
-export function ExecutiveKPIRow({ strategicProgress, utilization, burnoutRiskCount, completionRate, isPending }: Props) {
+export function ExecutiveKPIRow({ strategicProgress, utilization, burnoutRiskCount, completionRate, isPending, trends }: Props) {
   const { t } = useTranslation();
 
   const kpis: KPI[] = [
@@ -30,6 +36,9 @@ export function ExecutiveKPIRow({ strategicProgress, utilization, burnoutRiskCou
       icon: Target,
       accentColor: 'border-s-[hsl(var(--kpi-progress))]',
       iconBg: 'bg-[hsl(var(--kpi-progress))]/10 text-[hsl(var(--kpi-progress))]',
+      current: trends?.currentCompletion ?? 0,
+      previous: trends?.previousCompletion ?? 0,
+      higherIsBetter: true,
     },
     {
       title: t('executive.workforceUtilization'),
@@ -37,6 +46,9 @@ export function ExecutiveKPIRow({ strategicProgress, utilization, burnoutRiskCou
       icon: Activity,
       accentColor: 'border-s-[hsl(var(--kpi-utilization))]',
       iconBg: 'bg-[hsl(var(--kpi-utilization))]/10 text-[hsl(var(--kpi-utilization))]',
+      current: trends?.currentUtilization ?? 0,
+      previous: trends?.previousUtilization ?? 0,
+      higherIsBetter: true,
     },
     {
       title: t('executive.burnoutRiskCount'),
@@ -44,6 +56,9 @@ export function ExecutiveKPIRow({ strategicProgress, utilization, burnoutRiskCou
       icon: AlertTriangle,
       accentColor: 'border-s-[hsl(var(--kpi-risk))]',
       iconBg: 'bg-[hsl(var(--kpi-risk))]/10 text-[hsl(var(--kpi-risk))]',
+      current: trends?.currentBurnoutCount ?? 0,
+      previous: trends?.previousBurnoutCount ?? 0,
+      higherIsBetter: false,
     },
     {
       title: t('teamWorkload.completionRate'),
@@ -51,6 +66,9 @@ export function ExecutiveKPIRow({ strategicProgress, utilization, burnoutRiskCou
       icon: TrendingUp,
       accentColor: 'border-s-[hsl(var(--kpi-trend))]',
       iconBg: 'bg-[hsl(var(--kpi-trend))]/10 text-[hsl(var(--kpi-trend))]',
+      current: trends?.currentVelocity ?? 0,
+      previous: trends?.previousVelocity ?? 0,
+      higherIsBetter: true,
     },
   ];
 
@@ -66,7 +84,10 @@ export function ExecutiveKPIRow({ strategicProgress, utilization, burnoutRiskCou
           </CardHeader>
           <CardContent>
             {isPending ? <Skeleton className="h-8 w-16" /> : (
-              <div className="text-3xl font-bold tracking-tight">{kpi.value}</div>
+              <div>
+                <div className="text-3xl font-bold tracking-tight">{kpi.value}</div>
+                {trends && <TrendIndicator current={kpi.current} previous={kpi.previous} higherIsBetter={kpi.higherIsBetter} className="mt-1" />}
+              </div>
             )}
           </CardContent>
         </Card>

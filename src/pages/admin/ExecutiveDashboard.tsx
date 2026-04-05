@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import {
   useObjectives, useInitiatives, useWorkloadAnalytics, useWorkloadMetrics,
   useExecutionVelocity, useWorkloadHeatmap, useInitiativeRisk,
-  useBurnoutPredictions, useRedistributionRecommendations,
+  useBurnoutPredictions, useRedistributionRecommendations, useWorkloadTrends,
   useOrgIntelligenceScore, useRunAnalyticsSnapshot, useRunAIPredictions,
 } from '@/features/workload';
 import { toast } from 'sonner';
@@ -37,6 +37,7 @@ export default function ExecutiveDashboard() {
   const { predictions: burnoutPredictions, isPending: burnoutLoading } = useBurnoutPredictions();
   const { pending: pendingRedistributions, isPending: redistLoading, updateStatus } = useRedistributionRecommendations();
   const { score: orgScore, isPending: orgScoreLoading } = useOrgIntelligenceScore();
+  const { data: trends } = useWorkloadTrends();
   const snapshotMutation = useRunAnalyticsSnapshot();
   const aiMutation = useRunAIPredictions();
 
@@ -142,6 +143,7 @@ export default function ExecutiveDashboard() {
         burnoutRiskCount={burnoutRiskEmployees}
         completionRate={completionRate}
         isPending={isPending}
+        trends={trends}
       />
 
       <div className="grid gap-4 md:grid-cols-2">
