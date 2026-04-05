@@ -2428,7 +2428,12 @@
     "psychoeducationArticlesDesc": "Learn about mental health topics",
     "islamicCalendar": "Islamic Calendar",
     "islamicCalendarDesc": "Important Islamic dates and events",
-    "daysLeft": "{{days}}d left"
+    "daysLeft": "{{days}}d left",
+    "engagementRank": "Engagement Rank",
+    "outOfEmployees": "out of {{count}} employees",
+    "topPerformer": "You're a top performer! 🎉",
+    "keepEngaging": "Keep engaging to climb the ranks!",
+    "yourRank": "Your Rank"
   },
   "moodPathway": {
     "title": "Mood Follow-up",

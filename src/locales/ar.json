@@ -2428,7 +2428,12 @@
     "psychoeducationArticlesDesc": "تعرف على مواضيع الصحة النفسية",
     "islamicCalendar": "التقويم الإسلامي",
     "islamicCalendarDesc": "التواريخ والمناسبات الإسلامية",
-    "daysLeft": "متبقي {{days}} يوم"
+    "daysLeft": "متبقي {{days}} يوم",
+    "engagementRank": "ترتيب التفاعل",
+    "outOfEmployees": "من أصل {{count}} موظف",
+    "topPerformer": "أنت من أفضل المتفاعلين! 🎉",
+    "keepEngaging": "واصل التفاعل لتتقدم في الترتيب!",
+    "yourRank": "ترتيبك"
   },
   "moodPathway": {
     "title": "متابعة المزاج",

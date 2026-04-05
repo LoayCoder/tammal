@@ -25,6 +25,8 @@ import FirstAiderQuickConnect from '@/components/crisis/FirstAiderQuickConnect';
 import { DashboardEndorsementRequests } from '@/components/dashboard/DashboardEndorsementRequests';
 import { DashboardShortlistWidget } from '@/components/dashboard/DashboardShortlistWidget';
 import { DashboardVotingWidget } from '@/components/dashboard/DashboardVotingWidget';
+import { EngagementRankBadge } from '@/components/dashboard/EngagementRankBadge';
+import { useEmployeeEngagementRank } from '@/hooks/wellness/useEmployeeEngagementRank';
 import { cardVariants, typography } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
@@ -47,6 +49,7 @@ export default function EmployeeHome() {
   const { todayEntry } = useMoodHistory(employee?.id ?? null);
   const { pendingQuestions, surveyMeta, isPending: sqLoading } = useScheduledQuestions(employee?.id, undefined);
   const [showFirstAider, setShowFirstAider] = useState(false);
+  const { rank, totalEmployees, isPending: rankLoading } = useEmployeeEngagementRank(employee?.id, employee?.tenant_id);
 
   const firstName = employee?.full_name?.split(' ')[0] ?? '';
 
@@ -92,6 +95,8 @@ export default function EmployeeHome() {
             </div>
           </div>
         </div>
+        {/* Engagement Rank Badge */}
+        <EngagementRankBadge rank={rank} totalEmployees={totalEmployees} isPending={rankLoading} />
 
         {/* Support Hub — Collapsible Premium Card */}
         <Collapsible className="premium-card rounded-2xl hover:shadow-sm transition-all duration-200">
