@@ -8,6 +8,7 @@ import type { PulseMode } from "./useTeamPulse";
 const STORAGE_KEY = "pulse-last-mode";
 
 export function usePulseModes(employeeId: string | null | undefined) {
+  const { tenantId } = useTenantId();
   const { hasRole: isSuperAdmin } = useHasRole("super_admin");
   const { hasRole: isTenantAdmin } = useHasRole("tenant_admin");
   const { hasRole: isManager } = useHasRole("manager");
