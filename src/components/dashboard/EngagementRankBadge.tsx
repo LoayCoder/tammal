@@ -9,6 +9,7 @@ interface EngagementRankBadgeProps {
   rank: number;
   totalEmployees: number;
   isPending: boolean;
+  error?: Error | null;
 }
 
 const RANK_CONFIG: Record<number, { color: string; bg: string; label: string }> = {
