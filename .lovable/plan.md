@@ -1,25 +1,26 @@
 
 
-## Add TeamPulseCard to the Organization Wellness Dashboard
+## Plan: Add Wellness Copilot to OrgDashboard + Fix 401 Error
 
-### Current State
-- `TeamPulseCard` exists on the **Dashboard Overview tab** and the **Employee Home** page
-- It is **not present** on the `OrgDashboard` (Wellness tab) where admins do org-level analysis
-- The card already supports mode switching (personal → team → organization) via `usePulseModes`, so admins will automatically see the "organization" toggle
+### Two changes
 
-### What to Do
+**1. Fix `team-pulse-engine` 401 error (Risk — blocks feature)**
 
-**File: `src/components/dashboard/OrgDashboard.tsx`**
+The previous fix replaced `getUser()` with `getClaims(token)`, but `getClaims` does not exist on `@supabase/supabase-js@2.89.0`. The working `wellness-copilot` function uses `getUser()` successfully. Fix: revert `team-pulse-engine` auth back to the proven `getUser()` pattern.
 
-1. Import `TeamPulseCard` from `@/features/team-pulse` and `useCurrentEmployee` from `@/hooks/auth/useCurrentEmployee`
-2. Add the card between `OrgWorkloadIndicator` and the `Tabs` section, wrapped in an `ErrorBoundary`
-3. Only render when `employee?.id` is available
+**File**: `supabase/functions/team-pulse-engine/index.ts` (lines 38-49)
+- Replace `getClaims` logic with `anonClient.auth.getUser()` — identical to how `wellness-copilot` authenticates
 
-The result is a single, small edit — roughly 6 lines added. The card's built-in mode switcher will let admins toggle to "Organization" scope and see org-level engagement intelligence directly within the Wellness dashboard.
+**2. Add WellnessCopilotCard to OrgDashboard**
 
-### Files Changed
+**File**: `src/components/dashboard/OrgDashboard.tsx`
+- Import `WellnessCopilotCard` from `@/features/wellness-copilot`
+- Add it after the `TeamPulseCard` block, wrapped in `ErrorBoundary`, gated on `employee?.id`
+
+### Files changed
 
 | File | Change |
 |------|--------|
-| `src/components/dashboard/OrgDashboard.tsx` | Add `TeamPulseCard` + `ErrorBoundary` |
+| `supabase/functions/team-pulse-engine/index.ts` | Revert auth to `getUser()` pattern |
+| `src/components/dashboard/OrgDashboard.tsx` | Add `WellnessCopilotCard` import + render |
 
