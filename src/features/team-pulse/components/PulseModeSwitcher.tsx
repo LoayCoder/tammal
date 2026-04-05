@@ -16,7 +16,7 @@ const modeConfig: Record<PulseMode, { icon: typeof User; labelKey: string }> = {
   organization: { icon: Building2, labelKey: "pulse.modeOrganization" },
 };
 
-export function PulseModeSwitcher({ allowedModes, selectedMode, onModeChange }: Props) {
+export const PulseModeSwitcher = memo(function PulseModeSwitcher({ allowedModes, selectedMode, onModeChange }: Props) {
   const { t } = useTranslation();
 
   if (allowedModes.length <= 1) return null;
