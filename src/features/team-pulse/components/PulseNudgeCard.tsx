@@ -44,7 +44,7 @@ export function PulseNudgeCard({ engagementScore }: Props) {
           navigate("/employee/survey");
         }}
         className={cn(
-          "flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-2xs font-semibold transition-all duration-200",
+          "flex w-full items-center justify-center gap-1.5 rounded-lg min-h-[44px] py-2.5 sm:py-2 text-2xs font-semibold transition-all duration-200 active:scale-[0.97]",
           isLow
             ? "bg-destructive/10 text-destructive hover:bg-destructive/15"
             : "bg-chart-4/10 text-chart-4 hover:bg-chart-4/15"

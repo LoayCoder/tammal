@@ -92,7 +92,7 @@ export function TeamPulseCard({ employeeId }: Props) {
         </button>
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className="p-4 space-y-4 scroll-smooth">
         {showModeSwitcher && (
           <PulseModeSwitcher
             allowedModes={allowedModes}
@@ -106,7 +106,7 @@ export function TeamPulseCard({ employeeId }: Props) {
         ) : insufficientData ? (
           <PulseEmptyState fallbackCta={insufficientData.fallbackCta} />
         ) : pulse ? (
-          <div className="space-y-0">
+          <div className="space-y-0 transition-all duration-300">
             <div className="py-1">
               <PulseInsightBlock
                 insight={pulse.primaryInsight}
@@ -141,10 +141,10 @@ export function TeamPulseCard({ employeeId }: Props) {
                   onClick={handleTeamNudge}
                   disabled={sendAppreciation.isPending}
                   className={cn(
-                    "flex w-full items-center justify-center gap-2 rounded-xl py-2.5",
+                    "flex w-full items-center justify-center gap-2 rounded-xl min-h-[44px] py-3 sm:py-2.5",
                     "bg-chart-3/10 text-chart-3 border border-chart-3/15",
                     "text-xs font-semibold hover:bg-chart-3/15 hover:-translate-y-0.5",
-                    "transition-all duration-200 disabled:opacity-40"
+                    "active:scale-[0.97] transition-all duration-200 disabled:opacity-40"
                   )}
                 >
                   <Megaphone className="h-3.5 w-3.5" strokeWidth={1.5} />

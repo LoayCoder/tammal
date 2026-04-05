@@ -88,7 +88,7 @@ export function QuickAppreciationCard() {
           <select
             value={selectedEmployee}
             onChange={(e) => setSelectedEmployee(e.target.value)}
-            className="w-full rounded-xl border border-border/50 bg-background/50 px-3 py-2.5 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+            className="w-full rounded-xl border border-border/50 bg-background/50 px-3 h-11 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/20 transition-all"
           >
             <option value="">{t("pulse.selectColleague")}</option>
             {colleagues.map((c) => (
@@ -106,7 +106,7 @@ export function QuickAppreciationCard() {
                   key={cat.key}
                   onClick={() => setCategory(cat.key)}
                   className={cn(
-                    "flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-2xs font-medium transition-all duration-200",
+                    "flex items-center gap-1 rounded-lg px-2.5 py-2 sm:py-1.5 text-2xs font-medium transition-all duration-200 active:scale-[0.97]",
                     active
                       ? "bg-primary/10 text-primary ring-1 ring-primary/20"
                       : "bg-muted/10 text-muted-foreground hover:bg-muted/20"
@@ -126,6 +126,8 @@ export function QuickAppreciationCard() {
             placeholder={t("pulse.appreciationPlaceholder")}
             rows={2}
             maxLength={300}
+            autoComplete="off"
+            enterKeyHint="send"
             className="w-full rounded-xl border border-border/50 bg-background/50 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"
           />
 
@@ -134,9 +136,9 @@ export function QuickAppreciationCard() {
             onClick={handleSend}
             disabled={!selectedEmployee || !message.trim() || sending}
             className={cn(
-              "flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition-all duration-200",
+              "flex w-full items-center justify-center gap-2 rounded-xl min-h-[44px] py-3 sm:py-2.5 text-sm font-semibold transition-all duration-200",
               selectedEmployee && message.trim()
-                ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm active:scale-[0.97]"
                 : "bg-muted/10 text-muted-foreground cursor-not-allowed"
             )}
           >

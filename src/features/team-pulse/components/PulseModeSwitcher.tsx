@@ -30,10 +30,10 @@ export function PulseModeSwitcher({ allowedModes, selectedMode, onModeChange }: 
             key={mode}
             onClick={() => onModeChange(mode)}
             className={cn(
-              "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-2xs font-medium transition-all duration-200",
+              "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 min-h-[44px] py-2.5 sm:py-2 text-2xs font-medium transition-all duration-200",
               active
                 ? "premium-badge text-primary shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/10"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/10 active:scale-[0.98]"
             )}
           >
             <Icon className="h-3.5 w-3.5" strokeWidth={1.5} />

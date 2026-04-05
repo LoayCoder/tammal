@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { TrendingUp, TrendingDown, Minus, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { typography } from "@/theme/tokens";
+import { useIsMobile } from "@/hooks/ui/use-mobile";
 
 interface Props {
   insight: string;
@@ -10,10 +11,12 @@ interface Props {
   impactReason?: string;
 }
 
-function ScoreGauge({ score }: { score: number }) {
-  const radius = 28;
-  const strokeWidth = 5;
-  const center = 32;
+function ScoreGauge({ score, large }: { score: number; large?: boolean }) {
+  const radius = large ? 32 : 28;
+  const strokeWidth = large ? 6 : 5;
+  const svgW = large ? 72 : 64;
+  const svgH = large ? 42 : 38;
+  const center = svgW / 2;
   const circumference = Math.PI * radius;
   const progress = Math.min(score, 100) / 100;
   const offset = circumference * (1 - progress);
@@ -26,8 +29,7 @@ function ScoreGauge({ score }: { score: number }) {
 
   return (
     <div className="relative flex flex-col items-center">
-      <svg width="64" height="38" viewBox="0 0 64 38" className="overflow-visible">
-        {/* Background arc */}
+      <svg width={svgW} height={svgH} viewBox={`0 0 ${svgW} ${svgH}`} className="overflow-visible">
         <path
           d={`M ${center - radius} ${center} A ${radius} ${radius} 0 0 1 ${center + radius} ${center}`}
           fill="none"
@@ -35,7 +37,6 @@ function ScoreGauge({ score }: { score: number }) {
           strokeWidth={strokeWidth}
           strokeLinecap="round"
         />
-        {/* Progress arc */}
         <path
           d={`M ${center - radius} ${center} A ${radius} ${radius} 0 0 1 ${center + radius} ${center}`}
           fill="none"
@@ -48,7 +49,7 @@ function ScoreGauge({ score }: { score: number }) {
         />
       </svg>
       <span
-        className="absolute bottom-0 text-lg font-bold tracking-tight"
+        className={cn("absolute bottom-0 font-bold tracking-tight", large ? "text-xl" : "text-lg")}
         style={{ color }}
       >
         {score}
@@ -59,6 +60,7 @@ function ScoreGauge({ score }: { score: number }) {
 
 export function PulseInsightBlock({ insight, trend, engagementScore, impactReason }: Props) {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
 
   const trendConfig = {
     up: { icon: TrendingUp, color: "text-chart-1", bg: "bg-chart-1/10", label: t("pulse.trendUp") },
@@ -75,7 +77,7 @@ export function PulseInsightBlock({ insight, trend, engagementScore, impactReaso
 
       {/* Score gauge + Trend */}
       <div className="flex items-end gap-3">
-        <ScoreGauge score={engagementScore} />
+        <ScoreGauge score={engagementScore} large={isMobile} />
         <div className={cn("flex items-center gap-1 rounded-full px-2 py-0.5", bg)}>
           <TrendIcon className={cn("h-3 w-3", color)} strokeWidth={2} />
           <span className={cn("text-2xs font-medium", color)}>{label}</span>

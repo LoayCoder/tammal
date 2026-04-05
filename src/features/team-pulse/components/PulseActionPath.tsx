@@ -28,11 +28,11 @@ export function PulseActionPath({ recommendedAction, actionPath, actionCta }: Pr
           }
         }}
         className={cn(
-          "flex w-full items-center justify-center gap-2 rounded-xl py-2.5",
+          "flex w-full items-center justify-center gap-2 rounded-xl min-h-[44px] py-3 sm:py-2.5",
           "bg-primary text-primary-foreground",
           "text-xs font-semibold shadow-sm",
           "hover:bg-primary/90 hover:-translate-y-0.5",
-          "active:scale-[0.99] transition-all duration-200"
+          "active:scale-[0.97] transition-all duration-200"
         )}
       >
         {actionCta || t("pulse.takeAction")}
