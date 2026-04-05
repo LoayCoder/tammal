@@ -450,8 +450,8 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                           to={group.items[0].url}
                           end={group.items[0].url === '/'}
                           className={cn(
-                            "flex h-9 items-center gap-3 rounded-lg px-3 text-sm transition-all duration-200",
-                            "text-sidebar-foreground hover:bg-muted/50"
+                            "flex h-9 items-center gap-3 rounded-lg px-3 transition-all duration-200",
+                            "hover:bg-muted/50 text-xs text-muted-foreground"
                           )}
                           activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
                           onClick={handleNavClick}
