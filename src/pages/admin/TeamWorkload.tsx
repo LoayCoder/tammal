@@ -186,9 +186,9 @@ export default function TeamWorkload() {
         subtitle={t('teamWorkload.pageDesc')}
         variant="card"
         actions={
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setAddOpen(true)} className="gap-2"><Plus className="h-4 w-4" />{t('teamWorkload.quickAssign')}</Button>
-            <Button onClick={() => setEnterpriseModalOpen(true)} className="gap-2"><Plus className="h-4 w-4" />{t('tasks.createTask')}</Button>
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" onClick={() => setAddOpen(true)} className="gap-2 min-h-[44px] text-xs sm:text-sm"><Plus className="h-4 w-4" /><span className="hidden sm:inline">{t('teamWorkload.quickAssign')}</span><span className="sm:hidden">{t('common.assign')}</span></Button>
+            <Button onClick={() => setEnterpriseModalOpen(true)} className="gap-2 min-h-[44px] text-xs sm:text-sm"><Plus className="h-4 w-4" /><span className="hidden sm:inline">{t('tasks.createTask')}</span><span className="sm:hidden">{t('common.create')}</span></Button>
           </div>
         }
       />
