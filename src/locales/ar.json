@@ -3411,7 +3411,29 @@
     "aiPredictionsFailed": "فشلت توقعات الذكاء الاصطناعي",
     "trendUp": "↑ اتجاه صاعد",
     "trendDown": "↓ اتجاه هابط",
-    "trendStable": "→ مستقر"
+    "trendStable": "→ مستقر",
+    "narrative": {
+      "title": "رؤية تنفيذية بالذكاء الاصطناعي",
+      "noData": "بيانات غير كافية للتحليل التنفيذي",
+      "healthy": "صحة المنظمة قوية عند {{score}}%. يتصدر {{strongest}} بنسبة {{strongestVal}}%.",
+      "attention": "النتيجة {{score}}% تتطلب اهتمامًا. {{weakest}} هو الأدنى بنسبة {{weakestVal}}%. {{burnoutCount}} موظفين معرضين للإرهاق.",
+      "critical": "حرج: النتيجة {{score}}%. {{weakest}} عند {{weakestVal}}%. {{burnoutCount}} موظفين معرضين للإرهاق يحتاجون إلى تدخل فوري."
+    },
+    "tammal": {
+      "alignment": "المواءمة",
+      "velocity": "السرعة",
+      "capacity_balance": "توازن السعة",
+      "burnout_health": "صحة الإرهاق",
+      "capacity": "السعة",
+      "burnout": "الإرهاق"
+    },
+    "tammalWeights": {
+      "title": "أوزان مؤشر تمّل",
+      "customize": "تخصيص الأوزان",
+      "sum": "المجموع",
+      "mustEqual100": "يجب أن يساوي 100",
+      "saved": "تم حفظ الأوزان بنجاح"
+    }
   },
   "teamWorkload": {
     "pageTitle": "مركز قيادة الفريق",
