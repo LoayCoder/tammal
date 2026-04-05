@@ -28,6 +28,7 @@ export function useEngagementNotifications() {
       const { data, error } = await supabase
         .from("engagement_notifications" as any)
         .select("id, type, title, body, is_read, created_at, action_path, metadata")
+        .eq("tenant_id", tenantId!)
         .eq("recipient_id", employeeId!)
         .is("deleted_at", null)
         .order("created_at", { ascending: false })
