@@ -1,105 +1,112 @@
 
 
-## Phase 9 — Engagement Intelligence Detail Page
+## Phase 10 — Notifications and Action Enablement
 
 ### Assessment
 
-There is currently **no dedicated detail page** for engagement intelligence. All pulse data lives in a compact card (`TeamPulseCard`) on the employee dashboard. The data infrastructure for a detail page already exists:
-
-- **`pulse_targets`** table stores daily engagement scores, targets, and metrics per employee/scope — perfect for trend charts
-- **`engagement_action_log`** tracks CTA clicks, nudge dismissals, appreciations — provides action history
-- **`appreciations`** table has timestamped records for appreciation activity trends
-- **`mood_entries`** and **`employee_responses`** provide participation data
-- **`team-pulse-engine`** edge function already computes weighted composite scores
-
-No existing route or page covers this domain.
+The platform has a mature **UnifiedNotificationBell** component that merges Task, Crisis, and Recognition notification streams with realtime subscriptions and browser push. However, there is **no engagement/pulse notification channel** — the `task_notifications` table requires a `task_id` FK and cannot be repurposed.
 
 ### Plan
 
-#### 1. Create new route `/engagement-insights`
+#### 1. Create `engagement_notifications` table
 
-**File**: `src/App.tsx`
+**Migration** — New table modeled after `task_notifications` but without `task_id` dependency:
 
-Add a new route accessible to all authenticated users (below employee routes). Lazy-load the page component.
+```
+engagement_notifications (
+  id UUID PK,
+  tenant_id UUID NOT NULL FK → tenants,
+  recipient_id UUID NOT NULL FK → employees,
+  type TEXT NOT NULL,  -- validated via trigger
+  title TEXT NOT NULL,
+  body TEXT,
+  is_read BOOLEAN DEFAULT false,
+  metadata JSONB DEFAULT '{}',
+  action_path TEXT,  -- optional route to navigate to
+  created_at TIMESTAMPTZ DEFAULT now(),
+  deleted_at TIMESTAMPTZ
+)
+```
 
-#### 2. Create the feature page
+- RLS: tenant isolation + recipient can read/update own
+- Validation trigger for `type` enum: `engagement_drop`, `appreciation_reminder`, `pulse_nudge`, `action_followup`, `manager_team_alert`
+- Enable realtime: `ALTER PUBLICATION supabase_realtime ADD TABLE engagement_notifications`
 
-**New file**: `src/pages/EngagementInsights.tsx`
+#### 2. Create `engagement-notifier` edge function
 
-Premium executive-style page with `PageHeader` (card variant, Activity icon). Contains role-aware content using `usePulseModes` to determine scope. Five collapsible sections in a vertical stack:
+**New file**: `supabase/functions/engagement-notifier/index.ts`
 
-1. **Pulse Trend** — Line chart showing engagement score over time (from `pulse_targets`)
-2. **Participation Overview** — Two mini stat cards: check-in consistency + survey response rate (from existing analytics)
-3. **Appreciation Activity** — Area chart of appreciation volume by week (from `appreciations` table, grouped by week)
-4. **Engagement Actions Log** — DataTable showing recent CTA/nudge/appreciation actions (from `engagement_action_log`)
-5. **Active Recommendations** — Current AI pulse insight + target + CTA (reuses existing `TeamPulseCard` sub-components inline)
+Scheduled function (pg_cron, daily) that:
+1. Queries employees with engagement scores below threshold (from `pulse_targets`, last entry per employee)
+2. For **managers**: creates `manager_team_alert` notification if any direct report has score < 40
+3. For **employees**: creates `appreciation_reminder` if zero appreciations sent in last 14 days
+4. For **employees**: creates `action_followup` if they have an unacted CTA logged > 3 days ago
+5. Deduplication: skip if same `type` + `recipient_id` notification exists within last 48h
+6. Professional, premium-language titles/bodies (bilingual via `language` metadata field)
+7. Caps at 2 notifications per employee per day (no spam)
 
-#### 3. Create data hook
+#### 3. Create `useEngagementNotifications` hook
 
-**New file**: `src/features/team-pulse/hooks/useEngagementTrends.ts`
+**New file**: `src/features/team-pulse/hooks/useEngagementNotifications.ts`
 
-Single hook that queries:
-- `pulse_targets` — last 30 days of daily scores for the current scope (personal/team/org)
-- `appreciations` — count grouped by week for the last 90 days
-- `engagement_action_log` — last 50 actions for the current employee
+- Queries `engagement_notifications` for current employee
+- Realtime subscription on INSERT for live updates
+- `markRead` / `markAllRead` mutations
+- Returns `{ notifications, unreadCount, markRead, markAllRead }`
 
-Returns `{ pulseTrend, appreciationTrend, actionLog, isPending }`.
+#### 4. Integrate into UnifiedNotificationBell
 
-#### 4. Build chart components
+**File**: `src/components/notifications/UnifiedNotificationBell.tsx`
 
-**New files in `src/features/team-pulse/components/`**:
+- Add `engagement` as a 4th `NotificationSource`
+- Import and wire `useEngagementNotifications`
+- Add tab with `Activity` icon for engagement notifications
+- Add icon/color maps for engagement notification types
+- Normalize engagement notifications into `UnifiedNotification` format with `navigateTo` from `action_path`
 
-- **`PulseTrendChart.tsx`** — Recharts line chart with `chart-2` color, premium glass tooltip, responsive. Shows engagement score (0-100) over time.
-- **`AppreciationTrendChart.tsx`** — Recharts area chart showing weekly appreciation volume with `chart-3` fill.
-- **`EngagementActionTable.tsx`** — Uses existing `DataTable` component. Columns: Date, Action Type (badge), Source. Capped at 50 rows, no pagination needed.
-
-#### 5. Add navigation entry
-
-**File**: `src/features/team-pulse/components/TeamPulseCard.tsx`
-
-Add a subtle "View Details" link (`ChevronRight` icon) in the card header that navigates to `/engagement-insights`.
-
-#### 6. Add i18n keys
+#### 5. Add i18n keys
 
 **Files**: `src/locales/en.json`, `src/locales/ar.json`
 
-Add keys under `engagementInsights.*` for page title, section headers, empty states, and column labels.
+- Notification type titles: `notifications.type.engagement_drop`, `notifications.type.appreciation_reminder`, etc.
+- Body translations for each type
+- Tab label: `notifications.engagement`
 
-#### 7. Export from feature barrel
+#### 6. Schedule the notifier via pg_cron
 
-**File**: `src/features/team-pulse/index.ts`
+**Insert (not migration)**: Schedule `engagement-notifier` to run daily at 08:00 UTC.
 
-Export new hook and page-level components.
+### Notification Types & Targeting
 
-### Design Approach
+| Type | Target | Trigger | Action Path |
+|------|--------|---------|-------------|
+| `engagement_drop` | Employee | Personal score drops below 35 | `/employee/survey` |
+| `appreciation_reminder` | Employee | No appreciations sent in 14 days | Home (appreciation widget) |
+| `pulse_nudge` | Employee | No check-in in 7 days | `/employee/survey` |
+| `manager_team_alert` | Manager | Any direct report score < 40 | `/engagement-insights` |
+| `action_followup` | Employee | CTA logged but no follow-through in 3 days | From original `actionPath` |
 
-- `PageHeader` card variant with Activity icon
-- All charts in `ChartCard` wrappers (glass surface)
-- `CollapsibleCard` pattern (same as OrgDashboard OverviewTab) for show/hide
-- `PulseModeSwitcher` at top for scope selection
-- Mobile: single-column stack, charts at full width, table scrolls horizontally
-- All tokens from `@/theme/tokens` — no hardcoded colors
-- `animate-in fade-in` entrance on sections
+### Anti-Spam Rules (enforced in edge function)
+
+- Max 2 engagement notifications per employee per day
+- 48h cooldown per notification type per recipient
+- No duplicate notifications for same trigger within cooldown
 
 ### Files Summary
 
 | File | Action |
 |------|--------|
-| `src/pages/EngagementInsights.tsx` | **Create** — Main page |
-| `src/features/team-pulse/hooks/useEngagementTrends.ts` | **Create** — Data hook |
-| `src/features/team-pulse/components/PulseTrendChart.tsx` | **Create** — Line chart |
-| `src/features/team-pulse/components/AppreciationTrendChart.tsx` | **Create** — Area chart |
-| `src/features/team-pulse/components/EngagementActionTable.tsx` | **Create** — Action log table |
-| `src/features/team-pulse/components/TeamPulseCard.tsx` | **Modify** — Add "View Details" link |
-| `src/features/team-pulse/index.ts` | **Modify** — Export new components |
-| `src/App.tsx` | **Modify** — Add route |
-| `src/locales/en.json` | **Modify** — Add i18n keys |
-| `src/locales/ar.json` | **Modify** — Add i18n keys |
+| Migration | Create `engagement_notifications` table + RLS + trigger + realtime |
+| `supabase/functions/engagement-notifier/index.ts` | Create scheduled notifier |
+| `src/features/team-pulse/hooks/useEngagementNotifications.ts` | Create notification hook |
+| `src/components/notifications/UnifiedNotificationBell.tsx` | Add engagement tab |
+| `src/locales/en.json` | Add i18n keys |
+| `src/locales/ar.json` | Add i18n keys |
 
 ### What Is Not Changing
 
-- No database migrations — all tables exist
-- No edge function changes
-- No new dependencies (Recharts already installed)
-- Existing `TeamPulseCard` functionality unchanged
+- Existing task/crisis/recognition notification flows unchanged
+- No changes to `team-pulse-engine` edge function
+- No changes to existing dashboard components
+- Push notification bridge in `useTaskNotifications` pattern will be replicated for engagement
 
