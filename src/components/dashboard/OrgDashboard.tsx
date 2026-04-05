@@ -13,6 +13,7 @@ import {
 } from '@/features/org-dashboard';
 import { OrgWorkloadIndicator } from '@/features/org-dashboard/components/OrgWorkloadIndicator';
 import { TeamPulseCard } from '@/features/team-pulse';
+import { WellnessCopilotCard } from '@/features/wellness-copilot';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 
 export function OrgDashboard() {
@@ -43,7 +44,10 @@ export function OrgDashboard() {
       <ErrorBoundary><OrgWorkloadIndicator /></ErrorBoundary>
 
       {employee?.id && (
-        <ErrorBoundary><TeamPulseCard employeeId={employee.id} /></ErrorBoundary>
+        <>
+          <ErrorBoundary><TeamPulseCard employeeId={employee.id} /></ErrorBoundary>
+          <ErrorBoundary><WellnessCopilotCard employeeId={employee.id} /></ErrorBoundary>
+        </>
       )}
 
       <Tabs defaultValue="overview" className="space-y-6">
