@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 import { useCurrentEmployee } from "@/hooks/auth/useCurrentEmployee";
 import { useTenantId } from "@/hooks/org/useTenantId";
 
