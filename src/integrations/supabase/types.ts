@@ -2159,6 +2159,63 @@ export type Database = {
           },
         ]
       }
+      engagement_notifications: {
+        Row: {
+          action_path: string | null
+          body: string | null
+          created_at: string
+          deleted_at: string | null
+          id: string
+          is_read: boolean
+          metadata: Json | null
+          recipient_id: string
+          tenant_id: string
+          title: string
+          type: string
+        }
+        Insert: {
+          action_path?: string | null
+          body?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_read?: boolean
+          metadata?: Json | null
+          recipient_id: string
+          tenant_id: string
+          title: string
+          type: string
+        }
+        Update: {
+          action_path?: string | null
+          body?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_read?: boolean
+          metadata?: Json | null
+          recipient_id?: string
+          tenant_id?: string
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engagement_notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engagement_notifications_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       escalation_events: {
         Row: {
           created_at: string | null

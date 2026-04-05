@@ -14,11 +14,13 @@ import {
 import {
   Rss, CheckCircle2, MessageSquare, AlertTriangle, UserPlus,
   ShieldCheck, XCircle, Clock, CheckCheck, ListChecks, Timer,
-  UserCheck, Check, X, Award, ThumbsUp,
+  UserCheck, Check, X, Award, ThumbsUp, Activity, TrendingDown,
+  Heart, BellRing,
 } from 'lucide-react';
 import { useTaskNotifications, type TaskNotification } from '@/features/tasks/hooks/useTaskNotifications';
 import { useCrisisNotifications, type CrisisNotification } from '@/hooks/crisis/useCrisisNotifications';
 import { useRecognitionNotifications, type RecognitionNotification } from '@/hooks/recognition/useRecognitionNotifications';
+import { useEngagementNotifications, type EngagementNotification } from '@/features/team-pulse/hooks/useEngagementNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ar as arLocale } from 'date-fns/locale/ar';
 import { enUS } from 'date-fns/locale/en-US';
@@ -45,7 +47,7 @@ function getTranslatedBody(n: UnifiedNotification, t: (key: string, opts?: any) 
   return translated || n.body;
 }
 
-type NotificationSource = 'task' | 'crisis' | 'recognition';
+type NotificationSource = 'task' | 'crisis' | 'recognition' | 'engagement';
 
 interface UnifiedNotification {
   id: string;
@@ -88,6 +90,14 @@ const RECOGNITION_ICONS: Record<string, typeof Rss> = {
   award_won: Award,
 };
 
+const ENGAGEMENT_ICONS: Record<string, typeof Rss> = {
+  engagement_drop: TrendingDown,
+  appreciation_reminder: Heart,
+  pulse_nudge: Activity,
+  manager_team_alert: AlertTriangle,
+  action_followup: BellRing,
+};
+
 const TASK_COLORS: Record<string, string> = {
   assigned: 'text-chart-2',
   status_changed: 'text-chart-4',
@@ -113,6 +123,14 @@ const RECOGNITION_COLORS: Record<string, string> = {
   nomination_approved: 'text-chart-1',
   nomination_rejected: 'text-destructive',
   award_won: 'text-chart-5',
+};
+
+const ENGAGEMENT_COLORS: Record<string, string> = {
+  engagement_drop: 'text-destructive',
+  appreciation_reminder: 'text-chart-2',
+  pulse_nudge: 'text-chart-4',
+  manager_team_alert: 'text-chart-5',
+  action_followup: 'text-chart-3',
 };
 
 function normalizeTask(n: TaskNotification): UnifiedNotification {
@@ -142,15 +160,25 @@ function normalizeRecognition(n: RecognitionNotification): UnifiedNotification {
   };
 }
 
+function normalizeEngagement(n: EngagementNotification): UnifiedNotification {
+  return {
+    id: n.id, type: n.type, title: n.title, body: n.body,
+    is_read: n.is_read, created_at: n.created_at, source: 'engagement',
+    navigateTo: n.action_path || '/',
+  };
+}
+
 function getIcon(n: UnifiedNotification) {
   if (n.source === 'task') return TASK_ICONS[n.type] ?? Rss;
   if (n.source === 'crisis') return CRISIS_ICONS[n.type] ?? Rss;
+  if (n.source === 'engagement') return ENGAGEMENT_ICONS[n.type] ?? Activity;
   return RECOGNITION_ICONS[n.type] ?? Award;
 }
 
 function getColor(n: UnifiedNotification) {
   if (n.source === 'task') return TASK_COLORS[n.type] ?? 'text-muted-foreground';
   if (n.source === 'crisis') return CRISIS_COLORS[n.type] ?? 'text-muted-foreground';
+  if (n.source === 'engagement') return ENGAGEMENT_COLORS[n.type] ?? 'text-muted-foreground';
   return RECOGNITION_COLORS[n.type] ?? 'text-muted-foreground';
 }
 
@@ -164,6 +192,7 @@ interface NotificationContentProps {
   taskUnread: number;
   crisisUnread: number;
   recognitionUnread: number;
+  engagementUnread: number;
   onMarkAllRead: () => void;
   onItemClick: (n: UnifiedNotification) => void;
   isMobile: boolean;
@@ -171,7 +200,7 @@ interface NotificationContentProps {
 }
 
 function NotificationContent({
-  tab, setTab, filtered, totalUnread, taskUnread, crisisUnread, recognitionUnread,
+  tab, setTab, filtered, totalUnread, taskUnread, crisisUnread, recognitionUnread, engagementUnread,
   onMarkAllRead, onItemClick, isMobile, t,
 }: NotificationContentProps) {
   const { i18n } = useTranslation();
@@ -206,6 +235,10 @@ function NotificationContent({
           <TabsTrigger value="recognition" className="flex-1 text-2xs h-7 px-1">
             {isMobile ? <Award className="h-3.5 w-3.5" /> : t('notifications.recognition', 'Recognition')}
             {recognitionUnread > 0 && <Badge variant="secondary" className="ms-0.5 h-4 min-w-4 px-0.5 text-2xs">{recognitionUnread}</Badge>}
+          </TabsTrigger>
+          <TabsTrigger value="engagement" className="flex-1 text-2xs h-7 px-1">
+            {isMobile ? <Activity className="h-3.5 w-3.5" /> : t('notifications.engagement', 'Engagement')}
+            {engagementUnread > 0 && <Badge variant="secondary" className="ms-0.5 h-4 min-w-4 px-0.5 text-2xs">{engagementUnread}</Badge>}
           </TabsTrigger>
         </TabsList>
 
@@ -279,16 +312,22 @@ export function UnifiedNotificationBell() {
     markAsRead: markRecognitionRead, markAllAsRead: markAllRecognitionRead,
   } = useRecognitionNotifications();
 
+  const {
+    notifications: engagementNotifications, unreadCount: engagementUnread,
+    markAsRead: markEngagementRead, markAllAsRead: markAllEngagementRead,
+  } = useEngagementNotifications();
+
   const merged = useMemo(() => {
     const tasks = taskNotifications.map(normalizeTask);
     const crisis = crisisNotifications.map(normalizeCrisis);
     const recognition = recognitionNotifications.map(normalizeRecognition);
-    return [...tasks, ...crisis, ...recognition].sort(
+    const engagement = engagementNotifications.map(normalizeEngagement);
+    return [...tasks, ...crisis, ...recognition, ...engagement].sort(
       (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-  }, [taskNotifications, crisisNotifications, recognitionNotifications]);
+  }, [taskNotifications, crisisNotifications, recognitionNotifications, engagementNotifications]);
 
-  const totalUnread = taskUnread + crisisUnread + recognitionUnread;
+  const totalUnread = taskUnread + crisisUnread + recognitionUnread + engagementUnread;
 
   const filtered = useMemo(() => {
     if (tab === 'all') return merged;
@@ -299,6 +338,7 @@ export function UnifiedNotificationBell() {
     if (!n.is_read) {
       if (n.source === 'task') markTaskRead(n.id);
       else if (n.source === 'crisis') markCrisisRead.mutate(n.id);
+      else if (n.source === 'engagement') markEngagementRead.mutate(n.id);
       else markRecognitionRead.mutate(n.id);
     }
     setOpen(false);
@@ -309,6 +349,7 @@ export function UnifiedNotificationBell() {
     if (taskUnread > 0) markAllTaskRead();
     if (crisisUnread > 0) markAllCrisisRead.mutate();
     if (recognitionUnread > 0) markAllRecognitionRead.mutate();
+    if (engagementUnread > 0) markAllEngagementRead.mutate();
   };
 
   const bellButton = (
@@ -326,7 +367,7 @@ export function UnifiedNotificationBell() {
   );
 
   const contentProps: NotificationContentProps = {
-    tab, setTab, filtered, totalUnread, taskUnread, crisisUnread, recognitionUnread,
+    tab, setTab, filtered, totalUnread, taskUnread, crisisUnread, recognitionUnread, engagementUnread,
     onMarkAllRead: handleMarkAllRead, onItemClick: handleClick, isMobile, t,
   };
 

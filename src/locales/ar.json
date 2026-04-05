@@ -2498,6 +2498,7 @@
     "tasks": "المهام",
     "crisis": "الأزمات",
     "recognition": "التقدير",
+    "engagement": "التفاعل",
     "endorsementRequested": "{{name}} طلب تأييدك",
     "endorsementRequestedBody": "يرجى مراجعة وتأييد الترشيح لـ \"{{headline}}\"",
     "empty": "لا توجد إشعارات بعد",
@@ -2522,7 +2523,12 @@
       "nomination_received": "ترشيح جديد",
       "nomination_approved": "تمت الموافقة على الترشيح",
       "nomination_rejected": "تم رفض الترشيح",
-      "award_won": "فزت بجائزة"
+      "award_won": "فزت بجائزة",
+      "engagement_drop": "درجة تفاعلك تحتاج اهتمامك",
+      "appreciation_reminder": "وقت لنشر التقدير اليوم",
+      "pulse_nudge": "كيف حالك اليوم؟",
+      "manager_team_alert": "تفاعل الفريق يحتاج اهتمامك",
+      "action_followup": "أكمل إجراء التفاعل الخاص بك"
     },
     "body": {
       "assigned": "تم تعيين مهمة جديدة لك.",
@@ -2538,7 +2544,12 @@
       "new_message": "لديك رسالة جديدة.",
       "case_resolved": "تم حل حالة الدعم.",
       "endorsement_requested": "شخص طلب تأييدك.",
-      "nomination_endorsed": "تم تأييد ترشيحك."
+      "nomination_endorsed": "تم تأييد ترشيحك.",
+      "engagement_drop": "انخفضت درجة تفاعلك عن النطاق الصحي.",
+      "appreciation_reminder": "مضى وقت منذ آخر تقدير أرسلته لزميل.",
+      "pulse_nudge": "لم تسجل حضورك مؤخراً. خذ لحظة لمشاركة حالتك.",
+      "manager_team_alert": "بعض أعضاء الفريق لديهم درجات تفاعل منخفضة.",
+      "action_followup": "بدأت إجراء تفاعل مؤخراً. المتابعة ستعزز نبض فريقك."
     }
   },
   "crisisSupport": {
