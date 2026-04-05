@@ -36,6 +36,7 @@ export function useEngagementTrends(mode: PulseMode, employeeId: string | null |
       let query = supabase
         .from("pulse_targets")
         .select("target_date, current_value, target_value")
+        .eq("tenant_id", tenantId!)
         .eq("scope", scope)
         .eq("target_metric", "engagement_score")
         .gte("target_date", since)
