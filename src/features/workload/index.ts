@@ -29,6 +29,7 @@ export { useUnifiedTasks } from './hooks/useUnifiedTasks';
 export { useWorkloadAnalytics } from './hooks/useWorkloadAnalytics';
 export { useWorkloadHeatmap } from './hooks/useWorkloadHeatmap';
 export { useDelayPredictions, useRedistributionSuggestions, useRunEscalationCheck, useRunSlaMonitor, useRunAnalyticsSnapshot, useRunAIPredictions } from './hooks/useWorkloadIntelligence';
+export { useWorkloadTrends } from './hooks/useWorkloadTrends';
 export { useWorkloadMetrics } from './hooks/useWorkloadMetrics';
 
 // Types re-exports

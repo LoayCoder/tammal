@@ -424,6 +424,19 @@ export default function TaskDetail() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {task && (
+        <UnlockRequestDialog
+          open={unlockDialogOpen}
+          onOpenChange={setUnlockDialogOpen}
+          taskTitle={task.title}
+          onConfirm={(justification) => {
+            updateTask.mutate({ is_locked: false, status: 'in_progress' } as any);
+            setUnlockDialogOpen(false);
+          }}
+          isPending={updateTask.isPending}
+        />
+      )}
     </div>
   );
 }
