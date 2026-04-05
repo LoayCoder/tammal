@@ -37,7 +37,6 @@ interface Props {
 function CollapsibleCard({ title, children, cardKey }: { title: string; children: React.ReactNode; cardKey: string }) {
   const [visible, setVisible] = useState(true);
   const toggle = useCallback(() => setVisible(v => !v), []);
-  const Icon = visible ? EyeOff : Eye;
 
   return (
     <div className="transition-all duration-200">
@@ -50,10 +49,10 @@ function CollapsibleCard({ title, children, cardKey }: { title: string; children
           <Eye className="h-4 w-4 text-muted-foreground" />
         </button>
       ) : (
-        <div className="relative group">
+        <div className="relative overflow-visible">
           <button
             onClick={toggle}
-            className="absolute top-3 end-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-muted/50"
+            className="absolute top-3 end-3 z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-muted/50 bg-muted/30 md:bg-transparent"
             aria-label="Hide"
           >
             <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />

@@ -40,12 +40,12 @@ export function RiskTrendChart({ data, isLoading, threshold = 20 }: Props) {
       <CardHeader className="pb-2">
         <CardTitle className="text-base">{t('orgDashboard.riskTrend')}</CardTitle>
       </CardHeader>
-      <CardContent className="p-5 pt-0">
+      <CardContent className="p-4 pt-0 overflow-visible">
         {isLoading ? (
-          <Skeleton className="h-[240px] w-full rounded-xl" />
+          <Skeleton className="h-[260px] w-full rounded-xl" />
         ) : chartData.length > 0 ? (
-          <ResponsiveContainer width="100%" height={240}>
-            <ComposedChart data={chartData} margin={{ top: 10, right: 10, bottom: 5, left: 0 }}>
+          <ResponsiveContainer width="100%" height={280}>
+            <ComposedChart data={chartData} margin={{ top: 20, right: 12, bottom: 10, left: 0 }}>
               <defs>
                 <linearGradient id="riskGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="hsl(var(--destructive))" stopOpacity={0.4} />
@@ -54,7 +54,19 @@ export function RiskTrendChart({ data, isLoading, threshold = 20 }: Props) {
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} strokeOpacity={0.5} />
               <XAxis dataKey="label" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
-              <YAxis domain={[0, 100]} padding={{ top: 20, bottom: 10 }} tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} width={30} tickFormatter={v => `${v}%`} />
+              <YAxis
+                domain={([dataMin, dataMax]: [number, number]) => [
+                  Math.max(0, dataMin - 10),
+                  Math.min(100, dataMax + 10),
+                ]}
+                padding={{ top: 30, bottom: 30 }}
+                tick={CHART_AXIS_TICK}
+                axisLine={false}
+                tickLine={false}
+                width={32}
+                tickFormatter={v => `${v}%`}
+                allowDataOverflow={false}
+              />
               <Tooltip
                 contentStyle={GLASS_TOOLTIP}
                 formatter={(value: number) => [`${value}%`, t('orgDashboard.riskPct')]}
@@ -64,7 +76,7 @@ export function RiskTrendChart({ data, isLoading, threshold = 20 }: Props) {
                 stroke="hsl(var(--destructive))"
                 strokeDasharray="6 4"
                 strokeWidth={1.5}
-                label={{ value: t('orgDashboard.limit'), position: 'insideTopRight', fill: 'hsl(var(--destructive))', fontSize: 11 }}
+                label={{ value: t('orgDashboard.limit'), position: 'right', fill: 'hsl(var(--destructive))', fontSize: 10 }}
               />
               <Area
                 type="natural"
@@ -72,8 +84,8 @@ export function RiskTrendChart({ data, isLoading, threshold = 20 }: Props) {
                 stroke="hsl(var(--destructive))"
                 strokeWidth={2.5}
                 fill="url(#riskGradient)"
-                dot={{ r: 3, fill: 'hsl(var(--destructive))', strokeWidth: 0 }}
-                activeDot={{ r: 5, stroke: 'hsl(var(--destructive))', strokeWidth: 2, fill: 'hsl(var(--background))' }}
+                dot={{ r: 2.5, fill: 'hsl(var(--destructive))', strokeWidth: 0 }}
+                activeDot={{ r: 4, stroke: 'hsl(var(--destructive))', strokeWidth: 1.5, fill: 'hsl(var(--background))' }}
               />
             </ComposedChart>
           </ResponsiveContainer>
