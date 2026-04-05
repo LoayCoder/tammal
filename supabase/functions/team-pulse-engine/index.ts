@@ -468,6 +468,21 @@ Analyze this ${mode} engagement data and generate a structured engagement insigh
       generatedAt: new Date().toISOString(),
     };
 
+    // Persist target for history tracking
+    try {
+      await admin.from("pulse_targets").insert({
+        tenant_id: emp.tenant_id,
+        employee_id: mode === "organization" ? null : emp.id,
+        scope: mode,
+        target_metric: insight.targetMetric ?? "engagement",
+        target_value: insight.targetValue ?? 0,
+        current_value: insight.currentValue ?? 0,
+        target_date: todayStr,
+      });
+    } catch (targetErr) {
+      console.error("Failed to persist pulse target:", targetErr);
+    }
+
     // Cache
     await admin.from("copilot_insight_cache").upsert({
       scope_key: scopeKey,

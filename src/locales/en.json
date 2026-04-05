@@ -4593,6 +4593,19 @@
     "catInnovation": "Innovation",
     "catSupport": "Support",
     "catLeadership": "Leadership",
-    "catAboveBeyond": "Above & Beyond"
+    "catAboveBeyond": "Above & Beyond",
+    "activityTitle": "Appreciation Activity",
+    "activitySubtitle": "30-day recognition summary",
+    "sent": "Sent",
+    "received": "Received",
+    "topCategory": "Top category:",
+    "nudgeLowTitle": "Engagement needs attention",
+    "nudgeLowDesc": "Your engagement score is low — try a quick check-in or send an appreciation to a colleague today.",
+    "nudgeMedTitle": "Almost there!",
+    "nudgeMedDesc": "You're on track — one more action could boost your engagement score above 50.",
+    "nudgeCta": "Take a quick action →",
+    "teamKudgeNudge": "Send Team Kudos",
+    "teamNudgeMessage": "Great teamwork everyone! Keep up the amazing collaboration. 🙌",
+    "teamNudgeSent": "Team kudos sent! 🎉"
   }
 }
