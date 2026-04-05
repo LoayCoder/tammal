@@ -1,31 +1,28 @@
+## Move Daily Check-in to Position #1
 
+Move the Daily Check-in block (both `InlineDailyCheckin` and the completed indicator card) to be the very first widget after the greeting and engagement rank badge.
 
-## Generate Team Pulse SRS Document (PDF)
+### File: `src/pages/EmployeeHome.tsx`
 
-### What
-Create a professional Software Requirements Specification (SRS) PDF document for the **Team Pulse** feature, covering all three modes: Personal, Team, and Organization — with improvement recommendations based on the current implementation analysis.
+**Current order** (after greeting + rank badge):
 
-### Document Structure
-1. **Cover Page** — Title, project name (Tammal SaaS), version, date
-2. **Introduction** — Purpose, scope, definitions, references
-3. **Current System Overview** — Existing architecture, components, data flow, scoring model
-4. **Functional Requirements** — Detailed requirements for each mode (Personal, Team, Organization) including current capabilities and proposed improvements
-5. **Non-Functional Requirements** — Performance, security (RLS/tenant isolation), localization (RTL), scalability
-6. **Data Model** — Tables involved (pulse_targets, mood_entries, appreciations, unified_tasks, engagement_action_log, copilot_insight_cache)
-7. **Engagement Score Algorithm** — Current weighted formula and proposed enhancements per mode
-8. **AI Integration** — Lovable AI gateway, prompt engineering, caching strategy
-9. **UI/UX Components** — Component inventory (TeamPulseCard, PulseModeSwitcher, PulseNudgeCard, QuickAppreciationCard, etc.)
-10. **Improvement Recommendations** — Specific enhancements for each mode
-11. **Appendices** — API contracts, edge function specification
+1. Wellness Copilot
+2. Team Pulse
+3. Quick Appreciation
+4. Appreciation Activity
+5. Support Hub
+6. Endorsement Requests → Shortlist → Voting → Surveys
+7. **Daily Check-in / Completed indicator** (lines ~189-208)
+8. Prayer → Workload → Mood Dashboard
 
-### Technical Approach
-- Generate using Python `reportlab` (Platypus)
-- Professional formatting with Tammal brand colors
-- Output to `/mnt/documents/Team_Pulse_SRS.pdf`
-- Visual QA via `pdftoppm` inspection
+**New order:**
 
-### Content Highlights (Improvements per Mode)
-**Personal**: Historical score tracking, goal-setting, streak gamification, personalized benchmarks
-**Team**: Comparative team analytics, member participation heatmap, manager action queue, team health trends
-**Organization**: Cross-department benchmarking, executive summary dashboard, org-wide sentiment trends, predictive engagement alerts
+1. **Daily Check-in / Completed indicator** (moved to top)
+2. Support Hub
+3. Wellness Copilot
+4. Team Pulse
+5. Quick Appreciation
+6. Appreciation Activity
+7. Everything else unchanged
 
+Move the two JSX blocks (the `InlineDailyCheckin` conditional and the `todayEntry` completed card) from their current position to immediately after the `EngagementRankBadge` component, before `WellnessCopilotCard`.
