@@ -195,7 +195,7 @@ export default function TeamWorkload() {
 
       <TeamStatCards cards={statCards} isLoading={analyticsLoading} />
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
         <WorkloadDistributionChart data={workloadDistribution} isLoading={analyticsLoading} />
         <ExecutionMetricsCard velocity={velocity} completionRate={completionRate} overdueRate={overdueRate} />
       </div>
