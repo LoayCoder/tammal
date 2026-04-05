@@ -31,6 +31,7 @@ export { useWorkloadHeatmap } from './hooks/useWorkloadHeatmap';
 export { useDelayPredictions, useRedistributionSuggestions, useRunEscalationCheck, useRunSlaMonitor, useRunAnalyticsSnapshot, useRunAIPredictions } from './hooks/useWorkloadIntelligence';
 export { useWorkloadTrends } from './hooks/useWorkloadTrends';
 export { useWorkloadMetrics } from './hooks/useWorkloadMetrics';
+export { useCapacityPlanner } from './hooks/useCapacityPlanner';
 
 // Types re-exports
 export type { EmployeeCapacity } from './hooks/useEmployeeCapacity';
