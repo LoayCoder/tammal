@@ -23,7 +23,7 @@ export function useEngagementNotifications() {
 
   const { data: notifications = [], isLoading } = useQuery({
     queryKey: ["engagement-notifications", employeeId],
-    enabled: !!employeeId,
+    enabled: !!employeeId && !!tenantId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("engagement_notifications" as any)
