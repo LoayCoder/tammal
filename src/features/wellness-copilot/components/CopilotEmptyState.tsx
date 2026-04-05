@@ -7,8 +7,8 @@ interface Props {
 }
 
 const ctaMap: Record<string, { route: string; labelKey: string }> = {
-  complete_checkin: { route: "/employee", labelKey: "copilot.ctaCheckin" },
-  review_workload: { route: "/employee/workload", labelKey: "copilot.ctaWorkload" },
+  complete_checkin: { route: "/employee/wellness", labelKey: "copilot.ctaCheckin" },
+  review_workload: { route: "/my-workload", labelKey: "copilot.ctaWorkload" },
   launch_survey: { route: "/admin/questions", labelKey: "copilot.ctaSurvey" },
   no_team_members: { route: "/admin/employees", labelKey: "copilot.ctaManageTeam" },
 };

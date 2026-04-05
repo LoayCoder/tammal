@@ -9,13 +9,13 @@ interface Props {
 }
 
 const ctaRoutes: Record<ActionCta, string> = {
-  complete_checkin: "/employee",
-  review_workload: "/employee/workload",
+  complete_checkin: "/employee/wellness",
+  review_workload: "/my-workload",
   view_team: "/admin/analytics",
   launch_survey: "/admin/questions",
   view_insights: "/admin/analytics",
-  take_break: "/employee/wellness-tools",
-  review_tasks: "/employee/tasks",
+  take_break: "/wellness",
+  review_tasks: "/my-workload",
 };
 
 const ctaLabels: Record<ActionCta, string> = {
