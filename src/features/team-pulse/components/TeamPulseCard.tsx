@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { Activity, RefreshCw, Megaphone } from "lucide-react";
+import { Activity, RefreshCw, Megaphone, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { cardVariants } from "@/theme/tokens";
 import { useTeamPulse } from "../hooks/useTeamPulse";
