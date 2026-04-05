@@ -66,6 +66,7 @@ export function useEngagementTrends(mode: PulseMode, employeeId: string | null |
       let query = supabase
         .from("appreciations")
         .select("created_at")
+        .eq("tenant_id", tenantId!)
         .gte("created_at", since)
         .is("deleted_at", null)
         .order("created_at", { ascending: true })
