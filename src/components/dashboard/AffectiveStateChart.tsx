@@ -53,7 +53,7 @@ export function AffectiveStateChart({ data, isLoading }: AffectiveStateChartProp
           <Skeleton className="h-[250px] w-full rounded-xl" />
         ) : totalCount > 0 ? (
           <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
+            <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
               <Pie
                 data={chartData}
                 cx="50%"

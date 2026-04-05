@@ -45,7 +45,7 @@ export function CategoryHealthChart({ data, isLoading }: CategoryHealthChartProp
           <Skeleton className="h-[280px] w-full rounded-xl" />
         ) : chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={Math.max(280, chartData.length * 44)}>
-            <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
+            <BarChart data={chartData} layout="vertical" margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} horizontal={false} strokeOpacity={0.5} />
               <XAxis type="number" domain={[0, 5]} tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="name" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} width={120} />

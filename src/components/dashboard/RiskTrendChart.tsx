@@ -73,7 +73,7 @@ export function RiskTrendChart({ data, isLoading, threshold = 20 }: Props) {
                 strokeWidth={2.5}
                 fill="url(#riskGradient)"
                 dot={{ r: 3, fill: 'hsl(var(--destructive))', strokeWidth: 0 }}
-                activeDot={{ r: 6, stroke: 'hsl(var(--destructive))', strokeWidth: 2, fill: 'hsl(var(--background))' }}
+                activeDot={{ r: 5, stroke: 'hsl(var(--destructive))', strokeWidth: 2, fill: 'hsl(var(--background))' }}
               />
             </ComposedChart>
           </ResponsiveContainer>
