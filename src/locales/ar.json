@@ -4609,5 +4609,29 @@
     "teamNudgeSent": "تم إرسال تشجيع الفريق! 🎉",
     "engagementScore": "درجة المشاركة",
     "recommendedAction": "الإجراء المقترح"
+  },
+  "engagementInsights": {
+    "title": "ذكاء المشاركة",
+    "subtitle": "رؤى معمقة حول اتجاهات المشاركة ونشاط التقدير وسجل الإجراءات",
+    "viewDetails": "التفاصيل",
+    "pulseTrend": "اتجاه النبض",
+    "pulseTrendDesc": "درجة المشاركة خلال آخر 30 يومًا",
+    "noTrendData": "لا توجد بيانات اتجاه النبض بعد",
+    "score": "الدرجة",
+    "target": "الهدف",
+    "currentScore": "الدرجة الحالية",
+    "targetMetric": "تقدم الهدف",
+    "appreciationTrend": "نشاط التقدير",
+    "appreciationTrendDesc": "حجم التقدير الأسبوعي خلال آخر 90 يومًا",
+    "noAppreciationData": "لا توجد بيانات تقدير بعد",
+    "appreciations": "التقديرات",
+    "actionLog": "إجراءات المشاركة",
+    "actionLogDesc": "التفاعلات الأخيرة المتتبعة من بطاقات النبض والتنبيهات",
+    "colDate": "التاريخ",
+    "colAction": "الإجراء",
+    "colSource": "المصدر",
+    "noActions": "لم يتم تسجيل إجراءات بعد",
+    "noActionsDesc": "ستظهر إجراءات المشاركة هنا عند تفاعلك مع ميزات النبض",
+    "activeRecommendations": "التوصيات النشطة"
   }
 }

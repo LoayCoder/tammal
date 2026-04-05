@@ -85,13 +85,22 @@ export function TeamPulseCard({ employeeId }: Props) {
             <p className="text-[10px] text-muted-foreground">{t(modeSubLabels[selectedMode])}</p>
           </div>
         </div>
-        <button
-          onClick={() => refetch()}
-          disabled={isPending}
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/10 transition-all duration-200 disabled:opacity-40"
-        >
-          <RefreshCw className={cn("h-3.5 w-3.5", isPending && "animate-spin")} strokeWidth={1.5} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => navigate("/engagement-insights")}
+            className="flex h-7 items-center gap-0.5 rounded-lg px-1.5 text-2xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/10 transition-all duration-200"
+          >
+            {t("engagementInsights.viewDetails")}
+            <ChevronRight className="h-3 w-3 rtl:rotate-180" strokeWidth={2} />
+          </button>
+          <button
+            onClick={() => refetch()}
+            disabled={isPending}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/10 transition-all duration-200 disabled:opacity-40"
+          >
+            <RefreshCw className={cn("h-3.5 w-3.5", isPending && "animate-spin")} strokeWidth={1.5} />
+          </button>
+        </div>
       </div>
 
       <div className="p-4 space-y-4 scroll-smooth">
