@@ -99,6 +99,9 @@ export default function EmployeeHome() {
         {/* Engagement Rank Badge */}
         <EngagementRankBadge rank={rank} totalEmployees={totalEmployees} isPending={rankLoading} error={rankError} />
 
+        {/* Wellness Copilot */}
+        {employee && <WellnessCopilotCard employeeId={employee.id} />}
+
         {/* Support Hub — Collapsible Premium Card */}
         <Collapsible className="premium-card rounded-2xl hover:shadow-sm transition-all duration-200">
           <CollapsibleTrigger className="group flex items-center justify-between w-full p-4 cursor-pointer">
