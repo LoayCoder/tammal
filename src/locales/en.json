@@ -4606,6 +4606,8 @@
     "nudgeCta": "Take a quick action →",
     "teamKudgeNudge": "Send Team Kudos",
     "teamNudgeMessage": "Great teamwork everyone! Keep up the amazing collaboration. 🙌",
-    "teamNudgeSent": "Team kudos sent! 🎉"
+    "teamNudgeSent": "Team kudos sent! 🎉",
+    "engagementScore": "Engagement Score",
+    "recommendedAction": "Recommended Action"
   }
 }
