@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { useTenantId } from "@/hooks/org/useTenantId";
 import { useCurrentEmployee } from "@/hooks/auth/useCurrentEmployee";
+import { useEngagementActionLog } from "./useEngagementActionLog";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
@@ -26,6 +27,7 @@ export function useAppreciations() {
   const { employee } = useCurrentEmployee();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { logAction } = useEngagementActionLog();
 
   const { data: received = [], isPending: receivedLoading } = useQuery({
     queryKey: ["appreciations-received", employee?.id],
@@ -88,11 +90,17 @@ export function useAppreciations() {
         });
       }
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       toast.success(t("pulse.appreciationSent"));
       queryClient.invalidateQueries({ queryKey: ["appreciations-sent"] });
       queryClient.invalidateQueries({ queryKey: ["appreciations-received"] });
       queryClient.invalidateQueries({ queryKey: ["points-transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["team-pulse"] });
+      logAction.mutate({
+        actionType: "appreciation_sent",
+        source: "appreciation_widget",
+        metadata: { category: variables.category },
+      });
     },
     onError: (err: any) => {
       toast.error(err?.message || t("common.somethingWentWrong"));

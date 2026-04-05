@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Zap, ArrowRight } from "lucide-react";
+import { Zap, ArrowRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { useEngagementActionLog } from "../hooks/useEngagementActionLog";
@@ -12,20 +13,33 @@ export function PulseNudgeCard({ engagementScore }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { logAction } = useEngagementActionLog();
+  const [dismissed, setDismissed] = useState(false);
 
-  if (engagementScore >= 50) return null;
+  if (engagementScore >= 50 || dismissed) return null;
 
   const isLow = engagementScore < 30;
 
   return (
     <div
       className={cn(
-        "rounded-xl p-3 space-y-2 border animate-fade-in",
+        "relative rounded-xl p-3 space-y-2 border animate-fade-in",
         isLow
           ? "bg-destructive/[0.04] border-destructive/10"
           : "bg-chart-4/[0.04] border-chart-4/10"
       )}
     >
+      {/* Dismiss button */}
+      <button
+        onClick={() => {
+          logAction.mutate({ actionType: "nudge_dismissed", source: "nudge_card", metadata: { score: engagementScore } });
+          setDismissed(true);
+        }}
+        className="absolute top-2 end-2 flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/10 transition-all duration-200 active:scale-[0.95]"
+        aria-label="Dismiss"
+      >
+        <X className="h-3 w-3" strokeWidth={2} />
+      </button>
+
       <div className="flex items-center gap-2">
         <Zap
           className={cn("h-3.5 w-3.5", isLow ? "text-destructive" : "text-chart-4")}

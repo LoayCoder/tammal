@@ -455,7 +455,7 @@ Analyze this ${mode} engagement data and generate a structured engagement insigh
                   targetMetric: { type: "string", description: "Name of the target metric to improve (e.g., 'Daily check-ins this month')" },
                   targetValue: { type: "number", description: "Target value to reach" },
                   currentValue: { type: "number", description: "Current value of the target metric" },
-                  actionPath: { type: "string", description: "App route for the action CTA (e.g., /employee/survey)" },
+                  actionPath: { type: "string", enum: ["/employee/survey", "/employee/wellness", "/my-workload", "/admin/workload/dashboard", "/admin/workload/team", "/admin/org-analytics"], description: "App route for the action CTA" },
                   actionCta: { type: "string", description: "Short button label text" },
                   impactReason: { type: "string", description: "One sentence explaining WHY this action matters for engagement" },
                 },
