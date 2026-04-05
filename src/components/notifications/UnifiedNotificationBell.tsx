@@ -192,6 +192,7 @@ interface NotificationContentProps {
   taskUnread: number;
   crisisUnread: number;
   recognitionUnread: number;
+  engagementUnread: number;
   onMarkAllRead: () => void;
   onItemClick: (n: UnifiedNotification) => void;
   isMobile: boolean;
