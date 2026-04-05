@@ -26,12 +26,18 @@ serve(async (req) => {
       );
     }
 
-    // Auth — resolve user
+    // Auth — pass the bearer token explicitly in edge runtime
     const authHeader = req.headers.get("authorization") ?? "";
-    const anonClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { authorization: authHeader } },
-    });
-    const { data: { user }, error: authErr } = await anonClient.auth.getUser();
+    if (!authHeader.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+    const anonClient = createClient(supabaseUrl, anonKey);
+    const { data: { user }, error: authErr } = await anonClient.auth.getUser(token);
     if (authErr || !user)
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
