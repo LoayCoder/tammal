@@ -113,6 +113,7 @@ export function TeamPulseCard({ employeeId }: Props) {
               insight={pulse.primaryInsight}
               trend={pulse.trend}
               engagementScore={pulse.engagementScore}
+              impactReason={pulse.impactReason}
             />
             <PulseNudgeCard engagementScore={pulse.engagementScore} />
             <PulseTargetBlock
