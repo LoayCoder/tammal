@@ -27,7 +27,8 @@ export function TammalWeightsSettings() {
         .select('tammal_weights')
         .eq('id', tenantId!)
         .single();
-      return (data?.tammal_weights as Record<string, number>) ?? { alignment: 25, velocity: 25, capacity: 25, burnout: 25 };
+      const row = data as any;
+      return (row?.tammal_weights as Record<string, number>) ?? { alignment: 25, velocity: 25, capacity: 25, burnout: 25 };
     },
     enabled: !!tenantId,
   });
