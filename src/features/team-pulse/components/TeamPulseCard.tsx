@@ -106,7 +106,7 @@ export function TeamPulseCard({ employeeId }: Props) {
         ) : insufficientData ? (
           <PulseEmptyState fallbackCta={insufficientData.fallbackCta} />
         ) : pulse ? (
-          <div className="space-y-0">
+          <div className="space-y-0 transition-all duration-300">
             <div className="py-1">
               <PulseInsightBlock
                 insight={pulse.primaryInsight}
