@@ -10,7 +10,7 @@ interface Props {
   targetValue: number;
 }
 
-export function PulseTargetBlock({ targetMetric, currentValue, targetValue }: Props) {
+export const PulseTargetBlock = memo(function PulseTargetBlock({ targetMetric, currentValue, targetValue }: Props) {
   const { t } = useTranslation();
   const progress = targetValue > 0 ? Math.min(Math.round((currentValue / targetValue) * 100), 100) : 0;
 
