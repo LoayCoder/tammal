@@ -45,6 +45,7 @@ export function OrgDashboard() {
 
       {employee?.id && (
         <ErrorBoundary><TeamPulseCard employeeId={employee.id} /></ErrorBoundary>
+        <ErrorBoundary><WellnessCopilotCard employeeId={employee.id} /></ErrorBoundary>
       )}
 
       <Tabs defaultValue="overview" className="space-y-6">
