@@ -40,7 +40,8 @@ function getGreeting(t: (key: string) => string) {
 }
 
 export default function EmployeeHome() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language === 'ar' ? arLocale : enUS;
   const { employee, isPending: empLoading } = useCurrentEmployee();
   const { streak, totalPoints, isPending: gamLoading } = useGamification(employee?.id ?? null);
   const { todayEntry } = useMoodHistory(employee?.id ?? null);
