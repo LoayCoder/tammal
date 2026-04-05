@@ -11,6 +11,8 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageSelector } from '@/components/LanguageSelector';
+import { useBranding } from '@/hooks/branding/useBranding';
+import { ThemeLogo } from '@/components/branding/ThemeLogo';
 import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner';
 import { cardVariants } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
@@ -27,6 +29,7 @@ export default function Auth() {
   const { user, signIn, signUp, loading } = useAuth();
   
   const { allowSignup, showInvitation, isPending: settingsLoading } = usePlatformSettings();
+  const { branding } = useBranding();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -116,7 +119,19 @@ export default function Auth() {
       
       <div className="flex-1 flex items-center justify-center px-3 md:px-4">
         <Card className={cn(cardVariants.glass, "rounded-xl w-full max-w-md shadow-2xl")}>
-          <CardHeader className="text-center">
+          <CardHeader className="text-center space-y-4">
+            <div className="flex justify-center">
+              <ThemeLogo
+                logoUrl={branding.logo_url}
+                logoLightUrl={branding.logo_light_url}
+                logoDarkUrl={branding.logo_dark_url}
+                className="h-14 w-auto max-w-[180px]"
+                alt="Tammal"
+                fallback={
+                  <span className="text-3xl font-bold text-primary">Tammal</span>
+                }
+              />
+            </div>
             <CardTitle className="text-2xl">
               {isLogin ? t('auth.loginTitle') : t('auth.signupTitle')}
             </CardTitle>
