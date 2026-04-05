@@ -47,11 +47,12 @@ export function useAppreciations() {
   });
 
   const { data: sent = [], isPending: sentLoading } = useQuery({
-    queryKey: ["appreciations-sent", employee?.id],
+    queryKey: ["appreciations-sent", employee?.id, tenantId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("appreciations")
         .select("*, to_employee:employees!appreciations_to_employee_id_fkey(id, full_name)")
+        .eq("tenant_id", tenantId!)
         .eq("from_employee_id", employee!.id)
         .is("deleted_at", null)
         .order("created_at", { ascending: false })
