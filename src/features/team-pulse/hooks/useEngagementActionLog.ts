@@ -9,7 +9,7 @@ type ActionSource = "pulse_card" | "nudge_card" | "appreciation_widget";
 interface LogActionInput {
   actionType: ActionType;
   source: ActionSource;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, unknown> | undefined;
 }
 
 export function useEngagementActionLog() {
