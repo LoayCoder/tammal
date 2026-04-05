@@ -44,6 +44,7 @@ interface MenuItem {
   icon: React.ComponentType<{ className?: string }>;
   access?: MenuAccess;
   badge?: number;
+  sectionLabel?: string;
 }
 
 interface MenuGroup {
