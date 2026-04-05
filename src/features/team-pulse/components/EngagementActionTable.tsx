@@ -22,7 +22,7 @@ const ACTION_BADGE_MAP: Record<string, "default" | "secondary" | "outline"> = {
 };
 
 export const EngagementActionTable = memo(function EngagementActionTable({ data, isLoading }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const columns = useMemo<ColumnDef<ActionLogEntry>[]>(() => [
     {
