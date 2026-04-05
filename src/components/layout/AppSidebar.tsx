@@ -517,7 +517,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                                   activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
                                   onClick={handleNavClick}
                                 >
-                                  <item.icon className="h-4 w-4 shrink-0" />
+                                  <item.icon className="h-4 w-4 shrink-0 text-muted-foreground" />
                                   <span className="truncate">{item.title}</span>
                                 </NavLink>
                               ));
