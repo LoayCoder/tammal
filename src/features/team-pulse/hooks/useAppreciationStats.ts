@@ -30,12 +30,14 @@ export function useAppreciationStats(mode: PulseMode) {
           supabase
             .from("appreciations")
             .select("category")
+            .eq("tenant_id", tenantId!)
             .eq("from_employee_id", employee!.id)
             .is("deleted_at", null)
             .gte("created_at", thirtyDaysAgo),
           supabase
             .from("appreciations")
             .select("category")
+            .eq("tenant_id", tenantId!)
             .eq("to_employee_id", employee!.id)
             .is("deleted_at", null)
             .gte("created_at", thirtyDaysAgo),

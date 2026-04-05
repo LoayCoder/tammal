@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEngagementActionLog } from "../hooks/useEngagementActionLog";
 
 interface Props {
   recommendedAction: string;
@@ -10,12 +11,14 @@ interface Props {
 
 export function PulseActionPath({ recommendedAction, actionPath, actionCta }: Props) {
   const { t } = useTranslation();
+  const { logAction } = useEngagementActionLog();
 
   return (
     <div className="space-y-2">
       <p className="text-xs text-foreground/70">{recommendedAction}</p>
       <button
         onClick={() => {
+          logAction.mutate({ actionType: "cta_clicked", source: "pulse_card", metadata: { path: actionPath } });
           if (actionPath && actionPath.startsWith("/")) {
             window.location.href = actionPath;
           }

@@ -2111,6 +2111,54 @@ export type Database = {
           },
         ]
       }
+      engagement_action_log: {
+        Row: {
+          action_type: string
+          created_at: string
+          deleted_at: string | null
+          employee_id: string
+          id: string
+          metadata: Json | null
+          source: string
+          tenant_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          deleted_at?: string | null
+          employee_id: string
+          id?: string
+          metadata?: Json | null
+          source: string
+          tenant_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          deleted_at?: string | null
+          employee_id?: string
+          id?: string
+          metadata?: Json | null
+          source?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engagement_action_log_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engagement_action_log_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       escalation_events: {
         Row: {
           created_at: string | null

@@ -468,9 +468,10 @@ Analyze this ${mode} engagement data and generate a structured engagement insigh
       generatedAt: new Date().toISOString(),
     };
 
-    // Persist target for history tracking
+    // Persist target for history tracking (upsert to prevent duplicates on retry)
     try {
-      await admin.from("pulse_targets").insert({
+      const employeeIdForTarget = mode === "organization" ? "00000000-0000-0000-0000-000000000000" : emp.id;
+      await admin.from("pulse_targets").upsert({
         tenant_id: emp.tenant_id,
         employee_id: mode === "organization" ? null : emp.id,
         scope: mode,
@@ -478,7 +479,7 @@ Analyze this ${mode} engagement data and generate a structured engagement insigh
         target_value: insight.targetValue ?? 0,
         current_value: insight.currentValue ?? 0,
         target_date: todayStr,
-      });
+      }, { onConflict: "idx_pulse_targets_unique_daily", ignoreDuplicates: true });
     } catch (targetErr) {
       console.error("Failed to persist pulse target:", targetErr);
     }

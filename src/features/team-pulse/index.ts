@@ -6,6 +6,7 @@ export { useTeamPulse } from "./hooks/useTeamPulse";
 export { usePulseModes } from "./hooks/usePulseModes";
 export { useAppreciations } from "./hooks/useAppreciations";
 export { useAppreciationStats } from "./hooks/useAppreciationStats";
+export { useEngagementActionLog } from "./hooks/useEngagementActionLog";
 export type { PulseMode, PulseInsight, PulseResponse } from "./hooks/useTeamPulse";
 export type { AppreciationCategory, Appreciation } from "./hooks/useAppreciations";
 export type { AppreciationStats, CategoryStat } from "./hooks/useAppreciationStats";
