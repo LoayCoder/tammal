@@ -16,13 +16,50 @@ const MOOD_COLORS: Record<string, string> = {
 };
 
 export function buildStatCards(stats: OrgAnalyticsData | undefined, t: TFunction): StatCard[] {
+  const pc = stats?.periodComparison;
   return [
-    { title: t('orgDashboard.activeEmployees'), value: stats?.activeEmployees ?? 0, icon: Users },
-    { title: t('orgDashboard.teamWellness'), value: stats?.avgMoodScore ? `${stats.avgMoodScore}/5` : '—', icon: Heart },
-    { title: t('orgDashboard.participation'), value: stats?.participationRate !== undefined ? `${stats.participationRate}%` : '—', icon: TrendingUp },
-    { title: t('orgDashboard.surveyResponseRate'), value: stats?.surveyResponseRate !== undefined ? `${stats.surveyResponseRate}%` : '—', icon: ClipboardCheck },
-    { title: t('orgDashboard.riskIndicator'), value: stats?.riskPercentage !== undefined ? `${stats.riskPercentage}%` : '—', icon: AlertTriangle },
-    { title: t('orgDashboard.engagementStreak'), value: stats?.avgStreak ? `${stats.avgStreak}d` : '—', icon: Flame },
+    {
+      title: t('orgDashboard.activeEmployees'),
+      value: stats?.activeEmployees ?? 0,
+      icon: Users,
+      accentColor: 'border-chart-1',
+    },
+    {
+      title: t('orgDashboard.teamWellness'),
+      value: stats?.avgMoodScore ? `${stats.avgMoodScore}/5` : '—',
+      icon: Heart,
+      trend: pc?.moodDelta,
+      trendLabel: t('orgDashboard.vsLastPeriod'),
+      accentColor: 'border-chart-2',
+    },
+    {
+      title: t('orgDashboard.participation'),
+      value: stats?.participationRate !== undefined ? `${stats.participationRate}%` : '—',
+      icon: TrendingUp,
+      trend: pc?.participationDelta,
+      trendLabel: t('orgDashboard.vsLastPeriod'),
+      accentColor: 'border-primary',
+    },
+    {
+      title: t('orgDashboard.surveyResponseRate'),
+      value: stats?.surveyResponseRate !== undefined ? `${stats.surveyResponseRate}%` : '—',
+      icon: ClipboardCheck,
+      accentColor: 'border-chart-4',
+    },
+    {
+      title: t('orgDashboard.riskIndicator'),
+      value: stats?.riskPercentage !== undefined ? `${stats.riskPercentage}%` : '—',
+      icon: AlertTriangle,
+      trend: pc?.riskDelta != null ? -pc.riskDelta : undefined, // inverse: lower is better
+      trendLabel: t('orgDashboard.vsLastPeriod'),
+      accentColor: 'border-destructive',
+    },
+    {
+      title: t('orgDashboard.engagementStreak'),
+      value: stats?.avgStreak ? `${stats.avgStreak}d` : '—',
+      icon: Flame,
+      accentColor: 'border-chart-3',
+    },
   ];
 }
 
