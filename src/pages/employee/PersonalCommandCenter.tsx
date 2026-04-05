@@ -84,14 +84,14 @@ export default function PersonalCommandCenter() {
       </div>
 
       {/* ── Stats Row ── */}
-      <div className="grid grid-cols-5 gap-px rounded-xl bg-border/40 overflow-hidden">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-px rounded-xl bg-border/40 overflow-hidden">
         {statItems.map((s, i) => (
           <div
             key={i}
-            className="bg-background flex flex-col items-center justify-center py-4 px-2 transition-colors hover:bg-muted/10"
+            className="bg-background flex flex-col items-center justify-center py-3 sm:py-4 px-2 transition-colors hover:bg-muted/10 min-h-[44px] active:scale-[0.97]"
           >
-            <s.icon className={`h-4 w-4 ${s.color} mb-1.5`} strokeWidth={1.75} />
-            <span className="text-xl font-bold tracking-tight">{s.value}</span>
+            <s.icon className={`h-4 w-4 ${s.color} mb-1`} strokeWidth={1.75} />
+            <span className="text-lg sm:text-xl font-bold tracking-tight">{s.value}</span>
             <span className="text-2xs text-muted-foreground mt-0.5 text-center leading-tight">{s.label}</span>
           </div>
         ))}
