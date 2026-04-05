@@ -230,13 +230,13 @@ function NotificationContent({
                       <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${colorClass}`} />
                       <div className="flex-1 min-w-0 space-y-0.5">
                         <p className={`text-xs line-clamp-2 ${!n.is_read ? 'font-medium' : 'text-muted-foreground'}`}>
-                          {n.title}
+                          {getTranslatedTitle(n, t)}
                         </p>
-                        {n.body && (
-                          <p className="text-xs text-muted-foreground line-clamp-1">{n.body}</p>
+                        {getTranslatedBody(n, t) && (
+                          <p className="text-xs text-muted-foreground line-clamp-1">{getTranslatedBody(n, t)}</p>
                         )}
                         <p className="text-2xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
+                          {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: i18n.language === 'ar' ? arLocale : enUS })}
                         </p>
                       </div>
                       {!n.is_read && (

@@ -155,8 +155,8 @@ export default function EmployeeHome() {
                     return (
                       <p className={cn("text-2xs mt-1 flex items-center gap-1", isUrgent ? "text-chart-4 font-medium" : "text-muted-foreground")}>
                         <Clock className="h-3 w-3" />
-                        {t('home.dueDate', { date: format(new Date(surveyMeta.end_date), 'MMM d, yyyy · HH:mm') })}
-                        {isUrgent && daysLeft >= 0 && ` · ${daysLeft}d left`}
+                        {t('home.dueDate', { date: format(new Date(surveyMeta.end_date), 'MMM d, yyyy · HH:mm', { locale: dateLocale }) })}
+                        {isUrgent && daysLeft >= 0 && ` · ${t('home.daysLeft', { days: daysLeft })}`}
                       </p>
                     );
                   })()}
