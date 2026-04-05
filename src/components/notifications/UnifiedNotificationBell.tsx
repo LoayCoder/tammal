@@ -312,16 +312,22 @@ export function UnifiedNotificationBell() {
     markAsRead: markRecognitionRead, markAllAsRead: markAllRecognitionRead,
   } = useRecognitionNotifications();
 
+  const {
+    notifications: engagementNotifications, unreadCount: engagementUnread,
+    markAsRead: markEngagementRead, markAllAsRead: markAllEngagementRead,
+  } = useEngagementNotifications();
+
   const merged = useMemo(() => {
     const tasks = taskNotifications.map(normalizeTask);
     const crisis = crisisNotifications.map(normalizeCrisis);
     const recognition = recognitionNotifications.map(normalizeRecognition);
-    return [...tasks, ...crisis, ...recognition].sort(
+    const engagement = engagementNotifications.map(normalizeEngagement);
+    return [...tasks, ...crisis, ...recognition, ...engagement].sort(
       (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-  }, [taskNotifications, crisisNotifications, recognitionNotifications]);
+  }, [taskNotifications, crisisNotifications, recognitionNotifications, engagementNotifications]);
 
-  const totalUnread = taskUnread + crisisUnread + recognitionUnread;
+  const totalUnread = taskUnread + crisisUnread + recognitionUnread + engagementUnread;
 
   const filtered = useMemo(() => {
     if (tab === 'all') return merged;
@@ -332,6 +338,7 @@ export function UnifiedNotificationBell() {
     if (!n.is_read) {
       if (n.source === 'task') markTaskRead(n.id);
       else if (n.source === 'crisis') markCrisisRead.mutate(n.id);
+      else if (n.source === 'engagement') markEngagementRead.mutate(n.id);
       else markRecognitionRead.mutate(n.id);
     }
     setOpen(false);
@@ -342,6 +349,7 @@ export function UnifiedNotificationBell() {
     if (taskUnread > 0) markAllTaskRead();
     if (crisisUnread > 0) markAllCrisisRead.mutate();
     if (recognitionUnread > 0) markAllRecognitionRead.mutate();
+    if (engagementUnread > 0) markAllEngagementRead.mutate();
   };
 
   const bellButton = (
