@@ -55,17 +55,18 @@ Deno.serve(async (req) => {
     // 2. Manager team alert: managers with direct reports scoring < 40
     const { data: managerAlerts } = await supabase
       .from("pulse_targets")
-      .select("employee_id, tenant_id, engagement_score")
+      .select("employee_id, tenant_id, current_value, target_date")
       .eq("scope", "personal")
-      .gte("date", thirtyDaysAgo)
-      .lt("engagement_score", 40)
+      .eq("target_metric", "engagement_score")
+      .gte("target_date", thirtyDaysAgo)
+      .lt("current_value", 40)
       .is("deleted_at", null)
-      .order("date", { ascending: false });
+      .order("target_date", { ascending: false });
 
     const lowEmployees = new Map<string, { tenant_id: string; score: number }>();
     for (const row of managerAlerts ?? []) {
-      if (!lowEmployees.has(row.employee_id)) {
-        lowEmployees.set(row.employee_id, { tenant_id: row.tenant_id, score: row.engagement_score });
+      if (row.employee_id && !lowEmployees.has(row.employee_id)) {
+        lowEmployees.set(row.employee_id, { tenant_id: row.tenant_id, score: row.current_value });
       }
     }
 
