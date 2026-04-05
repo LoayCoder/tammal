@@ -661,10 +661,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                       <CollapsibleTrigger asChild>
                         <button
                           className={cn(
-                            "flex h-9 w-full items-center gap-3 rounded-lg px-3 text-sm transition-all duration-200",
+                            "flex h-9 w-full items-center gap-3 rounded-lg px-3 transition-all duration-200",
                             location.pathname.startsWith('/spiritual')
-                              ? "text-sidebar-primary font-medium"
-                              : "text-sidebar-foreground hover:bg-muted/50"
+                              ? "text-sidebar-primary font-medium text-xs"
+                              : "text-xs text-muted-foreground hover:bg-muted/50"
                           )}
                         >
                           <Moon className="h-4.5 w-4.5 shrink-0" />
