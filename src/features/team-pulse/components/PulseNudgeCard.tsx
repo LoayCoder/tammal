@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Zap, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEngagementActionLog } from "../hooks/useEngagementActionLog";
 
 interface Props {
@@ -10,6 +10,7 @@ interface Props {
 
 export function PulseNudgeCard({ engagementScore }: Props) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { logAction } = useEngagementActionLog();
 
   if (engagementScore >= 50) return null;
@@ -19,7 +20,7 @@ export function PulseNudgeCard({ engagementScore }: Props) {
   return (
     <div
       className={cn(
-        "rounded-xl p-3 space-y-2 border",
+        "rounded-xl p-3 space-y-2 border animate-fade-in",
         isLow
           ? "bg-destructive/[0.04] border-destructive/10"
           : "bg-chart-4/[0.04] border-chart-4/10"
@@ -37,17 +38,21 @@ export function PulseNudgeCard({ engagementScore }: Props) {
       <p className="text-2xs text-foreground/70">
         {t(isLow ? "pulse.nudgeLowDesc" : "pulse.nudgeMedDesc")}
       </p>
-      <Link
-        to="/employee/survey"
-        onClick={() => logAction.mutate({ actionType: "nudge_acted", source: "nudge_card", metadata: { score: engagementScore } })}
+      <button
+        onClick={() => {
+          logAction.mutate({ actionType: "nudge_acted", source: "nudge_card", metadata: { score: engagementScore } });
+          navigate("/employee/survey");
+        }}
         className={cn(
-          "flex items-center gap-1 text-2xs font-semibold transition-colors",
-          isLow ? "text-destructive hover:text-destructive/80" : "text-chart-4 hover:text-chart-4/80"
+          "flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-2xs font-semibold transition-all duration-200",
+          isLow
+            ? "bg-destructive/10 text-destructive hover:bg-destructive/15"
+            : "bg-chart-4/10 text-chart-4 hover:bg-chart-4/15"
         )}
       >
         {t("pulse.nudgeCta")}
         <ArrowRight className="h-3 w-3 rtl:rotate-180" strokeWidth={2} />
-      </Link>
+      </button>
     </div>
   );
 }

@@ -37,7 +37,6 @@ export function TeamPulseCard({ employeeId }: Props) {
   );
   const { sendAppreciation } = useAppreciations();
 
-  // Get direct report IDs for team nudge
   const { data: directReports = [] } = useQuery({
     queryKey: ["pulse-direct-report-ids", employeeId],
     queryFn: async () => {
@@ -57,7 +56,6 @@ export function TeamPulseCard({ employeeId }: Props) {
   const handleTeamNudge = async () => {
     if (!employee || directReports.length === 0) return;
     try {
-      // Send appreciation to a random team member as encouragement
       const randomMember = directReports[Math.floor(Math.random() * directReports.length)];
       await sendAppreciation.mutateAsync({
         toEmployeeId: randomMember.id,
@@ -108,39 +106,51 @@ export function TeamPulseCard({ employeeId }: Props) {
         ) : insufficientData ? (
           <PulseEmptyState fallbackCta={insufficientData.fallbackCta} />
         ) : pulse ? (
-          <div className="space-y-4">
-            <PulseInsightBlock
-              insight={pulse.primaryInsight}
-              trend={pulse.trend}
-              engagementScore={pulse.engagementScore}
-              impactReason={pulse.impactReason}
-            />
+          <div className="space-y-0">
+            <div className="py-1">
+              <PulseInsightBlock
+                insight={pulse.primaryInsight}
+                trend={pulse.trend}
+                engagementScore={pulse.engagementScore}
+                impactReason={pulse.impactReason}
+              />
+            </div>
+
             <PulseNudgeCard engagementScore={pulse.engagementScore} />
-            <PulseTargetBlock
-              targetMetric={pulse.targetMetric}
-              currentValue={pulse.currentValue}
-              targetValue={pulse.targetValue}
-            />
-            <PulseActionPath
-              recommendedAction={pulse.recommendedAction}
-              actionPath={pulse.actionPath}
-              actionCta={pulse.actionCta}
-            />
+
+            <div className="border-t border-border/10 pt-4 mt-4">
+              <PulseTargetBlock
+                targetMetric={pulse.targetMetric}
+                currentValue={pulse.currentValue}
+                targetValue={pulse.targetValue}
+              />
+            </div>
+
+            <div className="border-t border-border/10 pt-4 mt-4">
+              <PulseActionPath
+                recommendedAction={pulse.recommendedAction}
+                actionPath={pulse.actionPath}
+                actionCta={pulse.actionCta}
+              />
+            </div>
+
             {/* Manager Team Kudos Nudge */}
             {selectedMode === "team" && directReports.length > 0 && (
-              <button
-                onClick={handleTeamNudge}
-                disabled={sendAppreciation.isPending}
-                className={cn(
-                  "flex w-full items-center justify-center gap-2 rounded-xl py-2.5",
-                  "bg-chart-3/10 text-chart-3 border border-chart-3/15",
-                  "text-xs font-semibold hover:bg-chart-3/15 transition-all duration-200",
-                  "disabled:opacity-40"
-                )}
-              >
-                <Megaphone className="h-3.5 w-3.5" strokeWidth={1.5} />
-                {t("pulse.teamKudgeNudge")}
-              </button>
+              <div className="border-t border-border/10 pt-4 mt-4">
+                <button
+                  onClick={handleTeamNudge}
+                  disabled={sendAppreciation.isPending}
+                  className={cn(
+                    "flex w-full items-center justify-center gap-2 rounded-xl py-2.5",
+                    "bg-chart-3/10 text-chart-3 border border-chart-3/15",
+                    "text-xs font-semibold hover:bg-chart-3/15 hover:-translate-y-0.5",
+                    "transition-all duration-200 disabled:opacity-40"
+                  )}
+                >
+                  <Megaphone className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  {t("pulse.teamKudgeNudge")}
+                </button>
+              </div>
             )}
           </div>
         ) : null}

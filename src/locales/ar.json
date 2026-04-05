@@ -4606,6 +4606,8 @@
     "nudgeCta": "اتخذ إجراءً سريعًا ←",
     "teamKudgeNudge": "أرسل تشجيعًا للفريق",
     "teamNudgeMessage": "عمل جماعي رائع! استمروا في التعاون المذهل. 🙌",
-    "teamNudgeSent": "تم إرسال تشجيع الفريق! 🎉"
+    "teamNudgeSent": "تم إرسال تشجيع الفريق! 🎉",
+    "engagementScore": "درجة المشاركة",
+    "recommendedAction": "الإجراء المقترح"
   }
 }
