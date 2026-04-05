@@ -280,7 +280,7 @@ serve(async (req) => {
         .eq("status", "active");
 
       // Unique checkin participants
-      const uniqueParticipants = new Set((orgMoods ?? []).map((m: any) => m.entry_date)).size;
+      const uniqueParticipants = new Set((orgMoods ?? []).map((m: any) => m.employee_id)).size;
 
       // Org overdue
       const { count: orgOverdue } = await admin
