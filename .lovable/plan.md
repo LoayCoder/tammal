@@ -1,40 +1,35 @@
 
 
-## Fix 401 Auth Error in Both Edge Functions
+## Fix Copilot CTA Routes & Refresh Button
 
-### Root Cause
+### Problem 1: "Complete Check-in" and other CTAs lead to 404
 
-The `team-pulse-engine` and `wellness-copilot` functions use `auth.getUser(token)` for authentication, but the project's signing-keys system requires `auth.getClaims(token)` — the proven pattern used by all other working functions (e.g., `parse-document`).
+The `CopilotActionBlock` and `CopilotEmptyState` components use hardcoded routes like `/employee`, `/employee/workload`, `/employee/wellness-tools`, `/employee/tasks` — none of which exist in the router. The actual routes are:
 
-Additionally, the working pattern passes the `Authorization` header into the `createClient` constructor, which the two broken functions do not do.
+| Broken CTA route | Correct route |
+|---|---|
+| `/employee` (complete_checkin) | `/employee/wellness` |
+| `/employee/workload` | `/my-workload` |
+| `/employee/wellness-tools` | `/wellness` |
+| `/employee/tasks` | `/my-workload` |
 
-### Fix
+### Problem 2: Refresh button
 
-In both `team-pulse-engine/index.ts` and `wellness-copilot/index.ts`, replace the auth block (lines 29-46) with the `getClaims` pattern matching `parse-document`:
+The `refetch()` wiring in `useCopilotInsight` is correct — TanStack Query's `refetch()` bypasses `staleTime`. However, the edge function logs show only boot/shutdown cycles with no actual request logs, suggesting requests may be silently failing. The refresh button itself is functional code-wise.
 
-```typescript
-// Before (broken)
-const token = authHeader.replace("Bearer ", "");
-const anonClient = createClient(supabaseUrl, anonKey);
-const { data: { user }, error: authErr } = await anonClient.auth.getUser(token);
-if (authErr || !user) { return 401 }
+### Problem 3: Console warning (minor)
 
-// After (working pattern from parse-document)
-const anonClient = createClient(supabaseUrl, anonKey, {
-  global: { headers: { Authorization: authHeader } },
-});
-const token = authHeader.replace("Bearer ", "");
-const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
-if (claimsError || !claimsData?.claims) { return 401 }
-const userId = claimsData.claims.sub;
-```
+`CopilotReasoningBlock` is a function component receiving a ref — needs `React.forwardRef` or the parent should stop passing a ref.
 
-Then replace all downstream references from `user.id` to `userId` (the `sub` claim).
+### Changes
 
-### Files Changed
+**File 1: `src/features/wellness-copilot/components/CopilotActionBlock.tsx`**
+- Update `ctaRoutes` map to use real router paths:
+  - `complete_checkin` → `/employee/wellness`
+  - `review_workload` → `/my-workload`
+  - `take_break` → `/wellness`
+  - `review_tasks` → `/my-workload`
 
-| File | Change |
-|------|--------|
-| `supabase/functions/team-pulse-engine/index.ts` | Replace `getUser()` with `getClaims()` pattern, update `user.id` → `userId` |
-| `supabase/functions/wellness-copilot/index.ts` | Same auth pattern fix, update `user.id` → `userId` |
+**File 2: `src/features/wellness-copilot/components/CopilotEmptyState.tsx`**
+- Same route fixes in `ctaMap`
 
