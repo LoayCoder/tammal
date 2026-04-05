@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import {
   useObjectives, useInitiatives, useWorkloadAnalytics, useWorkloadMetrics,
   useExecutionVelocity, useWorkloadHeatmap, useInitiativeRisk,
-  useBurnoutPredictions, useRedistributionRecommendations,
+  useBurnoutPredictions, useRedistributionRecommendations, useWorkloadTrends,
   useOrgIntelligenceScore, useRunAnalyticsSnapshot, useRunAIPredictions,
 } from '@/features/workload';
 import { toast } from 'sonner';
