@@ -126,6 +126,8 @@ export function QuickAppreciationCard() {
             placeholder={t("pulse.appreciationPlaceholder")}
             rows={2}
             maxLength={300}
+            autoComplete="off"
+            enterKeyHint="send"
             className="w-full rounded-xl border border-border/50 bg-background/50 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"
           />
 
