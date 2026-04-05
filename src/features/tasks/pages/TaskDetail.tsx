@@ -14,7 +14,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import {
-  Lock, MessageSquare, ListChecks,
+  Lock, Unlock, MessageSquare, ListChecks,
   Activity, Paperclip, Clock, CalendarDays, ChevronLeft,
   Plus, Upload, FileIcon, X, Trash2, Play, Square, Timer,
   Brain, Users, AlertTriangle, ArrowUpDown, GitBranch, Link2,
@@ -31,6 +31,8 @@ import { useTaskActivity } from '@/features/tasks/hooks/useTaskActivity';
 import { useTaskAttachments } from '@/features/tasks/hooks/useTaskAttachments';
 import { useTaskDetail, useTaskUpdate } from '@/features/tasks/hooks/useTaskDetail';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { SlaCountdownBadge } from '@/components/workload/governance/SlaCountdownBadge';
+import { UnlockRequestDialog } from '@/components/workload/governance/UnlockRequestDialog';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -56,6 +58,7 @@ export default function TaskDetail() {
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [editDesc, setEditDesc] = useState('');
   const [editDescAr, setEditDescAr] = useState('');
+  const [unlockDialogOpen, setUnlockDialogOpen] = useState(false);
 
   const { task, taskLoading } = useTaskDetail(id);
   const updateTask = useTaskUpdate(id);
@@ -128,7 +131,15 @@ export default function TaskDetail() {
             <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
             <span className="text-xs">{t('common.back')}</span>
           </Button>
-          {task.is_locked && <Lock className="h-4 w-4 text-chart-4" />}
+          <div className="flex items-center gap-2">
+            {task.is_locked && <Lock className="h-4 w-4 text-chart-4" />}
+            {task.is_locked && (
+              <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => setUnlockDialogOpen(true)}>
+                <Unlock className="h-3.5 w-3.5" />{t('governance.unlock.title')}
+              </Button>
+            )}
+            <SlaCountdownBadge dueDate={task.due_date} />
+          </div>
         </div>
 
         {/* Title — language-aware (single language only) */}
@@ -413,6 +424,19 @@ export default function TaskDetail() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {task && (
+        <UnlockRequestDialog
+          open={unlockDialogOpen}
+          onOpenChange={setUnlockDialogOpen}
+          taskTitle={task.title}
+          onConfirm={(justification) => {
+            updateTask.mutate({ is_locked: false, status: 'in_progress' } as any);
+            setUnlockDialogOpen(false);
+          }}
+          isPending={updateTask.isPending}
+        />
+      )}
     </div>
   );
 }

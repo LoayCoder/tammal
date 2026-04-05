@@ -118,9 +118,42 @@ Deno.serve(async (req) => {
         }
       });
 
+      // Gap 6: Gather mood data for behavioral signals
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const weekAgoStr = weekAgo.toISOString();
+
+      const { data: moodEntries } = await supabase
+        .from("mood_entries")
+        .select("employee_id, score")
+        .eq("tenant_id", tenantId)
+        .is("deleted_at", null)
+        .gte("created_at", weekAgoStr);
+
+      const moodAvg: Record<string, { sum: number; count: number }> = {};
+      (moodEntries ?? []).forEach((m: any) => {
+        if (!moodAvg[m.employee_id]) moodAvg[m.employee_id] = { sum: 0, count: 0 };
+        moodAvg[m.employee_id].sum += m.score ?? 0;
+        moodAvg[m.employee_id].count++;
+      });
+
+      const { data: checkins } = await supabase
+        .from("daily_checkins")
+        .select("employee_id, mood_score")
+        .eq("tenant_id", tenantId)
+        .is("deleted_at", null)
+        .gte("created_at", weekAgoStr);
+
+      (checkins ?? []).forEach((c: any) => {
+        if (!moodAvg[c.employee_id]) moodAvg[c.employee_id] = { sum: 0, count: 0 };
+        moodAvg[c.employee_id].sum += c.mood_score ?? 0;
+        moodAvg[c.employee_id].count++;
+      });
+
       // Build signals for AI
       const employeeSignals = (employees ?? []).map((emp: any) => {
         const m = metricsMap[emp.id] ?? {};
+        const mood = moodAvg[emp.id];
         return {
           id: emp.id,
           name: emp.full_name,
@@ -128,6 +161,8 @@ Deno.serve(async (req) => {
           existing_burnout_score: m.burnout_risk_score ?? 0,
           escalation_count: escalationCount[emp.id] ?? 0,
           overdue_task_count: overdueCount[emp.id] ?? 0,
+          avg_mood_7d: mood ? Math.round((mood.sum / mood.count) * 10) / 10 : null,
+          mood_entries_count: mood?.count ?? 0,
         };
       });
 
@@ -150,7 +185,7 @@ Deno.serve(async (req) => {
           messages: [
             {
               role: "system",
-              content: `You are a workforce analytics AI. Analyze employee signals and predict burnout probability. Consider: utilization >100% is dangerous, escalation frequency indicates stress, overdue tasks indicate overwhelm. Return predictions for employees showing risk signs (probability > 20).`,
+              content: `You are a workforce analytics AI. Analyze employee signals and predict burnout probability. Consider: utilization >100% is dangerous, escalation frequency indicates stress, overdue tasks indicate overwhelm, low mood scores (below 3/5) indicate emotional distress and compound burnout risk. Return predictions for employees showing risk signs (probability > 20).`,
             },
             {
               role: "user",

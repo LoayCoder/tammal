@@ -29,9 +29,21 @@ export function useApprovalQueue() {
   });
 
   const updateStatus = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+    mutationFn: async ({ id, status, reason }: { id: string; status: string; reason?: string }) => {
+      // Update task status
       const { error } = await supabase.from('unified_tasks').update({ status }).eq('id', id);
       if (error) throw error;
+
+      // If rejected with reason, log it to task_activity_logs via metadata
+      if (status === 'rejected' && reason && employee?.id) {
+        await supabase.from('task_activity_logs').insert({
+          task_id: id,
+          action: 'rejection_feedback',
+          performed_by: employee.id,
+          details: { reason, old_status: 'pending_approval', new_status: 'rejected' },
+          tenant_id: tenantId!,
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['approval-queue'] });

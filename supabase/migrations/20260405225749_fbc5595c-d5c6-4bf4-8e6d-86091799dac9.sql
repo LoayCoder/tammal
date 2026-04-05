@@ -1,0 +1,1 @@
+ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS tammal_weights JSONB DEFAULT '{"alignment":25,"velocity":25,"capacity":25,"burnout":25}'::jsonb;

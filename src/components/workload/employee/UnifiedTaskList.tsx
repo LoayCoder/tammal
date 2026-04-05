@@ -6,6 +6,7 @@ import { MoreHorizontal, Pencil, Trash2, ExternalLink, Lock, MessageSquare, Chec
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import type { UnifiedTask } from '@/features/workload/hooks/useUnifiedTasks';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { SlaCountdownBadge } from '@/components/workload/governance/SlaCountdownBadge';
 
 interface UnifiedTaskListProps {
   tasks: UnifiedTask[];
@@ -172,6 +173,7 @@ export function UnifiedTaskList({ tasks, onEdit, onDelete, onComment }: UnifiedT
                       <Clock className="h-3 w-3" strokeWidth={1.75} />{task.estimated_minutes}m
                     </span>
                   )}
+                  <SlaCountdownBadge dueDate={task.due_date} completedAt={isCompleted ? task.updated_at : undefined} />
                   {task.due_date && (
                     <span className={`flex items-center gap-1 text-2xs ${task.due_date.split('T')[0] < new Date().toISOString().split('T')[0] && !isCompleted ? 'text-destructive font-medium' : 'text-muted-foreground/60'}`}>
                       <CalendarDays className="h-3 w-3" strokeWidth={1.75} />
