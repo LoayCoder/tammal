@@ -511,7 +511,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                                   to={item.url}
                                   end={item.url === '/'}
                                   className={cn(
-                                    "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
+                                    "flex h-8 items-center gap-2.5 rounded-lg px-2.5 transition-colors text-xs",
                                     "text-sidebar-foreground/80 hover:bg-muted/50 hover:text-sidebar-foreground"
                                   )}
                                   activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
@@ -550,7 +550,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                                         to={item.url}
                                         end={item.url === '/'}
                                         className={cn(
-                                          "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
+                                          "flex h-8 items-center gap-2.5 rounded-lg px-2.5 transition-colors text-xs",
                                           "text-sidebar-foreground/80 hover:bg-muted/50 hover:text-sidebar-foreground"
                                         )}
                                         activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
