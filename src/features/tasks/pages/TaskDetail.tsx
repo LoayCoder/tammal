@@ -58,6 +58,7 @@ export default function TaskDetail() {
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [editDesc, setEditDesc] = useState('');
   const [editDescAr, setEditDescAr] = useState('');
+  const [unlockDialogOpen, setUnlockDialogOpen] = useState(false);
 
   const { task, taskLoading } = useTaskDetail(id);
   const updateTask = useTaskUpdate(id);
