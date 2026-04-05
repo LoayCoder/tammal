@@ -130,8 +130,9 @@ export function WorkloadCalendarView({ tasks, isPending }: WorkloadCalendarViewP
           <CardContent className="p-0">
             <div className="grid grid-cols-7 border-b">
               {weekDayHeaders.map(day => (
-                <div key={day} className="py-2 px-1 text-center text-xs font-medium text-muted-foreground">
-                  {day}
+                <div key={day} className="py-2 px-0.5 sm:px-1 text-center text-2xs sm:text-xs font-medium text-muted-foreground">
+                  <span className="hidden sm:inline">{day}</span>
+                  <span className="sm:hidden">{day.charAt(0)}</span>
                 </div>
               ))}
             </div>
