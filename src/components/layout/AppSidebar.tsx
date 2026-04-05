@@ -481,7 +481,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                             : "text-xs text-muted-foreground hover:bg-muted/50"
                         )}
                       >
-                        <group.icon className="h-4.5 w-4.5 shrink-0" />
+                        <group.icon className="h-4.5 w-4.5 shrink-0 text-muted-foreground" />
                         <span className="flex-1 text-start truncate">{group.label}</span>
                         <ChevronRight className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 rtl:-scale-x-100" />
                       </button>
