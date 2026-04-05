@@ -14,7 +14,8 @@ import {
 import {
   Rss, CheckCircle2, MessageSquare, AlertTriangle, UserPlus,
   ShieldCheck, XCircle, Clock, CheckCheck, ListChecks, Timer,
-  UserCheck, Check, X, Award, ThumbsUp,
+  UserCheck, Check, X, Award, ThumbsUp, Activity, TrendingDown,
+  Heart, BellRing,
 } from 'lucide-react';
 import { useTaskNotifications, type TaskNotification } from '@/features/tasks/hooks/useTaskNotifications';
 import { useCrisisNotifications, type CrisisNotification } from '@/hooks/crisis/useCrisisNotifications';
