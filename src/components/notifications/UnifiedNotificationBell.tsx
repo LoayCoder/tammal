@@ -367,7 +367,7 @@ export function UnifiedNotificationBell() {
   );
 
   const contentProps: NotificationContentProps = {
-    tab, setTab, filtered, totalUnread, taskUnread, crisisUnread, recognitionUnread,
+    tab, setTab, filtered, totalUnread, taskUnread, crisisUnread, recognitionUnread, engagementUnread,
     onMarkAllRead: handleMarkAllRead, onItemClick: handleClick, isMobile, t,
   };
 
