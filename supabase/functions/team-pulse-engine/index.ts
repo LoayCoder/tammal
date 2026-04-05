@@ -35,15 +35,18 @@ serve(async (req) => {
       });
     }
 
+    const anonClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
     const token = authHeader.replace("Bearer ", "");
-    const anonClient = createClient(supabaseUrl, anonKey);
-    const { data: { user }, error: authErr } = await anonClient.auth.getUser(token);
-    if (authErr || !user) {
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const userId = claimsData.claims.sub as string;
 
     const { mode = "personal", language = "en" } = await req.json() as {
       mode?: PulseMode;
@@ -63,7 +66,7 @@ serve(async (req) => {
     const { data: emp } = await admin
       .from("employees")
       .select("id, tenant_id, full_name, manager_id, department_id")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .is("deleted_at", null)
       .single();
 
@@ -78,7 +81,7 @@ serve(async (req) => {
     const { data: roles } = await admin
       .from("user_roles")
       .select("role")
-      .eq("user_id", user.id);
+      .eq("user_id", userId);
     const roleSet = new Set((roles ?? []).map((r: any) => r.role));
     const isAdmin = roleSet.has("super_admin") || roleSet.has("tenant_admin");
     const isManager = roleSet.has("manager") || isAdmin;
