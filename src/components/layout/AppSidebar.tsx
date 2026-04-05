@@ -716,7 +716,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                           <NavLink
                             to="/spiritual/calendar"
                             className={cn(
-                              "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
+                              "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-xs transition-colors",
                               "text-sidebar-foreground/80 hover:bg-muted/50"
                             )}
                             activeClassName="text-sidebar-primary font-medium"
