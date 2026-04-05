@@ -20,6 +20,7 @@ import {
 import { useTaskNotifications, type TaskNotification } from '@/features/tasks/hooks/useTaskNotifications';
 import { useCrisisNotifications, type CrisisNotification } from '@/hooks/crisis/useCrisisNotifications';
 import { useRecognitionNotifications, type RecognitionNotification } from '@/hooks/recognition/useRecognitionNotifications';
+import { useEngagementNotifications, type EngagementNotification } from '@/features/team-pulse/hooks/useEngagementNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ar as arLocale } from 'date-fns/locale/ar';
 import { enUS } from 'date-fns/locale/en-US';
