@@ -2,6 +2,8 @@ import { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Activity, RefreshCw, Megaphone, ChevronRight, EyeOff, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { cardVariants } from "@/theme/tokens";
 import { useTeamPulse } from "../hooks/useTeamPulse";
@@ -84,13 +86,20 @@ export function TeamPulseCard({ employeeId }: Props) {
 
   if (isHidden) {
     return (
-      <button
-        onClick={show}
-        className="flex w-full items-center gap-2 rounded-2xl border border-border/30 bg-card/50 px-4 min-h-[44px] py-3 text-xs text-muted-foreground hover:text-foreground hover:bg-card transition-all active:scale-[0.98]"
-      >
-        <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />
-        <span>{t("pulse.title")}</span>
-      </button>
+      <Card className={cn(cardVariants.premiumVip, "rounded-2xl opacity-80")}>
+        <CardContent className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-2">
+            <Activity className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+            <span className="text-xs text-muted-foreground">
+              {t("pulse.title")} {isAr ? 'مخفي' : 'hidden'}
+            </span>
+          </div>
+          <Button variant="ghost" size="sm" onClick={show} className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+            <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />
+            {isAr ? 'إظهار' : 'Show'}
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
 
