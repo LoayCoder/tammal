@@ -109,6 +109,13 @@ export function TeamPulseCard({ employeeId }: Props) {
         </div>
         <div className="flex items-center gap-1">
           <button
+            onClick={hide}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/10 transition-all duration-200 md:opacity-0 md:group-hover:opacity-100"
+            title={isAr ? 'إخفاء' : 'Hide'}
+          >
+            <EyeOff className="h-3.5 w-3.5" strokeWidth={1.5} />
+          </button>
+          <button
             onClick={() => navigate("/engagement-insights")}
             className="flex h-7 items-center gap-0.5 rounded-lg px-1.5 text-2xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/10 transition-all duration-200"
           >
