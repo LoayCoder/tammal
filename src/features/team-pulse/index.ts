@@ -1,7 +1,11 @@
 export { TeamPulseCard } from "./components/TeamPulseCard";
 export { QuickAppreciationCard } from "./components/QuickAppreciationCard";
+export { AppreciationActivityWidget } from "./components/AppreciationActivityWidget";
+export { PulseNudgeCard } from "./components/PulseNudgeCard";
 export { useTeamPulse } from "./hooks/useTeamPulse";
 export { usePulseModes } from "./hooks/usePulseModes";
 export { useAppreciations } from "./hooks/useAppreciations";
+export { useAppreciationStats } from "./hooks/useAppreciationStats";
 export type { PulseMode, PulseInsight, PulseResponse } from "./hooks/useTeamPulse";
 export type { AppreciationCategory, Appreciation } from "./hooks/useAppreciations";
+export type { AppreciationStats, CategoryStat } from "./hooks/useAppreciationStats";

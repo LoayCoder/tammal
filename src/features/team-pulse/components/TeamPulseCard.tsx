@@ -1,15 +1,21 @@
 import { useTranslation } from "react-i18next";
-import { Activity, RefreshCw } from "lucide-react";
+import { Activity, RefreshCw, Megaphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { cardVariants } from "@/theme/tokens";
 import { useTeamPulse } from "../hooks/useTeamPulse";
 import { usePulseModes } from "../hooks/usePulseModes";
+import { useAppreciations } from "../hooks/useAppreciations";
 import { PulseModeSwitcher } from "./PulseModeSwitcher";
 import { PulseInsightBlock } from "./PulseInsightBlock";
 import { PulseTargetBlock } from "./PulseTargetBlock";
 import { PulseActionPath } from "./PulseActionPath";
 import { PulseEmptyState } from "./PulseEmptyState";
 import { PulseSkeleton } from "./PulseSkeleton";
+import { PulseNudgeCard } from "./PulseNudgeCard";
+import { useCurrentEmployee } from "@/hooks/auth/useCurrentEmployee";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface Props {
   employeeId: string;
@@ -23,11 +29,46 @@ const modeSubLabels: Record<string, string> = {
 
 export function TeamPulseCard({ employeeId }: Props) {
   const { t } = useTranslation();
+  const { employee } = useCurrentEmployee();
   const { allowedModes, selectedMode, setMode, showModeSwitcher } = usePulseModes(employeeId);
   const { pulse, insufficientData, isPending, error, refetch } = useTeamPulse(
     selectedMode,
     employeeId
   );
+  const { sendAppreciation } = useAppreciations();
+
+  // Get direct report IDs for team nudge
+  const { data: directReports = [] } = useQuery({
+    queryKey: ["pulse-direct-report-ids", employeeId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("employees")
+        .select("id, full_name")
+        .eq("manager_id", employeeId)
+        .is("deleted_at", null)
+        .eq("status", "active")
+        .limit(200);
+      return data ?? [];
+    },
+    enabled: !!employeeId && selectedMode === "team",
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const handleTeamNudge = async () => {
+    if (!employee || directReports.length === 0) return;
+    try {
+      // Send appreciation to a random team member as encouragement
+      const randomMember = directReports[Math.floor(Math.random() * directReports.length)];
+      await sendAppreciation.mutateAsync({
+        toEmployeeId: randomMember.id,
+        message: t("pulse.teamNudgeMessage"),
+        category: "teamwork",
+      });
+      toast.success(t("pulse.teamNudgeSent"));
+    } catch {
+      // Error handled by mutation
+    }
+  };
 
   if (error && !pulse && !insufficientData && !isPending) return null;
 
@@ -73,6 +114,7 @@ export function TeamPulseCard({ employeeId }: Props) {
               trend={pulse.trend}
               engagementScore={pulse.engagementScore}
             />
+            <PulseNudgeCard engagementScore={pulse.engagementScore} />
             <PulseTargetBlock
               targetMetric={pulse.targetMetric}
               currentValue={pulse.currentValue}
@@ -83,6 +125,22 @@ export function TeamPulseCard({ employeeId }: Props) {
               actionPath={pulse.actionPath}
               actionCta={pulse.actionCta}
             />
+            {/* Manager Team Kudos Nudge */}
+            {selectedMode === "team" && directReports.length > 0 && (
+              <button
+                onClick={handleTeamNudge}
+                disabled={sendAppreciation.isPending}
+                className={cn(
+                  "flex w-full items-center justify-center gap-2 rounded-xl py-2.5",
+                  "bg-chart-3/10 text-chart-3 border border-chart-3/15",
+                  "text-xs font-semibold hover:bg-chart-3/15 transition-all duration-200",
+                  "disabled:opacity-40"
+                )}
+              >
+                <Megaphone className="h-3.5 w-3.5" strokeWidth={1.5} />
+                {t("pulse.teamKudgeNudge")}
+              </button>
+            )}
           </div>
         ) : null}
       </div>
