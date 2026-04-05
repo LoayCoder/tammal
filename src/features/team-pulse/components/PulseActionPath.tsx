@@ -12,7 +12,7 @@ interface Props {
   actionCta: string;
 }
 
-export function PulseActionPath({ recommendedAction, actionPath, actionCta }: Props) {
+export const PulseActionPath = memo(function PulseActionPath({ recommendedAction, actionPath, actionCta }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { logAction } = useEngagementActionLog();
