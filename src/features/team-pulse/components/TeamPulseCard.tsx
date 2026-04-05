@@ -16,6 +16,7 @@ import { PulseNudgeCard } from "./PulseNudgeCard";
 import { useCurrentEmployee } from "@/hooks/auth/useCurrentEmployee";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenantId } from "@/hooks/org/useTenantId";
 import { toast } from "sonner";
 
 interface Props {
@@ -32,6 +33,7 @@ export function TeamPulseCard({ employeeId }: Props) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { employee } = useCurrentEmployee();
+  const { tenantId } = useTenantId();
   const { allowedModes, selectedMode, setMode, showModeSwitcher } = usePulseModes(employeeId);
   const { pulse, insufficientData, isPending, error, refetch } = useTeamPulse(
     selectedMode,
@@ -40,18 +42,19 @@ export function TeamPulseCard({ employeeId }: Props) {
   const { sendAppreciation } = useAppreciations();
 
   const { data: directReports = [] } = useQuery({
-    queryKey: ["pulse-direct-report-ids", employeeId],
+    queryKey: ["pulse-direct-report-ids", employeeId, tenantId],
     queryFn: async () => {
       const { data } = await supabase
         .from("employees")
         .select("id, full_name")
+        .eq("tenant_id", tenantId!)
         .eq("manager_id", employeeId)
         .is("deleted_at", null)
         .eq("status", "active")
         .limit(200);
       return data ?? [];
     },
-    enabled: !!employeeId && selectedMode === "team",
+    enabled: !!employeeId && !!tenantId && selectedMode === "team",
     staleTime: 1000 * 60 * 10,
   });
 

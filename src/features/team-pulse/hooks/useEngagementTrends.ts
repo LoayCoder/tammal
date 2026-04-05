@@ -36,6 +36,7 @@ export function useEngagementTrends(mode: PulseMode, employeeId: string | null |
       let query = supabase
         .from("pulse_targets")
         .select("target_date, current_value, target_value")
+        .eq("tenant_id", tenantId!)
         .eq("scope", scope)
         .eq("target_metric", "engagement_score")
         .gte("target_date", since)
@@ -54,7 +55,7 @@ export function useEngagementTrends(mode: PulseMode, employeeId: string | null |
         target: r.target_value,
       }));
     },
-    enabled: !!employeeId,
+    enabled: !!employeeId && !!tenantId,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -65,6 +66,7 @@ export function useEngagementTrends(mode: PulseMode, employeeId: string | null |
       let query = supabase
         .from("appreciations")
         .select("created_at")
+        .eq("tenant_id", tenantId!)
         .gte("created_at", since)
         .is("deleted_at", null)
         .order("created_at", { ascending: true })
@@ -92,6 +94,7 @@ export function useEngagementTrends(mode: PulseMode, employeeId: string | null |
       const { data } = await supabase
         .from("engagement_action_log")
         .select("id, action_type, source, created_at")
+        .eq("tenant_id", tenantId!)
         .eq("employee_id", employee!.id)
         .is("deleted_at", null)
         .order("created_at", { ascending: false })
@@ -104,7 +107,7 @@ export function useEngagementTrends(mode: PulseMode, employeeId: string | null |
         createdAt: r.created_at,
       }));
     },
-    enabled: !!employee?.id,
+    enabled: !!employee?.id && !!tenantId,
     staleTime: 1000 * 60 * 2,
   });
 

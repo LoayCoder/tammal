@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentEmployee } from "@/hooks/auth/useCurrentEmployee";
+import { useTenantId } from "@/hooks/org/useTenantId";
 
 export interface EngagementNotification {
   id: string;
@@ -16,16 +17,18 @@ export interface EngagementNotification {
 
 export function useEngagementNotifications() {
   const { employee } = useCurrentEmployee();
+  const { tenantId } = useTenantId();
   const queryClient = useQueryClient();
   const employeeId = employee?.id;
 
   const { data: notifications = [], isLoading } = useQuery({
     queryKey: ["engagement-notifications", employeeId],
-    enabled: !!employeeId,
+    enabled: !!employeeId && !!tenantId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("engagement_notifications" as any)
         .select("id, type, title, body, is_read, created_at, action_path, metadata")
+        .eq("tenant_id", tenantId!)
         .eq("recipient_id", employeeId!)
         .is("deleted_at", null)
         .order("created_at", { ascending: false })
