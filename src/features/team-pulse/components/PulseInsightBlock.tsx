@@ -1,12 +1,60 @@
 import { useTranslation } from "react-i18next";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { typography } from "@/theme/tokens";
 
 interface Props {
   insight: string;
   trend: "up" | "down" | "stable";
   engagementScore: number;
   impactReason?: string;
+}
+
+function ScoreGauge({ score }: { score: number }) {
+  const radius = 28;
+  const strokeWidth = 5;
+  const center = 32;
+  const circumference = Math.PI * radius;
+  const progress = Math.min(score, 100) / 100;
+  const offset = circumference * (1 - progress);
+
+  const color =
+    score >= 75 ? "hsl(var(--chart-1))" :
+    score >= 50 ? "hsl(var(--chart-2))" :
+    score >= 30 ? "hsl(var(--chart-4))" :
+    "hsl(var(--destructive))";
+
+  return (
+    <div className="relative flex flex-col items-center">
+      <svg width="64" height="38" viewBox="0 0 64 38" className="overflow-visible">
+        {/* Background arc */}
+        <path
+          d={`M ${center - radius} ${center} A ${radius} ${radius} 0 0 1 ${center + radius} ${center}`}
+          fill="none"
+          stroke="hsl(var(--muted) / 0.15)"
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+        />
+        {/* Progress arc */}
+        <path
+          d={`M ${center - radius} ${center} A ${radius} ${radius} 0 0 1 ${center + radius} ${center}`}
+          fill="none"
+          stroke={color}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          className="transition-all duration-700 ease-out"
+        />
+      </svg>
+      <span
+        className="absolute bottom-0 text-lg font-bold tracking-tight"
+        style={{ color }}
+      >
+        {score}
+      </span>
+    </div>
+  );
 }
 
 export function PulseInsightBlock({ insight, trend, engagementScore, impactReason }: Props) {
@@ -20,22 +68,14 @@ export function PulseInsightBlock({ insight, trend, engagementScore, impactReaso
 
   const { icon: TrendIcon, color, bg, label } = trendConfig[trend];
 
-  const scoreColor =
-    engagementScore >= 75 ? "text-chart-1" :
-    engagementScore >= 50 ? "text-chart-2" :
-    engagementScore >= 30 ? "text-chart-4" :
-    "text-destructive";
-
   return (
-    <div className="space-y-3">
-      {/* Score + Trend */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-baseline gap-1">
-          <span className={cn("text-3xl font-bold tracking-tight", scoreColor)}>
-            {engagementScore}
-          </span>
-          <span className="text-xs text-muted-foreground">/100</span>
-        </div>
+    <div className="space-y-3 animate-fade-in">
+      {/* Section label */}
+      <span className={typography.statLabel}>{t("pulse.engagementScore")}</span>
+
+      {/* Score gauge + Trend */}
+      <div className="flex items-end gap-3">
+        <ScoreGauge score={engagementScore} />
         <div className={cn("flex items-center gap-1 rounded-full px-2 py-0.5", bg)}>
           <TrendIcon className={cn("h-3 w-3", color)} strokeWidth={2} />
           <span className={cn("text-2xs font-medium", color)}>{label}</span>
@@ -45,11 +85,14 @@ export function PulseInsightBlock({ insight, trend, engagementScore, impactReaso
       {/* Insight text */}
       <p className="text-sm text-foreground/90 leading-relaxed">{insight}</p>
 
-      {/* Impact reason */}
+      {/* Impact reason callout */}
       {impactReason && (
-        <p className="text-xs text-muted-foreground leading-relaxed italic">
-          {impactReason}
-        </p>
+        <div className="flex items-start gap-2 rounded-xl border border-border/10 bg-primary/[0.03] p-2.5">
+          <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" strokeWidth={1.5} />
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {impactReason}
+          </p>
+        </div>
       )}
     </div>
   );
