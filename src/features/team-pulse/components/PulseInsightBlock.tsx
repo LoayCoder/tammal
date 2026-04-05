@@ -6,9 +6,10 @@ interface Props {
   insight: string;
   trend: "up" | "down" | "stable";
   engagementScore: number;
+  impactReason?: string;
 }
 
-export function PulseInsightBlock({ insight, trend, engagementScore }: Props) {
+export function PulseInsightBlock({ insight, trend, engagementScore, impactReason }: Props) {
   const { t } = useTranslation();
 
   const trendConfig = {
@@ -43,6 +44,13 @@ export function PulseInsightBlock({ insight, trend, engagementScore }: Props) {
 
       {/* Insight text */}
       <p className="text-sm text-foreground/90 leading-relaxed">{insight}</p>
+
+      {/* Impact reason */}
+      {impactReason && (
+        <p className="text-xs text-muted-foreground leading-relaxed italic">
+          {impactReason}
+        </p>
+      )}
     </div>
   );
 }

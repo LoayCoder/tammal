@@ -14,6 +14,7 @@ export interface PulseInsight {
   currentValue: number;
   actionPath: string;
   actionCta: string;
+  impactReason?: string;
   insufficientData: false;
   mode: PulseMode;
   generatedAt: string;

@@ -207,12 +207,24 @@ serve(async (req) => {
         checkinScore * 0.30 + surveyScore * 0.20 + taskScore * 0.15 + recognitionScore * 0.20 + streakScore * 0.15
       );
 
+      // Overdue tasks
+      const { count: overdueTasks } = await admin
+        .from("unified_tasks")
+        .select("id", { count: "exact", head: true })
+        .eq("employee_id", emp.id)
+        .eq("tenant_id", emp.tenant_id)
+        .is("deleted_at", null)
+        .not("status", "in", '("completed","archived")')
+        .lt("due_date", todayStr)
+        .not("due_date", "is", null);
+
       scopeData = {
         engagementScore,
         checkinDays,
         surveyResponses: surveyResponses ?? 0,
         completedTasks: completedTasks ?? 0,
         totalTasks: totalTasks ?? 0,
+        overdueTasks: overdueTasks ?? 0,
         appreciationsReceived: appreciationsReceived ?? 0,
         appreciationsSent: appreciationsSent ?? 0,
         streak,
@@ -282,12 +294,24 @@ serve(async (req) => {
         checkinScore * 0.35 + taskScore * 0.30 + recognitionScore * 0.20 + (participationRate > 50 ? 15 : participationRate * 0.15)
       );
 
+      // Team overdue tasks
+      const { count: teamOverdue } = await admin
+        .from("unified_tasks")
+        .select("id", { count: "exact", head: true })
+        .in("employee_id", reportIds)
+        .eq("tenant_id", emp.tenant_id)
+        .is("deleted_at", null)
+        .not("status", "in", '("completed","archived")')
+        .lt("due_date", todayStr)
+        .not("due_date", "is", null);
+
       scopeData = {
         engagementScore,
         teamSize: reportIds.length,
         participationRate,
         teamCompletedTasks: teamCompleted ?? 0,
         teamTotalTasks: teamTotal ?? 0,
+        teamOverdueTasks: teamOverdue ?? 0,
         teamAppreciations: teamAppreciations ?? 0,
         totalCheckins: (teamMoods ?? []).length,
       };
@@ -341,12 +365,23 @@ serve(async (req) => {
         checkinScore * 0.35 + taskScore * 0.30 + recognitionScore * 0.20 + (orgParticipationRate > 50 ? 15 : orgParticipationRate * 0.15)
       );
 
+      // Org overdue tasks
+      const { count: orgOverdue } = await admin
+        .from("unified_tasks")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", emp.tenant_id)
+        .is("deleted_at", null)
+        .not("status", "in", '("completed","archived")')
+        .lt("due_date", todayStr)
+        .not("due_date", "is", null);
+
       scopeData = {
         engagementScore,
         totalEmployees: totalEmps ?? 0,
         participationRate: orgParticipationRate,
         completedTasks: orgCompleted ?? 0,
         totalTasks: orgTotal ?? 0,
+        overdueTasks: orgOverdue ?? 0,
         totalAppreciations: orgAppreciations ?? 0,
         totalCheckins: (orgMoods ?? []).length,
       };
@@ -422,8 +457,9 @@ Analyze this ${mode} engagement data and generate a structured engagement insigh
                   currentValue: { type: "number", description: "Current value of the target metric" },
                   actionPath: { type: "string", description: "App route for the action CTA (e.g., /employee/survey)" },
                   actionCta: { type: "string", description: "Short button label text" },
+                  impactReason: { type: "string", description: "One sentence explaining WHY this action matters for engagement" },
                 },
-                required: ["primaryInsight", "recommendedAction", "trend", "targetMetric", "targetValue", "currentValue", "actionPath", "actionCta"],
+                required: ["primaryInsight", "recommendedAction", "trend", "targetMetric", "targetValue", "currentValue", "actionPath", "actionCta", "impactReason"],
                 additionalProperties: false,
               },
             },
@@ -439,6 +475,11 @@ Analyze this ${mode} engagement data and generate a structured engagement insigh
       if (status === 429) {
         return new Response(JSON.stringify({ error: "Rate limited" }), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted" }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       return new Response(
