@@ -33,14 +33,30 @@ export function EngagementRankBadge({ rank, totalEmployees, isPending, error }: 
   const config = RANK_CONFIG[rank];
 
   return (
-    <Card className={cn(cardVariants.premiumVip, 'rounded-2xl overflow-hidden')}>
+    <Card
+      className={cn(
+        cardVariants.premiumVip,
+        'rounded-2xl overflow-hidden animate-fade-in',
+        isTopThree && 'bg-[length:200%_100%] animate-shimmer-once',
+      )}
+      style={
+        isTopThree
+          ? {
+              backgroundImage:
+                'linear-gradient(110deg, transparent 30%, hsl(var(--primary) / 0.06) 45%, transparent 60%)',
+              backgroundSize: '200% 100%',
+            }
+          : undefined
+      }
+    >
       <CardContent className="flex items-center gap-4 p-4">
         {/* Medal / Trophy icon */}
         <div
           className={cn(
-            'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl',
+            'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl opacity-0 animate-badge-pop',
             isTopThree ? config.bg : 'bg-primary/[0.06]',
           )}
+          style={{ animationDelay: '150ms' }}
         >
           {isTopThree ? (
             <span className="text-2xl">{config.label}</span>
@@ -54,9 +70,10 @@ export function EngagementRankBadge({ rank, totalEmployees, isPending, error }: 
           <div className="flex items-baseline gap-1.5">
             <span
               className={cn(
-                'text-2xl font-extrabold tracking-tight',
+                'text-2xl font-extrabold tracking-tight opacity-0 animate-badge-pop',
                 isTopThree ? config.color : 'text-primary',
               )}
+              style={{ animationDelay: '300ms' }}
             >
               #{rank}
             </span>
@@ -71,7 +88,11 @@ export function EngagementRankBadge({ rank, totalEmployees, isPending, error }: 
 
         {/* Decorative medal for top 3 */}
         {isTopThree && (
-          <Medal className={cn('h-5 w-5 shrink-0', config.color)} strokeWidth={1.5} />
+          <Medal
+            className={cn('h-5 w-5 shrink-0 opacity-0 animate-badge-pop', config.color)}
+            strokeWidth={1.5}
+            style={{ animationDelay: '450ms' }}
+          />
         )}
       </CardContent>
     </Card>
