@@ -27,6 +27,7 @@ export function useAppreciations() {
   const { employee } = useCurrentEmployee();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { logAction } = useEngagementActionLog();
 
   const { data: received = [], isPending: receivedLoading } = useQuery({
     queryKey: ["appreciations-received", employee?.id],
