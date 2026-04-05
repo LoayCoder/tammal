@@ -4,6 +4,8 @@ import { DataTable } from "@/shared/data-table/DataTable";
 import type { ColumnDef } from "@/shared/data-table/types";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { ar as arLocale } from "date-fns/locale/ar";
+import { enUS } from "date-fns/locale/en-US";
 import type { ActionLogEntry } from "../hooks/useEngagementTrends";
 
 interface Props {
@@ -20,7 +22,7 @@ const ACTION_BADGE_MAP: Record<string, "default" | "secondary" | "outline"> = {
 };
 
 export const EngagementActionTable = memo(function EngagementActionTable({ data, isLoading }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const columns = useMemo<ColumnDef<ActionLogEntry>[]>(() => [
     {
@@ -28,7 +30,7 @@ export const EngagementActionTable = memo(function EngagementActionTable({ data,
       header: t("engagementInsights.colDate"),
       cell: (row) => (
         <span className="text-xs text-muted-foreground tabular-nums">
-          {format(new Date(row.createdAt), "MMM dd, HH:mm")}
+          {format(new Date(row.createdAt), "MMM dd, HH:mm", { locale: i18n.language === "ar" ? arLocale : enUS })}
         </span>
       ),
     },

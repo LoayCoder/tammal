@@ -57,7 +57,6 @@ export function QuickAppreciationCard() {
         message: message.trim(),
         category,
       });
-      logAction.mutate({ actionType: "appreciation_sent", source: "appreciation_widget", metadata: { category } });
       setSelectedEmployee("");
       setMessage("");
       setCategory("teamwork");

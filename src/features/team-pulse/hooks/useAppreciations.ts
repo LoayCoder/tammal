@@ -30,11 +30,12 @@ export function useAppreciations() {
   const { logAction } = useEngagementActionLog();
 
   const { data: received = [], isPending: receivedLoading } = useQuery({
-    queryKey: ["appreciations-received", employee?.id],
+    queryKey: ["appreciations-received", employee?.id, tenantId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("appreciations")
         .select("*, from_employee:employees!appreciations_from_employee_id_fkey(id, full_name)")
+        .eq("tenant_id", tenantId!)
         .eq("to_employee_id", employee!.id)
         .is("deleted_at", null)
         .order("created_at", { ascending: false })
@@ -42,15 +43,16 @@ export function useAppreciations() {
       if (error) throw error;
       return data as unknown as Appreciation[];
     },
-    enabled: !!employee?.id,
+    enabled: !!employee?.id && !!tenantId,
   });
 
   const { data: sent = [], isPending: sentLoading } = useQuery({
-    queryKey: ["appreciations-sent", employee?.id],
+    queryKey: ["appreciations-sent", employee?.id, tenantId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("appreciations")
         .select("*, to_employee:employees!appreciations_to_employee_id_fkey(id, full_name)")
+        .eq("tenant_id", tenantId!)
         .eq("from_employee_id", employee!.id)
         .is("deleted_at", null)
         .order("created_at", { ascending: false })
@@ -58,7 +60,7 @@ export function useAppreciations() {
       if (error) throw error;
       return data as unknown as Appreciation[];
     },
-    enabled: !!employee?.id,
+    enabled: !!employee?.id && !!tenantId,
   });
 
   const sendAppreciation = useMutation({

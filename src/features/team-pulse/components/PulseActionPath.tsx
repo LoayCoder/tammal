@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +12,7 @@ interface Props {
   actionCta: string;
 }
 
-export function PulseActionPath({ recommendedAction, actionPath, actionCta }: Props) {
+export const PulseActionPath = memo(function PulseActionPath({ recommendedAction, actionPath, actionCta }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { logAction } = useEngagementActionLog();
@@ -40,4 +41,4 @@ export function PulseActionPath({ recommendedAction, actionPath, actionCta }: Pr
       </button>
     </div>
   );
-}
+});

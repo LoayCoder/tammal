@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { Target } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -9,7 +10,7 @@ interface Props {
   targetValue: number;
 }
 
-export function PulseTargetBlock({ targetMetric, currentValue, targetValue }: Props) {
+export const PulseTargetBlock = memo(function PulseTargetBlock({ targetMetric, currentValue, targetValue }: Props) {
   const { t } = useTranslation();
   const progress = targetValue > 0 ? Math.min(Math.round((currentValue / targetValue) * 100), 100) : 0;
 
@@ -54,4 +55,4 @@ export function PulseTargetBlock({ targetMetric, currentValue, targetValue }: Pr
       </div>
     </div>
   );
-}
+});

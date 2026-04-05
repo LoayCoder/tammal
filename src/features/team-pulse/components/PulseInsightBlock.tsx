@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { TrendingUp, TrendingDown, Minus, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -58,7 +59,7 @@ function ScoreGauge({ score, large }: { score: number; large?: boolean }) {
   );
 }
 
-export function PulseInsightBlock({ insight, trend, engagementScore, impactReason }: Props) {
+export const PulseInsightBlock = memo(function PulseInsightBlock({ insight, trend, engagementScore, impactReason }: Props) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
 
@@ -98,4 +99,4 @@ export function PulseInsightBlock({ insight, trend, engagementScore, impactReaso
       )}
     </div>
   );
-}
+});

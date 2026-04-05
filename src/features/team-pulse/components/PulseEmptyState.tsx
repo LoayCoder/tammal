@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { BarChart3 } from "lucide-react";
 
@@ -5,7 +6,7 @@ interface Props {
   fallbackCta?: string;
 }
 
-export function PulseEmptyState({ fallbackCta }: Props) {
+export const PulseEmptyState = memo(function PulseEmptyState({ fallbackCta }: Props) {
   const { t } = useTranslation();
 
   return (
@@ -19,4 +20,4 @@ export function PulseEmptyState({ fallbackCta }: Props) {
       </div>
     </div>
   );
-}
+});

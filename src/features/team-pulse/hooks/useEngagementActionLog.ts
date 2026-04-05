@@ -30,7 +30,7 @@ export function useEngagementActionLog() {
           metadata,
         } as any);
 
-      if (error) {
+      if (error && import.meta.env.DEV) {
         console.error("Failed to log engagement action:", error);
       }
     },
