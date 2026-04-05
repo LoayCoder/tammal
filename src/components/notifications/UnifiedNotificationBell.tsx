@@ -174,6 +174,7 @@ function NotificationContent({
   tab, setTab, filtered, totalUnread, taskUnread, crisisUnread, recognitionUnread,
   onMarkAllRead, onItemClick, isMobile, t,
 }: NotificationContentProps) {
+  const { i18n } = useTranslation();
   const scrollH = isMobile ? 'max-h-[60vh]' : 'max-h-[340px]';
 
   return (
