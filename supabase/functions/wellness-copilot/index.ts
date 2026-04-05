@@ -80,7 +80,7 @@ serve(async (req) => {
     const { data: roles } = await admin
       .from("user_roles")
       .select("role")
-      .eq("user_id", user.id);
+      .eq("user_id", userId);
     const roleSet = new Set((roles ?? []).map((r: any) => r.role));
     const isAdmin = roleSet.has("super_admin") || roleSet.has("tenant_admin");
     const isManager = roleSet.has("manager") || isAdmin;
