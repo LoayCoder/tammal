@@ -109,6 +109,9 @@ export default function EmployeeHome() {
         {/* Quick Appreciation */}
         <QuickAppreciationCard />
 
+        {/* Appreciation Activity Summary */}
+        {employee && <AppreciationActivityWidgetWrapper employeeId={employee.id} />}
+
         {/* Support Hub — Collapsible Premium Card */}
         <Collapsible className="premium-card rounded-2xl hover:shadow-sm transition-all duration-200">
           <CollapsibleTrigger className="group flex items-center justify-between w-full p-4 cursor-pointer">
