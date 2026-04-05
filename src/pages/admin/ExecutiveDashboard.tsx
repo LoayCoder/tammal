@@ -11,6 +11,7 @@ import { Brain, RefreshCw } from 'lucide-react';
 
 import { TammalIndexCard } from '@/features/workload/components/executive/TammalIndexCard';
 import { ExecutiveKPIRow } from '@/features/workload/components/executive/ExecutiveKPIRow';
+import { ExecutiveNarrativeCard } from '@/features/workload/components/executive/ExecutiveNarrativeCard';
 import { StrategicProgressCard } from '@/features/workload/components/executive/StrategicProgressCard';
 import { DepartmentWorkloadCard } from '@/features/workload/components/executive/DepartmentWorkloadCard';
 import { DeliveryPerformanceCard } from '@/features/workload/components/executive/DeliveryPerformanceCard';
@@ -19,6 +20,7 @@ import { BurnoutPredictionsCard } from '@/features/workload/components/executive
 import { RedistributionCard } from '@/features/workload/components/executive/RedistributionCard';
 import { BurnoutRiskMapCard } from '@/features/workload/components/executive/BurnoutRiskMapCard';
 import { AlignmentOverviewCard } from '@/features/workload/components/executive/AlignmentOverviewCard';
+import { TammalWeightsSettings } from '@/features/workload/components/executive/TammalWeightsSettings';
 import { typography } from "@/theme/tokens";
 
 export default function ExecutiveDashboard() {
@@ -124,6 +126,14 @@ export default function ExecutiveDashboard() {
         </div>
       </div>
 
+      {/* AI Narrative Insight */}
+      <ExecutiveNarrativeCard
+        tammalScore={orgScore?.score ?? 0}
+        components={orgScore?.components ?? null}
+        burnoutRiskCount={burnoutRiskEmployees}
+        isPending={orgScoreLoading}
+      />
+
       <TammalIndexCard score={orgScore} isPending={orgScoreLoading} />
 
       <ExecutiveKPIRow
@@ -161,7 +171,10 @@ export default function ExecutiveDashboard() {
 
       <BurnoutRiskMapCard metrics={metrics} teamLoad={teamLoad} isPending={isPending} />
 
-      <AlignmentOverviewCard avgAlignment={avgAlignment} avgUtilization={avgUtilization} atRiskCount={atRiskCount} isPending={isPending} />
+      <div className="grid gap-4 md:grid-cols-2">
+        <AlignmentOverviewCard avgAlignment={avgAlignment} avgUtilization={avgUtilization} atRiskCount={atRiskCount} isPending={isPending} />
+        <TammalWeightsSettings />
+      </div>
     </div>
   );
 }
