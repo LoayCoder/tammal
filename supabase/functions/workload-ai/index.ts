@@ -185,7 +185,7 @@ Deno.serve(async (req) => {
           messages: [
             {
               role: "system",
-              content: `You are a workforce analytics AI. Analyze employee signals and predict burnout probability. Consider: utilization >100% is dangerous, escalation frequency indicates stress, overdue tasks indicate overwhelm. Return predictions for employees showing risk signs (probability > 20).`,
+              content: `You are a workforce analytics AI. Analyze employee signals and predict burnout probability. Consider: utilization >100% is dangerous, escalation frequency indicates stress, overdue tasks indicate overwhelm, low mood scores (below 3/5) indicate emotional distress and compound burnout risk. Return predictions for employees showing risk signs (probability > 20).`,
             },
             {
               role: "user",
