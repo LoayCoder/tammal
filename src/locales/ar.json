@@ -693,7 +693,22 @@
     "offHoursWorkers": "عاملون خارج الدوام",
     "totalWorkforce": "إجمالي القوى العاملة",
     "overloadedEmployees": "أكثر الموظفين حملاً",
-    "hoursPerDay": "متوسط الساعات / يوم حسب الإدارة"
+    "hoursPerDay": "متوسط الساعات / يوم حسب الإدارة",
+    "noDataForInsight": "بيانات غير كافية للرؤى",
+    "emptyState": {
+      "title": "لا توجد بيانات بعد",
+      "description": "ابدأ استبياناً لتوليد الرؤى"
+    },
+    "insight": {
+      "moodUp": "رفاهية الفريق في تحسّن",
+      "moodDown": "رفاهية الفريق في تراجع",
+      "participationUp": "معدل المشاركة في ارتفاع",
+      "participationLow": "معدل المشاركة لا يزال منخفضاً",
+      "riskRising": "مستويات المخاطر في ارتفاع — يُرجى المتابعة",
+      "riskImproving": "مؤشرات المخاطر في تحسّن",
+      "manyWarnings": "تم رصد عدة إشارات تحذيرية",
+      "stable": "جميع المؤشرات مستقرة — لا إجراء مطلوب"
+    }
   },
   "synthesis": {
     "checkinPulse": "نبض التسجيل اليومي",
