@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/shared/data-table/DataTable";
+import type { ColumnDef } from "@/shared/data-table/types";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import type { ActionLogEntry } from "../hooks/useEngagementTrends";
@@ -11,7 +11,7 @@ interface Props {
   isLoading?: boolean;
 }
 
-const ACTION_BADGE_MAP: Record<string, string> = {
+const ACTION_BADGE_MAP: Record<string, "default" | "secondary" | "outline"> = {
   cta_clicked: "default",
   nudge_dismissed: "secondary",
   nudge_acted: "default",
@@ -24,32 +24,29 @@ export const EngagementActionTable = memo(function EngagementActionTable({ data,
 
   const columns = useMemo<ColumnDef<ActionLogEntry>[]>(() => [
     {
-      accessorKey: "createdAt",
+      id: "createdAt",
       header: t("engagementInsights.colDate"),
-      cell: ({ getValue }) => (
+      cell: (row) => (
         <span className="text-xs text-muted-foreground tabular-nums">
-          {format(new Date(getValue() as string), "MMM dd, HH:mm")}
+          {format(new Date(row.createdAt), "MMM dd, HH:mm")}
         </span>
       ),
     },
     {
-      accessorKey: "actionType",
+      id: "actionType",
       header: t("engagementInsights.colAction"),
-      cell: ({ getValue }) => {
-        const v = getValue() as string;
-        return (
-          <Badge variant={(ACTION_BADGE_MAP[v] as any) ?? "outline"} className="text-2xs">
-            {v.replace(/_/g, " ")}
-          </Badge>
-        );
-      },
+      cell: (row) => (
+        <Badge variant={ACTION_BADGE_MAP[row.actionType] ?? "outline"} className="text-2xs">
+          {row.actionType.replace(/_/g, " ")}
+        </Badge>
+      ),
     },
     {
-      accessorKey: "source",
+      id: "source",
       header: t("engagementInsights.colSource"),
-      cell: ({ getValue }) => (
+      cell: (row) => (
         <span className="text-xs text-muted-foreground capitalize">
-          {(getValue() as string).replace(/_/g, " ")}
+          {row.source.replace(/_/g, " ")}
         </span>
       ),
     },
@@ -59,8 +56,9 @@ export const EngagementActionTable = memo(function EngagementActionTable({ data,
     <DataTable
       columns={columns}
       data={data}
+      rowKey={(r) => r.id}
       isLoading={isLoading}
-      emptyTitle={t("engagementInsights.noActions")}
+      emptyMessage={t("engagementInsights.noActions")}
       emptyDescription={t("engagementInsights.noActionsDesc")}
     />
   );
