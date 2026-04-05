@@ -4300,6 +4300,11 @@
   },
   "tasks": {
     "createTask": "Create Task",
+    "rejectTask": "Reject Task",
+    "rejectTaskDesc": "Provide a reason for rejecting: {{title}}",
+    "rejectionReason": "Rejection Reason",
+    "rejectionReasonPlaceholder": "Explain why this task is being rejected...",
+    "reject": "Reject",
     "saveDraft": "Save Draft",
     "advancedSettings": "Advanced Settings",
     "reminderHint": "You will be notified before the selected date.",
