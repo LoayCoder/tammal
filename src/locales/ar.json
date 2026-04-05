@@ -4569,5 +4569,30 @@
     "ctaBreak": "خذ استراحة",
     "ctaTasks": "مراجعة المهام",
     "ctaManageTeam": "إدارة الفريق"
+  },
+  "pulse": {
+    "title": "نبض الفريق",
+    "modePersonal": "مشاركتي",
+    "modeTeam": "مشاركة الفريق",
+    "modeOrganization": "المنظمة",
+    "trendUp": "في ارتفاع",
+    "trendDown": "في انخفاض",
+    "trendStable": "مستقر",
+    "targetLabel": "الهدف",
+    "takeAction": "اتخذ إجراء",
+    "emptyTitle": "لا توجد بيانات كافية بعد",
+    "emptyDescription": "أكمل تسجيلات الحضور والمهام لفتح تحليلات المشاركة.",
+    "appreciateTitle": "أرسل تقديرًا",
+    "appreciateSubtitle": "كرّم مساهمة زميلك",
+    "appreciationsReceived": "{{count}} تقدير مستلم",
+    "selectColleague": "اختر زميلًا...",
+    "appreciationPlaceholder": "اكتب رسالة تقدير قصيرة...",
+    "sendAppreciation": "أرسل التقدير",
+    "appreciationSent": "تم إرسال التقدير! 🎉",
+    "catTeamwork": "العمل الجماعي",
+    "catInnovation": "الابتكار",
+    "catSupport": "الدعم",
+    "catLeadership": "القيادة",
+    "catAboveBeyond": "التميز"
   }
 }

@@ -26,6 +26,7 @@ import { DashboardEndorsementRequests } from '@/components/dashboard/DashboardEn
 import { DashboardShortlistWidget } from '@/components/dashboard/DashboardShortlistWidget';
 import { DashboardVotingWidget } from '@/components/dashboard/DashboardVotingWidget';
 import { WellnessCopilotCard } from '@/features/wellness-copilot';
+import { TeamPulseCard, QuickAppreciationCard } from '@/features/team-pulse';
 import { EngagementRankBadge } from '@/components/dashboard/EngagementRankBadge';
 import { useEmployeeEngagementRank } from '@/hooks/wellness/useEmployeeEngagementRank';
 import { cardVariants, typography } from "@/theme/tokens";
@@ -101,6 +102,12 @@ export default function EmployeeHome() {
 
         {/* Wellness Copilot */}
         {employee && <WellnessCopilotCard employeeId={employee.id} />}
+
+        {/* Team Pulse Action Hub */}
+        {employee && <TeamPulseCard employeeId={employee.id} />}
+
+        {/* Quick Appreciation */}
+        <QuickAppreciationCard />
 
         {/* Support Hub — Collapsible Premium Card */}
         <Collapsible className="premium-card rounded-2xl hover:shadow-sm transition-all duration-200">

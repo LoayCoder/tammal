@@ -4569,5 +4569,30 @@
     "ctaBreak": "Take a Break",
     "ctaTasks": "Review Tasks",
     "ctaManageTeam": "Manage Team"
+  },
+  "pulse": {
+    "title": "Team Pulse",
+    "modePersonal": "My Engagement",
+    "modeTeam": "Team Engagement",
+    "modeOrganization": "Organization",
+    "trendUp": "Trending up",
+    "trendDown": "Trending down",
+    "trendStable": "Stable",
+    "targetLabel": "Target",
+    "takeAction": "Take Action",
+    "emptyTitle": "Not enough data yet",
+    "emptyDescription": "Complete check-ins and tasks to unlock your engagement insights.",
+    "appreciateTitle": "Send Appreciation",
+    "appreciateSubtitle": "Recognize a colleague's contribution",
+    "appreciationsReceived": "{{count}} appreciations received",
+    "selectColleague": "Select a colleague...",
+    "appreciationPlaceholder": "Write a short appreciation message...",
+    "sendAppreciation": "Send Appreciation",
+    "appreciationSent": "Appreciation sent! 🎉",
+    "catTeamwork": "Teamwork",
+    "catInnovation": "Innovation",
+    "catSupport": "Support",
+    "catLeadership": "Leadership",
+    "catAboveBeyond": "Above & Beyond"
   }
 }

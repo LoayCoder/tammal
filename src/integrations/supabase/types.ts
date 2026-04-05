@@ -1062,6 +1062,61 @@ export type Database = {
           },
         ]
       }
+      appreciations: {
+        Row: {
+          category: string
+          created_at: string
+          deleted_at: string | null
+          from_employee_id: string
+          id: string
+          message: string
+          tenant_id: string
+          to_employee_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          deleted_at?: string | null
+          from_employee_id: string
+          id?: string
+          message: string
+          tenant_id: string
+          to_employee_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          deleted_at?: string | null
+          from_employee_id?: string
+          id?: string
+          message?: string
+          tenant_id?: string
+          to_employee_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appreciations_from_employee_id_fkey"
+            columns: ["from_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appreciations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appreciations_to_employee_id_fkey"
+            columns: ["to_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       approval_flows: {
         Row: {
           created_at: string
