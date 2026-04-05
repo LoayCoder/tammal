@@ -96,6 +96,7 @@ const RecurringTasks = lazy(() => import("@/features/tasks/pages/RecurringTasks"
 const TaskTemplates = lazy(() => import("@/features/tasks/pages/TaskTemplates"));
 const ComponentShowcase = lazy(() => import("@/pages/dev/ComponentShowcase"));
 const DesignSystemPage = lazy(() => import("@/pages/dev/DesignSystemPage"));
+const EngagementInsights = lazy(() => import("@/pages/EngagementInsights"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -196,6 +197,9 @@ const App = () => (
                 <Route path="/admin/workload/escalation" element={<AdminRoute><EscalationSettings /></AdminRoute>} />
                 <Route path="/admin/workload/system-health" element={<AdminRoute><SystemHealth /></AdminRoute>} />
               </Route>
+
+              {/* ── Engagement Intelligence ── */}
+              <Route path="/engagement-insights" element={<EngagementInsights />} />
 
               {/* ── Workload (employee-facing) ── */}
               <Route path="/my-workload" element={<PersonalCommandCenter />} />

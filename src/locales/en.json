@@ -4609,5 +4609,29 @@
     "teamNudgeSent": "Team kudos sent! 🎉",
     "engagementScore": "Engagement Score",
     "recommendedAction": "Recommended Action"
+  },
+  "engagementInsights": {
+    "title": "Engagement Intelligence",
+    "subtitle": "Deep insights into engagement trends, appreciation activity, and action history",
+    "viewDetails": "Details",
+    "pulseTrend": "Pulse Trend",
+    "pulseTrendDesc": "Engagement score over the last 30 days",
+    "noTrendData": "No pulse trend data available yet",
+    "score": "Score",
+    "target": "Target",
+    "currentScore": "Current Score",
+    "targetMetric": "Target Progress",
+    "appreciationTrend": "Appreciation Activity",
+    "appreciationTrendDesc": "Weekly appreciation volume over the last 90 days",
+    "noAppreciationData": "No appreciation data available yet",
+    "appreciations": "Appreciations",
+    "actionLog": "Engagement Actions",
+    "actionLogDesc": "Recent interactions tracked from pulse cards and nudges",
+    "colDate": "Date",
+    "colAction": "Action",
+    "colSource": "Source",
+    "noActions": "No actions logged yet",
+    "noActionsDesc": "Engagement actions will appear here as you interact with pulse features",
+    "activeRecommendations": "Active Recommendations"
   }
 }
