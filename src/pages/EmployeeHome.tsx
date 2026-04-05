@@ -193,11 +193,6 @@ export default function EmployeeHome() {
         {employee && <DashboardWorkloadWidget employeeId={employee.id} />}
 
 
-        {/* Mental Health Tools Hub */}
-        <MentalHealthToolsHub />
-
-        {/* Mental Health Resources Hub */}
-        <MentalHealthResourcesHub />
 
         {/* First Aider Quick Connect */}
         <FirstAiderQuickConnect
