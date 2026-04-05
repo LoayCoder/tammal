@@ -2499,6 +2499,7 @@
     "tasks": "Tasks",
     "crisis": "Crisis",
     "recognition": "Recognition",
+    "engagement": "Engagement",
     "endorsementRequested": "{{name}} requested your endorsement",
     "endorsementRequestedBody": "Please review and endorse the nomination for \"{{headline}}\"",
     "type": {
