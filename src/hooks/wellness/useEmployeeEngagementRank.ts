@@ -33,7 +33,8 @@ export function useEmployeeEngagementRank(
         .eq('tenant_id', tenantId)
         .gte('entry_date', since)
         .is('deleted_at', null)
-        .order('entry_date', { ascending: false });
+        .order('entry_date', { ascending: false })
+        .limit(50000);
 
       if (error) throw error;
       if (!entries || entries.length === 0) return null;
