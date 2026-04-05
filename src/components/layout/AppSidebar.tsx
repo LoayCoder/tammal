@@ -606,7 +606,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                                         key={item.url}
                                         to={item.url}
                                         className={cn(
-                                          "flex h-7 items-center gap-2 rounded-lg px-2.5 text-sm transition-colors",
+                                          "flex h-7 items-center gap-2 rounded-lg px-2.5 text-xs transition-colors",
                                           "text-sidebar-foreground/70 hover:bg-muted/50 hover:text-sidebar-foreground"
                                         )}
                                         activeClassName="text-sidebar-primary font-medium"
