@@ -14,7 +14,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import {
-  Lock, MessageSquare, ListChecks,
+  Lock, Unlock, MessageSquare, ListChecks,
   Activity, Paperclip, Clock, CalendarDays, ChevronLeft,
   Plus, Upload, FileIcon, X, Trash2, Play, Square, Timer,
   Brain, Users, AlertTriangle, ArrowUpDown, GitBranch, Link2,
@@ -31,6 +31,8 @@ import { useTaskActivity } from '@/features/tasks/hooks/useTaskActivity';
 import { useTaskAttachments } from '@/features/tasks/hooks/useTaskAttachments';
 import { useTaskDetail, useTaskUpdate } from '@/features/tasks/hooks/useTaskDetail';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { SlaCountdownBadge } from '@/components/workload/governance/SlaCountdownBadge';
+import { UnlockRequestDialog } from '@/components/workload/governance/UnlockRequestDialog';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
