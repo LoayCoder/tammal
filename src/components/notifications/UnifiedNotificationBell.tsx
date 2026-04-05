@@ -20,7 +20,30 @@ import { useTaskNotifications, type TaskNotification } from '@/features/tasks/ho
 import { useCrisisNotifications, type CrisisNotification } from '@/hooks/crisis/useCrisisNotifications';
 import { useRecognitionNotifications, type RecognitionNotification } from '@/hooks/recognition/useRecognitionNotifications';
 import { formatDistanceToNow } from 'date-fns';
+import { ar as arLocale } from 'date-fns/locale/ar';
+import { enUS } from 'date-fns/locale/en-US';
 import { useIsMobile } from '@/hooks/ui/use-mobile';
+
+/** Extract task name from English title like "New task assigned: My Task" */
+function extractTaskName(title: string): string {
+  const colonIdx = title.indexOf(':');
+  return colonIdx >= 0 ? title.slice(colonIdx + 1).trim() : title;
+}
+
+/** Translate notification title using type-based mapping */
+function getTranslatedTitle(n: UnifiedNotification, t: (key: string, opts?: any) => string): string {
+  const typeKey = `notifications.type.${n.type}`;
+  const translated = t(typeKey, { name: extractTaskName(n.title), defaultValue: '' });
+  return translated || n.title;
+}
+
+/** Translate notification body using type-based mapping */
+function getTranslatedBody(n: UnifiedNotification, t: (key: string, opts?: any) => string): string | null {
+  if (!n.body) return null;
+  const bodyKey = `notifications.body.${n.type}`;
+  const translated = t(bodyKey, { defaultValue: '' });
+  return translated || n.body;
+}
 
 type NotificationSource = 'task' | 'crisis' | 'recognition';
 

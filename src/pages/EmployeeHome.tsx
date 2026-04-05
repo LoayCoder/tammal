@@ -10,8 +10,6 @@ import { useMoodHistory } from '@/hooks/wellness/useMoodHistory';
 import { useScheduledQuestions } from '@/hooks/questions/useScheduledQuestions';
 import { InlineDailyCheckin } from '@/components/checkin/InlineDailyCheckin';
 import { PersonalMoodDashboard } from '@/components/dashboard/PersonalMoodDashboard';
-import { MentalHealthToolsHub } from '@/components/dashboard/MentalHealthToolsHub';
-import { MentalHealthResourcesHub } from '@/components/dashboard/MentalHealthResourcesHub';
 import {
   Flame, Star, CheckCircle2, ClipboardList, ChevronRight,
   Phone, HeartHandshake, Crown, ChevronDown, Clock,
