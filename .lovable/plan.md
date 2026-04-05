@@ -1,94 +1,81 @@
 
 
-## Phase 3 — Missing Foundation Features: Assessment & Plan
+## Phase 4 — Data Model, Backend Logic, and Permissions: Assessment & Plan
 
-### Current State (Already Built)
+### Current Backend State (Already Built)
 
-The audit confirms these foundation features are **already implemented**:
+The audit confirms the following backend layers are **fully implemented**:
 
-| Feature | Status | Evidence |
-|---------|--------|----------|
-| Peer Appreciation System | Done | `appreciations` table, RLS, validation triggers, `useAppreciations` hook, `QuickAppreciationCard` UI, +5 points gamification |
-| Engagement Score Engine | Done | `team-pulse-engine` edge function with composite scoring (check-ins 30%, surveys 20%, tasks 15%, recognition 20%, streaks 15%) |
-| Role-Aware Mode Switching | Done | `usePulseModes` with personal/team/org modes, authorization enforced server-side |
-| AI Insight Generation | Done | Gemini AI with structured tool-calling, daily caching in `copilot_insight_cache` |
-| Action Path / CTA | Done | `PulseActionPath` component with route-based CTAs |
-| Target Tracking | Done | `PulseTargetBlock` with current/target value progress display |
+| Layer | Status | Details |
+|-------|--------|---------|
+| `appreciations` table | Done | Full CRUD, RLS (tenant isolation), validation triggers (category, no self-send), soft-delete, indexes |
+| `pulse_targets` table | Done | Scope validation trigger, RLS, tenant isolation, employee reference, date-based indexing |
+| `copilot_insight_cache` table | Done | Scope-key + date uniqueness, RLS, tenant isolation |
+| `team-pulse-engine` Edge Function | Done | 504 lines — auth, role resolution, 3-mode data aggregation, composite scoring, AI generation, caching, target persistence |
+| Authorization (server-side) | Done | JWT auth → user_roles check → mode gating (team requires manager/direct reports, org requires admin) |
+| Tenant isolation (server-side) | Done | Service role client uses explicit `.eq("tenant_id", emp.tenant_id)` on every query — defense-in-depth |
+| RLS on all tables | Done | `current_tenant_id()` enforced on appreciations, pulse_targets, copilot_insight_cache |
+| Role resolution | Done | `user_roles` lookup for super_admin/tenant_admin/manager with Set-based checking |
+| Team hierarchy | Done | `employees.manager_id` used for direct-reports scoping in team mode |
+| Privacy guards | Done | Team/org modes aggregate only — no individual employee identification in AI prompts or responses |
+| Data scoping | Done | Personal: own data only. Team: direct reports via `manager_id`. Org: full tenant via `tenant_id` |
+| Points integration | Done | +5 points on appreciation send via `points_transactions` insert |
 
-### What Is Still Missing (Phase 3 Scope)
+### What Is Missing (Gaps to Address)
 
-These are the features from the requirement list that do **not** yet exist:
-
-| Feature | Priority | Description |
-|---------|----------|-------------|
-| **Appreciation Activity Summary** | High | Managers/admins cannot view appreciation activity as an engagement signal in a summary view — only raw counts in the engine. Add a compact `AppreciationActivityWidget` showing top categories, volume trend, and top receivers (anonymized for team/org) |
-| **Manager Appreciation Nudge** | High | Managers cannot trigger a team appreciation nudge. Add a one-tap "Encourage your team to recognize each other" action in Team mode |
-| **Engagement Target History** | Medium | No persistence of engagement targets — each day generates a new one. Add a `pulse_targets` table to track target → actual over time |
-| **Action Nudge Prompts** | Medium | When engagement score drops below threshold (< 50), show a contextual nudge card on dashboard prompting specific actions |
-| **Participation Prompt Engine** | Low | Automated prompts for employees who haven't checked in for 3+ days — requires scheduled function |
+| Gap | Priority | Description |
+|-----|----------|-------------|
+| **Engagement Action Log** | High | No table to track when users take actions prompted by pulse insights (e.g., "user clicked CTA", "user completed nudge"). This is needed for KPI measurement and to close the feedback loop. |
+| **Appreciation tenant_id defense-in-depth** | Medium | Frontend `useAppreciationStats` uses RLS for team/org filtering but lacks explicit `.eq("tenant_id", tenantId)` defense-in-depth filter — relies solely on RLS |
+| **pulse_targets unique constraint** | Low | No unique constraint on (employee_id, scope, target_date) — duplicate rows possible if edge function retries |
 
 ### Implementation Plan
 
-#### 1. Appreciation Activity Widget (New Component)
+#### 1. Engagement Action Log Table (New Migration)
 
-**File**: `src/features/team-pulse/components/AppreciationActivityWidget.tsx`
-
-A compact card below `QuickAppreciationCard` showing:
-- Total appreciations sent/received (30d)
-- Top category breakdown (horizontal mini-bars)
-- "Most appreciated" badge (personal mode: your top category; team/org: top category across scope)
-- Uses existing `useAppreciations` data + a new `useAppreciationStats` hook
-
-**File**: `src/features/team-pulse/hooks/useAppreciationStats.ts`
-
-Aggregates appreciation data by category for the current scope (personal/team/org). Uses Supabase `.select()` with grouping.
-
-#### 2. Manager Appreciation Nudge
-
-**File**: `src/features/team-pulse/components/TeamPulseCard.tsx` (modify)
-
-In Team mode, add a "Send Team Kudos Nudge" button that:
-- Creates an appreciation from manager to team with category "teamwork" and a preset encouraging message
-- Shows success toast
-- Only visible when `selectedMode === "team"`
-
-#### 3. Engagement Target Persistence
-
-**Migration**: New `pulse_targets` table
+Track when users interact with pulse insights and nudges. This enables KPI measurement for "Action completion rate".
 
 ```sql
-CREATE TABLE pulse_targets (
+CREATE TABLE public.engagement_action_log (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id UUID NOT NULL REFERENCES tenants(id),
-  employee_id UUID REFERENCES employees(id),
-  scope TEXT NOT NULL, -- 'personal', 'team', 'org'
-  target_metric TEXT NOT NULL,
-  target_value NUMERIC NOT NULL,
-  current_value NUMERIC NOT NULL,
-  target_date DATE NOT NULL DEFAULT CURRENT_DATE,
-  created_at TIMESTAMPTZ DEFAULT now(),
+  tenant_id UUID NOT NULL REFERENCES public.tenants(id),
+  employee_id UUID NOT NULL REFERENCES public.employees(id),
+  action_type TEXT NOT NULL, -- 'cta_clicked', 'nudge_dismissed', 'nudge_acted', 'appreciation_sent', 'checkin_from_nudge'
+  source TEXT NOT NULL, -- 'pulse_card', 'nudge_card', 'appreciation_widget'
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   deleted_at TIMESTAMPTZ
 );
 ```
 
-- RLS: tenant isolation
-- Edge function writes a row each time it generates a new insight
-- `PulseTargetBlock` reads historical targets for sparkline trend
+- RLS: tenant isolation via `current_tenant_id()`
+- Indexes: tenant_id, employee_id, action_type, created_at
+- Validation trigger for `action_type`
 
-#### 4. Low-Score Nudge Card
+#### 2. pulse_targets Unique Constraint (Migration)
 
-**File**: `src/features/team-pulse/components/PulseNudgeCard.tsx`
+Prevent duplicate daily targets:
+```sql
+CREATE UNIQUE INDEX idx_pulse_targets_unique_daily 
+ON public.pulse_targets(employee_id, scope, target_date) 
+WHERE deleted_at IS NULL;
+```
 
-When `engagementScore < 50`, renders a contextual nudge:
-- Score < 30: "Your engagement is low — try a quick check-in today"
-- Score 30-49: "You're on track — one more action could boost your score"
-- Links to the most impactful missing action (check-in if 0 checkins, appreciation if 0 sent, etc.)
+With `COALESCE(employee_id, '00000000-...')` handling for org-scope null employee_id.
 
-Integrated into `TeamPulseCard` below the insight block.
+#### 3. Harden Frontend Hooks — Defense-in-Depth
 
-#### 5. Localization
+**`useAppreciationStats.ts`**: Add explicit `.eq("tenant_id", tenantId)` to the team/org query path (line 62-67 already has it, but verify personal mode also filters).
 
-Add keys for all new strings in `en.json` and `ar.json` under `pulse.*`.
+#### 4. Frontend Action Logging Hook
+
+**New file**: `src/features/team-pulse/hooks/useEngagementActionLog.ts`
+
+A mutation hook that writes to `engagement_action_log` when users click CTAs, dismiss nudges, or complete prompted actions. Consumed by `PulseActionPath`, `PulseNudgeCard`, and `QuickAppreciationCard`.
+
+#### 5. Edge Function — Upsert Fix for pulse_targets
+
+Update the `team-pulse-engine` to use upsert with the new unique constraint instead of plain insert, preventing duplicate row errors on retries.
 
 ---
 
@@ -96,20 +83,19 @@ Add keys for all new strings in `en.json` and `ar.json` under `pulse.*`.
 
 | File | Change |
 |------|--------|
-| `src/features/team-pulse/hooks/useAppreciationStats.ts` | **New** — category aggregation hook |
-| `src/features/team-pulse/components/AppreciationActivityWidget.tsx` | **New** — appreciation summary card |
-| `src/features/team-pulse/components/PulseNudgeCard.tsx` | **New** — low-score contextual nudge |
-| `src/features/team-pulse/components/TeamPulseCard.tsx` | **Modify** — add nudge integration + team kudos button |
-| `src/features/team-pulse/index.ts` | **Modify** — export new components |
-| Migration | **New** — `pulse_targets` table with RLS |
-| `supabase/functions/team-pulse-engine/index.ts` | **Modify** — write to `pulse_targets` on insight generation |
-| `src/pages/EmployeeHome.tsx` | **Modify** — add `AppreciationActivityWidget` |
-| `src/locales/en.json` | **Modify** — add new pulse keys |
-| `src/locales/ar.json` | **Modify** — add new pulse keys |
+| Migration (new) | `engagement_action_log` table + RLS + indexes + validation trigger |
+| Migration (new) | `pulse_targets` unique constraint |
+| `src/features/team-pulse/hooks/useEngagementActionLog.ts` | **New** — mutation hook for action tracking |
+| `src/features/team-pulse/hooks/useAppreciationStats.ts` | **Modify** — add defense-in-depth tenant filter to personal mode |
+| `src/features/team-pulse/components/PulseActionPath.tsx` | **Modify** — log CTA clicks |
+| `src/features/team-pulse/components/PulseNudgeCard.tsx` | **Modify** — log nudge interactions |
+| `supabase/functions/team-pulse-engine/index.ts` | **Modify** — upsert pulse_targets instead of insert |
 
-### What Is Intentionally Deferred
+### Security Validation
 
-- **Participation Prompt Engine** (requires pg_cron scheduled function — separate phase)
-- **Campaign Templates** (requires admin UI builder — future feature)
-- **Follow-up Workflow** (requires notification system extension — future feature)
+- All new tables use RLS with `current_tenant_id()`
+- No client-side access control — all mode authorization enforced server-side in edge function
+- Defense-in-depth explicit tenant filters on all frontend queries
+- Soft-delete standard maintained on all new tables
+- No cross-tenant data leakage possible — verified in edge function query patterns
 
