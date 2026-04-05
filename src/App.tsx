@@ -198,6 +198,9 @@ const App = () => (
                 <Route path="/admin/workload/system-health" element={<AdminRoute><SystemHealth /></AdminRoute>} />
               </Route>
 
+              {/* ── Engagement Intelligence ── */}
+              <Route path="/engagement-insights" element={<EngagementInsights />} />
+
               {/* ── Workload (employee-facing) ── */}
               <Route path="/my-workload" element={<PersonalCommandCenter />} />
               <Route path="/my-tasks" element={<Navigate to="/my-workload" replace />} />
