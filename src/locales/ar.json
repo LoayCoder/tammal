@@ -4300,6 +4300,11 @@
   },
   "tasks": {
     "createTask": "إنشاء مهمة",
+    "rejectTask": "رفض المهمة",
+    "rejectTaskDesc": "قدم سببًا لرفض: {{title}}",
+    "rejectionReason": "سبب الرفض",
+    "rejectionReasonPlaceholder": "اشرح سبب رفض هذه المهمة...",
+    "reject": "رفض",
     "saveDraft": "حفظ كمسودة",
     "advancedSettings": "إعدادات متقدمة",
     "reminderHint": "سيتم إشعارك قبل التاريخ المحدد.",
