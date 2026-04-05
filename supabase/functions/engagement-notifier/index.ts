@@ -28,17 +28,18 @@ Deno.serve(async (req) => {
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString().slice(0, 10);
     const { data: lowScores } = await supabase
       .from("pulse_targets")
-      .select("employee_id, tenant_id, engagement_score")
+      .select("employee_id, tenant_id, current_value, target_date")
       .eq("scope", "personal")
-      .gte("date", thirtyDaysAgo)
-      .lt("engagement_score", 35)
+      .eq("target_metric", "engagement_score")
+      .gte("target_date", thirtyDaysAgo)
+      .lt("current_value", 35)
       .is("deleted_at", null)
-      .order("date", { ascending: false });
+      .order("target_date", { ascending: false });
 
     // Deduplicate to latest per employee
     const seenEmployees = new Set<string>();
     for (const row of lowScores ?? []) {
-      if (seenEmployees.has(row.employee_id)) continue;
+      if (!row.employee_id || seenEmployees.has(row.employee_id)) continue;
       seenEmployees.add(row.employee_id);
       notifications.push({
         tenant_id: row.tenant_id,
@@ -47,7 +48,7 @@ Deno.serve(async (req) => {
         title: "Your engagement score needs attention",
         body: "Your engagement score has dropped below the healthy range. A quick check-in can help.",
         action_path: "/employee/survey",
-        metadata: { score: row.engagement_score },
+        metadata: { score: row.current_value },
       });
     }
 
