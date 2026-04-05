@@ -22,13 +22,13 @@ export function useEngagementActionLog() {
 
       const { error } = await supabase
         .from("engagement_action_log")
-        .insert({
+        .insert([{
           tenant_id: tenantId,
           employee_id: employee.id,
           action_type: actionType,
           source,
           metadata,
-        });
+        }]);
 
       if (error && import.meta.env.DEV) {
         console.error("Failed to log engagement action:", error);
