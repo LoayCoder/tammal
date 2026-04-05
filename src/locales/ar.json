@@ -2412,7 +2412,8 @@
     "psychoeducationArticles": "مقالات التثقيف النفسي",
     "psychoeducationArticlesDesc": "تعرف على مواضيع الصحة النفسية",
     "islamicCalendar": "التقويم الإسلامي",
-    "islamicCalendarDesc": "التواريخ والمناسبات الإسلامية"
+    "islamicCalendarDesc": "التواريخ والمناسبات الإسلامية",
+    "daysLeft": "متبقي {{days}} يوم"
   },
   "moodPathway": {
     "title": "متابعة المزاج",
@@ -2479,7 +2480,46 @@
     "recognition": "التقدير",
     "endorsementRequested": "{{name}} طلب تأييدك",
     "endorsementRequestedBody": "يرجى مراجعة وتأييد الترشيح لـ \"{{headline}}\"",
-    "empty": "لا توجد إشعارات بعد"
+    "empty": "لا توجد إشعارات بعد",
+    "type": {
+      "assigned": "تم تعيين مهمة جديدة: {{name}}",
+      "status_changed": "تغيرت حالة المهمة: {{name}}",
+      "approved": "تمت الموافقة على المهمة: {{name}}",
+      "rejected": "تم رفض المهمة: {{name}}",
+      "approval_requested": "مطلوب مراجعة: {{name}}",
+      "overdue": "مهمة متأخرة: {{name}}",
+      "deadline_approaching": "اقتراب الموعد النهائي: {{name}}",
+      "comment_added": "تعليق جديد على: {{name}}",
+      "checklist_completed": "اكتملت قائمة المهام: {{name}}",
+      "case_assigned": "تم تعيين حالة دعم جديدة",
+      "case_accepted": "تم قبول حالة الدعم",
+      "case_declined": "تم رفض حالة الدعم",
+      "new_message": "رسالة جديدة",
+      "case_resolved": "تم حل الحالة",
+      "escalation": "تم تصعيد الحالة",
+      "endorsement_requested": "طُلب تأييدك",
+      "nomination_endorsed": "تم تأييد الترشيح",
+      "nomination_received": "ترشيح جديد",
+      "nomination_approved": "تمت الموافقة على الترشيح",
+      "nomination_rejected": "تم رفض الترشيح",
+      "award_won": "فزت بجائزة"
+    },
+    "body": {
+      "assigned": "تم تعيين مهمة جديدة لك.",
+      "approved": "تمت الموافقة على مهمتك.",
+      "rejected": "تم رفض مهمتك.",
+      "status_changed": "تم تحديث حالة المهمة.",
+      "approval_requested": "مهمة تحتاج مراجعتك.",
+      "overdue": "مهمة متأخرة عن موعدها.",
+      "deadline_approaching": "اقتراب الموعد النهائي لمهمة.",
+      "comment_added": "تم إضافة تعليق جديد.",
+      "checklist_completed": "تم إكمال قائمة المهام.",
+      "case_assigned": "تم تعيين حالة دعم جديدة لك.",
+      "new_message": "لديك رسالة جديدة.",
+      "case_resolved": "تم حل حالة الدعم.",
+      "endorsement_requested": "شخص طلب تأييدك.",
+      "nomination_endorsed": "تم تأييد ترشيحك."
+    }
   },
   "crisisSupport": {
     "nav": {
