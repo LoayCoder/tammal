@@ -22,6 +22,7 @@ export function QuickAppreciationCard() {
   const { t } = useTranslation();
   const { employee } = useCurrentEmployee();
   const { sendAppreciation, receivedCount } = useAppreciations();
+  const { logAction } = useEngagementActionLog();
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [message, setMessage] = useState("");
   const [category, setCategory] = useState<AppreciationCategory>("teamwork");
