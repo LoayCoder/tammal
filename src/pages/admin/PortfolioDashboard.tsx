@@ -100,11 +100,11 @@ export default function PortfolioDashboard() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="h-auto gap-1">
-          <TabsTrigger value="overview">{t('portfolio.tabs.overview')}</TabsTrigger>
-          <TabsTrigger value="initiatives">{t('portfolio.tabs.initiatives')}</TabsTrigger>
-          <TabsTrigger value="risk">{t('portfolio.tabs.risk')}</TabsTrigger>
-          <TabsTrigger value="predictions">
+        <TabsList className="h-auto gap-1 overflow-x-auto no-scrollbar whitespace-nowrap">
+          <TabsTrigger value="overview" className="shrink-0 min-h-[44px]">{t('portfolio.tabs.overview')}</TabsTrigger>
+          <TabsTrigger value="initiatives" className="shrink-0 min-h-[44px]">{t('portfolio.tabs.initiatives')}</TabsTrigger>
+          <TabsTrigger value="risk" className="shrink-0 min-h-[44px]">{t('portfolio.tabs.risk')}</TabsTrigger>
+          <TabsTrigger value="predictions" className="shrink-0 min-h-[44px]">
             <Brain className="h-3.5 w-3.5 me-1.5" />
             {t('portfolio.tabs.predictions')}
           </TabsTrigger>
