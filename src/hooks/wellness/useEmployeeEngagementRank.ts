@@ -18,7 +18,7 @@ export function useEmployeeEngagementRank(
   employeeId: string | null | undefined,
   tenantId: string | null | undefined,
 ): EngagementRankResult {
-  const { data, isPending } = useQuery({
+  const { data, isPending, error } = useQuery({
     queryKey: ['engagement-rank', tenantId, employeeId],
     queryFn: async () => {
       if (!tenantId || !employeeId) return null;
