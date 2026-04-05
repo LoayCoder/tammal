@@ -18,8 +18,10 @@ const RANK_CONFIG: Record<number, { color: string; bg: string; label: string }> 
   3: { color: 'text-[hsl(var(--rank-bronze))]', bg: 'bg-[hsl(var(--rank-bronze))]/10', label: '🥉' },
 };
 
-export function EngagementRankBadge({ rank, totalEmployees, isPending }: EngagementRankBadgeProps) {
+export function EngagementRankBadge({ rank, totalEmployees, isPending, error }: EngagementRankBadgeProps) {
   const { t } = useTranslation();
+
+  if (error) return null;
 
   if (isPending) {
     return <Skeleton className="h-20 w-full rounded-2xl" />;

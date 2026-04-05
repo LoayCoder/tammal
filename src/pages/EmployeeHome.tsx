@@ -96,7 +96,7 @@ export default function EmployeeHome() {
           </div>
         </div>
         {/* Engagement Rank Badge */}
-        <EngagementRankBadge rank={rank} totalEmployees={totalEmployees} isPending={rankLoading} />
+        <EngagementRankBadge rank={rank} totalEmployees={totalEmployees} isPending={rankLoading} error={rankError} />
 
         {/* Support Hub — Collapsible Premium Card */}
         <Collapsible className="premium-card rounded-2xl hover:shadow-sm transition-all duration-200">

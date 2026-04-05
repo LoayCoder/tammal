@@ -82,5 +82,6 @@ export function useEmployeeEngagementRank(
     totalEmployees: data?.totalEmployees ?? 0,
     streak: data?.streak ?? 0,
     isPending,
+    error: error as Error | null,
   };
 }
