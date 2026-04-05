@@ -1,112 +1,83 @@
 
 
-## Phase 10 — Notifications and Action Enablement
+## Remaining Operational Enhancements & Risk Elimination
 
-### Assessment
+### Identified Issues & Risks
 
-The platform has a mature **UnifiedNotificationBell** component that merges Task, Crisis, and Recognition notification streams with realtime subscriptions and browser push. However, there is **no engagement/pulse notification channel** — the `task_notifications` table requires a `task_id` FK and cannot be repurposed.
+| # | Risk/Issue | Severity | Root Cause |
+|---|-----------|----------|------------|
+| 1 | CORS import mismatch in `engagement-notifier` | High | Imports `corsHeaders` from SDK v2.95.0 but `createClient` from v2.89.0 — mixed versions may break at runtime |
+| 2 | `as any` type casts throughout hooks | Medium | `engagement_notifications` and `engagement_action_log` tables exist in generated types but hooks cast to `any`, bypassing type safety |
+| 3 | 500-employee pagination cap in notifier | Medium | `allActiveEmployees` query limited to 500 — larger tenants silently miss employees |
+| 4 | `oneDayAgo` unused variable in notifier | Low | Dead code at line 167 — no impact but indicates incomplete logic |
+| 5 | No tenant isolation in notifier queries | High | Notifier queries `pulse_targets`, `appreciations`, `mood_entries` without `tenant_id` filter — processes data across all tenants in a single batch, potentially creating cross-tenant notifications |
+| 6 | `pulse_targets` upsert uses non-existent index name | Medium | `onConflict: "idx_pulse_targets_unique_daily"` — Supabase upsert expects column names not index names; this silently fails on conflict |
+| 7 | PulseNudgeCard dismiss state resets on re-render | Low | Uses React `useState` — dismissal is lost on page navigation or re-mount |
+| 8 | Missing error boundary on EngagementInsights page | Medium | If any chart query fails, the entire page crashes with no recovery |
+| 9 | No `memo()` on chart components | Low | `PulseTrendChart` and `AppreciationTrendChart` re-render on every parent state change |
+| 10 | `engagement-notifier` uses `serve()` deprecated pattern | Low | Should use `Deno.serve()` like other functions |
 
 ### Plan
 
-#### 1. Create `engagement_notifications` table
+#### 1. Fix `engagement-notifier` edge function (Risks 1, 3, 4, 5, 10)
 
-**Migration** — New table modeled after `task_notifications` but without `task_id` dependency:
+**File**: `supabase/functions/engagement-notifier/index.ts`
 
-```
-engagement_notifications (
-  id UUID PK,
-  tenant_id UUID NOT NULL FK → tenants,
-  recipient_id UUID NOT NULL FK → employees,
-  type TEXT NOT NULL,  -- validated via trigger
-  title TEXT NOT NULL,
-  body TEXT,
-  is_read BOOLEAN DEFAULT false,
-  metadata JSONB DEFAULT '{}',
-  action_path TEXT,  -- optional route to navigate to
-  created_at TIMESTAMPTZ DEFAULT now(),
-  deleted_at TIMESTAMPTZ
-)
-```
+- Replace CORS import with inline `corsHeaders` definition (consistent with other functions)
+- Unify SDK version to `@supabase/supabase-js@2.89.0`
+- Add tenant-scoped pagination: process employees per tenant using a tenant loop with cursor-based batching (100 per batch, unlimited tenants)
+- Remove unused `oneDayAgo` variable
+- Ensure all `pulse_targets`, `appreciations`, `mood_entries` queries include `.eq("tenant_id", tenantId)` filter
+- Switch to `Deno.serve()` pattern
 
-- RLS: tenant isolation + recipient can read/update own
-- Validation trigger for `type` enum: `engagement_drop`, `appreciation_reminder`, `pulse_nudge`, `action_followup`, `manager_team_alert`
-- Enable realtime: `ALTER PUBLICATION supabase_realtime ADD TABLE engagement_notifications`
+#### 2. Remove `as any` casts from hooks (Risk 2)
 
-#### 2. Create `engagement-notifier` edge function
+**Files**:
+- `src/features/team-pulse/hooks/useEngagementNotifications.ts` — Remove all `as any` casts; the table is in generated types
+- `src/features/team-pulse/hooks/useEngagementActionLog.ts` — Remove `as any` cast
 
-**New file**: `supabase/functions/engagement-notifier/index.ts`
+#### 3. Fix `pulse_targets` upsert conflict (Risk 6)
 
-Scheduled function (pg_cron, daily) that:
-1. Queries employees with engagement scores below threshold (from `pulse_targets`, last entry per employee)
-2. For **managers**: creates `manager_team_alert` notification if any direct report has score < 40
-3. For **employees**: creates `appreciation_reminder` if zero appreciations sent in last 14 days
-4. For **employees**: creates `action_followup` if they have an unacted CTA logged > 3 days ago
-5. Deduplication: skip if same `type` + `recipient_id` notification exists within last 48h
-6. Professional, premium-language titles/bodies (bilingual via `language` metadata field)
-7. Caps at 2 notifications per employee per day (no spam)
+**File**: `supabase/functions/team-pulse-engine/index.ts`
 
-#### 3. Create `useEngagementNotifications` hook
+Change `onConflict: "idx_pulse_targets_unique_daily"` to `onConflict: "employee_id,scope,target_date"` (actual column names).
 
-**New file**: `src/features/team-pulse/hooks/useEngagementNotifications.ts`
+#### 4. Persist nudge dismissal per session (Risk 7)
 
-- Queries `engagement_notifications` for current employee
-- Realtime subscription on INSERT for live updates
-- `markRead` / `markAllRead` mutations
-- Returns `{ notifications, unreadCount, markRead, markAllRead }`
+**File**: `src/features/team-pulse/components/PulseNudgeCard.tsx`
 
-#### 4. Integrate into UnifiedNotificationBell
+Use `sessionStorage` keyed by `nudge-dismissed-{employeeId}` so dismissal survives within a session but resets daily.
 
-**File**: `src/components/notifications/UnifiedNotificationBell.tsx`
+#### 5. Add error boundary to EngagementInsights (Risk 8)
 
-- Add `engagement` as a 4th `NotificationSource`
-- Import and wire `useEngagementNotifications`
-- Add tab with `Activity` icon for engagement notifications
-- Add icon/color maps for engagement notification types
-- Normalize engagement notifications into `UnifiedNotification` format with `navigateTo` from `action_path`
+**File**: `src/pages/EngagementInsights.tsx`
 
-#### 5. Add i18n keys
+Wrap chart sections with individual error boundaries using a lightweight `ChartErrorFallback` component that shows a retry button instead of crashing the page.
 
-**Files**: `src/locales/en.json`, `src/locales/ar.json`
+#### 6. Memoize chart components (Risk 9)
 
-- Notification type titles: `notifications.type.engagement_drop`, `notifications.type.appreciation_reminder`, etc.
-- Body translations for each type
-- Tab label: `notifications.engagement`
-
-#### 6. Schedule the notifier via pg_cron
-
-**Insert (not migration)**: Schedule `engagement-notifier` to run daily at 08:00 UTC.
-
-### Notification Types & Targeting
-
-| Type | Target | Trigger | Action Path |
-|------|--------|---------|-------------|
-| `engagement_drop` | Employee | Personal score drops below 35 | `/employee/survey` |
-| `appreciation_reminder` | Employee | No appreciations sent in 14 days | Home (appreciation widget) |
-| `pulse_nudge` | Employee | No check-in in 7 days | `/employee/survey` |
-| `manager_team_alert` | Manager | Any direct report score < 40 | `/engagement-insights` |
-| `action_followup` | Employee | CTA logged but no follow-through in 3 days | From original `actionPath` |
-
-### Anti-Spam Rules (enforced in edge function)
-
-- Max 2 engagement notifications per employee per day
-- 48h cooldown per notification type per recipient
-- No duplicate notifications for same trigger within cooldown
+**Files**:
+- `src/features/team-pulse/components/PulseTrendChart.tsx` — Wrap export with `memo()`
+- `src/features/team-pulse/components/AppreciationTrendChart.tsx` — Wrap export with `memo()`
 
 ### Files Summary
 
 | File | Action |
 |------|--------|
-| Migration | Create `engagement_notifications` table + RLS + trigger + realtime |
-| `supabase/functions/engagement-notifier/index.ts` | Create scheduled notifier |
-| `src/features/team-pulse/hooks/useEngagementNotifications.ts` | Create notification hook |
-| `src/components/notifications/UnifiedNotificationBell.tsx` | Add engagement tab |
-| `src/locales/en.json` | Add i18n keys |
-| `src/locales/ar.json` | Add i18n keys |
+| `supabase/functions/engagement-notifier/index.ts` | Rewrite with tenant-scoped pagination, fixed CORS, tenant isolation |
+| `supabase/functions/team-pulse-engine/index.ts` | Fix upsert `onConflict` column names |
+| `src/features/team-pulse/hooks/useEngagementNotifications.ts` | Remove `as any` casts |
+| `src/features/team-pulse/hooks/useEngagementActionLog.ts` | Remove `as any` casts |
+| `src/features/team-pulse/components/PulseNudgeCard.tsx` | Use `sessionStorage` for dismissal |
+| `src/features/team-pulse/components/PulseTrendChart.tsx` | Add `memo()` |
+| `src/features/team-pulse/components/AppreciationTrendChart.tsx` | Add `memo()` |
+| `src/pages/EngagementInsights.tsx` | Add per-section error boundaries |
 
 ### What Is Not Changing
 
-- Existing task/crisis/recognition notification flows unchanged
-- No changes to `team-pulse-engine` edge function
-- No changes to existing dashboard components
-- Push notification bridge in `useTaskNotifications` pattern will be replicated for engagement
+- No database migrations needed
+- No new tables or columns
+- No changes to `team-pulse-engine` data aggregation logic
+- No UI design changes
+- Notification bell integration unchanged
 
