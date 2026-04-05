@@ -37,6 +37,7 @@ export default function ExecutiveDashboard() {
   const { predictions: burnoutPredictions, isPending: burnoutLoading } = useBurnoutPredictions();
   const { pending: pendingRedistributions, isPending: redistLoading, updateStatus } = useRedistributionRecommendations();
   const { score: orgScore, isPending: orgScoreLoading } = useOrgIntelligenceScore();
+  const { data: trends } = useWorkloadTrends();
   const snapshotMutation = useRunAnalyticsSnapshot();
   const aiMutation = useRunAIPredictions();
 
