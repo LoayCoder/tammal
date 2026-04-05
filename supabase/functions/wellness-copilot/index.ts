@@ -65,7 +65,7 @@ serve(async (req) => {
     const { data: emp } = await admin
       .from("employees")
       .select("id, tenant_id, full_name, manager_id, department_id")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .is("deleted_at", null)
       .single();
 
