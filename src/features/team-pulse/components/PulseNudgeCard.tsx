@@ -39,6 +39,7 @@ export function PulseNudgeCard({ engagementScore }: Props) {
       </p>
       <Link
         to="/employee/survey"
+        onClick={() => logAction.mutate({ actionType: "nudge_acted", source: "nudge_card", metadata: { score: engagementScore } })}
         className={cn(
           "flex items-center gap-1 text-2xs font-semibold transition-colors",
           isLow ? "text-destructive hover:text-destructive/80" : "text-chart-4 hover:text-chart-4/80"
