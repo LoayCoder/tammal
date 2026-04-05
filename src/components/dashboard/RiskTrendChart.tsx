@@ -54,7 +54,7 @@ export function RiskTrendChart({ data, isLoading, threshold = 20 }: Props) {
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} strokeOpacity={0.5} />
               <XAxis dataKey="label" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
-              <YAxis domain={[0, 100]} tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} width={30} tickFormatter={v => `${v}%`} />
+              <YAxis domain={[0, 100]} padding={{ top: 20, bottom: 10 }} tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} width={30} tickFormatter={v => `${v}%`} />
               <Tooltip
                 contentStyle={GLASS_TOOLTIP}
                 formatter={(value: number) => [`${value}%`, t('orgDashboard.riskPct')]}
