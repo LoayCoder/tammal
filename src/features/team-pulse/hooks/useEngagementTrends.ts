@@ -55,7 +55,7 @@ export function useEngagementTrends(mode: PulseMode, employeeId: string | null |
         target: r.target_value,
       }));
     },
-    enabled: !!employeeId,
+    enabled: !!employeeId && !!tenantId,
     staleTime: 1000 * 60 * 5,
   });
 
