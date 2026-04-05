@@ -136,9 +136,9 @@ export function QuickAppreciationCard() {
             onClick={handleSend}
             disabled={!selectedEmployee || !message.trim() || sending}
             className={cn(
-              "flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition-all duration-200",
+              "flex w-full items-center justify-center gap-2 rounded-xl min-h-[44px] py-3 sm:py-2.5 text-sm font-semibold transition-all duration-200",
               selectedEmployee && message.trim()
-                ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm active:scale-[0.97]"
                 : "bg-muted/10 text-muted-foreground cursor-not-allowed"
             )}
           >
