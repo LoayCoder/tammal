@@ -476,6 +476,11 @@ Analyze this ${mode} engagement data and generate a structured engagement insigh
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      if (status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted" }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       return new Response(
         JSON.stringify({ insufficientData: true, fallbackCta: "complete_checkin", error: "AI temporarily unavailable" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
