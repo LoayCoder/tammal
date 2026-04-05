@@ -4680,5 +4680,23 @@
     "noActions": "No actions logged yet",
     "noActionsDesc": "Engagement actions will appear here as you interact with pulse features",
     "activeRecommendations": "Active Recommendations"
+  },
+  "capacityPlanner": {
+    "pageTitle": "Capacity Planner",
+    "pageDesc": "Visual workload balancing — drag tasks between team members",
+    "searchEmployees": "Search employees...",
+    "totalMembers": "team members",
+    "overloaded": "overloaded",
+    "underutilized": "underutilized",
+    "loaded": "loaded",
+    "capacity": "capacity",
+    "noTasks": "No active tasks",
+    "reassignTask": "Reassign Task",
+    "reassignDesc": "Move this task to another team member",
+    "from": "From",
+    "estimated": "Estimated",
+    "assignTo": "Assign to",
+    "selectEmployee": "Select employee...",
+    "confirm": "Reassign"
   }
 }
