@@ -493,25 +493,31 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                         {group.items.map((item) => {
                           const active = isItemActive(item.url);
                           return (
-                            <NavLink
-                              key={item.url}
-                              to={item.url}
-                              end={item.url === '/'}
-                              className={cn(
-                                "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
-                                "text-sidebar-foreground/80 hover:bg-muted/50 hover:text-sidebar-foreground"
-                              )}
-                              activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
-                              onClick={handleNavClick}
-                            >
-                              <item.icon className="h-4 w-4 shrink-0" />
-                              <span className="truncate">{item.title}</span>
-                              {item.badge && (
-                                <span className="ms-auto inline-flex items-center rounded-lg bg-sidebar-primary px-1.5 py-0.5 text-xs font-medium text-sidebar-primary-foreground">
-                                  {item.badge}
+                            <React.Fragment key={item.url}>
+                              {item.sectionLabel && (
+                                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 mt-2 mb-0.5 px-2.5">
+                                  {item.sectionLabel}
                                 </span>
                               )}
-                            </NavLink>
+                              <NavLink
+                                to={item.url}
+                                end={item.url === '/'}
+                                className={cn(
+                                  "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors",
+                                  "text-sidebar-foreground/80 hover:bg-muted/50 hover:text-sidebar-foreground"
+                                )}
+                                activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
+                                onClick={handleNavClick}
+                              >
+                                <item.icon className="h-4 w-4 shrink-0" />
+                                <span className="truncate">{item.title}</span>
+                                {item.badge && (
+                                  <span className="ms-auto inline-flex items-center rounded-lg bg-sidebar-primary px-1.5 py-0.5 text-xs font-medium text-sidebar-primary-foreground">
+                                    {item.badge}
+                                  </span>
+                                )}
+                              </NavLink>
+                            </React.Fragment>
                           );
                         })}
 
