@@ -102,14 +102,14 @@ export default function WorkloadDashboard() {
       </div>
 
       <Tabs defaultValue="capacity" className="space-y-4">
-        <TabsList className="glass-tabs border-0 h-auto">
-          <TabsTrigger value="capacity" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
+        <TabsList className="glass-tabs border-0 h-auto overflow-x-auto no-scrollbar whitespace-nowrap">
+          <TabsTrigger value="capacity" className="rounded-xl px-3 py-2 text-xs sm:text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none shrink-0">
             {t('adminWorkload.tabs.capacity')}
           </TabsTrigger>
-          <TabsTrigger value="objectives" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
+          <TabsTrigger value="objectives" className="rounded-xl px-3 py-2 text-xs sm:text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none shrink-0">
             {t('adminWorkload.tabs.objectives')}
           </TabsTrigger>
-          <TabsTrigger value="offHours" className="rounded-xl px-4 py-2.5 text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none">
+          <TabsTrigger value="offHours" className="rounded-xl px-3 py-2 text-xs sm:text-sm font-medium data-[state=active]:glass-active data-[state=active]:text-primary data-[state=active]:shadow-none shrink-0">
             {t('adminWorkload.tabs.offHours')}
           </TabsTrigger>
         </TabsList>
