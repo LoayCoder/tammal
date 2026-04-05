@@ -7,6 +7,7 @@ interface EngagementRankResult {
   totalEmployees: number;
   streak: number;
   isPending: boolean;
+  error: Error | null;
 }
 
 /**
@@ -17,7 +18,7 @@ export function useEmployeeEngagementRank(
   employeeId: string | null | undefined,
   tenantId: string | null | undefined,
 ): EngagementRankResult {
-  const { data, isPending } = useQuery({
+  const { data, isPending, error } = useQuery({
     queryKey: ['engagement-rank', tenantId, employeeId],
     queryFn: async () => {
       if (!tenantId || !employeeId) return null;
@@ -32,7 +33,8 @@ export function useEmployeeEngagementRank(
         .eq('tenant_id', tenantId)
         .gte('entry_date', since)
         .is('deleted_at', null)
-        .order('entry_date', { ascending: false });
+        .order('entry_date', { ascending: false })
+        .limit(50000);
 
       if (error) throw error;
       if (!entries || entries.length === 0) return null;
@@ -45,10 +47,19 @@ export function useEmployeeEngagementRank(
       });
 
       // Compute streak + count per employee, then sort
+      // Grace period: if no entry today, prepend yesterday as anchor so streak isn't zeroed
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
       const ranked = Object.entries(empMap)
         .map(([id, dates]) => {
           const unique = [...new Set(dates)].sort().reverse();
-          const streak = computeStreak(unique.map((d) => ({ entry_date: d })));
+          // Allow 1-day grace: if latest entry is yesterday (not today), still count streak
+          const needsGrace = unique[0] !== todayStr && unique[0] === yesterdayStr;
+          const streakDates = needsGrace ? [todayStr, ...unique] : unique;
+          const streak = computeStreak(streakDates.map((d) => ({ entry_date: d })));
           return { id, streak, count: unique.length };
         })
         .sort((a, b) => b.streak - a.streak || b.count - a.count);
@@ -71,5 +82,6 @@ export function useEmployeeEngagementRank(
     totalEmployees: data?.totalEmployees ?? 0,
     streak: data?.streak ?? 0,
     isPending,
+    error: error as Error | null,
   };
 }

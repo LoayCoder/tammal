@@ -49,7 +49,7 @@ export default function EmployeeHome() {
   const { todayEntry } = useMoodHistory(employee?.id ?? null);
   const { pendingQuestions, surveyMeta, isPending: sqLoading } = useScheduledQuestions(employee?.id, undefined);
   const [showFirstAider, setShowFirstAider] = useState(false);
-  const { rank, totalEmployees, isPending: rankLoading } = useEmployeeEngagementRank(employee?.id, employee?.tenant_id);
+  const { rank, totalEmployees, isPending: rankLoading, error: rankError } = useEmployeeEngagementRank(employee?.id, employee?.tenant_id);
 
   const firstName = employee?.full_name?.split(' ')[0] ?? '';
 
@@ -96,7 +96,7 @@ export default function EmployeeHome() {
           </div>
         </div>
         {/* Engagement Rank Badge */}
-        <EngagementRankBadge rank={rank} totalEmployees={totalEmployees} isPending={rankLoading} />
+        <EngagementRankBadge rank={rank} totalEmployees={totalEmployees} isPending={rankLoading} error={rankError} />
 
         {/* Support Hub — Collapsible Premium Card */}
         <Collapsible className="premium-card rounded-2xl hover:shadow-sm transition-all duration-200">
