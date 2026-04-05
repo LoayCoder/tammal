@@ -45,7 +45,7 @@ export function RiskTrendChart({ data, isLoading, threshold = 20 }: Props) {
           <Skeleton className="h-[240px] w-full rounded-xl" />
         ) : chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={240}>
-            <ComposedChart data={chartData}>
+            <ComposedChart data={chartData} margin={{ top: 10, right: 10, bottom: 5, left: 0 }}>
               <defs>
                 <linearGradient id="riskGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="hsl(var(--destructive))" stopOpacity={0.4} />
