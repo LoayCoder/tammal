@@ -11,6 +11,8 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageSelector } from '@/components/LanguageSelector';
+import { useBranding } from '@/hooks/branding/useBranding';
+import { ThemeLogo } from '@/components/branding/ThemeLogo';
 import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner';
 import { cardVariants } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
