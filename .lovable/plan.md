@@ -1,28 +1,20 @@
-## Move Daily Check-in to Position #1
 
-Move the Daily Check-in block (both `InlineDailyCheckin` and the completed indicator card) to be the very first widget after the greeting and engagement rank badge.
 
-### File: `src/pages/EmployeeHome.tsx`
+## Match Collapsed State UI for Wellness Copilot & Team Pulse Cards
 
-**Current order** (after greeting + rank badge):
+Both cards currently show a simple button with an Eye icon and the card title when hidden. The reference screenshot (My Workload) shows a richer pattern: a `Card` with `premiumVip` styling containing the card icon + "X hidden" label on the left, and a ghost "Show" button with Eye icon on the right.
 
-1. Wellness Copilot
-2. Team Pulse
-3. Quick Appreciation
-4. Appreciation Activity
-5. Support Hub
-6. Endorsement Requests → Shortlist → Voting → Surveys
-7. **Daily Check-in / Completed indicator** (lines ~189-208)
-8. Prayer → Workload → Mood Dashboard
+### Changes
 
-**New order:**
+**File 1: `src/features/wellness-copilot/components/WellnessCopilotCard.tsx`** (lines 42-50)
+- Replace the plain `<button>` with a `Card` + `CardContent` layout matching the workload pattern:
+  - Left side: Sparkles icon + "{copilot.title} hidden" / Arabic equivalent
+  - Right side: Ghost `Button` with Eye icon + "Show" / "إظهار"
+  - Uses `cardVariants.premiumVip` with `opacity-80`
 
-1. **Daily Check-in / Completed indicator** (moved to top)
-2. Support Hub
-3. Wellness Copilot
-4. Team Pulse
-5. Quick Appreciation
-6. Appreciation Activity
-7. Everything else unchanged
+**File 2: `src/features/team-pulse/components/TeamPulseCard.tsx`** (lines 85-94)
+- Same replacement using the Team Pulse icon (Activity) + "{pulse.title} hidden" label
+- Identical layout structure and styling as above
 
-Move the two JSX blocks (the `InlineDailyCheckin` conditional and the `todayEntry` completed card) from their current position to immediately after the `EngagementRankBadge` component, before `WellnessCopilotCard`.
+Both will import `Card`, `CardContent` from `@/components/ui/card` and `Button` from `@/components/ui/button` (adding imports if missing).
+
