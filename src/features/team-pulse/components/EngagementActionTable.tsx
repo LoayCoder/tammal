@@ -4,6 +4,8 @@ import { DataTable } from "@/shared/data-table/DataTable";
 import type { ColumnDef } from "@/shared/data-table/types";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { ar as arLocale } from "date-fns/locale/ar";
+import { enUS } from "date-fns/locale/en-US";
 import type { ActionLogEntry } from "../hooks/useEngagementTrends";
 
 interface Props {
