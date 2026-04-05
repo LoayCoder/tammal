@@ -4593,6 +4593,19 @@
     "catInnovation": "الابتكار",
     "catSupport": "الدعم",
     "catLeadership": "القيادة",
-    "catAboveBeyond": "التميز"
+    "catAboveBeyond": "التميز",
+    "activityTitle": "نشاط التقدير",
+    "activitySubtitle": "ملخص التقدير لـ 30 يومًا",
+    "sent": "مُرسل",
+    "received": "مُستلم",
+    "topCategory": "الفئة الأعلى:",
+    "nudgeLowTitle": "المشاركة تحتاج اهتمامًا",
+    "nudgeLowDesc": "مستوى مشاركتك منخفض — جرّب تسجيل حضور سريع أو أرسل تقديرًا لزميل اليوم.",
+    "nudgeMedTitle": "أنت على وشك!",
+    "nudgeMedDesc": "أنت على المسار الصحيح — إجراء واحد إضافي قد يرفع نقاط مشاركتك فوق 50.",
+    "nudgeCta": "اتخذ إجراءً سريعًا ←",
+    "teamKudgeNudge": "أرسل تشجيعًا للفريق",
+    "teamNudgeMessage": "عمل جماعي رائع! استمروا في التعاون المذهل. 🙌",
+    "teamNudgeSent": "تم إرسال تشجيع الفريق! 🎉"
   }
 }
