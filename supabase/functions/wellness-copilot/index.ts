@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -172,7 +172,7 @@ serve(async (req) => {
       const { data: workload } = await admin
         .from("employee_capacity")
         .select("daily_capacity_minutes, weekly_capacity_minutes")
-        .eq("user_id", emp.id)
+        .eq("user_id", user.id)
         .eq("tenant_id", emp.tenant_id)
         .is("deleted_at", null)
         .maybeSingle();
@@ -261,7 +261,7 @@ serve(async (req) => {
       // Org mood trend
       const { data: orgMoods } = await admin
         .from("mood_entries")
-        .select("level, entry_date")
+        .select("level, entry_date, employee_id")
         .eq("tenant_id", emp.tenant_id)
         .is("deleted_at", null)
         .gte("entry_date", fourteenDaysAgo.split("T")[0])
@@ -280,7 +280,7 @@ serve(async (req) => {
         .eq("status", "active");
 
       // Unique checkin participants
-      const uniqueParticipants = new Set((orgMoods ?? []).map((m: any) => m.entry_date)).size;
+      const uniqueParticipants = new Set((orgMoods ?? []).map((m: any) => m.employee_id)).size;
 
       // Org overdue
       const { count: orgOverdue } = await admin
