@@ -1,93 +1,117 @@
 
 
-## VIP To-Do List — Personal Task Command Center
+## VIP To-Do System — Full Enhancement Plan
 
 ### Overview
-Add a new "To-Do" tab to the existing **My Workload** (`/my-workload`) page, providing a lightweight personal task experience separate from formal workload tasks. Uses a new `personal_todos` database table for quick, informal tasks with smart input parsing and AI daily planning.
+Address 8 gaps: due time support, sidebar nav, dashboard widget, reminder/notification system, overdue handling, calendar integration, and task editing UI.
 
-### Architecture
+---
 
-```text
-PersonalCommandCenter (existing)
-  └─ ViewType: 'tasks' | 'calendar' | 'approvals' | 'todo'  ← NEW TAB
-       └─ VipTodoView (new component)
-            ├─ SmartTodoInput (inline quick-add with NLP parsing)
-            ├─ FocusTaskBanner (top priority highlight)
-            ├─ TodoProgressBar ("3/7 completed today")
-            ├─ TodoList (minimal rows, inline complete/delete)
-            └─ AIDailyTip (one-line AI suggestion)
+### 1. Database Migration
+
+Add columns to `personal_todos`:
+- `due_time TIME` — optional time component
+- `reminder_offset INTEGER` — minutes before due (null = no reminder, 15/60/1440 etc.)
+- `reminder_sent BOOLEAN DEFAULT false` — prevents duplicate notifications
+- `description TEXT` — optional notes
+
+---
+
+### 2. Hook Updates (`usePersonalTodos.ts`)
+
+- Update `PersonalTodo` interface with `due_time`, `reminder_offset`, `reminder_sent`, `description`
+- Update `createTodo` mutation to accept `due_time` and `reminder_offset`
+- Update `updateTodo` to support all new fields
+- Enhance `parseSmartInput` to detect time patterns (e.g., "at 5pm", "at 14:00")
+
+---
+
+### 3. Reminder System (`useTodoReminders.ts`)
+
+New hook that:
+- Polls pending todos with `due_date + due_time` and `reminder_offset` set, `reminder_sent = false`
+- Compares `now >= due_datetime - offset_minutes`
+- Fires browser push notification via existing `usePushNotifications` hook
+- Marks `reminder_sent = true` in DB
+- Also fires for overdue tasks (past due with no completion)
+- Runs on a 60-second interval via `setInterval`
+
+---
+
+### 4. VipTodoView UI Enhancements
+
+**4a. Task Creation Dialog**
+- Replace inline-only input with an expandable creation form (still minimal)
+- Fields: title (required), due date (date picker), due time (time input), priority (dot selector), reminder (dropdown: None / 15 min / 1 hour / 1 day / Custom)
+- Quick-add via Enter still works for fast input; expand icon reveals full form
+
+**4b. Task Edit Sheet**
+- Click on a task row opens a minimal bottom sheet / dialog
+- Edit title, due date, due time, priority, reminder offset
+- Delete action
+
+**4c. Overdue Indicator**
+- Red dot + "Overdue" label for tasks past due date+time
+- Auto-sort overdue tasks to top of list
+
+**4d. Time Display**
+- Show `due_time` next to due date: "Today 5:00 PM" or "Apr 12 · 2:30 PM"
+
+---
+
+### 5. Sidebar Navigation (`AppSidebar.tsx`)
+
+Add To-Do List entry under Workload Intelligence group, after "My Workload":
 ```
+{ title: t('nav.todoList', 'To-Do List'), url: "/my-workload?tab=todo", icon: Sparkles, access: 'employee' }
+```
+This navigates to My Workload with the todo tab pre-selected.
 
-### Database
+Alternatively, create a standalone `/todo` route for dedicated access.
 
-**New table: `personal_todos`**
-- `id` UUID PK
-- `tenant_id` UUID NOT NULL (RLS)
-- `employee_id` UUID NOT NULL → employees
-- `title` TEXT NOT NULL
-- `is_completed` BOOLEAN DEFAULT false
-- `completed_at` TIMESTAMPTZ NULL
-- `priority` INTEGER DEFAULT 3 (1=critical → 4=low)
-- `due_date` DATE NULL
-- `linked_task_id` UUID NULL → unified_tasks (optional link)
-- `sort_order` INTEGER DEFAULT 0
-- `created_at`, `updated_at`, `deleted_at` (standard)
+---
 
-RLS: tenant isolation via `current_tenant_id()`. Soft delete standard.
+### 6. Dashboard Widget (`DashboardTodoWidget.tsx`)
+
+New widget for `EmployeeHome.tsx`:
+- Shows today's personal todos (max 5)
+- Progress bar: "3/7 completed today"
+- Quick-add input inline
+- "Tasks Needing Attention" section: overdue todos with red indicator
+- Link to full To-Do view
+- Placed after Workload Widget in dashboard hierarchy
+
+---
+
+### 7. Calendar Integration (`WorkloadCalendarView.tsx`)
+
+- Fetch personal todos alongside unified tasks
+- Display todos as calendar events (distinct color/style — dotted border or sparkle icon)
+- Show `due_time` on calendar cells
+- Click navigates to todo edit
+
+---
+
+### 8. Standalone Route (Optional Enhancement)
+
+Create `/todo` page that renders `VipTodoView` with full-page layout including `PageHeader`. This gives sidebar navigation a clean dedicated URL instead of a query-param hack.
+
+---
 
 ### Files to Create
-
-**1. Migration** — `personal_todos` table with RLS policies, indexes
-
-**2. `src/features/workload/hooks/usePersonalTodos.ts`**
-- CRUD hook: `usePersonalTodos(employeeId)`
-- Returns `todos`, `createTodo`, `toggleComplete`, `deleteTodo`, `reorderTodo`
-- Queries `personal_todos` filtered by employee, ordered by `is_completed ASC, sort_order ASC, due_date ASC`
-
-**3. `src/features/workload/components/VipTodoView.tsx`**
-Main container with:
-- **SmartTodoInput**: Single input with sparkle icon, placeholder "What do you need to do today?". On Enter, parses:
-  - "tomorrow" / "today" → sets `due_date`
-  - "urgent" / "critical" → sets `priority` 1
-  - "high" → priority 2
-- **FocusTaskBanner**: Highlights top uncompleted task (lowest priority number + earliest due) with 🔥 icon, subtle primary/5 background
-- **TodoProgressBar**: "3 / 7 completed today" with thin progress bar
-- **Todo items**: Minimal rows — checkbox, title, due date chip, priority dot. Click checkbox to toggle. Swipe-like delete via dropdown. Smooth `opacity-50 line-through` on complete with 200ms transition
-- **AIDailyTip**: Uses existing Lovable AI (gemini-2.5-flash-lite) via edge function to generate a one-line daily planning suggestion based on task count/priorities. Cached per day. Dismissible.
-- **Convert to Workload**: Menu action on each todo to promote it to a `unified_tasks` entry
-
-**4. `src/features/workload/components/AIDailyTip.tsx`**
-- Calls edge function `todo-daily-tip` with employee's todo summary
-- Displays as a subtle top banner: "💡 You have 5 tasks. Start with your critical items first."
-- Cached in localStorage per day to avoid repeat calls
-
-**5. `supabase/functions/todo-daily-tip/index.ts`**
-- Receives `{ todoCount, criticalCount, completedCount, employeeName }`
-- Calls Lovable AI (gemini-2.5-flash-lite) for a one-line motivational planning tip
-- Returns `{ tip: string }`
+1. **Migration SQL** — add `due_time`, `reminder_offset`, `reminder_sent`, `description` columns
+2. **`src/features/workload/hooks/useTodoReminders.ts`** — reminder polling + push notification logic
+3. **`src/components/dashboard/DashboardTodoWidget.tsx`** — dashboard widget
+4. **`src/features/workload/components/TodoCreateDialog.tsx`** — expanded creation form
+5. **`src/features/workload/components/TodoEditSheet.tsx`** — edit sheet for existing todos
+6. **`src/pages/employee/TodoPage.tsx`** — standalone `/todo` route
 
 ### Files to Modify
-
-**6. `src/pages/employee/PersonalCommandCenter.tsx`**
-- Add `'todo'` to `ViewType`
-- Add new ToggleGroupItem for To-Do tab with `Sparkles` icon
-- Render `<VipTodoView>` when `view === 'todo'`
-
-**7. `src/features/workload/index.ts`**
-- Export `usePersonalTodos` and `VipTodoView`
-
-### Design Rules (Premium VIP)
-- No card wrappers around todo items — flat rows with `hover:bg-muted/10`
-- Priority shown as small colored dots (same as `UnifiedTaskList`)
-- Due dates as subtle chips (`text-2xs text-muted-foreground`)
-- Focus task gets a soft `bg-primary/5 rounded-xl` highlight
-- 44px min touch targets, `active:scale-[0.97]` feedback
-- Completion animation: checkbox scales up briefly, row fades to 50% opacity
-- Empty state: centered illustration-free message with sparkle icon
-
-### Technical Details
-- Input NLP is client-side regex (no AI needed for parsing)
-- AI tip is optional/progressive — page works fully without it
-- Reorder via `sort_order` field, updated on drag (future enhancement)
-- All queries include `deleted_at IS NULL` and tenant isolation
+1. **`src/features/workload/hooks/usePersonalTodos.ts`** — new fields, time parsing
+2. **`src/features/workload/components/VipTodoView.tsx`** — edit/create UI, overdue handling, time display
+3. **`src/components/layout/AppSidebar.tsx`** — add To-Do nav item
+4. **`src/pages/EmployeeHome.tsx`** — add `DashboardTodoWidget`
+5. **`src/features/workload/components/WorkloadCalendarView.tsx`** — render todos on calendar
+6. **`src/App.tsx`** — add `/todo` route
+7. **`src/pages/employee/PersonalCommandCenter.tsx`** — read `?tab=todo` query param for deep linking
 
