@@ -76,7 +76,7 @@ export function TodoEditSheet({ todo, open, onOpenChange, onUpdate, onDelete }: 
       priority,
       due_date: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
       due_time: dueTime || null,
-      reminder_offset: reminderOffset ? parseInt(reminderOffset) : null,
+      reminder_offset: reminderOffset && reminderOffset !== 'none' ? parseInt(reminderOffset) : null,
       description: description.trim() || null,
     });
     onOpenChange(false);
