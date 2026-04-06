@@ -1,0 +1,6 @@
+
+ALTER TABLE public.personal_todos
+  ADD COLUMN IF NOT EXISTS due_time TIME NULL,
+  ADD COLUMN IF NOT EXISTS reminder_offset INTEGER NULL,
+  ADD COLUMN IF NOT EXISTS reminder_sent BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS description TEXT NULL;

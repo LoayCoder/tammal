@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
-import { useUnifiedTasks } from '@/features/workload';
+import { useUnifiedTasks, usePersonalTodos } from '@/features/workload';
 import { useGamification } from '@/hooks/wellness/useGamification';
 import { useApprovalQueue } from '@/features/tasks/hooks/useApprovalQueue';
 import { CapacityGauge } from '@/components/workload/employee/CapacityGauge';
@@ -27,9 +28,20 @@ export default function PersonalCommandCenter() {
   const { tasks, isPending: tasksLoading, deleteTask } = useUnifiedTasks(employee?.id);
   const { streak, totalPoints } = useGamification(employee?.id ?? null);
   const { pendingTasks } = useApprovalQueue();
+  const { todos: personalTodos } = usePersonalTodos(employee?.id);
 
-  const [view, setView] = useState<ViewType>('tasks');
+  const [searchParams] = useSearchParams();
+  const initialTab = (searchParams.get('tab') as ViewType) || 'tasks';
+  const [view, setView] = useState<ViewType>(initialTab);
   const [createOpen, setCreateOpen] = useState(false);
+
+  // Sync tab from URL
+  useEffect(() => {
+    const tab = searchParams.get('tab') as ViewType;
+    if (tab && ['tasks', 'calendar', 'approvals', 'todo'].includes(tab)) {
+      setView(tab);
+    }
+  }, [searchParams]);
 
   const stats = useMemo(() => {
     const todayStr = new Date().toISOString().split('T')[0];
@@ -134,7 +146,7 @@ export default function PersonalCommandCenter() {
         <WorkloadTasksView tasks={tasks} isPending={tasksLoading} onDelete={deleteTask} />
       )}
       {view === 'calendar' && (
-        <WorkloadCalendarView tasks={tasks} isPending={tasksLoading} />
+        <WorkloadCalendarView tasks={tasks} isPending={tasksLoading} todos={personalTodos} />
       )}
       {view === 'approvals' && (
         <WorkloadApprovalsView />

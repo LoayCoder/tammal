@@ -4622,12 +4622,16 @@ export type Database = {
           completed_at: string | null
           created_at: string
           deleted_at: string | null
+          description: string | null
           due_date: string | null
+          due_time: string | null
           employee_id: string
           id: string
           is_completed: boolean
           linked_task_id: string | null
           priority: number
+          reminder_offset: number | null
+          reminder_sent: boolean
           sort_order: number
           tenant_id: string
           title: string
@@ -4637,12 +4641,16 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           deleted_at?: string | null
+          description?: string | null
           due_date?: string | null
+          due_time?: string | null
           employee_id: string
           id?: string
           is_completed?: boolean
           linked_task_id?: string | null
           priority?: number
+          reminder_offset?: number | null
+          reminder_sent?: boolean
           sort_order?: number
           tenant_id: string
           title: string
@@ -4652,12 +4660,16 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           deleted_at?: string | null
+          description?: string | null
           due_date?: string | null
+          due_time?: string | null
           employee_id?: string
           id?: string
           is_completed?: boolean
           linked_task_id?: string | null
           priority?: number
+          reminder_offset?: number | null
+          reminder_sent?: boolean
           sort_order?: number
           tenant_id?: string
           title?: string

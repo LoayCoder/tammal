@@ -8,13 +8,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   addMonths, subMonths, addWeeks, subWeeks,
   eachDayOfInterval, isSameMonth, isToday,
 } from 'date-fns';
 import type { UnifiedTask } from '@/features/workload/hooks/useUnifiedTasks';
+import type { PersonalTodo } from '@/features/workload/hooks/usePersonalTodos';
 
 const STATUS_COLORS: Record<string, string> = {
   draft: 'bg-muted text-muted-foreground',
@@ -34,12 +35,23 @@ const PRIORITY_DOTS: Record<number, string> = {
   3: 'bg-muted-foreground',
 };
 
+interface CalendarEvent {
+  id: string;
+  title: string;
+  dateKey: string;
+  type: 'task' | 'todo';
+  status?: string;
+  priority?: number;
+  time?: string;
+}
+
 interface WorkloadCalendarViewProps {
   tasks: UnifiedTask[];
   isPending: boolean;
+  todos?: PersonalTodo[];
 }
 
-export function WorkloadCalendarView({ tasks, isPending }: WorkloadCalendarViewProps) {
+export function WorkloadCalendarView({ tasks, isPending, todos = [] }: WorkloadCalendarViewProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -60,16 +72,41 @@ export function WorkloadCalendarView({ tasks, isPending }: WorkloadCalendarViewP
     }
   }, [currentDate, view]);
 
-  const tasksByDate = useMemo(() => {
-    const map = new Map<string, UnifiedTask[]>();
+  const eventsByDate = useMemo(() => {
+    const map = new Map<string, CalendarEvent[]>();
+
+    // Add tasks
     tasks.forEach(task => {
       if (!task.due_date) return;
       const key = task.due_date.split('T')[0];
       if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(task);
+      map.get(key)!.push({
+        id: task.id,
+        title: task.title,
+        dateKey: key,
+        type: 'task',
+        status: task.status,
+        priority: task.priority,
+      });
     });
+
+    // Add todos
+    todos.forEach(todo => {
+      if (!todo.due_date || todo.is_completed) return;
+      const key = todo.due_date;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push({
+        id: todo.id,
+        title: todo.title,
+        dateKey: key,
+        type: 'todo',
+        priority: todo.priority,
+        time: todo.due_time?.substring(0, 5) ?? undefined,
+      });
+    });
+
     return map;
-  }, [tasks]);
+  }, [tasks, todos]);
 
   const handlePrev = () => setCurrentDate(prev => view === 'month' ? subMonths(prev, 1) : subWeeks(prev, 1));
   const handleNext = () => setCurrentDate(prev => view === 'month' ? addMonths(prev, 1) : addWeeks(prev, 1));
@@ -139,11 +176,11 @@ export function WorkloadCalendarView({ tasks, isPending }: WorkloadCalendarViewP
             <div className={`grid grid-cols-7 ${view === 'week' ? 'min-h-[300px]' : ''}`}>
               {days.map(day => {
                 const dateKey = format(day, 'yyyy-MM-dd');
-                const dayTasks = tasksByDate.get(dateKey) ?? [];
+                const dayEvents = eventsByDate.get(dateKey) ?? [];
                 const inMonth = view === 'month' ? isSameMonth(day, currentDate) : true;
                 const today = isToday(day);
                 const maxVisible = view === 'week' ? 8 : 3;
-                const overflow = dayTasks.length - maxVisible;
+                const overflow = dayEvents.length - maxVisible;
 
                 return (
                   <div
@@ -158,16 +195,22 @@ export function WorkloadCalendarView({ tasks, isPending }: WorkloadCalendarViewP
                       {format(day, 'd')}
                     </div>
                     <div className="space-y-0.5">
-                      {dayTasks.slice(0, maxVisible).map(task => (
+                      {dayEvents.slice(0, maxVisible).map(event => (
                         <button
-                          key={task.id}
-                          onClick={() => navigate(`/tasks/${task.id}`)}
+                          key={event.id}
+                          onClick={() => event.type === 'task' ? navigate(`/tasks/${event.id}`) : undefined}
                           className={`w-full text-start rounded px-1.5 py-0.5 text-2xs leading-tight truncate flex items-center gap-1 transition-colors hover:ring-1 hover:ring-ring ${
-                            STATUS_COLORS[task.status] ?? STATUS_COLORS.draft
+                            event.type === 'todo'
+                              ? 'bg-primary/10 text-primary border border-dashed border-primary/20'
+                              : (STATUS_COLORS[event.status ?? 'draft'] ?? STATUS_COLORS.draft)
                           }`}
                         >
-                          <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${PRIORITY_DOTS[task.priority] ?? PRIORITY_DOTS[2]}`} />
-                          <span className="truncate">{task.title}</span>
+                          {event.type === 'todo' && <Sparkles className="h-2.5 w-2.5 shrink-0" />}
+                          <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${
+                            event.type === 'todo' ? '' : (PRIORITY_DOTS[event.priority ?? 2] ?? PRIORITY_DOTS[2])
+                          }`} />
+                          <span className="truncate">{event.title}</span>
+                          {event.time && <span className="text-[9px] opacity-60 shrink-0">{event.time}</span>}
                         </button>
                       ))}
                       {overflow > 0 && (

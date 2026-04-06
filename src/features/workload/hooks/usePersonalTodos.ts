@@ -13,6 +13,10 @@ export interface PersonalTodo {
   completed_at: string | null;
   priority: number;
   due_date: string | null;
+  due_time: string | null;
+  reminder_offset: number | null;
+  reminder_sent: boolean;
+  description: string | null;
   linked_task_id: string | null;
   sort_order: number;
   created_at: string;
@@ -23,13 +27,15 @@ interface ParsedInput {
   title: string;
   priority: number;
   due_date: string | null;
+  due_time: string | null;
 }
 
-/** Client-side NLP: extract due date and priority from raw input */
+/** Client-side NLP: extract due date, time, and priority from raw input */
 export function parseSmartInput(raw: string): ParsedInput {
   let title = raw.trim();
   let priority = 3;
   let due_date: string | null = null;
+  let due_time: string | null = null;
 
   // Priority detection
   if (/\b(urgent|critical|p1)\b/i.test(title)) {
@@ -41,6 +47,18 @@ export function parseSmartInput(raw: string): ParsedInput {
   } else if (/\b(low|p4)\b/i.test(title)) {
     priority = 4;
     title = title.replace(/\b(low|p4)\b/gi, '').trim();
+  }
+
+  // Time detection: "at 5pm", "at 14:00", "at 5:30pm"
+  const timeMatch = title.match(/\bat\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/i);
+  if (timeMatch) {
+    let hours = parseInt(timeMatch[1], 10);
+    const minutes = timeMatch[2] ? parseInt(timeMatch[2], 10) : 0;
+    const ampm = timeMatch[3]?.toLowerCase();
+    if (ampm === 'pm' && hours < 12) hours += 12;
+    if (ampm === 'am' && hours === 12) hours = 0;
+    due_time = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    title = title.replace(timeMatch[0], '').trim();
   }
 
   // Date detection
@@ -59,7 +77,7 @@ export function parseSmartInput(raw: string): ParsedInput {
   // Clean extra spaces
   title = title.replace(/\s{2,}/g, ' ').trim();
 
-  return { title, priority, due_date };
+  return { title, priority, due_date, due_time };
 }
 
 export function usePersonalTodos(employeeId?: string) {
@@ -86,7 +104,15 @@ export function usePersonalTodos(employeeId?: string) {
   });
 
   const createTodo = useMutation({
-    mutationFn: async (input: { title: string; priority?: number; due_date?: string | null; tenant_id: string }) => {
+    mutationFn: async (input: {
+      title: string;
+      priority?: number;
+      due_date?: string | null;
+      due_time?: string | null;
+      reminder_offset?: number | null;
+      description?: string | null;
+      tenant_id: string;
+    }) => {
       const { data, error } = await (supabase as any)
         .from('personal_todos')
         .insert({
@@ -95,6 +121,9 @@ export function usePersonalTodos(employeeId?: string) {
           title: input.title,
           priority: input.priority ?? 3,
           due_date: input.due_date ?? null,
+          due_time: input.due_time ?? null,
+          reminder_offset: input.reminder_offset ?? null,
+          description: input.description ?? null,
         })
         .select()
         .single();
@@ -135,7 +164,16 @@ export function usePersonalTodos(employeeId?: string) {
   });
 
   const updateTodo = useMutation({
-    mutationFn: async (input: { id: string; title?: string; priority?: number; due_date?: string | null }) => {
+    mutationFn: async (input: {
+      id: string;
+      title?: string;
+      priority?: number;
+      due_date?: string | null;
+      due_time?: string | null;
+      reminder_offset?: number | null;
+      description?: string | null;
+      reminder_sent?: boolean;
+    }) => {
       const { id, ...updates } = input;
       const { error } = await (supabase as any)
         .from('personal_todos')
