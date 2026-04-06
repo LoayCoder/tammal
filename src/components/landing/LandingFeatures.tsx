@@ -29,8 +29,8 @@ export const LandingFeatures = () => (
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {features.map((f, i) => (
           <AnimatedSection key={f.title} delay={i * 0.06}>
-            <div className="group p-5 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] hover:-translate-y-1 transition-all duration-300 h-full">
-              <f.icon className="w-5 h-5 text-blue-400/70 mb-3" />
+            <div className="group p-5 rounded-xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm hover:bg-white/[0.05] hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(59,130,246,0.06)] transition-all duration-300 h-full">
+              <f.icon className="w-5 h-5 text-blue-400/70 group-hover:text-blue-300 transition-colors duration-300 mb-3" />
               <h3 className="text-sm font-semibold text-white mb-1.5">{f.title}</h3>
               <p className="text-xs text-white/35 leading-relaxed">{f.desc}</p>
             </div>
