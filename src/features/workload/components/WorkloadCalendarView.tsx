@@ -51,7 +51,7 @@ interface WorkloadCalendarViewProps {
   todos?: PersonalTodo[];
 }
 
-export function WorkloadCalendarView({ tasks, isPending }: WorkloadCalendarViewProps) {
+export function WorkloadCalendarView({ tasks, isPending, todos = [] }: WorkloadCalendarViewProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
