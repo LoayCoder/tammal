@@ -20,6 +20,11 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   assessment: ClipboardCheck,
   first_aider: HeartHandshake,
   crisis_support: Phone,
+  team_checkin: Send,
+  review_workload: BarChart3,
+  team_pulse: Users,
+  launch_survey: ClipboardCheck,
+  org_analytics: LineChart,
 };
 
 const typeStyles: Record<string, { border: string; iconBg: string; btnClass: string; label: string; labelAr: string }> = {
