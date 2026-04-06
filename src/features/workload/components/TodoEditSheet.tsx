@@ -63,7 +63,7 @@ export function TodoEditSheet({ todo, open, onOpenChange, onUpdate, onDelete }: 
       setPriority(todo.priority);
       setDueDate(todo.due_date ? new Date(todo.due_date + 'T00:00') : undefined);
       setDueTime(todo.due_time ? todo.due_time.substring(0, 5) : '');
-      setReminderOffset(todo.reminder_offset != null ? String(todo.reminder_offset) : '');
+      setReminderOffset(todo.reminder_offset != null ? String(todo.reminder_offset) : 'none');
       setDescription(todo.description ?? '');
     }
   }, [todo]);
