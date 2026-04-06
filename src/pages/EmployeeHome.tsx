@@ -21,6 +21,7 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/component
 import { DashboardPrayerWidget } from '@/components/dashboard/DashboardPrayerWidget';
 
 import { DashboardWorkloadWidget } from '@/components/dashboard/DashboardWorkloadWidget';
+import { DashboardTodoWidget } from '@/components/dashboard/DashboardTodoWidget';
 import FirstAiderQuickConnect from '@/components/crisis/FirstAiderQuickConnect';
 import { DashboardEndorsementRequests } from '@/components/dashboard/DashboardEndorsementRequests';
 import { DashboardShortlistWidget } from '@/components/dashboard/DashboardShortlistWidget';
