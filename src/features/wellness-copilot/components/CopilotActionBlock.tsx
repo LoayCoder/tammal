@@ -6,6 +6,7 @@ import type { ActionCta } from "../hooks/useCopilotInsight";
 interface Props {
   action: string;
   actionCta: ActionCta;
+  onCheckinClick?: () => void;
 }
 
 const ctaRoutes: Record<ActionCta, string> = {
@@ -28,8 +29,10 @@ const ctaLabels: Record<ActionCta, string> = {
   review_tasks: "copilot.ctaTasks",
 };
 
-export function CopilotActionBlock({ action, actionCta }: Props) {
+export function CopilotActionBlock({ action, actionCta, onCheckinClick }: Props) {
   const { t } = useTranslation();
+
+  const isCheckin = actionCta === "complete_checkin" && onCheckinClick;
 
   return (
     <div className="space-y-2.5">
@@ -44,13 +47,25 @@ export function CopilotActionBlock({ action, actionCta }: Props) {
           <p className="text-sm text-foreground leading-relaxed">{action}</p>
         </div>
       </div>
-      <Link
-        to={ctaRoutes[actionCta] ?? "/employee"}
-        className="flex items-center justify-center gap-1.5 rounded-xl bg-primary/[0.06] hover:bg-primary/[0.1] px-4 py-2.5 text-xs font-semibold text-primary transition-all duration-200"
-      >
-        {t(ctaLabels[actionCta] ?? "copilot.ctaCheckin")}
-        <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
-      </Link>
+
+      {isCheckin ? (
+        <button
+          type="button"
+          onClick={onCheckinClick}
+          className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary/[0.06] hover:bg-primary/[0.1] px-4 py-2.5 text-xs font-semibold text-primary transition-all duration-200"
+        >
+          {t(ctaLabels[actionCta] ?? "copilot.ctaCheckin")}
+          <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
+        </button>
+      ) : (
+        <Link
+          to={ctaRoutes[actionCta] ?? "/employee"}
+          className="flex items-center justify-center gap-1.5 rounded-xl bg-primary/[0.06] hover:bg-primary/[0.1] px-4 py-2.5 text-xs font-semibold text-primary transition-all duration-200"
+        >
+          {t(ctaLabels[actionCta] ?? "copilot.ctaCheckin")}
+          <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
+        </Link>
+      )}
     </div>
   );
 }

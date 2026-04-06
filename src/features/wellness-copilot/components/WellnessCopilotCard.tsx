@@ -117,7 +117,7 @@ export function WellnessCopilotCard({ employeeId, onCheckinClick }: Props) {
             {insight.recommendations && insight.recommendations.length > 0 && (
               <CopilotRecommendationsBlock recommendations={insight.recommendations} />
             )}
-            <CopilotActionBlock action={insight.recommendedAction} actionCta={insight.actionCta} />
+            <CopilotActionBlock action={insight.recommendedAction} actionCta={insight.actionCta} onCheckinClick={onCheckinClick} />
             <CopilotReasoningBlock reasoning={insight.reasoning} basisStatement={insight.basisStatement} />
           </div>
         ) : null}
