@@ -8,13 +8,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   addMonths, subMonths, addWeeks, subWeeks,
   eachDayOfInterval, isSameMonth, isToday,
 } from 'date-fns';
 import type { UnifiedTask } from '@/features/workload/hooks/useUnifiedTasks';
+import type { PersonalTodo } from '@/features/workload/hooks/usePersonalTodos';
 
 const STATUS_COLORS: Record<string, string> = {
   draft: 'bg-muted text-muted-foreground',
