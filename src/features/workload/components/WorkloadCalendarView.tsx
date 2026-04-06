@@ -35,9 +35,20 @@ const PRIORITY_DOTS: Record<number, string> = {
   3: 'bg-muted-foreground',
 };
 
+interface CalendarEvent {
+  id: string;
+  title: string;
+  dateKey: string;
+  type: 'task' | 'todo';
+  status?: string;
+  priority?: number;
+  time?: string;
+}
+
 interface WorkloadCalendarViewProps {
   tasks: UnifiedTask[];
   isPending: boolean;
+  todos?: PersonalTodo[];
 }
 
 export function WorkloadCalendarView({ tasks, isPending }: WorkloadCalendarViewProps) {
