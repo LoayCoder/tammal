@@ -28,6 +28,7 @@ export default function PersonalCommandCenter() {
   const { tasks, isPending: tasksLoading, deleteTask } = useUnifiedTasks(employee?.id);
   const { streak, totalPoints } = useGamification(employee?.id ?? null);
   const { pendingTasks } = useApprovalQueue();
+  const { todos: personalTodos } = usePersonalTodos(employee?.id);
 
   const [searchParams] = useSearchParams();
   const initialTab = (searchParams.get('tab') as ViewType) || 'tasks';
