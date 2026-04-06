@@ -57,18 +57,7 @@ export function PrayerCard({
   const rawatib = RAWATIB_CONFIG[prayerName];
   const hasRawatib = rawatib && (rawatib.before || rawatib.after);
 
-  // Auto-miss logic
-  useEffect(() => {
-    if (isExpired && !isLogged && !autoMissedRef.current && onAutoMiss) {
-      autoMissedRef.current = true;
-      onAutoMiss();
-    }
-  }, [isExpired, isLogged, onAutoMiss]);
 
-  // Reset autoMissedRef when date changes (new day)
-  useEffect(() => {
-    autoMissedRef.current = false;
-  }, [prayerTime]);
 
   const showButtons = !isLogged || editing;
 
