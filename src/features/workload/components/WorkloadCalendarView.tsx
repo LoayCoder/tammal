@@ -176,11 +176,11 @@ export function WorkloadCalendarView({ tasks, isPending, todos = [] }: WorkloadC
             <div className={`grid grid-cols-7 ${view === 'week' ? 'min-h-[300px]' : ''}`}>
               {days.map(day => {
                 const dateKey = format(day, 'yyyy-MM-dd');
-                const dayTasks = tasksByDate.get(dateKey) ?? [];
+                const dayEvents = eventsByDate.get(dateKey) ?? [];
                 const inMonth = view === 'month' ? isSameMonth(day, currentDate) : true;
                 const today = isToday(day);
                 const maxVisible = view === 'week' ? 8 : 3;
-                const overflow = dayTasks.length - maxVisible;
+                const overflow = dayEvents.length - maxVisible;
 
                 return (
                   <div
@@ -195,16 +195,22 @@ export function WorkloadCalendarView({ tasks, isPending, todos = [] }: WorkloadC
                       {format(day, 'd')}
                     </div>
                     <div className="space-y-0.5">
-                      {dayTasks.slice(0, maxVisible).map(task => (
+                      {dayEvents.slice(0, maxVisible).map(event => (
                         <button
-                          key={task.id}
-                          onClick={() => navigate(`/tasks/${task.id}`)}
+                          key={event.id}
+                          onClick={() => event.type === 'task' ? navigate(`/tasks/${event.id}`) : undefined}
                           className={`w-full text-start rounded px-1.5 py-0.5 text-2xs leading-tight truncate flex items-center gap-1 transition-colors hover:ring-1 hover:ring-ring ${
-                            STATUS_COLORS[task.status] ?? STATUS_COLORS.draft
+                            event.type === 'todo'
+                              ? 'bg-primary/10 text-primary border border-dashed border-primary/20'
+                              : (STATUS_COLORS[event.status ?? 'draft'] ?? STATUS_COLORS.draft)
                           }`}
                         >
-                          <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${PRIORITY_DOTS[task.priority] ?? PRIORITY_DOTS[2]}`} />
-                          <span className="truncate">{task.title}</span>
+                          {event.type === 'todo' && <Sparkles className="h-2.5 w-2.5 shrink-0" />}
+                          <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${
+                            event.type === 'todo' ? '' : (PRIORITY_DOTS[event.priority ?? 2] ?? PRIORITY_DOTS[2])
+                          }`} />
+                          <span className="truncate">{event.title}</span>
+                          {event.time && <span className="text-[9px] opacity-60 shrink-0">{event.time}</span>}
                         </button>
                       ))}
                       {overflow > 0 && (
