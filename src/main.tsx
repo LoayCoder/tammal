@@ -8,7 +8,7 @@ const CACHE_RESET_KEY = "__lovable_cache_reset_v2__";
 const resetStaleCaches = async () => {
   if (sessionStorage.getItem(CACHE_RESET_KEY)) return;
 
-  sessionStorage.setItem(PREVIEW_CACHE_RESET_KEY, "1");
+  sessionStorage.setItem(CACHE_RESET_KEY, "1");
 
   const registrations = "serviceWorker" in navigator
     ? await navigator.serviceWorker.getRegistrations()
