@@ -3,17 +3,12 @@ import { initSentry } from "./lib/sentry";
 import App from "./App.tsx";
 import "./index.css";
 
-const PREVIEW_CACHE_RESET_KEY = "__lovable_preview_cache_reset_v1__";
+const CACHE_RESET_KEY = "__lovable_cache_reset_v2__";
 
-const isPreviewHost = () => {
-  const { hostname } = window.location;
-  return hostname.includes("lovableproject.com") || hostname.startsWith("id-preview--");
-};
+const resetStaleCaches = async () => {
+  if (sessionStorage.getItem(CACHE_RESET_KEY)) return;
 
-const resetPreviewCaches = async () => {
-  if (!isPreviewHost() || sessionStorage.getItem(PREVIEW_CACHE_RESET_KEY)) return;
-
-  sessionStorage.setItem(PREVIEW_CACHE_RESET_KEY, "1");
+  sessionStorage.setItem(CACHE_RESET_KEY, "1");
 
   const registrations = "serviceWorker" in navigator
     ? await navigator.serviceWorker.getRegistrations()
@@ -30,7 +25,7 @@ const resetPreviewCaches = async () => {
   }
 };
 
-void resetPreviewCaches();
+void resetStaleCaches();
 
 // Initialize Sentry before rendering (no-op in dev)
 initSentry();
