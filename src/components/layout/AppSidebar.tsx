@@ -245,6 +245,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
         { title: t('recognition.voting.title'), url: "/recognition/vote", icon: Vote, access: 'employee' },
         { title: t('recognition.points.myPoints'), url: "/recognition/points", icon: Coins, access: 'employee' },
         { title: t('recognition.points.rewards'), url: "/recognition/rewards", icon: Gift, access: 'employee' },
+        { title: t('gamification.title', 'Gamification'), url: "/gamification", icon: Gauge, access: 'employee' },
       ]
     },
     {

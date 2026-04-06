@@ -69,6 +69,7 @@ const CheckinMonitor = lazy(() => import("@/pages/admin/CheckinMonitor"));
 const ObjectivesManagement = lazy(() => import("@/pages/admin/ObjectivesManagement"));
 const ObjectiveDetail = lazy(() => import("@/pages/admin/ObjectiveDetail"));
 const PersonalCommandCenter = lazy(() => import("@/pages/employee/PersonalCommandCenter"));
+const GamificationDashboard = lazy(() => import("@/pages/GamificationDashboard"));
 const WorkloadDashboard = lazy(() => import("@/pages/admin/WorkloadDashboard"));
 const TeamWorkload = lazy(() => import("@/pages/admin/TeamWorkload"));
 const TaskConnectors = lazy(() => import("@/pages/admin/TaskConnectors"));
@@ -209,6 +210,7 @@ const App = () => (
               <Route path="/tasks/calendar" element={<Navigate to="/my-workload" replace />} />
               <Route path="/approval-queue" element={<Navigate to="/my-workload" replace />} />
               <Route path="/employee/command-center" element={<Navigate to="/my-workload" replace />} />
+              <Route path="/gamification" element={<GamificationDashboard />} />
               <Route path="/tasks/:id" element={<TaskDetail />} />
               <Route path="/admin/workload/overdue" element={<ManagerOrAdminRoute><OverdueTasks /></ManagerOrAdminRoute>} />
               <Route path="/tasks/team" element={<Navigate to="/admin/workload/team" replace />} />
