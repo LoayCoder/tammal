@@ -6,6 +6,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+const DEFAULT_SLA = { approaching_percent: 80, breach_percent: 100 };
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -68,6 +70,30 @@ Deno.serve(async (req) => {
 
     if (fetchErr) throw fetchErr;
 
+    // Build per-tenant SLA threshold cache from governance_config
+    const tenantIds = [...new Set((slaActions ?? []).map((a: any) => a.tenant_id))];
+    const slaMap: Record<string, typeof DEFAULT_SLA> = {};
+
+    if (tenantIds.length > 0) {
+      const { data: configs } = await supabase
+        .from("governance_config")
+        .select("tenant_id, config_value")
+        .eq("config_key", "sla_thresholds")
+        .is("deleted_at", null)
+        .in("tenant_id", tenantIds);
+
+      for (const cfg of configs ?? []) {
+        try {
+          const val = cfg.config_value as any;
+          if (val && typeof val.approaching_percent === "number") {
+            slaMap[cfg.tenant_id] = val;
+          }
+        } catch {
+          // fallback to defaults
+        }
+      }
+    }
+
     let updated = 0;
     const now = Date.now();
 
@@ -77,16 +103,17 @@ Deno.serve(async (req) => {
       const slaMinutes = action.sla_minutes as number;
       const percentUsed = (elapsedMinutes / slaMinutes) * 100;
 
+      const tenantSla = slaMap[action.tenant_id] ?? DEFAULT_SLA;
+
       let newStatus: string;
-      if (percentUsed >= 100) {
+      if (percentUsed >= tenantSla.breach_percent) {
         newStatus = "breached";
-      } else if (percentUsed >= 80) {
+      } else if (percentUsed >= tenantSla.approaching_percent) {
         newStatus = "approaching_breach";
       } else {
         newStatus = "within_sla";
       }
 
-      // Only update if status changed
       if (newStatus !== action.sla_status) {
         const { error: updateErr } = await supabase
           .from("objective_actions")
