@@ -70,7 +70,7 @@ export function usePersonalTodos(employeeId?: string) {
     queryKey: key,
     queryFn: async () => {
       if (!employeeId) return [];
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('personal_todos')
         .select('*')
         .eq('employee_id', employeeId)
