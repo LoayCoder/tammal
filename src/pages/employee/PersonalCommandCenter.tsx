@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
-import { useUnifiedTasks } from '@/features/workload';
+import { useUnifiedTasks, usePersonalTodos } from '@/features/workload';
 import { useGamification } from '@/hooks/wellness/useGamification';
 import { useApprovalQueue } from '@/features/tasks/hooks/useApprovalQueue';
 import { CapacityGauge } from '@/components/workload/employee/CapacityGauge';
