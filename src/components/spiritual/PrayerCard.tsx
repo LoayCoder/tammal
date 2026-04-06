@@ -49,7 +49,6 @@ export function PrayerCard({
 }: PrayerCardProps) {
   const { t, i18n } = useTranslation();
   const [editing, setEditing] = useState(false);
-  const autoMissedRef = useRef(false);
 
   const isLogged = !!log;
   const style = log ? STATUS_STYLES[log.status] : null;
