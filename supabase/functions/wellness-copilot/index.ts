@@ -459,8 +459,16 @@ RECOMMENDATION RULES:
 - When urgencyLevel is "attention" or "urgent", include at least one support recommendation (first_aider or crisis_support).
 - For support recommendations: use key "first_aider" with route "/crisis-support" if first aiders are available, or key "crisis_support" with route "/crisis-support" if emergency contacts exist.
 - Match recommendations to the user's current state (mood trends, workload, burnout risk, urgency).
-- For high workload + low mood: prioritize breathing/meditation practices and workload reduction.
-- For declining mood trends: prioritize mood tracker, journaling, and peer/first aider support.`;
+${mode === "personal" ? `- For high workload + low mood: prioritize breathing/meditation practices and workload reduction.
+- For declining mood trends: prioritize mood tracker, journaling, and peer/first aider support.` :
+mode === "team" ? `- You are advising a MANAGER about their TEAM. Recommend MANAGER ACTIONS only.
+- NEVER recommend personal wellness exercises (breathing, meditation, journaling) — those are for personal mode.
+- Instead recommend: sending check-in reminders, reviewing team workload, launching wellness surveys, viewing team pulse.
+- Focus on what the manager can DO for their team, not what individuals should do for themselves.` :
+`- You are advising an ADMIN about the ORGANIZATION. Recommend ORGANIZATIONAL ACTIONS only.
+- NEVER recommend personal wellness exercises — those are for personal mode.
+- Instead recommend: launching surveys, reviewing analytics, reviewing workload distribution, viewing org pulse.
+- Focus on systemic organizational actions, not individual wellness practices.`}`;
 
     const userPrompt = `Mode: ${modeLabels[mode]}
 Data: ${JSON.stringify(scopeData)}

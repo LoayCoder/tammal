@@ -4,6 +4,7 @@ import {
   Activity, Brain, Wind, BookOpen, Music,
   CheckSquare, BookMarked, ClipboardCheck,
   HeartHandshake, Phone, Sparkles,
+  Users, BarChart3, Send, LineChart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CopilotRecommendation } from "../hooks/useCopilotInsight";
