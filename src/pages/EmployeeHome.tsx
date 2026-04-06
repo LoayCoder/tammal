@@ -211,6 +211,9 @@ export default function EmployeeHome() {
         {/* Spiritual Wellbeing Widgets */}
         <DashboardPrayerWidget />
 
+        {/* To-Do Widget */}
+        {employee && <DashboardTodoWidget employeeId={employee.id} tenantId={employee.tenant_id} />}
+
         {/* Workload Overview Widget */}
         {employee && <DashboardWorkloadWidget employeeId={employee.id} />}
 

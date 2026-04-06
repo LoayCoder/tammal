@@ -33,7 +33,7 @@ interface Props {
   tenantId: string;
 }
 
-function formatDueDisplay(todo: PersonalTodo, todayStr: string, t: (k: string, d?: string) => string) {
+function formatDueDisplay(todo: PersonalTodo, todayStr: string, t: any) {
   if (!todo.due_date) return null;
 
   let dateLabel = '';

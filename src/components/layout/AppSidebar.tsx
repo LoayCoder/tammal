@@ -214,6 +214,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       items: [
         // — Employee
         { title: t('nav.myWorkload'), url: "/my-workload", icon: ClipboardList, access: 'employee', sectionLabel: t('nav.workloadGroupEmployee') },
+        { title: t('nav.todoList', 'To-Do List'), url: "/todo", icon: Sparkles, access: 'employee' },
         { title: t('nav.objectives'), url: "/admin/workload/objectives", icon: Target, access: 'all' },
         // — Manager
         { title: t('nav.teamWorkload'), url: "/admin/workload/team", icon: Users2, access: 'admin', sectionLabel: t('nav.workloadGroupManager') },

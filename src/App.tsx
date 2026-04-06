@@ -207,6 +207,7 @@ const App = () => (
 
               {/* ── Workload (employee-facing) ── */}
               <Route path="/my-workload" element={<PersonalCommandCenter />} />
+              <Route path="/todo" element={<TodoPage />} />
               <Route path="/my-tasks" element={<Navigate to="/my-workload" replace />} />
               <Route path="/tasks/calendar" element={<Navigate to="/my-workload" replace />} />
               <Route path="/approval-queue" element={<Navigate to="/my-workload" replace />} />
