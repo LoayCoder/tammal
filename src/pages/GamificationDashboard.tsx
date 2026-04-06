@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Trophy, Flame, Star, Coins, Medal } from 'lucide-react';
+import { Trophy, Flame, Star, Coins, Medal, Wallet } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -52,28 +52,22 @@ export default function GamificationDashboard() {
 
       <div className="px-4 sm:px-6 space-y-6 max-w-5xl">
         {/* ── Stat cards ── */}
-        <DashboardGrid columns={4}>
+        <DashboardGrid columns={3}>
+          <MetricCard
+            title={t('gamification.totalBalance', 'Total Points')}
+            value={(totalPoints + balance).toLocaleString()}
+            icon={<Wallet className="h-4 w-4" strokeWidth={1.5} />}
+            description={
+              expiringWithin30Days > 0
+                ? t('gamification.expiringSoon', '{{count}} expiring soon', { count: expiringWithin30Days })
+                : t('gamification.balanceBreakdown', 'Wellness {{wellness}} + Recognition {{recognition}}', { wellness: totalPoints, recognition: balance })
+            }
+          />
           <MetricCard
             title={t('gamification.currentStreak', 'Current Streak')}
             value={streak}
             icon={<Flame className="h-4 w-4" strokeWidth={1.5} />}
             description={t('gamification.days', '{{count}} days', { count: streak })}
-          />
-          <MetricCard
-            title={t('gamification.wellnessPoints', 'Wellness Points')}
-            value={totalPoints.toLocaleString()}
-            icon={<Star className="h-4 w-4" strokeWidth={1.5} />}
-            description={t('gamification.fromCheckins', 'From daily check-ins')}
-          />
-          <MetricCard
-            title={t('gamification.recognitionBalance', 'Recognition Balance')}
-            value={balance.toLocaleString()}
-            icon={<Coins className="h-4 w-4" strokeWidth={1.5} />}
-            description={
-              expiringWithin30Days > 0
-                ? t('gamification.expiringSoon', '{{count}} expiring soon', { count: expiringWithin30Days })
-                : undefined
-            }
           />
           <MetricCard
             title={t('gamification.engagementRank', 'Engagement Rank')}
