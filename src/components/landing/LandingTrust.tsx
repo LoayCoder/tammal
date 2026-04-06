@@ -1,6 +1,13 @@
 import { AnimatedSection } from "./AnimatedSection";
 import { Shield, Server, Globe, Fingerprint } from "lucide-react";
 
+const stats = [
+  { value: "10,000+", label: "Tenants" },
+  { value: "99.99%", label: "Uptime" },
+  { value: "SOC 2", label: "Ready" },
+  { value: "< 200ms", label: "Response" },
+];
+
 const trustItems = [
   { icon: Shield, title: "Enterprise Security", desc: "Row-level security, JWT-based tenant isolation, and complete audit trails on every operation." },
   { icon: Server, title: "Multi-Tenant Architecture", desc: "Designed for 10,000+ tenants with zero cross-contamination — every byte is isolated." },
@@ -19,11 +26,23 @@ export const LandingTrust = () => (
         </h2>
       </AnimatedSection>
 
+      {/* Stats strip */}
+      <AnimatedSection delay={0.1}>
+        <div className="flex flex-wrap justify-center gap-8 lg:gap-16 mb-12 pb-12 border-b border-white/[0.06]">
+          {stats.map((s) => (
+            <div key={s.label} className="text-center">
+              <p className="text-2xl lg:text-3xl font-bold text-white tracking-tight">{s.value}</p>
+              <p className="text-[11px] text-white/30 uppercase tracking-wider mt-1">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </AnimatedSection>
+
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {trustItems.map((t, i) => (
-          <AnimatedSection key={t.title} delay={i * 0.1}>
+          <AnimatedSection key={t.title} delay={0.15 + i * 0.1}>
             <div className="text-center space-y-3">
-              <div className="w-12 h-12 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/[0.08] flex items-center justify-center mx-auto">
                 <t.icon className="w-5 h-5 text-white/50" />
               </div>
               <h3 className="text-sm font-semibold text-white">{t.title}</h3>

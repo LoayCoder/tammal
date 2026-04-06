@@ -32,8 +32,10 @@ export const LandingValue = () => (
       <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
         {values.map((v, i) => (
           <AnimatedSection key={v.title} delay={i * 0.12}>
-            <div className="group p-6 lg:p-8 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:-translate-y-1 transition-all duration-300">
-              <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center mb-5">
+            <div className="group relative p-6 lg:p-8 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+              {/* Top edge highlight */}
+              <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/[0.08] flex items-center justify-center mb-5">
                 <v.icon className="w-5 h-5 text-blue-400" />
               </div>
               <h3 className="text-lg font-semibold text-white mb-2">{v.title}</h3>
