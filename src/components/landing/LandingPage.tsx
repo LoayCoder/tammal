@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { LandingHero } from "./LandingHero";
 import { LandingValue } from "./LandingValue";
 import { LandingShowcase } from "./LandingShowcase";
@@ -10,6 +11,7 @@ import { ArrowRight } from "lucide-react";
 
 const LandingNav = () => {
   const [scrolled, setScrolled] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -32,13 +34,13 @@ const LandingNav = () => {
             href="/auth"
             className="text-sm text-white/50 hover:text-white/80 transition-colors font-medium"
           >
-            Sign In
+            {t("landing.nav.signIn")}
           </a>
           <a
             href="#contact"
             className="group inline-flex items-center gap-1.5 px-5 py-2 rounded-lg border border-white/[0.12] text-white/70 text-sm font-medium hover:bg-white/[0.06] hover:border-white/[0.2] transition-all duration-300"
           >
-            Get Access
+            {t("landing.nav.getAccess")}
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
           </a>
         </div>
@@ -47,24 +49,35 @@ const LandingNav = () => {
   );
 };
 
-const LandingFooter = () => (
-  <footer className="py-16 border-t border-white/[0.04]">
-    <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <span className="text-sm text-white/20">© {new Date().getFullYear()} Tammal. All rights reserved.</span>
-      <div className="flex gap-6">
-        {["Privacy", "Terms", "Security"].map((l) => (
-          <a
-            key={l}
-            href="#"
-            className="text-xs text-white/25 hover:text-white/50 transition-colors relative after:content-[''] after:absolute after:bottom-0 after:inset-x-0 after:h-px after:bg-white/20 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
-          >
-            {l}
-          </a>
-        ))}
+const LandingFooter = () => {
+  const { t } = useTranslation();
+  const footerLinks = [
+    t("landing.footer.privacy"),
+    t("landing.footer.terms"),
+    t("landing.footer.security"),
+  ];
+
+  return (
+    <footer className="py-16 border-t border-white/[0.04]">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <span className="text-sm text-white/20">
+          {t("landing.footer.rights", { year: new Date().getFullYear() })}
+        </span>
+        <div className="flex gap-6">
+          {footerLinks.map((l) => (
+            <a
+              key={l}
+              href="#"
+              className="text-xs text-white/25 hover:text-white/50 transition-colors relative after:content-[''] after:absolute after:bottom-0 after:inset-x-0 after:h-px after:bg-white/20 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
+            >
+              {l}
+            </a>
+          ))}
+        </div>
       </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
 
 const LandingPage = () => (
   <div className="min-h-screen bg-[#0A0E1A] text-white antialiased selection:bg-blue-500/30">
