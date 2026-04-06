@@ -335,9 +335,8 @@ serve(async (req) => {
       };
     }
 
-    // ── Dynamic Resource Discovery ──
-    // Wellness tools registry (auto-discovery: add new tools here and AI sees them immediately)
-    const wellnessTools = [
+    // ── Dynamic Resource Discovery (mode-aware) ──
+    const personalTools = [
       { key: "mood_tracker", title: "Mood Tracker", route: "/mental-toolkit/mood-tracker", type: "practice" },
       { key: "thought_reframer", title: "Thought Reframer", route: "/mental-toolkit/thought-reframer", type: "practice" },
       { key: "breathing", title: "Breathing & Grounding", route: "/mental-toolkit/breathing", type: "practice" },
@@ -347,6 +346,25 @@ serve(async (req) => {
       { key: "articles", title: "Psychoeducation Articles", route: "/mental-toolkit/articles", type: "resource" },
       { key: "assessment", title: "Self-Assessment", route: "/mental-toolkit/assessment", type: "resource" },
     ];
+
+    const teamTools = [
+      { key: "team_checkin", title: "Send Check-in Reminder", route: "/team-pulse", type: "practice" },
+      { key: "review_workload", title: "Review Team Workload", route: "/my-workload", type: "resource" },
+      { key: "team_pulse", title: "View Team Pulse", route: "/team-pulse", type: "resource" },
+      { key: "launch_survey", title: "Launch Wellness Survey", route: "/admin/surveys", type: "resource" },
+    ];
+
+    const orgTools = [
+      { key: "launch_survey", title: "Launch Organization Survey", route: "/admin/surveys", type: "resource" },
+      { key: "org_analytics", title: "Review Wellness Analytics", route: "/admin/wellness-analytics", type: "resource" },
+      { key: "review_workload", title: "Review Workload Distribution", route: "/admin/workload", type: "resource" },
+      { key: "team_pulse", title: "View Organization Pulse", route: "/team-pulse", type: "resource" },
+    ];
+
+    const wellnessTools =
+      mode === "personal" ? personalTools :
+      mode === "team" ? teamTools :
+      orgTools;
 
     // First Aiders — dynamic from DB
     const { data: firstAiders } = await admin
