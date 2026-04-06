@@ -15,6 +15,9 @@ import { PulseTargetBlock } from "./PulseTargetBlock";
 import { PulseActionPath } from "./PulseActionPath";
 import { PulseEmptyState } from "./PulseEmptyState";
 import { PulseSkeleton } from "./PulseSkeleton";
+import { TeamHealthSummary } from "./TeamHealthSummary";
+import { TeamMemberRiskGrid } from "./TeamMemberRiskGrid";
+import { useTeamMemberPulse } from "../hooks/useTeamMemberPulse";
 import { PulseNudgeCard } from "./PulseNudgeCard";
 import { useCurrentEmployee } from "@/hooks/auth/useCurrentEmployee";
 import { useQuery } from "@tanstack/react-query";
@@ -49,6 +52,7 @@ export function TeamPulseCard({ employeeId }: Props) {
     employeeId
   );
   const { sendAppreciation } = useAppreciations();
+  const { data: teamMembers = [] } = useTeamMemberPulse(employeeId, selectedMode === "team");
 
   const { data: directReports = [] } = useQuery({
     queryKey: ["pulse-direct-report-ids", employeeId, tenantId],
@@ -156,6 +160,12 @@ export function TeamPulseCard({ employeeId }: Props) {
           <PulseEmptyState fallbackCta={insufficientData.fallbackCta} />
         ) : pulse ? (
           <div className="space-y-0 transition-all duration-300">
+            {/* Team Health Summary — team mode only */}
+            {selectedMode === "team" && teamMembers.length > 0 && (
+              <div className="mb-4">
+                <TeamHealthSummary members={teamMembers} />
+              </div>
+            )}
             <div className="py-1">
               <PulseInsightBlock
                 insight={pulse.primaryInsight}
@@ -199,6 +209,13 @@ export function TeamPulseCard({ employeeId }: Props) {
                   <Megaphone className="h-3.5 w-3.5" strokeWidth={1.5} />
                   {t("pulse.teamKudgeNudge")}
                 </button>
+              </div>
+            )}
+
+            {/* Team Member Risk Grid — team mode only */}
+            {selectedMode === "team" && teamMembers.length > 0 && (
+              <div className="border-t border-border/10 pt-4 mt-4">
+                <TeamMemberRiskGrid members={teamMembers} />
               </div>
             )}
           </div>
