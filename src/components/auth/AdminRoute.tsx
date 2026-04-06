@@ -26,7 +26,7 @@ export function AdminRoute({ children }: AdminRouteProps) {
   }
 
   if (!isSuperAdmin && !isTenantAdmin) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;
