@@ -162,7 +162,7 @@ export default function EmployeeHome() {
         </Collapsible>
 
         {/* Wellness Copilot */}
-        {employee && <WellnessCopilotCard employeeId={employee.id} />}
+        {employee && <WellnessCopilotCard employeeId={employee.id} onCheckinClick={handleCheckinClick} />}
 
         {/* Team Pulse Action Hub */}
         {employee && <TeamPulseCard employeeId={employee.id} />}
