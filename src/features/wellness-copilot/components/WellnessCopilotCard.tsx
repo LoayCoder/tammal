@@ -17,6 +17,7 @@ import { CopilotSkeleton } from "./CopilotSkeleton";
 
 interface Props {
   employeeId: string;
+  onCheckinClick?: () => void;
 }
 
 const HIDDEN_KEY = 'wellness-copilot-card-hidden';
