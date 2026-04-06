@@ -3,15 +3,10 @@ import { initSentry } from "./lib/sentry";
 import App from "./App.tsx";
 import "./index.css";
 
-const PREVIEW_CACHE_RESET_KEY = "__lovable_preview_cache_reset_v1__";
+const CACHE_RESET_KEY = "__lovable_cache_reset_v2__";
 
-const isPreviewHost = () => {
-  const { hostname } = window.location;
-  return hostname.includes("lovableproject.com") || hostname.startsWith("id-preview--");
-};
-
-const resetPreviewCaches = async () => {
-  if (!isPreviewHost() || sessionStorage.getItem(PREVIEW_CACHE_RESET_KEY)) return;
+const resetStaleCaches = async () => {
+  if (sessionStorage.getItem(CACHE_RESET_KEY)) return;
 
   sessionStorage.setItem(PREVIEW_CACHE_RESET_KEY, "1");
 
