@@ -1,37 +1,42 @@
 
 
-## Issue: Mental Tools Showing in Team Mode — Why & Fix
+## Plan: Generate Bilingual TAMMAL Application Profile PDF
 
-### What's Happening
+### Overview
+Create a professional, bilingual (English + Arabic) PDF document that profiles the TAMMAL platform for customers. The document will use ReportLab to generate a polished, enterprise-grade PDF with structured sections.
 
-The AI prompt in the Copilot edge function provides the **same wellness tools catalog** to all modes (Personal, Team, Organization). The AI is told to "match recommendations to the user's current state" but has no rule differentiating **which tools are appropriate per mode**.
+### Document Structure (14-16 pages)
 
-In Team mode, the AI sees the team has overdue tasks and low check-ins, and recommends personal tools like "Thought Reframer" and "Breathing & Grounding" — tools a **manager cannot use on behalf of their team**. This is incorrect because:
+1. **Cover Page** — TAMMAL branding, tagline in EN/AR, "Enterprise Employee Wellbeing Platform"
+2. **Table of Contents** — Bilingual section listing
+3. **Executive Overview** — What is TAMMAL, target market, core value proposition (EN + AR)
+4. **Key Features Overview** — Visual grid of 10 feature domains with icons/descriptions
+5. **Feature Deep-Dive Pages** (6-7 pages):
+   - Employee Engagement & Daily Check-in
+   - Mental Wellness Toolkit (8 tools)
+   - Spiritual Wellness (MENA-specific)
+   - Task & Workload Intelligence (AI-powered)
+   - Recognition & Awards (Fairness Engine)
+   - Crisis Support
+   - Organization Administration & Analytics
+6. **Screenshots Section** — Login screen with caption + placeholder descriptions for key screens
+7. **Step-by-Step User Guide** — How employees, managers, and admins use the platform
+8. **Business Value & Benefits** — ROI outcomes, impact metrics, competitive advantages
+9. **Technical Highlights** — Security, multi-tenant, PWA, bilingual, AI architecture
+10. **Contact / Getting Started** — Call to action
 
-- **Team mode** is for **manager intelligence** — the manager needs actions they can take for the team (redistribute workload, send check-in reminders, launch surveys), not personal wellness exercises.
-- Showing personal self-help tools in Team mode is confusing and not actionable for a manager.
+### Technical Approach
 
-### Fix Plan
+- **Tool**: Python + ReportLab (already available in sandbox)
+- **Design**: Dark navy header bars, teal accent color (matching TAMMAL brand), clean typography
+- **Bilingual**: Each section has English followed by Arabic text
+- **Screenshot**: Embed the captured login page screenshot
+- **Output**: `/mnt/documents/TAMMAL_Application_Profile.pdf`
+- **QA**: Convert to images, inspect every page
 
-**File**: `supabase/functions/wellness-copilot/index.ts`
+### Files
+- Script: `/tmp/generate_tammal_profile.py` (one-off script)
+- Output: `/mnt/documents/TAMMAL_Application_Profile.pdf`
 
-1. **Filter the wellness tools catalog by mode** before passing to the AI:
-   - **Personal mode**: Include all wellness tools (mood tracker, breathing, journaling, etc.)
-   - **Team mode**: Only include support resources (first aiders, crisis support) and manager-specific actions. Remove personal practice tools. Add team-relevant recommendations like "Send team check-in reminder", "Review team workload", "Launch wellness survey".
-   - **Organization mode**: Only include org-level actions (launch survey, review analytics, review workload distribution).
-
-2. **Update the AI prompt** with mode-specific recommendation rules:
-   - Team mode: "Recommend manager actions (send check-in, review workload, redistribute tasks) — NOT personal wellness exercises"
-   - Add team-specific action catalog entries with appropriate routes
-
-3. **Add team-specific recommendation keys** to the catalog:
-   - `team_checkin` → "Send Check-in Reminder" → route to team pulse action
-   - `review_workload` → "Review Team Workload" → `/admin/workload/team`
-   - `launch_survey` → "Launch Wellness Survey" → `/admin/surveys`
-
-4. **Update `CopilotRecommendationsBlock.tsx`** — add icons for new team action keys (`Users`, `BarChart3`, `Send`).
-
-### Files to Modify
-1. `supabase/functions/wellness-copilot/index.ts` — mode-aware resource catalog + updated prompt rules
-2. `src/features/wellness-copilot/components/CopilotRecommendationsBlock.tsx` — add team action icons
+No codebase changes required — this is a standalone document generation task.
 
