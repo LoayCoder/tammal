@@ -1,30 +1,29 @@
 
 
-# Add App Access from Landing Page
+# Fix: Landing Page Not Showing on tammal.ai
 
-## What Changes
-Add a clear navigation path from the landing page to the app by linking to `/auth` (the login/signup page).
+## Root Cause
 
-### 1. Navigation Bar (`LandingPage.tsx`)
-- Add a "Sign In" or "Enter Platform" link/button in the nav bar pointing to `/auth`
-- Keep the existing "Get Access" CTA (mailto) alongside it
+The app uses VitePWA with `registerType: "autoUpdate"` and Workbox caching. The **previous build** had `/` mapped to the protected Dashboard, which redirected unauthenticated users to `/auth`. When you published the new version (with `/` → Landing Page), the old service worker continued serving the cached old JavaScript bundle — so visitors still see the login page.
 
-### 2. Hero Section (`LandingHero.tsx`)
-- Change "Request Private Access" button to link to `mailto:info@dhuud.com` (contact flow)
-- Add a secondary "Enter Platform" or "Sign In" button linking to `/auth`
-- Or: keep current layout and just add a nav-level sign-in link
+## Solution (2 steps)
 
-### 3. CTA Section (`LandingCTA.tsx`)
-- Add a "Sign In" link alongside the email CTA so existing users can jump into the app
+### 1. Force service worker cache invalidation on the published site
+Update `src/main.tsx` to detect stale service workers on **all hosts** (not just preview domains) and force a cache reset. Currently `resetPreviewCaches` only runs on preview/lovableproject.com hosts — it needs to also run on production domains like tammal.ai.
 
-### Approach
-- Use React Router `<Link>` or `<a href="/auth">` for internal navigation
-- No structural or animation changes — just adding navigation entry points
+**File:** `src/main.tsx`
+- Change `isPreviewHost` check: remove the hostname restriction so the one-time cache reset also runs on tammal.ai and other custom domains
+- Or better: add a cache-busting version key that changes with each deploy, so returning visitors get the fresh bundle
 
-### Files Modified
+### 2. Re-publish the project
+After the code change, publish an update so the new service worker replaces the old one.
+
+## What This Fixes
+- First-time visitors: Will see the landing page immediately
+- Returning visitors (with stale SW): The cache reset logic clears the old service worker and reloads, then the new routing takes effect
+
+## Files Modified
 | File | Change |
 |------|--------|
-| `LandingPage.tsx` | Add "Sign In" link to nav |
-| `LandingHero.tsx` | Add "Enter Platform" button linking to `/auth` |
-| `LandingCTA.tsx` | Add sign-in link option |
+| `src/main.tsx` | Extend cache reset to run on production domains, not just preview hosts |
 
