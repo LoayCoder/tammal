@@ -1,57 +1,93 @@
 
 
-## Deep Audit: Workload Intelligence — All Pages & Tabs
+## VIP To-Do List — Personal Task Command Center
 
-### Scope
-All 13 Workload Intelligence routes, their tabs, and data sources were audited for hardcoded/mock data.
+### Overview
+Add a new "To-Do" tab to the existing **My Workload** (`/my-workload`) page, providing a lightweight personal task experience separate from formal workload tasks. Uses a new `personal_todos` database table for quick, informal tasks with smart input parsing and AI daily planning.
 
----
+### Architecture
 
-### Audit Results by Page
+```text
+PersonalCommandCenter (existing)
+  └─ ViewType: 'tasks' | 'calendar' | 'approvals' | 'todo'  ← NEW TAB
+       └─ VipTodoView (new component)
+            ├─ SmartTodoInput (inline quick-add with NLP parsing)
+            ├─ FocusTaskBanner (top priority highlight)
+            ├─ TodoProgressBar ("3/7 completed today")
+            ├─ TodoList (minimal rows, inline complete/delete)
+            └─ AIDailyTip (one-line AI suggestion)
+```
 
-| # | Page / Route | Tabs | Data Source | Verdict |
-|---|---|---|---|---|
-| 1 | **Workload Dashboard** `/admin/workload/dashboard` | Capacity, Objectives, Off Hours | `useWorkloadAnalytics` → `employees`, `unified_tasks`, `off_hours_sessions`; `useWorkloadMetrics` → `workload_metrics` | **All dynamic** |
-| 2 | **Team Command Center** `/admin/workload/team` | — (accordion) | `useWorkloadAnalytics`, `useObjectives`, `useInitiatives`, `useDepartmentTasks` → `unified_tasks`, `employees` | **All dynamic** |
-| 3 | **Executive Dashboard** `/admin/workload/executive` | — (cards) | 12 hooks: objectives, initiatives, analytics, metrics, velocity, heatmap, risk, burnout, redistribution, trends, org-score | **All dynamic** |
-| 4 | **Portfolio Dashboard** `/admin/workload/portfolio` | Overview, Initiatives, Risk, AI Predictions | `useObjectives`, `useInitiatives`, `useWorkloadAnalytics`, `useDelayPredictions` (edge fn) | **All dynamic** |
-| 5 | **Representative** `/admin/workload/representative` | Strategic, Distribution | `useRepresentativeTasks`, `useObjectives`, `useInitiatives`, `useActions`, `useOrgTree` | **All dynamic** |
-| 6 | **Capacity Planner** `/admin/workload/capacity` | — | `useCapacityPlanner` → `employees`, `employee_capacity`, `unified_tasks` | **All dynamic** |
-| 7 | **Objectives Management** `/admin/workload/objectives` | — | `useObjectives` → `strategic_objectives` | **All dynamic** |
-| 8 | **Objective Detail** `/admin/workload/objectives/:id` | — (expandable) | `useObjectives`, `useInitiatives`, `useActions` → `strategic_objectives`, `initiatives`, `objective_actions` | **All dynamic** |
-| 9 | **My Workload** `/my-workload` | Tasks, Calendar, Approvals | `useUnifiedTasks`, `useGamification`, `useApprovalQueue` | **All dynamic** |
-| 10 | **System Health** `/admin/workload/system-health` | — | `useSystemHealth` → `governance-health.service` (live DB checks) | **All dynamic** |
-| 11 | **Escalation Settings** `/admin/workload/escalation` | — | Static config display (escalation rules 3/7/14 days, SLA thresholds) | **Config-only (see note)** |
-| 12 | **Task Connectors** `/admin/workload/connectors` | — | `useQuery` → `task_connectors` table; PROVIDERS list is UI catalog | **All dynamic** |
-| 13 | **Overdue Tasks** `/admin/workload/overdue` | — | Filtered from task hooks | **All dynamic** |
+### Database
 
----
+**New table: `personal_todos`**
+- `id` UUID PK
+- `tenant_id` UUID NOT NULL (RLS)
+- `employee_id` UUID NOT NULL → employees
+- `title` TEXT NOT NULL
+- `is_completed` BOOLEAN DEFAULT false
+- `completed_at` TIMESTAMPTZ NULL
+- `priority` INTEGER DEFAULT 3 (1=critical → 4=low)
+- `due_date` DATE NULL
+- `linked_task_id` UUID NULL → unified_tasks (optional link)
+- `sort_order` INTEGER DEFAULT 0
+- `created_at`, `updated_at`, `deleted_at` (standard)
 
-### Finding: Escalation Settings Page (Static Config)
+RLS: tenant isolation via `current_tenant_id()`. Soft delete standard.
 
-`EscalationSettings.tsx` displays hardcoded escalation levels (3, 7, 14 days) and SLA threshold labels. However, these are **governance business rules**, not data — they match the database trigger logic (Level 1: 3 days, Level 2: 7 days, Level 3: 14 days). This is intentional documentation, not mock data.
+### Files to Create
 
-**Recommendation**: Make these configurable by storing escalation rules in a `governance_config` table so admins can customize thresholds. This would involve:
-1. A new `governance_config` table with `tenant_id`, `config_key`, `config_value`
-2. A `useGovernanceConfig` hook to fetch tenant-specific rules
-3. An admin form to edit thresholds
-4. Update the escalation-check edge function to read from the table
+**1. Migration** — `personal_todos` table with RLS policies, indexes
 
-### Finding: Task Connectors PROVIDERS List
+**2. `src/features/workload/hooks/usePersonalTodos.ts`**
+- CRUD hook: `usePersonalTodos(employeeId)`
+- Returns `todos`, `createTodo`, `toggleComplete`, `deleteTodo`, `reorderTodo`
+- Queries `personal_todos` filtered by employee, ordered by `is_completed ASC, sort_order ASC, due_date ASC`
 
-The `PROVIDERS` array in `TaskConnectors.tsx` is a static UI catalog of integration options (Jira, Asana, etc. marked "coming soon"). This is appropriate — it's a feature roadmap display, not data that should come from a database.
+**3. `src/features/workload/components/VipTodoView.tsx`**
+Main container with:
+- **SmartTodoInput**: Single input with sparkle icon, placeholder "What do you need to do today?". On Enter, parses:
+  - "tomorrow" / "today" → sets `due_date`
+  - "urgent" / "critical" → sets `priority` 1
+  - "high" → priority 2
+- **FocusTaskBanner**: Highlights top uncompleted task (lowest priority number + earliest due) with 🔥 icon, subtle primary/5 background
+- **TodoProgressBar**: "3 / 7 completed today" with thin progress bar
+- **Todo items**: Minimal rows — checkbox, title, due date chip, priority dot. Click checkbox to toggle. Swipe-like delete via dropdown. Smooth `opacity-50 line-through` on complete with 200ms transition
+- **AIDailyTip**: Uses existing Lovable AI (gemini-2.5-flash-lite) via edge function to generate a one-line daily planning suggestion based on task count/priorities. Cached per day. Dismissible.
+- **Convert to Workload**: Menu action on each todo to promote it to a `unified_tasks` entry
 
----
+**4. `src/features/workload/components/AIDailyTip.tsx`**
+- Calls edge function `todo-daily-tip` with employee's todo summary
+- Displays as a subtle top banner: "💡 You have 5 tasks. Start with your critical items first."
+- Cached in localStorage per day to avoid repeat calls
 
-### Summary
+**5. `supabase/functions/todo-daily-tip/index.ts`**
+- Receives `{ todoCount, criticalCount, completedCount, employeeName }`
+- Calls Lovable AI (gemini-2.5-flash-lite) for a one-line motivational planning tip
+- Returns `{ tip: string }`
 
-**12 of 13 pages are fully dynamic** — all metrics, charts, tables, and cards are driven by real-time Supabase queries with proper tenant isolation (`tenant_id`), soft-delete filtering (`deleted_at IS NULL`), and RLS compliance.
+### Files to Modify
 
-**1 page (Escalation Settings) displays static governance rules** — this is by design as configuration documentation, but could be made dynamic for per-tenant customization.
+**6. `src/pages/employee/PersonalCommandCenter.tsx`**
+- Add `'todo'` to `ViewType`
+- Add new ToggleGroupItem for To-Do tab with `Sparkles` icon
+- Render `<VipTodoView>` when `view === 'todo'`
 
-**No hardcoded mock data or fake values found anywhere in the Workload Intelligence module.**
+**7. `src/features/workload/index.ts`**
+- Export `usePersonalTodos` and `VipTodoView`
 
-### Optional Enhancement
+### Design Rules (Premium VIP)
+- No card wrappers around todo items — flat rows with `hover:bg-muted/10`
+- Priority shown as small colored dots (same as `UnifiedTaskList`)
+- Due dates as subtle chips (`text-2xs text-muted-foreground`)
+- Focus task gets a soft `bg-primary/5 rounded-xl` highlight
+- 44px min touch targets, `active:scale-[0.97]` feedback
+- Completion animation: checkbox scales up briefly, row fades to 50% opacity
+- Empty state: centered illustration-free message with sparkle icon
 
-Should I proceed with making the Escalation Settings page dynamic (storing rules in a `governance_config` table) so each tenant can customize their escalation thresholds and SLA rules?
+### Technical Details
+- Input NLP is client-side regex (no AI needed for parsing)
+- AI tip is optional/progressive — page works fully without it
+- Reorder via `sort_order` field, updated on drag (future enhancement)
+- All queries include `deleted_at IS NULL` and tenant isolation
 
