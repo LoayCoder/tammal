@@ -32,7 +32,7 @@ interface PrayerCardProps {
   countdownMinutes?: number | null;
   isExpired?: boolean;
   isPrayerTime?: boolean;
-  onAutoMiss?: () => void;
+  
 }
 
 const STATUS_STYLES: Record<string, { border: string; bg: string }> = {
