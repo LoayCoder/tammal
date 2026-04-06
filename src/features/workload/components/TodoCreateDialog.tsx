@@ -58,7 +58,7 @@ export function TodoCreateDialog({ open, onOpenChange, onSubmit }: Props) {
     setPriority(3);
     setDueDate(undefined);
     setDueTime('');
-    setReminderOffset('');
+    setReminderOffset('none');
     setDescription('');
   };
 
