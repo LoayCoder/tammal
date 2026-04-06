@@ -26,7 +26,7 @@ const PRIORITY_OPTIONS = [
 ];
 
 const REMINDER_OPTIONS = [
-  { value: '', label: 'None' },
+  { value: 'none', label: 'None' },
   { value: '15', label: '15 min before' },
   { value: '60', label: '1 hour before' },
   { value: '1440', label: '1 day before' },
