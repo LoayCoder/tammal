@@ -1,70 +1,83 @@
 
 
-# VIP Premium Landing Page — Implementation Plan
+# VIP Premium Landing Page — Elevation Plan
 
-## Overview
-Build a flagship, enterprise-grade landing page at `/landing` as a public route (no auth required). The page targets executives and investors with a minimal luxury aesthetic — deep navy/black palette, clean typography, subtle scroll animations, and premium app screenshot presentations.
+## Current State
+The landing page at `/landing` already exists with all 7 sections, framer-motion animations, BrowserFrame mockups, and the deep navy palette. The foundation is solid. This plan elevates every section to meet the "would an executive trust this?" bar.
 
-## Technical Approach
+## Changes Overview
 
-- **Route**: Add `/landing` as a public route in `App.tsx` (outside `ProtectedRoute`). The existing `/` stays as the authenticated dashboard.
-- **Animation**: Install `framer-motion` for scroll-triggered fade/slide animations. All animations are subtle (10-20px y-axis, opacity transitions, no bounce).
-- **Screenshots**: Use placeholder premium dashboard mockups rendered inside macOS-style browser frames with soft shadows. These can be swapped for real screenshots later.
-- **Color palette**: Landing page uses its own scoped dark theme — deep navy (`#0A0E1A`), white, soft gray, muted blue accent. Does not alter the app's existing design tokens.
-- **RTL**: All layout uses logical properties (`ms-`, `me-`, `ps-`, `pe-`, `text-start`, `text-end`).
+### 1. Navigation — Add scroll-aware blur + logo refinement
+- Add `useScrollY` state so nav background opacity increases on scroll
+- Add subtle bottom border glow on scroll
+- Increase logo weight/tracking for premium feel
 
-## Component Structure
+### 2. Hero Section — Premium glow + layered depth
+- Add a second ambient glow (violet, opposite corner) for depth
+- Add subtle floating animation on the BrowserFrame (gentle 6px y-axis oscillation, 6s cycle)
+- Upgrade badge pill styling with a subtle shimmer/border gradient
+- Refine headline: tighter line-height, slightly larger on desktop (7xl)
+- Add a thin horizontal rule or accent line between headline and body text
 
-| Component | Purpose |
-|-----------|---------|
-| `LandingPage.tsx` | Page wrapper, full layout |
-| `LandingHero.tsx` | Hero with headline + screenshot mockup |
-| `LandingValue.tsx` | 3-column value proposition |
-| `LandingShowcase.tsx` | Alternating text+screenshot sections |
-| `LandingFeatures.tsx` | 4-column feature card grid with hover effects |
-| `LandingVisual.tsx` | Large screenshot composition |
-| `LandingTrust.tsx` | Enterprise positioning statements |
-| `LandingCTA.tsx` | Final centered call-to-action |
-| `BrowserFrame.tsx` | Reusable macOS-style frame for screenshots |
-| `AnimatedSection.tsx` | Reusable scroll-triggered fade-in wrapper |
+### 3. Value Proposition — Elevated card design
+- Add subtle gradient border on hover (not fill — border shimmer)
+- Increase icon container to 12×12 with softer rounded-xl
+- Add a faint top-edge highlight line on each card (1px gradient)
 
-All components go in `src/components/landing/`.
+### 4. Product Showcase — Fix RTL hack + add stagger
+- Replace `[direction:rtl]` hack with proper `order` classes (`lg:order-first` / `lg:order-last`) for correct RTL support
+- Add staggered reveal: text appears first, then screenshot slides in with 200ms delay
+- Add a subtle number accent glow behind the "01/02/03" labels
 
-## Page Sections (in order)
+### 5. Feature Cards — Add micro-interaction + glass depth
+- Add `backdrop-blur-sm` for glass effect
+- Add icon color shift on hover (blue-400 → blue-300)
+- Add subtle card border glow on hover using `shadow-[0_0_20px_rgba(59,130,246,0.06)]`
 
-1. **Hero** — Split layout: left headline ("Enterprise Intelligence, Elevated.") + CTA button, right side shows dashboard screenshot in browser frame with fade-in reveal
-2. **Value Proposition** — 3 columns: Intelligent Operations, Advanced Insights, Executive Control — minimal icons, short copy
-3. **Product Showcase** — 3 alternating blocks (left/right) showing Dashboard, Analytics, and AI Copilot screenshots with titles and descriptions
-4. **Feature Cards** — 4-column grid with icon + title + description, subtle hover lift effect
-5. **Visual Experience** — Large hero-width screenshot composition with layered depth
-6. **Trust/Positioning** — Enterprise-ready messaging, security, compliance, scale
-7. **Final CTA** — Centered "Request Private Access" button with premium styling
+### 6. Visual Experience — Layered composition
+- Add a second smaller BrowserFrame behind/offset from the main one (showing a different view like "Analytics" or "Team Pulse")
+- Apply `transform: perspective(1200px) rotateY(-2deg)` on the back frame for depth
+- Add ambient glow beneath the composition
 
-## Files to Create/Modify
+### 7. Trust Section — Premium metric strip
+- Add a horizontal stats strip above the trust cards showing key numbers: "10,000+ Tenants", "99.99% Uptime", "SOC 2 Ready", "< 200ms Response"
+- Upgrade trust card icons with subtle gradient fills
+- Add a faint divider line between stats strip and cards
 
-| Action | File |
-|--------|------|
-| Install | `framer-motion` package |
-| Create | `src/components/landing/LandingPage.tsx` (page with all sections) |
-| Create | `src/components/landing/LandingHero.tsx` |
-| Create | `src/components/landing/LandingValue.tsx` |
-| Create | `src/components/landing/LandingShowcase.tsx` |
-| Create | `src/components/landing/LandingFeatures.tsx` |
-| Create | `src/components/landing/LandingVisual.tsx` |
-| Create | `src/components/landing/LandingTrust.tsx` |
-| Create | `src/components/landing/LandingCTA.tsx` |
-| Create | `src/components/landing/BrowserFrame.tsx` |
-| Create | `src/components/landing/AnimatedSection.tsx` |
-| Modify | `src/App.tsx` — add `/landing` public route |
-| Modify | `src/pages/Index.tsx` — redirect to `/landing` or render `LandingPage` |
+### 8. CTA Section — Exclusive feel
+- Add a radial gradient spotlight effect behind the CTA box
+- Add a subtle animated border (slow gradient rotation) around the CTA container
+- Upgrade button hover: white → slight blue tint transition
 
-## Design Details
+### 9. Footer — Minimal polish
+- Add subtle link hover underline animation
+- Slightly increase footer padding
 
-- **Typography**: Inter font, headline ~4xl-6xl bold with tight tracking, body text gray-300/400
-- **Spacing**: 8px system, generous vertical padding (py-24 to py-32 per section)
-- **Cards**: Dark glass cards with subtle border, backdrop-blur, hover:translate-y-[-4px] transition
-- **CTA buttons**: White text on transparent border, hover fills white with dark text
-- **Browser frames**: Traffic light dots, dark title bar, rounded-xl corners, shadow-2xl
-- **Mobile**: Sections stack vertically, screenshots scale down, animations remain smooth
-- **Nav**: Minimal floating navbar with logo text + single CTA button
+### 10. Mobile Responsiveness Pass
+- Ensure hero screenshot scales cleanly below `lg` (already stacks, verify padding)
+- Reduce Visual section's layered frames to single on mobile
+- Ensure feature cards go to single column on `< sm`
+- Verify all animations have `reduced-motion` respect via framer-motion defaults
+
+## Files to Modify
+
+| File | Changes |
+|------|---------|
+| `LandingPage.tsx` | Scroll-aware nav, footer polish |
+| `LandingHero.tsx` | Dual glow, floating animation, refined typography, badge shimmer |
+| `LandingValue.tsx` | Card border highlight, icon container upgrade |
+| `LandingShowcase.tsx` | Fix RTL ordering, stagger animation, number glow |
+| `LandingFeatures.tsx` | Glass cards, hover glow, icon transitions |
+| `LandingVisual.tsx` | Layered dual-frame composition, perspective depth |
+| `LandingTrust.tsx` | Stats strip, upgraded card styling |
+| `LandingCTA.tsx` | Animated border, radial spotlight, button refinement |
+| `AnimatedSection.tsx` | No changes needed |
+| `BrowserFrame.tsx` | No changes needed |
+
+## Design Constraints
+- No new dependencies — framer-motion + Tailwind + lucide-react are sufficient
+- No bright colors — muted blue/violet accents only
+- All animations < 1s duration, no bounce easing
+- Logical properties maintained throughout (ms/me/ps/pe)
+- No changes to existing app theme or routes
 
