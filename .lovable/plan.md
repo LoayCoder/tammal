@@ -1,43 +1,57 @@
 
 
-## Unified Gamification Dashboard
+## Deep Audit: Workload Intelligence — All Pages & Tabs
 
-### Overview
-Create a new page at `/gamification` that consolidates all gamification data into a single premium view: wellness streaks, recognition points balance, engagement rank, and full achievement/transaction history.
+### Scope
+All 13 Workload Intelligence routes, their tabs, and data sources were audited for hardcoded/mock data.
 
-### Data Sources (existing hooks, no new DB tables needed)
-- **Wellness streaks & points**: `useGamification(employeeId)` → streak, totalPoints
-- **Recognition points**: `usePoints()` → balance, expiringWithin30Days, transactions
-- **Engagement rank**: `useEmployeeEngagementRank(employeeId, tenantId)` → rank, totalEmployees
-- **Redemption history**: `useRedemptionRequests()` → requests
+---
 
-### Files to Create
+### Audit Results by Page
 
-**1. `src/pages/GamificationDashboard.tsx`**
-- Uses `PageHeader` (flush variant) with a Trophy icon
-- **Top row** — 4 `MetricCard` stats via `DashboardGrid columns={4}`:
-  - Current Streak (Flame icon, streak count + "days" description)
-  - Wellness Points (Star icon, totalPoints from mood entries)
-  - Recognition Balance (Coins icon, balance + expiring-soon warning)
-  - Engagement Rank (Medal icon, #rank / totalEmployees)
-- **Middle section** — `EngagementRankBadge` component (existing premium card, reused as-is)
-- **Bottom section** — `Tabs` with two tabs:
-  - "Points History" → reuses `TransactionHistory` component
-  - "Redemptions" → reuses redemption list from `PointsDashboard`
-- Loading state: skeleton placeholders
+| # | Page / Route | Tabs | Data Source | Verdict |
+|---|---|---|---|---|
+| 1 | **Workload Dashboard** `/admin/workload/dashboard` | Capacity, Objectives, Off Hours | `useWorkloadAnalytics` → `employees`, `unified_tasks`, `off_hours_sessions`; `useWorkloadMetrics` → `workload_metrics` | **All dynamic** |
+| 2 | **Team Command Center** `/admin/workload/team` | — (accordion) | `useWorkloadAnalytics`, `useObjectives`, `useInitiatives`, `useDepartmentTasks` → `unified_tasks`, `employees` | **All dynamic** |
+| 3 | **Executive Dashboard** `/admin/workload/executive` | — (cards) | 12 hooks: objectives, initiatives, analytics, metrics, velocity, heatmap, risk, burnout, redistribution, trends, org-score | **All dynamic** |
+| 4 | **Portfolio Dashboard** `/admin/workload/portfolio` | Overview, Initiatives, Risk, AI Predictions | `useObjectives`, `useInitiatives`, `useWorkloadAnalytics`, `useDelayPredictions` (edge fn) | **All dynamic** |
+| 5 | **Representative** `/admin/workload/representative` | Strategic, Distribution | `useRepresentativeTasks`, `useObjectives`, `useInitiatives`, `useActions`, `useOrgTree` | **All dynamic** |
+| 6 | **Capacity Planner** `/admin/workload/capacity` | — | `useCapacityPlanner` → `employees`, `employee_capacity`, `unified_tasks` | **All dynamic** |
+| 7 | **Objectives Management** `/admin/workload/objectives` | — | `useObjectives` → `strategic_objectives` | **All dynamic** |
+| 8 | **Objective Detail** `/admin/workload/objectives/:id` | — (expandable) | `useObjectives`, `useInitiatives`, `useActions` → `strategic_objectives`, `initiatives`, `objective_actions` | **All dynamic** |
+| 9 | **My Workload** `/my-workload` | Tasks, Calendar, Approvals | `useUnifiedTasks`, `useGamification`, `useApprovalQueue` | **All dynamic** |
+| 10 | **System Health** `/admin/workload/system-health` | — | `useSystemHealth` → `governance-health.service` (live DB checks) | **All dynamic** |
+| 11 | **Escalation Settings** `/admin/workload/escalation` | — | Static config display (escalation rules 3/7/14 days, SLA thresholds) | **Config-only (see note)** |
+| 12 | **Task Connectors** `/admin/workload/connectors` | — | `useQuery` → `task_connectors` table; PROVIDERS list is UI catalog | **All dynamic** |
+| 13 | **Overdue Tasks** `/admin/workload/overdue` | — | Filtered from task hooks | **All dynamic** |
 
-### Files to Modify
+---
 
-**2. `src/App.tsx`**
-- Add lazy import for `GamificationDashboard`
-- Add route: `<Route path="/gamification" element={<GamificationDashboard />} />`
+### Finding: Escalation Settings Page (Static Config)
 
-**3. `src/components/layout/AppSidebar.tsx`**
-- Add "Gamification" nav item under the appropriate employee-facing group, pointing to `/gamification`
+`EscalationSettings.tsx` displays hardcoded escalation levels (3, 7, 14 days) and SLA threshold labels. However, these are **governance business rules**, not data — they match the database trigger logic (Level 1: 3 days, Level 2: 7 days, Level 3: 14 days). This is intentional documentation, not mock data.
 
-### Design Approach
-- Reuses existing system components (`PageHeader`, `MetricCard`, `DashboardGrid`, `Tabs`) and design tokens (`cardVariants`, `typography`)
-- No new database tables or migrations
-- RTL-compatible using logical properties
-- All data via existing hooks — no direct Supabase calls in the page
+**Recommendation**: Make these configurable by storing escalation rules in a `governance_config` table so admins can customize thresholds. This would involve:
+1. A new `governance_config` table with `tenant_id`, `config_key`, `config_value`
+2. A `useGovernanceConfig` hook to fetch tenant-specific rules
+3. An admin form to edit thresholds
+4. Update the escalation-check edge function to read from the table
+
+### Finding: Task Connectors PROVIDERS List
+
+The `PROVIDERS` array in `TaskConnectors.tsx` is a static UI catalog of integration options (Jira, Asana, etc. marked "coming soon"). This is appropriate — it's a feature roadmap display, not data that should come from a database.
+
+---
+
+### Summary
+
+**12 of 13 pages are fully dynamic** — all metrics, charts, tables, and cards are driven by real-time Supabase queries with proper tenant isolation (`tenant_id`), soft-delete filtering (`deleted_at IS NULL`), and RLS compliance.
+
+**1 page (Escalation Settings) displays static governance rules** — this is by design as configuration documentation, but could be made dynamic for per-tenant customization.
+
+**No hardcoded mock data or fake values found anywhere in the Workload Intelligence module.**
+
+### Optional Enhancement
+
+Should I proceed with making the Escalation Settings page dynamic (storing rules in a `governance_config` table) so each tenant can customize their escalation thresholds and SLA rules?
 
