@@ -1,55 +1,70 @@
 
 
-## Analysis: Prayer Tracker Auto-Miss Bug
+# VIP Premium Landing Page — Implementation Plan
 
-### Root Cause — TWO bugs found
+## Overview
+Build a flagship, enterprise-grade landing page at `/landing` as a public route (no auth required). The page targets executives and investors with a minimal luxury aesthetic — deep navy/black palette, clean typography, subtle scroll animations, and premium app screenshot presentations.
 
-**Bug 1: Auto-miss fires on page load (not on countdown expiry)**
+## Technical Approach
 
-In `PrayerCard.tsx` (lines 62-67), the auto-miss `useEffect` runs:
-```
-if (isExpired && !isLogged && !autoMissedRef.current && onAutoMiss) → log as missed
-```
+- **Route**: Add `/landing` as a public route in `App.tsx` (outside `ProtectedRoute`). The existing `/` stays as the authenticated dashboard.
+- **Animation**: Install `framer-motion` for scroll-triggered fade/slide animations. All animations are subtle (10-20px y-axis, opacity transitions, no bounce).
+- **Screenshots**: Use placeholder premium dashboard mockups rendered inside macOS-style browser frames with soft shadows. These can be swapped for real screenshots later.
+- **Color palette**: Landing page uses its own scoped dark theme — deep navy (`#0A0E1A`), white, soft gray, muted blue accent. Does not alter the app's existing design tokens.
+- **RTL**: All layout uses logical properties (`ms-`, `me-`, `ps-`, `pe-`, `text-start`, `text-end`).
 
-This fires **immediately on mount** for any prayer whose 60-minute window has already passed. So if you open the Prayer Tracker at 2 PM, Fajr (expired at ~6:30 AM) instantly gets auto-logged as "missed" — even though you may have prayed and just hadn't opened the app yet.
+## Component Structure
 
-**Bug 2: Race condition — logs haven't loaded yet**
+| Component | Purpose |
+|-----------|---------|
+| `LandingPage.tsx` | Page wrapper, full layout |
+| `LandingHero.tsx` | Hero with headline + screenshot mockup |
+| `LandingValue.tsx` | 3-column value proposition |
+| `LandingShowcase.tsx` | Alternating text+screenshot sections |
+| `LandingFeatures.tsx` | 4-column feature card grid with hover effects |
+| `LandingVisual.tsx` | Large screenshot composition |
+| `LandingTrust.tsx` | Enterprise positioning statements |
+| `LandingCTA.tsx` | Final centered call-to-action |
+| `BrowserFrame.tsx` | Reusable macOS-style frame for screenshots |
+| `AnimatedSection.tsx` | Reusable scroll-triggered fade-in wrapper |
 
-`todayLogs` comes from a Supabase query (`usePrayerLogs`). On initial render, it's an empty object while the query is in-flight. The countdown hook returns `isExpired: true` immediately (pure time calculation). So the `useEffect` sees `isExpired=true` + `isLogged=false` (because data hasn't arrived) and fires `onAutoMiss()` — logging a prayer as "missed" even if the user had already logged it earlier.
+All components go in `src/components/landing/`.
 
-**Bug 3: Witr is expired all day**
+## Page Sections (in order)
 
-`useWitrCountdown` returns `isExpired: true` between Fajr and 10 PM (line 58). Combined with Bug 1, Witr gets auto-missed every time the page opens during daytime.
+1. **Hero** — Split layout: left headline ("Enterprise Intelligence, Elevated.") + CTA button, right side shows dashboard screenshot in browser frame with fade-in reveal
+2. **Value Proposition** — 3 columns: Intelligent Operations, Advanced Insights, Executive Control — minimal icons, short copy
+3. **Product Showcase** — 3 alternating blocks (left/right) showing Dashboard, Analytics, and AI Copilot screenshots with titles and descriptions
+4. **Feature Cards** — 4-column grid with icon + title + description, subtle hover lift effect
+5. **Visual Experience** — Large hero-width screenshot composition with layered depth
+6. **Trust/Positioning** — Enterprise-ready messaging, security, compliance, scale
+7. **Final CTA** — Centered "Request Private Access" button with premium styling
 
-### Note
-The **Dashboard widget** is correct — it has an explicit comment: `// NO auto-miss useEffect — prayers are visual-only until user acts` and uses visual-only "expired" states (red X icon) without auto-logging.
+## Files to Create/Modify
 
----
+| Action | File |
+|--------|------|
+| Install | `framer-motion` package |
+| Create | `src/components/landing/LandingPage.tsx` (page with all sections) |
+| Create | `src/components/landing/LandingHero.tsx` |
+| Create | `src/components/landing/LandingValue.tsx` |
+| Create | `src/components/landing/LandingShowcase.tsx` |
+| Create | `src/components/landing/LandingFeatures.tsx` |
+| Create | `src/components/landing/LandingVisual.tsx` |
+| Create | `src/components/landing/LandingTrust.tsx` |
+| Create | `src/components/landing/LandingCTA.tsx` |
+| Create | `src/components/landing/BrowserFrame.tsx` |
+| Create | `src/components/landing/AnimatedSection.tsx` |
+| Modify | `src/App.tsx` — add `/landing` public route |
+| Modify | `src/pages/Index.tsx` — redirect to `/landing` or render `LandingPage` |
 
-### Fix Plan
+## Design Details
 
-**File: `src/components/spiritual/PrayerCard.tsx`**
-
-Remove the auto-miss `useEffect` entirely (lines 62-67). The auto-miss pattern is fundamentally flawed because:
-- It can't distinguish "timer expired while user was watching" from "timer was already expired on mount"
-- It races with data loading
-- It removes user agency (users should decide if they missed or not)
-
-Instead, keep the visual expired state (red countdown badge, expired styling) which already works correctly. The user can still manually tap "Missed" or log a completion retroactively — exactly how the dashboard widget works.
-
-**File: `src/pages/spiritual/PrayerTracker.tsx`**
-
-Remove all `onAutoMiss` props from the `PrayerCard` renders (lines 123, 143). These callbacks become unnecessary.
-
-**File: `src/hooks/spiritual/usePrayerCountdown.ts`**
-
-No changes needed — the countdown logic itself is correct.
-
-### Summary of changes
-| File | Change |
-|------|--------|
-| `PrayerCard.tsx` | Remove auto-miss `useEffect` (lines 62-67), remove `autoMissedRef` reset effect (lines 69-71), remove `onAutoMiss` from props interface |
-| `PrayerTracker.tsx` | Remove `onAutoMiss` prop from all `PrayerCard` renders |
-
-This makes the Prayer Tracker page behave identically to the Dashboard widget: expired prayers show a visual "expired" indicator but remain interactive for the user to log at their discretion.
+- **Typography**: Inter font, headline ~4xl-6xl bold with tight tracking, body text gray-300/400
+- **Spacing**: 8px system, generous vertical padding (py-24 to py-32 per section)
+- **Cards**: Dark glass cards with subtle border, backdrop-blur, hover:translate-y-[-4px] transition
+- **CTA buttons**: White text on transparent border, hover fills white with dark text
+- **Browser frames**: Traffic light dots, dark title bar, rounded-xl corners, shadow-2xl
+- **Mobile**: Sections stack vertically, screenshots scale down, animations remain smooth
+- **Nav**: Minimal floating navbar with logo text + single CTA button
 
