@@ -32,7 +32,6 @@ export const LandingCTA = () => (
                   <a
                     href="mailto:info@dhuud.com"
                     className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg border border-white/[0.12] text-white/70 font-medium text-sm hover:bg-white/[0.06] hover:border-white/[0.2] transition-all duration-300"
-                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg border border-white/[0.12] text-white/70 font-medium text-sm hover:bg-white/[0.06] hover:border-white/[0.2] transition-all duration-300"
                   >
                     Book a Demo
                   </a>
