@@ -1639,6 +1639,68 @@ export type Database = {
           },
         ]
       }
+      copilot_insight_history: {
+        Row: {
+          action_cta: string | null
+          basis_statement: string | null
+          created_at: string
+          deleted_at: string | null
+          id: string
+          insight_date: string
+          mode: string
+          primary_insight: string
+          reasoning: string | null
+          recommendations: Json | null
+          recommended_action: string | null
+          secondary_insight: string | null
+          tenant_id: string
+          urgency_level: string
+          user_id: string
+        }
+        Insert: {
+          action_cta?: string | null
+          basis_statement?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          insight_date?: string
+          mode?: string
+          primary_insight: string
+          reasoning?: string | null
+          recommendations?: Json | null
+          recommended_action?: string | null
+          secondary_insight?: string | null
+          tenant_id: string
+          urgency_level?: string
+          user_id: string
+        }
+        Update: {
+          action_cta?: string | null
+          basis_statement?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          insight_date?: string
+          mode?: string
+          primary_insight?: string
+          reasoning?: string | null
+          recommendations?: Json | null
+          recommended_action?: string | null
+          secondary_insight?: string | null
+          tenant_id?: string
+          urgency_level?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "copilot_insight_history_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_question_schedule: {
         Row: {
           created_at: string

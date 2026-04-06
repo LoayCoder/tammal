@@ -575,6 +575,24 @@ Analyze this ${mode} wellness data and generate a structured insight with contex
       insight_data: result,
     }, { onConflict: "scope_key,insight_date" });
 
+    // Persist to insight history for the employee (fire-and-forget)
+    admin.from("copilot_insight_history").insert({
+      user_id: userId,
+      tenant_id: emp.tenant_id,
+      mode,
+      urgency_level: insight.urgencyLevel ?? "neutral",
+      primary_insight: insight.primaryInsight ?? "",
+      secondary_insight: insight.secondaryInsight ?? null,
+      recommended_action: insight.recommendedAction ?? null,
+      reasoning: insight.reasoning ?? null,
+      basis_statement: insight.basisStatement ?? null,
+      action_cta: insight.actionCta ?? null,
+      recommendations: insight.recommendations ?? null,
+      insight_date: todayStr,
+    }).then(({ error: histErr }) => {
+      if (histErr) console.error("Failed to save insight history:", histErr.message);
+    });
+
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
