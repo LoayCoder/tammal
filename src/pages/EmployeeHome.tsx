@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useGamification } from '@/hooks/wellness/useGamification';
 import { useMoodHistory } from '@/hooks/wellness/useMoodHistory';
