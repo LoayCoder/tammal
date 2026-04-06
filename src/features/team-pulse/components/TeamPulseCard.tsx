@@ -52,6 +52,7 @@ export function TeamPulseCard({ employeeId }: Props) {
     employeeId
   );
   const { sendAppreciation } = useAppreciations();
+  const { data: teamMembers = [] } = useTeamMemberPulse(employeeId, selectedMode === "team");
 
   const { data: directReports = [] } = useQuery({
     queryKey: ["pulse-direct-report-ids", employeeId, tenantId],
