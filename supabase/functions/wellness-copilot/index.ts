@@ -427,6 +427,8 @@ RULES:
 - Use aggregated patterns only for team and organization insights.
 - Response language: ${language === "ar" ? "Arabic" : "English"}.
 - Keep each field to 1-2 sentences maximum.
+- If burnoutRisk data is present and score > 60, this MUST influence your urgencyLevel (set to "attention" or "urgent").
+- If burnoutRisk score > 80, urgencyLevel MUST be "urgent" and include support recommendation.
 
 AVAILABLE RESOURCES (use ONLY these for recommendations):
 ${JSON.stringify(availableResources, null, 2)}
@@ -438,7 +440,9 @@ RECOMMENDATION RULES:
 - Always include at least one practice recommendation.
 - When urgencyLevel is "attention" or "urgent", include at least one support recommendation (first_aider or crisis_support).
 - For support recommendations: use key "first_aider" with route "/crisis-support" if first aiders are available, or key "crisis_support" with route "/crisis-support" if emergency contacts exist.
-- Match recommendations to the user's current state (mood trends, workload, urgency).`;
+- Match recommendations to the user's current state (mood trends, workload, burnout risk, urgency).
+- For high workload + low mood: prioritize breathing/meditation practices and workload reduction.
+- For declining mood trends: prioritize mood tracker, journaling, and peer/first aider support.`;
 
     const userPrompt = `Mode: ${modeLabels[mode]}
 Data: ${JSON.stringify(scopeData)}
