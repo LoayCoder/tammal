@@ -319,6 +319,59 @@ serve(async (req) => {
       };
     }
 
+    // ── Dynamic Resource Discovery ──
+    // Wellness tools registry (auto-discovery: add new tools here and AI sees them immediately)
+    const wellnessTools = [
+      { key: "mood_tracker", title: "Mood Tracker", route: "/mental-toolkit/mood-tracker", type: "practice" },
+      { key: "thought_reframer", title: "Thought Reframer", route: "/mental-toolkit/thought-reframer", type: "practice" },
+      { key: "breathing", title: "Breathing & Grounding", route: "/mental-toolkit/breathing", type: "practice" },
+      { key: "journaling", title: "Daily Journaling", route: "/mental-toolkit/journaling", type: "practice" },
+      { key: "meditation", title: "Meditation Library", route: "/mental-toolkit/meditation", type: "practice" },
+      { key: "habits", title: "Habits Planner", route: "/mental-toolkit/habits", type: "resource" },
+      { key: "articles", title: "Psychoeducation Articles", route: "/mental-toolkit/articles", type: "resource" },
+      { key: "assessment", title: "Self-Assessment", route: "/mental-toolkit/assessment", type: "resource" },
+    ];
+
+    // First Aiders — dynamic from DB
+    const { data: firstAiders } = await admin
+      .from("mh_first_aiders")
+      .select("id, specializations, languages")
+      .eq("tenant_id", emp.tenant_id)
+      .eq("is_active", true)
+      .is("deleted_at", null)
+      .limit(50);
+
+    const firstAiderInfo = {
+      count: (firstAiders ?? []).length,
+      available: (firstAiders ?? []).length > 0,
+      specializations: [...new Set((firstAiders ?? []).flatMap((fa: any) => fa.specializations ?? []))],
+    };
+
+    // Emergency contacts — dynamic from DB
+    const { data: emergencyContacts } = await admin
+      .from("mh_emergency_contacts")
+      .select("id")
+      .eq("tenant_id", emp.tenant_id)
+      .eq("is_active", true)
+      .is("deleted_at", null)
+      .limit(10);
+
+    const emergencyInfo = {
+      count: (emergencyContacts ?? []).length,
+      available: (emergencyContacts ?? []).length > 0,
+    };
+
+    const availableResources = {
+      wellnessTools,
+      firstAiders: firstAiderInfo,
+      emergencyContacts: emergencyInfo,
+      supportRoutes: {
+        crisisSupport: "/crisis-support",
+        wellnessHub: "/wellness",
+        firstAiderConnect: "/crisis-support",
+      },
+    };
+
     // Check if there's enough data
     const hasData =
       mode === "personal"
@@ -357,12 +410,24 @@ RULES:
 - For team/org modes: NEVER identify or reference individual employees by name.
 - Use aggregated patterns only for team and organization insights.
 - Response language: ${language === "ar" ? "Arabic" : "English"}.
-- Keep each field to 1-2 sentences maximum.`;
+- Keep each field to 1-2 sentences maximum.
+
+AVAILABLE RESOURCES (use ONLY these for recommendations):
+${JSON.stringify(availableResources, null, 2)}
+
+RECOMMENDATION RULES:
+- Generate 2-4 recommendations from the available resources above.
+- ONLY recommend resources that exist in the catalog.
+- Each recommendation must include: type (practice/resource/support), key, title, description, and route.
+- Always include at least one practice recommendation.
+- When urgencyLevel is "attention" or "urgent", include at least one support recommendation (first_aider or crisis_support).
+- For support recommendations: use key "first_aider" with route "/crisis-support" if first aiders are available, or key "crisis_support" with route "/crisis-support" if emergency contacts exist.
+- Match recommendations to the user's current state (mood trends, workload, urgency).`;
 
     const userPrompt = `Mode: ${modeLabels[mode]}
 Data: ${JSON.stringify(scopeData)}
 
-Analyze this ${mode} wellness data and generate a structured insight.`;
+Analyze this ${mode} wellness data and generate a structured insight with contextual recommendations.`;
 
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
