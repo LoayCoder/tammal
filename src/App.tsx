@@ -100,6 +100,7 @@ const TaskTemplates = lazy(() => import("@/features/tasks/pages/TaskTemplates"))
 const ComponentShowcase = lazy(() => import("@/pages/dev/ComponentShowcase"));
 const DesignSystemPage = lazy(() => import("@/pages/dev/DesignSystemPage"));
 const EngagementInsights = lazy(() => import("@/pages/EngagementInsights"));
+const LandingPage = lazy(() => import("@/components/landing/LandingPage"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -151,6 +152,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/accept-invite" element={<AcceptInvite />} />
             <Route path="/install" element={<InstallApp />} />
+            <Route path="/landing" element={<LandingPage />} />
             <Route element={<ProtectedRoute />}>
             <Route element={<MainLayout />}>
               {/* ... keep existing code (all route definitions) */}
