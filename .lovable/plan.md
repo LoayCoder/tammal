@@ -1,29 +1,37 @@
 
 
-## Fix: "Complete Check-in" CTA scrolls to inline Daily Check-in instead of navigating away
+## Issue: Mental Tools Showing in Team Mode — Why & Fix
 
-### Problem
-When Copilot suggests "Complete Check-in", clicking it navigates to `/employee/wellness` — a separate page. The Daily Check-in card already lives on the dashboard (`InlineDailyCheckin`), so the CTA should scroll to it and highlight it instead.
+### What's Happening
 
-### Solution
+The AI prompt in the Copilot edge function provides the **same wellness tools catalog** to all modes (Personal, Team, Organization). The AI is told to "match recommendations to the user's current state" but has no rule differentiating **which tools are appropriate per mode**.
 
-1. **`CopilotActionBlock.tsx`** — For `complete_checkin` CTA only, replace the `<Link>` navigation with a scroll-to-element action:
-   - Instead of navigating to `/employee/wellness`, call `document.getElementById('inline-daily-checkin')?.scrollIntoView({ behavior: 'smooth' })` and briefly flash/highlight the card
-   - Use a `<button>` for `complete_checkin`, keep `<Link>` for all other CTAs
+In Team mode, the AI sees the team has overdue tasks and low check-ins, and recommends personal tools like "Thought Reframer" and "Breathing & Grounding" — tools a **manager cannot use on behalf of their team**. This is incorrect because:
 
-2. **`InlineDailyCheckin.tsx`** — Add `id="inline-daily-checkin"` to the root `<Card>` element so the Copilot CTA can target it. Add a CSS highlight animation class that can be triggered.
+- **Team mode** is for **manager intelligence** — the manager needs actions they can take for the team (redistribute workload, send check-in reminders, launch surveys), not personal wellness exercises.
+- Showing personal self-help tools in Team mode is confusing and not actionable for a manager.
 
-3. **`EmployeeHome.tsx`** — If the user already completed the check-in today (`todayEntry` exists), the Copilot CTA should show a toast like "Already checked in today" instead of scrolling to nothing. Pass a callback or use a shared ref/event.
+### Fix Plan
 
-### Implementation Detail
-- `CopilotActionBlock` will accept an optional `onCheckinClick` callback prop
-- `WellnessCopilotCard` will pass it down
-- `EmployeeHome` will provide the callback that scrolls to `#inline-daily-checkin` and adds a temporary highlight ring animation
-- If `todayEntry` exists, the callback shows a toast instead
+**File**: `supabase/functions/wellness-copilot/index.ts`
+
+1. **Filter the wellness tools catalog by mode** before passing to the AI:
+   - **Personal mode**: Include all wellness tools (mood tracker, breathing, journaling, etc.)
+   - **Team mode**: Only include support resources (first aiders, crisis support) and manager-specific actions. Remove personal practice tools. Add team-relevant recommendations like "Send team check-in reminder", "Review team workload", "Launch wellness survey".
+   - **Organization mode**: Only include org-level actions (launch survey, review analytics, review workload distribution).
+
+2. **Update the AI prompt** with mode-specific recommendation rules:
+   - Team mode: "Recommend manager actions (send check-in, review workload, redistribute tasks) — NOT personal wellness exercises"
+   - Add team-specific action catalog entries with appropriate routes
+
+3. **Add team-specific recommendation keys** to the catalog:
+   - `team_checkin` → "Send Check-in Reminder" → route to team pulse action
+   - `review_workload` → "Review Team Workload" → `/admin/workload/team`
+   - `launch_survey` → "Launch Wellness Survey" → `/admin/surveys`
+
+4. **Update `CopilotRecommendationsBlock.tsx`** — add icons for new team action keys (`Users`, `BarChart3`, `Send`).
 
 ### Files to Modify
-1. `src/features/wellness-copilot/components/CopilotActionBlock.tsx` — handle `complete_checkin` as button with callback
-2. `src/features/wellness-copilot/components/WellnessCopilotCard.tsx` — pass through `onCheckinClick` prop
-3. `src/components/checkin/InlineDailyCheckin.tsx` — add `id="inline-daily-checkin"`
-4. `src/pages/EmployeeHome.tsx` — provide scroll+highlight callback to WellnessCopilotCard
+1. `supabase/functions/wellness-copilot/index.ts` — mode-aware resource catalog + updated prompt rules
+2. `src/features/wellness-copilot/components/CopilotRecommendationsBlock.tsx` — add team action icons
 
