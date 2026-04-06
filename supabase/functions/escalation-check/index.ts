@@ -6,7 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const ESCALATION_THRESHOLDS = [
+const DEFAULT_THRESHOLDS = [
   { level: 1, daysOverdue: 3, target: "manager" },
   { level: 2, daysOverdue: 7, target: "department_head" },
   { level: 3, daysOverdue: 14, target: "executive" },
@@ -32,9 +32,7 @@ Deno.serve(async (req) => {
 
     const token = authHeader.replace("Bearer ", "");
 
-    // If the token is the service role key, allow (cron/scheduled job)
     if (token !== serviceKey) {
-      // Verify as user JWT and check for admin role
       const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
       const userClient = createClient(supabaseUrl, anonKey, {
         global: { headers: { Authorization: authHeader } },
@@ -47,7 +45,6 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Verify user has admin or super_admin role
       const supabase = createClient(supabaseUrl, serviceKey);
       const { data: roles } = await supabase
         .from("user_roles")
@@ -79,6 +76,30 @@ Deno.serve(async (req) => {
 
     if (tasksErr) throw tasksErr;
 
+    // Build per-tenant threshold cache from governance_config
+    const tenantIds = [...new Set((overdueTasks ?? []).map((t: any) => t.tenant_id))];
+    const thresholdMap: Record<string, typeof DEFAULT_THRESHOLDS> = {};
+
+    if (tenantIds.length > 0) {
+      const { data: configs } = await supabase
+        .from("governance_config")
+        .select("tenant_id, config_value")
+        .eq("config_key", "escalation_thresholds")
+        .is("deleted_at", null)
+        .in("tenant_id", tenantIds);
+
+      for (const cfg of configs ?? []) {
+        try {
+          const val = cfg.config_value;
+          if (Array.isArray(val) && val.length > 0) {
+            thresholdMap[cfg.tenant_id] = val;
+          }
+        } catch {
+          // fallback to defaults
+        }
+      }
+    }
+
     let escalationsCreated = 0;
 
     for (const task of overdueTasks ?? []) {
@@ -86,9 +107,11 @@ Deno.serve(async (req) => {
         (Date.now() - new Date(task.planned_end).getTime()) / 86400000
       );
 
-      const applicableLevel = ESCALATION_THRESHOLDS
-        .filter((t) => daysOverdue >= t.daysOverdue)
-        .sort((a, b) => b.level - a.level)[0];
+      const tenantThresholds = thresholdMap[task.tenant_id] ?? DEFAULT_THRESHOLDS;
+
+      const applicableLevel = tenantThresholds
+        .filter((t: any) => daysOverdue >= t.daysOverdue)
+        .sort((a: any, b: any) => b.level - a.level)[0];
 
       if (!applicableLevel) continue;
 
@@ -116,7 +139,6 @@ Deno.serve(async (req) => {
       if (!insertErr) {
         escalationsCreated++;
 
-        // Also create an in-app notification for the assignee
         if (task.assignee_id) {
           await supabase.from("task_notifications").insert({
             tenant_id: task.tenant_id,
