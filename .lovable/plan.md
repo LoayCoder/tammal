@@ -1,29 +1,60 @@
 
 
-# Fix: Landing Page Not Showing on tammal.ai
+# Add Arabic Translations to the Landing Page
 
-## Root Cause
+## Current State
+All 7 landing page components (Hero, Value, Showcase, Features, Visual, Trust, CTA, Nav, Footer) have **hardcoded English strings** with no `useTranslation()` hook. The i18n system (i18next + react-i18next) is already configured with `ar.json` and `en.json` locale files, but contains no landing page keys.
 
-The app uses VitePWA with `registerType: "autoUpdate"` and Workbox caching. The **previous build** had `/` mapped to the protected Dashboard, which redirected unauthenticated users to `/auth`. When you published the new version (with `/` → Landing Page), the old service worker continued serving the cached old JavaScript bundle — so visitors still see the login page.
+## What Changes
 
-## Solution (2 steps)
+### 1. Add `landing` translation keys to both locale files
 
-### 1. Force service worker cache invalidation on the published site
-Update `src/main.tsx` to detect stale service workers on **all hosts** (not just preview domains) and force a cache reset. Currently `resetPreviewCaches` only runs on preview/lovableproject.com hosts — it needs to also run on production domains like tammal.ai.
+**`src/locales/en.json`** — Add a `"landing"` section with all current English text as-is.
 
-**File:** `src/main.tsx`
-- Change `isPreviewHost` check: remove the hostname restriction so the one-time cache reset also runs on tammal.ai and other custom domains
-- Or better: add a cache-busting version key that changes with each deploy, so returning visitors get the fresh bundle
+**`src/locales/ar.json`** — Add a `"landing"` section with **proper formal Modern Standard Arabic (فصحى)**, not literal translations. Examples:
 
-### 2. Re-publish the project
-After the code change, publish an update so the new service worker replaces the old one.
+| English | Arabic (فصحى رسمية) |
+|---------|---------------------|
+| Enterprise Intelligence, Elevated. | ذكاء المؤسسات، بمستوى أرقى. |
+| The AI-powered platform that transforms employee wellness... | المنصة المدعومة بالذكاء الاصطناعي التي تحوّل رفاهية الموظفين ومشاركتهم وأداءهم إلى ميزة استراتيجية. |
+| Request Private Access | طلب وصول خاص |
+| Enter Platform | الدخول إلى المنصة |
+| Built for the Enterprise | مصمَّمة للمؤسسات |
+| Intelligent Operations | عمليات ذكية |
+| AI-driven workflows that learn, adapt, and optimize... | سير عمل مدعوم بالذكاء الاصطناعي يتعلّم ويتكيّف ويُحسّن — من متابعة الرفاهية إلى موازنة أعباء العمل. |
+| Advanced Insights | رؤى تحليلية متقدمة |
+| Executive Control | تحكّم إداري شامل |
+| Every Tool Your Organization Needs | كل الأدوات التي تحتاجها مؤسستك |
+| Enterprise-Grade by Design | بنية مؤسسية بالتصميم |
+| Experience the Platform | اكتشف المنصة |
+| Sign In | تسجيل الدخول |
+| Get Access | احصل على الوصول |
+| Why Tammal | لماذا تمّل |
+| Capabilities | القدرات |
+| Trust & Security | الثقة والأمان |
+| The Experience | التجربة |
+| Privacy / Terms / Security | الخصوصية / الشروط / الأمان |
 
-## What This Fixes
-- First-time visitors: Will see the landing page immediately
-- Returning visitors (with stale SW): The cache reset logic clears the old service worker and reloads, then the new routing takes effect
+All feature descriptions, showcase items, trust items, and stats will also be translated with **natural, idiomatic Arabic** — not word-for-word.
 
-## Files Modified
-| File | Change |
-|------|--------|
-| `src/main.tsx` | Extend cache reset to run on production domains, not just preview hosts |
+### 2. Integrate `useTranslation()` into all landing components
+
+Each component will import `useTranslation` and replace hardcoded strings with `t('landing.xxx')` calls:
+
+| File | Changes |
+|------|---------|
+| `LandingPage.tsx` | Nav links + footer text use `t()` |
+| `LandingHero.tsx` | Badge, heading, subtext, buttons use `t()` |
+| `LandingValue.tsx` | Section header + 3 value cards use `t()` |
+| `LandingShowcase.tsx` | 3 showcase items (title + desc) use `t()` |
+| `LandingFeatures.tsx` | Section header + 8 feature cards use `t()` |
+| `LandingVisual.tsx` | Section header + subtitle use `t()` |
+| `LandingTrust.tsx` | Section header, 4 stats, 4 trust items use `t()` |
+| `LandingCTA.tsx` | Heading, subtitle, buttons use `t()` |
+
+### 3. RTL compliance
+The landing page already uses logical properties (`ps-`, `me-`, `start`, `end`) and `rtl:` variants on icons — so RTL layout will work automatically when the language switches to Arabic.
+
+### Key Principle
+All Arabic text will be **authored as natural فصحى**, using proper Arabic sentence structure, not mechanical translation. Descriptions will be rewritten to sound native and professional.
 
