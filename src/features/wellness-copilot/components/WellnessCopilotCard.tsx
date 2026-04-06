@@ -17,6 +17,7 @@ import { CopilotSkeleton } from "./CopilotSkeleton";
 
 interface Props {
   employeeId: string;
+  onCheckinClick?: () => void;
 }
 
 const HIDDEN_KEY = 'wellness-copilot-card-hidden';
@@ -27,7 +28,7 @@ const modeSubLabels: Record<string, string> = {
   organization: "copilot.modeOrganization",
 };
 
-export function WellnessCopilotCard({ employeeId }: Props) {
+export function WellnessCopilotCard({ employeeId, onCheckinClick }: Props) {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   const [isHidden, setIsHidden] = useState(() => localStorage.getItem(HIDDEN_KEY) === '1');
@@ -116,7 +117,7 @@ export function WellnessCopilotCard({ employeeId }: Props) {
             {insight.recommendations && insight.recommendations.length > 0 && (
               <CopilotRecommendationsBlock recommendations={insight.recommendations} />
             )}
-            <CopilotActionBlock action={insight.recommendedAction} actionCta={insight.actionCta} />
+            <CopilotActionBlock action={insight.recommendedAction} actionCta={insight.actionCta} onCheckinClick={onCheckinClick} />
             <CopilotReasoningBlock reasoning={insight.reasoning} basisStatement={insight.basisStatement} />
           </div>
         ) : null}

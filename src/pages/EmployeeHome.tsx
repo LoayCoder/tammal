@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useGamification } from '@/hooks/wellness/useGamification';
 import { useMoodHistory } from '@/hooks/wellness/useMoodHistory';
@@ -53,6 +54,17 @@ export default function EmployeeHome() {
   const { pendingQuestions, surveyMeta, isPending: sqLoading } = useScheduledQuestions(employee?.id, undefined);
   const [showFirstAider, setShowFirstAider] = useState(false);
   const { rank, totalEmployees, isPending: rankLoading, error: rankError } = useEmployeeEngagementRank(employee?.id, employee?.tenant_id);
+
+  const handleCheckinClick = useCallback(() => {
+    const el = document.getElementById('inline-daily-checkin');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('ring-2', 'ring-primary/40', 'ring-offset-2');
+      setTimeout(() => el.classList.remove('ring-2', 'ring-primary/40', 'ring-offset-2'), 2000);
+    } else {
+      toast.info(t('home.checkinDone'));
+    }
+  }, [t]);
 
   const firstName = employee?.full_name?.split(' ')[0] ?? '';
 
@@ -150,7 +162,7 @@ export default function EmployeeHome() {
         </Collapsible>
 
         {/* Wellness Copilot */}
-        {employee && <WellnessCopilotCard employeeId={employee.id} />}
+        {employee && <WellnessCopilotCard employeeId={employee.id} onCheckinClick={handleCheckinClick} />}
 
         {/* Team Pulse Action Hub */}
         {employee && <TeamPulseCard employeeId={employee.id} />}
