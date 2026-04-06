@@ -50,7 +50,7 @@ export function TodoCreateDialog({ open, onOpenChange, onSubmit }: Props) {
   const [priority, setPriority] = useState(3);
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [dueTime, setDueTime] = useState('');
-  const [reminderOffset, setReminderOffset] = useState('');
+  const [reminderOffset, setReminderOffset] = useState('none');
   const [description, setDescription] = useState('');
 
   const reset = () => {
