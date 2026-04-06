@@ -204,6 +204,17 @@ serve(async (req) => {
         .is("deleted_at", null)
         .gte("created_at", fourteenDaysAgo);
 
+      // Burnout predictions
+      const { data: burnoutPred } = await admin
+        .from("burnout_predictions")
+        .select("burnout_probability_score, confidence_score, indicators, predicted_at")
+        .eq("employee_id", emp.id)
+        .eq("tenant_id", emp.tenant_id)
+        .is("deleted_at", null)
+        .order("predicted_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
       scopeData = {
         moodEntries: (moods ?? []).slice(0, 14).map((m: any) => ({ level: m.level, date: m.entry_date })),
         streak,
@@ -212,6 +223,11 @@ serve(async (req) => {
         surveyResponsesLast14d: surveyResponses ?? 0,
         dailyCapacityMinutes: workload?.daily_capacity_minutes ?? null,
         weeklyCapacityMinutes: workload?.weekly_capacity_minutes ?? null,
+        burnoutRisk: burnoutPred ? {
+          score: burnoutPred.burnout_probability_score,
+          confidence: burnoutPred.confidence_score,
+          predictedAt: burnoutPred.predicted_at,
+        } : null,
       };
     } else if (mode === "team") {
       // Get direct reports

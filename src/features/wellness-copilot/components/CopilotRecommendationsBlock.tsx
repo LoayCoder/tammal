@@ -82,7 +82,7 @@ export function CopilotRecommendationsBlock({ recommendations }: Props) {
               <p className="text-[10px] text-muted-foreground leading-snug line-clamp-2">{rec.description}</p>
             </div>
             <span className={cn("text-[10px] font-medium mt-auto", style.btnClass)}>
-              {isAr ? style.labelAr : style.label} →
+              {isAr ? style.labelAr : style.label} <span className="rtl:hidden">→</span><span className="hidden rtl:inline">←</span>
             </span>
           </button>
         );
