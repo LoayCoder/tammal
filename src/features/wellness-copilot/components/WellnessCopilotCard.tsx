@@ -11,6 +11,7 @@ import { CopilotModeSwitcher } from "./CopilotModeSwitcher";
 import { CopilotInsightBlock } from "./CopilotInsightBlock";
 import { CopilotActionBlock } from "./CopilotActionBlock";
 import { CopilotReasoningBlock } from "./CopilotReasoningBlock";
+import { CopilotRecommendationsBlock } from "./CopilotRecommendationsBlock";
 import { CopilotEmptyState } from "./CopilotEmptyState";
 import { CopilotSkeleton } from "./CopilotSkeleton";
 
