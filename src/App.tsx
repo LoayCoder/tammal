@@ -151,6 +151,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/accept-invite" element={<AcceptInvite />} />
             <Route path="/install" element={<InstallApp />} />
+            <Route path="/landing" element={<LandingPage />} />
             <Route element={<ProtectedRoute />}>
             <Route element={<MainLayout />}>
               {/* ... keep existing code (all route definitions) */}
