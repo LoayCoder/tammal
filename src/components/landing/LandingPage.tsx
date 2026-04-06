@@ -27,13 +27,21 @@ const LandingNav = () => {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 h-16 flex items-center justify-between">
         <span className="text-xl font-bold text-white tracking-[0.08em]">TAMMAL</span>
-        <a
-          href="#contact"
-          className="group inline-flex items-center gap-1.5 px-5 py-2 rounded-lg border border-white/[0.12] text-white/70 text-sm font-medium hover:bg-white/[0.06] hover:border-white/[0.2] transition-all duration-300"
-        >
-          Get Access
-          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href="/auth"
+            className="text-sm text-white/50 hover:text-white/80 transition-colors font-medium"
+          >
+            Sign In
+          </a>
+          <a
+            href="#contact"
+            className="group inline-flex items-center gap-1.5 px-5 py-2 rounded-lg border border-white/[0.12] text-white/70 text-sm font-medium hover:bg-white/[0.06] hover:border-white/[0.2] transition-all duration-300"
+          >
+            Get Access
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
+          </a>
+        </div>
       </div>
     </nav>
   );
