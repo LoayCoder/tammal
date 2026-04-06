@@ -25,7 +25,7 @@ const PRIORITY_OPTIONS = [
 ];
 
 const REMINDER_OPTIONS = [
-  { value: '', label: 'None' },
+  { value: 'none', label: 'None' },
   { value: '15', label: '15 min before' },
   { value: '60', label: '1 hour before' },
   { value: '1440', label: '1 day before' },
@@ -50,7 +50,7 @@ export function TodoCreateDialog({ open, onOpenChange, onSubmit }: Props) {
   const [priority, setPriority] = useState(3);
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [dueTime, setDueTime] = useState('');
-  const [reminderOffset, setReminderOffset] = useState('');
+  const [reminderOffset, setReminderOffset] = useState('none');
   const [description, setDescription] = useState('');
 
   const reset = () => {
@@ -58,7 +58,7 @@ export function TodoCreateDialog({ open, onOpenChange, onSubmit }: Props) {
     setPriority(3);
     setDueDate(undefined);
     setDueTime('');
-    setReminderOffset('');
+    setReminderOffset('none');
     setDescription('');
   };
 
@@ -69,7 +69,7 @@ export function TodoCreateDialog({ open, onOpenChange, onSubmit }: Props) {
       priority,
       due_date: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
       due_time: dueTime || null,
-      reminder_offset: reminderOffset ? parseInt(reminderOffset) : null,
+      reminder_offset: reminderOffset && reminderOffset !== 'none' ? parseInt(reminderOffset) : null,
       description: description.trim() || null,
     });
     reset();

@@ -26,7 +26,7 @@ const PRIORITY_OPTIONS = [
 ];
 
 const REMINDER_OPTIONS = [
-  { value: '', label: 'None' },
+  { value: 'none', label: 'None' },
   { value: '15', label: '15 min before' },
   { value: '60', label: '1 hour before' },
   { value: '1440', label: '1 day before' },
@@ -54,7 +54,7 @@ export function TodoEditSheet({ todo, open, onOpenChange, onUpdate, onDelete }: 
   const [priority, setPriority] = useState(3);
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [dueTime, setDueTime] = useState('');
-  const [reminderOffset, setReminderOffset] = useState('');
+  const [reminderOffset, setReminderOffset] = useState('none');
   const [description, setDescription] = useState('');
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export function TodoEditSheet({ todo, open, onOpenChange, onUpdate, onDelete }: 
       setPriority(todo.priority);
       setDueDate(todo.due_date ? new Date(todo.due_date + 'T00:00') : undefined);
       setDueTime(todo.due_time ? todo.due_time.substring(0, 5) : '');
-      setReminderOffset(todo.reminder_offset != null ? String(todo.reminder_offset) : '');
+      setReminderOffset(todo.reminder_offset != null ? String(todo.reminder_offset) : 'none');
       setDescription(todo.description ?? '');
     }
   }, [todo]);
@@ -76,7 +76,7 @@ export function TodoEditSheet({ todo, open, onOpenChange, onUpdate, onDelete }: 
       priority,
       due_date: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
       due_time: dueTime || null,
-      reminder_offset: reminderOffset ? parseInt(reminderOffset) : null,
+      reminder_offset: reminderOffset && reminderOffset !== 'none' ? parseInt(reminderOffset) : null,
       description: description.trim() || null,
     });
     onOpenChange(false);
