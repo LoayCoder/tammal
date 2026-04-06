@@ -13,6 +13,14 @@ export type ActionCta =
   | "take_break"
   | "review_tasks";
 
+export interface CopilotRecommendation {
+  type: 'practice' | 'resource' | 'support';
+  key: string;
+  title: string;
+  description: string;
+  route: string;
+}
+
 export interface CopilotInsight {
   primaryInsight: string;
   recommendedAction: string;
@@ -24,6 +32,7 @@ export interface CopilotInsight {
   insufficientData: false;
   mode: CopilotMode;
   generatedAt: string;
+  recommendations?: CopilotRecommendation[];
 }
 
 export interface CopilotInsufficientData {

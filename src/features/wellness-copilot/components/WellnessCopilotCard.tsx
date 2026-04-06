@@ -11,6 +11,7 @@ import { CopilotModeSwitcher } from "./CopilotModeSwitcher";
 import { CopilotInsightBlock } from "./CopilotInsightBlock";
 import { CopilotActionBlock } from "./CopilotActionBlock";
 import { CopilotReasoningBlock } from "./CopilotReasoningBlock";
+import { CopilotRecommendationsBlock } from "./CopilotRecommendationsBlock";
 import { CopilotEmptyState } from "./CopilotEmptyState";
 import { CopilotSkeleton } from "./CopilotSkeleton";
 
@@ -112,6 +113,9 @@ export function WellnessCopilotCard({ employeeId }: Props) {
               urgencyLevel={insight.urgencyLevel}
               secondaryInsight={insight.secondaryInsight}
             />
+            {insight.recommendations && insight.recommendations.length > 0 && (
+              <CopilotRecommendationsBlock recommendations={insight.recommendations} />
+            )}
             <CopilotActionBlock action={insight.recommendedAction} actionCta={insight.actionCta} />
             <CopilotReasoningBlock reasoning={insight.reasoning} basisStatement={insight.basisStatement} />
           </div>
