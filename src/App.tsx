@@ -210,6 +210,7 @@ const App = () => (
               <Route path="/tasks/calendar" element={<Navigate to="/my-workload" replace />} />
               <Route path="/approval-queue" element={<Navigate to="/my-workload" replace />} />
               <Route path="/employee/command-center" element={<Navigate to="/my-workload" replace />} />
+              <Route path="/gamification" element={<GamificationDashboard />} />
               <Route path="/tasks/:id" element={<TaskDetail />} />
               <Route path="/admin/workload/overdue" element={<ManagerOrAdminRoute><OverdueTasks /></ManagerOrAdminRoute>} />
               <Route path="/tasks/team" element={<Navigate to="/admin/workload/team" replace />} />
