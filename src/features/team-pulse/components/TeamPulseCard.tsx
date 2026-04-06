@@ -160,6 +160,12 @@ export function TeamPulseCard({ employeeId }: Props) {
           <PulseEmptyState fallbackCta={insufficientData.fallbackCta} />
         ) : pulse ? (
           <div className="space-y-0 transition-all duration-300">
+            {/* Team Health Summary — team mode only */}
+            {selectedMode === "team" && teamMembers.length > 0 && (
+              <div className="mb-4">
+                <TeamHealthSummary members={teamMembers} />
+              </div>
+            )}
             <div className="py-1">
               <PulseInsightBlock
                 insight={pulse.primaryInsight}
