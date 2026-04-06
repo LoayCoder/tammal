@@ -137,7 +137,7 @@ export function usePersonalTodos(employeeId?: string) {
   const updateTodo = useMutation({
     mutationFn: async (input: { id: string; title?: string; priority?: number; due_date?: string | null }) => {
       const { id, ...updates } = input;
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('personal_todos')
         .update(updates)
         .eq('id', id);

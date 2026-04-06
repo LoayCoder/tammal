@@ -139,6 +139,13 @@ export default function PersonalCommandCenter() {
       {view === 'approvals' && (
         <WorkloadApprovalsView />
       )}
+      {view === 'todo' && (
+        <VipTodoView
+          employeeId={employee.id}
+          employeeName={employee.full_name}
+          tenantId={employee.tenant_id}
+        />
+      )}
 
       {/* Create Task Modal */}
       <CreateTaskModal
