@@ -335,9 +335,8 @@ serve(async (req) => {
       };
     }
 
-    // ── Dynamic Resource Discovery ──
-    // Wellness tools registry (auto-discovery: add new tools here and AI sees them immediately)
-    const wellnessTools = [
+    // ── Dynamic Resource Discovery (mode-aware) ──
+    const personalTools = [
       { key: "mood_tracker", title: "Mood Tracker", route: "/mental-toolkit/mood-tracker", type: "practice" },
       { key: "thought_reframer", title: "Thought Reframer", route: "/mental-toolkit/thought-reframer", type: "practice" },
       { key: "breathing", title: "Breathing & Grounding", route: "/mental-toolkit/breathing", type: "practice" },
@@ -347,6 +346,25 @@ serve(async (req) => {
       { key: "articles", title: "Psychoeducation Articles", route: "/mental-toolkit/articles", type: "resource" },
       { key: "assessment", title: "Self-Assessment", route: "/mental-toolkit/assessment", type: "resource" },
     ];
+
+    const teamTools = [
+      { key: "team_checkin", title: "Send Check-in Reminder", route: "/team-pulse", type: "practice" },
+      { key: "review_workload", title: "Review Team Workload", route: "/my-workload", type: "resource" },
+      { key: "team_pulse", title: "View Team Pulse", route: "/team-pulse", type: "resource" },
+      { key: "launch_survey", title: "Launch Wellness Survey", route: "/admin/surveys", type: "resource" },
+    ];
+
+    const orgTools = [
+      { key: "launch_survey", title: "Launch Organization Survey", route: "/admin/surveys", type: "resource" },
+      { key: "org_analytics", title: "Review Wellness Analytics", route: "/admin/wellness-analytics", type: "resource" },
+      { key: "review_workload", title: "Review Workload Distribution", route: "/admin/workload", type: "resource" },
+      { key: "team_pulse", title: "View Organization Pulse", route: "/team-pulse", type: "resource" },
+    ];
+
+    const wellnessTools =
+      mode === "personal" ? personalTools :
+      mode === "team" ? teamTools :
+      orgTools;
 
     // First Aiders — dynamic from DB
     const { data: firstAiders } = await admin
@@ -441,8 +459,16 @@ RECOMMENDATION RULES:
 - When urgencyLevel is "attention" or "urgent", include at least one support recommendation (first_aider or crisis_support).
 - For support recommendations: use key "first_aider" with route "/crisis-support" if first aiders are available, or key "crisis_support" with route "/crisis-support" if emergency contacts exist.
 - Match recommendations to the user's current state (mood trends, workload, burnout risk, urgency).
-- For high workload + low mood: prioritize breathing/meditation practices and workload reduction.
-- For declining mood trends: prioritize mood tracker, journaling, and peer/first aider support.`;
+${mode === "personal" ? `- For high workload + low mood: prioritize breathing/meditation practices and workload reduction.
+- For declining mood trends: prioritize mood tracker, journaling, and peer/first aider support.` :
+mode === "team" ? `- You are advising a MANAGER about their TEAM. Recommend MANAGER ACTIONS only.
+- NEVER recommend personal wellness exercises (breathing, meditation, journaling) — those are for personal mode.
+- Instead recommend: sending check-in reminders, reviewing team workload, launching wellness surveys, viewing team pulse.
+- Focus on what the manager can DO for their team, not what individuals should do for themselves.` :
+`- You are advising an ADMIN about the ORGANIZATION. Recommend ORGANIZATIONAL ACTIONS only.
+- NEVER recommend personal wellness exercises — those are for personal mode.
+- Instead recommend: launching surveys, reviewing analytics, reviewing workload distribution, viewing org pulse.
+- Focus on systemic organizational actions, not individual wellness practices.`}`;
 
     const userPrompt = `Mode: ${modeLabels[mode]}
 Data: ${JSON.stringify(scopeData)}

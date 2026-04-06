@@ -4,6 +4,7 @@ import {
   Activity, Brain, Wind, BookOpen, Music,
   CheckSquare, BookMarked, ClipboardCheck,
   HeartHandshake, Phone, Sparkles,
+  Users, BarChart3, Send, LineChart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CopilotRecommendation } from "../hooks/useCopilotInsight";
@@ -19,6 +20,11 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   assessment: ClipboardCheck,
   first_aider: HeartHandshake,
   crisis_support: Phone,
+  team_checkin: Send,
+  review_workload: BarChart3,
+  team_pulse: Users,
+  launch_survey: ClipboardCheck,
+  org_analytics: LineChart,
 };
 
 const typeStyles: Record<string, { border: string; iconBg: string; btnClass: string; label: string; labelAr: string }> = {
