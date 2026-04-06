@@ -14,11 +14,12 @@ import { WorkloadApprovalsView } from '@/features/workload/components/WorkloadAp
 import { CreateTaskModal } from '@/features/tasks/components/CreateTaskModal';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { typography } from '@/theme/tokens';
+import { VipTodoView } from '@/features/workload/components/VipTodoView';
 import {
-  Plus, ListChecks, CalendarDays, CheckCircle2, AlertTriangle, Flame, CheckSquare, Star,
+  Plus, ListChecks, CalendarDays, CheckCircle2, AlertTriangle, Flame, CheckSquare, Star, Sparkles,
 } from 'lucide-react';
 
-type ViewType = 'tasks' | 'calendar' | 'approvals';
+type ViewType = 'tasks' | 'calendar' | 'approvals' | 'todo';
 
 export default function PersonalCommandCenter() {
   const { t } = useTranslation();
