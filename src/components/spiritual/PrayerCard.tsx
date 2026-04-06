@@ -45,7 +45,7 @@ const STATUS_STYLES: Record<string, { border: string; bg: string }> = {
 export function PrayerCard({
   prayerName, prayerTime, timeLabel, log, onLog, isPending,
   sunnahBefore, sunnahAfter, onToggleSunnah, sunnahPending,
-  countdownMinutes, isExpired, isPrayerTime: isPrayerTimeFlag, onAutoMiss,
+  countdownMinutes, isExpired, isPrayerTime: isPrayerTimeFlag,
 }: PrayerCardProps) {
   const { t, i18n } = useTranslation();
   const [editing, setEditing] = useState(false);

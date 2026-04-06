@@ -140,7 +140,7 @@ export default function PrayerTracker() {
         countdownMinutes={cd.minutesLeft}
         isExpired={cd.isExpired}
         isPrayerTime={cd.isPrayerTime}
-        onAutoMiss={() => handleLog(name, 'missed')}
+        
       />
     );
   };
