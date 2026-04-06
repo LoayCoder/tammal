@@ -59,8 +59,8 @@ export default function EmployeeHome() {
     const el = document.getElementById('inline-daily-checkin');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      el.classList.add('ring-2', 'ring-primary/40', 'ring-offset-2');
-      setTimeout(() => el.classList.remove('ring-2', 'ring-primary/40', 'ring-offset-2'), 2000);
+      el.classList.add('ring-2', 'ring-destructive/50', 'ring-offset-2');
+      setTimeout(() => el.classList.remove('ring-2', 'ring-destructive/50', 'ring-offset-2'), 2000);
     } else {
       toast.info(t('home.checkinDone'));
     }
