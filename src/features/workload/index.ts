@@ -32,6 +32,7 @@ export { useDelayPredictions, useRedistributionSuggestions, useRunEscalationChec
 export { useWorkloadTrends } from './hooks/useWorkloadTrends';
 export { useWorkloadMetrics } from './hooks/useWorkloadMetrics';
 export { useCapacityPlanner } from './hooks/useCapacityPlanner';
+export { usePersonalTodos } from './hooks/usePersonalTodos';
 
 // Types re-exports
 export type { EmployeeCapacity } from './hooks/useEmployeeCapacity';

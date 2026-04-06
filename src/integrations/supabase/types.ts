@@ -4617,6 +4617,76 @@ export type Database = {
         }
         Relationships: []
       }
+      personal_todos: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          deleted_at: string | null
+          due_date: string | null
+          employee_id: string
+          id: string
+          is_completed: boolean
+          linked_task_id: string | null
+          priority: number
+          sort_order: number
+          tenant_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          due_date?: string | null
+          employee_id: string
+          id?: string
+          is_completed?: boolean
+          linked_task_id?: string | null
+          priority?: number
+          sort_order?: number
+          tenant_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          due_date?: string | null
+          employee_id?: string
+          id?: string
+          is_completed?: boolean
+          linked_task_id?: string | null
+          priority?: number
+          sort_order?: number
+          tenant_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personal_todos_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "personal_todos_linked_task_id_fkey"
+            columns: ["linked_task_id"]
+            isOneToOne: false
+            referencedRelation: "unified_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "personal_todos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plans: {
         Row: {
           billing_period: string
