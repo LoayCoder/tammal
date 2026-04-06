@@ -1,83 +1,39 @@
 
 
-# VIP Premium Landing Page — Elevation Plan
+# Landing Page Updates — Email + Real Screenshots
 
-## Current State
-The landing page at `/landing` already exists with all 7 sections, framer-motion animations, BrowserFrame mockups, and the deep navy palette. The foundation is solid. This plan elevates every section to meet the "would an executive trust this?" bar.
+## Changes
 
-## Changes Overview
+### 1. Update all CTA email links to `info@dhuud.com`
+- `LandingCTA.tsx` — change both `mailto:hello@tammal.app` and `mailto:demo@tammal.app` to `mailto:info@dhuud.com`
+- `LandingHero.tsx` — the hero CTA links to `#contact` (anchor scroll, no email change needed there)
 
-### 1. Navigation — Add scroll-aware blur + logo refinement
-- Add `useScrollY` state so nav background opacity increases on scroll
-- Add subtle bottom border glow on scroll
-- Increase logo weight/tracking for premium feel
+### 2. Replace mockup components with real app screenshots
+Currently the landing page uses hand-coded JSX mockups (fake charts, bars, cards) inside `BrowserFrame`. These need to be replaced with actual screenshots of the live app.
 
-### 2. Hero Section — Premium glow + layered depth
-- Add a second ambient glow (violet, opposite corner) for depth
-- Add subtle floating animation on the BrowserFrame (gentle 6px y-axis oscillation, 6s cycle)
-- Upgrade badge pill styling with a subtle shimmer/border gradient
-- Refine headline: tighter line-height, slightly larger on desktop (7xl)
-- Add a thin horizontal rule or accent line between headline and body text
+**Process:**
+1. Navigate to key app pages in the browser and capture real screenshots
+2. Save screenshots to `/public/screenshots/` (hero dashboard, analytics, workload, copilot, executive overview, team pulse)
+3. Replace JSX mockup components with `<img>` tags referencing the screenshots inside the existing `BrowserFrame` wrappers
 
-### 3. Value Proposition — Elevated card design
-- Add subtle gradient border on hover (not fill — border shimmer)
-- Increase icon container to 12×12 with softer rounded-xl
-- Add a faint top-edge highlight line on each card (1px gradient)
+**Files affected:**
+| File | Mockup to replace | Screenshot source |
+|------|-------------------|-------------------|
+| `LandingHero.tsx` | `DashboardMockup` → real dashboard screenshot | `/dashboard` page |
+| `LandingShowcase.tsx` | `AnalyticsMockup` → analytics screenshot | Analytics/survey page |
+| `LandingShowcase.tsx` | `WorkflowMockup` → workload screenshot | Workload/tasks page |
+| `LandingShowcase.tsx` | `CopilotMockup` → copilot screenshot | Wellness copilot page |
+| `LandingVisual.tsx` | `ExecutiveMockup` → executive dashboard screenshot | Executive overview page |
+| `LandingVisual.tsx` | `TeamPulseMockup` → team pulse screenshot | Team pulse page |
 
-### 4. Product Showcase — Fix RTL hack + add stagger
-- Replace `[direction:rtl]` hack with proper `order` classes (`lg:order-first` / `lg:order-last`) for correct RTL support
-- Add staggered reveal: text appears first, then screenshot slides in with 200ms delay
-- Add a subtle number accent glow behind the "01/02/03" labels
+**Implementation approach:**
+- Each `BrowserFrame` will contain an `<img>` with `className="w-full h-auto"` instead of a JSX mockup div
+- Images will be lazy-loaded (`loading="lazy"`) for performance
+- The `BrowserFrame` wrapper, shadows, and animations remain unchanged
+- Remove all unused mockup component code to keep files clean
 
-### 5. Feature Cards — Add micro-interaction + glass depth
-- Add `backdrop-blur-sm` for glass effect
-- Add icon color shift on hover (blue-400 → blue-300)
-- Add subtle card border glow on hover using `shadow-[0_0_20px_rgba(59,130,246,0.06)]`
-
-### 6. Visual Experience — Layered composition
-- Add a second smaller BrowserFrame behind/offset from the main one (showing a different view like "Analytics" or "Team Pulse")
-- Apply `transform: perspective(1200px) rotateY(-2deg)` on the back frame for depth
-- Add ambient glow beneath the composition
-
-### 7. Trust Section — Premium metric strip
-- Add a horizontal stats strip above the trust cards showing key numbers: "10,000+ Tenants", "99.99% Uptime", "SOC 2 Ready", "< 200ms Response"
-- Upgrade trust card icons with subtle gradient fills
-- Add a faint divider line between stats strip and cards
-
-### 8. CTA Section — Exclusive feel
-- Add a radial gradient spotlight effect behind the CTA box
-- Add a subtle animated border (slow gradient rotation) around the CTA container
-- Upgrade button hover: white → slight blue tint transition
-
-### 9. Footer — Minimal polish
-- Add subtle link hover underline animation
-- Slightly increase footer padding
-
-### 10. Mobile Responsiveness Pass
-- Ensure hero screenshot scales cleanly below `lg` (already stacks, verify padding)
-- Reduce Visual section's layered frames to single on mobile
-- Ensure feature cards go to single column on `< sm`
-- Verify all animations have `reduced-motion` respect via framer-motion defaults
-
-## Files to Modify
-
-| File | Changes |
-|------|---------|
-| `LandingPage.tsx` | Scroll-aware nav, footer polish |
-| `LandingHero.tsx` | Dual glow, floating animation, refined typography, badge shimmer |
-| `LandingValue.tsx` | Card border highlight, icon container upgrade |
-| `LandingShowcase.tsx` | Fix RTL ordering, stagger animation, number glow |
-| `LandingFeatures.tsx` | Glass cards, hover glow, icon transitions |
-| `LandingVisual.tsx` | Layered dual-frame composition, perspective depth |
-| `LandingTrust.tsx` | Stats strip, upgraded card styling |
-| `LandingCTA.tsx` | Animated border, radial spotlight, button refinement |
-| `AnimatedSection.tsx` | No changes needed |
-| `BrowserFrame.tsx` | No changes needed |
-
-## Design Constraints
-- No new dependencies — framer-motion + Tailwind + lucide-react are sufficient
-- No bright colors — muted blue/violet accents only
-- All animations < 1s duration, no bounce easing
-- Logical properties maintained throughout (ms/me/ps/pe)
-- No changes to existing app theme or routes
+### Summary
+- 2 email references → `info@dhuud.com`
+- 6 JSX mockups → 6 real app screenshots
+- No structural or animation changes — only content swap
 
