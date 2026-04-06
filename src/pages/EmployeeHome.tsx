@@ -55,6 +55,17 @@ export default function EmployeeHome() {
   const [showFirstAider, setShowFirstAider] = useState(false);
   const { rank, totalEmployees, isPending: rankLoading, error: rankError } = useEmployeeEngagementRank(employee?.id, employee?.tenant_id);
 
+  const handleCheckinClick = useCallback(() => {
+    const el = document.getElementById('inline-daily-checkin');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('ring-2', 'ring-primary/40', 'ring-offset-2');
+      setTimeout(() => el.classList.remove('ring-2', 'ring-primary/40', 'ring-offset-2'), 2000);
+    } else {
+      toast.info(t('home.checkinDone'));
+    }
+  }, [t]);
+
   const firstName = employee?.full_name?.split(' ')[0] ?? '';
 
   if (empLoading) {
