@@ -110,7 +110,7 @@ export function usePersonalTodos(employeeId?: string) {
       const todo = todos.find(t => t.id === todoId);
       if (!todo) return;
       const nowCompleted = !todo.is_completed;
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('personal_todos')
         .update({
           is_completed: nowCompleted,
