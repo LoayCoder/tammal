@@ -113,8 +113,12 @@ export function WellnessCopilotCard({ employeeId }: Props) {
               urgencyLevel={insight.urgencyLevel}
               secondaryInsight={insight.secondaryInsight}
             />
+            {insight.recommendations && insight.recommendations.length > 0 && (
+              <CopilotRecommendationsBlock recommendations={insight.recommendations} />
+            )}
             <CopilotActionBlock action={insight.recommendedAction} actionCta={insight.actionCta} />
             <CopilotReasoningBlock reasoning={insight.reasoning} basisStatement={insight.basisStatement} />
+          </div>
           </div>
         ) : null}
       </div>
