@@ -4701,5 +4701,97 @@
     "assignTo": "Assign to",
     "selectEmployee": "Select employee...",
     "confirm": "Reassign"
+  },
+  "landing": {
+    "nav": {
+      "signIn": "Sign In",
+      "getAccess": "Get Access"
+    },
+    "hero": {
+      "badge": "Enterprise AI Platform",
+      "headingMain": "Enterprise Intelligence,",
+      "headingAccent": "Elevated.",
+      "subtitle": "The AI-powered platform that transforms employee wellness, engagement, and performance into strategic advantage.",
+      "requestAccess": "Request Private Access",
+      "enterPlatform": "Enter Platform"
+    },
+    "value": {
+      "sectionLabel": "Why Tammal",
+      "heading": "Built for the Enterprise",
+      "intelligentOps": "Intelligent Operations",
+      "intelligentOpsDesc": "AI-driven workflows that learn, adapt, and optimize — from wellness check-ins to workload balancing.",
+      "advancedInsights": "Advanced Insights",
+      "advancedInsightsDesc": "Executive dashboards, predictive analytics, and real-time engagement metrics at your fingertips.",
+      "executiveControl": "Executive Control",
+      "executiveControlDesc": "Enterprise-grade security, multi-tenant isolation, and complete governance over every data point."
+    },
+    "showcase": {
+      "item1Title": "Real-Time Executive Dashboard",
+      "item1Desc": "Unified view of employee wellness, engagement metrics, and organizational health — updated in real-time with AI-powered anomaly detection.",
+      "item1Alt": "Check-in Monitor — participation, mood trends, and engagement analytics",
+      "item2Title": "Workload Intelligence Engine",
+      "item2Desc": "Automated task distribution, capacity planning, and OKR tracking that prevents burnout before it happens.",
+      "item2Alt": "My Workload — task list, capacity gauge, and daily planner",
+      "item3Title": "AI Wellness Copilot",
+      "item3Desc": "Context-aware AI that proactively identifies wellness risks, suggests interventions, and provides evidence-based recommendations.",
+      "item3Alt": "Wellness Copilot — AI-powered insights and recommended actions"
+    },
+    "features": {
+      "sectionLabel": "Capabilities",
+      "heading": "Every Tool Your Organization Needs",
+      "wellnessTitle": "Wellness Ecosystem",
+      "wellnessDesc": "Mental tools, breathing exercises, mood tracking, and spiritual wellness — all in one place.",
+      "teamPulseTitle": "Team Pulse",
+      "teamPulseDesc": "Real-time team sentiment analysis with AI-powered intervention suggestions.",
+      "okrTitle": "OKR & Workload",
+      "okrDesc": "Objective tracking, capacity planning, and automated task escalation.",
+      "surveyTitle": "AI Survey Engine",
+      "surveyDesc": "Auto-generated questionnaires with bias detection and mood pathway analysis.",
+      "spiritualTitle": "Spiritual Tracking",
+      "spiritualDesc": "Prayer tracking, Quran reader, Sunnah tracker, and Islamic calendar integration.",
+      "recognitionTitle": "Recognition Hub",
+      "recognitionDesc": "Nominations, voting, gamification, and fairness-audited award cycles.",
+      "crisisTitle": "Crisis First Aiders",
+      "crisisDesc": "Trained peer support network with escalation protocols and confidential channels.",
+      "governanceTitle": "AI Governance",
+      "governanceDesc": "Cost controls, provider routing, sandbox evaluation, and full audit trails."
+    },
+    "visual": {
+      "sectionLabel": "The Experience",
+      "heading": "Command Center for the Modern Enterprise",
+      "subtitle": "Every insight, every metric, every team — unified in a single, elegant interface."
+    },
+    "trust": {
+      "sectionLabel": "Trust & Security",
+      "heading": "Enterprise-Grade by Design",
+      "stat1Value": "10,000+",
+      "stat1Label": "Tenants",
+      "stat2Value": "99.99%",
+      "stat2Label": "Uptime",
+      "stat3Value": "SOC 2",
+      "stat3Label": "Ready",
+      "stat4Value": "< 200ms",
+      "stat4Label": "Response",
+      "securityTitle": "Enterprise Security",
+      "securityDesc": "Row-level security, JWT-based tenant isolation, and complete audit trails on every operation.",
+      "multiTenantTitle": "Multi-Tenant Architecture",
+      "multiTenantDesc": "Designed for 10,000+ tenants with zero cross-contamination — every byte is isolated.",
+      "rtlTitle": "RTL-Native & Bilingual",
+      "rtlDesc": "Full Arabic and English support with logical layout properties — no compromises.",
+      "complianceTitle": "Compliance Ready",
+      "complianceDesc": "GDPR-aligned data handling, soft-delete architecture, and immutable audit logs."
+    },
+    "cta": {
+      "heading": "Experience the Platform",
+      "subtitle": "Join the enterprises transforming their employee experience with AI-powered intelligence.",
+      "requestAccess": "Request Private Access",
+      "signIn": "Sign In"
+    },
+    "footer": {
+      "rights": "© {{year}} Tammal. All rights reserved.",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "security": "Security"
+    }
   }
 }
