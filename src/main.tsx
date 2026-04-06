@@ -25,7 +25,7 @@ const resetStaleCaches = async () => {
   }
 };
 
-void resetPreviewCaches();
+void resetStaleCaches();
 
 // Initialize Sentry before rendering (no-op in dev)
 initSentry();
