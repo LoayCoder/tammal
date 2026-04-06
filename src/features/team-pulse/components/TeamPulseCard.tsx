@@ -211,6 +211,13 @@ export function TeamPulseCard({ employeeId }: Props) {
                 </button>
               </div>
             )}
+
+            {/* Team Member Risk Grid — team mode only */}
+            {selectedMode === "team" && teamMembers.length > 0 && (
+              <div className="border-t border-border/10 pt-4 mt-4">
+                <TeamMemberRiskGrid members={teamMembers} />
+              </div>
+            )}
           </div>
         ) : null}
       </div>
