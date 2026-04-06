@@ -43,10 +43,10 @@ export const LandingHero = () => (
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
             </a>
             <a
-              href="#showcase"
+              href="/auth"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-white/[0.12] text-white/70 font-medium text-sm hover:bg-white/[0.06] hover:border-white/[0.2] transition-all duration-300"
             >
-              Explore Platform
+              Enter Platform
             </a>
           </div>
         </motion.div>
