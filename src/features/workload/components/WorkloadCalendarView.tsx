@@ -72,16 +72,41 @@ export function WorkloadCalendarView({ tasks, isPending, todos = [] }: WorkloadC
     }
   }, [currentDate, view]);
 
-  const tasksByDate = useMemo(() => {
-    const map = new Map<string, UnifiedTask[]>();
+  const eventsByDate = useMemo(() => {
+    const map = new Map<string, CalendarEvent[]>();
+
+    // Add tasks
     tasks.forEach(task => {
       if (!task.due_date) return;
       const key = task.due_date.split('T')[0];
       if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(task);
+      map.get(key)!.push({
+        id: task.id,
+        title: task.title,
+        dateKey: key,
+        type: 'task',
+        status: task.status,
+        priority: task.priority,
+      });
     });
+
+    // Add todos
+    todos.forEach(todo => {
+      if (!todo.due_date || todo.is_completed) return;
+      const key = todo.due_date;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push({
+        id: todo.id,
+        title: todo.title,
+        dateKey: key,
+        type: 'todo',
+        priority: todo.priority,
+        time: todo.due_time?.substring(0, 5) ?? undefined,
+      });
+    });
+
     return map;
-  }, [tasks]);
+  }, [tasks, todos]);
 
   const handlePrev = () => setCurrentDate(prev => view === 'month' ? subMonths(prev, 1) : subWeeks(prev, 1));
   const handleNext = () => setCurrentDate(prev => view === 'month' ? addMonths(prev, 1) : addWeeks(prev, 1));
