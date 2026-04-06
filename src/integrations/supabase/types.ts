@@ -2532,6 +2532,47 @@ export type Database = {
           },
         ]
       }
+      governance_config: {
+        Row: {
+          config_key: string
+          config_value: Json
+          created_at: string
+          deleted_at: string | null
+          description: string | null
+          id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          config_key: string
+          config_value?: Json
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "governance_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       initiative_risk_metrics: {
         Row: {
           created_at: string
