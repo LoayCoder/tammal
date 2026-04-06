@@ -23,14 +23,15 @@ export const LandingCTA = () => (
                 </p>
                 <div className="flex flex-wrap justify-center gap-3 pt-2">
                   <a
-                    href="mailto:hello@tammal.app"
+                    href="mailto:info@dhuud.com"
                     className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-white text-[#0A0E1A] font-semibold text-sm hover:bg-blue-50 transition-all duration-300"
                   >
                     Request Private Access
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
                   </a>
                   <a
-                    href="mailto:demo@tammal.app"
+                    href="mailto:info@dhuud.com"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg border border-white/[0.12] text-white/70 font-medium text-sm hover:bg-white/[0.06] hover:border-white/[0.2] transition-all duration-300"
                     className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg border border-white/[0.12] text-white/70 font-medium text-sm hover:bg-white/[0.06] hover:border-white/[0.2] transition-all duration-300"
                   >
                     Book a Demo
