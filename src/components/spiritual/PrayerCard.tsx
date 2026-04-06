@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,7 @@ interface PrayerCardProps {
   countdownMinutes?: number | null;
   isExpired?: boolean;
   isPrayerTime?: boolean;
-  onAutoMiss?: () => void;
+  
 }
 
 const STATUS_STYLES: Record<string, { border: string; bg: string }> = {
@@ -45,11 +45,10 @@ const STATUS_STYLES: Record<string, { border: string; bg: string }> = {
 export function PrayerCard({
   prayerName, prayerTime, timeLabel, log, onLog, isPending,
   sunnahBefore, sunnahAfter, onToggleSunnah, sunnahPending,
-  countdownMinutes, isExpired, isPrayerTime: isPrayerTimeFlag, onAutoMiss,
+  countdownMinutes, isExpired, isPrayerTime: isPrayerTimeFlag,
 }: PrayerCardProps) {
   const { t, i18n } = useTranslation();
   const [editing, setEditing] = useState(false);
-  const autoMissedRef = useRef(false);
 
   const isLogged = !!log;
   const style = log ? STATUS_STYLES[log.status] : null;
@@ -58,18 +57,7 @@ export function PrayerCard({
   const rawatib = RAWATIB_CONFIG[prayerName];
   const hasRawatib = rawatib && (rawatib.before || rawatib.after);
 
-  // Auto-miss logic
-  useEffect(() => {
-    if (isExpired && !isLogged && !autoMissedRef.current && onAutoMiss) {
-      autoMissedRef.current = true;
-      onAutoMiss();
-    }
-  }, [isExpired, isLogged, onAutoMiss]);
 
-  // Reset autoMissedRef when date changes (new day)
-  useEffect(() => {
-    autoMissedRef.current = false;
-  }, [prayerTime]);
 
   const showButtons = !isLogged || editing;
 

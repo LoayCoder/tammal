@@ -120,7 +120,7 @@ export default function PrayerTracker() {
           countdownMinutes={witrCountdown.minutesLeft}
           isExpired={witrCountdown.isExpired}
           isPrayerTime={witrCountdown.isPrayerTime}
-          onAutoMiss={() => handleLog('Witr', 'missed')}
+          
         />
       );
     }
@@ -140,7 +140,7 @@ export default function PrayerTracker() {
         countdownMinutes={cd.minutesLeft}
         isExpired={cd.isExpired}
         isPrayerTime={cd.isPrayerTime}
-        onAutoMiss={() => handleLog(name, 'missed')}
+        
       />
     );
   };
