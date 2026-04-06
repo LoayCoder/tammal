@@ -1,114 +1,85 @@
 
 
-## Integrate Wellness Copilot with Dynamic Tools, Resources & Support System
+## QA Report — Team Pulse: Gaps Identified & Enhancement Plan
 
-### Overview
-Upgrade the Copilot edge function to dynamically fetch available wellness tools, first aiders, and emergency contacts, then inject that context into the AI prompt so recommendations reference real, current resources. Add a new `CopilotRecommendationsBlock` component to render actionable resource/support cards below the existing insight.
+### Current State Summary
+The Team Pulse system has a solid foundation: AI-generated insights (Personal/Team/Org), weighted engagement scoring, trend charts, appreciation tracking, action logging, notifications with realtime, and nudge cards. However, several critical QA checklist items are **not met**.
 
-### Architecture
+---
 
-```text
-Edge Function (wellness-copilot)
-  ├─ Existing: mood data, tasks, workload aggregation
-  └─ NEW: fetch available resources dynamically
-       ├─ Wellness tools (from static registry — WellnessResources routes)
-       ├─ First Aiders (mh_first_aiders — available ones)
-       └─ Emergency contacts (mh_emergency_contacts)
-  → Pass resource catalog to AI prompt
-  → AI returns recommendations[] with resource references
-  → Frontend renders actionable cards
+### QA Findings
 
-WellnessCopilotCard
-  ├─ CopilotInsightBlock (existing)
-  ├─ CopilotRecommendationsBlock ← NEW
-  │    ├─ Practice cards (breathing, meditation, etc.)
-  │    ├─ Resource cards (articles, assessment)
-  │    └─ Support cards (first aider, crisis)
-  ├─ CopilotActionBlock (existing)
-  └─ CopilotReasoningBlock (existing)
-```
+| # | Checklist Item | Status | Detail |
+|---|---------------|--------|--------|
+| 1 | Core value — "How is my team doing?" | PARTIAL | Shows aggregate score but no per-member breakdown |
+| 2 | Mood data accuracy | PASS | Uses last 30 days, correct aggregation |
+| 3 | Participation rate | PASS | Calculated correctly in edge function |
+| 4 | Workload data accuracy | PASS | Active/overdue/completed counted correctly |
+| 5 | **Individual breakdown (manager sees each employee)** | **FAIL** | No per-member status cards showing mood + workload + risk |
+| 6 | **Risk identification with visual indicators** | **FAIL** | No combined risk detection (low mood + high workload). No red/yellow/green indicators per employee |
+| 7 | Insight generation quality | PASS | AI-generated, context-aware, not generic |
+| 8 | **Manager actions (reassign, check-in, send support)** | **FAIL** | Only "Team Kudos Nudge" exists. No reassign, no trigger check-in, no send support |
+| 9 | Dynamic integration | PASS | Pulls from mood, tasks, appreciations dynamically |
+| 10 | **Trend analysis (7d/14d)** | **PARTIAL** | 30-day trend exists but no 7d/14d comparison or improvement/decline detection |
+| 11 | **Team health summary score** | **PARTIAL** | Engagement score exists but no explicit "team health" summary card with risk level |
+| 12 | Notifications | PASS | engagement-notifier + realtime subscriptions working |
+| 13 | UI/UX VIP standard | PASS | Clean, minimal, premium styling |
+| 14 | Performance | PASS | Cached daily, staleTime configured |
+| 15 | Security/access | PASS | Role-checked in edge function + RLS |
+| 16 | Edge cases (empty states) | PASS | PulseEmptyState handles no-data |
 
-### 1. Edge Function Enhancement (`supabase/functions/wellness-copilot/index.ts`)
+### Critical Gaps (3 items to fix)
 
-**Add dynamic resource fetching** after data aggregation:
-- Query `mh_first_aiders` for available first aiders (count, names, languages, specializations) — tenant-scoped
-- Query `mh_emergency_contacts` for crisis contacts — tenant-scoped
-- Build a `availableResources` catalog object containing:
-  - `wellnessTools`: static list of available tools with routes (mood tracker, breathing, thought reframer, journaling, meditation, habits, articles, assessment)
-  - `firstAiders`: `{ count, available: boolean, specializations: string[] }`
-  - `emergencyContacts`: `{ count, available: boolean }`
-  - `supportRoutes`: `/crisis-support`, `/wellness`
+---
 
-**Expand AI tool-calling schema** to include a `recommendations` array:
-```typescript
-recommendations: {
-  type: "array",
-  items: {
-    type: "object",
-    properties: {
-      type: { enum: ["practice", "resource", "support"] },
-      key: { type: "string" }, // e.g. "breathing", "first_aider", "articles"
-      title: { type: "string" },
-      description: { type: "string" },
-      route: { type: "string" } // app route to navigate to
-    }
-  },
-  description: "2-4 contextual recommendations from available tools/resources/support"
-}
-```
+### Plan: Fix 3 Critical Gaps
 
-**Update system prompt** to include the available resources catalog and instruct the AI to:
-- Only recommend resources that actually exist in the catalog
-- Match recommendations to the user's current state (mood, workload, urgency)
-- Include at least one support recommendation when urgency is "attention" or "urgent"
-- Always include a practice recommendation
+### 1. Team Member Risk Grid (Manager Intelligence)
 
-### 2. Update Types (`useCopilotInsight.ts`)
+**New hook**: `src/features/team-pulse/hooks/useTeamMemberPulse.ts`
+- For managers in "team" mode, fetch per-member data:
+  - Latest mood level (from `mood_entries`, last 7 days)
+  - Active task count + overdue count (from `unified_tasks`)
+  - Last check-in date
+- Compute risk level per member: `high` (low mood + overdue > 2 OR no check-in 5+ days), `medium` (mood declining OR overdue > 0), `healthy`
 
-Add to `CopilotInsight` interface:
-```typescript
-recommendations?: {
-  type: 'practice' | 'resource' | 'support';
-  key: string;
-  title: string;
-  description: string;
-  route: string;
-}[];
-```
+**New component**: `src/features/team-pulse/components/TeamMemberRiskGrid.tsx`
+- Renders in TeamPulseCard when mode = "team"
+- Compact card per direct report showing:
+  - Name, role
+  - Mood indicator dot (color-coded)
+  - Task load (active/overdue counts)
+  - Risk badge: red (High), amber (Medium), green (Healthy)
+- Sorted: high-risk first
 
-### 3. New Component: `CopilotRecommendationsBlock.tsx`
+### 2. Manager Quick Actions
 
-- Renders 2-4 recommendation cards in a compact grid
-- Each card: icon (mapped from `key`), title, short description, actionable button ("Start", "View", "Contact")
-- Card styles differ by type:
-  - **Practice**: soft green/teal accent, "Start Practice" button
-  - **Resource**: soft blue accent, "View Resource" button
-  - **Support**: soft amber/red accent, "Contact Support" button
-- Uses `<Link>` for navigation to the resource route
-- Premium VIP styling: `rounded-xl`, `hover:-translate-y-0.5`, subtle border
+**New component**: `src/features/team-pulse/components/TeamMemberActions.tsx`
+- Action buttons per team member in the risk grid:
+  - "Send Check-in" → creates an engagement notification to that employee prompting a mood check-in
+  - "Send Support" → sends an appreciation with a "support" message
+  - "View Workload" → navigates to `/admin/workload/team` filtered to that employee
+- Each action logged to `engagement_action_log`
 
-### 4. Update `WellnessCopilotCard.tsx`
+### 3. Team Health Summary Bar
 
-Insert `<CopilotRecommendationsBlock>` between `CopilotInsightBlock` and `CopilotActionBlock` when `insight.recommendations` exists.
-
-### 5. Icon Mapping Utility
-
-Create a `copilotResourceIcons` map to resolve `key` → Lucide icon:
-- `breathing` → Wind, `mood_tracker` → Activity, `thought_reframer` → Brain
-- `journaling` → BookOpen, `meditation` → Music, `articles` → BookMarked
-- `first_aider` → HeartHandshake, `crisis_support` → Phone, `assessment` → ClipboardCheck
+**New component**: `src/features/team-pulse/components/TeamHealthSummary.tsx`
+- Shows at top of TeamPulseCard in team mode:
+  - Overall team health: Healthy / At Risk / Critical (based on % of members at risk)
+  - Stat row: `X healthy | Y at risk | Z critical`
+  - Color-coded bar indicator
+- Compact, fits above the AI insight block
 
 ### Files to Create
-1. `src/features/wellness-copilot/components/CopilotRecommendationsBlock.tsx`
+1. `src/features/team-pulse/hooks/useTeamMemberPulse.ts`
+2. `src/features/team-pulse/components/TeamMemberRiskGrid.tsx`
+3. `src/features/team-pulse/components/TeamMemberActions.tsx`
+4. `src/features/team-pulse/components/TeamHealthSummary.tsx`
 
 ### Files to Modify
-1. `supabase/functions/wellness-copilot/index.ts` — add resource fetching + expanded AI schema
-2. `src/features/wellness-copilot/hooks/useCopilotInsight.ts` — add `recommendations` to type
-3. `src/features/wellness-copilot/components/WellnessCopilotCard.tsx` — render recommendations block
+1. `src/features/team-pulse/components/TeamPulseCard.tsx` — integrate TeamHealthSummary + TeamMemberRiskGrid in team mode
+2. `src/features/team-pulse/index.ts` — export new components/hooks
 
-### Key Design Decisions
-- **No new DB tables needed** — resources are derived from existing tables + static route registry
-- **AI auto-discovery**: The AI receives the full catalog each time; any new tool added to the registry is immediately available
-- **Cache-safe**: Recommendations are part of the cached `copilot_insight_cache`, refreshed daily
-- **Urgency-driven**: Support recommendations are prioritized when urgency is "attention" or "urgent"
+### No database changes needed
+All data comes from existing tables (`mood_entries`, `unified_tasks`, `employees`, `engagement_notifications`, `appreciations`).
 
