@@ -124,7 +124,7 @@ export function usePersonalTodos(employeeId?: string) {
 
   const deleteTodo = useMutation({
     mutationFn: async (todoId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('personal_todos')
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', todoId);
