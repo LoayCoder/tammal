@@ -87,7 +87,7 @@ export function usePersonalTodos(employeeId?: string) {
 
   const createTodo = useMutation({
     mutationFn: async (input: { title: string; priority?: number; due_date?: string | null; tenant_id: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('personal_todos')
         .insert({
           employee_id: employeeId!,
