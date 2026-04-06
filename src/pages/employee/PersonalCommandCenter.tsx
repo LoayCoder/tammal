@@ -29,8 +29,18 @@ export default function PersonalCommandCenter() {
   const { streak, totalPoints } = useGamification(employee?.id ?? null);
   const { pendingTasks } = useApprovalQueue();
 
-  const [view, setView] = useState<ViewType>('tasks');
+  const [searchParams] = useSearchParams();
+  const initialTab = (searchParams.get('tab') as ViewType) || 'tasks';
+  const [view, setView] = useState<ViewType>(initialTab);
   const [createOpen, setCreateOpen] = useState(false);
+
+  // Sync tab from URL
+  useEffect(() => {
+    const tab = searchParams.get('tab') as ViewType;
+    if (tab && ['tasks', 'calendar', 'approvals', 'todo'].includes(tab)) {
+      setView(tab);
+    }
+  }, [searchParams]);
 
   const stats = useMemo(() => {
     const todayStr = new Date().toISOString().split('T')[0];
