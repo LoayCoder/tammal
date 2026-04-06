@@ -146,7 +146,7 @@ export default function PersonalCommandCenter() {
         <WorkloadTasksView tasks={tasks} isPending={tasksLoading} onDelete={deleteTask} />
       )}
       {view === 'calendar' && (
-        <WorkloadCalendarView tasks={tasks} isPending={tasksLoading} />
+        <WorkloadCalendarView tasks={tasks} isPending={tasksLoading} todos={personalTodos} />
       )}
       {view === 'approvals' && (
         <WorkloadApprovalsView />
