@@ -16,6 +16,7 @@ import { useOnboardingTour } from "@/hooks/onboarding/useOnboardingTour";
 export function MainLayout() {
   const { tenantId } = useTenantId();
   const { branding } = useBranding(tenantId ?? undefined);
+  const { showTour, completeTour } = useOnboardingTour();
   
   useBrandingColors(branding);
   useDynamicFavicon(branding);
