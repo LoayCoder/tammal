@@ -1,31 +1,45 @@
 
+Fix the team-mode “Send Check-in Reminder” recommendation so it opens a manager-actionable workflow instead of analytics.
 
-# Fix: Team Mode Copilot Recommendations Showing Admin-Only Actions
+What I found
+- In `supabase/functions/wellness-copilot/index.ts`, the team recommendation `team_checkin` currently routes to `/engagement-insights`.
+- `/engagement-insights` (`src/pages/EngagementInsights.tsx`) is an analytics/details page. It does not contain the actual check-in sending action.
+- The real manager action already exists in `src/features/team-pulse/components/TeamMemberActions.tsx` via `handleCheckIn()`, which sends a `check_in_prompt` notification.
+- That UI is only available inside `TeamMemberRiskGrid` → `TeamPulseCard`, which is rendered on `/dashboard`.
 
-## Problem
-The `teamTools` array in the `wellness-copilot` edge function includes **"Launch Wellness Survey"** pointing to `/admin/questions`. This is an admin/HR-only page — team managers cannot access it, resulting in a 404 or access block.
-
-Similarly, the `orgTools` array has the same issue, but org mode is restricted to admins anyway, so that's fine.
-
-## Fix
-
-**File:** `supabase/functions/wellness-copilot/index.ts`
-
-Replace the `launch_survey` entry in `teamTools` with a manager-appropriate action:
-
-| Current (broken for managers) | Replacement |
-|---|---|
-| `{ key: "launch_survey", title: "Launch Wellness Survey", route: "/admin/questions" }` | `{ key: "view_insights", title: "View Engagement Insights", route: "/engagement-insights" }` |
-
-The updated `teamTools` array becomes:
-```
-team_checkin  → /engagement-insights  (Send Check-in Reminder)
-review_workload → /my-workload         (Review Team Workload)
-team_pulse    → /engagement-insights  (View Team Pulse)
-view_insights → /engagement-insights  (View Engagement Insights)
+Plan
+1. Correct the recommendation target
+- Update the team-mode `team_checkin` destination in `supabase/functions/wellness-copilot/index.ts`.
+- Replace `/engagement-insights` with a dashboard deep link such as:
+```text
+/dashboard?focus=team-pulse&mode=team
 ```
 
-All four routes are accessible to managers. The "Launch Survey" action stays in `orgTools` only — where it belongs (admins only).
+2. Make the deep link open the right state
+- Add URL-param handling so opening that link:
+  - lands on `/dashboard`
+  - switches `TeamPulseCard` into `team` mode
+  - scrolls/highlights the Team Pulse card so the manager can act immediately
 
-**Deployment:** Redeploy `wellness-copilot` edge function + clear stale cache entries referencing `/admin/questions` in team-mode insights.
+3. Keep old cached responses working
+- Extend `normalizeRecommendationRoute()` in `src/features/wellness-copilot/hooks/useCopilotInsight.ts` so any stale team `team_checkin` route still coming back as `/engagement-insights` or `/team-pulse` is remapped to the new dashboard deep link.
 
+4. Refresh stale server data
+- Redeploy the `wellness-copilot` function.
+- Clear cached team copilot insights that still contain the old `team_checkin` route so users stop receiving outdated links.
+
+5. Verify the exact flow
+- Team manager clicks “Send Check-in Reminder”
+- App opens dashboard Team Pulse in team mode
+- Manager sees the member action buttons and can send a check-in
+- No redirect to `/engagement-insights`
+- Org/admin-only actions like survey launch remain unchanged
+
+Technical details
+- Files likely involved:
+  - `supabase/functions/wellness-copilot/index.ts`
+  - `src/features/wellness-copilot/hooks/useCopilotInsight.ts`
+  - `src/features/team-pulse/hooks/usePulseModes.ts`
+  - `src/features/team-pulse/components/TeamPulseCard.tsx`
+  - possibly `src/pages/Dashboard.tsx` if temporary URL-driven tab selection is needed
+- This fixes the UX at the root: the recommendation will point to the existing manager action surface instead of a read-only analytics page.
