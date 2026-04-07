@@ -80,7 +80,7 @@ const LandingFooter = () => {
 };
 
 const LandingPage = () => (
-  <div className="min-h-screen bg-[#0A0E1A] text-white antialiased selection:bg-blue-500/30">
+  <div className="min-h-screen bg-white text-gray-900 antialiased selection:bg-blue-500/20">
     <LandingNav />
     <LandingHero />
     <LandingValue />
