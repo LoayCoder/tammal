@@ -20,7 +20,9 @@ import {
   Plus, ListChecks, CalendarDays, CheckCircle2, AlertTriangle, Flame, CheckSquare, Star, Sparkles,
 } from 'lucide-react';
 
-type ViewType = 'tasks' | 'calendar' | 'approvals' | 'todo';
+import { CopilotHistoryPanel } from '@/features/wellness-copilot';
+
+type ViewType = 'tasks' | 'calendar' | 'approvals' | 'todo' | 'insights';
 
 export default function PersonalCommandCenter() {
   const { t } = useTranslation();

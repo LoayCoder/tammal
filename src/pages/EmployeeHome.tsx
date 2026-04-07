@@ -27,7 +27,7 @@ import FirstAiderQuickConnect from '@/components/crisis/FirstAiderQuickConnect';
 import { DashboardEndorsementRequests } from '@/components/dashboard/DashboardEndorsementRequests';
 import { DashboardShortlistWidget } from '@/components/dashboard/DashboardShortlistWidget';
 import { DashboardVotingWidget } from '@/components/dashboard/DashboardVotingWidget';
-import { WellnessCopilotCard, CopilotHistoryPanel } from '@/features/wellness-copilot';
+import { WellnessCopilotCard } from '@/features/wellness-copilot';
 import { TeamPulseCard, QuickAppreciationCard, AppreciationActivityWidget } from '@/features/team-pulse';
 import { EngagementRankBadge } from '@/components/dashboard/EngagementRankBadge';
 import { useEmployeeEngagementRank } from '@/hooks/wellness/useEmployeeEngagementRank';
