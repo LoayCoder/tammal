@@ -12,7 +12,7 @@ import { MoodTrendChart } from "@/components/mental-toolkit/mood/MoodTrendChart"
 import { MoodDistributionDonut } from "@/components/mental-toolkit/mood/MoodDistributionDonut";
 import { MoodHeatmap } from "@/components/mental-toolkit/mood/MoodHeatmap";
 import { MoodToolsSuggestions } from "@/components/mental-toolkit/mood/MoodToolsSuggestions";
-import { cardVariants, typography} from "@/theme/tokens";
+import { cardVariants, typography } from "@/theme/tokens";
 import { cn } from "@/lib/utils";
 
 export default function MoodTrackerPage() {
@@ -57,7 +57,7 @@ export default function MoodTrackerPage() {
     <div className="min-h-screen bg-background">
       <ToolkitPageHeader icon={<SmilePlus className="h-5 w-5 text-primary" />} title={t("mentalToolkit.moodDashboard.pageTitle")} subtitle={t("mentalToolkit.moodDashboard.pageSubtitle")} maxWidth="4xl" />
 
-      <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 space-y-5">
+      <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 space-y-6">
         {noData ? (
           <Card className={cn("premium-card rounded-2xl")}>
             <CardContent className="py-10 text-center space-y-2">
@@ -69,12 +69,22 @@ export default function MoodTrackerPage() {
         ) : (
           <>
             <MoodStatCards streak={dashboard.streak} avgMood7d={dashboard.avgMood7d} burnoutZone={dashboard.burnoutZone} monthlyCheckins={dashboard.monthlyCheckins} daysInMonth={dashboard.daysInMonth} todayDef={todayDef} isRTL={isRTL} />
-            <MoodTrendChart data={chartData} hasOrgData={dashboard.hasOrgData} />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <MoodDistributionDonut data={donutData} />
-              <MoodHeatmap dayActivity={dashboard.dayActivity} />
+
+            {/* Analytics Section */}
+            <div className="space-y-4">
+              <p className="text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">{t("mentalToolkit.moodDashboard.analytics", "ANALYTICS")}</p>
+              <MoodTrendChart data={chartData} hasOrgData={dashboard.hasOrgData} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <MoodDistributionDonut data={donutData} />
+                <MoodHeatmap dayActivity={dashboard.dayActivity} />
+              </div>
             </div>
-            <MoodToolsSuggestions surveyStats={dashboard.surveyStats} reframeStats={dashboard.reframeStats} breathingStats={dashboard.breathingStats} />
+
+            {/* Activity Section */}
+            <div className="space-y-4">
+              <p className="text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">{t("mentalToolkit.moodDashboard.activity", "ACTIVITY")}</p>
+              <MoodToolsSuggestions surveyStats={dashboard.surveyStats} reframeStats={dashboard.reframeStats} breathingStats={dashboard.breathingStats} />
+            </div>
           </>
         )}
       </div>
