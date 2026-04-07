@@ -60,7 +60,7 @@ const LandingFooter = () => {
   return (
     <footer className="py-16 border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <span className="text-sm text-white/20">
+        <span className="text-sm text-gray-400">
           {t("landing.footer.rights", { year: new Date().getFullYear() })}
         </span>
         <div className="flex gap-6">
@@ -68,7 +68,7 @@ const LandingFooter = () => {
             <a
               key={l}
               href="#"
-              className="text-xs text-white/25 hover:text-white/50 transition-colors relative after:content-[''] after:absolute after:bottom-0 after:inset-x-0 after:h-px after:bg-white/20 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
+              className="text-xs text-gray-400 hover:text-gray-600 transition-colors relative after:content-[''] after:absolute after:bottom-0 after:inset-x-0 after:h-px after:bg-gray-300 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
             >
               {l}
             </a>
