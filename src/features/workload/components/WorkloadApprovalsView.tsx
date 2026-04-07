@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CheckCircle2, XCircle, Eye, CalendarDays } from 'lucide-react';
+import { CheckCircle2, XCircle, Eye, CalendarDays, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { EmptyState } from '@/shared/empty/EmptyState';
 import { useApprovalQueue } from '@/features/tasks/hooks/useApprovalQueue';
