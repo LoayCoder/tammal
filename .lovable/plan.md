@@ -1,60 +1,73 @@
 
 
-# Elevate Mood Tracker Page — Premium Executive Analytics
+# App Guidance / Onboarding Tour System
 
-## Current State
-The page works but feels flat: generic card containers, small heatmap cells, basic donut, and the three tool stat sections (Survey, Reframe, Breathing) are separate stacked cards creating visual noise. The screenshot confirms a functional but unremarkable layout.
+## Overview
+Build a step-by-step guided tour that highlights key features of the app for new users, with the ability to restart it anytime from Settings.
 
-## Design Upgrades
+## Architecture
 
-### 1. Stat Cards — Glassmorphic with accent borders
-**File:** `MoodStatCards.tsx`
-- Add a left (or start) accent border colored per-stat (streak=lavender, avg=zone-color, checkins=sage, today=sky)
-- Use `premium-card-vip` variant with subtle gradient background
-- Larger emoji for today's mood (text-4xl), bolder metric values
-- Add a micro progress ring for monthly check-ins (visual % complete)
+### 1. Database: Track tour completion per user
+**Migration:** Create `user_onboarding` table:
+- `id` UUID PK
+- `user_id` UUID (references auth.users, unique)
+- `tour_completed` BOOLEAN DEFAULT false
+- `completed_at` TIMESTAMPTZ NULL
+- `tenant_id` UUID
+- RLS: users can only read/update their own row
+- Auto-create row via trigger on profile creation
 
-### 2. Mood Trend Chart — Richer, taller, glow dots
-**File:** `MoodTrendChart.tsx`
-- Increase height from h-64 to h-72
-- Add a subtle gradient background inside the card
-- Use custom active dot with soft glow/shadow effect
-- Add a "midline" label at score 3 ("Neutral") for context
-- Improve tooltip with rounded-2xl, more padding, subtle emoji size bump
+### 2. New Component: `AppGuidedTour`
+**File:** `src/components/onboarding/AppGuidedTour.tsx`
+- Multi-step overlay tour using a custom spotlight/tooltip component (no external library)
+- Steps highlight key areas: Dashboard, Wellness Toolkit, Workload, Recognition, Spiritual, Settings
+- Each step shows: title, description, icon, step counter (e.g. 3/8)
+- "Next", "Back", "Skip" buttons
+- On completion or skip → marks `tour_completed = true` in DB
+- Supports both Arabic and English with RTL-aware positioning
 
-### 3. Donut Chart — Centered label + better proportions
-**File:** `MoodDistributionDonut.tsx`
-- Add a center label showing total check-ins count inside the donut hole
-- Increase inner/outer radius for a bolder ring
-- Use custom legend with colored dots instead of default Recharts legend
-- Match card height to heatmap card for visual alignment
+### 3. Tour Steps Definition
+**File:** `src/components/onboarding/tourSteps.ts`
+- Array of ~8 steps, each with:
+  - `targetSelector` (CSS selector or route-based)
+  - `title` / `description` (i18n keys)
+  - `icon`
+  - `placement` (top/bottom/start/end — logical, not left/right)
+- Steps cover: Dashboard overview, Daily Check-in, Mental Toolkit, Workload & Tasks, Recognition & Awards, Spiritual Corner, Support, Profile & Settings
 
-### 4. Weekly Activity Heatmap — Pill upgrade
-**File:** `MoodHeatmap.tsx`
-- Increase cell size from w-8 h-8 to w-10 h-10
-- Use rounded-full pills instead of rounded-xl for a cleaner look
-- Add subtle ring/border on active days
-- Show day abbreviations bolder with proper spacing
-- Add a max indicator (highlight the busiest day with a subtle ring)
+### 4. Hook: `useOnboardingTour`
+**File:** `src/hooks/onboarding/useOnboardingTour.ts`
+- Fetches `user_onboarding` row for current user
+- Exposes: `showTour`, `completeTour`, `resetTour`, `isLoading`
+- Auto-triggers tour if `tour_completed === false`
 
-### 5. Tools Suggestions — Unified single card with dividers
-**File:** `MoodToolsSuggestions.tsx`
-- Merge the three separate cards (Survey, Reframe, Breathing) into **one premium card** with internal sections separated by subtle horizontal dividers
-- Each section: icon + title on left, 3 stats in a horizontal row
-- Remove redundant card chrome (3 cards → 1 card with 3 sections)
-- Keep the CTA links but make them more subtle (text buttons)
+### 5. Integration Points
 
-### 6. Page Layout Polish
-**File:** `MoodTrackerPage.tsx`
-- Increase spacing from space-y-5 to space-y-6
-- Add a subtle section label "ANALYTICS" above the trend chart area
-- Add a section label "ACTIVITY" above tools suggestions
+**MainLayout.tsx** — Mount `<AppGuidedTour />` so it overlays the entire app when active
 
-## Files to Change
-1. `src/components/mental-toolkit/mood/MoodStatCards.tsx` — Accent borders, VIP styling, progress ring
-2. `src/components/mental-toolkit/mood/MoodTrendChart.tsx` — Taller, glow dots, midline label
-3. `src/components/mental-toolkit/mood/MoodDistributionDonut.tsx` — Center label, custom legend, bigger ring
-4. `src/components/mental-toolkit/mood/MoodHeatmap.tsx` — Larger pills, max-day highlight
-5. `src/components/mental-toolkit/mood/MoodToolsSuggestions.tsx` — Merge 3 cards into 1 with dividers
-6. `src/pages/mental-toolkit/MoodTrackerPage.tsx` — Spacing and section labels
+**UserProfile.tsx** — Add a "Restart App Tour" button in the settings section (after Security Settings):
+```
+<Button onClick={resetTour}>
+  <BookOpen /> Restart App Guide
+</Button>
+```
+
+**AppSidebar.tsx** — Add a "App Guide" item under the Help menu group
+
+### 6. Tour UI Design
+- Semi-transparent dark backdrop with spotlight cutout on the target element
+- Floating card with glassmorphic styling (matching the app's premium aesthetic)
+- Progress dots at the bottom
+- Smooth fade/slide transitions between steps
+- Mobile-responsive (fullscreen card on small screens)
+
+## Files to Create/Modify
+1. **New migration** — `user_onboarding` table + RLS + trigger
+2. **New:** `src/components/onboarding/AppGuidedTour.tsx` — Tour overlay component
+3. **New:** `src/components/onboarding/tourSteps.ts` — Step definitions
+4. **New:** `src/hooks/onboarding/useOnboardingTour.ts` — Tour state hook
+5. **Edit:** `src/components/layout/MainLayout.tsx` — Mount tour component
+6. **Edit:** `src/pages/settings/UserProfile.tsx` — Add "Restart Tour" button
+7. **Edit:** `src/components/layout/AppSidebar.tsx` — Add "App Guide" to Help menu
+8. **Edit:** i18n translation files for tour content (EN + AR)
 
