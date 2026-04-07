@@ -102,7 +102,7 @@ export function useCopilotInsight(
   const { i18n } = useTranslation();
 
   const query = useQuery<CopilotResponse>({
-    queryKey: ["copilot-insight", "route-fix-v2", mode, employeeId],
+    queryKey: ["copilot-insight", "route-fix-v3", mode, employeeId],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke("wellness-copilot", {
         body: { mode, language: i18n.language },

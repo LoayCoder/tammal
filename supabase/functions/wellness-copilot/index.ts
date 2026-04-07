@@ -348,7 +348,7 @@ serve(async (req) => {
     ];
 
     const teamTools = [
-      { key: "team_checkin", title: "Send Check-in Reminder", route: "/engagement-insights", type: "practice" },
+      { key: "team_checkin", title: "Send Check-in Reminder", route: "/dashboard?focus=team-pulse&mode=team", type: "practice" },
       { key: "review_workload", title: "Review Team Workload", route: "/my-workload", type: "resource" },
       { key: "team_pulse", title: "View Team Pulse", route: "/engagement-insights", type: "resource" },
       { key: "view_insights", title: "View Engagement Insights", route: "/engagement-insights", type: "resource" },
