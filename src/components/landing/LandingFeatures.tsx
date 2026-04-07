@@ -1,19 +1,19 @@
 import { AnimatedSection } from "./AnimatedSection";
 import {
-  Shield, Users, Target, Sparkles,
-  Calendar, BookOpen, Award, Lock,
+  Heart, BarChart3, Target, Sparkles,
+  Moon, Award, ShieldAlert, Brain,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const featureKeys = [
-  { icon: Shield, titleKey: "landing.features.wellnessTitle", descKey: "landing.features.wellnessDesc" },
-  { icon: Users, titleKey: "landing.features.teamPulseTitle", descKey: "landing.features.teamPulseDesc" },
+  { icon: Heart, titleKey: "landing.features.wellnessTitle", descKey: "landing.features.wellnessDesc" },
+  { icon: BarChart3, titleKey: "landing.features.teamPulseTitle", descKey: "landing.features.teamPulseDesc" },
   { icon: Target, titleKey: "landing.features.okrTitle", descKey: "landing.features.okrDesc" },
   { icon: Sparkles, titleKey: "landing.features.surveyTitle", descKey: "landing.features.surveyDesc" },
-  { icon: Calendar, titleKey: "landing.features.spiritualTitle", descKey: "landing.features.spiritualDesc" },
-  { icon: BookOpen, titleKey: "landing.features.recognitionTitle", descKey: "landing.features.recognitionDesc" },
-  { icon: Award, titleKey: "landing.features.crisisTitle", descKey: "landing.features.crisisDesc" },
-  { icon: Lock, titleKey: "landing.features.governanceTitle", descKey: "landing.features.governanceDesc" },
+  { icon: Moon, titleKey: "landing.features.spiritualTitle", descKey: "landing.features.spiritualDesc" },
+  { icon: Award, titleKey: "landing.features.recognitionTitle", descKey: "landing.features.recognitionDesc" },
+  { icon: ShieldAlert, titleKey: "landing.features.crisisTitle", descKey: "landing.features.crisisDesc" },
+  { icon: Brain, titleKey: "landing.features.governanceTitle", descKey: "landing.features.governanceDesc" },
 ];
 
 export const LandingFeatures = () => {
