@@ -145,7 +145,7 @@
     --shadow-xs: 0 1px 3px hsl(220 40% 50% / 0.06);
     --shadow-sm: 0 1px 4px hsl(220 40% 50% / 0.08);
     --shadow: 0 1px 4px hsl(220 40% 50% / 0.08);
-    --shadow-md: 0 2px 8px hsl(220 40% 50% / 0.07);
+    --shadow-md: 0 2px 8px hsl(220 40% 50% / 0.10);
     --shadow-lg: 0 4px 12px hsl(220 40% 50% / 0.09);
     --shadow-xl: 0 6px 20px hsl(220 40% 50% / 0.1);
     --shadow-2xl: 0 8px 28px hsl(220 40% 50% / 0.13);
