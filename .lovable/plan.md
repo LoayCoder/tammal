@@ -1,43 +1,31 @@
 
 
-# Convert Landing Page to Light Mode
+# Fix: Copilot Recommendation Cards Leading to 404
 
-## Overview
-The entire landing page currently uses a hardcoded dark theme (`bg-[#0A0E1A]`, `text-white`, `border-white/[0.06]`, etc.). Every component needs its color palette converted to a clean, professional light design.
+## Root Cause
+The `wellness-copilot` edge function returns hardcoded routes that **do not exist** in the app's router:
 
-## Color Mapping
+| Recommendation | Route in Edge Function | Actual Route |
+|---|---|---|
+| Send Check-in Reminder | `/team-pulse` | `/engagement-insights` |
+| Review Team Workload | `/my-workload` | `/my-workload` ✅ (OK) |
+| View Team Pulse | `/team-pulse` | `/engagement-insights` |
+| Launch Wellness Survey | `/admin/surveys` | `/admin/questions` |
+| Launch Organization Survey | `/admin/surveys` | `/admin/questions` |
+| Review Wellness Analytics | `/admin/wellness-analytics` | `/admin/analytics` or `/engagement-insights` |
+| Review Workload Distribution | `/admin/workload` | `/admin/workload/dashboard` |
+| View Organization Pulse | `/team-pulse` | `/engagement-insights` |
 
-| Dark (current) | Light (new) |
-|----------------|-------------|
-| `bg-[#0A0E1A]` | `bg-white` / `bg-gray-50` |
-| `text-white` | `text-gray-900` |
-| `text-white/50`, `text-white/40` | `text-gray-500` |
-| `text-white/30`, `text-white/25` | `text-gray-400` |
-| `border-white/[0.06]` | `border-gray-200` |
-| `bg-white/[0.02]`, `bg-white/[0.04]` | `bg-gray-50` / `bg-white` |
-| `bg-blue-600/[0.06]` glows | `bg-blue-100/50` subtle glows |
-| Nav `bg-[#0A0E1A]/90` | `bg-white/90` with `text-gray-900` |
-| `from-blue-400 to-blue-200` gradient text | `from-blue-600 to-blue-500` |
+## Fix
+Update the `teamTools` and `orgTools` arrays in **`supabase/functions/wellness-copilot/index.ts`** with the correct routes:
 
-## Files Modified (8 files)
+| Key | Corrected Route |
+|---|---|
+| `team_checkin` | `/engagement-insights` |
+| `team_pulse` | `/engagement-insights` |
+| `launch_survey` | `/admin/questions` |
+| `org_analytics` | `/engagement-insights` |
+| `review_workload` (org) | `/admin/workload/dashboard` |
 
-| File | Key Changes |
-|------|-------------|
-| **LandingPage.tsx** | Root `bg-white text-gray-900`, nav bg-white with dark text, footer light borders |
-| **LandingHero.tsx** | White bg, dark headings, lighter glows, badge with gray border, CTA button `bg-blue-600 text-white` (inverted) |
-| **LandingValue.tsx** | Light section labels, dark headings, cards with `border-gray-200 bg-white` |
-| **LandingShowcase.tsx** | Dark text, light numbered labels |
-| **LandingFeatures.tsx** | Light card backgrounds, dark text, blue-50 icon boxes |
-| **LandingVisual.tsx** | Light labels and headings |
-| **LandingTrust.tsx** | Light stat text, light trust cards |
-| **LandingCTA.tsx** | CTA card with light gradient bg, `bg-blue-600 text-white` primary button |
-| **BrowserFrame.tsx** | Light title bar (`bg-gray-100`), light content bg (`bg-gray-50`) |
-
-## Design Approach
-- Clean white/gray-50 backgrounds
-- Primary blue (`blue-600`) for CTAs and accents
-- Gray-900 for headings, gray-500 for body text, gray-400 for labels
-- Subtle gray-200 borders instead of white-alpha borders
-- Ambient glows become soft blue-100/purple-100 tints
-- Professional, minimal — consistent with the app's Linear-inspired design system
+**File:** `supabase/functions/wellness-copilot/index.ts` — update ~6 route strings in the `teamTools` and `orgTools` arrays.
 
