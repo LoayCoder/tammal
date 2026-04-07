@@ -18,7 +18,7 @@ import {
   Activity, Paperclip, Clock, CalendarDays, ChevronLeft,
   Plus, Upload, FileIcon, X, Trash2, Play, Square, Timer,
   Brain, Users, AlertTriangle, ArrowUpDown, GitBranch, Link2,
-  Send,
+  Send, ShieldCheck, ShieldX, FileCheck,
 } from 'lucide-react';
 import { useTaskChecklists } from '@/features/tasks/hooks/useTaskChecklists';
 import { TaskDependenciesPanel } from '@/features/tasks/components/TaskDependenciesPanel';
@@ -31,6 +31,7 @@ import { useTaskActivity } from '@/features/tasks/hooks/useTaskActivity';
 import { useTaskAttachments } from '@/features/tasks/hooks/useTaskAttachments';
 import { useTaskDetail, useTaskUpdate } from '@/features/tasks/hooks/useTaskDetail';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { useTaskEvidence } from '@/features/workload/hooks/useTaskEvidence';
 import { SlaCountdownBadge } from '@/components/workload/governance/SlaCountdownBadge';
 import { UnlockRequestDialog } from '@/components/workload/governance/UnlockRequestDialog';
 import { format } from 'date-fns';
@@ -67,7 +68,8 @@ export default function TaskDetail() {
   const { comments, isPending: commentsLoading, addComment, removeComment, editComment } = useTaskComments(id);
   const { activities, isPending: activityLoading } = useTaskActivity(id);
   const { attachments, isPending: attachmentsLoading, uploadFile, removeFile, isUploading } = useTaskAttachments(id);
-
+  const { evidence, isPending: evidenceLoading, uploadEvidence, verifyEvidence, isUploading: evidenceUploading, isVerifying } = useTaskEvidence(id);
+  const hasApprovedEvidence = evidence.some(e => e.status === 'approved');
   const handleToggleChecklist = (itemId: string, currentStatus: string) => {
     updateItem({ id: itemId, status: currentStatus === 'completed' ? 'pending' : 'completed' });
   };
@@ -175,7 +177,13 @@ export default function TaskDetail() {
         <div className="flex items-center gap-2 flex-wrap">
           <Select
             value={task.status}
-            onValueChange={(v) => updateTask.mutate({ status: v })}
+            onValueChange={(v) => {
+              if (v === 'completed' && !hasApprovedEvidence) {
+                toast.error(t('tasks.evidenceRequiredBeforeCompletion', 'Cannot complete task without approved evidence. Please upload and get evidence approved first.'));
+                return;
+              }
+              updateTask.mutate({ status: v });
+            }}
             disabled={task.is_locked}
           >
             <SelectTrigger className="w-auto h-7 border-0 p-0 shadow-none focus:ring-0">
@@ -292,7 +300,11 @@ export default function TaskDetail() {
       {/* ── 7. Activity Section (Tabs) ── */}
       <div className="space-y-3">
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="w-full h-9 p-0.5 bg-muted/40 rounded-lg grid grid-cols-4">
+          <TabsList className="w-full h-9 p-0.5 bg-muted/40 rounded-lg grid grid-cols-5">
+            <TabsTrigger value="evidence" className="text-2xs rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm gap-1">
+              <FileCheck className="h-3 w-3" strokeWidth={1.5} />
+              {evidence.length}
+            </TabsTrigger>
             <TabsTrigger value="comments" className="text-2xs rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm gap-1">
               <MessageSquare className="h-3 w-3" strokeWidth={1.5} />
               {comments.length}
@@ -310,6 +322,67 @@ export default function TaskDetail() {
               {activities.length}
             </TabsTrigger>
           </TabsList>
+
+          {/* Evidence */}
+          <TabsContent value="evidence" className="mt-3 space-y-3">
+            {evidenceLoading ? <Skeleton className="h-20" /> : evidence.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-6">{t('tasks.evidence.empty', 'No evidence uploaded yet')}</p>
+            ) : (
+              <div className="space-y-1">
+                {evidence.map(ev => {
+                  const fileName = ev.file_url.split('/').pop() || 'file';
+                  return (
+                    <div key={ev.id} className="flex items-center gap-3 py-2 px-2 rounded-md hover:bg-muted/30 group transition-colors">
+                      <FileIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" strokeWidth={1.5} />
+                      <div className="flex-1 min-w-0">
+                        <a href={ev.file_url} target="_blank" rel="noopener noreferrer" className="text-xs font-medium hover:underline truncate block">
+                          {fileName}
+                        </a>
+                        <span className="text-2xs text-muted-foreground">
+                          {format(new Date(ev.created_at), 'PP')}
+                        </span>
+                      </div>
+                      <Badge variant={ev.status === 'approved' ? 'default' : ev.status === 'rejected' ? 'destructive' : 'secondary'} className="text-2xs shrink-0">
+                        {t(`tasks.evidence.status.${ev.status}`, ev.status)}
+                      </Badge>
+                      {ev.status === 'pending' && employee?.id && (
+                        <div className="flex gap-1 shrink-0">
+                          <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => verifyEvidence({ id: ev.id, status: 'approved', verified_by: employee.id })} disabled={isVerifying}>
+                            <ShieldCheck className="h-3.5 w-3.5 text-chart-1" />
+                          </Button>
+                          <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => verifyEvidence({ id: ev.id, status: 'rejected', verified_by: employee.id })} disabled={isVerifying}>
+                            <ShieldX className="h-3.5 w-3.5 text-destructive" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {!task.is_locked && (
+              <div>
+                <input type="file" id="evidence-upload" className="hidden" onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file || !id) return;
+                  const path = `evidence/${id}/${Date.now()}_${file.name}`;
+                  // Upload to evidence table with file URL placeholder
+                  uploadEvidence({ action_id: id, file_url: path, file_type: file.type || 'application/octet-stream', uploaded_by: employee?.id });
+                  (e.target as HTMLInputElement).value = '';
+                }} />
+                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" onClick={() => document.getElementById('evidence-upload')?.click()} disabled={evidenceUploading}>
+                  <Upload className="h-3 w-3" />
+                  {evidenceUploading ? '...' : t('tasks.evidence.upload', 'Upload Evidence')}
+                </Button>
+              </div>
+            )}
+            {!hasApprovedEvidence && (
+              <p className="text-xs text-chart-4 flex items-center gap-1.5">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                {t('tasks.evidence.requiredWarning', 'Approved evidence is required before this task can be completed.')}
+              </p>
+            )}
+          </TabsContent>
 
           {/* Comments */}
           <TabsContent value="comments" className="mt-3">

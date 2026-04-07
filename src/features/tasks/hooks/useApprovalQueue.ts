@@ -23,7 +23,25 @@ export function useApprovalQueue() {
         .in('status', ['under_review', 'pending_approval'])
         .order('updated_at', { ascending: false });
       if (error) throw error;
-      return data;
+
+      // Fetch evidence status for all tasks
+      const taskIds = (data ?? []).map(t => t.id);
+      let evidenceMap: Record<string, boolean> = {};
+      if (taskIds.length > 0) {
+        const { data: evData } = await supabase
+          .from('task_evidence')
+          .select('action_id, status')
+          .in('action_id', taskIds)
+          .is('deleted_at', null)
+          .eq('status', 'approved');
+        if (evData) {
+          for (const e of evData) {
+            evidenceMap[e.action_id] = true;
+          }
+        }
+      }
+
+      return (data ?? []).map(t => ({ ...t, _hasApprovedEvidence: !!evidenceMap[t.id] }));
     },
     enabled: !!tenantId && !!employee?.id,
   });
