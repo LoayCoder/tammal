@@ -1,45 +1,53 @@
 
-Fix the team-mode “Send Check-in Reminder” recommendation so it opens a manager-actionable workflow instead of analytics.
 
-What I found
-- In `supabase/functions/wellness-copilot/index.ts`, the team recommendation `team_checkin` currently routes to `/engagement-insights`.
-- `/engagement-insights` (`src/pages/EngagementInsights.tsx`) is an analytics/details page. It does not contain the actual check-in sending action.
-- The real manager action already exists in `src/features/team-pulse/components/TeamMemberActions.tsx` via `handleCheckIn()`, which sends a `check_in_prompt` notification.
-- That UI is only available inside `TeamMemberRiskGrid` → `TeamPulseCard`, which is rendered on `/dashboard`.
+# Improve "Send Check-in Reminder" — Bulk Action for Managers
 
-Plan
-1. Correct the recommendation target
-- Update the team-mode `team_checkin` destination in `supabase/functions/wellness-copilot/index.ts`.
-- Replace `/engagement-insights` with a dashboard deep link such as:
-```text
-/dashboard?focus=team-pulse&mode=team
-```
+## Problem
+Currently, "Send Check-in Reminder" just navigates to the Team Pulse card where the manager must click "Check-in" on each team member one by one. This is tedious and not what a manager expects from a recommendation labeled "Send Check-in Reminder."
 
-2. Make the deep link open the right state
-- Add URL-param handling so opening that link:
-  - lands on `/dashboard`
-  - switches `TeamPulseCard` into `team` mode
-  - scrolls/highlights the Team Pulse card so the manager can act immediately
+## Solution
+Make the recommendation trigger a **bulk check-in reminder** that sends notifications to all direct reports who haven't checked in today, with a confirmation toast showing how many were sent.
 
-3. Keep old cached responses working
-- Extend `normalizeRecommendationRoute()` in `src/features/wellness-copilot/hooks/useCopilotInsight.ts` so any stale team `team_checkin` route still coming back as `/engagement-insights` or `/team-pulse` is remapped to the new dashboard deep link.
+## Implementation
 
-4. Refresh stale server data
-- Redeploy the `wellness-copilot` function.
-- Clear cached team copilot insights that still contain the old `team_checkin` route so users stop receiving outdated links.
+### 1. Create a Bulk Check-in Action Component
+**New file:** `src/features/team-pulse/components/BulkCheckinReminder.tsx`
 
-5. Verify the exact flow
-- Team manager clicks “Send Check-in Reminder”
-- App opens dashboard Team Pulse in team mode
-- Manager sees the member action buttons and can send a check-in
-- No redirect to `/engagement-insights`
-- Org/admin-only actions like survey launch remain unchanged
+- A small dialog/sheet that appears when the deep link includes `&action=bulk-checkin`
+- Shows list of direct reports who haven't checked in today
+- "Send to All" button that inserts `engagement_notifications` for each member
+- Success toast: "Sent check-in reminders to 5 team members"
 
-Technical details
-- Files likely involved:
-  - `supabase/functions/wellness-copilot/index.ts`
-  - `src/features/wellness-copilot/hooks/useCopilotInsight.ts`
-  - `src/features/team-pulse/hooks/usePulseModes.ts`
-  - `src/features/team-pulse/components/TeamPulseCard.tsx`
-  - possibly `src/pages/Dashboard.tsx` if temporary URL-driven tab selection is needed
-- This fixes the UX at the root: the recommendation will point to the existing manager action surface instead of a read-only analytics page.
+### 2. Update TeamPulseCard Deep Link Handling
+**File:** `src/features/team-pulse/components/TeamPulseCard.tsx`
+
+- Detect `action=bulk-checkin` URL param
+- Auto-open the BulkCheckinReminder dialog after scrolling into view
+- Clean URL params after processing
+
+### 3. Update Edge Function Route
+**File:** `supabase/functions/wellness-copilot/index.ts`
+
+- Change `team_checkin` route to: `/dashboard?focus=team-pulse&mode=team&action=bulk-checkin`
+
+### 4. Update Client-Side Normalization
+**File:** `src/features/wellness-copilot/hooks/useCopilotInsight.ts`
+
+- Map `team_checkin` key to the new route with `&action=bulk-checkin`
+
+### 5. Clear Stale Cache
+- Delete team-mode cached insights so new route takes effect immediately
+
+## Flow After Fix
+1. Manager clicks "Send Check-in Reminder" in Copilot
+2. Dashboard opens → Team Pulse scrolls into view in team mode
+3. A confirmation dialog appears listing team members who haven't checked in
+4. Manager clicks "Send to All" → reminders sent → success toast
+5. One-click workflow instead of clicking each member individually
+
+## Technical Details
+- Reuses existing `handleCheckIn` logic from `TeamMemberActions.tsx`
+- Filters out team members who already checked in today (query `mood_entries` for `entry_date = today`)
+- Batch insert into `engagement_notifications`
+- Logs action via `useEngagementActionLog`
+
