@@ -8180,6 +8180,44 @@ export type Database = {
           },
         ]
       }
+      user_onboarding: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          tenant_id: string | null
+          tour_completed: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          tenant_id?: string | null
+          tour_completed?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          tenant_id?: string | null
+          tour_completed?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_onboarding_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
