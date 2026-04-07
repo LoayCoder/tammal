@@ -18,7 +18,7 @@ import {
   Activity, Paperclip, Clock, CalendarDays, ChevronLeft,
   Plus, Upload, FileIcon, X, Trash2, Play, Square, Timer,
   Brain, Users, AlertTriangle, ArrowUpDown, GitBranch, Link2,
-  Send,
+  Send, ShieldCheck, ShieldX, FileCheck,
 } from 'lucide-react';
 import { useTaskChecklists } from '@/features/tasks/hooks/useTaskChecklists';
 import { TaskDependenciesPanel } from '@/features/tasks/components/TaskDependenciesPanel';
