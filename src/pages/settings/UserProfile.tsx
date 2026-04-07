@@ -29,6 +29,7 @@ export default function UserProfile() {
   const { user } = useAuth();
   const { permissions, isPending: permissionsLoading, isSuperAdmin } = useUserPermissions();
   const { userRoles, isPending: rolesLoading } = useUserRoles(user?.id);
+  const { resetTour, isResetting } = useOnboardingTour();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
