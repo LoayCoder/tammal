@@ -17,7 +17,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { typography } from '@/theme/tokens';
 import { VipTodoView } from '@/features/workload/components/VipTodoView';
 import {
-  Plus, ListChecks, CalendarDays, CheckCircle2, AlertTriangle, Flame, CheckSquare, Star, Sparkles,
+  Plus, ListChecks, CalendarDays, CheckCircle2, AlertTriangle, Flame, CheckSquare, Star, Sparkles, History,
 } from 'lucide-react';
 
 import { CopilotHistoryPanel } from '@/features/wellness-copilot';
