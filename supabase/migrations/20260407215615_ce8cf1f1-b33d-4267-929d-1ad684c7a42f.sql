@@ -1,0 +1,1 @@
+DELETE FROM copilot_insight_cache WHERE scope_key LIKE '%team%';
