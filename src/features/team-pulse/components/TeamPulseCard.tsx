@@ -1,5 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { Activity, RefreshCw, Megaphone, ChevronRight, EyeOff, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -40,6 +41,8 @@ const HIDDEN_KEY = 'team-pulse-card-hidden';
 export function TeamPulseCard({ employeeId }: Props) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const cardRef = useRef<HTMLDivElement>(null);
   const isAr = i18n.language === 'ar';
   const [isHidden, setIsHidden] = useState(() => localStorage.getItem(HIDDEN_KEY) === '1');
   const hide = useCallback(() => { localStorage.setItem(HIDDEN_KEY, '1'); setIsHidden(true); }, []);
@@ -53,6 +56,29 @@ export function TeamPulseCard({ employeeId }: Props) {
   );
   const { sendAppreciation } = useAppreciations();
   const { data: teamMembers = [] } = useTeamMemberPulse(employeeId, selectedMode === "team");
+
+  // Deep-link: ?focus=team-pulse&mode=team → switch mode, scroll into view, clean URL
+  useEffect(() => {
+    if (searchParams.get("focus") === "team-pulse") {
+      const targetMode = searchParams.get("mode");
+      if (targetMode === "team" || targetMode === "organization") {
+        if (allowedModes.includes(targetMode)) {
+          setMode(targetMode);
+        }
+      }
+      // Un-hide if hidden
+      if (isHidden) show();
+      // Scroll into view after a short delay for render
+      setTimeout(() => {
+        cardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+      // Clean URL params
+      const next = new URLSearchParams(searchParams);
+      next.delete("focus");
+      next.delete("mode");
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { data: directReports = [] } = useQuery({
     queryKey: ["pulse-direct-report-ids", employeeId, tenantId],
@@ -108,7 +134,7 @@ export function TeamPulseCard({ employeeId }: Props) {
   }
 
   return (
-    <div className={cn(cardVariants.premiumVip, "rounded-2xl overflow-hidden group")}>
+    <div ref={cardRef} className={cn(cardVariants.premiumVip, "rounded-2xl overflow-hidden group")}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 pb-0">
         <div className="flex items-center gap-2">

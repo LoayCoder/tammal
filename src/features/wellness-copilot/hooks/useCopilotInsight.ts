@@ -8,6 +8,8 @@ const LEGACY_RECOMMENDATION_ROUTE_MAP: Record<string, string> = {
   "/admin/workload": "/admin/workload/dashboard",
 };
 
+const TEAM_CHECKIN_DEEP_LINK = "/dashboard?focus=team-pulse&mode=team";
+
 export type CopilotMode = "personal" | "team" | "organization";
 export type UrgencyLevel = "opportunity" | "neutral" | "attention" | "urgent";
 export type ActionCta =
@@ -57,6 +59,14 @@ function normalizeRecommendationRoute(
   recommendation: CopilotRecommendation,
   mode: CopilotMode
 ) {
+  // Team check-in should deep-link to dashboard Team Pulse, not analytics
+  if (
+    mode === "team" &&
+    recommendation.key === "team_checkin"
+  ) {
+    return TEAM_CHECKIN_DEEP_LINK;
+  }
+
   if (
     mode === "team" &&
     recommendation.key === "launch_survey" &&
@@ -92,7 +102,7 @@ export function useCopilotInsight(
   const { i18n } = useTranslation();
 
   const query = useQuery<CopilotResponse>({
-    queryKey: ["copilot-insight", "route-fix-v2", mode, employeeId],
+    queryKey: ["copilot-insight", "route-fix-v3", mode, employeeId],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke("wellness-copilot", {
         body: { mode, language: i18n.language },
