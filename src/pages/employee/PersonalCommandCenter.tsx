@@ -17,10 +17,12 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { typography } from '@/theme/tokens';
 import { VipTodoView } from '@/features/workload/components/VipTodoView';
 import {
-  Plus, ListChecks, CalendarDays, CheckCircle2, AlertTriangle, Flame, CheckSquare, Star, Sparkles,
+  Plus, ListChecks, CalendarDays, CheckCircle2, AlertTriangle, Flame, CheckSquare, Star, Sparkles, History,
 } from 'lucide-react';
 
-type ViewType = 'tasks' | 'calendar' | 'approvals' | 'todo';
+import { CopilotHistoryPanel } from '@/features/wellness-copilot';
+
+type ViewType = 'tasks' | 'calendar' | 'approvals' | 'todo' | 'insights';
 
 export default function PersonalCommandCenter() {
   const { t } = useTranslation();
@@ -38,7 +40,7 @@ export default function PersonalCommandCenter() {
   // Sync tab from URL
   useEffect(() => {
     const tab = searchParams.get('tab') as ViewType;
-    if (tab && ['tasks', 'calendar', 'approvals', 'todo'].includes(tab)) {
+    if (tab && ['tasks', 'calendar', 'approvals', 'todo', 'insights'].includes(tab)) {
       setView(tab);
     }
   }, [searchParams]);
@@ -138,6 +140,9 @@ export default function PersonalCommandCenter() {
           <ToggleGroupItem value="todo" className="gap-1.5 text-xs rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm px-3 sm:px-5 min-h-[44px] shrink-0 transition-all duration-200">
             <Sparkles className="h-3.5 w-3.5" />{t('workload.views.todo', 'To-Do')}
           </ToggleGroupItem>
+          <ToggleGroupItem value="insights" className="gap-1.5 text-xs rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm px-3 sm:px-5 min-h-[44px] shrink-0 transition-all duration-200">
+            <History className="h-3.5 w-3.5" />{t('workload.views.insights', 'Insights')}
+          </ToggleGroupItem>
         </ToggleGroup>
       </div>
 
@@ -157,6 +162,9 @@ export default function PersonalCommandCenter() {
           employeeName={employee.full_name}
           tenantId={employee.tenant_id}
         />
+      )}
+      {view === 'insights' && (
+        <CopilotHistoryPanel className="border-none shadow-none" />
       )}
 
       {/* Create Task Modal */}
