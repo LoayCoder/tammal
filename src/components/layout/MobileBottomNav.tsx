@@ -3,7 +3,7 @@ import { LayoutGrid, ListChecks, Send, Heart, Menu } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 
 const navItems = [
-  { key: 'dashboard', icon: LayoutGrid, path: '/' },
+  { key: 'dashboard', icon: LayoutGrid, path: '/dashboard' },
   { key: 'workload', icon: ListChecks, path: '/my-workload' },
   { key: 'peer-support', icon: Send, path: '/crisis-support' },
   { key: 'wellness-hub', icon: Heart, path: '/wellness' },
