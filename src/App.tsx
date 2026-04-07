@@ -101,6 +101,7 @@ const ComponentShowcase = lazy(() => import("@/pages/dev/ComponentShowcase"));
 const DesignSystemPage = lazy(() => import("@/pages/dev/DesignSystemPage"));
 const EngagementInsights = lazy(() => import("@/pages/EngagementInsights"));
 const LandingPage = lazy(() => import("@/components/landing/LandingPage"));
+const AppGuidePage = lazy(() => import("@/pages/AppGuidePage"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
