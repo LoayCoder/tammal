@@ -1,36 +1,80 @@
+import { motion } from "framer-motion";
+import { BrowserFrame } from "./BrowserFrame";
+import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export const LandingHero = () => {
   const { t } = useTranslation();
 
   return (
-    <section className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-[#f5f5f7]">
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-10 text-center py-40">
-        <p className="text-[13px] uppercase tracking-[0.15em] text-cyan-600 font-medium mb-6">
-          {t("landing.hero.badge")}
-        </p>
+    <section className="relative min-h-screen flex items-center pt-20 pb-16 overflow-hidden">
+      {/* Dual ambient glows */}
+      <div className="absolute top-1/4 end-0 w-[600px] h-[600px] bg-blue-100/50 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 start-0 w-[500px] h-[500px] bg-violet-100/40 rounded-full blur-[140px] pointer-events-none" />
 
-        <h1 className="text-4xl sm:text-5xl lg:text-[64px] font-bold text-black leading-[1.08] tracking-[-1.5px] mb-6 max-w-3xl mx-auto">
-          {t("landing.hero.heading")}
-        </h1>
-
-        <p className="text-lg text-[#666] max-w-xl mx-auto leading-relaxed mb-10">
-          {t("landing.hero.subtitle")}
-        </p>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a
-            href="mailto:info@dhuud.com"
-            className="px-8 py-3 rounded-md bg-black text-white text-[15px] font-medium hover:bg-[#1d1d1d] transition-colors duration-200"
+      <div className="w-full max-w-7xl mx-auto px-6 lg:px-12">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Text */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+            className="space-y-6"
           >
-            {t("landing.hero.cta")}
-          </a>
-          <a
-            href="#showcase"
-            className="px-8 py-3 rounded-md border border-black/20 text-black text-[15px] font-medium hover:border-black/40 transition-colors duration-200"
+            {/* Shimmer badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 bg-gray-50 text-[11px] text-gray-500 tracking-wide uppercase relative overflow-hidden">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              {t("landing.hero.badge")}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent -translate-x-full animate-[shimmer_3s_ease-in-out_infinite]" />
+            </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-gray-900 leading-[1.05]">
+              {t("landing.hero.headingMain")}{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-500">
+                {t("landing.hero.headingAccent")}
+              </span>
+            </h1>
+            {/* Accent line */}
+            <div className="w-16 h-px bg-gradient-to-r from-blue-500/50 to-transparent" />
+            <p className="text-lg text-gray-500 max-w-md leading-relaxed">
+              {t("landing.hero.subtitle")}
+            </p>
+            <div className="flex flex-wrap gap-3 pt-2">
+              <a
+                href="#contact"
+                className="group inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition-all duration-300"
+              >
+                {t("landing.hero.requestAccess")}
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
+              </a>
+              <a
+                href="/auth"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-200 text-gray-700 font-medium text-sm hover:bg-gray-50 hover:border-gray-300 transition-all duration-300"
+              >
+                {t("landing.hero.enterPlatform")}
+              </a>
+            </div>
+          </motion.div>
+
+          {/* Screenshot with floating animation */}
+          <motion.div
+            initial={{ opacity: 0, y: 32, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 1, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
           >
-            {t("landing.hero.secondary")}
-          </a>
+            <motion.div
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <BrowserFrame>
+                <img
+                  src="/screenshots/dashboard.png"
+                  alt="Tammal Dashboard — Employee wellness overview"
+                  className="w-full h-auto"
+                  loading="eager"
+                />
+              </BrowserFrame>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     </section>

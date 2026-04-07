@@ -1,60 +1,47 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import tammalLogo from "@/assets/tammal-logo.svg";
 import { LandingHero } from "./LandingHero";
-import { LandingFeatures } from "./LandingFeatures";
+import { LandingValue } from "./LandingValue";
 import { LandingShowcase } from "./LandingShowcase";
-import { LandingStats } from "./LandingStats";
+import { LandingFeatures } from "./LandingFeatures";
+import { LandingVisual } from "./LandingVisual";
+import { LandingTrust } from "./LandingTrust";
 import { LandingCTA } from "./LandingCTA";
+import { ArrowRight } from "lucide-react";
 
 const LandingNav = () => {
   const [scrolled, setScrolled] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
+    const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
     <nav
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-white/[0.98] backdrop-blur-xl border-b border-black/[0.08]"
-          : "bg-transparent border-b border-transparent"
+          ? "backdrop-blur-xl bg-white/90 border-b border-gray-200 shadow-sm"
+          : "backdrop-blur-md bg-white/60 border-b border-transparent"
       }`}
-      style={{ height: 56 }}
     >
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-10 h-full flex items-center justify-between">
-        <a href="/" className="flex items-center">
-          <img src={tammalLogo} alt="Tammal" className="h-6" />
-        </a>
-
-        <div className="hidden md:flex items-center gap-8">
-          <a href="#features" className="text-sm text-black/70 hover:opacity-60 transition-opacity duration-200">
-            {t("landing.nav.features")}
-          </a>
-          <a href="#showcase" className="text-sm text-black/70 hover:opacity-60 transition-opacity duration-200">
-            {t("landing.nav.enterprise")}
-          </a>
-          <a href="#stats" className="text-sm text-black/70 hover:opacity-60 transition-opacity duration-200">
-            {t("landing.nav.pricing")}
-          </a>
-        </div>
-
-        <div className="flex items-center gap-4">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 h-16 flex items-center justify-between">
+        <span className="text-xl font-bold text-gray-900 tracking-[0.08em]">TAMMAL</span>
+        <div className="flex items-center gap-3">
           <a
             href="/auth"
-            className="text-sm text-black/70 hover:opacity-60 transition-opacity duration-200"
+            className="text-sm text-gray-500 hover:text-gray-800 transition-colors font-medium"
           >
             {t("landing.nav.signIn")}
           </a>
           <a
-            href="mailto:info@dhuud.com"
-            className="px-4 py-2 rounded-md bg-black text-white text-sm font-medium hover:bg-[#1d1d1d] transition-colors duration-200"
+            href="#contact"
+            className="group inline-flex items-center gap-1.5 px-5 py-2 rounded-lg border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 hover:border-gray-300 transition-all duration-300"
           >
-            {t("landing.nav.getStarted")}
+            {t("landing.nav.getAccess")}
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
           </a>
         </div>
       </div>
@@ -64,25 +51,43 @@ const LandingNav = () => {
 
 const LandingFooter = () => {
   const { t } = useTranslation();
+  const footerLinks = [
+    t("landing.footer.privacy"),
+    t("landing.footer.terms"),
+    t("landing.footer.security"),
+  ];
 
   return (
-    <footer className="py-8 bg-[#f5f5f7] border-t border-black/[0.08]">
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-10 text-center">
-        <p className="text-[13px] text-[#666]">
+    <footer className="py-16 border-t border-gray-100">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <span className="text-sm text-gray-400">
           {t("landing.footer.rights", { year: new Date().getFullYear() })}
-        </p>
+        </span>
+        <div className="flex gap-6">
+          {footerLinks.map((l) => (
+            <a
+              key={l}
+              href="#"
+              className="text-xs text-gray-400 hover:text-gray-600 transition-colors relative after:content-[''] after:absolute after:bottom-0 after:inset-x-0 after:h-px after:bg-gray-300 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
+            >
+              {l}
+            </a>
+          ))}
+        </div>
       </div>
     </footer>
   );
 };
 
 const LandingPage = () => (
-  <div className="min-h-screen bg-white text-black antialiased selection:bg-cyan-500/20" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" }}>
+  <div className="min-h-screen bg-white text-gray-900 antialiased selection:bg-blue-500/20">
     <LandingNav />
     <LandingHero />
-    <LandingFeatures />
+    <LandingValue />
     <LandingShowcase />
-    <LandingStats />
+    <LandingFeatures />
+    <LandingVisual />
+    <LandingTrust />
     <LandingCTA />
     <LandingFooter />
   </div>

@@ -1,109 +1,43 @@
 
 
-# Apple-Style Landing Page Redesign
+# Convert Landing Page to Light Mode
 
 ## Overview
-Complete redesign of the Tammal landing page to match Apple's design philosophy: pure minimalism, typography-driven, no decorative elements, system fonts, black/white palette with cyan accent.
+The entire landing page currently uses a hardcoded dark theme (`bg-[#0A0E1A]`, `text-white`, `border-white/[0.06]`, etc.). Every component needs its color palette converted to a clean, professional light design.
 
-## Architecture Changes
+## Color Mapping
 
-### Remove Components
-- `LandingValue.tsx` — merge into features
-- `LandingShowcase.tsx` — replace with single product showcase
-- `LandingVisual.tsx` — remove (redundant with showcase)
-- `LandingUseCases.tsx` — remove per brief ("no testimonials/logos unless authentic")
-- `LandingFAQ.tsx` — remove per brief (not in Apple structure)
-- `AnimatedSection.tsx` — remove (no scroll animations per brief)
-- `BrowserFrame.tsx` — remove (clean image with border-radius instead)
+| Dark (current) | Light (new) |
+|----------------|-------------|
+| `bg-[#0A0E1A]` | `bg-white` / `bg-gray-50` |
+| `text-white` | `text-gray-900` |
+| `text-white/50`, `text-white/40` | `text-gray-500` |
+| `text-white/30`, `text-white/25` | `text-gray-400` |
+| `border-white/[0.06]` | `border-gray-200` |
+| `bg-white/[0.02]`, `bg-white/[0.04]` | `bg-gray-50` / `bg-white` |
+| `bg-blue-600/[0.06]` glows | `bg-blue-100/50` subtle glows |
+| Nav `bg-[#0A0E1A]/90` | `bg-white/90` with `text-gray-900` |
+| `from-blue-400 to-blue-200` gradient text | `from-blue-600 to-blue-500` |
 
-### Keep & Rewrite
-- `LandingPage.tsx` — new nav (frosted glass, 56px, centered links) + minimal footer
-- `LandingHero.tsx` — centered text, badge + H1 + subtitle + 2 buttons, no screenshot
-- `LandingFeatures.tsx` — 6 feature cards in 3-col grid, no icons, minimal
-- `LandingImpact.tsx` → rename to `LandingStats.tsx` — black bg, 4 stats in a row
-- `LandingCTA.tsx` — centered text on white, single button
+## Files Modified (8 files)
 
-### New Component
-- `LandingShowcaseNew.tsx` — 2-col (text left, product image right) on `#f5f5f7` bg
+| File | Key Changes |
+|------|-------------|
+| **LandingPage.tsx** | Root `bg-white text-gray-900`, nav bg-white with dark text, footer light borders |
+| **LandingHero.tsx** | White bg, dark headings, lighter glows, badge with gray border, CTA button `bg-blue-600 text-white` (inverted) |
+| **LandingValue.tsx** | Light section labels, dark headings, cards with `border-gray-200 bg-white` |
+| **LandingShowcase.tsx** | Dark text, light numbered labels |
+| **LandingFeatures.tsx** | Light card backgrounds, dark text, blue-50 icon boxes |
+| **LandingVisual.tsx** | Light labels and headings |
+| **LandingTrust.tsx** | Light stat text, light trust cards |
+| **LandingCTA.tsx** | CTA card with light gradient bg, `bg-blue-600 text-white` primary button |
+| **BrowserFrame.tsx** | Light title bar (`bg-gray-100`), light content bg (`bg-gray-50`) |
 
-## Design System Changes
-
-### `tailwind.config.ts`
-- Replace `fontFamily.display` and `fontFamily.body` with system font stack: `-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica Neue, Arial, sans-serif`
-- Keep `navy` and `teal` in colors (navy for internal app, teal/cyan `#06b6d4` as landing accent)
-
-### `index.html`
-- Remove Google Fonts import (Outfit + Work Sans) — system fonts only
-- Update meta description and OG tags
-
-## Section-by-Section
-
-### 1. Navigation (in LandingPage.tsx)
-- Fixed, 56px height, frosted glass (`bg-white/98 backdrop-blur-lg`)
-- Left: Tammal logo (SVG)
-- Center: Features | Enterprise | Pricing (14px, opacity hover)
-- Right: "Sign In" text link + "Get Started" black button (6px radius)
-- Border: `1px solid rgba(0,0,0,0.08)`
-
-### 2. Hero (LandingHero.tsx)
-- Full viewport centered, light gradient bg (`white → #f5f5f7`)
-- Badge: "ENTERPRISE CONTROL" — 13px uppercase, cyan color
-- H1: 64px bold, -1.5px tracking, max 8 words
-- Subtitle: 18px, `#666`, one sentence
-- Two buttons: "Start Free Trial" (black/white) + "Watch Demo" (border)
-- No screenshot, no animation, no framer-motion
-
-### 3. Features (LandingFeatures.tsx)
-- White bg, centered section title (48px) + subtitle (18px gray)
-- 3×2 grid of 6 cards: title (20px bold) + description (15px gray)
-- No icons, no hover effects, no borders — just text
-- Generous padding (100px vertical)
-
-### 4. Product Showcase (new LandingShowcase.tsx)
-- `#f5f5f7` bg, 2-col 50/50 layout
-- Left: H2 (40px bold) + description (16px gray) + "Explore Features" link
-- Right: Product screenshot with 12px border-radius, no shadow
-- 100px vertical padding
-
-### 5. Stats (LandingStats.tsx, replaces LandingImpact)
-- Pure black bg, white text
-- 4 stats in a row: number (42px bold) + label (14px gray uppercase)
-- `10,000+` | `99.99%` | `<200ms` | `Zero`
-- No icons, no detail text
-
-### 6. CTA (LandingCTA.tsx)
-- White bg, centered
-- H2: 48px bold
-- Subtitle: 16px gray
-- Single "Start Free Trial" black button
-- 100px padding
-
-### 7. Footer (in LandingPage.tsx)
-- `#f5f5f7` bg, `1px solid rgba(0,0,0,0.08)` top border
-- Single centered line: `© 2025 Tammal. Enterprise control, simplified.`
-- 13px, `#666`
-
-## Localization
-Update both `en.json` and `ar.json` landing keys to match the new Apple-style copy:
-- Hero: "Stop managing permissions. Start leading."
-- Features: 6 outcome-focused descriptions
-- Stats: matter-of-fact labels
-- CTA: "Ready to take control?"
-- Footer: "Enterprise control, simplified."
-- Nav: "Features", "Enterprise", "Pricing", "Sign In", "Get Started"
-
-## Files Summary
-
-| Action | File |
-|--------|------|
-| Rewrite | `LandingPage.tsx` (nav + footer + page structure) |
-| Rewrite | `LandingHero.tsx` (centered, no animation) |
-| Rewrite | `LandingFeatures.tsx` (6 cards, 3-col, text-only) |
-| Rewrite | `LandingCTA.tsx` (minimal centered) |
-| Rename+Rewrite | `LandingImpact.tsx` → `LandingStats.tsx` (black bg stats) |
-| Create | `LandingShowcase.tsx` (2-col product image) |
-| Delete | `LandingValue.tsx`, `LandingVisual.tsx`, `LandingUseCases.tsx`, `LandingFAQ.tsx`, `LandingTrust.tsx`, `AnimatedSection.tsx`, `BrowserFrame.tsx` |
-| Edit | `tailwind.config.ts` (system fonts) |
-| Edit | `index.html` (remove Google Fonts) |
-| Edit | `en.json` + `ar.json` (landing keys) |
+## Design Approach
+- Clean white/gray-50 backgrounds
+- Primary blue (`blue-600`) for CTAs and accents
+- Gray-900 for headings, gray-500 for body text, gray-400 for labels
+- Subtle gray-200 borders instead of white-alpha borders
+- Ambient glows become soft blue-100/purple-100 tints
+- Professional, minimal — consistent with the app's Linear-inspired design system
 

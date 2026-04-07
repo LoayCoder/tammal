@@ -98,27 +98,22 @@ export default {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)',
 			},
-			navy: {
-				800: '#1e3155',
-				900: '#1a2744',
-			},
-			teal: {
-				50: '#f0fdfa',
-				100: '#ccfbf1',
-				200: '#99f6e4',
-				400: '#2dd4bf',
-				500: '#14b8a6',
-				600: '#0891b2',
-				700: '#0e7490',
-			},
 			keyframes: {
 				'accordion-down': {
-					from: { height: '0' },
-					to: { height: 'var(--radix-accordion-content-height)' },
+					from: {
+						height: '0'
+					},
+					to: {
+						height: 'var(--radix-accordion-content-height)'
+					}
 				},
 				'accordion-up': {
-					from: { height: 'var(--radix-accordion-content-height)' },
-					to: { height: '0' },
+					from: {
+						height: 'var(--radix-accordion-content-height)'
+					},
+					to: {
+						height: '0'
+					}
 				},
 				'badge-pop': {
 					'0%': { transform: 'scale(0.8)', opacity: '0' },
@@ -154,18 +149,6 @@ export default {
 					'Helvetica Neue',
 					'Arial',
 					'Noto Sans',
-					'sans-serif'
-				],
-				display: [
-					'Outfit',
-					'ui-sans-serif',
-					'system-ui',
-					'sans-serif'
-				],
-				body: [
-					'Work Sans',
-					'ui-sans-serif',
-					'system-ui',
 					'sans-serif'
 				],
 			},
