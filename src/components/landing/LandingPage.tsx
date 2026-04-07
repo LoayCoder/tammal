@@ -4,9 +4,11 @@ import { LandingHero } from "./LandingHero";
 import { LandingValue } from "./LandingValue";
 import { LandingShowcase } from "./LandingShowcase";
 import { LandingFeatures } from "./LandingFeatures";
+import { LandingImpact } from "./LandingImpact";
 import { LandingVisual } from "./LandingVisual";
 import { LandingTrust } from "./LandingTrust";
 import { LandingUseCases } from "./LandingUseCases";
+import { LandingFAQ } from "./LandingFAQ";
 import { LandingCTA } from "./LandingCTA";
 import { ArrowRight } from "lucide-react";
 
@@ -90,15 +92,17 @@ const LandingFooter = () => {
 };
 
 const LandingPage = () => (
-  <div className="min-h-screen bg-[#f9fafb] text-gray-900 antialiased selection:bg-teal-500/20 font-body">
+  <div className="min-h-screen bg-white text-gray-900 antialiased selection:bg-teal-500/20 font-body">
     <LandingNav />
     <LandingHero />
     <LandingValue />
     <LandingShowcase />
     <LandingFeatures />
+    <LandingImpact />
     <LandingUseCases />
     <LandingVisual />
     <LandingTrust />
+    <LandingFAQ />
     <LandingCTA />
     <LandingFooter />
   </div>
