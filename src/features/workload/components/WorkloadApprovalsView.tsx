@@ -18,7 +18,13 @@ export function WorkloadApprovalsView() {
   const { pendingTasks, tasksLoading, updateStatus } = useApprovalQueue();
   const [rejectTarget, setRejectTarget] = useState<{ id: string; title: string } | null>(null);
 
-  const handleApprove = (id: string) => updateStatus.mutate({ id, status: 'completed' });
+  const handleApprove = (id: string, hasEvidence: boolean) => {
+    if (!hasEvidence) {
+      toast.error(t('tasks.evidenceRequiredBeforeCompletion', 'Cannot complete task without approved evidence.'));
+      return;
+    }
+    updateStatus.mutate({ id, status: 'completed' });
+  };
   const handleReject = (reason: string) => {
     if (!rejectTarget) return;
     updateStatus.mutate({ id: rejectTarget.id, status: 'rejected', reason });
