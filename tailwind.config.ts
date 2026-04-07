@@ -164,6 +164,18 @@ export default {
 					'Noto Sans',
 					'sans-serif'
 				],
+				display: [
+					'Outfit',
+					'ui-sans-serif',
+					'system-ui',
+					'sans-serif'
+				],
+				body: [
+					'Work Sans',
+					'ui-sans-serif',
+					'system-ui',
+					'sans-serif'
+				],
 			},
 			fontSize: {
 				'2xs': ['0.625rem', { lineHeight: '0.875rem' }],
