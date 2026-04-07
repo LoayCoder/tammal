@@ -55,11 +55,8 @@ export function RiskTrendChart({ data, isLoading, threshold = 20 }: Props) {
               <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} strokeOpacity={0.5} />
               <XAxis dataKey="label" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
               <YAxis
-                domain={([dataMin, dataMax]: [number, number]) => [
-                  Math.max(0, dataMin - 10),
-                  Math.min(100, dataMax + 10),
-                ]}
-                padding={{ top: 30, bottom: 30 }}
+                domain={[0, 100]}
+                ticks={[0, 25, 50, 75, 100]}
                 tick={CHART_AXIS_TICK}
                 axisLine={false}
                 tickLine={false}
