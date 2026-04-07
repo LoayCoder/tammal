@@ -41,6 +41,8 @@ const HIDDEN_KEY = 'team-pulse-card-hidden';
 export function TeamPulseCard({ employeeId }: Props) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const cardRef = useRef<HTMLDivElement>(null);
   const isAr = i18n.language === 'ar';
   const [isHidden, setIsHidden] = useState(() => localStorage.getItem(HIDDEN_KEY) === '1');
   const hide = useCallback(() => { localStorage.setItem(HIDDEN_KEY, '1'); setIsHidden(true); }, []);
@@ -54,6 +56,29 @@ export function TeamPulseCard({ employeeId }: Props) {
   );
   const { sendAppreciation } = useAppreciations();
   const { data: teamMembers = [] } = useTeamMemberPulse(employeeId, selectedMode === "team");
+
+  // Deep-link: ?focus=team-pulse&mode=team → switch mode, scroll into view, clean URL
+  useEffect(() => {
+    if (searchParams.get("focus") === "team-pulse") {
+      const targetMode = searchParams.get("mode");
+      if (targetMode === "team" || targetMode === "organization") {
+        if (allowedModes.includes(targetMode)) {
+          setMode(targetMode);
+        }
+      }
+      // Un-hide if hidden
+      if (isHidden) show();
+      // Scroll into view after a short delay for render
+      setTimeout(() => {
+        cardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+      // Clean URL params
+      const next = new URLSearchParams(searchParams);
+      next.delete("focus");
+      next.delete("mode");
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { data: directReports = [] } = useQuery({
     queryKey: ["pulse-direct-report-ids", employeeId, tenantId],
