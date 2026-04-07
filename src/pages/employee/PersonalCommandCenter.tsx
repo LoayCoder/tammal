@@ -40,7 +40,7 @@ export default function PersonalCommandCenter() {
   // Sync tab from URL
   useEffect(() => {
     const tab = searchParams.get('tab') as ViewType;
-    if (tab && ['tasks', 'calendar', 'approvals', 'todo'].includes(tab)) {
+    if (tab && ['tasks', 'calendar', 'approvals', 'todo', 'insights'].includes(tab)) {
       setView(tab);
     }
   }, [searchParams]);
