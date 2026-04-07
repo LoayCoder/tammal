@@ -440,7 +440,7 @@
   .premium-card {
     background: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 60% 99%));
     box-shadow: inset 0 1px 0 0 hsl(0 0% 100% / 0.6), var(--shadow-sm);
-    border: 1px solid hsl(var(--border) / 0.4);
+    border: 1px solid hsl(var(--border) / 0.6);
     border-radius: var(--radius);
   }
 
