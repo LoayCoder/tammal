@@ -32,9 +32,9 @@ const LandingNav = () => {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 h-16 flex items-center justify-between">
-        <span className="text-xl font-bold tracking-[0.06em] font-display text-navy-900">
-          TAMMAL
-        </span>
+        <a href="/" className="flex items-center">
+          <img src={tammalLogo} alt="Tammal" className="h-8" />
+        </a>
         <div className="flex items-center gap-3">
           <a
             href="/auth"
