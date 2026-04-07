@@ -256,6 +256,13 @@ export function TeamPulseCard({ employeeId }: Props) {
           </div>
         ) : null}
       </div>
+
+      {/* Bulk Check-in Reminder Dialog */}
+      <BulkCheckinReminder
+        open={bulkCheckinOpen}
+        onOpenChange={setBulkCheckinOpen}
+        directReports={directReports}
+      />
     </div>
   );
 }
