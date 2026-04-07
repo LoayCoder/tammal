@@ -50,8 +50,12 @@ export interface CopilotInsufficientData {
 
 export type CopilotResponse = CopilotInsight | CopilotInsufficientData;
 
+function isCopilotInsight(data: CopilotResponse): data is CopilotInsight {
+  return data.insufficientData === false;
+}
+
 function normalizeCopilotResponse(data: CopilotResponse): CopilotResponse {
-  if (data.insufficientData || !data.recommendations?.length) return data;
+  if (!isCopilotInsight(data) || !data.recommendations?.length) return data;
 
   return {
     ...data,
