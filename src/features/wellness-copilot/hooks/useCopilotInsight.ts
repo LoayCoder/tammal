@@ -8,7 +8,7 @@ const LEGACY_RECOMMENDATION_ROUTE_MAP: Record<string, string> = {
   "/admin/workload": "/admin/workload/dashboard",
 };
 
-const TEAM_CHECKIN_DEEP_LINK = "/dashboard?focus=team-pulse&mode=team";
+const TEAM_CHECKIN_DEEP_LINK = "/dashboard?focus=team-pulse&mode=team&action=bulk-checkin";
 
 export type CopilotMode = "personal" | "team" | "organization";
 export type UrgencyLevel = "opportunity" | "neutral" | "attention" | "urgent";
