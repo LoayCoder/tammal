@@ -4444,7 +4444,6 @@
     },
     "pending": "pending",
     "approve": "Approve",
-    "reject": "Reject",
     "overdue": "overdue",
     "approvalQueue": "Approval Queue",
     "approvalQueueDesc": "Review and approve tasks awaiting your decision",
@@ -4792,6 +4791,50 @@
       "privacy": "Privacy",
       "terms": "Terms",
       "security": "Security"
+    }
+  },
+  "onboarding": {
+    "skip": "Skip Tour",
+    "finish": "Get Started",
+    "restartTour": "Restart App Guide",
+    "appGuide": "App Guide",
+    "steps": {
+      "welcome": {
+        "title": "Welcome to TAMMAL! 🎉",
+        "description": "Let us show you around! This quick guide will walk you through the key features of the platform to help you get started."
+      },
+      "dashboard": {
+        "title": "Your Dashboard",
+        "description": "Your central hub for daily check-ins, wellness insights, and quick access to all tools. Stay on top of everything at a glance."
+      },
+      "wellness": {
+        "title": "Daily Wellness Check-in",
+        "description": "Start each day by sharing how you feel. Your anonymous responses help build a healthier work culture for everyone."
+      },
+      "mentalToolkit": {
+        "title": "Mental Wellness Toolkit",
+        "description": "Access mood tracking, breathing exercises, thought reframing, journaling, and guided meditation — all in one place."
+      },
+      "workload": {
+        "title": "Workload & Tasks",
+        "description": "Manage your tasks, track objectives, and stay organized with smart workload intelligence and capacity planning."
+      },
+      "recognition": {
+        "title": "Recognition & Awards",
+        "description": "Nominate colleagues, vote for outstanding contributions, earn points, and redeem rewards. Celebrate what matters."
+      },
+      "spiritual": {
+        "title": "Spiritual Corner",
+        "description": "Track prayers, read Quran, monitor fasting, and explore Islamic calendar events — personalized to your preferences."
+      },
+      "support": {
+        "title": "Support & Crisis Help",
+        "description": "Need help? Reach out to trained first aiders confidentially, or submit support tickets for any issues you encounter."
+      },
+      "settings": {
+        "title": "Profile & Settings",
+        "description": "Customize your profile, manage security settings, and adjust your preferences. You can restart this guide anytime from Settings."
+      }
     }
   }
 }

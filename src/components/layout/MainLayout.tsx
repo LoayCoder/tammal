@@ -10,6 +10,8 @@ import { useDynamicPWA } from "@/hooks/branding/useDynamicPWA";
 import { useTenantId } from "@/hooks/org/useTenantId";
 import { PWAInstallBanner } from "@/components/pwa/PWAInstallBanner";
 import { MobileBottomNav } from "./MobileBottomNav";
+import { AppGuidedTour } from "@/components/onboarding/AppGuidedTour";
+import { useOnboardingTour } from "@/hooks/onboarding/useOnboardingTour";
 
 export function MainLayout() {
   const { tenantId } = useTenantId();
