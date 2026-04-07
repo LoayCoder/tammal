@@ -21,6 +21,7 @@ import { TeamHealthSummary } from "./TeamHealthSummary";
 import { TeamMemberRiskGrid } from "./TeamMemberRiskGrid";
 import { useTeamMemberPulse } from "../hooks/useTeamMemberPulse";
 import { PulseNudgeCard } from "./PulseNudgeCard";
+import { BulkCheckinReminder } from "./BulkCheckinReminder";
 import { useCurrentEmployee } from "@/hooks/auth/useCurrentEmployee";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
