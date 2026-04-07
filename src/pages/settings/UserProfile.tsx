@@ -229,6 +229,15 @@ export default function UserProfile() {
                   {t('profile.loginActivity')}
                 </Button>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={resetTour}
+                disabled={isResetting}
+              >
+                <BookOpen className="me-2 h-4 w-4" />
+                {t('onboarding.restartTour')}
+              </Button>
             </div>
 
             <Separator />
