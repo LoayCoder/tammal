@@ -18,6 +18,17 @@ interface MoodTrendChartProps {
   hasOrgData: boolean;
 }
 
+function GlowDot(props: any) {
+  const { cx, cy, payload } = props;
+  if (cx == null || cy == null) return null;
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={8} fill={TOOLKIT.lavender} opacity={0.15} />
+      <circle cx={cx} cy={cy} r={5} fill="hsl(var(--card))" stroke={TOOLKIT.lavender} strokeWidth={2.5} />
+    </g>
+  );
+}
+
 export function MoodTrendChart({ data, hasOrgData }: MoodTrendChartProps) {
   const { t } = useTranslation();
 
@@ -25,12 +36,12 @@ export function MoodTrendChart({ data, hasOrgData }: MoodTrendChartProps) {
     <Card className={cn("premium-card rounded-2xl")}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <BarChart3 className="h-4 w-4" style={{ color: TOOLKIT.lavender }} strokeWidth={1.75} />
+          <BarChart3 className="h-4 w-4" style={{ color: TOOLKIT.lavender }} strokeWidth={1.5} />
           {t("mentalToolkit.moodDashboard.moodTrend")}
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-64">
+        <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
               <defs>
@@ -43,9 +54,9 @@ export function MoodTrendChart({ data, hasOrgData }: MoodTrendChartProps) {
               <YAxis domain={[0, 5]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
               <Tooltip content={({ active, payload }) =>
                 active && payload?.length ? (
-                  <div className="bg-card/95 backdrop-blur-sm border border-border rounded-xl px-3 py-2 text-sm shadow-lg">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">{payload[0]?.payload?.emoji || "—"}</span>
+                  <div className="bg-card/95 backdrop-blur-sm border border-border rounded-2xl px-4 py-3 text-sm shadow-lg">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-2xl">{payload[0]?.payload?.emoji || "—"}</span>
                       <div>
                         <div className="font-medium text-foreground">{t("mentalToolkit.moodDashboard.yourMood")}: {payload[0]?.value ?? "—"}</div>
                         {payload[0]?.payload?.orgAvg != null && (
@@ -56,9 +67,9 @@ export function MoodTrendChart({ data, hasOrgData }: MoodTrendChartProps) {
                   </div>
                 ) : null
               } />
-              <Area type="monotone" dataKey="score" stroke={TOOLKIT.lavender} fill="url(#moodGrad)" strokeWidth={2.5} dot={{ r: 3, fill: TOOLKIT.lavender, strokeWidth: 0 }} activeDot={{ r: 6, fill: TOOLKIT.lavender, strokeWidth: 3, stroke: "hsl(var(--card))" }} connectNulls />
+              <Area type="monotone" dataKey="score" stroke={TOOLKIT.lavender} fill="url(#moodGrad)" strokeWidth={2.5} dot={{ r: 3, fill: TOOLKIT.lavender, strokeWidth: 0 }} activeDot={<GlowDot />} connectNulls />
               {hasOrgData && <Area type="monotone" dataKey="orgAvg" stroke={TOOLKIT.sage} fill="none" strokeWidth={1.5} strokeDasharray="5 3" dot={false} connectNulls />}
-              <ReferenceLine y={3} stroke="hsl(var(--border) / 0.4)" strokeDasharray="3 3" />
+              <ReferenceLine y={3} stroke="hsl(var(--border) / 0.4)" strokeDasharray="3 3" label={{ value: "Neutral", position: "insideTopRight", fill: "hsl(var(--muted-foreground))", fontSize: 9 }} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
