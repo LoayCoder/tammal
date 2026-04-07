@@ -161,15 +161,6 @@ export default function EmployeeHome() {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Wellness Copilot */}
-        {employee && <WellnessCopilotCard employeeId={employee.id} onCheckinClick={handleCheckinClick} />}
-
-        {/* Copilot Insight History */}
-        {employee && <CopilotHistoryPanel />}
-
-        {/* Team Pulse Action Hub */}
-        {employee && <TeamPulseCard employeeId={employee.id} />}
-
         {/* Quick Appreciation */}
         <QuickAppreciationCard />
 
@@ -231,6 +222,15 @@ export default function EmployeeHome() {
 
         {/* Workload Overview Widget */}
         {employee && <DashboardWorkloadWidget employeeId={employee.id} />}
+
+        {/* Wellness Copilot */}
+        {employee && <WellnessCopilotCard employeeId={employee.id} onCheckinClick={handleCheckinClick} />}
+
+        {/* Copilot Insight History */}
+        {employee && <CopilotHistoryPanel />}
+
+        {/* Team Pulse Action Hub */}
+        {employee && <TeamPulseCard employeeId={employee.id} />}
 
         {/* First Aider Quick Connect */}
         <FirstAiderQuickConnect
