@@ -348,17 +348,17 @@ serve(async (req) => {
     ];
 
     const teamTools = [
-      { key: "team_checkin", title: "Send Check-in Reminder", route: "/team-pulse", type: "practice" },
+      { key: "team_checkin", title: "Send Check-in Reminder", route: "/engagement-insights", type: "practice" },
       { key: "review_workload", title: "Review Team Workload", route: "/my-workload", type: "resource" },
-      { key: "team_pulse", title: "View Team Pulse", route: "/team-pulse", type: "resource" },
-      { key: "launch_survey", title: "Launch Wellness Survey", route: "/admin/surveys", type: "resource" },
+      { key: "team_pulse", title: "View Team Pulse", route: "/engagement-insights", type: "resource" },
+      { key: "launch_survey", title: "Launch Wellness Survey", route: "/admin/questions", type: "resource" },
     ];
 
     const orgTools = [
-      { key: "launch_survey", title: "Launch Organization Survey", route: "/admin/surveys", type: "resource" },
-      { key: "org_analytics", title: "Review Wellness Analytics", route: "/admin/wellness-analytics", type: "resource" },
-      { key: "review_workload", title: "Review Workload Distribution", route: "/admin/workload", type: "resource" },
-      { key: "team_pulse", title: "View Organization Pulse", route: "/team-pulse", type: "resource" },
+      { key: "launch_survey", title: "Launch Organization Survey", route: "/admin/questions", type: "resource" },
+      { key: "org_analytics", title: "Review Wellness Analytics", route: "/engagement-insights", type: "resource" },
+      { key: "review_workload", title: "Review Workload Distribution", route: "/admin/workload/dashboard", type: "resource" },
+      { key: "team_pulse", title: "View Organization Pulse", route: "/engagement-insights", type: "resource" },
     ];
 
     const wellnessTools =
