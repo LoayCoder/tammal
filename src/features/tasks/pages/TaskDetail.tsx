@@ -177,7 +177,13 @@ export default function TaskDetail() {
         <div className="flex items-center gap-2 flex-wrap">
           <Select
             value={task.status}
-            onValueChange={(v) => updateTask.mutate({ status: v })}
+            onValueChange={(v) => {
+              if (v === 'completed' && !hasApprovedEvidence) {
+                toast.error(t('tasks.evidenceRequiredBeforeCompletion', 'Cannot complete task without approved evidence. Please upload and get evidence approved first.'));
+                return;
+              }
+              updateTask.mutate({ status: v });
+            }}
             disabled={task.is_locked}
           >
             <SelectTrigger className="w-auto h-7 border-0 p-0 shadow-none focus:ring-0">
