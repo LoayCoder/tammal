@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { useOnboardingTour } from '@/hooks/onboarding/useOnboardingTour';
 import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
 import { useUserRoles } from '@/hooks/org/useUsers';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
