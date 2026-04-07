@@ -153,8 +153,6 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/accept-invite" element={<AcceptInvite />} />
             <Route path="/install" element={<InstallApp />} />
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/landing" element={<LandingPage />} />
             <Route element={<ProtectedRoute />}>
             <Route element={<MainLayout />}>
               {/* ... keep existing code (all route definitions) */}
@@ -164,6 +162,7 @@ const App = () => (
                 <Route path="/employee/wellness" element={<DailyCheckin />} />
               </Route>
 
+              <Route path="/" element={<Dashboard />} />
               <Route path="/dashboard" element={<Dashboard />} />
 
               {/* ── Admin routes ── */}
