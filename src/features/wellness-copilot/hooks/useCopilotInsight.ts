@@ -59,6 +59,14 @@ function normalizeRecommendationRoute(
   recommendation: CopilotRecommendation,
   mode: CopilotMode
 ) {
+  // Team check-in should deep-link to dashboard Team Pulse, not analytics
+  if (
+    mode === "team" &&
+    recommendation.key === "team_checkin"
+  ) {
+    return TEAM_CHECKIN_DEEP_LINK;
+  }
+
   if (
     mode === "team" &&
     recommendation.key === "launch_survey" &&
