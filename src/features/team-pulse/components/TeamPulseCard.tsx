@@ -134,7 +134,7 @@ export function TeamPulseCard({ employeeId }: Props) {
   }
 
   return (
-    <div className={cn(cardVariants.premiumVip, "rounded-2xl overflow-hidden group")}>
+    <div ref={cardRef} className={cn(cardVariants.premiumVip, "rounded-2xl overflow-hidden group")}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 pb-0">
         <div className="flex items-center gap-2">
