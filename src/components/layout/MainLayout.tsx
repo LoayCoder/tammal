@@ -35,6 +35,11 @@ export function MainLayout() {
           <MobileBottomNav />
         </div>
       </div>
+      <AppGuidedTour
+        open={showTour}
+        onComplete={completeTour}
+        onSkip={completeTour}
+      />
     </SidebarProvider>
   );
 }
