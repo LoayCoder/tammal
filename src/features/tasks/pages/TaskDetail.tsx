@@ -68,7 +68,8 @@ export default function TaskDetail() {
   const { comments, isPending: commentsLoading, addComment, removeComment, editComment } = useTaskComments(id);
   const { activities, isPending: activityLoading } = useTaskActivity(id);
   const { attachments, isPending: attachmentsLoading, uploadFile, removeFile, isUploading } = useTaskAttachments(id);
-
+  const { evidence, isPending: evidenceLoading, uploadEvidence, verifyEvidence, isUploading: evidenceUploading, isVerifying } = useTaskEvidence(id);
+  const hasApprovedEvidence = evidence.some(e => e.status === 'approved');
   const handleToggleChecklist = (itemId: string, currentStatus: string) => {
     updateItem({ id: itemId, status: currentStatus === 'completed' ? 'pending' : 'completed' });
   };
