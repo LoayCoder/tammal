@@ -128,6 +128,19 @@ export default {
 					'0%': { transform: 'translateX(-100%)' },
 					'100%': { transform: 'translateX(100%)' },
 				},
+				navy: {
+					800: '#1e3155',
+					900: '#1a2744',
+				},
+				teal: {
+					50: '#f0fdfa',
+					100: '#ccfbf1',
+					200: '#99f6e4',
+					400: '#2dd4bf',
+					500: '#14b8a6',
+					600: '#0891b2',
+					700: '#0e7490',
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -149,6 +162,18 @@ export default {
 					'Helvetica Neue',
 					'Arial',
 					'Noto Sans',
+					'sans-serif'
+				],
+				display: [
+					'Outfit',
+					'ui-sans-serif',
+					'system-ui',
+					'sans-serif'
+				],
+				body: [
+					'Work Sans',
+					'ui-sans-serif',
+					'system-ui',
 					'sans-serif'
 				],
 			},
