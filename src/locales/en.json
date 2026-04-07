@@ -4704,131 +4704,57 @@
   "landing": {
     "nav": {
       "signIn": "Sign In",
-      "getAccess": "See a Demo"
+      "getStarted": "Get Started",
+      "features": "Features",
+      "enterprise": "Enterprise",
+      "pricing": "Pricing"
     },
     "hero": {
-      "badge": "Enterprise Admin Platform",
-      "headingLine1": "Stop losing your best people",
-      "headingLine2": "to admin work.",
-      "subtitle": "Tammal cuts permission management from hours to minutes. Automated workflows. Real-time compliance. One interface for everything your ops team needs.",
-      "cta": "See Your Time Saved",
-      "signIn": "Enter Platform"
-    },
-    "value": {
-      "sectionLabel": "The Problem We Solve",
-      "heading": "Your Ops Team Is Drowning in Manual Tasks",
-      "securityTitle": "Security That Actually Works",
-      "securityDesc": "Every user sees only what they should. Every action is logged. Every access decision is automatic. Zero guesswork. Zero compliance headaches.",
-      "speedTitle": "Your Admins Get Their Time Back",
-      "speedDesc": "Stop answering 'Can I access X?' Permissions set themselves. Tasks route automatically. One admin can do the work of three.",
-      "visibilityTitle": "Finally See What's Actually Happening",
-      "visibilityDesc": "One dashboard shows employee wellness, workload balance, and risk indicators. No more hunting through five different tools."
-    },
-    "showcase": {
-      "item1Title": "Executive Dashboard",
-      "item1Desc": "See your team's workload one week in advance. Employee wellness, engagement trends, and organizational health — updated in real time. Stop the crisis before it starts.",
-      "item1Alt": "Executive dashboard showing engagement analytics and team health",
-      "item2Title": "Workload Intelligence",
-      "item2Desc": "Know who's overloaded before they break. Automated task distribution catches burnout risks early. No more spreadsheet shuffling.",
-      "item2Alt": "Workload management interface with capacity planning",
-      "item3Title": "AI Wellness Copilot",
-      "item3Desc": "Spot the warning signs two weeks earlier. Context-aware recommendations that identify risks before they escalate. Evidence-based interventions, not guesswork.",
-      "item3Alt": "AI copilot providing wellness insights and action recommendations"
+      "badge": "ENTERPRISE CONTROL",
+      "heading": "Stop managing permissions. Start leading.",
+      "subtitle": "Automate access control, eliminate manual workflows, and give your team the tools to work faster.",
+      "cta": "Start Free Trial",
+      "secondary": "Watch Demo"
     },
     "features": {
-      "sectionLabel": "What You Get",
-      "heading": "Tools That Solve Real Problems",
-      "wellnessTitle": "Employee Wellness (Actually Tracked)",
-      "wellnessDesc": "See burnout signals before they become problems. Mental health tools, mood tracking, and breathing exercises — unified, not scattered.",
-      "teamPulseTitle": "Team Health Dashboard",
-      "teamPulseDesc": "Real-time sentiment and workload data. No surveys needed. Pattern recognition surfaces issues automatically.",
-      "okrTitle": "OKR Alignment & Capacity",
-      "okrDesc": "Know who's overloaded before they break. Objective tracking with automated escalation when things fall behind.",
-      "surveyTitle": "Pulse Surveys (AI-Powered)",
-      "surveyDesc": "Automatic question generation. Pattern detection in responses. Bias checks built in. Results you can actually trust.",
-      "spiritualTitle": "Spiritual Wellness",
-      "spiritualDesc": "Prayer tracking, Quran reader, Sunnah habits, and Islamic calendar. Integrated naturally, not bolted on.",
-      "recognitionTitle": "Recognition That Matters",
-      "recognitionDesc": "Peer recognition that's more than corporate theater. Nominations, voting, and fairness-audited award cycles.",
-      "crisisTitle": "Crisis Response Protocol",
-      "crisisDesc": "Escalation paths that work. Trained peer support with confidential channels. When it matters most, the system responds.",
-      "governanceTitle": "AI-Driven Governance",
-      "governanceDesc": "Smart policy enforcement that learns from your organization. Cost controls, provider routing, and complete audit trails."
+      "heading": "Everything built for leaders",
+      "subtitle": "From permission management to team wellness — tools that solve real problems.",
+      "f1Title": "Security First",
+      "f1Desc": "Row-level isolation, immutable audit trails, and automatic compliance logging. Security baked into the architecture.",
+      "f2Title": "Zero-Touch Workflows",
+      "f2Desc": "Permissions approve automatically. Tasks route themselves. Your team gets 10+ hours back per week.",
+      "f3Title": "Real-Time Visibility",
+      "f3Desc": "One dashboard shows workload, wellness, and risk. See everything that matters in one place.",
+      "f4Title": "Built for Scale",
+      "f4Desc": "10,000+ enterprises. 99.99% uptime. Multi-tenant architecture that never compromises on security.",
+      "f5Title": "AI-Powered Insights",
+      "f5Desc": "Predictive insights surface risks early. Recommendations prevent problems before they start.",
+      "f6Title": "Always Compliant",
+      "f6Desc": "SOC 2 Type II, GDPR, RTL-native. Audit trails ready for regulators, instantly."
     },
-    "impact": {
-      "sectionLabel": "Real Results",
-      "heading": "The Numbers Behind Tammal",
-      "stat1Value": "3×",
-      "stat1Label": "More users handled per admin",
-      "stat1Detail": "One admin now manages what three used to handle",
-      "stat2Value": "<5 min",
-      "stat2Label": "Permission request resolution",
-      "stat2Detail": "Down from 3 days average turnaround",
-      "stat3Value": "70%",
-      "stat3Label": "Less time on compliance audits",
-      "stat3Detail": "Automatic trails eliminate manual work",
-      "stat4Value": "2 weeks",
-      "stat4Label": "Earlier wellness issue detection",
-      "stat4Detail": "Burnout signals surfaced before turnover"
+    "showcase": {
+      "heading": "One dashboard. Complete control.",
+      "description": "See every permission, every workflow, every risk indicator. All on one screen. No hunting through multiple tools. No surprises.",
+      "cta": "Explore Features",
+      "imageAlt": "Tammal executive dashboard showing organizational analytics"
     },
-    "useCases": {
-      "sectionLabel": "Who It's For",
-      "heading": "Built for Teams That Are Tired of Fragmented Systems",
-      "case1Title": "HR Leaders",
-      "case1Desc": "Manage wellness programs, track engagement across departments, and surface burnout risks — all without adding headcount or another spreadsheet.",
-      "case2Title": "IT & Security Teams",
-      "case2Desc": "Row-level tenant isolation, complete audit logging, and governance controls. Compliance requirements satisfied from day one. Not day ninety.",
-      "case3Title": "Executive Leadership",
-      "case3Desc": "One dashboard. Organizational health, predictive analytics, and evidence-based recommendations. No more hunting through five different tools for answers."
-    },
-    "visual": {
-      "sectionLabel": "The Experience",
-      "heading": "One Interface. Zero Chaos.",
-      "subtitle": "Every metric, every team, every insight — in a single, clean interface. Designed for speed. Built for clarity."
-    },
-    "trust": {
-      "sectionLabel": "Infrastructure",
-      "heading": "Enterprise-Grade. Not Enterprise-Complicated.",
-      "stat1Value": "10,000+",
-      "stat1Label": "Tenants Supported",
-      "stat2Value": "99.99%",
-      "stat2Label": "Uptime SLA",
-      "stat3Value": "SOC 2",
-      "stat3Label": "Compliance Ready",
-      "stat4Value": "<200ms",
-      "stat4Label": "Response Time",
-      "securityTitle": "Enterprise Security",
-      "securityDesc": "Your CFO sees the budget. Your interns don't. Row-level security, JWT-based isolation, immutable audit trails.",
-      "multiTenantTitle": "Multi-Tenant Architecture",
-      "multiTenantDesc": "10,000+ tenants. Zero cross-contamination. Every byte isolated by design, not by hope.",
-      "rtlTitle": "Arabic-First & Bilingual",
-      "rtlDesc": "Full Arabic and English support with logical layout properties. No hacks, no workarounds, no compromises.",
-      "complianceTitle": "Compliance Built In",
-      "complianceDesc": "GDPR-aligned data handling, soft-delete architecture, immutable audit logs. Auditors love us."
-    },
-    "faq": {
-      "sectionLabel": "Common Questions",
-      "heading": "Before You Ask",
-      "q1": "How long does setup take?",
-      "a1": "Most teams are running in under a week. We handle migration, configuration, and onboarding. You handle the coffee.",
-      "q2": "Does it integrate with our current tools?",
-      "a2": "Tammal connects with your existing identity providers, HR systems, and task management tools. No rip-and-replace required.",
-      "q3": "What's the learning curve?",
-      "a3": "If your team can use email, they can use Tammal. The interface is designed to be obvious, not clever.",
-      "q4": "Is our data safe?",
-      "a4": "Row-level isolation, encrypted at rest and in transit, immutable audit logs, and SOC 2 readiness. Your data stays yours."
+    "stats": {
+      "s1Value": "10,000+",
+      "s1Label": "Enterprises trust us",
+      "s2Value": "99.99%",
+      "s2Label": "Uptime SLA",
+      "s3Value": "<200ms",
+      "s3Label": "Response time",
+      "s4Value": "Zero",
+      "s4Label": "Data breaches"
     },
     "cta": {
-      "heading": "See Your Admin Time Saved — In Real Numbers",
-      "subtitle": "We'll show you how your team can reclaim 10+ hours per week. 15-minute demo, no commitments, no credit card.",
-      "requestAccess": "Book a 15-Min Demo",
-      "signIn": "Sign In"
+      "heading": "Ready to take control?",
+      "subtitle": "Get your team up and running in 15 minutes. No credit card. No commitments.",
+      "button": "Start Free Trial"
     },
     "footer": {
-      "rights": "© {{year}} Tammal. All rights reserved.",
-      "privacy": "Privacy",
-      "terms": "Terms",
-      "security": "Security"
+      "rights": "© {{year}} Tammal. Enterprise control, simplified."
     }
   }
 }
