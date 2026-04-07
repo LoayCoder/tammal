@@ -58,7 +58,7 @@ const LandingFooter = () => {
   ];
 
   return (
-    <footer className="py-16 border-t border-white/[0.04]">
+    <footer className="py-16 border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
         <span className="text-sm text-white/20">
           {t("landing.footer.rights", { year: new Date().getFullYear() })}
