@@ -140,6 +140,9 @@ export default function PersonalCommandCenter() {
           <ToggleGroupItem value="todo" className="gap-1.5 text-xs rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm px-3 sm:px-5 min-h-[44px] shrink-0 transition-all duration-200">
             <Sparkles className="h-3.5 w-3.5" />{t('workload.views.todo', 'To-Do')}
           </ToggleGroupItem>
+          <ToggleGroupItem value="insights" className="gap-1.5 text-xs rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm px-3 sm:px-5 min-h-[44px] shrink-0 transition-all duration-200">
+            <History className="h-3.5 w-3.5" />{t('workload.views.insights', 'Insights')}
+          </ToggleGroupItem>
         </ToggleGroup>
       </div>
 
@@ -159,6 +162,9 @@ export default function PersonalCommandCenter() {
           employeeName={employee.full_name}
           tenantId={employee.tenant_id}
         />
+      )}
+      {view === 'insights' && (
+        <CopilotHistoryPanel className="border-none shadow-none" />
       )}
 
       {/* Create Task Modal */}
