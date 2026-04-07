@@ -2437,7 +2437,12 @@
     "outOfEmployees": "out of {{count}} employees",
     "topPerformer": "You're a top performer! 🎉",
     "keepEngaging": "Keep engaging to climb the ranks!",
-    "yourRank": "Your Rank"
+    "yourRank": "Your Rank",
+    "moodTracker": "Mood Tracker",
+    "thoughtReframer": "Thought Reframer",
+    "psychoeducation": "Articles & Education",
+    "wellnessResources": "Wellness Resources",
+    "wellnessResourcesSubtitle": "Tools to support your mental wellbeing"
   },
   "moodPathway": {
     "title": "Mood Follow-up",

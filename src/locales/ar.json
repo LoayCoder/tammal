@@ -2437,7 +2437,12 @@
     "outOfEmployees": "من أصل {{count}} موظف",
     "topPerformer": "أنت من أفضل المتفاعلين! 🎉",
     "keepEngaging": "واصل التفاعل لتتقدم في الترتيب!",
-    "yourRank": "ترتيبك"
+    "yourRank": "ترتيبك",
+    "moodTracker": "تتبع المزاج",
+    "thoughtReframer": "إعادة تأطير الأفكار",
+    "psychoeducation": "مقالات وتثقيف",
+    "wellnessResources": "موارد العافية",
+    "wellnessResourcesSubtitle": "أدوات لدعم صحتك النفسية"
   },
   "moodPathway": {
     "title": "متابعة المزاج",
