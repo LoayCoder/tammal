@@ -53,6 +53,11 @@ export function WorkloadApprovalsView() {
                     </Badge>
                     <Badge variant="outline">P{task.priority}</Badge>
                     <SlaCountdownBadge dueDate={task.due_date} />
+                    {!(task as any)._hasApprovedEvidence && (
+                      <Badge variant="outline" className="text-2xs bg-chart-4/10 text-chart-4 gap-1">
+                        <AlertTriangle className="h-2.5 w-2.5" />{t('tasks.evidence.missing', 'No Evidence')}
+                      </Badge>
+                    )}
                   </div>
                   {(task as any).employee?.full_name && (
                     <p className="text-xs text-muted-foreground">{t('tasks.fields.assignee')}: {(task as any).employee.full_name}</p>
@@ -69,7 +74,7 @@ export function WorkloadApprovalsView() {
                   <Button size="sm" variant="ghost" onClick={() => navigate(`/tasks/${task.id}`)} className="gap-1">
                     <Eye className="h-3.5 w-3.5" />{t('common.view')}
                   </Button>
-                  <Button size="sm" variant="default" onClick={() => handleApprove(task.id)} className="gap-1" disabled={updateStatus.isPending}>
+                  <Button size="sm" variant="default" onClick={() => handleApprove(task.id, (task as any)._hasApprovedEvidence)} className="gap-1" disabled={updateStatus.isPending}>
                     <CheckCircle2 className="h-3.5 w-3.5" />{t('tasks.approve')}
                   </Button>
                   <Button size="sm" variant="destructive" onClick={() => setRejectTarget({ id: task.id, title: task.title })} className="gap-1" disabled={updateStatus.isPending}>
