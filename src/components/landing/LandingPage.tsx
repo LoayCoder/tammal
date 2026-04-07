@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import tammalLogo from "@/assets/tammal-logo.svg";
 import { LandingHero } from "./LandingHero";
 import { LandingValue } from "./LandingValue";
 import { LandingShowcase } from "./LandingShowcase";
@@ -31,9 +32,9 @@ const LandingNav = () => {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 h-16 flex items-center justify-between">
-        <span className="text-xl font-bold tracking-[0.06em] font-display text-navy-900">
-          TAMMAL
-        </span>
+        <a href="/" className="flex items-center">
+          <img src={tammalLogo} alt="Tammal" className="h-8" />
+        </a>
         <div className="flex items-center gap-3">
           <a
             href="/auth"
@@ -67,9 +68,9 @@ const LandingFooter = () => {
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <span className="text-lg font-bold tracking-[0.06em] font-display text-navy-900">
-              TAMMAL
-            </span>
+            <a href="/" className="flex items-center">
+              <img src={tammalLogo} alt="Tammal" className="h-7" />
+            </a>
             <span className="text-sm text-gray-400 font-body">
               {t("landing.footer.rights", { year: new Date().getFullYear() })}
             </span>
