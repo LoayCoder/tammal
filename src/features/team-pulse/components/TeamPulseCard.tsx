@@ -60,10 +60,11 @@ export function TeamPulseCard({ employeeId }: Props) {
   const { sendAppreciation } = useAppreciations();
   const { data: teamMembers = [] } = useTeamMemberPulse(employeeId, selectedMode === "team");
 
-  // Deep-link: ?focus=team-pulse&mode=team → switch mode, scroll into view, clean URL
+  // Deep-link: ?focus=team-pulse&mode=team&action=bulk-checkin
   useEffect(() => {
     if (searchParams.get("focus") === "team-pulse") {
       const targetMode = searchParams.get("mode");
+      const action = searchParams.get("action");
       if (targetMode === "team" || targetMode === "organization") {
         if (allowedModes.includes(targetMode)) {
           setMode(targetMode);
@@ -74,11 +75,16 @@ export function TeamPulseCard({ employeeId }: Props) {
       // Scroll into view after a short delay for render
       setTimeout(() => {
         cardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        // Auto-open bulk check-in dialog
+        if (action === "bulk-checkin") {
+          setTimeout(() => setBulkCheckinOpen(true), 400);
+        }
       }, 300);
       // Clean URL params
       const next = new URLSearchParams(searchParams);
       next.delete("focus");
       next.delete("mode");
+      next.delete("action");
       setSearchParams(next, { replace: true });
     }
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
