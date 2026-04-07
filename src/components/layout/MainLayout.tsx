@@ -10,10 +10,13 @@ import { useDynamicPWA } from "@/hooks/branding/useDynamicPWA";
 import { useTenantId } from "@/hooks/org/useTenantId";
 import { PWAInstallBanner } from "@/components/pwa/PWAInstallBanner";
 import { MobileBottomNav } from "./MobileBottomNav";
+import { AppGuidedTour } from "@/components/onboarding/AppGuidedTour";
+import { useOnboardingTour } from "@/hooks/onboarding/useOnboardingTour";
 
 export function MainLayout() {
   const { tenantId } = useTenantId();
   const { branding } = useBranding(tenantId ?? undefined);
+  const { showTour, completeTour } = useOnboardingTour();
   
   useBrandingColors(branding);
   useDynamicFavicon(branding);
@@ -32,6 +35,11 @@ export function MainLayout() {
           <MobileBottomNav />
         </div>
       </div>
+      <AppGuidedTour
+        open={showTour}
+        onComplete={completeTour}
+        onSkip={completeTour}
+      />
     </SidebarProvider>
   );
 }

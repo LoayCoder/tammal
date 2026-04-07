@@ -284,6 +284,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       access: 'all',
       icon: HelpCircle,
       items: [
+        { title: t('onboarding.appGuide'), url: "/app-guide", icon: BookOpen },
         { title: t('nav.support'), url: "/support", icon: HelpCircle },
         { title: t('nav.installApp'), url: "/install", icon: Download },
       ]

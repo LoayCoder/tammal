@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { useOnboardingTour } from '@/hooks/onboarding/useOnboardingTour';
 import { useUserPermissions } from '@/hooks/auth/useUserPermissions';
 import { useUserRoles } from '@/hooks/org/useUsers';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-import { User, Shield, Key, Mail, Calendar, Pencil, Lock, Smartphone, Monitor, Trash2, History } from 'lucide-react';
+import { User, Shield, Key, Mail, Calendar, Pencil, Lock, Smartphone, Monitor, Trash2, History, BookOpen } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,6 +29,7 @@ export default function UserProfile() {
   const { user } = useAuth();
   const { permissions, isPending: permissionsLoading, isSuperAdmin } = useUserPermissions();
   const { userRoles, isPending: rolesLoading } = useUserRoles(user?.id);
+  const { resetTour, isResetting } = useOnboardingTour();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
@@ -227,6 +229,15 @@ export default function UserProfile() {
                   {t('profile.loginActivity')}
                 </Button>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={resetTour}
+                disabled={isResetting}
+              >
+                <BookOpen className="me-2 h-4 w-4" />
+                {t('onboarding.restartTour')}
+              </Button>
             </div>
 
             <Separator />

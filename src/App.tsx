@@ -101,6 +101,7 @@ const ComponentShowcase = lazy(() => import("@/pages/dev/ComponentShowcase"));
 const DesignSystemPage = lazy(() => import("@/pages/dev/DesignSystemPage"));
 const EngagementInsights = lazy(() => import("@/pages/EngagementInsights"));
 const LandingPage = lazy(() => import("@/components/landing/LandingPage"));
+const AppGuidePage = lazy(() => import("@/pages/AppGuidePage"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -243,6 +244,7 @@ const App = () => (
               <Route path="/settings/usage" element={<UsageBilling />} />
               <Route path="/settings/profile" element={<UserProfile />} />
               <Route path="/support" element={<Support />} />
+              <Route path="/app-guide" element={<AppGuidePage />} />
               <Route path="/wellness" element={<WellnessResources />} />
 
               {/* ── Mental Toolkit routes ── */}
