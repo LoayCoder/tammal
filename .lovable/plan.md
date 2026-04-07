@@ -1,31 +1,31 @@
 
 
-# Fix: Copilot Recommendation Cards Leading to 404
+# Fix: Team Mode Copilot Recommendations Showing Admin-Only Actions
 
-## Root Cause
-The `wellness-copilot` edge function returns hardcoded routes that **do not exist** in the app's router:
+## Problem
+The `teamTools` array in the `wellness-copilot` edge function includes **"Launch Wellness Survey"** pointing to `/admin/questions`. This is an admin/HR-only page — team managers cannot access it, resulting in a 404 or access block.
 
-| Recommendation | Route in Edge Function | Actual Route |
-|---|---|---|
-| Send Check-in Reminder | `/team-pulse` | `/engagement-insights` |
-| Review Team Workload | `/my-workload` | `/my-workload` ✅ (OK) |
-| View Team Pulse | `/team-pulse` | `/engagement-insights` |
-| Launch Wellness Survey | `/admin/surveys` | `/admin/questions` |
-| Launch Organization Survey | `/admin/surveys` | `/admin/questions` |
-| Review Wellness Analytics | `/admin/wellness-analytics` | `/admin/analytics` or `/engagement-insights` |
-| Review Workload Distribution | `/admin/workload` | `/admin/workload/dashboard` |
-| View Organization Pulse | `/team-pulse` | `/engagement-insights` |
+Similarly, the `orgTools` array has the same issue, but org mode is restricted to admins anyway, so that's fine.
 
 ## Fix
-Update the `teamTools` and `orgTools` arrays in **`supabase/functions/wellness-copilot/index.ts`** with the correct routes:
 
-| Key | Corrected Route |
+**File:** `supabase/functions/wellness-copilot/index.ts`
+
+Replace the `launch_survey` entry in `teamTools` with a manager-appropriate action:
+
+| Current (broken for managers) | Replacement |
 |---|---|
-| `team_checkin` | `/engagement-insights` |
-| `team_pulse` | `/engagement-insights` |
-| `launch_survey` | `/admin/questions` |
-| `org_analytics` | `/engagement-insights` |
-| `review_workload` (org) | `/admin/workload/dashboard` |
+| `{ key: "launch_survey", title: "Launch Wellness Survey", route: "/admin/questions" }` | `{ key: "view_insights", title: "View Engagement Insights", route: "/engagement-insights" }` |
 
-**File:** `supabase/functions/wellness-copilot/index.ts` — update ~6 route strings in the `teamTools` and `orgTools` arrays.
+The updated `teamTools` array becomes:
+```
+team_checkin  → /engagement-insights  (Send Check-in Reminder)
+review_workload → /my-workload         (Review Team Workload)
+team_pulse    → /engagement-insights  (View Team Pulse)
+view_insights → /engagement-insights  (View Engagement Insights)
+```
+
+All four routes are accessible to managers. The "Launch Survey" action stays in `orgTools` only — where it belongs (admins only).
+
+**Deployment:** Redeploy `wellness-copilot` edge function + clear stale cache entries referencing `/admin/questions` in team-mode insights.
 
