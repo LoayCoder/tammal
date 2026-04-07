@@ -31,6 +31,7 @@ import { useTaskActivity } from '@/features/tasks/hooks/useTaskActivity';
 import { useTaskAttachments } from '@/features/tasks/hooks/useTaskAttachments';
 import { useTaskDetail, useTaskUpdate } from '@/features/tasks/hooks/useTaskDetail';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
+import { useTaskEvidence } from '@/features/workload/hooks/useTaskEvidence';
 import { SlaCountdownBadge } from '@/components/workload/governance/SlaCountdownBadge';
 import { UnlockRequestDialog } from '@/components/workload/governance/UnlockRequestDialog';
 import { format } from 'date-fns';
