@@ -1,47 +1,39 @@
-import { AnimatedSection } from "./AnimatedSection";
-import {
-  Heart, BarChart3, Target, Sparkles,
-  Moon, Award, ShieldAlert, Brain,
-} from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const featureKeys = [
-  { icon: Heart, titleKey: "landing.features.wellnessTitle", descKey: "landing.features.wellnessDesc" },
-  { icon: BarChart3, titleKey: "landing.features.teamPulseTitle", descKey: "landing.features.teamPulseDesc" },
-  { icon: Target, titleKey: "landing.features.okrTitle", descKey: "landing.features.okrDesc" },
-  { icon: Sparkles, titleKey: "landing.features.surveyTitle", descKey: "landing.features.surveyDesc" },
-  { icon: Moon, titleKey: "landing.features.spiritualTitle", descKey: "landing.features.spiritualDesc" },
-  { icon: Award, titleKey: "landing.features.recognitionTitle", descKey: "landing.features.recognitionDesc" },
-  { icon: ShieldAlert, titleKey: "landing.features.crisisTitle", descKey: "landing.features.crisisDesc" },
-  { icon: Brain, titleKey: "landing.features.governanceTitle", descKey: "landing.features.governanceDesc" },
+  { titleKey: "landing.features.f1Title", descKey: "landing.features.f1Desc" },
+  { titleKey: "landing.features.f2Title", descKey: "landing.features.f2Desc" },
+  { titleKey: "landing.features.f3Title", descKey: "landing.features.f3Desc" },
+  { titleKey: "landing.features.f4Title", descKey: "landing.features.f4Desc" },
+  { titleKey: "landing.features.f5Title", descKey: "landing.features.f5Desc" },
+  { titleKey: "landing.features.f6Title", descKey: "landing.features.f6Desc" },
 ];
 
 export const LandingFeatures = () => {
   const { t } = useTranslation();
 
   return (
-    <section className="py-24 lg:py-32 bg-[#f9fafb]">
-      <div className="w-full max-w-7xl mx-auto px-6 lg:px-12">
-        <AnimatedSection className="text-center mb-16">
-          <p className="text-xs uppercase tracking-[0.2em] text-teal-600 mb-4 font-body font-medium">
-            {t("landing.features.sectionLabel")}
-          </p>
-          <h2 className="text-3xl lg:text-4xl font-bold text-navy-900 tracking-tight font-display">
+    <section id="features" className="py-24 lg:py-[100px] bg-white">
+      <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl lg:text-[48px] font-bold text-black tracking-[-1px] leading-tight mb-4">
             {t("landing.features.heading")}
           </h2>
-        </AnimatedSection>
+          <p className="text-lg text-[#666] max-w-lg mx-auto">
+            {t("landing.features.subtitle")}
+          </p>
+        </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {featureKeys.map((f, i) => (
-            <AnimatedSection key={f.titleKey} delay={i * 0.06}>
-              <div className="group p-6 rounded-2xl bg-white border border-gray-200/80 hover:border-teal-200 hover:-translate-y-1 hover:shadow-md transition-all duration-300 h-full">
-                <div className="w-10 h-10 rounded-lg bg-navy-900/5 flex items-center justify-center mb-4">
-                  <f.icon className="w-5 h-5 text-navy-900/60 group-hover:text-teal-600 transition-colors duration-300" strokeWidth={1.5} />
-                </div>
-                <h3 className="text-sm font-semibold text-navy-900 mb-2 font-display">{t(f.titleKey)}</h3>
-                <p className="text-xs text-gray-500 leading-relaxed font-body">{t(f.descKey)}</p>
-              </div>
-            </AnimatedSection>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-12">
+          {featureKeys.map((f) => (
+            <div key={f.titleKey}>
+              <h3 className="text-xl font-bold text-black mb-2">
+                {t(f.titleKey)}
+              </h3>
+              <p className="text-[15px] text-[#666] leading-relaxed">
+                {t(f.descKey)}
+              </p>
+            </div>
           ))}
         </div>
       </div>
