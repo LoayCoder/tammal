@@ -226,8 +226,6 @@ export default function EmployeeHome() {
         {/* Wellness Copilot */}
         {employee && <WellnessCopilotCard employeeId={employee.id} onCheckinClick={handleCheckinClick} />}
 
-        {/* Copilot Insight History */}
-        {employee && <CopilotHistoryPanel />}
 
         {/* Team Pulse Action Hub */}
         {employee && <TeamPulseCard employeeId={employee.id} />}
