@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import tammalLogo from "@/assets/tammal-logo.svg";
 import { LandingHero } from "./LandingHero";
 import { LandingValue } from "./LandingValue";
 import { LandingShowcase } from "./LandingShowcase";
