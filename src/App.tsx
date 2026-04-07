@@ -244,6 +244,7 @@ const App = () => (
               <Route path="/settings/usage" element={<UsageBilling />} />
               <Route path="/settings/profile" element={<UserProfile />} />
               <Route path="/support" element={<Support />} />
+              <Route path="/app-guide" element={<AppGuidePage />} />
               <Route path="/wellness" element={<WellnessResources />} />
 
               {/* ── Mental Toolkit routes ── */}
