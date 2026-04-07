@@ -47,6 +47,7 @@ export function TeamPulseCard({ employeeId }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const isAr = i18n.language === 'ar';
   const [isHidden, setIsHidden] = useState(() => localStorage.getItem(HIDDEN_KEY) === '1');
+  const [bulkCheckinOpen, setBulkCheckinOpen] = useState(false);
   const hide = useCallback(() => { localStorage.setItem(HIDDEN_KEY, '1'); setIsHidden(true); }, []);
   const show = useCallback(() => { localStorage.removeItem(HIDDEN_KEY); setIsHidden(false); }, []);
   const { employee } = useCurrentEmployee();
