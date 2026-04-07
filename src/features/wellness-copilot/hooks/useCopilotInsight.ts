@@ -2,6 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 
+const LEGACY_RECOMMENDATION_ROUTE_MAP: Record<string, string> = {
+  "/team-pulse": "/engagement-insights",
+  "/admin/surveys": "/admin/questions",
+  "/admin/wellness-analytics": "/engagement-insights",
+  "/admin/workload": "/admin/workload/dashboard",
+};
+
 export type CopilotMode = "personal" | "team" | "organization";
 export type UrgencyLevel = "opportunity" | "neutral" | "attention" | "urgent";
 export type ActionCta =
@@ -43,6 +50,18 @@ export interface CopilotInsufficientData {
 
 export type CopilotResponse = CopilotInsight | CopilotInsufficientData;
 
+function normalizeCopilotResponse(data: CopilotResponse): CopilotResponse {
+  if (data.insufficientData || !data.recommendations?.length) return data;
+
+  return {
+    ...data,
+    recommendations: data.recommendations.map((recommendation) => ({
+      ...recommendation,
+      route: LEGACY_RECOMMENDATION_ROUTE_MAP[recommendation.route] ?? recommendation.route,
+    })),
+  };
+}
+
 export function useCopilotInsight(
   mode: CopilotMode,
   employeeId: string | null | undefined,
@@ -57,7 +76,7 @@ export function useCopilotInsight(
         body: { mode, language: i18n.language },
       });
       if (error) throw error;
-      return data as CopilotResponse;
+      return normalizeCopilotResponse(data as CopilotResponse);
     },
     enabled: !!employeeId && enabled,
     staleTime: 1000 * 60 * 30, // 30 minutes
