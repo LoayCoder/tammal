@@ -50,7 +50,7 @@ export function useAnalyticsOverview(
       let filteredIds: string[] | null = null;
       if (hasOrgFilter(orgFilter)) {
         filteredIds = await resolveFilteredEmployeeIds(orgFilter!);
-        if (filteredIds.length === 0) return null;
+        if (!filteredIds || filteredIds.length === 0) return null;
       }
 
       // ── Parallel core fetches ──

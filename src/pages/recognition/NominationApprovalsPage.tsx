@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { CriterionEvaluation } from '@/components/recognition/CriteriaEvaluationForm';
 import { typography } from "@/theme/tokens";
+import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 
 export default function NominationApprovalsPage() {
   const { t } = useTranslation();
@@ -82,6 +83,7 @@ export default function NominationApprovalsPage() {
         </div>
       </div>
 
+      <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}>
       {isPending ? (
         <div className="grid gap-4 md:grid-cols-2">
           {[1, 2].map(i => <Skeleton key={i} className="h-48" />)}
@@ -110,6 +112,7 @@ export default function NominationApprovalsPage() {
           ))}
         </div>
       )}
+      </ErrorBoundary>
     </div>
   );
 }

@@ -32,7 +32,7 @@ async function recordLoginEvent(userId: string | null, success: boolean, failure
     const locationInfo = await getLocationInfo();
 
     await supabase.from('login_history').insert({
-      user_id: userId ?? null,
+      user_id: userId ?? '',
       tenant_id: profile?.tenant_id || null,
       event_type: success ? 'login' : 'failed_login',
       ip_address: locationInfo?.ip || null,

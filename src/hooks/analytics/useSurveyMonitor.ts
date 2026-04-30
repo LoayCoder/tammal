@@ -127,7 +127,14 @@ export function useSurveyMonitor(
             .in('scheduled_question_id', chunk)
             .is('deleted_at', null);
           if (respError) throw respError;
-          if (respData) responses = responses.concat(respData);
+          if (respData) {
+            responses = responses.concat(
+              respData
+                .filter((r): r is typeof r & { scheduled_question_id: string; created_at: string } =>
+                  r.scheduled_question_id != null && r.created_at != null
+                )
+            );
+          }
         }
       }
 

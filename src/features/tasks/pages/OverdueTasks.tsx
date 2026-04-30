@@ -25,9 +25,9 @@ export default function OverdueTasks() {
   const { overdueTasks, isPending } = useOverdueTasks();
 
   const stats = useMemo(() => {
-    const level1 = overdueTasks.filter(t => { const d = differenceInDays(new Date(), new Date(t.due_date)); return d >= 3 && d < 7; }).length;
-    const level2 = overdueTasks.filter(t => { const d = differenceInDays(new Date(), new Date(t.due_date)); return d >= 7 && d < 14; }).length;
-    const level3 = overdueTasks.filter(t => differenceInDays(new Date(), new Date(t.due_date)) >= 14).length;
+    const level1 = overdueTasks.filter(t => { const d = differenceInDays(new Date(), new Date(t.due_date!)); return d >= 3 && d < 7; }).length;
+    const level2 = overdueTasks.filter(t => { const d = differenceInDays(new Date(), new Date(t.due_date!)); return d >= 7 && d < 14; }).length;
+    const level3 = overdueTasks.filter(t => differenceInDays(new Date(), new Date(t.due_date!)) >= 14).length;
     return { total: overdueTasks.length, level1, level2, level3 };
   }, [overdueTasks]);
 
@@ -63,7 +63,7 @@ export default function OverdueTasks() {
       ) : (
         <div className="space-y-3">
           {overdueTasks.map(task => {
-            const daysOverdue = differenceInDays(new Date(), new Date(task.due_date));
+            const daysOverdue = differenceInDays(new Date(), new Date(task.due_date!));
             const escalation = getEscalationLevel(daysOverdue);
             return (
               <Card key={task.id} className="border-0 bg-muted/20 hover:bg-muted/40 transition-colors">
@@ -79,7 +79,7 @@ export default function OverdueTasks() {
                       {(task as any).employee?.full_name && <p className="text-xs text-muted-foreground">{t('tasks.fields.assignee')}: {(task as any).employee.full_name}</p>}
                       {task.description && <p className="text-xs text-muted-foreground line-clamp-1">{task.description}</p>}
                       <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{t('tasks.fields.dueDate')}: {format(new Date(task.due_date), 'PP')}</span>
+                        <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{t('tasks.fields.dueDate')}: {format(new Date(task.due_date!), 'PP')}</span>
                         <span>{t('tasks.fields.progress')}: {task.progress}%</span>
                         <span>{t('tasks.fields.status')}: {t(`tasks.status.${task.status}`)}</span>
                       </div>

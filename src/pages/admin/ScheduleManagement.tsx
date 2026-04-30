@@ -6,6 +6,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -65,9 +66,22 @@ export default function ScheduleManagement() {
   };
 
   const handleSubmit = () => {
-    if (!state.name || !tenantId) return;
-    if (state.scheduleType === 'survey' && (!state.startDate || !state.endDate || state.endDate < state.startDate)) {
-      toast.error(t('schedules.dateRangeRequired'));
+    const scheduleSchema = z.object({
+      name: z.string().trim().min(1, t('schedules.nameRequired') || 'Schedule name is required'),
+      tenantId: z.string().min(1, 'Tenant context is required'),
+    }).superRefine((v, ctx) => {
+      if (state.scheduleType === 'survey') {
+        if (!state.startDate) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['startDate'], message: t('schedules.dateRangeRequired') });
+        if (!state.endDate) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['endDate'], message: t('schedules.dateRangeRequired') });
+        if (state.startDate && state.endDate && state.endDate < state.startDate) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['endDate'], message: t('schedules.dateRangeRequired') });
+        }
+      }
+    });
+
+    const parsed = scheduleSchema.safeParse({ name: state.name, tenantId: tenantId || '' });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message || 'Please fill in all required fields');
       return;
     }
     const target_audience = buildTargetAudience();
@@ -110,7 +124,7 @@ export default function ScheduleManagement() {
       );
     } else {
       createSchedule.mutate(
-        { tenant_id: tenantId, ...commonFields, status: 'active' },
+        { tenant_id: tenantId!, ...commonFields, status: 'active' },
         { onSuccess: () => { saveMoodConfigs(); dispatch({ type: 'CLOSE_DIALOG' }); } },
       );
     }

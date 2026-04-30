@@ -12,6 +12,7 @@ import { AuditLogTable } from '@/components/audit/AuditLogTable';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { cardVariants } from "@/theme/tokens";
+import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 
 export default function AuditLogs() {
   const { t } = useTranslation();
@@ -102,6 +103,7 @@ export default function AuditLogs() {
         variant="card"
       />
 
+      <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}>
       <Card className={cardVariants.glass}>
         <CardHeader>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -176,7 +178,9 @@ export default function AuditLogs() {
           </div>
         </CardContent>
       </Card>
+      </ErrorBoundary>
 
+      <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}>
       <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle>{t('audit.logEntries')}</CardTitle>
@@ -188,6 +192,7 @@ export default function AuditLogs() {
           <AuditLogTable logs={filteredLogs} isLoading={isLoading} />
         </CardContent>
       </Card>
+      </ErrorBoundary>
     </div>
   );
 }

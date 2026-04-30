@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -24,9 +23,9 @@ import { InvitationManagement } from '@/components/tenants/InvitationManagement'
 import { DirectoryTab } from '@/components/users/tabs/DirectoryTab';
 import { AccessTab } from '@/components/users/tabs/AccessTab';
 import { RolesTab } from '@/components/users/tabs/RolesTab';
-import { type CreateEmployeeInput, type Employee, type EmployeeStatus } from '@/hooks/org/useEmployees';
-import { type AccountStatus } from '@/components/employees/AccountStatusBadge';
+import { type CreateEmployeeInput, type Employee } from '@/hooks/org/useEmployees';
 import { toast } from 'sonner';
+import { useUnifiedUserManagementState } from '@/hooks/admin/useUnifiedUserManagementState';
 
 export default function UnifiedUserManagement() {
   const { t } = useTranslation();
@@ -34,37 +33,50 @@ export default function UnifiedUserManagement() {
   const { profile, isPending: profileLoading } = useProfile();
   const { hasRole: isSuperAdmin } = useHasRole('super_admin');
   const { tenants, isPending: tenantsLoading } = useTenants();
-  const [selectedTenantId, setSelectedTenantId] = useState<string | undefined>(undefined);
-
-  const effectiveTenantId = isSuperAdmin ? (selectedTenantId || tenants?.[0]?.id) : profile?.tenant_id || undefined;
-
-  useEffect(() => {
-    if (isSuperAdmin && tenants && tenants.length > 0 && !selectedTenantId) setSelectedTenantId(tenants[0].id);
-  }, [isSuperAdmin, tenants, selectedTenantId]);
-
-  // Directory state
-  const [search, setSearch] = useState('');
-  const [departmentFilter, setDepartmentFilter] = useState<string>();
-  const [statusFilter, setStatusFilter] = useState<EmployeeStatus>();
-  const [accountStatusFilter, setAccountStatusFilter] = useState<AccountStatus>();
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [importOpen, setImportOpen] = useState(false);
-  const [inviteOpen, setInviteOpen] = useState(false);
-  const [invitingEmployee, setInvitingEmployee] = useState<Employee | null>(null);
-  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
-
-  // Access state
-  const [userSearch, setUserSearch] = useState('');
-  const [selectedUser, setSelectedUser] = useState<UserWithRoles | null>(null);
-  const [isUserRoleDialogOpen, setIsUserRoleDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
-  const [statusAction, setStatusAction] = useState<StatusAction>('deactivate');
-
-  // Roles state
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
-  const [isPermissionMatrixOpen, setIsPermissionMatrixOpen] = useState(false);
+  const {
+    setSelectedTenantId,
+    effectiveTenantId,
+    search,
+    setSearch,
+    departmentFilter,
+    setDepartmentFilter,
+    statusFilter,
+    setStatusFilter,
+    accountStatusFilter,
+    setAccountStatusFilter,
+    sheetOpen,
+    setSheetOpen,
+    importOpen,
+    setImportOpen,
+    inviteOpen,
+    setInviteOpen,
+    invitingEmployee,
+    setInvitingEmployee,
+    editingEmployee,
+    setEditingEmployee,
+    userSearch,
+    setUserSearch,
+    selectedUser,
+    setSelectedUser,
+    isUserRoleDialogOpen,
+    setIsUserRoleDialogOpen,
+    isEditDialogOpen,
+    setIsEditDialogOpen,
+    isStatusDialogOpen,
+    setIsStatusDialogOpen,
+    statusAction,
+    setStatusAction,
+    selectedRole,
+    setSelectedRole,
+    isRoleDialogOpen,
+    setIsRoleDialogOpen,
+    isPermissionMatrixOpen,
+    setIsPermissionMatrixOpen,
+  } = useUnifiedUserManagementState({
+    isSuperAdmin,
+    tenants,
+    profileTenantId: profile?.tenant_id,
+  });
 
   // Data hooks
   const { unifiedEmployees, departments, isPending: employeesLoading, createEmployee, updateEmployee, deleteEmployee, bulkImport } = useUnifiedUsers({

@@ -66,7 +66,7 @@ export default function RepresentativeWorkload() {
           <StrategicHierarchyTab
             objectives={objectives} objLoading={objLoading}
             initiatives={initiatives} initLoading={initLoading}
-            actions={actions} tenantId={tenantId} userId={userId}
+            actions={actions} tenantId={tenantId ?? undefined} userId={userId}
             createObjective={createObjective} updateObjective={updateObjective} deleteObjective={deleteObjective}
             lockObjective={lockObjective} unlockObjective={unlockObjective}
             objCreating={objCreating} objUpdating={objUpdating} objDeleting={objDeleting}

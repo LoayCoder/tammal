@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirstAiders, useFirstAiderSchedule } from '@/hooks/crisis/useCrisisSupport';
+import { useFirstAiders, useFirstAiderSchedule } from '@/hooks/crisis';
 import { toast } from 'sonner';
 import { typography } from "@/theme/tokens";
 
@@ -28,6 +29,12 @@ export default function SchedulesTab() {
   const { schedule, upsertSchedule } = useFirstAiderSchedule(selectedFA || undefined);
   const [rules, setRules] = useState<Record<string, { from: string; to: string }[]>>(DEFAULT_WEEKLY_RULES);
   const [sla, setSla] = useState(60);
+  const [slaError, setSlaError] = useState('');
+
+  const scheduleSchema = z.object({
+    selectedFA: z.string().min(1, 'Please select a first aider'),
+    sla: z.coerce.number().int().min(5, 'SLA must be at least 5 minutes').max(480, 'SLA cannot exceed 480 minutes'),
+  });
 
   // Auto-load schedule when selection changes or schedule data arrives
   useEffect(() => {
@@ -41,7 +48,13 @@ export default function SchedulesTab() {
   }, [schedule, selectedFA]);
 
   const handleSave = async () => {
-    if (!selectedFA) return;
+    const parsed = scheduleSchema.safeParse({ selectedFA, sla });
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      setSlaError(fieldErrors.sla?.[0] || fieldErrors.selectedFA?.[0] || 'Invalid input');
+      return;
+    }
+    setSlaError('');
     const fa = firstAiders.find(f => f.id === selectedFA);
     if (!fa) return;
     try {
@@ -49,7 +62,7 @@ export default function SchedulesTab() {
         first_aider_id: selectedFA,
         tenant_id: fa.tenant_id,
         weekly_rules: rules as any,
-        response_sla_minutes: sla,
+        response_sla_minutes: parsed.data.sla,
       });
       toast.success(t('common.success'));
     } catch {
@@ -123,7 +136,8 @@ export default function SchedulesTab() {
 
             <div>
               <Label>{t('crisisSupport.admin.slaMinutes')}</Label>
-              <Input type="number" min={5} max={480} value={sla} onChange={e => setSla(parseInt(e.target.value) || 60)} className="w-32" />
+              <Input type="number" min={5} max={480} value={sla} onChange={e => { setSla(parseInt(e.target.value) || 60); setSlaError(''); }} className="w-32" />
+              {slaError && <p className="text-sm text-destructive mt-1">{slaError}</p>}
             </div>
 
             <Button onClick={handleSave}>{t('common.save')}</Button>

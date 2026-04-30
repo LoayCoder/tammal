@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { z } from "zod";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,6 +43,21 @@ export function QuestionDialog({
   const [moodLevels, setMoodLevels] = useState<string[]>([]);
   const [isActive, setIsActive] = useState(true);
   const [isGlobal, setIsGlobal] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const questionSchema = z.object({
+    text: z.string().trim().min(5, "Question text is required"),
+    textAr: z.string().optional(),
+    type: z.enum(["likert_5", "likert_7", "binary", "multiple_choice", "numeric", "text"]),
+    categoryId: z.string().min(1, "Category is required"),
+    options: z.array(z.string()).optional(),
+    moodLevels: z.array(z.string()),
+    isActive: z.boolean(),
+    isGlobal: z.boolean(),
+  }).superRefine((v, ctx) => {
+    if (v.type === "multiple_choice" && (!v.options || v.options.filter(Boolean).length < 2)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["options"], message: "At least two options are required for multiple choice questions" });
+    }
+  });
 
   const MOOD_LEVELS = DEFAULT_MOOD_META.map(m => ({
     value: m.key,
@@ -87,11 +103,31 @@ export function QuestionDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
+    const parsed = questionSchema.safeParse({
       text,
+      textAr,
+      type,
+      categoryId,
+      options,
+      moodLevels,
+      isActive,
+      isGlobal,
+    });
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      setErrors({
+        text: fieldErrors.text?.[0] || "",
+        categoryId: fieldErrors.categoryId?.[0] || "",
+        options: fieldErrors.options?.[0] || "",
+      });
+      return;
+    }
+    setErrors({});
+    onSubmit({
+      text: parsed.data.text,
       text_ar: textAr || undefined,
       type,
-      category_id: categoryId || undefined,
+      category_id: parsed.data.categoryId || undefined,
       options: type === 'multiple_choice' ? options.filter(Boolean) : undefined,
       mood_levels: moodLevels,
       is_active: isActive,
@@ -123,6 +159,7 @@ export function QuestionDialog({
                 required
                 rows={3}
               />
+              {errors.text && <p className="text-sm text-destructive">{errors.text}</p>}
             </div>
 
             <div className="space-y-2">
@@ -163,6 +200,7 @@ export function QuestionDialog({
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.categoryId && <p className="text-sm text-destructive">{errors.categoryId}</p>}
               </div>
             </div>
 
@@ -191,6 +229,7 @@ export function QuestionDialog({
                     <Plus className="h-4 w-4 me-2" />
                     {t('questions.addOption')}
                   </Button>
+                  {errors.options && <p className="text-sm text-destructive">{errors.options}</p>}
                 </div>
               </div>
             )}

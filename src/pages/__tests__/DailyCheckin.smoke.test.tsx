@@ -17,7 +17,7 @@ const mockSubmitCheckin = vi.fn();
 const mockUseCheckinSubmit = vi.fn(() => ({
   submitCheckin: mockSubmitCheckin,
   isSubmitting: false,
-  error: null,
+  error: null as string | null,
 }));
 
 const mockEmployee = {

@@ -46,7 +46,7 @@ export function useRiskIndicators(
       let filteredIds: string[] | null = null;
       if (hasOrgFilter(orgFilter)) {
         filteredIds = await resolveFilteredEmployeeIds(orgFilter!);
-        if (filteredIds.length === 0) {
+        if (!filteredIds || filteredIds.length === 0) {
           return { riskTrend: [], categoryRiskScores: [], earlyWarnings: [] };
         }
       }

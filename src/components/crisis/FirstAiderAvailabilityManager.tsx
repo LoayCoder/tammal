@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
-import { useFirstAiderSchedule } from '@/hooks/crisis/useCrisisSupport';
+import { useFirstAiderSchedule } from '@/hooks/crisis';
 import { toast } from 'sonner';
 import { Clock, Calendar, Shield, AlertTriangle } from 'lucide-react';
 import { cardVariants } from "@/theme/tokens";

@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +30,7 @@ export function RepresentativeTab({ tenantId }: RepresentativeTabProps) {
   const [selectedDivisionId, setSelectedDivisionId] = useState('');
   const [selectedDepartmentId, setSelectedDepartmentId] = useState('');
   const [selectedSectionId, setSelectedSectionId] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Get employees with user_id for assignment
   const { data: employees = [] } = useEmployeesWithUser(tenantId);
@@ -53,6 +55,17 @@ export function RepresentativeTab({ tenantId }: RepresentativeTabProps) {
   const scopeId = scopeType === 'division' ? selectedDivisionId
     : scopeType === 'department' ? selectedDepartmentId
     : selectedSectionId;
+  const addRepresentativeSchema = z.object({
+    selectedEmployeeUserId: z.string().min(1, 'Employee is required'),
+    scopeType: z.enum(['division', 'department', 'section']),
+    selectedDivisionId: z.string().optional(),
+    selectedDepartmentId: z.string().optional(),
+    selectedSectionId: z.string().optional(),
+  }).superRefine((v, ctx) => {
+    if (v.scopeType === 'division' && !v.selectedDivisionId) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['selectedDivisionId'], message: 'Division is required' });
+    if (v.scopeType === 'department' && !v.selectedDepartmentId) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['selectedDepartmentId'], message: 'Department is required' });
+    if (v.scopeType === 'section' && !v.selectedSectionId) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['selectedSectionId'], message: 'Section is required' });
+  });
 
   const getScopeName = (type: string, id: string) => {
     if (type === 'division') return divisions.find(d => d.id === id)?.name ?? id;
@@ -62,7 +75,24 @@ export function RepresentativeTab({ tenantId }: RepresentativeTabProps) {
   };
 
   const handleAdd = async () => {
-    if (!selectedEmployeeUserId || !scopeId) return;
+    const parsed = addRepresentativeSchema.safeParse({
+      selectedEmployeeUserId,
+      scopeType,
+      selectedDivisionId,
+      selectedDepartmentId,
+      selectedSectionId,
+    });
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      setErrors({
+        selectedEmployeeUserId: fieldErrors.selectedEmployeeUserId?.[0] || '',
+        selectedDivisionId: fieldErrors.selectedDivisionId?.[0] || '',
+        selectedDepartmentId: fieldErrors.selectedDepartmentId?.[0] || '',
+        selectedSectionId: fieldErrors.selectedSectionId?.[0] || '',
+      });
+      return;
+    }
+    setErrors({});
     const input: CreateRepresentativeInput = {
       user_id: selectedEmployeeUserId,
       scope_type: scopeType,
@@ -166,6 +196,7 @@ export function RepresentativeTab({ tenantId }: RepresentativeTabProps) {
                   ))}
                 </SelectContent>
               </Select>
+              {errors.selectedEmployeeUserId && <p className="text-sm text-destructive">{errors.selectedEmployeeUserId}</p>}
             </div>
 
             {/* Scope type */}
@@ -201,6 +232,7 @@ export function RepresentativeTab({ tenantId }: RepresentativeTabProps) {
                   ))}
                 </SelectContent>
               </Select>
+              {errors.selectedDivisionId && <p className="text-sm text-destructive">{errors.selectedDivisionId}</p>}
             </div>
 
             {/* Department (if scope is department or section) */}
@@ -218,6 +250,7 @@ export function RepresentativeTab({ tenantId }: RepresentativeTabProps) {
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.selectedDepartmentId && <p className="text-sm text-destructive">{errors.selectedDepartmentId}</p>}
               </div>
             )}
 
@@ -233,6 +266,7 @@ export function RepresentativeTab({ tenantId }: RepresentativeTabProps) {
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.selectedSectionId && <p className="text-sm text-destructive">{errors.selectedSectionId}</p>}
               </div>
             )}
           </div>

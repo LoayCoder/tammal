@@ -242,7 +242,7 @@ export default function EmployeeSurvey() {
                 <CardTitle className="text-lg" dir="auto">{questionText}</CardTitle>
               </CardHeader>
               <CardContent>
-                <AnswerInput question={question} answer={currentAnswer} onAnswer={(val) => setAnswer(sq.id, val)} disabled={isClosed} isRTL={isRTL} resolveOption={resolveOption} />
+                <AnswerInput question={question ? { ...question, options: question.options ?? undefined, text_ar: question.text_ar ?? undefined } : null} answer={currentAnswer} onAnswer={(val) => setAnswer(sq.id, val)} disabled={isClosed} isRTL={isRTL} resolveOption={resolveOption} />
               </CardContent>
             </Card>
           );

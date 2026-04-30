@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,7 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useEmergencyContacts, type EmergencyContact } from '@/hooks/crisis/useCrisisSupport';
+import { useEmergencyContacts, type EmergencyContact } from '@/hooks/crisis';
 import { useProfile } from '@/hooks/auth/useProfile';
 import { Plus, Trash2, Edit } from 'lucide-react';
 import { toast } from 'sonner';
@@ -22,6 +23,15 @@ export default function EmergencyContactsTab() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<EmergencyContact | null>(null);
   const [form, setForm] = useState({ title: '', phone: '', description: '', available_24_7: false, country: 'SA' });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const emergencyContactSchema = z.object({
+    title: z.string().trim().min(2, 'Contact title is required'),
+    phone: z.string().trim().min(4, 'Phone number is required').max(30, 'Phone number is too long'),
+    description: z.string().optional(),
+    available_24_7: z.boolean(),
+    country: z.string().min(2, 'Country is required'),
+  });
 
   const openCreate = () => {
     setEditing(null);
@@ -32,14 +42,22 @@ export default function EmergencyContactsTab() {
   const openEdit = (c: EmergencyContact) => {
     setEditing(c);
     setForm({ title: c.title, phone: c.phone || '', description: c.description || '', available_24_7: c.available_24_7, country: c.country });
+    setErrors({});
     setDialogOpen(true);
   };
 
   const handleSave = async () => {
-    if (!form.title.trim()) {
-      toast.error(t('crisisSupport.admin.nameRequired'));
+    const parsed = emergencyContactSchema.safeParse(form);
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      setErrors({
+        title: fieldErrors.title?.[0] || '',
+        phone: fieldErrors.phone?.[0] || '',
+        country: fieldErrors.country?.[0] || '',
+      });
       return;
     }
+    setErrors({});
 
     try {
       if (editing) {
@@ -120,10 +138,12 @@ export default function EmergencyContactsTab() {
             <div>
               <Label>{t('crisisSupport.admin.contactTitle')}</Label>
               <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+              {errors.title && <p className="text-sm text-destructive mt-1">{errors.title}</p>}
             </div>
             <div>
               <Label>{t('crisisSupport.admin.contactPhone')}</Label>
               <Input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+              {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone}</p>}
             </div>
             <div>
               <Label>{t('crisisSupport.admin.contactDescription')}</Label>

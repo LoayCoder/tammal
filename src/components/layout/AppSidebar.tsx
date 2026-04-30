@@ -2,13 +2,13 @@ import React, { useState, useCallback, useRef } from 'react';
 import {
   Users, Building2, CreditCard,
   HelpCircle, Palette, FileText, LayoutDashboard,
-  Layers, BarChart3, Network, Building, Download, History, GitBranch,
+  Layers, BarChart3, Network, Download, History, GitBranch,
   MessageSquare, Tags, UserCheck, Sparkles, Calendar, ClipboardList,
   User, Heart, Settings, Package, Brain, SmilePlus, RefreshCw, Wind,
   BookOpen, Music, CheckSquare, BookMarked, Phone, ClipboardCheck,
-  ChevronRight, Shield, HeartHandshake, Inbox, Moon, BookOpenCheck, UtensilsCrossed, CalendarDays,
+  ChevronRight, Shield, HeartHandshake, Inbox, Moon,
   Activity, Target, Gauge, Users2, Plug, Trophy, Award, Star, Vote, Coins, Gift, UserCog, Briefcase, BarChart,
-  ListChecks, AlertTriangle, ChevronsLeft, ChevronsRight
+  AlertTriangle
 } from 'lucide-react';
 import {
   Sidebar,
@@ -17,15 +17,11 @@ import {
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuItem,
-  SidebarHeader,
-  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { NavLink } from "@/components/NavLink";
 import { useTranslation } from 'react-i18next';
-import { ThemeLogo } from "@/components/branding/ThemeLogo";
-import { ThemeIcon } from "@/components/branding/ThemeIcon";
 import type { BrandingConfig } from "@/hooks/branding/useBranding";
 import { useUserPermissions, useHasRole } from '@/hooks/auth/useUserPermissions';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
@@ -33,7 +29,8 @@ import { useSpiritualPreferences } from '@/hooks/spiritual/useSpiritualPreferenc
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { SidebarPopup } from './sidebar/SidebarPopup';
-import { UserProfileSection } from './sidebar/UserProfileSection';
+import { SidebarHeaderSection } from './sidebar/SidebarHeaderSection';
+import { SidebarFooterSection } from './sidebar/SidebarFooterSection';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 type MenuAccess = 'all' | 'admin' | 'employee';
@@ -74,7 +71,7 @@ export function AppSidebar({ branding }: AppSidebarProps) {
   const { state, isMobile, setOpenMobile, toggleSidebar } = useSidebar();
   const isCollapsed = state === 'collapsed';
   const isRTL = document.documentElement.dir === 'rtl';
-  const { isSuperAdmin, isPending: permLoading } = useUserPermissions();
+  const { isSuperAdmin } = useUserPermissions();
   const { hasRole: isTenantAdmin } = useHasRole('tenant_admin');
   const { hasEmployeeProfile } = useCurrentEmployee();
   const { preferences, isEnabled: spiritualEnabled, isPrayerEnabled } = useSpiritualPreferences();
@@ -350,51 +347,15 @@ export function AppSidebar({ branding }: AppSidebarProps) {
     return location.pathname.startsWith(url);
   };
 
-  const ToggleIcon = isCollapsed
-    ? (isRTL ? ChevronsLeft : ChevronsRight)
-    : (isRTL ? ChevronsRight : ChevronsLeft);
-
   return (
     <Sidebar variant="sidebar" collapsible="icon" side={isRTL ? "right" : "left"}>
-      {/* Header with logo and toggle */}
-      <SidebarHeader className="px-2 sm:px-3 pt-3 sm:pt-4 pb-2 sm:pb-3">
-        <div className="flex items-center justify-between min-h-[40px] sm:min-h-[48px]">
-          <div className="flex items-center justify-center flex-1 overflow-hidden">
-            {isCollapsed ? (
-              <ThemeIcon
-                iconLightUrl={branding.icon_light_url}
-                iconDarkUrl={branding.icon_dark_url}
-                className="h-8 w-8 sm:h-9 sm:w-9 object-contain shrink-0"
-                alt={t('branding.themeIcon')}
-                fallback={<Building className="h-7 w-7 sm:h-8 sm:w-8 text-sidebar-foreground/70" />}
-              />
-            ) : (
-              <ThemeLogo
-                logoUrl={branding.logo_url}
-                logoLightUrl={branding.logo_light_url}
-                logoDarkUrl={branding.logo_dark_url}
-                className="h-7 sm:h-8 max-w-[120px] sm:max-w-[140px] object-contain"
-                alt={t('branding.themeLogo')}
-                fallback={
-                  <div className="flex items-center gap-2">
-                    <Building className="h-5 w-5 sm:h-6 sm:w-6 text-sidebar-foreground/70" />
-                    <span className="font-semibold text-sm sm:text-base text-sidebar-foreground/90 truncate">SaaS Admin</span>
-                  </div>
-                }
-              />
-            )}
-          </div>
-          {!isCollapsed && (
-            <button
-              onClick={toggleSidebar}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/50 hover:text-sidebar-foreground shrink-0"
-              aria-label={t('accessibility.toggleSidebar')}
-            >
-              <ToggleIcon className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-      </SidebarHeader>
+      <SidebarHeaderSection
+        branding={branding}
+        isCollapsed={isCollapsed}
+        isRTL={isRTL}
+        toggleSidebar={toggleSidebar}
+        t={t}
+      />
 
       <SidebarContent className="pt-1 px-2">
               {filteredGroups.map((group) => {
@@ -750,20 +711,12 @@ export function AppSidebar({ branding }: AppSidebarProps) {
       </SidebarContent>
 
       {/* User profile footer */}
-      <SidebarFooter className="border-t border-border/50 p-3">
-        {isCollapsed && (
-          <div className="flex justify-center">
-            <button
-              onClick={toggleSidebar}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/50 hover:text-sidebar-foreground"
-              aria-label={t('accessibility.toggleSidebar')}
-            >
-              <ToggleIcon className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-        <UserProfileSection isCollapsed={isCollapsed} />
-      </SidebarFooter>
+      <SidebarFooterSection
+        isCollapsed={isCollapsed}
+        isRTL={isRTL}
+        toggleSidebar={toggleSidebar}
+        t={t}
+      />
     </Sidebar>
   );
 }

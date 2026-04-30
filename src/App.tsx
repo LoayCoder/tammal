@@ -105,7 +105,10 @@ const AppGuidePage = lazy(() => import("@/pages/AppGuidePage"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30_000,   // 30 s — avoids redundant refetches on mount
+      // Cache strategy:
+      // - Default to 30s for frequently changing dashboards/feeds.
+      // - Override to 5-10m in hook-level queries for static reference/org/profile/settings data.
+      staleTime: 30_000,
       retry: 1,
     },
     mutations: {

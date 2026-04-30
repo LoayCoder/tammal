@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,6 +34,16 @@ export function EditTaskDialog({ open, onOpenChange, task, onSubmit, isSubmittin
   const [priority, setPriority] = useState('3');
   const [estimatedMinutes, setEstimatedMinutes] = useState('');
   const [justification, setJustification] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const editTaskSchema = z.object({
+    taskId: z.string().min(1, 'Task is required'),
+    title: z.string().trim().min(2, 'Title is required'),
+    titleAr: z.string().optional(),
+    description: z.string().optional(),
+    priority: z.coerce.number().int().min(1, 'Priority must be between 1 and 5').max(5, 'Priority must be between 1 and 5'),
+    estimatedMinutes: z.union([z.string().length(0), z.coerce.number().int().min(1, 'Estimated minutes must be at least 1')]),
+    justification: z.string().trim().min(3, 'Justification must be at least 3 characters'),
+  });
 
   useEffect(() => {
     if (task) {
@@ -46,16 +57,35 @@ export function EditTaskDialog({ open, onOpenChange, task, onSubmit, isSubmittin
   }, [task]);
 
   const handleSubmit = async () => {
-    if (!task || !title.trim() || !justification.trim()) return;
+    const parsed = editTaskSchema.safeParse({
+      taskId: task?.id || '',
+      title,
+      titleAr,
+      description,
+      priority,
+      estimatedMinutes,
+      justification,
+    });
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      setErrors({
+        title: fieldErrors.title?.[0] || '',
+        priority: fieldErrors.priority?.[0] || '',
+        estimatedMinutes: fieldErrors.estimatedMinutes?.[0] || '',
+        justification: fieldErrors.justification?.[0] || '',
+      });
+      return;
+    }
+    setErrors({});
     await onSubmit({
-      task_id: task.id,
+      task_id: parsed.data.taskId,
       action: 'edit',
-      justification: justification.trim(),
-      title: title.trim(),
+      justification: parsed.data.justification,
+      title: parsed.data.title,
       title_ar: titleAr.trim() || undefined,
       description: description.trim() || undefined,
-      priority: parseInt(priority),
-      estimated_minutes: estimatedMinutes ? parseInt(estimatedMinutes) : undefined,
+      priority: parsed.data.priority,
+      estimated_minutes: typeof parsed.data.estimatedMinutes === 'number' ? parsed.data.estimatedMinutes : undefined,
     });
     onOpenChange(false);
   };
@@ -70,6 +100,7 @@ export function EditTaskDialog({ open, onOpenChange, task, onSubmit, isSubmittin
           <div className="space-y-2">
             <Label>{t('representative.taskTitle')}</Label>
             <Input value={title} onChange={e => setTitle(e.target.value)} />
+            {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
           </div>
           <div className="space-y-2">
             <Label>{t('representative.taskTitleAr')}</Label>
@@ -92,15 +123,18 @@ export function EditTaskDialog({ open, onOpenChange, task, onSubmit, isSubmittin
                   <SelectItem value="5">P5 — {t('representative.priorityLow')}</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.priority && <p className="text-sm text-destructive">{errors.priority}</p>}
             </div>
             <div className="space-y-2">
               <Label>{t('representative.estimatedMinutes')}</Label>
               <Input type="number" value={estimatedMinutes} onChange={e => setEstimatedMinutes(e.target.value)} min={1} />
+              {errors.estimatedMinutes && <p className="text-sm text-destructive">{errors.estimatedMinutes}</p>}
             </div>
           </div>
           <div className="space-y-2">
             <Label>{t('representative.justification')} *</Label>
             <Textarea value={justification} onChange={e => setJustification(e.target.value)} rows={2} placeholder={t('representative.justificationPlaceholder')} />
+            {errors.justification && <p className="text-sm text-destructive">{errors.justification}</p>}
           </div>
         </div>
         <DialogFooter>

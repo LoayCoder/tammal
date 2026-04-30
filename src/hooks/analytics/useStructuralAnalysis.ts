@@ -44,7 +44,7 @@ export function useStructuralAnalysis(
       let filteredIds: string[] | null = null;
       if (hasOrgFilter(orgFilter)) {
         filteredIds = await resolveFilteredEmployeeIds(orgFilter!);
-        if (filteredIds.length === 0) {
+        if (!filteredIds || filteredIds.length === 0) {
           return {
             orgComparison: { branches: [], divisions: [], departments: [], sections: [] },
             topEngagers: [],

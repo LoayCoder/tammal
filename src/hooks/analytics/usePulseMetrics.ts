@@ -50,7 +50,7 @@ export function usePulseMetrics(
       let filteredIds: string[] | null = null;
       if (hasOrgFilter(orgFilter)) {
         filteredIds = await resolveFilteredEmployeeIds(orgFilter!);
-        if (filteredIds.length === 0) {
+        if (!filteredIds || filteredIds.length === 0) {
           return {
             checkinPulse: { volatilityIndex: 0, participationStability: 0, energyTrend: 'stable' as const, topEmotionCluster: 'okay' },
             surveyStructural: { categoryHealthScore: 0, lowestCategory: null, participationQuality: 0, riskCategoryCount: 0 },

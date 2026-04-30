@@ -51,6 +51,7 @@ export function useDepartments() {
       if (error) throw error;
       return data as Department[];
     },
+    staleTime: 10 * 60_000,
   });
 
   const createDepartment = useMutation({

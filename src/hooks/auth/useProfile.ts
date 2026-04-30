@@ -40,6 +40,7 @@ export function useProfile() {
       return data as Profile;
     },
     enabled: !!user?.id,
+    staleTime: 10 * 60_000,
   });
 
   const updateProfileMutation = useMutation({

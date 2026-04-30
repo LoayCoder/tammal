@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { z } from "zod";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,17 @@ export function CategoryDialog({
   const [weight, setWeight] = useState(1);
   const [isActive, setIsActive] = useState(true);
   const [isGlobal, setIsGlobal] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const categorySchema = z.object({
+    name: z.string().trim().min(2, "Category name is required"),
+    nameAr: z.string().optional(),
+    description: z.string().optional(),
+    descriptionAr: z.string().optional(),
+    color: z.string().trim().min(4, "Color is required"),
+    icon: z.string().trim().min(1, "Icon is required"),
+    weight: z.number().min(0, "Weight must be at least 0").max(10, "Weight must be at most 10"),
+    isActive: z.boolean(),
+  });
 
   useEffect(() => {
     if (category) {
@@ -87,15 +99,35 @@ export function CategoryDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSave) return;
-    onSubmit({
+    const parsed = categorySchema.safeParse({
       name,
-      name_ar: nameAr || undefined,
-      description: description || undefined,
-      description_ar: descriptionAr || undefined,
+      nameAr,
+      description,
+      descriptionAr,
       color,
       icon,
       weight,
-      is_active: isActive,
+      isActive,
+    });
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      setErrors({
+        name: fieldErrors.name?.[0] || "",
+        color: fieldErrors.color?.[0] || "",
+        weight: fieldErrors.weight?.[0] || "",
+      });
+      return;
+    }
+    setErrors({});
+    onSubmit({
+      name: parsed.data.name,
+      name_ar: nameAr || undefined,
+      description: description || undefined,
+      description_ar: descriptionAr || undefined,
+      color: parsed.data.color,
+      icon: parsed.data.icon,
+      weight: parsed.data.weight,
+      is_active: parsed.data.isActive,
       is_global: false,
     });
   };
@@ -126,6 +158,7 @@ export function CategoryDialog({
                 {isNameTaken && (
                   <p className="text-sm text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{t('categories.nameTaken')}</p>
                 )}
+                {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="nameAr">{t('categories.name')} (العربية)</Label>
@@ -185,6 +218,7 @@ export function CategoryDialog({
               {isColorTaken && (
                 <p className="text-sm text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{t('categories.colorTaken')}</p>
               )}
+              {errors.color && <p className="text-sm text-destructive">{errors.color}</p>}
               <Input
                 type="color"
                 value={color}
@@ -205,6 +239,7 @@ export function CategoryDialog({
                   value={weight}
                   onChange={(e) => setWeight(parseFloat(e.target.value))}
                 />
+                {errors.weight && <p className="text-sm text-destructive">{errors.weight}</p>}
               </div>
             </div>
 

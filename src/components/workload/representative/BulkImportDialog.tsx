@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +28,15 @@ export function BulkImportDialog({ open, onOpenChange, onSubmit, isSubmitting }:
   const fileRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [resolving, setResolving] = useState(false);
+  const bulkTaskRowSchema = z.object({
+    employee_email: z.string().trim().email('Invalid employee email'),
+    title: z.string().trim().min(2, 'Task title is required'),
+    title_ar: z.string().optional(),
+    description: z.string().optional(),
+    due_date: z.string().optional(),
+    priority: z.union([z.string().length(0), z.coerce.number().int().min(1).max(5)]).optional(),
+    estimated_minutes: z.union([z.string().length(0), z.coerce.number().int().min(1)]).optional(),
+  });
 
   const validCount = useMemo(() => rows.filter(r => r.valid).length, [rows]);
 
@@ -48,13 +58,12 @@ export function BulkImportDialog({ open, onOpenChange, onSubmit, isSubmitting }:
     const emailMap = await resolve(emails);
 
     const resolved: ParsedRow[] = parsed.map(row => {
-      if (!row.employee_email?.trim()) {
-        return { ...row, valid: false, error: t('representative.bulkMissingEmail') };
+      const validated = bulkTaskRowSchema.safeParse(row);
+      if (!validated.success) {
+        return { ...row, valid: false, error: validated.error.issues[0]?.message || t('representative.bulkMissingTitle') };
       }
-      if (!row.title?.trim()) {
-        return { ...row, valid: false, error: t('representative.bulkMissingTitle') };
-      }
-      const empId = emailMap.get(row.employee_email.toLowerCase());
+      const normalized = validated.data;
+      const empId = emailMap.get(normalized.employee_email.toLowerCase());
       if (!empId) {
         return { ...row, valid: false, error: t('representative.bulkEmployeeNotFound') };
       }

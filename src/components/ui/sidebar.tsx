@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useUiStore } from "@/stores/uiStore";
 
 const SIDEBAR_STORAGE_KEY = "sidebar_state";
 const SIDEBAR_WIDTH = "260px";
@@ -59,16 +60,11 @@ const SidebarProvider = React.forwardRef<
 >(({ defaultOpen = true, open: openProp, onOpenChange: setOpenProp, className, style, children, ...props }, ref) => {
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
+  const sidebarCollapsed = useUiStore((state) => state.sidebarCollapsed);
+  const setSidebarCollapsed = useUiStore((state) => state.setSidebarCollapsed);
 
   // Initialize from localStorage
-  const [_open, _setOpen] = React.useState(() => {
-    try {
-      const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
-      if (stored === "collapsed") return false;
-      if (stored === "expanded") return true;
-    } catch {}
-    return defaultOpen;
-  });
+  const [_open, _setOpen] = React.useState(() => !sidebarCollapsed);
   const open = openProp ?? _open;
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
@@ -85,8 +81,9 @@ const SidebarProvider = React.forwardRef<
       } catch {
         // localStorage may be unavailable
       }
+      setSidebarCollapsed(!openState);
     },
-    [setOpenProp, open],
+    [setOpenProp, open, setSidebarCollapsed],
   );
 
   // Helper to toggle the sidebar.

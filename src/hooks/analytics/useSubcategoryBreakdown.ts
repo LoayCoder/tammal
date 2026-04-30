@@ -39,7 +39,7 @@ export function useSubcategoryBreakdown(
       let filteredIds: string[] | null = null;
       if (hasOrgFilter(orgFilter)) {
         filteredIds = await resolveFilteredEmployeeIds(orgFilter!);
-        if (filteredIds.length === 0) return { subcategoryScores: [] };
+        if (!filteredIds || filteredIds.length === 0) return { subcategoryScores: [] };
       }
 
       const { subcategoryScores } = await fetchCategoryAnalysis(startDate, endDate, filteredIds);

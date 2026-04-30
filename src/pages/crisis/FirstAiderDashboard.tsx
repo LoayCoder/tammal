@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useCrisisCases, useIsFirstAider, useFirstAiderSchedule } from '@/hooks/crisis/useCrisisSupport';
+import { useCrisisCases, useIsFirstAider, useFirstAiderSchedule } from '@/hooks/crisis';
 import { useSupportSessions } from '@/hooks/crisis/useSessionScheduling';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { MessageSquare, Clock, Check, X, AlertTriangle, Shield, Star, Calendar, Timer, CircleDot } from 'lucide-react';

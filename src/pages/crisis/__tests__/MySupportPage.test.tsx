@@ -47,7 +47,7 @@ const mockCases = [
   },
 ];
 
-vi.mock('@/hooks/crisis/useCrisisSupport', () => ({
+vi.mock('@/hooks/crisis', () => ({
   useCrisisCases: () => ({
     cases: mockCases,
     isPending: false,

@@ -95,7 +95,7 @@ describe('PR-AI-OPS-01: Cascade Failure Simulation', () => {
   });
 
   it('Step 3: Forecast adjustment boosts cost weight', () => {
-    const weights = { w_quality: 0.20, w_latency: 0.20, w_stability: 0.20, w_cost: 0.20, w_confidence: 0.20 };
+    const weights: Record<string, number> = { w_quality: 0.20, w_latency: 0.20, w_stability: 0.20, w_cost: 0.20, w_confidence: 0.20 };
     const costBoostMultiplier = 1.25;
     weights.w_cost *= costBoostMultiplier;
     const sum = Object.values(weights).reduce((s, v) => s + v, 0);

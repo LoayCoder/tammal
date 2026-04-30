@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
-import { useFirstAiders, useEmergencyContacts, useCrisisCases, mapIntentToRisk } from '@/hooks/crisis/useCrisisSupport';
+import { useFirstAiders, useEmergencyContacts, useCrisisCases, mapIntentToRisk } from '@/hooks/crisis';
 import { useSmartMatching, MatchResult } from '@/hooks/crisis/useSmartMatching';
 import { Phone, MessageSquare, Shield, AlertTriangle, ArrowRight, Clock, User, EyeOff, Star, Languages, Video, Loader2, CalendarDays, Activity } from 'lucide-react';
 import { toast } from 'sonner';

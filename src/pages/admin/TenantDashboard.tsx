@@ -72,7 +72,7 @@ export default function TenantDashboard() {
           </Button>
         }
         title={tenant.name}
-        subtitle={tenant.slug ? tenant.slug + (tenant.domain ? ' • ' + tenant.domain : '') : tenant.domain}
+        subtitle={tenant.slug ? tenant.slug + (tenant.domain ? ' • ' + tenant.domain : '') : (tenant.domain ?? undefined)}
         variant="card"
         actions={
           <div className="flex items-center gap-2">
@@ -158,7 +158,15 @@ export default function TenantDashboard() {
 
       {/* Usage Stats */}
       <UsageStatsCards 
-        usage={usage} 
+        usage={usage ? {
+          active_users: usage.active_users ?? 0,
+          total_users: usage.total_users ?? 0,
+          storage_used_mb: usage.storage_used_mb ?? 0,
+          api_calls: usage.api_calls ?? 0,
+          usersTrend: usage.usersTrend,
+          storageTrend: usage.storageTrend,
+          apiCallsTrend: usage.apiCallsTrend,
+        } : null} 
         tenant={tenant}
         plan={plan}
         isLoading={isLoadingUsage} 

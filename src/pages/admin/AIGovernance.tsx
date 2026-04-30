@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { typography } from "@/theme/tokens";
 import { useQueryClient } from '@tanstack/react-query';
+import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 
 export default function AIGovernance() {
   const { t } = useTranslation();
@@ -110,49 +111,51 @@ export default function AIGovernance() {
         </TabsList>
 
         <TabsContent value="overview">
-          <GovernanceOverview
-            summary={summary}
-            costData={costData}
-            budgetConfig={budgetConfig}
-            isLoading={isLoading}
-          />
+          <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}>
+            <GovernanceOverview
+              summary={summary}
+              costData={costData}
+              budgetConfig={budgetConfig}
+              isLoading={isLoading}
+            />
+          </ErrorBoundary>
         </TabsContent>
 
         {showEngineering && (
           <TabsContent value="engineering" className="space-y-6">
-            <AutonomousStatus />
-            <ThompsonVisualizer summary={summary} isLoading={summaryQuery.isPending} />
-            <RoutingBreakdownTable logs={routingLogs} isLoading={logsQuery.isPending} />
-            <ExplorationMonitor summary={summary} isLoading={summaryQuery.isPending} />
-            <AnomalyTimeline />
-            <SandboxMonitor />
+            <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}><AutonomousStatus /></ErrorBoundary>
+            <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}><ThompsonVisualizer summary={summary} isLoading={summaryQuery.isPending} /></ErrorBoundary>
+            <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}><RoutingBreakdownTable logs={routingLogs} isLoading={logsQuery.isPending} /></ErrorBoundary>
+            <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}><ExplorationMonitor summary={summary} isLoading={summaryQuery.isPending} /></ErrorBoundary>
+            <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}><AnomalyTimeline /></ErrorBoundary>
+            <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}><SandboxMonitor /></ErrorBoundary>
           </TabsContent>
         )}
 
         {showFinance && (
           <TabsContent value="finance" className="space-y-6">
-            <FinanceDashboard costData={costData} budgetConfig={budgetConfig} isLoading={costQuery.isPending} />
-            {(isSuperAdmin || hasPermission('ai_governance.finance')) && <BudgetControls budgetConfig={budgetConfig} />}
+            <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}><FinanceDashboard costData={costData} budgetConfig={budgetConfig} isLoading={costQuery.isPending} /></ErrorBoundary>
+            {(isSuperAdmin || hasPermission('ai_governance.finance')) && <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}><BudgetControls budgetConfig={budgetConfig} /></ErrorBoundary>}
           </TabsContent>
         )}
 
         {showRisk && (
           <TabsContent value="risk" className="space-y-6">
-            <RiskDashboard performanceData={perfData} penalties={penalties} isLoading={perfQuery.isPending} />
-            {(isSuperAdmin || hasPermission('ai_governance.risk')) && <PenaltyControls />}
+            <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}><RiskDashboard performanceData={perfData} penalties={penalties} isLoading={perfQuery.isPending} /></ErrorBoundary>
+            {(isSuperAdmin || hasPermission('ai_governance.risk')) && <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}><PenaltyControls /></ErrorBoundary>}
           </TabsContent>
         )}
 
         {showInspector && (
           <TabsContent value="inspector">
-            <RoutingInspector logs={routingLogs} />
+            <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}><RoutingInspector logs={routingLogs} /></ErrorBoundary>
           </TabsContent>
         )}
 
         {isSuperAdmin && (
           <TabsContent value="controls" className="space-y-6">
-            <StrategyControls currentStrategy={currentStrategy} />
-            <GovernanceAuditLog />
+            <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}><StrategyControls currentStrategy={currentStrategy} /></ErrorBoundary>
+            <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}><GovernanceAuditLog /></ErrorBoundary>
           </TabsContent>
         )}
       </Tabs>

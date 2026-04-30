@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import {
   Dialog,
   DialogContent,
@@ -39,6 +40,13 @@ export function InviteUserDialog({ open, onOpenChange, tenantId }: InviteUserDia
   const [phoneNumber, setPhoneNumber] = useState('');
   const [expiryDays, setExpiryDays] = useState('7');
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const inviteSchema = z.object({
+    email: z.string().trim().email('Please enter a valid email address'),
+    fullName: z.string().trim().max(120, 'Full name is too long').optional().or(z.literal('')),
+    phoneNumber: z.string().trim().max(30, 'Phone number is too long').optional().or(z.literal('')),
+    expiryDays: z.coerce.number().int().min(1, 'Expiry must be at least 1 day').max(30, 'Expiry cannot exceed 30 days'),
+  });
 
   const { createInvitation, isCreating } = useTenantInvitations(tenantId);
   const { roles, isPending: rolesLoading } = useRoles(tenantId);
@@ -50,14 +58,25 @@ export function InviteUserDialog({ open, onOpenChange, tenantId }: InviteUserDia
   };
 
   const handleSubmit = () => {
-    if (!email.trim()) return;
+    const parsed = inviteSchema.safeParse({ email, fullName, phoneNumber, expiryDays });
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      setErrors({
+        email: fieldErrors.email?.[0] || '',
+        fullName: fieldErrors.fullName?.[0] || '',
+        phoneNumber: fieldErrors.phoneNumber?.[0] || '',
+        expiryDays: fieldErrors.expiryDays?.[0] || '',
+      });
+      return;
+    }
+    setErrors({});
 
     createInvitation({
-      email: email.trim(),
-      full_name: fullName.trim() || undefined,
-      phone_number: phoneNumber.trim() || undefined,
+      email: parsed.data.email,
+      full_name: parsed.data.fullName?.trim() || undefined,
+      phone_number: parsed.data.phoneNumber?.trim() || undefined,
       tenant_id: tenantId,
-      expiry_days: parseInt(expiryDays),
+      expiry_days: parsed.data.expiryDays,
     });
     
     // Reset form
@@ -90,6 +109,7 @@ export function InviteUserDialog({ open, onOpenChange, tenantId }: InviteUserDia
               placeholder="user@example.com"
               dir="ltr"
             />
+            {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
           </div>
 
           <div className="space-y-2">
@@ -100,6 +120,7 @@ export function InviteUserDialog({ open, onOpenChange, tenantId }: InviteUserDia
               onChange={(e) => setFullName(e.target.value)}
               placeholder={t('users.name')}
             />
+            {errors.fullName && <p className="text-sm text-destructive">{errors.fullName}</p>}
           </div>
 
           <div className="space-y-2">
@@ -112,6 +133,7 @@ export function InviteUserDialog({ open, onOpenChange, tenantId }: InviteUserDia
               placeholder="+966 5XX XXX XXXX"
               dir="ltr"
             />
+            {errors.phoneNumber && <p className="text-sm text-destructive">{errors.phoneNumber}</p>}
           </div>
 
           <div className="space-y-2">
@@ -128,6 +150,7 @@ export function InviteUserDialog({ open, onOpenChange, tenantId }: InviteUserDia
                 <SelectItem value="30">30 {t('common.days')}</SelectItem>
               </SelectContent>
             </Select>
+            {errors.expiryDays && <p className="text-sm text-destructive">{errors.expiryDays}</p>}
           </div>
 
           <div className="space-y-2">

@@ -32,6 +32,17 @@ export default function AcceptInvite() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const verifyCodeSchema = z.object({
+    code: z.string().trim().length(8, t("acceptInvite.codePlaceholder")),
+  });
+  const signupSchema = z.object({
+    fullName: z.string().trim().min(2, t("profile.fullNameRequired")),
+    password: z.string().min(8, t("validation.passwordMinLength")),
+    confirmPassword: z.string().min(1, t("auth.confirmPassword")),
+  }).refine((v) => v.password === v.confirmPassword, {
+    message: t("auth.passwordMismatch"),
+    path: ["confirmPassword"],
+  });
 
   // Auto-verify if code is in URL
   useEffect(() => {
@@ -48,23 +59,29 @@ export default function AcceptInvite() {
 
   const handleVerifyCode = (e: React.FormEvent) => {
     e.preventDefault();
-    if (code.length < 8) return;
-    verifyCode(code);
-  };
-
-  const validateSignup = () => {
-    const newErrors: Record<string, string> = {};
-    if (!fullName.trim()) newErrors.fullName = t("profile.fullNameRequired");
-    if (password.length < 8) newErrors.password = t("validation.passwordMinLength");
-    if (password !== confirmPassword) newErrors.confirmPassword = t("auth.passwordMismatch");
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const parsed = verifyCodeSchema.safeParse({ code });
+    if (!parsed.success) {
+      setErrors({ code: parsed.error.flatten().fieldErrors.code?.[0] || "Invalid code" });
+      return;
+    }
+    setErrors({});
+    verifyCode(parsed.data.code);
   };
 
   const onSubmitSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateSignup()) return;
-    handleSignup(fullName, password);
+    const parsed = signupSchema.safeParse({ fullName, password, confirmPassword });
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      setErrors({
+        fullName: fieldErrors.fullName?.[0] || "",
+        password: fieldErrors.password?.[0] || "",
+        confirmPassword: fieldErrors.confirmPassword?.[0] || "",
+      });
+      return;
+    }
+    setErrors({});
+    handleSignup(parsed.data.fullName.trim(), parsed.data.password);
   };
 
   return (
@@ -100,6 +117,7 @@ export default function AcceptInvite() {
                       {codeError}
                     </p>
                   )}
+                  {errors.code && <p className="text-sm text-destructive">{errors.code}</p>}
                 </div>
                 <Button type="submit" className="w-full" disabled={code.length < 8 || isVerifying}>
                   {isVerifying ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : null}

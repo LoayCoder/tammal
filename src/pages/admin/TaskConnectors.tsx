@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useTaskImport } from '@/hooks/tasks/useTaskImport';
 import { cardVariants, typography} from "@/theme/tokens";
+import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 
 interface Connector {
   id: string;
@@ -84,26 +85,29 @@ export default function TaskConnectors() {
       </div>
 
       {/* Connected */}
-      {connectors.length > 0 && (
-        <Card className={cardVariants.glass}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">{t('connectors.connected')}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {connectors.map(c => (
-              <div key={c.id} className="flex items-center justify-between py-2 border-b border-border/10 last:border-0">
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className="h-4 w-4 text-chart-1" />
-                  <span className="font-medium text-sm capitalize">{c.provider.replace('_', ' ')}</span>
+      <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}>
+        {connectors.length > 0 && (
+          <Card className={cardVariants.glass}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">{t('connectors.connected')}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {connectors.map(c => (
+                <div key={c.id} className="flex items-center justify-between py-2 border-b border-border/10 last:border-0">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle2 className="h-4 w-4 text-chart-1" />
+                    <span className="font-medium text-sm capitalize">{c.provider.replace('_', ' ')}</span>
+                  </div>
+                  <Badge variant={c.status === 'active' ? 'default' : 'secondary'} className="text-xs">{c.status}</Badge>
                 </div>
-                <Badge variant={c.status === 'active' ? 'default' : 'secondary'} className="text-xs">{c.status}</Badge>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+              ))}
+            </CardContent>
+          </Card>
+        )}
+      </ErrorBoundary>
 
       {/* Available Connectors */}
+      <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {PROVIDERS.map(provider => {
           const isConnected = connectors.some(c => c.provider === provider.id);
@@ -133,6 +137,7 @@ export default function TaskConnectors() {
           );
         })}
       </div>
+      </ErrorBoundary>
 
       {/* CSV Import Dialog */}
       <Dialog open={importOpen} onOpenChange={setImportOpen}>

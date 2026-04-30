@@ -107,7 +107,7 @@ export function RoleDialog({ open, onOpenChange, role, tenantId, onSave, isSavin
     if (role) {
       onSave({ id: role.id, ...values } as UpdateRoleInput);
     } else {
-      onSave({ tenant_id: tenantId, name: values.name, ...values } as CreateRoleInput);
+      onSave({ tenant_id: tenantId, ...values } as CreateRoleInput);
     }
   };
 

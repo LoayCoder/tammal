@@ -39,7 +39,7 @@ export function useCategoryBreakdown(
       let filteredIds: string[] | null = null;
       if (hasOrgFilter(orgFilter)) {
         filteredIds = await resolveFilteredEmployeeIds(orgFilter!);
-        if (filteredIds.length === 0) return { categoryScores: [], affectiveDistribution: [] };
+        if (!filteredIds || filteredIds.length === 0) return { categoryScores: [], affectiveDistribution: [] };
       }
 
       const { categoryScores, affectiveDistribution } = await fetchCategoryAnalysis(startDate, endDate, filteredIds);

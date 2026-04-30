@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -18,10 +19,20 @@ interface DeleteTaskDialogProps {
 export function DeleteTaskDialog({ open, onOpenChange, taskId, taskTitle, onSubmit, isSubmitting }: DeleteTaskDialogProps) {
   const { t } = useTranslation();
   const [justification, setJustification] = useState('');
+  const [error, setError] = useState('');
+  const deleteTaskSchema = z.object({
+    taskId: z.string().min(1, 'Task is required'),
+    justification: z.string().trim().min(3, 'Justification must be at least 3 characters'),
+  });
 
   const handleSubmit = async () => {
-    if (!taskId || !justification.trim()) return;
-    await onSubmit({ task_id: taskId, action: 'delete', justification: justification.trim() });
+    const parsed = deleteTaskSchema.safeParse({ taskId: taskId || '', justification });
+    if (!parsed.success) {
+      setError(parsed.error.flatten().fieldErrors.justification?.[0] || 'Invalid input');
+      return;
+    }
+    setError('');
+    await onSubmit({ task_id: parsed.data.taskId, action: 'delete', justification: parsed.data.justification });
     setJustification('');
     onOpenChange(false);
   };
@@ -38,6 +49,7 @@ export function DeleteTaskDialog({ open, onOpenChange, taskId, taskTitle, onSubm
         <div className="space-y-2 py-2">
           <Label>{t('representative.justification')} *</Label>
           <Textarea value={justification} onChange={e => setJustification(e.target.value)} rows={2} placeholder={t('representative.deleteJustificationPlaceholder')} />
+          {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
         <AlertDialogFooter>
           <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>

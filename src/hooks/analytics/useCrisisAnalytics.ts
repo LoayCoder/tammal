@@ -28,8 +28,9 @@ export function useCrisisAnalytics(tenantId?: string) {
         .order('created_at', { ascending: false });
       if (tenantId) query = query.eq('tenant_id', tenantId);
 
-      const { data: cases = [], error } = await query;
+      const { data: rawCases, error } = await query;
       if (error) throw error;
+      const cases = rawCases ?? [];
 
       // Fetch first aiders for load analysis
       let faQuery = supabase

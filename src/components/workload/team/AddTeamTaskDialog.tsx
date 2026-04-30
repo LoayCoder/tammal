@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '@/components/ui/dialog';
@@ -44,6 +45,16 @@ export function AddTeamTaskDialog({
   const [estimatedMinutes, setEstimatedMinutes] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState('3');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const addTeamTaskSchema = z.object({
+    employeeId: z.string().min(1, 'Employee is required'),
+    title: z.string().trim().min(2, 'Title is required'),
+    titleAr: z.string().optional(),
+    description: z.string().optional(),
+    estimatedMinutes: z.union([z.string().length(0), z.coerce.number().int().min(1, 'Estimated minutes must be at least 1')]),
+    dueDate: z.string().optional(),
+    priority: z.coerce.number().int().min(1, 'Priority must be between 1 and 5').max(5, 'Priority must be between 1 and 5'),
+  });
 
   const reset = () => {
     setEmployeeId('');
@@ -56,16 +67,35 @@ export function AddTeamTaskDialog({
   };
 
   const handleSubmit = () => {
-    if (!employeeId || !title) return;
+    const parsed = addTeamTaskSchema.safeParse({
+      employeeId,
+      title,
+      titleAr,
+      description,
+      estimatedMinutes,
+      dueDate,
+      priority,
+    });
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      setErrors({
+        employeeId: fieldErrors.employeeId?.[0] || '',
+        title: fieldErrors.title?.[0] || '',
+        estimatedMinutes: fieldErrors.estimatedMinutes?.[0] || '',
+        priority: fieldErrors.priority?.[0] || '',
+      });
+      return;
+    }
+    setErrors({});
     onSubmit({
       tenant_id: tenantId,
-      employee_id: employeeId,
-      title,
+      employee_id: parsed.data.employeeId,
+      title: parsed.data.title,
       title_ar: titleAr || null,
       description: description || null,
-      estimated_minutes: estimatedMinutes ? parseInt(estimatedMinutes) : null,
+      estimated_minutes: typeof parsed.data.estimatedMinutes === 'number' ? parsed.data.estimatedMinutes : null,
       due_date: dueDate || null,
-      priority: parseInt(priority),
+      priority: parsed.data.priority,
       created_by: createdBy,
       source_type: 'manager_assigned',
     });
@@ -93,10 +123,12 @@ export function AddTeamTaskDialog({
                 ))}
               </SelectContent>
             </Select>
+            {errors.employeeId && <p className="text-sm text-destructive">{errors.employeeId}</p>}
           </div>
           <div className="space-y-2">
             <Label>{t('workload.tasks.title')}</Label>
             <Input value={title} onChange={e => setTitle(e.target.value)} />
+            {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
           </div>
           <div className="space-y-2">
             <Label>{t('workload.tasks.titleAr')}</Label>
@@ -117,10 +149,12 @@ export function AddTeamTaskDialog({
                   ))}
                 </SelectContent>
               </Select>
+              {errors.priority && <p className="text-sm text-destructive">{errors.priority}</p>}
             </div>
             <div className="space-y-2">
               <Label>{t('workload.tasks.estimatedMinutes')}</Label>
               <Input type="number" value={estimatedMinutes} onChange={e => setEstimatedMinutes(e.target.value)} />
+              {errors.estimatedMinutes && <p className="text-sm text-destructive">{errors.estimatedMinutes}</p>}
             </div>
             <div className="space-y-2">
               <Label>{t('workload.tasks.dueDate')}</Label>

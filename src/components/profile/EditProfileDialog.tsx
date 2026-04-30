@@ -180,7 +180,7 @@ export function EditProfileDialog({
                 <Avatar className="h-24 w-24">
                   <AvatarImage src={displayAvatar || undefined} alt="Avatar" />
                   <AvatarFallback className="text-2xl">
-                    {getInitials(form.watch('full_name') || currentProfile?.full_name, currentProfile?.email)}
+                    {getInitials(form.watch('full_name') || (currentProfile?.full_name ?? null), currentProfile?.email)}
                   </AvatarFallback>
                 </Avatar>
                 {displayAvatar && (

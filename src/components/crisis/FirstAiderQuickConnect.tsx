@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useFirstAiders, useCrisisCases } from '@/hooks/crisis/useCrisisSupport';
+import { useFirstAiders, useCrisisCases } from '@/hooks/crisis';
 import { useAuth } from '@/hooks/auth/useAuth';
 import EmployeeBookingWidget from '@/components/crisis/EmployeeBookingWidget';
 import EnhancedChatPanel from '@/components/crisis/EnhancedChatPanel';

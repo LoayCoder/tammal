@@ -209,7 +209,7 @@ export async function calculateInitiativeRisk(
       .in('employee_id', assigneeIds as string[])
       .is('deleted_at', null);
 
-    const overloaded = (metrics ?? []).filter(m => m.utilization_percentage > 100).length;
+    const overloaded = (metrics ?? []).filter(m => (m.utilization_percentage ?? 0) > 100).length;
     resourceScore = assigneeIds.length > 0 ? Math.round((overloaded / assigneeIds.length) * 100) : 0;
   }
 

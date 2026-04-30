@@ -24,8 +24,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useChangePassword } from '@/hooks/auth/useAuthMutations';
 
 interface ChangePasswordDialogProps {
   open: boolean;
@@ -37,10 +37,11 @@ export function ChangePasswordDialog({
   onOpenChange,
 }: ChangePasswordDialogProps) {
   const { t } = useTranslation();
-  const [isLoading, setIsLoading] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordChanged, setPasswordChanged] = useState(false);
+  const changePasswordMutation = useChangePassword();
+  const isLoading = changePasswordMutation.isPending;
 
   const passwordSchema = z
     .object({
@@ -70,21 +71,13 @@ export function ChangePasswordDialog({
 
   const onSubmit = async (data: PasswordFormData) => {
     try {
-      setIsLoading(true);
-
-      const { error } = await supabase.auth.updateUser({
-        password: data.newPassword,
-      });
-
-      if (error) throw error;
+      await changePasswordMutation.mutateAsync({ password: data.newPassword });
 
       setPasswordChanged(true);
       toast.success(t('profile.passwordChangeSuccess'));
     } catch (error) {
       logger.error('ChangePassword', 'Failed to update password', error);
       toast.error(t('profile.passwordChangeError'));
-    } finally {
-      setIsLoading(false);
     }
   };
 

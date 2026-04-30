@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useWorkloadAnalytics, useObjectives, useInitiatives, useDepartmentTasks } from '@/features/workload';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useTenantId } from '@/hooks/org/useTenantId';
-import { TeamTaskFilters, type TaskFilters } from '@/components/workload/team/TeamTaskFilters';
+import { TeamTaskFilters } from '@/components/workload/team/TeamTaskFilters';
 import { AddTeamTaskDialog } from '@/components/workload/team/AddTeamTaskDialog';
 import { TeamStatCards } from '@/components/workload/team/TeamStatCards';
 import { WorkloadDistributionChart } from '@/components/workload/team/WorkloadDistributionChart';
@@ -23,6 +23,7 @@ import { Users, AlertTriangle, TrendingUp, CheckCircle2, Plus, Search, Lock, Unl
 import { TeamMemberAccordion } from '@/components/workload/team/TeamMemberAccordion';
 import { format } from 'date-fns';
 import { cardVariants, typography} from "@/theme/tokens";
+import { useUiStore } from '@/stores/uiStore';
 const priorityLabels: Record<number, string> = { 1: 'P1', 2: 'P2', 3: 'P3', 4: 'P4', 5: 'P5' };
 
 interface MemberSummary {
@@ -44,9 +45,12 @@ export default function TeamWorkload() {
 
   const [addOpen, setAddOpen] = useState(false);
   const [enterpriseModalOpen, setEnterpriseModalOpen] = useState(false);
-  const [filters, setFilters] = useState<TaskFilters>({ status: 'all', priority: 'all', employeeId: 'all', sourceType: 'all', search: '' });
-  const [memberSearch, setMemberSearch] = useState('');
-  const [sortBy, setSortBy] = useState<'name' | 'overdue' | 'active' | 'progress'>('overdue');
+  const filters = useUiStore((state) => state.teamTaskFilters);
+  const setFilters = useUiStore((state) => state.setTeamTaskFilters);
+  const memberSearch = useUiStore((state) => state.teamMemberSearch);
+  const setMemberSearch = useUiStore((state) => state.setTeamMemberSearch);
+  const sortBy = useUiStore((state) => state.teamSortBy);
+  const setSortBy = useUiStore((state) => state.setTeamSortBy);
 
   const now = new Date();
 

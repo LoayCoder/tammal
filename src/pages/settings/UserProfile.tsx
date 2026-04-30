@@ -22,6 +22,7 @@ import { SessionManagementDialog } from '@/components/profile/SessionManagementD
 import { MFASetupDialog } from '@/components/profile/MFASetupDialog';
 import { LoginActivityDialog } from '@/components/profile/LoginActivityDialog';
 import { SpiritualPreferencesCard } from '@/components/spiritual/SpiritualPreferencesCard';
+import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 import { cardVariants, typography} from "@/theme/tokens";
 
 export default function UserProfile() {
@@ -127,6 +128,7 @@ export default function UserProfile() {
         variant="card"
       />
 
+      <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}>
       <div className="grid gap-6 md:grid-cols-2">
         {/* User Info Card */}
         <Card className={cardVariants.glass}>
@@ -315,8 +317,10 @@ export default function UserProfile() {
           </CardContent>
         </Card>
       </div>
+      </ErrorBoundary>
 
       {/* Permissions Card */}
+      <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}>
       <Card className={cardVariants.glass}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -366,9 +370,12 @@ export default function UserProfile() {
           )}
         </CardContent>
       </Card>
+      </ErrorBoundary>
 
       {/* Spiritual Preferences */}
-      <SpiritualPreferencesCard />
+      <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}>
+        <SpiritualPreferencesCard />
+      </ErrorBoundary>
 
       {/* Edit Profile Dialog */}
       <EditProfileDialog

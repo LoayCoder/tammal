@@ -19,6 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { typography } from "@/theme/tokens";
+import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 
 export default function RecognitionResults() {
   const { t } = useTranslation();
@@ -112,6 +113,7 @@ export default function RecognitionResults() {
           </CardContent>
         </Card>
       ) : (
+        <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}>
         <Tabs defaultValue="rankings">
           <TabsList>
             <TabsTrigger value="rankings">{t('recognition.results.rankingsTab')}</TabsTrigger>
@@ -216,6 +218,7 @@ export default function RecognitionResults() {
             )}
           </TabsContent>
         </Tabs>
+        </ErrorBoundary>
       )}
     </div>
   );

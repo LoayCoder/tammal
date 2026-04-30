@@ -64,7 +64,7 @@ export function useOrgAnalytics(
       let filteredIds: string[] | null = null;
       if (hasOrgFilter(orgFilter)) {
         filteredIds = await resolveFilteredEmployeeIds(orgFilter!);
-        if (filteredIds.length === 0) return emptyResult();
+        if (!filteredIds || filteredIds.length === 0) return emptyResult();
       }
 
       // ── Parallel core fetches ──

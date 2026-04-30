@@ -19,6 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Trophy, Plus, Send, Inbox, ShieldCheck, ThumbsUp } from 'lucide-react';
 import type { Nomination } from '@/hooks/recognition/useNominations';
 import { PageHeader } from '@/components/system';
+import { ErrorBoundary } from '@/shared/resilience/ErrorBoundary';
 
 export default function MyNominationsPage() {
   const { t } = useTranslation();
@@ -77,6 +78,7 @@ export default function MyNominationsPage() {
         }
       />
 
+      <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}>
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="sent" className="flex items-center gap-1.5">
@@ -228,6 +230,7 @@ export default function MyNominationsPage() {
           </TabsContent>
         )}
       </Tabs>
+      </ErrorBoundary>
 
       {/* Detail dialog */}
       <NominationDetailDialog

@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +38,16 @@ export function DistributeTaskDialog({ open, onOpenChange, assignments, onSubmit
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState('3');
   const [estimatedMinutes, setEstimatedMinutes] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const distributeTaskSchema = z.object({
+    selectedEmployeeId: z.string().min(1, 'Employee is required'),
+    title: z.string().trim().min(2, 'Title is required'),
+    titleAr: z.string().optional(),
+    description: z.string().optional(),
+    dueDate: z.string().optional(),
+    priority: z.coerce.number().int().min(1, 'Priority must be between 1 and 5').max(5, 'Priority must be between 1 and 5'),
+    estimatedMinutes: z.union([z.string().length(0), z.coerce.number().int().min(1, 'Estimated minutes must be at least 1')]),
+  });
 
   // Get unique division IDs from assignments
   const availableDivisions = useMemo(() => {
@@ -81,15 +92,34 @@ export function DistributeTaskDialog({ open, onOpenChange, assignments, onSubmit
   }, [selectedSectionId]);
 
   const handleSubmit = async () => {
-    if (!selectedEmployeeId || !title.trim()) return;
+    const parsed = distributeTaskSchema.safeParse({
+      selectedEmployeeId,
+      title,
+      titleAr,
+      description,
+      dueDate,
+      priority,
+      estimatedMinutes,
+    });
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      setErrors({
+        selectedEmployeeId: fieldErrors.selectedEmployeeId?.[0] || '',
+        title: fieldErrors.title?.[0] || '',
+        priority: fieldErrors.priority?.[0] || '',
+        estimatedMinutes: fieldErrors.estimatedMinutes?.[0] || '',
+      });
+      return;
+    }
+    setErrors({});
     await onSubmit({
-      employee_id: selectedEmployeeId,
-      title: title.trim(),
+      employee_id: parsed.data.selectedEmployeeId,
+      title: parsed.data.title,
       title_ar: titleAr.trim() || undefined,
       description: description.trim() || undefined,
       due_date: dueDate || undefined,
-      priority: parseInt(priority),
-      estimated_minutes: estimatedMinutes ? parseInt(estimatedMinutes) : undefined,
+      priority: parsed.data.priority,
+      estimated_minutes: typeof parsed.data.estimatedMinutes === 'number' ? parsed.data.estimatedMinutes : undefined,
     });
     // Reset
     setTitle('');
@@ -179,6 +209,7 @@ export function DistributeTaskDialog({ open, onOpenChange, assignments, onSubmit
                   </SelectContent>
                 </Select>
               )}
+              {errors.selectedEmployeeId && <p className="text-sm text-destructive">{errors.selectedEmployeeId}</p>}
             </div>
           )}
 
@@ -186,6 +217,7 @@ export function DistributeTaskDialog({ open, onOpenChange, assignments, onSubmit
           <div className="space-y-2">
             <Label>{t('representative.taskTitle')}</Label>
             <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={t('representative.taskTitlePlaceholder')} />
+            {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
           </div>
 
           {/* Title AR */}
@@ -220,6 +252,7 @@ export function DistributeTaskDialog({ open, onOpenChange, assignments, onSubmit
                   <SelectItem value="5">P5 — {t('representative.priorityLow')}</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.priority && <p className="text-sm text-destructive">{errors.priority}</p>}
             </div>
           </div>
 
@@ -227,6 +260,7 @@ export function DistributeTaskDialog({ open, onOpenChange, assignments, onSubmit
           <div className="space-y-2">
             <Label>{t('representative.estimatedMinutes')}</Label>
             <Input type="number" value={estimatedMinutes} onChange={e => setEstimatedMinutes(e.target.value)} min={1} />
+            {errors.estimatedMinutes && <p className="text-sm text-destructive">{errors.estimatedMinutes}</p>}
           </div>
         </div>
         <DialogFooter>

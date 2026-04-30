@@ -36,14 +36,14 @@ export function useTenantUsage(tenantId?: string) {
       // Calculate trends
       const result: UsageWithTrend = {
         ...current,
-        usersTrend: previous && previous.active_users 
-          ? Math.round(((current.active_users - previous.active_users) / previous.active_users) * 100)
+        usersTrend: previous && previous.active_users != null
+          ? Math.round(((current.active_users! - previous.active_users) / previous.active_users) * 100)
           : undefined,
         storageTrend: previous && Number(previous.storage_used_mb) > 0
           ? Math.round(((Number(current.storage_used_mb) - Number(previous.storage_used_mb)) / Number(previous.storage_used_mb)) * 100)
           : undefined,
-        apiCallsTrend: previous && previous.api_calls
-          ? Math.round(((current.api_calls - previous.api_calls) / previous.api_calls) * 100)
+        apiCallsTrend: previous && previous.api_calls != null
+          ? Math.round(((current.api_calls! - previous.api_calls) / previous.api_calls) * 100)
           : undefined,
       };
 

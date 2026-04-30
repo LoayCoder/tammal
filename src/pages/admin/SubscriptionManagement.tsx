@@ -59,7 +59,7 @@ export default function SubscriptionManagement() {
           <SubscriptionTable
             subscriptions={subscriptions}
             isLoading={isLoading}
-            onEdit={formDialog.openEdit}
+            onEdit={(sub) => formDialog.openEdit(sub as unknown as Subscription)}
             onDelete={confirmDelete.requestDelete}
           />
         </CardContent>

@@ -88,7 +88,7 @@ describe('useCheckinSubmit', () => {
 
     // Verify targeted invalidation
     const invalidatedKeys = invalidateSpy.mock.calls.map(
-      (c: [{ queryKey: string[] }]) => c[0].queryKey[0],
+      (c: any) => c[0]?.queryKey?.[0],
     );
     expect(invalidatedKeys).toContain('gamification');
     expect(invalidatedKeys).toContain('mood-entry-today');

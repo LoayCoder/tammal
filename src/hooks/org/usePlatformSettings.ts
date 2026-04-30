@@ -51,6 +51,7 @@ export function usePlatformSettings() {
       }
     },
     retry: false,
+    staleTime: 10 * 60_000,
   });
 
   const updateSettings = useMutation({

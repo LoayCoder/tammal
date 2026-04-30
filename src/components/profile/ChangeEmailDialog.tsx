@@ -24,9 +24,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { typography } from "@/theme/tokens";
+import { useChangeEmail } from '@/hooks/auth/useAuthMutations';
 
 interface ChangeEmailDialogProps {
   open: boolean;
@@ -40,8 +40,9 @@ export function ChangeEmailDialog({
   currentEmail,
 }: ChangeEmailDialogProps) {
   const { t } = useTranslation();
-  const [isLoading, setIsLoading] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
+  const changeEmailMutation = useChangeEmail();
+  const isLoading = changeEmailMutation.isPending;
 
   const emailSchema = z.object({
     newEmail: z
@@ -67,28 +68,17 @@ export function ChangeEmailDialog({
 
   const onSubmit = async (data: EmailFormData) => {
     try {
-      setIsLoading(true);
-
-      const { error } = await supabase.auth.updateUser({
-        email: data.newEmail,
-      });
-
-      if (error) {
-        if (error.message.includes('already')) {
-          form.setError('newEmail', { message: t('profile.emailAlreadyInUse') });
-        } else {
-          throw error;
-        }
-        return;
-      }
+      await changeEmailMutation.mutateAsync({ email: data.newEmail });
 
       setVerificationSent(true);
       toast.success(t('profile.emailVerificationSent'));
     } catch (error) {
+      if (error instanceof Error && error.message.includes('already')) {
+        form.setError('newEmail', { message: t('profile.emailAlreadyInUse') });
+        return;
+      }
       logger.error('ChangeEmailDialog', 'Failed to update email', error);
       toast.error(t('profile.emailChangeError'));
-    } finally {
-      setIsLoading(false);
     }
   };
 

@@ -135,7 +135,7 @@ function ReportCard({ report, onDelete }: { report: SpiritualReport; onDelete: (
         </div>
 
         {/* Recommendations */}
-        {data.recommendations?.length > 0 && (
+        {data.recommendations && data.recommendations.length > 0 && (
           <div>
             <p className="text-xs font-medium mb-2">{t('spiritual.insights.recommendations')}</p>
             <ul className="space-y-1">
@@ -149,7 +149,7 @@ function ReportCard({ report, onDelete }: { report: SpiritualReport; onDelete: (
         )}
 
         {/* Highlights */}
-        {data.highlights?.length > 0 && (
+        {data.highlights && data.highlights.length > 0 && (
           <div>
             <p className="text-xs font-medium mb-2">{t('spiritual.insights.highlightsTitle')}</p>
             <div className="flex flex-wrap gap-1">

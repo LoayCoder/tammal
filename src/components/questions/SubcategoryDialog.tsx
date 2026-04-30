@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { z } from "zod";
 import { AlertCircle, Info } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,16 @@ export function SubcategoryDialog({
   const [descriptionAr, setDescriptionAr] = useState("");
   const [weight, setWeight] = useState(1);
   const [isActive, setIsActive] = useState(true);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const subcategorySchema = z.object({
+    categoryId: z.string().min(1, "Category is required"),
+    name: z.string().trim().min(2, "Subcategory name is required"),
+    nameAr: z.string().optional(),
+    description: z.string().optional(),
+    descriptionAr: z.string().optional(),
+    weight: z.number().min(0, "Weight must be at least 0").max(10, "Weight must be at most 10"),
+    isActive: z.boolean(),
+  });
 
   // Auto-inherit color from parent category
   const parentCategory = categories.find(c => c.id === categoryId);
@@ -77,15 +88,34 @@ export function SubcategoryDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSave) return;
-    onSubmit({
-      category_id: categoryId,
+    const parsed = subcategorySchema.safeParse({
+      categoryId,
       name,
+      nameAr,
+      description,
+      descriptionAr,
+      weight,
+      isActive,
+    });
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      setErrors({
+        categoryId: fieldErrors.categoryId?.[0] || "",
+        name: fieldErrors.name?.[0] || "",
+        weight: fieldErrors.weight?.[0] || "",
+      });
+      return;
+    }
+    setErrors({});
+    onSubmit({
+      category_id: parsed.data.categoryId,
+      name: parsed.data.name,
       name_ar: nameAr || undefined,
       description: description || undefined,
       description_ar: descriptionAr || undefined,
       color: inheritedColor,
-      weight,
-      is_active: isActive,
+      weight: parsed.data.weight,
+      is_active: parsed.data.isActive,
       is_global: false,
     });
   };
@@ -117,6 +147,7 @@ export function SubcategoryDialog({
                 ))}
               </SelectContent>
             </Select>
+            {errors.categoryId && <p className="text-sm text-destructive">{errors.categoryId}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -126,6 +157,7 @@ export function SubcategoryDialog({
               {isNameTaken && (
                 <p className="text-sm text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{t('subcategories.nameTaken')}</p>
               )}
+              {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
             </div>
             <div className="space-y-2">
               <Label>{t('categories.name')} (العربية)</Label>
@@ -164,6 +196,7 @@ export function SubcategoryDialog({
             <div className="space-y-2">
               <Label>{t('categories.weight')}</Label>
               <Input type="number" min={0} max={10} step={0.1} value={weight} onChange={e => setWeight(parseFloat(e.target.value))} />
+              {errors.weight && <p className="text-sm text-destructive">{errors.weight}</p>}
             </div>
           </div>
 

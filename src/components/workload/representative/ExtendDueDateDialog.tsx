@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +32,12 @@ export function ExtendDueDateDialog({ open, onOpenChange, taskId, taskTitle, cur
   const { t } = useTranslation();
   const [newDueDate, setNewDueDate] = useState('');
   const [justification, setJustification] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const extendDueDateSchema = z.object({
+    taskId: z.string().min(1, 'Task is required'),
+    newDueDate: z.string().min(1, 'New due date is required'),
+    justification: z.string().trim().min(3, 'Justification must be at least 3 characters'),
+  });
 
   useEffect(() => {
     setNewDueDate('');
@@ -38,8 +45,21 @@ export function ExtendDueDateDialog({ open, onOpenChange, taskId, taskTitle, cur
   }, [taskId, open]);
 
   const handleSubmit = async () => {
-    if (!taskId || !newDueDate || !justification.trim()) return;
-    await onSubmit({ task_id: taskId, action: 'extend_due_date', justification: justification.trim(), new_due_date: newDueDate });
+    const parsed = extendDueDateSchema.safeParse({
+      taskId: taskId || '',
+      newDueDate,
+      justification,
+    });
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      setErrors({
+        newDueDate: fieldErrors.newDueDate?.[0] || '',
+        justification: fieldErrors.justification?.[0] || '',
+      });
+      return;
+    }
+    setErrors({});
+    await onSubmit({ task_id: parsed.data.taskId, action: 'extend_due_date', justification: parsed.data.justification, new_due_date: parsed.data.newDueDate });
     onOpenChange(false);
   };
 
@@ -88,11 +108,13 @@ export function ExtendDueDateDialog({ open, onOpenChange, taskId, taskTitle, cur
           <div className="space-y-2">
             <Label>{t('representative.newDueDate')} *</Label>
             <Input type="date" value={newDueDate} onChange={e => setNewDueDate(e.target.value)} />
+            {errors.newDueDate && <p className="text-sm text-destructive">{errors.newDueDate}</p>}
           </div>
 
           <div className="space-y-2">
             <Label>{t('representative.justification')} *</Label>
             <Textarea value={justification} onChange={e => setJustification(e.target.value)} rows={2} placeholder={t('representative.extendJustificationPlaceholder')} />
+            {errors.justification && <p className="text-sm text-destructive">{errors.justification}</p>}
           </div>
         </div>
         <DialogFooter>

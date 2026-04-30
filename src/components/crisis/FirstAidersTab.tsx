@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirstAiders, type FirstAider } from '@/hooks/crisis/useCrisisSupport';
+import { useFirstAiders, type FirstAider } from '@/hooks/crisis';
 import { useProfile } from '@/hooks/auth/useProfile';
 import { useEmployees } from '@/hooks/org/useEmployees';
 import { Plus, Trash2, Edit } from 'lucide-react';
@@ -32,6 +33,17 @@ export default function FirstAidersTab() {
     bio: '',
     max_active_cases: 3,
     allow_anonymous_requests: true,
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const firstAiderSchema = z.object({
+    user_id: z.string().optional(),
+    display_name: z.string().trim().min(2, 'Display name is required'),
+    department: z.string().optional(),
+    role_title: z.string().optional(),
+    bio: z.string().optional(),
+    max_active_cases: z.coerce.number().int().min(1, 'Must allow at least 1 case').max(20, 'Cannot exceed 20 active cases'),
+    allow_anonymous_requests: z.boolean(),
   });
 
   // Filter out employees who are already first aiders
@@ -57,6 +69,7 @@ export default function FirstAidersTab() {
       max_active_cases: fa.max_active_cases,
       allow_anonymous_requests: fa.allow_anonymous_requests,
     });
+    setErrors({});
     setDialogOpen(true);
   };
 
@@ -74,11 +87,20 @@ export default function FirstAidersTab() {
   };
 
   const handleSave = async () => {
-    if (!form.display_name.trim()) {
-      toast.error(t('crisisSupport.admin.nameRequired'));
+    const parsed = firstAiderSchema.safeParse(form);
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      setErrors({
+        display_name: fieldErrors.display_name?.[0] || '',
+        max_active_cases: fieldErrors.max_active_cases?.[0] || '',
+      });
       return;
     }
-
+    if (!editingFA && !form.user_id) {
+      setErrors({ user_id: 'Please select an employee' });
+      return;
+    }
+    setErrors({});
     try {
       if (editingFA) {
         await updateFirstAider.mutateAsync({
@@ -93,10 +115,6 @@ export default function FirstAidersTab() {
       } else {
         if (!tenantId) {
           toast.error(t('crisisSupport.admin.tenantRequired'));
-          return;
-        }
-        if (!form.user_id) {
-          toast.error(t('crisisSupport.admin.selectEmployee'));
           return;
         }
         await createFirstAider.mutateAsync({
@@ -212,11 +230,13 @@ export default function FirstAidersTab() {
                     )}
                   </SelectContent>
                 </Select>
+                {errors.user_id && <p className="text-sm text-destructive mt-1">{errors.user_id}</p>}
               </div>
             )}
             <div>
               <Label>{t('crisisSupport.admin.name')}</Label>
               <Input value={form.display_name} onChange={e => setForm(f => ({ ...f, display_name: e.target.value }))} />
+              {errors.display_name && <p className="text-sm text-destructive mt-1">{errors.display_name}</p>}
             </div>
             <div>
               <Label>{t('crisisSupport.admin.department')}</Label>
@@ -233,6 +253,7 @@ export default function FirstAidersTab() {
             <div>
               <Label>{t('crisisSupport.admin.maxCases')}</Label>
               <Input type="number" min={1} max={10} value={form.max_active_cases} onChange={e => setForm(f => ({ ...f, max_active_cases: parseInt(e.target.value) || 3 }))} />
+              {errors.max_active_cases && <p className="text-sm text-destructive mt-1">{errors.max_active_cases}</p>}
             </div>
             <div className="flex items-center justify-between">
               <Label>{t('crisisSupport.admin.allowAnonymous')}</Label>

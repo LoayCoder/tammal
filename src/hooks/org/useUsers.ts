@@ -92,6 +92,7 @@ export function useUsers(filters?: UserFilters) {
       })) as UserWithRoles[];
     },
     enabled: !!filters?.tenantId,
+    staleTime: 5 * 60_000,
   });
 
   // Mutation to update profile (name, status, job_title, department, phone, location, avatar_url)
