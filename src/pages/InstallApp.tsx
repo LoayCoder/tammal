@@ -47,21 +47,22 @@ export default function InstallApp() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container max-w-2xl py-8 px-4">
+    <div className="min-h-screen bg-[var(--bg-canvas)] p-4 sm:p-6">
+      <div className="mx-auto max-w-3xl space-y-8">
         {/* Back Link */}
         <Link 
           to="/" 
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-8"
+          className="inline-flex items-center gap-1 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <ArrowLeft className="h-4 w-4" />
           {t('common.back')}
         </Link>
 
         {/* Hero Section */}
-        <div className="text-center space-y-6 mb-8">
+        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-6 text-center">
+          <div className="space-y-6">
           <div className="flex justify-center">
-            <div className="rounded-lg bg-primary/10 p-6">
+            <div className="rounded-2xl bg-[var(--brand-primary-soft)] p-6">
               <ThemeLogo
                 logoLightUrl={branding.logo_light_url}
                 logoDarkUrl={branding.logo_dark_url}
@@ -76,8 +77,8 @@ export default function InstallApp() {
           </div>
           
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('install.title')}</h1>
-            <p className="text-muted-foreground mt-2">{t('install.subtitle')}</p>
+            <h1 className="text-3xl font-bold tracking-tight text-[var(--text-primary)]">{t('install.title')}</h1>
+            <p className="mt-2 text-[var(--text-secondary)]">{t('install.subtitle')}</p>
           </div>
 
           {/* Install Button */}
@@ -85,7 +86,7 @@ export default function InstallApp() {
             <div className="space-y-3">
               <div className="inline-flex items-center gap-2 text-[hsl(var(--state-completed))]">
                 <Check className="h-5 w-5" />
-                <span className="font-medium">{t('install.alreadyInstalled')}</span>
+                <span className="font-medium text-[var(--text-primary)]">{t('install.alreadyInstalled')}</span>
               </div>
               <div>
                 <Button asChild>
@@ -99,18 +100,19 @@ export default function InstallApp() {
               {t('install.installButton')}
             </Button>
           ) : null}
+          </div>
         </div>
 
         {/* Features */}
-        <Card className={cn(cardVariants.glass, "rounded-xl mb-8")}>
+        <Card className={cn(cardVariants.glass, "rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)]")}>
           <CardContent className="pt-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {features.map(({ icon: Icon, key }) => (
                 <div key={key} className="flex items-center gap-3">
-                  <div className="rounded-full bg-primary/10 p-2">
+                  <div className="rounded-full bg-[var(--brand-primary-soft)] p-2">
                     <Icon className="h-4 w-4 text-primary" />
                   </div>
-                  <span className="text-sm">{t(`install.${key}`)}</span>
+                  <span className="text-sm text-[var(--text-secondary)]">{t(`install.${key}`)}</span>
                 </div>
               ))}
             </div>
@@ -119,7 +121,7 @@ export default function InstallApp() {
 
         {/* Notifications Section */}
         {notificationsSupported && (
-          <Card className={cn(cardVariants.glass, "rounded-xl mb-8")}>
+          <Card className={cn(cardVariants.glass, "rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)]")}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Bell className="h-5 w-5" />
@@ -153,7 +155,7 @@ export default function InstallApp() {
           <div className="space-y-4">
             {/* iOS Instructions */}
             {isIOS && (
-              <Card className={cardVariants.glass}>
+              <Card className={cn(cardVariants.glass, "rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)]")}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Smartphone className="h-5 w-5" />
@@ -185,7 +187,7 @@ export default function InstallApp() {
 
             {/* Android Instructions */}
             {isAndroid && !canInstall && (
-              <Card className={cardVariants.glass}>
+              <Card className={cn(cardVariants.glass, "rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)]")}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Smartphone className="h-5 w-5" />
@@ -210,7 +212,7 @@ export default function InstallApp() {
 
             {/* Desktop Instructions */}
             {!isIOS && !isAndroid && !canInstall && (
-              <Card className={cardVariants.glass}>
+              <Card className={cn(cardVariants.glass, "rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)]")}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Monitor className="h-5 w-5" />

@@ -44,7 +44,8 @@ export default function UsageBilling() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-[var(--bg-canvas)] p-4 sm:p-6">
+      <div className="mx-auto max-w-7xl space-y-8">
       <PageHeader
         icon={<CreditCard className="h-5 w-5 text-primary" />}
         title={t('billing.title')}
@@ -54,7 +55,7 @@ export default function UsageBilling() {
 
       {/* Current Plan */}
       {!subLoading && activeSubscription && (
-        <Card className={cn(cardVariants.stat, "rounded-xl overflow-hidden relative group hover:-translate-y-1 transition-all duration-300")}>
+        <Card className={cn(cardVariants.stat, "relative overflow-hidden rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)] transition-all duration-300 hover:-translate-y-1")}>
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -80,8 +81,8 @@ export default function UsageBilling() {
       )}
 
       {/* Usage Quotas */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className={cardVariants.glass}>
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
+        <Card className={cn(cardVariants.glass, "rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)] xl:col-span-6")}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -108,7 +109,7 @@ export default function UsageBilling() {
           </CardContent>
         </Card>
 
-        <Card className={cardVariants.glass}>
+        <Card className={cn(cardVariants.glass, "rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)] xl:col-span-6")}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -138,7 +139,7 @@ export default function UsageBilling() {
 
       {/* API Calls */}
       {usage && (
-        <Card className={cn(cardVariants.stat, "rounded-xl")}>
+        <Card className={cn(cardVariants.stat, "rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)]")}>
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <Activity className="h-4 w-4 text-muted-foreground" />
@@ -156,7 +157,7 @@ export default function UsageBilling() {
       )}
 
       {/* Invoice Placeholder */}
-      <Card className={cardVariants.glass}>
+      <Card className={cn(cardVariants.glass, "rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)]")}>
         <CardHeader>
           <CardTitle>{t('billing.invoices')}</CardTitle>
           <CardDescription>{t('billing.invoicesDesc', 'Your billing history will appear here once invoices are generated.')}</CardDescription>
@@ -165,6 +166,7 @@ export default function UsageBilling() {
           <p className="text-muted-foreground text-sm">{t('common.noData')}</p>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

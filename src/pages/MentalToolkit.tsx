@@ -17,18 +17,19 @@ export default function MentalToolkit() {
   const [activeTab, setActiveTab] = useState("tools");
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[var(--bg-canvas)] p-4 sm:p-6">
       {/* Header */}
       <PageHeader
         icon={<span className="text-xl">🧠</span>}
         title={t("mentalToolkit.pageTitle")}
         subtitle={t("mentalToolkit.pageSubtitle")}
+        variant="card"
       />
 
       {/* Tabs */}
-      <div className="max-w-4xl mx-auto px-4 py-4 sm:px-6">
+      <div className="mx-auto max-w-5xl py-4">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="glass-tabs w-full grid grid-cols-3 h-auto p-1 rounded-xl mb-6">
+          <TabsList className="mb-6 grid h-auto w-full grid-cols-3 gap-1 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-1">
             <TabsTrigger value="tools" className="flex flex-col items-center gap-1 py-2 px-2 rounded-xl text-xs font-medium">
               <Wrench className="h-4 w-4" />
               <span className="hidden sm:inline">{t("mentalToolkit.tabs.tools")}</span>

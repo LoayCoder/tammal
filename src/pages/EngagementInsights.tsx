@@ -29,7 +29,8 @@ export default function EngagementInsights() {
   const { pulseTrend, appreciationTrend, actionLog, isPending } = useEngagementTrends(selectedMode, employeeId);
 
   return (
-    <div className={cn(spacing.pageWrapper, "space-y-6")}>
+    <div className="min-h-screen bg-[var(--bg-canvas)] p-4 sm:p-6">
+      <div className={cn(spacing.pageWrapper, "space-y-8")}>
       <PageHeader
         icon={<Activity className="h-5 w-5" strokeWidth={1.5} />}
         title={t("engagementInsights.title")}
@@ -38,7 +39,7 @@ export default function EngagementInsights() {
       />
 
       {showModeSwitcher && (
-        <div className="max-w-md">
+        <div className="max-w-md rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5">
           <PulseModeSwitcher
             allowedModes={allowedModes}
             selectedMode={selectedMode}
@@ -61,16 +62,20 @@ export default function EngagementInsights() {
 
           {/* 2. Participation Overview */}
           {pulse && (
-            <div className="grid gap-4 grid-cols-2">
-              <StatCard
-                title={t("engagementInsights.currentScore")}
-                value={`${pulse.engagementScore}%`}
-                icon={<Activity className="h-4 w-4" strokeWidth={1.5} />}
-              />
-              <StatCard
-                title={t("engagementInsights.targetMetric")}
-                value={`${pulse.currentValue}/${pulse.targetValue}`}
-              />
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
+              <div className="xl:col-span-6">
+                <StatCard
+                  title={t("engagementInsights.currentScore")}
+                  value={`${pulse.engagementScore}%`}
+                  icon={<Activity className="h-4 w-4" strokeWidth={1.5} />}
+                />
+              </div>
+              <div className="xl:col-span-6">
+                <StatCard
+                  title={t("engagementInsights.targetMetric")}
+                  value={`${pulse.currentValue}/${pulse.targetValue}`}
+                />
+              </div>
             </div>
           )}
 
@@ -113,6 +118,7 @@ export default function EngagementInsights() {
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }

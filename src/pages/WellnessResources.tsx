@@ -22,7 +22,7 @@ export default function WellnessResources() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-[var(--bg-canvas)] p-4 pb-20 sm:p-6">
       <PageHeader
         icon={<Heart className="h-5 w-5" strokeWidth={1.5} />}
         title={t('home.wellnessResources', 'Wellness Resources')}
@@ -30,17 +30,17 @@ export default function WellnessResources() {
         maxWidth="2xl"
       />
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-2 gap-3">
+      <div className="mx-auto max-w-4xl py-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-12">
           {RESOURCES.map(({ key, icon: Icon, color, titleKey, route }) => (
             <button
               key={key}
               type="button"
               onClick={() => navigate(route)}
-              className="group flex flex-col items-center gap-2.5 rounded-2xl border border-border/40 bg-card p-5 cursor-pointer transition-all duration-200 hover:shadow-md hover:shadow-primary/5 hover:-translate-y-0.5 hover:border-primary/20 active:scale-[0.98]"
+              className="group flex cursor-pointer flex-col items-center gap-2.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:bg-[var(--bg-surface-elevated)] xl:col-span-4 active:scale-[0.98]"
             >
               <Icon className={`h-5 w-5 ${color} transition-transform duration-200 group-hover:scale-110`} strokeWidth={1.5} />
-              <span className="text-xs font-medium text-foreground/80 text-center leading-tight">{t(titleKey)}</span>
+              <span className="text-center text-xs font-medium leading-tight text-[var(--text-secondary)]">{t(titleKey)}</span>
             </button>
           ))}
         </div>

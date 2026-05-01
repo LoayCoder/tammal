@@ -56,10 +56,12 @@ export default function PersonalCommandCenter() {
 
   if (empLoading) {
     return (
-      <div className="space-y-6 p-4">
-        <Skeleton className="h-12 w-48" />
-        <Skeleton className="h-16 w-full" />
-        <Skeleton className="h-64 w-full" />
+      <div className="min-h-screen bg-[var(--bg-canvas)] p-4 sm:p-6">
+        <div className="mx-auto max-w-7xl space-y-6">
+          <Skeleton className="h-12 w-48" />
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-64 w-full" />
+        </div>
       </div>
     );
   }
@@ -79,12 +81,13 @@ export default function PersonalCommandCenter() {
   ];
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="min-h-screen bg-[var(--bg-canvas)] p-4 sm:p-6">
+      <div className="mx-auto max-w-7xl space-y-8">
       {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className={typography.greeting}>{t('commandCenter.pageTitle')}</h1>
-          <p className="text-muted-foreground text-sm mt-1">{t('commandCenter.pageDesc')}</p>
+          <p className="mt-1 text-sm text-[var(--text-secondary)]">{t('commandCenter.pageDesc')}</p>
         </div>
         <div className="flex items-center gap-2.5 shrink-0">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -99,15 +102,15 @@ export default function PersonalCommandCenter() {
       </div>
 
       {/* ── Stats Row ── */}
-      <div className="grid grid-cols-3 sm:grid-cols-5 gap-px rounded-xl bg-border/40 overflow-hidden">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-12">
         {statItems.map((s, i) => (
           <div
             key={i}
-            className="bg-background flex flex-col items-center justify-center py-3 sm:py-4 px-2 transition-colors hover:bg-muted/10 min-h-[44px] active:scale-[0.97]"
+            className="flex min-h-[44px] flex-col items-center justify-center rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-3 transition-colors hover:bg-[var(--bg-surface-elevated)] sm:py-4 xl:col-span-2 active:scale-[0.97]"
           >
             <s.icon className={`h-4 w-4 ${s.color} mb-1`} strokeWidth={1.75} />
             <span className="text-lg sm:text-xl font-bold tracking-tight">{s.value}</span>
-            <span className="text-2xs text-muted-foreground mt-0.5 text-center leading-tight">{s.label}</span>
+            <span className="mt-0.5 text-center text-2xs leading-tight text-[var(--text-muted)]">{s.label}</span>
           </div>
         ))}
       </div>
@@ -123,7 +126,7 @@ export default function PersonalCommandCenter() {
           type="single"
           value={view}
           onValueChange={(v) => { if (v) setView(v as ViewType); }}
-          className="bg-muted/15 p-1 rounded-xl border border-border/50 whitespace-nowrap"
+          className="whitespace-nowrap rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-1"
         >
           <ToggleGroupItem value="tasks" className="gap-1.5 text-xs rounded-lg data-[state=on]:bg-background data-[state=on]:shadow-sm px-3 sm:px-5 min-h-[44px] shrink-0 transition-all duration-200">
             <ListChecks className="h-3.5 w-3.5" />{t('workload.views.tasks')}
@@ -175,6 +178,7 @@ export default function PersonalCommandCenter() {
         employeeName={employee.full_name}
         defaultDepartmentId={null}
       />
+      </div>
     </div>
   );
 }

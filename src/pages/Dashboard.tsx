@@ -18,10 +18,12 @@ export default function Dashboard() {
 
   if (authLoading || viewLoading) {
     return (
-      <div className="space-y-6">
+      <div className="min-h-screen bg-[var(--bg-canvas)] p-4 sm:p-6">
+        <div className="mx-auto max-w-7xl space-y-6">
         <Skeleton className="h-10 w-48" />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28" />)}
+        </div>
         </div>
       </div>
     );
@@ -32,8 +34,9 @@ export default function Dashboard() {
   }
 
   return (
-    <Tabs value={view} onValueChange={(v) => setView(v as DashboardView)} className="space-y-6">
-      <TabsList className="w-full h-auto gap-1">
+    <div className="min-h-screen bg-[var(--bg-canvas)] p-4 sm:p-6">
+      <Tabs value={view} onValueChange={(v) => setView(v as DashboardView)} className="mx-auto max-w-7xl space-y-6">
+      <TabsList className="h-auto w-full gap-1 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-1">
         <TabsTrigger value="overview" className="flex-1 px-2 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm">
           {t('dashboard.overviewTab')}
         </TabsTrigger>
@@ -66,6 +69,7 @@ export default function Dashboard() {
           </ErrorBoundary>
         </TabsContent>
       )}
-    </Tabs>
+      </Tabs>
+    </div>
   );
 }

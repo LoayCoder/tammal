@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import { cardVariants } from "@/theme/tokens";
+import { cn } from "@/lib/utils";
 
 export default function Support() {
   const { t } = useTranslation();
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-[var(--bg-canvas)] p-4 sm:p-6">
+      <div className="mx-auto max-w-5xl space-y-8">
       <PageHeader
         icon={<Plus className="h-5 w-5 text-primary" />}
         title={t('support.title')}
@@ -22,14 +24,15 @@ export default function Support() {
         }
       />
 
-      <Card className={cardVariants.glass}>
+      <Card className={cn(cardVariants.glass, "rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)] p-1")}>
         <CardHeader>
-          <CardTitle>{t('support.title')}</CardTitle>
+          <CardTitle className="text-[var(--text-primary)]">{t('support.title')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">{t('common.noData')}</p>
+          <p className="text-[var(--text-secondary)]">{t('common.noData')}</p>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

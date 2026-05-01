@@ -10,9 +10,11 @@ export default function TodoPage() {
 
   if (isPending) {
     return (
-      <div className="space-y-6 p-4 max-w-2xl mx-auto">
-        <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-64 w-full" />
+      <div className="min-h-screen bg-[var(--bg-canvas)] p-4 sm:p-6">
+        <div className="mx-auto max-w-3xl space-y-6">
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-64 w-full" />
+        </div>
       </div>
     );
   }
@@ -22,16 +24,18 @@ export default function TodoPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center gap-2.5">
+    <div className="min-h-screen bg-[var(--bg-canvas)] p-4 sm:p-6">
+      <div className="mx-auto max-w-3xl space-y-8">
+      <div className="flex items-center gap-2.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5">
         <Sparkles className="h-5 w-5 text-primary" strokeWidth={1.5} />
-        <h1 className="text-xl font-bold tracking-tight">{t('nav.todoList', 'To-Do List')}</h1>
+        <h1 className="text-xl font-bold tracking-tight text-[var(--text-primary)]">{t('nav.todoList', 'To-Do List')}</h1>
       </div>
       <VipTodoView
         employeeId={employee.id}
         employeeName={employee.full_name}
         tenantId={employee.tenant_id}
       />
+      </div>
     </div>
   );
 }

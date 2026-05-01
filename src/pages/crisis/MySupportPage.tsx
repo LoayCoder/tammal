@@ -51,7 +51,8 @@ export default function MySupportPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-[var(--bg-canvas)] p-4 sm:p-6">
+      <div className="mx-auto max-w-7xl space-y-8">
       <PageHeader
         icon={<MessageSquare className="h-5 w-5 text-primary" />}
         title={t('crisisSupport.mySupport.title')}
@@ -68,7 +69,7 @@ export default function MySupportPage() {
       {isPending ? (
         <p className="text-muted-foreground">{t('common.loading')}</p>
       ) : myCases.length === 0 ? (
-        <Card className={cardVariants.glass}>
+        <Card className={cn(cardVariants.glass, "rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)]")}>
           <CardContent className="py-12 text-center">
             <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">{t('crisisSupport.mySupport.noCases')}</p>
@@ -95,6 +96,7 @@ export default function MySupportPage() {
           </TabsContent>
         </Tabs>
       )}
+      </div>
     </div>
   );
 }
@@ -107,20 +109,20 @@ function CaseCardList({ cases, onSelect }: { cases: any[]; onSelect: (id: string
   }
 
   return (
-    <div className="space-y-3 mt-4">
+    <div className="mt-4 space-y-3">
       {cases.map(c => (
-        <Card key={c.id} className={cn(cardVariants.glass, "rounded-xl cursor-pointer hover:bg-white/5 transition-colors")} onClick={() => onSelect(c.id)}>
+        <Card key={c.id} className={cn(cardVariants.glass, "cursor-pointer rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)] transition-colors hover:bg-[var(--bg-surface-elevated)]")} onClick={() => onSelect(c.id)}>
           <CardContent className="py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-                  <MessageSquare className="h-5 w-5 text-muted-foreground" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--bg-surface-elevated)]">
+                  <MessageSquare className="h-5 w-5 text-[var(--text-muted)]" />
                 </div>
                 <div>
-                  <p className="font-medium text-sm">{resolveIntentLabel((key) => String(t(key)), c.intent)}</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)]">{resolveIntentLabel((key) => String(t(key)), c.intent)}</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <Clock className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">{format(new Date(c.created_at), 'MMM d, yyyy h:mm a')}</span>
+                    <span className="text-xs text-[var(--text-muted)]">{format(new Date(c.created_at), 'MMM d, yyyy h:mm a')}</span>
                   </div>
                 </div>
               </div>
@@ -130,12 +132,12 @@ function CaseCardList({ cases, onSelect }: { cases: any[]; onSelect: (id: string
             </div>
             {/* Session notes shared by first aider (read-only) */}
             {c.status === 'resolved' && c.summary && (
-              <div className="mt-3 p-3 rounded-lg bg-muted/50 border border-border">
+              <div className="mt-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] p-3">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <FileText className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-2xs font-medium text-muted-foreground uppercase">{t('crisisSupport.mySupport.sharedNotes')}</span>
+                  <FileText className="h-3 w-3 text-[var(--text-muted)]" />
+                  <span className="text-2xs font-medium uppercase text-[var(--text-muted)]">{t('crisisSupport.mySupport.sharedNotes')}</span>
                 </div>
-                <p className="text-xs text-foreground">{c.summary}</p>
+                <p className="text-xs text-[var(--text-secondary)]">{c.summary}</p>
               </div>
             )}
           </CardContent>
@@ -154,7 +156,8 @@ function CaseThread({ caseData, onBack }: { caseData: any; onBack: () => void })
   const isActive = ['active', 'awaiting_user', 'awaiting_first_aider', 'pending_first_aider_acceptance'].includes(caseData.status);
 
   return (
-    <div className="space-y-4">
+    <div className="min-h-screen bg-[var(--bg-canvas)] p-4 sm:p-6">
+      <div className="mx-auto max-w-7xl space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={onBack}>
           <ArrowLeft className="h-5 w-5 rtl:-scale-x-100" />
@@ -169,7 +172,7 @@ function CaseThread({ caseData, onBack }: { caseData: any; onBack: () => void })
       </div>
 
       {/* Enhanced chat */}
-      <Card className={cn(cardVariants.glass, "rounded-xl overflow-hidden")}>
+      <Card className={cn(cardVariants.glass, "overflow-hidden rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)]")}>
         <EnhancedChatPanel
           caseId={caseData.id}
           tenantId={caseData.tenant_id}
@@ -199,6 +202,7 @@ function CaseThread({ caseData, onBack }: { caseData: any; onBack: () => void })
           {t('crisisSupport.mySupport.scheduleFollowup')}
         </Button>
       )}
+      </div>
     </div>
   );
 }
