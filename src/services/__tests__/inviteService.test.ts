@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ── Hoisted mocks ──
-const { mockSingle, mockSignUp, mockChainUpdate, mockChainInsert } = vi.hoisted(() => ({
+const { mockSingle, mockSignUp, mockChainUpdate, mockChainInsert, mockRpc } = vi.hoisted(() => ({
   mockSingle: vi.fn(),
   mockSignUp: vi.fn(),
   mockChainUpdate: vi.fn(),
   mockChainInsert: vi.fn(),
+  mockRpc: vi.fn(),
 }));
 
 const chain = {
@@ -26,6 +27,7 @@ const chain = {
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: vi.fn(() => chain),
+    rpc: mockRpc,
     auth: { signUp: mockSignUp },
   },
 }));
@@ -56,11 +58,23 @@ beforeEach(() => {
     }),
     error: null,
   });
+  mockRpc.mockReset();
 });
 
 describe('verifyInviteCode', () => {
   it('returns valid status with invitation data', async () => {
-    mockSingle.mockResolvedValueOnce({ data: VALID_INVITATION, error: null });
+    mockRpc.mockResolvedValueOnce({
+      data: [{
+        id: VALID_INVITATION.id,
+        used: false,
+        email: VALID_INVITATION.email,
+        full_name: VALID_INVITATION.full_name,
+        tenant_id: VALID_INVITATION.tenant_id,
+        employee_id: VALID_INVITATION.employee_id,
+        tenant_name: VALID_INVITATION.tenants?.name,
+      }],
+      error: null,
+    });
 
     const result = await verifyInviteCode('abcd1234');
 
@@ -71,17 +85,29 @@ describe('verifyInviteCode', () => {
   });
 
   it('uppercases the code before querying', async () => {
-    mockSingle.mockResolvedValueOnce({ data: VALID_INVITATION, error: null });
+    mockRpc.mockResolvedValueOnce({
+      data: [{
+        id: VALID_INVITATION.id,
+        used: false,
+        email: VALID_INVITATION.email,
+        full_name: VALID_INVITATION.full_name,
+        tenant_id: VALID_INVITATION.tenant_id,
+        employee_id: VALID_INVITATION.employee_id,
+        tenant_name: VALID_INVITATION.tenants?.name,
+      }],
+      error: null,
+    });
 
     await verifyInviteCode('abcd1234');
 
-    expect(chain.eq).toHaveBeenCalledWith('code', 'ABCD1234');
+    expect(mockRpc).toHaveBeenCalledWith('verify_invitation_code', { p_code: 'ABCD1234' });
   });
 
   it('returns used status when invitation was already consumed', async () => {
-    mockSingle
-      .mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } })
-      .mockResolvedValueOnce({ data: { used: true }, error: null });
+    mockRpc.mockResolvedValueOnce({
+      data: [{ used: true }],
+      error: null,
+    });
 
     const result = await verifyInviteCode('ABCD1234');
 
@@ -89,9 +115,10 @@ describe('verifyInviteCode', () => {
   });
 
   it('returns invalid status when code does not exist at all', async () => {
-    mockSingle
-      .mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } })
-      .mockResolvedValueOnce({ data: null, error: null });
+    mockRpc.mockResolvedValueOnce({
+      data: [],
+      error: null,
+    });
 
     const result = await verifyInviteCode('ZZZZZZZZ');
 

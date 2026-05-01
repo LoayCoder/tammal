@@ -69,7 +69,7 @@ describe('AcceptInvite — E2E Smoke', () => {
 
   it('renders code entry form on initial load', () => {
     render(React.createElement(AcceptInvite));
-    expect(screen.getByText('acceptInvite.title')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'acceptInvite.title' })).toBeTruthy();
     expect(screen.getByLabelText('invitations.code')).toBeTruthy();
   });
 

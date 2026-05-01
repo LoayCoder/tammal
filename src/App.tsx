@@ -93,7 +93,6 @@ const EscalationSettings = lazy(() => import("@/pages/admin/EscalationSettings")
 const TodoPage = lazy(() => import("@/pages/employee/TodoPage"));
 const TaskDetail = lazy(() => import("@/features/tasks/pages/TaskDetail"));
 const OverdueTasks = lazy(() => import("@/features/tasks/pages/OverdueTasks"));
-const ManagerTaskOverview = lazy(() => import("@/features/tasks/pages/ManagerTaskOverview"));
 const TaskPerformanceAnalytics = lazy(() => import("@/features/tasks/pages/TaskPerformanceAnalytics"));
 const RecurringTasks = lazy(() => import("@/features/tasks/pages/RecurringTasks"));
 const TaskTemplates = lazy(() => import("@/features/tasks/pages/TaskTemplates"));
