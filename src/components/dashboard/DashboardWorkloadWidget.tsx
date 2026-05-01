@@ -51,7 +51,27 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
   }, [tasks]);
 
   if (isPending && !isHidden) {
-    return <Skeleton className="h-48 w-full rounded-xl" />;
+    return (
+      <Card className={cn(cardVariants.premiumVip, "rounded-2xl")}>
+        <CardContent className="p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-4 w-36" />
+            <Skeleton className="h-7 w-20" />
+          </div>
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-16 flex-1" />
+            <Skeleton className="h-16 flex-1" />
+            <Skeleton className="h-16 flex-1" />
+            <Skeleton className="h-16 flex-1" />
+          </div>
+          <Skeleton className="h-1.5 w-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   const statItems = [
@@ -176,13 +196,13 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
                     key={task.id}
                     onClick={() => navigate(`/tasks/${task.id}`)}
                     className={cn(
-                      "flex items-center gap-2 py-2 w-full text-start group",
-                      "hover:bg-muted/30 transition-colors duration-150 cursor-pointer rounded px-1 -mx-1",
+                      "flex items-center gap-2 py-2.5 w-full text-start group",
+                      "hover:bg-muted/30 transition-colors duration-150 cursor-pointer rounded-lg px-2 -mx-1",
                       i < upcoming.length - 1 && "border-b border-border/20"
                     )}
                   >
                     <div className="flex-1 min-w-0">
-                      <span className="block truncate group-hover:text-primary transition-colors text-xs">
+                      <span className="block truncate group-hover:text-primary transition-colors text-sm">
                         {task.title}
                       </span>
                     </div>
@@ -203,9 +223,9 @@ export function DashboardWorkloadWidget({ employeeId }: Props) {
           </div>
         ) : (
           /* Empty state */
-          <div className="flex flex-col items-center justify-center py-6 gap-2">
-            <ClipboardList className="h-6 w-6 text-[hsl(var(--state-completed))]" strokeWidth={1.5} />
-            <p className="text-sm font-medium text-foreground">
+          <div className="flex flex-col items-center justify-center py-8 gap-2 border border-border/30 rounded-xl bg-muted/5">
+            <ClipboardList className="h-7 w-7 text-[hsl(var(--state-completed))]" strokeWidth={1.5} />
+            <p className="text-sm font-semibold text-foreground">
               {isAr ? 'لا توجد مهام قادمة 🎉' : 'No upcoming tasks 🎉'}
             </p>
             <p className="text-xs text-muted-foreground">

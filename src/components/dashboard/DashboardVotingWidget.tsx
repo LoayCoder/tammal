@@ -16,9 +16,9 @@ function VotingCycleCard({ cycleId, cycleName }: { cycleId: string; cycleName: s
 
   if (ballotsPending) {
     return (
-      <Card className={cn(cardVariants.glass, "ring-1 ring-primary/20")}>
-        <CardContent className="p-6">
-          <Skeleton className="h-16 w-full" />
+      <Card className={cn(cardVariants.premiumVip, "border border-primary/30 rounded-2xl")}>
+        <CardContent className="p-5">
+          <Skeleton className="h-16 w-full rounded-lg" />
         </CardContent>
       </Card>
     );
@@ -31,35 +31,35 @@ function VotingCycleCard({ cycleId, cycleName }: { cycleId: string; cycleName: s
   const pct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   return (
-    <Card className={cn(cardVariants.glass, "ring-1 ring-primary/20")}>
-      <CardContent className="flex flex-col gap-4 p-6">
+    <Card className={cn(cardVariants.premiumVip, "border border-primary/30 rounded-2xl")}>
+      <CardContent className="flex flex-col gap-4 p-5">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-            <Vote className="h-7 w-7 text-primary" />
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
+            <Vote className="h-5 w-5 text-primary" strokeWidth={1.5} />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-base">{t('home.votingWidget.title')}</h3>
-            <p className="text-muted-foreground text-sm mt-0.5">{cycleName}</p>
+            <h3 className="font-semibold text-sm">{t('home.votingWidget.title')}</h3>
+            <p className="text-muted-foreground text-xs mt-0.5">{cycleName}</p>
           </div>
           {!allDone && (
             <Link to="/recognition/vote">
-              <Button size="sm" className="gap-1.5">
+              <Button size="sm" className="gap-1.5 h-8 text-xs">
                 {t('home.votingWidget.voteNow')}
-                <ChevronRight className="h-4 w-4 rtl:rotate-180" />
+                <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
               </Button>
             </Link>
           )}
         </div>
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">
               {allDone
                 ? t('home.votingWidget.allDone')
                 : t('home.votingWidget.pending', { count: pendingBallots.length })}
             </span>
-            <span className="font-medium">{pct}%</span>
+            <span className="font-semibold text-foreground">{pct}%</span>
           </div>
-          <Progress value={pct} className="h-2" />
+          <Progress value={pct} className="h-1.5" />
         </div>
       </CardContent>
     </Card>

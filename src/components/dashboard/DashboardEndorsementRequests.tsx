@@ -34,7 +34,18 @@ export function DashboardEndorsementRequests() {
   });
 
   if (requestsPending) {
-    return <Skeleton className="h-24 w-full rounded-lg" />;
+    return (
+      <Card className={cn(cardVariants.premiumVip, "rounded-2xl border border-border/40")}>
+        <CardContent className="flex items-center gap-4 p-5">
+          <Skeleton className="h-11 w-11 rounded-xl" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-48" />
+            <Skeleton className="h-3 w-32" />
+          </div>
+          <Skeleton className="h-4 w-4" />
+        </CardContent>
+      </Card>
+    );
   }
 
   if (myEndorsementRequests.length === 0) return null;
@@ -44,17 +55,17 @@ export function DashboardEndorsementRequests() {
       {myEndorsementRequests.map(n => (
         <Card
           key={n.id}
-          className={cn(cardVariants.glass, "group relative overflow-hidden rounded-lg cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.01]")}
+          className={cn(cardVariants.premiumVip, "group relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-200 hover:shadow-md hover:border-chart-3/30 border border-border/40")}
           onClick={() => navigate('/recognition/my-nominations?tab=endorse')}
         >
           {/* Gradient accent stripe on the start edge */}
-          <div className="absolute inset-y-0 start-0 w-1 bg-gradient-to-b from-chart-3 to-chart-3/40 rounded-s-2xl" />
+          <div className="absolute inset-y-0 start-0 w-1 bg-gradient-to-b from-chart-3 to-chart-3/40" />
 
           <CardContent className="flex items-center gap-4 p-5 ps-6">
             {/* Icon with pulse indicator */}
             <div className="relative shrink-0">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-chart-3/10 ring-1 ring-chart-3/20 transition-colors group-hover:bg-chart-3/20">
-                <ThumbsUp className="h-6 w-6 text-chart-3" />
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-chart-3/10 border border-chart-3/20 transition-colors group-hover:bg-chart-3/15">
+                <ThumbsUp className="h-5 w-5 text-chart-3" strokeWidth={1.5} />
               </div>
               {/* Pulse dot */}
               <span className="absolute -top-1 -end-1 flex h-3 w-3">

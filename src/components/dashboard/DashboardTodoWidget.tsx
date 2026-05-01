@@ -61,7 +61,22 @@ export function DashboardTodoWidget({ employeeId, tenantId }: Props) {
   }, [input, createTodo, tenantId]);
 
   if (isPending) {
-    return <Skeleton className="h-40 rounded-2xl" />;
+    return (
+      <Card className={cn(cardVariants.premiumVip, "rounded-2xl")}>
+        <CardContent className="p-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-7 w-20" />
+          </div>
+          <Skeleton className="h-1 w-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-9 w-full" />
+            <Skeleton className="h-9 w-full" />
+            <Skeleton className="h-9 w-full" />
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   // Don't render widget if no todos at all

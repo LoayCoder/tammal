@@ -110,7 +110,18 @@ export function DashboardShortlistWidget() {
   });
 
   if (isPending) {
-    return <Skeleton className="h-24" />;
+    return (
+      <Card className={cn(cardVariants.premiumVip, "rounded-2xl border border-border/40")}>
+        <CardContent className="flex items-center gap-4 p-5">
+          <Skeleton className="h-12 w-12 rounded-xl" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-3 w-32" />
+          </div>
+          <Skeleton className="h-8 w-24 rounded-lg" />
+        </CardContent>
+      </Card>
+    );
   }
 
   if (!entries.length) return null;
@@ -130,23 +141,23 @@ export function DashboardShortlistWidget() {
   return (
     <div className="space-y-3">
       {entries.map((entry) => (
-        <Card key={entry.ranking_id} className={cn(cardVariants.glass, "ring-1 ring-chart-1/30 overflow-hidden")}>
-          <CardContent className="flex items-center gap-4 p-6">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-chart-1/10">
+        <Card key={entry.ranking_id} className={cn(cardVariants.premiumVip, "border border-chart-1/30 overflow-hidden rounded-2xl")}>
+          <CardContent className="flex items-center gap-4 p-5">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-chart-1/10 border border-chart-1/20">
               {getRankIcon(entry.rank)}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-semibold text-base">
+                <h3 className="font-semibold text-sm">
                   {getRankLabel(entry.rank)} {t('recognition.shortlist.youPlaced', { rank: entry.rank })}
                 </h3>
                 {entry.points_earned > 0 && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-2xs px-1.5 py-0">
                     +{entry.points_earned.toLocaleString()} {t('home.points')}
                   </Badge>
                 )}
               </div>
-              <p className="text-muted-foreground text-sm mt-0.5">
+              <p className="text-muted-foreground text-xs mt-0.5">
                 {entry.theme_name} — {entry.cycle_name}
               </p>
             </div>
@@ -155,13 +166,13 @@ export function DashboardShortlistWidget() {
                 size="sm"
                 onClick={() => acknowledge.mutate(entry.ranking_id)}
                 disabled={acknowledge.isPending}
-                className="shrink-0"
+                className="shrink-0 h-8 text-xs"
               >
-                <CheckCircle2 className="h-4 w-4 me-1" />
+                <CheckCircle2 className="h-3.5 w-3.5 me-1" />
                 {t('recognition.shortlist.acknowledge')}
               </Button>
             ) : (
-              <CheckCircle2 className="h-6 w-6 text-chart-1 shrink-0" />
+              <CheckCircle2 className="h-5 w-5 text-chart-1 shrink-0" />
             )}
           </CardContent>
         </Card>
