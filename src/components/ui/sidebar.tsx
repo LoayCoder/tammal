@@ -430,16 +430,16 @@ const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.ComponentProps<"li
 SidebarMenuItem.displayName = "SidebarMenuItem";
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-xl p-2 text-start text-sm outline-none ring-sidebar-ring transition-all duration-200 hover:bg-sidebar-accent/30 focus-visible:ring-2 active:bg-sidebar-accent/40 disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pe-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:glass-active data-[active=true]:font-medium data-[active=true]:text-sidebar-primary data-[state=open]:hover:bg-sidebar-accent/30 group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-xl p-2 text-start text-sm outline-none ring-sidebar-ring transition-all duration-200 hover:bg-[var(--sidebar-hover-bg)] focus-visible:ring-2 active:bg-sidebar-accent/40 disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pe-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-[var(--sidebar-active-bg)] data-[active=true]:font-semibold data-[active=true]:text-sidebar-primary data-[active=true]:border data-[active=true]:border-[var(--brand-primary-soft)] data-[state=open]:hover:bg-[var(--sidebar-hover-bg)] group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        default: "hover:bg-[var(--sidebar-hover-bg)] hover:text-sidebar-foreground",
         outline:
           "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
       },
       size: {
-        default: "h-8 text-sm",
+        default: "h-9 text-sm",
         sm: "h-7 text-xs",
         lg: "h-12 text-sm group-data-[collapsible=icon]:!p-0",
       },

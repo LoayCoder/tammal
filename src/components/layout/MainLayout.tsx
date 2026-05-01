@@ -24,12 +24,12 @@ export function MainLayout() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full overflow-hidden">
+      <div className="flex min-h-screen w-full overflow-hidden bg-[var(--bg-canvas)]">
         <AppSidebar branding={branding} />
         <div className="flex flex-1 flex-col min-w-0">
           <PWAInstallBanner />
           <Header branding={branding} />
-          <main className="flex-1 overflow-x-hidden p-4 md:p-6 pb-20 md:pb-6">
+          <main className="flex-1 overflow-x-hidden px-4 sm:px-6 lg:px-8 xl:px-10 py-4 sm:py-6 pb-20 md:pb-6">
             <Outlet />
           </main>
           <MobileBottomNav />

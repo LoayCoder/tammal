@@ -381,8 +381,8 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                           className={cn(
                             "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200",
                             isGroupActive
-                              ? "bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary"
-                              : "text-sidebar-foreground/60 hover:bg-[hsl(var(--sidebar-hover-bg))] hover:text-sidebar-foreground"
+                              ? "bg-[var(--sidebar-active-bg)] text-sidebar-primary border border-[rgba(20,184,166,0.2)]"
+                              : "text-sidebar-foreground/60 hover:bg-[var(--sidebar-hover-bg)] hover:text-sidebar-foreground"
                           )}
                           aria-label={group.label}
                         >
@@ -414,10 +414,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                           to={group.items[0].url}
                           end={group.items[0].url === '/'}
                           className={cn(
-                            "flex h-9 items-center gap-3 rounded-lg px-3 transition-all duration-200",
-                            "hover:bg-muted/50 text-xs text-muted-foreground"
+                            "flex h-9 items-center gap-3 rounded-xl px-3 transition-all duration-200",
+                            "hover:bg-[var(--sidebar-hover-bg)] text-xs text-sidebar-foreground/80"
                           )}
-                          activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
+                          activeClassName="text-sidebar-primary font-semibold bg-[var(--sidebar-active-bg)] border border-[rgba(20,184,166,0.18)]"
                           onClick={handleNavClick}
                         >
                           <group.icon className="h-4.5 w-4.5 shrink-0 text-muted-foreground" />
@@ -439,10 +439,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                     <CollapsibleTrigger asChild>
                       <button
                         className={cn(
-                          "flex h-9 w-full items-center gap-3 rounded-lg px-3 transition-all duration-200",
+                          "flex h-9 w-full items-center gap-3 rounded-xl px-3 transition-all duration-200",
                           isGroupActive
-                            ? "text-sidebar-primary font-medium text-xs"
-                            : "text-xs text-muted-foreground hover:bg-muted/50"
+                            ? "text-sidebar-primary font-semibold text-xs"
+                            : "text-xs text-sidebar-foreground/70 hover:bg-[var(--sidebar-hover-bg)]"
                         )}
                       >
                         <group.icon className="h-4.5 w-4.5 shrink-0 text-muted-foreground" />
@@ -475,10 +475,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                                   to={item.url}
                                   end={item.url === '/'}
                                   className={cn(
-                                    "flex h-8 items-center gap-2.5 rounded-lg px-2.5 transition-colors text-xs",
-                                    "text-sidebar-foreground/80 hover:bg-muted/50 hover:text-sidebar-foreground"
+                                    "flex h-8 items-center gap-2.5 rounded-xl px-2.5 transition-colors text-xs",
+                                    "text-sidebar-foreground/70 hover:bg-[var(--sidebar-hover-bg)] hover:text-sidebar-foreground"
                                   )}
-                                  activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
+                                  activeClassName="text-sidebar-primary font-semibold bg-[var(--sidebar-active-bg)] border border-[rgba(20,184,166,0.14)]"
                                   onClick={handleNavClick}
                                 >
                                   <item.icon className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -514,10 +514,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                                         to={item.url}
                                         end={item.url === '/'}
                                         className={cn(
-                                          "flex h-8 items-center gap-2.5 rounded-lg px-2.5 transition-colors text-xs",
-                                          "text-sidebar-foreground/80 hover:bg-muted/50 hover:text-sidebar-foreground"
+                                          "flex h-8 items-center gap-2.5 rounded-xl px-2.5 transition-colors text-xs",
+                                          "text-sidebar-foreground/70 hover:bg-[var(--sidebar-hover-bg)] hover:text-sidebar-foreground"
                                         )}
-                                        activeClassName="text-sidebar-primary font-medium border-s-2 border-sidebar-primary"
+                                        activeClassName="text-sidebar-primary font-semibold bg-[var(--sidebar-active-bg)] border border-[rgba(20,184,166,0.14)]"
                                         onClick={handleNavClick}
                                       >
                                         <item.icon className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -551,10 +551,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                               <CollapsibleTrigger asChild>
                                 <button
                                   className={cn(
-                                    "flex h-8 w-full items-center gap-2.5 rounded-lg px-2.5 text-xs transition-all duration-200",
+                                    "flex h-8 w-full items-center gap-2.5 rounded-xl px-2.5 text-xs transition-all duration-200",
                                     isSectionActive
-                                      ? "text-sidebar-primary font-medium"
-                                      : "text-sidebar-foreground/80 hover:bg-muted/50"
+                                      ? "text-sidebar-primary font-semibold"
+                                      : "text-sidebar-foreground/70 hover:bg-[var(--sidebar-hover-bg)]"
                                   )}
                                 >
                                   <span className="flex-1 text-start text-xs font-medium">{section.label}</span>
@@ -570,10 +570,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                                         key={item.url}
                                         to={item.url}
                                         className={cn(
-                                          "flex h-7 items-center gap-2 rounded-lg px-2.5 text-xs transition-colors",
-                                          "text-sidebar-foreground/70 hover:bg-muted/50 hover:text-sidebar-foreground"
+                                          "flex h-7 items-center gap-2 rounded-xl px-2.5 text-xs transition-colors",
+                                          "text-sidebar-foreground/60 hover:bg-[var(--sidebar-hover-bg)] hover:text-sidebar-foreground"
                                         )}
-                                        activeClassName="text-sidebar-primary font-medium"
+                                        activeClassName="text-sidebar-primary font-semibold bg-[var(--sidebar-active-bg)]"
                                         onClick={handleNavClick}
                                       >
                                         <item.icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
@@ -603,8 +603,8 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                             className={cn(
                               "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200",
                               location.pathname.startsWith('/spiritual')
-                                ? "bg-[hsl(var(--sidebar-active-bg))] text-sidebar-primary"
-                                : "text-sidebar-foreground/60 hover:bg-[hsl(var(--sidebar-hover-bg))] hover:text-sidebar-foreground"
+                                ? "bg-[var(--sidebar-active-bg)] text-sidebar-primary border border-[rgba(20,184,166,0.2)]"
+                                : "text-sidebar-foreground/60 hover:bg-[var(--sidebar-hover-bg)] hover:text-sidebar-foreground"
                             )}
                             aria-label={t('spiritual.nav.title')}
                           >
@@ -625,10 +625,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                       <CollapsibleTrigger asChild>
                         <button
                           className={cn(
-                            "flex h-9 w-full items-center gap-3 rounded-lg px-3 transition-all duration-200",
+                            "flex h-9 w-full items-center gap-3 rounded-xl px-3 transition-all duration-200",
                             location.pathname.startsWith('/spiritual')
-                              ? "text-sidebar-primary font-medium text-xs"
-                              : "text-xs text-muted-foreground hover:bg-muted/50"
+                              ? "text-sidebar-primary font-semibold text-xs"
+                              : "text-xs text-sidebar-foreground/70 hover:bg-[var(--sidebar-hover-bg)]"
                           )}
                         >
                           <Moon className="h-4.5 w-4.5 shrink-0 text-muted-foreground" />
@@ -642,10 +642,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                             <NavLink
                               to="/spiritual/prayer"
                               className={cn(
-                                "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-xs transition-colors",
-                                "text-sidebar-foreground/80 hover:bg-muted/50"
+                                "flex h-8 items-center gap-2.5 rounded-xl px-2.5 text-xs transition-colors",
+                                "text-sidebar-foreground/70 hover:bg-[var(--sidebar-hover-bg)]"
                               )}
-                              activeClassName="text-sidebar-primary font-medium"
+                              activeClassName="text-sidebar-primary font-semibold bg-[var(--sidebar-active-bg)] border border-[rgba(20,184,166,0.14)]"
                               onClick={handleNavClick}
                             >
                               <span className="truncate">{t('spiritual.nav.prayerTracker')}</span>
@@ -655,10 +655,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                             <NavLink
                               to="/spiritual/quran"
                               className={cn(
-                                "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-xs transition-colors",
-                                "text-sidebar-foreground/80 hover:bg-muted/50"
+                                "flex h-8 items-center gap-2.5 rounded-xl px-2.5 text-xs transition-colors",
+                                "text-sidebar-foreground/70 hover:bg-[var(--sidebar-hover-bg)]"
                               )}
-                              activeClassName="text-sidebar-primary font-medium"
+                              activeClassName="text-sidebar-primary font-semibold bg-[var(--sidebar-active-bg)] border border-[rgba(20,184,166,0.14)]"
                               onClick={handleNavClick}
                             >
                               <span className="truncate">{t('spiritual.nav.quranReader')}</span>
@@ -668,10 +668,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                             <NavLink
                               to="/spiritual/sunnah"
                               className={cn(
-                              "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-xs transition-colors",
-                                "text-sidebar-foreground/80 hover:bg-muted/50"
+                              "flex h-8 items-center gap-2.5 rounded-xl px-2.5 text-xs transition-colors",
+                                "text-sidebar-foreground/70 hover:bg-[var(--sidebar-hover-bg)]"
                               )}
-                              activeClassName="text-sidebar-primary font-medium"
+                              activeClassName="text-sidebar-primary font-semibold bg-[var(--sidebar-active-bg)] border border-[rgba(20,184,166,0.14)]"
                               onClick={handleNavClick}
                             >
                               <span className="truncate">{t('spiritual.nav.sunnahTracker')}</span>
@@ -680,10 +680,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                           <NavLink
                             to="/spiritual/calendar"
                             className={cn(
-                              "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-xs transition-colors",
-                              "text-sidebar-foreground/80 hover:bg-muted/50"
+                              "flex h-8 items-center gap-2.5 rounded-xl px-2.5 text-xs transition-colors",
+                              "text-sidebar-foreground/70 hover:bg-[var(--sidebar-hover-bg)]"
                             )}
-                            activeClassName="text-sidebar-primary font-medium"
+                            activeClassName="text-sidebar-primary font-semibold bg-[var(--sidebar-active-bg)] border border-[rgba(20,184,166,0.14)]"
                             onClick={handleNavClick}
                           >
                             <span className="truncate">{t('spiritual.nav.calendar')}</span>
@@ -691,10 +691,10 @@ export function AppSidebar({ branding }: AppSidebarProps) {
                           <NavLink
                             to="/spiritual/insights"
                             className={cn(
-                              "flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-xs transition-colors",
-                              "text-sidebar-foreground/80 hover:bg-muted/50"
+                              "flex h-8 items-center gap-2.5 rounded-xl px-2.5 text-xs transition-colors",
+                              "text-sidebar-foreground/70 hover:bg-[var(--sidebar-hover-bg)]"
                             )}
-                            activeClassName="text-sidebar-primary font-medium"
+                            activeClassName="text-sidebar-primary font-semibold bg-[var(--sidebar-active-bg)] border border-[rgba(20,184,166,0.14)]"
                             onClick={handleNavClick}
                           >
                             <span className="truncate">{t('spiritual.nav.insights')}</span>
