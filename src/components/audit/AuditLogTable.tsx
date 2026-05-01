@@ -17,9 +17,10 @@ import {
 } from '@/components/ui/dialog';
 import { 
   Plus, Edit, Trash2, ToggleLeft, RefreshCw, 
-  Building2, CreditCard, Users, Layers, Eye 
+  Building2, CreditCard, Users, Layers, Eye, History as HistoryIcon
 } from 'lucide-react';
 import type { AuditLog } from '@/hooks/audit/useAuditLog';
+import { cn } from '@/lib/utils';
 
 interface AuditLogTableProps {
   logs: AuditLog[];
@@ -78,8 +79,8 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
     return (
       <div className="space-y-3">
         {[...Array(compact ? 5 : 10)].map((_, i) => (
-          <div key={i} className="flex items-center gap-4">
-            <Skeleton className="h-8 w-8 rounded-full" />
+          <div key={i} className="flex items-center gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] p-4">
+            <Skeleton className="h-10 w-10 rounded-2xl" />
             <div className="space-y-2 flex-1">
               <Skeleton className="h-4 w-[250px]" />
               <Skeleton className="h-3 w-[150px]" />
@@ -92,9 +93,15 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
 
   if (logs.length === 0) {
     return (
-      <p className="text-muted-foreground text-sm text-center py-8">
-        {t('audit.noLogs')}
-      </p>
+      <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] px-6 py-12 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--brand-primary-soft)] text-[var(--brand-primary)]">
+          <HistoryIcon className="h-5 w-5" />
+        </div>
+        <div className="space-y-1">
+          <p className="text-sm font-semibold text-[var(--text-primary)]">{t('audit.noLogs')}</p>
+          <p className="text-xs text-[var(--text-muted)]">{t('audit.filterDescription')}</p>
+        </div>
+      </div>
     );
   }
 
@@ -109,10 +116,10 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
             return (
               <div 
                 key={log.id} 
-                className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+                className="flex cursor-pointer items-start gap-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] p-4 transition-colors hover:bg-[var(--bg-surface-hover)]"
                 onClick={() => setSelectedLog(log)}
               >
-                <div className={`p-2 rounded-full ${actionColors[log.action]}`}>
+                <div className={`rounded-2xl p-2.5 ${actionColors[log.action]}`}>
                   <ActionIcon className="h-4 w-4" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -122,11 +129,11 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
                       {t(`audit.actions.${log.action}`)} {t(`audit.entities.${log.entity_type}`)}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1 truncate">
+                  <p className="mt-1 truncate text-xs text-[var(--text-muted)]">
                     {formatChanges(log.changes as Record<string, any>)}
                   </p>
                 </div>
-                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                <span className="whitespace-nowrap font-mono text-xs tabular-nums text-[var(--text-muted)]">
                   {formatDistanceToNow(new Date(log.created_at), { addSuffix: true, locale: dateLocale })}
                 </span>
               </div>
@@ -139,8 +146,10 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
 
   return (
     <>
+    <div className="overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]">
+    <ScrollArea className="max-h-[680px]">
     <Table>
-      <TableHeader>
+      <TableHeader className="sticky top-0 z-10 bg-[var(--bg-surface)]/95 backdrop-blur">
         <TableRow>
           <TableHead>{t('audit.action')}</TableHead>
           <TableHead>{t('audit.entity')}</TableHead>
@@ -154,12 +163,12 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
           const EntityIcon = entityIcons[log.entity_type] || Building2;
           
           return (
-            <TableRow key={log.id} className="cursor-pointer hover:bg-accent/50" onClick={() => setSelectedLog(log)}>
+            <TableRow key={log.id} className="cursor-pointer border-[var(--border-subtle)] hover:bg-[var(--bg-surface-hover)]" onClick={() => setSelectedLog(log)}>
               <TableCell>
                 <div className="flex items-center gap-2">
                   <Badge 
                     variant="outline" 
-                    className={actionColors[log.action]}
+                    className={cn("rounded-full border px-2.5 py-1 text-[11px] font-medium", actionColors[log.action])}
                   >
                     <ActionIcon className="h-3 w-3 me-1" />
                     {t(`audit.actions.${log.action}`)}
@@ -168,21 +177,26 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
-                  <EntityIcon className="h-4 w-4 text-muted-foreground" />
-                  <span className="capitalize">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+                    <EntityIcon className="h-4 w-4 text-[var(--text-muted)]" />
+                  </div>
+                  <span className="capitalize text-[var(--text-secondary)]">
                     {t(`audit.entities.${log.entity_type}`)}
                   </span>
                 </div>
               </TableCell>
               <TableCell className="max-w-[300px]">
-                <span className="text-sm text-muted-foreground truncate block">
+                <span className="block truncate text-sm text-[var(--text-muted)]">
                   {formatChanges(log.changes as Record<string, any>)}
+                </span>
+                <span className="mt-1 block font-mono text-[11px] tabular-nums text-[var(--text-tertiary)]">
+                  {log.entity_id}
                 </span>
               </TableCell>
               <TableCell>
-                <div className="text-sm">
+                <div className="font-mono text-sm tabular-nums">
                   <p>{format(new Date(log.created_at), 'PP', { locale: dateLocale })}</p>
-                  <p className="text-muted-foreground text-xs">
+                  <p className="text-xs text-[var(--text-muted)]">
                     {format(new Date(log.created_at), 'p', { locale: dateLocale })}
                   </p>
                 </div>
@@ -192,6 +206,8 @@ export function AuditLogTable({ logs, isLoading, compact = false }: AuditLogTabl
         })}
       </TableBody>
     </Table>
+    </ScrollArea>
+    </div>
 
     <AuditLogDetailsModal 
       log={selectedLog} 

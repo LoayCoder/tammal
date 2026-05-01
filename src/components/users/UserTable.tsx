@@ -142,8 +142,9 @@ export function UserTable({
 
   // Desktop: table layout
   return (
+    <div className="overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]">
     <Table>
-      <TableHeader>
+      <TableHeader className="sticky top-0 z-10 bg-[var(--bg-surface)]/95 backdrop-blur">
         <TableRow>
           <TableHead>{t('users.user')}</TableHead>
           <TableHead>{t('users.userStatus')}</TableHead>
@@ -155,7 +156,7 @@ export function UserTable({
       </TableHeader>
       <TableBody>
         {users.map((user) => (
-          <TableRow key={user.id} className="cursor-pointer" onClick={() => onViewDetails(user)}>
+          <TableRow key={user.id} className="group cursor-pointer border-[var(--border-subtle)] hover:bg-[var(--bg-surface-hover)]" onClick={() => onViewDetails(user)}>
             <TableCell>
               <div className="flex items-center gap-3">
                 <Avatar className="h-9 w-9">
@@ -163,8 +164,8 @@ export function UserTable({
                   <AvatarFallback>{getInitials(user.full_name)}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <div className="font-medium">{user.full_name || t('users.unnamed')}</div>
-                  <div className={typography.subtitle}>{user.email || user.user_id}</div>
+                  <div className="font-medium text-[var(--text-primary)]">{user.full_name || t('users.unnamed')}</div>
+                  <div className="text-xs text-[var(--text-muted)]">{user.email || user.user_id}</div>
                 </div>
               </div>
             </TableCell>
@@ -183,13 +184,13 @@ export function UserTable({
                 </Badge>
               ))}
             </TableCell>
-            <TableCell className="text-muted-foreground">
+            <TableCell className="font-mono text-[var(--text-muted)]">
               {formatDate(user.created_at, i18n.language)}
             </TableCell>
             <TableCell>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -244,5 +245,6 @@ export function UserTable({
         ))}
       </TableBody>
     </Table>
+    </div>
   );
 }

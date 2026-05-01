@@ -7,7 +7,9 @@ import {
 } from 'recharts';
 import { format } from 'date-fns';
 import type { TenantUsage } from '@/hooks/org/useTenantUsage';
-import { cardVariants } from "@/theme/tokens";
+import { cardVariants, chartSeries } from "@/theme/tokens";
+import { EmptyAnalyticsState } from '@/features/org-dashboard/components/EmptyAnalyticsState';
+import { Users, HardDrive } from 'lucide-react';
 
 interface UsageChartsProps {
   history: TenantUsage[];
@@ -28,20 +30,26 @@ export function UsageCharts({ history, isLoading }: UsageChartsProps) {
   if (isLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
+        <Card className={cardVariants.surface}>
+          <CardHeader className="p-5 pb-3">
             <Skeleton className="h-5 w-32" />
           </CardHeader>
-          <CardContent>
-            <Skeleton className="h-[250px] w-full" />
+          <CardContent className="px-5 pb-5 pt-0">
+            <div className="space-y-4">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-[220px] w-full rounded-xl" />
+            </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
+        <Card className={cardVariants.surface}>
+          <CardHeader className="p-5 pb-3">
             <Skeleton className="h-5 w-32" />
           </CardHeader>
-          <CardContent>
-            <Skeleton className="h-[250px] w-full" />
+          <CardContent className="px-5 pb-5 pt-0">
+            <div className="space-y-4">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-[220px] w-full rounded-xl" />
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -51,24 +59,20 @@ export function UsageCharts({ history, isLoading }: UsageChartsProps) {
   if (chartData.length === 0) {
     return (
       <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
+        <Card className={cardVariants.surface}>
+          <CardHeader className="p-5 pb-0">
             <CardTitle>{t('tenantDashboard.userGrowth')}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-sm text-center py-16">
-              {t('common.noData')}
-            </p>
+          <CardContent className="px-5 pb-5">
+            <EmptyAnalyticsState icon={Users} />
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
+        <Card className={cardVariants.surface}>
+          <CardHeader className="p-5 pb-0">
             <CardTitle>{t('tenantDashboard.storageUsage')}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-sm text-center py-16">
-              {t('common.noData')}
-            </p>
+          <CardContent className="px-5 pb-5">
+            <EmptyAnalyticsState icon={HardDrive} />
           </CardContent>
         </Card>
       </div>
@@ -77,48 +81,48 @@ export function UsageCharts({ history, isLoading }: UsageChartsProps) {
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <Card className={cardVariants.glass}>
-        <CardHeader>
+      <Card className={cardVariants.surface}>
+        <CardHeader className="p-5 pb-3">
           <CardTitle>{t('tenantDashboard.userGrowth')}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-5 pb-5 pt-0">
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" strokeOpacity={0.8} />
               <XAxis 
                 dataKey="date" 
-                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis 
-                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
                 axisLine={false}
                 tickLine={false}
               />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: 'hsl(var(--popover))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '12px',
-                  boxShadow: '0 8px 32px hsl(var(--primary) / 0.1)',
+                  backgroundColor: 'var(--bg-surface-elevated)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '16px',
+                  boxShadow: 'var(--shadow-md)',
                 }}
-                labelStyle={{ color: 'hsl(var(--foreground))' }}
+                labelStyle={{ color: 'var(--text-primary)' }}
               />
               <Legend />
               <Line 
                 type="monotone" 
                 dataKey="activeUsers" 
                 name={t('tenantDashboard.activeUsers')}
-                stroke="hsl(var(--primary))" 
-                strokeWidth={2}
+                stroke={chartSeries.primary}
+                strokeWidth={3}
                 dot={false}
               />
               <Line 
                 type="monotone" 
                 dataKey="totalUsers" 
                 name={t('tenantDashboard.totalUsers')}
-                stroke="hsl(var(--muted-foreground))" 
+                stroke={chartSeries.secondary}
                 strokeWidth={2}
                 strokeDasharray="5 5"
                 dot={false}
@@ -128,49 +132,49 @@ export function UsageCharts({ history, isLoading }: UsageChartsProps) {
         </CardContent>
       </Card>
 
-      <Card className={cardVariants.glass}>
-        <CardHeader>
+      <Card className={cardVariants.surface}>
+        <CardHeader className="p-5 pb-3">
           <CardTitle>{t('tenantDashboard.storageUsage')}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-5 pb-5 pt-0">
           <ResponsiveContainer width="100%" height={250}>
             <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="storageGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  <stop offset="5%" stopColor={chartSeries.tertiary} stopOpacity={0.4} />
+                  <stop offset="95%" stopColor={chartSeries.tertiary} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" strokeOpacity={0.8} />
               <XAxis 
                 dataKey="date" 
-                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis 
-                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(value) => `${(value / 1024).toFixed(1)}GB`}
               />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: 'hsl(var(--popover))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '12px',
-                  boxShadow: '0 8px 32px hsl(var(--primary) / 0.1)',
+                  backgroundColor: 'var(--bg-surface-elevated)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '16px',
+                  boxShadow: 'var(--shadow-md)',
                 }}
-                labelStyle={{ color: 'hsl(var(--foreground))' }}
+                labelStyle={{ color: 'var(--text-primary)' }}
                 formatter={(value: number) => [`${(value / 1024).toFixed(2)} GB`, t('tenantDashboard.storage')]}
               />
               <Area 
                 type="monotone" 
                 dataKey="storage" 
                 name={t('tenantDashboard.storage')}
-                stroke="hsl(var(--primary))" 
+                stroke={chartSeries.tertiary}
                 fill="url(#storageGrad)" 
-                strokeWidth={2}
+                strokeWidth={3}
               />
             </AreaChart>
           </ResponsiveContainer>

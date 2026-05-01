@@ -20,20 +20,25 @@ export function EmptyAnalyticsState({
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 gap-3">
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/50">
-        <Icon className="h-6 w-6 text-muted-foreground" strokeWidth={1.5} />
+    <div className="flex flex-col items-center justify-center gap-4 py-16">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--border-subtle)] bg-[var(--brand-primary-soft)] shadow-[var(--shadow-xs)]">
+        <Icon className="h-6 w-6 text-[var(--brand-primary)]" strokeWidth={1.5} />
       </div>
-      <div className="text-center space-y-1">
-        <p className="text-sm font-medium text-muted-foreground">
+      <div className="space-y-1 text-center">
+        <p className="text-sm font-semibold text-[var(--text-primary)]">
           {title ?? t('orgDashboard.emptyState.title')}
         </p>
-        <p className="text-xs text-muted-foreground/70">
+        <p className="max-w-sm text-xs text-[var(--text-muted)]">
           {description ?? t('orgDashboard.emptyState.description')}
         </p>
       </div>
       {ctaLabel && onCta && (
-        <Button variant="outline" size="sm" className="mt-2 text-xs rounded-xl" onClick={onCta}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-1 rounded-xl border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] text-xs hover:bg-[var(--bg-surface-hover)]"
+          onClick={onCta}
+        >
           {ctaLabel}
         </Button>
       )}

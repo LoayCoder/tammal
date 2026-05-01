@@ -47,6 +47,17 @@ export const colors = {
   infoSoft: 'var(--info-soft)',
 } as const;
 
+export const chartSeries = {
+  primary: 'var(--chart-1)',
+  secondary: 'var(--chart-2)',
+  tertiary: 'var(--chart-3)',
+  warning: 'var(--chart-4)',
+  danger: 'var(--chart-5)',
+  success: 'var(--chart-6)',
+  accent: 'var(--chart-7)',
+  accentSoft: 'var(--chart-8)',
+} as const;
+
 // ── Spacing ──────────────────────────────────────────────────────────
 export const spacing = {
   cardCompact: 'p-5',

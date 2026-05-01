@@ -51,9 +51,9 @@ export function EmployeeTable({ employees, onEdit, onDelete, onInvite, showAccou
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]">
         <Table>
-          <TableHeader>
+          <TableHeader className="sticky top-0 z-10 bg-[var(--bg-surface)]/95 backdrop-blur">
             <TableRow>
               <TableHead>{t('employees.name')}</TableHead>
               <TableHead>{t('employees.email')}</TableHead>
@@ -76,7 +76,7 @@ export function EmployeeTable({ employees, onEdit, onDelete, onInvite, showAccou
           <TableBody>
             {employees.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={showAccountStatus ? 12 : 10} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={showAccountStatus ? 12 : 10} className="py-12 text-center text-[var(--text-muted)]">
                   {t('employees.noEmployees')}
                 </TableCell>
               </TableRow>
@@ -92,7 +92,7 @@ export function EmployeeTable({ employees, onEdit, onDelete, onInvite, showAccou
                   : division?.color || undefined;
 
                 return (
-                  <TableRow key={employee.id}>
+                  <TableRow key={employee.id} className="group border-[var(--border-subtle)] hover:bg-[var(--bg-surface-hover)]">
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {effectiveColor && (
@@ -102,19 +102,19 @@ export function EmployeeTable({ employees, onEdit, onDelete, onInvite, showAccou
                           />
                         )}
                         <div>
-                          <p className="font-medium">{employee.full_name}</p>
+                          <p className="font-medium text-[var(--text-primary)]">{employee.full_name}</p>
                           {employee.employee_number && (
-                            <p className="text-xs text-muted-foreground">#{employee.employee_number}</p>
+                            <p className="font-mono text-xs tabular-nums text-[var(--text-muted)]">#{employee.employee_number}</p>
                           )}
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{employee.email}</TableCell>
-                    <TableCell>{getDisplayName(division ?? undefined)}</TableCell>
-                    <TableCell>{getDisplayName(dept ?? undefined)}</TableCell>
-                    <TableCell className="hidden lg:table-cell">{getDisplayName(section ?? undefined)}</TableCell>
-                    <TableCell className="hidden lg:table-cell">{getDisplayName(branch ?? undefined)}</TableCell>
-                    <TableCell>{employee.role_title || '—'}</TableCell>
+                    <TableCell className="text-[var(--text-secondary)]">{employee.email}</TableCell>
+                    <TableCell className="text-[var(--text-secondary)]">{getDisplayName(division ?? undefined)}</TableCell>
+                    <TableCell className="text-[var(--text-secondary)]">{getDisplayName(dept ?? undefined)}</TableCell>
+                    <TableCell className="hidden text-[var(--text-secondary)] lg:table-cell">{getDisplayName(section ?? undefined)}</TableCell>
+                    <TableCell className="hidden text-[var(--text-secondary)] lg:table-cell">{getDisplayName(branch ?? undefined)}</TableCell>
+                    <TableCell className="text-[var(--text-secondary)]">{employee.role_title || '—'}</TableCell>
                     {showAccountStatus && (
                       <TableCell>
                         {unified.accountStatus && (
@@ -134,7 +134,7 @@ export function EmployeeTable({ employees, onEdit, onDelete, onInvite, showAccou
                         ) : '—'}
                       </TableCell>
                     )}
-                    <TableCell className="hidden md:table-cell">
+                    <TableCell className="hidden font-mono text-[var(--text-muted)] md:table-cell">
                       {employee.hire_date ? format(new Date(employee.hire_date), 'PP') : '—'}
                     </TableCell>
                     <TableCell>
@@ -143,7 +143,7 @@ export function EmployeeTable({ employees, onEdit, onDelete, onInvite, showAccou
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" className="opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>

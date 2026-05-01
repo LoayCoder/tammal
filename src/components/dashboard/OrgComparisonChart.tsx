@@ -8,6 +8,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend,
 } from 'recharts';
+import { EmptyAnalyticsState } from '@/features/org-dashboard/components/EmptyAnalyticsState';
 
 interface Props {
   data: OrgComparison;
@@ -44,13 +45,13 @@ export function OrgComparisonChart({ data, isLoading }: Props) {
   }));
 
   return (
-    <Card className="glass-chart border-0">
-      <CardHeader className="pb-2">
+    <Card className="glass-chart">
+      <CardHeader className="p-5 pb-2">
         <CardTitle className="text-base">{t('orgDashboard.orgComparison')}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-5 pt-0">
         <Tabs value={tab} onValueChange={v => setTab(v as TabKey)}>
-          <TabsList className="mb-4">
+          <TabsList className="glass-tabs mb-4 h-auto">
             {tabConfig.map(tc => (
               <TabsTrigger key={tc.key} value={tc.key}>{tc.label}</TabsTrigger>
             ))}
@@ -75,7 +76,7 @@ export function OrgComparisonChart({ data, isLoading }: Props) {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-muted-foreground text-sm text-center py-10">{t('common.noData')}</p>
+            <EmptyAnalyticsState />
           )}
         </Tabs>
       </CardContent>

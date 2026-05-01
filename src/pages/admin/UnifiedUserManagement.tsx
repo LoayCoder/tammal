@@ -1,8 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Building2, FolderOpen, Users, Shield, Mail, UserCheck } from 'lucide-react';
+import { Building2, FolderOpen, Users, Shield, Mail, UserCheck, Search, Filter, Plus, Sparkles } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { RepresentativeTab } from '@/components/users/RepresentativeTab';
 import { useUnifiedUsers } from '@/hooks/org/useUnifiedUsers';
 import { useUsers, type UserWithRoles } from '@/hooks/org/useUsers';
@@ -26,6 +29,7 @@ import { RolesTab } from '@/components/users/tabs/RolesTab';
 import { type CreateEmployeeInput, type Employee } from '@/hooks/org/useEmployees';
 import { toast } from 'sonner';
 import { useUnifiedUserManagementState } from '@/hooks/admin/useUnifiedUserManagementState';
+import { cardVariants, layout, typography } from '@/theme/tokens';
 
 export default function UnifiedUserManagement() {
   const { t } = useTranslation();
@@ -164,25 +168,104 @@ export default function UnifiedUserManagement() {
     );
   }
 
+  const statCards = [
+    { label: 'Employees', value: unifiedEmployees.length, icon: FolderOpen, tone: 'bg-[var(--brand-primary-soft)] text-[var(--brand-primary)]' },
+    { label: 'Accounts', value: users.length, icon: Users, tone: 'bg-[var(--chart-2)]/10 text-[var(--chart-2)]' },
+    { label: 'Roles', value: roles.length, icon: Shield, tone: 'bg-[var(--chart-3)]/10 text-[var(--chart-3)]' },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('userManagement.title')}</h1>
-          <p className="text-muted-foreground">{t('userManagement.subtitle')}</p>
+      <div className={layout.dashboardGrid}>
+        <Card className={cardVariants.elevated + " xl:col-span-8"}>
+          <CardContent className="p-5">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-3">
+                <Badge className="premium-badge w-fit gap-1 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em]">
+                  <Sparkles className="h-3 w-3" />
+                  Enterprise admin console
+                </Badge>
+                <div>
+                  <h1 className={typography.pageTitle}>{t('userManagement.title')}</h1>
+                  <p className="mt-1 max-w-2xl text-sm text-[var(--text-secondary)]">{t('userManagement.subtitle')}</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {roles.slice(0, 4).map((role) => (
+                    <Badge key={role.id} variant="outline" className="rounded-full border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-secondary)]">
+                      {role.name}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {isSuperAdmin && tenants && tenants.length > 0 && (
+                <div className="w-full max-w-sm space-y-2">
+                  <p className={typography.statLabel}>Tenant scope</p>
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4 text-[var(--text-muted)]" />
+                    <Select value={effectiveTenantId} onValueChange={setSelectedTenantId}>
+                      <SelectTrigger className="w-full rounded-xl border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+                        <SelectValue placeholder={t('users.selectTenant')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {tenants.map(tenant => <SelectItem key={tenant.id} value={tenant.id}>{tenant.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid gap-4 md:grid-cols-3 xl:col-span-4 xl:grid-cols-1">
+          {statCards.map((item) => (
+            <Card key={item.label} className={cardVariants.surface}>
+              <CardContent className="flex items-center justify-between p-5">
+                <div>
+                  <p className={typography.statLabel}>{item.label}</p>
+                  <p className="mt-2 text-2xl font-bold text-[var(--text-primary)]">{item.value}</p>
+                </div>
+                <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${item.tone}`}>
+                  <item.icon className="h-5 w-5" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-        {isSuperAdmin && tenants && tenants.length > 0 && (
-          <div className="flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-            <Select value={effectiveTenantId} onValueChange={setSelectedTenantId}>
-              <SelectTrigger className="w-full sm:w-[250px]"><SelectValue placeholder={t('users.selectTenant')} /></SelectTrigger>
-              <SelectContent>
-                {tenants.map(tenant => <SelectItem key={tenant.id} value={tenant.id}>{tenant.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
       </div>
+
+      <Card className={cardVariants.surface}>
+        <CardContent className="p-5">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] px-3 py-2 text-sm text-[var(--text-secondary)]">
+                <Search className="h-4 w-4 text-[var(--text-muted)]" />
+                {search || userSearch || t('common.search')}
+              </div>
+              {[departmentFilter, statusFilter, accountStatusFilter].filter(Boolean).map((filterValue) => (
+                <Badge key={filterValue} variant="outline" className="rounded-full border-[var(--border-subtle)] bg-[var(--brand-primary-soft)] text-[var(--brand-primary)]">
+                  <Filter className="me-1 h-3 w-3" />
+                  {String(filterValue)}
+                </Badge>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" className="rounded-xl border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]" onClick={() => setImportOpen(true)}>
+                {t('employees.import')}
+              </Button>
+              <Button variant="outline" className="rounded-xl border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]" onClick={() => setSelectedRole(null)}>
+                {t('userManagement.rolesTab')}
+              </Button>
+              <Button className="rounded-xl bg-[var(--brand-primary)] text-slate-950 hover:bg-[var(--brand-primary-hover)]" onClick={() => { setEditingEmployee(null); setSheetOpen(true); }}>
+                <Plus className="me-2 h-4 w-4" />
+                {t('employees.addEmployee')}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="directory" className="space-y-4">
         <TabsList className="glass-tabs">

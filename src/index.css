@@ -361,6 +361,13 @@
     backdrop-filter: blur(24px);
   }
 
+  .glass-chart {
+    border-radius: 1rem;
+    border: 1px solid var(--border-subtle);
+    background: linear-gradient(180deg, var(--bg-surface-elevated), var(--bg-surface));
+    box-shadow: var(--shadow-xs);
+  }
+
   /* Legacy compatibility */
   .glass {
     background: var(--bg-surface);
@@ -400,6 +407,39 @@
     box-shadow: 0 0 0 1px var(--brand-primary-soft), inset 0 1px 0 0 rgba(255, 255, 255, 0.04), var(--shadow-md);
     border: 1px solid rgba(20, 184, 166, 0.18);
     border-radius: 1rem;
+  }
+
+  .premium-bg {
+    background:
+      radial-gradient(circle at top left, rgba(20, 184, 166, 0.12), transparent 32%),
+      radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent 30%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.01), transparent 20%),
+      var(--bg-canvas);
+  }
+
+  .premium-badge {
+    background: rgba(20, 184, 166, 0.12);
+    color: var(--text-secondary);
+    border: 1px solid rgba(20, 184, 166, 0.22);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .glass-tabs {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: 0.875rem;
+    border: 1px solid var(--border-subtle);
+    background: rgba(15, 23, 42, 0.36);
+    backdrop-filter: blur(18px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .auth-noise {
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(20, 184, 166, 0.15), transparent 26%),
+      radial-gradient(circle at 80% 10%, rgba(56, 189, 248, 0.12), transparent 24%),
+      radial-gradient(circle at 50% 100%, rgba(139, 92, 246, 0.12), transparent 30%);
   }
 
   .premium-interactive {

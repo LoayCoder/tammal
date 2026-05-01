@@ -5,7 +5,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Users, HardDrive, Activity, TrendingUp, TrendingDown } from 'lucide-react';
 import type { Tenant } from '@/hooks/org/useTenants';
 import type { Plan } from '@/hooks/org/usePlans';
-import { typography } from "@/theme/tokens";
+import { cardVariants, typography } from "@/theme/tokens";
+import { cn } from '@/lib/utils';
 
 interface UsageStatsCardsProps {
   usage: {
@@ -47,10 +48,10 @@ export function UsageStatsCards({ usage, tenant, plan, isLoading }: UsageStatsCa
     if (value === undefined) return null;
     const isPositive = value >= 0;
     const Icon = isPositive ? TrendingUp : TrendingDown;
-    const colorClass = isPositive ? 'text-emerald-600' : 'text-destructive';
+    const colorClass = isPositive ? 'text-[var(--chart-6)]' : 'text-[var(--chart-5)]';
     
     return (
-      <span className={`flex items-center text-xs ${colorClass}`}>
+      <span className={`flex items-center rounded-full border px-2 py-1 text-[11px] ${colorClass} ${isPositive ? 'border-[var(--chart-6)]/20 bg-[var(--chart-6)]/10' : 'border-[var(--chart-5)]/20 bg-[var(--chart-5)]/10'}`}>
         <Icon className="h-3 w-3 me-1" />
         {Math.abs(value)}%
       </span>
@@ -61,11 +62,11 @@ export function UsageStatsCards({ usage, tenant, plan, isLoading }: UsageStatsCa
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="pb-2">
+          <Card key={i} className={cardVariants.elevated}>
+            <CardHeader className="p-5 pb-3">
               <Skeleton className="h-4 w-24" />
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-5 pb-5 pt-0">
               <Skeleton className="h-8 w-16 mb-2" />
               <Skeleton className="h-2 w-full" />
             </CardContent>
@@ -77,14 +78,16 @@ export function UsageStatsCards({ usage, tenant, plan, isLoading }: UsageStatsCa
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
+      <Card className={cn(cardVariants.elevated, "overflow-hidden")}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-5 pb-3">
+          <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">
             {t('tenantDashboard.activeUsers')}
           </CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--brand-primary-soft)] text-[var(--brand-primary)]">
+            <Users className="h-4 w-4" />
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-5 pb-5 pt-0">
           <div className="flex items-baseline justify-between">
             <div className={typography.metric}>{activeUsers}</div>
             <TrendIndicator value={usage?.usersTrend} />
@@ -95,14 +98,16 @@ export function UsageStatsCards({ usage, tenant, plan, isLoading }: UsageStatsCa
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
+      <Card className={cn(cardVariants.elevated, "overflow-hidden")}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-5 pb-3">
+          <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">
             {t('tenantDashboard.userQuota')}
           </CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--chart-2)]/10 text-[var(--chart-2)]">
+            <Users className="h-4 w-4" />
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-5 pb-5 pt-0">
           <div className={typography.metric}>
             {totalUsers} / {maxUsers === -1 ? '∞' : maxUsers}
           </div>
@@ -117,14 +122,16 @@ export function UsageStatsCards({ usage, tenant, plan, isLoading }: UsageStatsCa
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
+      <Card className={cn(cardVariants.elevated, "overflow-hidden")}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-5 pb-3">
+          <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">
             {t('tenantDashboard.storage')}
           </CardTitle>
-          <HardDrive className="h-4 w-4 text-muted-foreground" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--chart-3)]/10 text-[var(--chart-3)]">
+            <HardDrive className="h-4 w-4" />
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-5 pb-5 pt-0">
           <div className="flex items-baseline justify-between">
             <div className={typography.metric}>
               {formatStorageSize(storageUsedMb)}
@@ -138,14 +145,16 @@ export function UsageStatsCards({ usage, tenant, plan, isLoading }: UsageStatsCa
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
+      <Card className={cn(cardVariants.elevated, "overflow-hidden")}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-5 pb-3">
+          <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">
             {t('tenantDashboard.apiCalls')}
           </CardTitle>
-          <Activity className="h-4 w-4 text-muted-foreground" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--chart-4)]/10 text-[var(--chart-4)]">
+            <Activity className="h-4 w-4" />
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-5 pb-5 pt-0">
           <div className="flex items-baseline justify-between">
             <div className={typography.metric}>
               {apiCalls.toLocaleString()}

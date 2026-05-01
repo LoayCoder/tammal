@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import type { SupportActionCount } from '@/hooks/analytics/useOrgAnalytics';
+import { EmptyAnalyticsState } from '@/features/org-dashboard/components/EmptyAnalyticsState';
 
 interface Props {
   data: SupportActionCount[];
@@ -18,13 +19,16 @@ export function SupportActionsChart({ data, isLoading }: Props) {
   }));
 
   return (
-    <Card className="glass-chart border-0">
-      <CardHeader className="pb-2">
+    <Card className="glass-chart">
+      <CardHeader className="p-5 pb-2">
         <CardTitle className="text-base">{t('orgDashboard.supportActions')}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-5 pt-0">
         {isLoading ? (
-          <Skeleton className="h-[220px] w-full" />
+          <div className="space-y-4">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-[220px] w-full rounded-xl" />
+          </div>
         ) : chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={chartData} layout="vertical">
@@ -36,7 +40,7 @@ export function SupportActionsChart({ data, isLoading }: Props) {
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-muted-foreground text-sm text-center py-10">{t('common.noData')}</p>
+          <EmptyAnalyticsState />
         )}
       </CardContent>
     </Card>
