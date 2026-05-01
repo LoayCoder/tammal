@@ -117,6 +117,7 @@ export default function HabitsPlanner() {
               onClick={addHabit}
               disabled={!newName.trim() || habits.length >= 5}
               size="icon"
+              aria-label={t("mentalToolkit.habits.addHabit")}
               className="rounded-xl w-10 h-10 shrink-0 bg-toolkit-sage text-toolkit-plum hover:opacity-90"
             >
               <Plus className="h-4 w-4" />
@@ -164,7 +165,11 @@ export default function HabitsPlanner() {
                       </span>
                     </div>
                   )}
-                  <button onClick={() => deleteHabit(habit.id)} className="text-muted-foreground hover:text-destructive transition-colors">
+                  <button
+                    onClick={() => deleteHabit(habit.id)}
+                    aria-label={t("common.delete")}
+                    className="text-muted-foreground hover:text-destructive transition-colors"
+                  >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>

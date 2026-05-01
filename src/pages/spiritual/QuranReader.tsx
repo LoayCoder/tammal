@@ -272,7 +272,7 @@ export default function QuranReader() {
           <div className="flex items-center justify-between flex-wrap gap-3">
             <CardTitle className="text-lg">{t('spiritual.quran.recentSessions')}</CardTitle>
             <Select value={surahFilter} onValueChange={(v) => setSurahFilter(v === '__all__' ? '' : v)}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-full sm:w-[200px]">
                 <SelectValue placeholder={t('spiritual.quran.filterBySurah', 'Filter by Surah')} />
               </SelectTrigger>
               <SelectContent className="max-h-60">

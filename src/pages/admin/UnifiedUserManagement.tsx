@@ -175,7 +175,7 @@ export default function UnifiedUserManagement() {
           <div className="flex items-center gap-2">
             <Building2 className="h-4 w-4 text-muted-foreground" />
             <Select value={effectiveTenantId} onValueChange={setSelectedTenantId}>
-              <SelectTrigger className="w-[250px]"><SelectValue placeholder={t('users.selectTenant')} /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-[250px]"><SelectValue placeholder={t('users.selectTenant')} /></SelectTrigger>
               <SelectContent>
                 {tenants.map(tenant => <SelectItem key={tenant.id} value={tenant.id}>{tenant.name}</SelectItem>)}
               </SelectContent>

@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import { DIALOG_SIZES } from '@/components/ui/dialog-sizes';
 import { Loader2, ZoomIn, RotateCw } from 'lucide-react';
 import { getCroppedImg, type PixelCrop } from '@/lib/cropImage';
 
@@ -105,7 +106,7 @@ export function AvatarCropperDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className={DIALOG_SIZES.md}>
         <DialogHeader>
           <DialogTitle>{t('profile.cropPhoto')}</DialogTitle>
           <DialogDescription>{t('profile.cropPhotoDescription')}</DialogDescription>

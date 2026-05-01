@@ -31,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DIALOG_SIZES } from '@/components/ui/dialog-sizes';
 import type { Plan } from '@/hooks/org/usePlans';
 
 const planSchema = z.object({
@@ -109,7 +110,7 @@ export function PlanDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className={DIALOG_SIZES.md}>
         <DialogHeader>
           <DialogTitle>
             {isEditing ? t('plans.editPlan') : t('plans.addPlan')}

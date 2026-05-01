@@ -559,6 +559,7 @@ export function DashboardPrayerWidget() {
                 <button
                   onClick={() => canEdit ? setEditingPrayer(isEditing ? null : name) : undefined}
                   disabled={!canEdit}
+                  aria-label={canEdit ? (isAr ? `تعديل حالة ${name}` : `Edit ${name} status`) : (isAr ? `${name} غير قابل للتعديل` : `${name} not editable`)}
                   className={cn(
                     'h-7 w-7 flex items-center justify-center transition-all',
                     isCompleted && 'text-[hsl(var(--state-completed))]',
@@ -577,16 +578,32 @@ export function DashboardPrayerWidget() {
                 {/* Edit popover */}
                 {isEditing && (
                   <div className="absolute top-8 z-50 bg-card border border-border rounded-lg shadow-lg p-2 space-y-1 min-w-[120px]">
-                    <button onClick={() => handleLog(name, 'completed_mosque')} className="flex items-center gap-1.5 w-full px-2 py-1 text-[10px] rounded hover:bg-muted transition-colors">
+                    <button
+                      onClick={() => handleLog(name, 'completed_mosque')}
+                      aria-label={isAr ? `تسجيل ${name} في المسجد` : `Log ${name} at mosque`}
+                      className="flex items-center gap-1.5 w-full px-2 py-1 text-[10px] rounded hover:bg-muted transition-colors"
+                    >
                       <Landmark className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.mosque')}
                     </button>
-                    <button onClick={() => handleLog(name, 'completed_home')} className="flex items-center gap-1.5 w-full px-2 py-1 text-[10px] rounded hover:bg-muted transition-colors">
+                    <button
+                      onClick={() => handleLog(name, 'completed_home')}
+                      aria-label={isAr ? `تسجيل ${name} في المنزل` : `Log ${name} at home`}
+                      className="flex items-center gap-1.5 w-full px-2 py-1 text-[10px] rounded hover:bg-muted transition-colors"
+                    >
                       <House className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.home')}
                     </button>
-                    <button onClick={() => handleLog(name, 'completed_work')} className="flex items-center gap-1.5 w-full px-2 py-1 text-[10px] rounded hover:bg-muted transition-colors">
+                    <button
+                      onClick={() => handleLog(name, 'completed_work')}
+                      aria-label={isAr ? `تسجيل ${name} في العمل` : `Log ${name} at work`}
+                      className="flex items-center gap-1.5 w-full px-2 py-1 text-[10px] rounded hover:bg-muted transition-colors"
+                    >
                       <Building className="h-3 w-3" strokeWidth={ICON_STROKE} /> {t('spiritual.prayer.work')}
                     </button>
-                    <button onClick={() => handleLog(name, 'missed')} className="flex items-center gap-1.5 w-full px-2 py-1 text-[10px] rounded hover:bg-destructive/10 text-destructive transition-colors">
+                    <button
+                      onClick={() => handleLog(name, 'missed')}
+                      aria-label={isAr ? `تسجيل ${name} فائتة` : `Mark ${name} as missed`}
+                      className="flex items-center gap-1.5 w-full px-2 py-1 text-[10px] rounded hover:bg-destructive/10 text-destructive transition-colors"
+                    >
                       <X className="h-3 w-3" strokeWidth={ICON_STROKE} /> {isAr ? 'فائتة' : 'Missed'}
                     </button>
                   </div>

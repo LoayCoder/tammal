@@ -138,7 +138,7 @@ export default function AuditLogs() {
               />
             </div>
             <Select value={selectedTenant} onValueChange={setSelectedTenant}>
-              <SelectTrigger className="w-full md:w-[200px]">
+              <SelectTrigger className="w-full sm:w-[200px]">
                 <SelectValue placeholder={t('audit.selectTenant')} />
               </SelectTrigger>
               <SelectContent>
@@ -151,7 +151,7 @@ export default function AuditLogs() {
               </SelectContent>
             </Select>
             <Select value={entityFilter} onValueChange={setEntityFilter}>
-              <SelectTrigger className="w-full md:w-[160px]">
+              <SelectTrigger className="w-full sm:w-[160px]">
                 <SelectValue placeholder={t('audit.selectEntity')} />
               </SelectTrigger>
               <SelectContent>
@@ -163,7 +163,7 @@ export default function AuditLogs() {
               </SelectContent>
             </Select>
             <Select value={actionFilter} onValueChange={setActionFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder={t('audit.selectAction')} />
               </SelectTrigger>
               <SelectContent>

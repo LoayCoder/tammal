@@ -34,6 +34,7 @@ import { useCurrentEmployee } from '@/hooks/auth/useCurrentEmployee';
 import { useTaskEvidence } from '@/features/workload/hooks/useTaskEvidence';
 import { SlaCountdownBadge } from '@/components/workload/governance/SlaCountdownBadge';
 import { UnlockRequestDialog } from '@/components/workload/governance/UnlockRequestDialog';
+import { EmptyState } from '@/shared/empty/EmptyState';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -326,7 +327,7 @@ export default function TaskDetail() {
           {/* Evidence */}
           <TabsContent value="evidence" className="mt-3 space-y-3">
             {evidenceLoading ? <Skeleton className="h-20" /> : evidence.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-6">{t('tasks.evidence.empty', 'No evidence uploaded yet')}</p>
+              <EmptyState title={t('tasks.evidence.empty', 'No evidence uploaded yet')} />
             ) : (
               <div className="space-y-1">
                 {evidence.map(ev => {
@@ -347,10 +348,10 @@ export default function TaskDetail() {
                       </Badge>
                       {ev.status === 'pending' && employee?.id && (
                         <div className="flex gap-1 shrink-0">
-                          <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => verifyEvidence({ id: ev.id, status: 'approved', verified_by: employee.id })} disabled={isVerifying}>
+                          <Button size="icon" variant="ghost" className="h-6 w-6" aria-label={t('tasks.evidence.approve', 'Approve evidence')} onClick={() => verifyEvidence({ id: ev.id, status: 'approved', verified_by: employee.id })} disabled={isVerifying}>
                             <ShieldCheck className="h-3.5 w-3.5 text-chart-1" />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => verifyEvidence({ id: ev.id, status: 'rejected', verified_by: employee.id })} disabled={isVerifying}>
+                          <Button size="icon" variant="ghost" className="h-6 w-6" aria-label={t('tasks.evidence.reject', 'Reject evidence')} onClick={() => verifyEvidence({ id: ev.id, status: 'rejected', verified_by: employee.id })} disabled={isVerifying}>
                             <ShieldX className="h-3.5 w-3.5 text-destructive" />
                           </Button>
                         </div>
@@ -400,7 +401,7 @@ export default function TaskDetail() {
           {/* Checklist */}
           <TabsContent value="checklist" className="mt-3 space-y-3">
             {checklistLoading ? <Skeleton className="h-20" /> : checklists.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-6">{t('tasks.checklist.empty')}</p>
+              <EmptyState title={t('tasks.checklist.empty')} />
             ) : (
               <div className="space-y-1">
                 {checklists.map(item => (
@@ -418,6 +419,7 @@ export default function TaskDetail() {
                     <Button
                       variant="ghost"
                       size="icon"
+                      aria-label={t('common.delete')}
                       className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={() => removeItem(item.id)}
                     >
@@ -444,7 +446,7 @@ export default function TaskDetail() {
           {/* Attachments */}
           <TabsContent value="attachments" className="mt-3 space-y-3">
             {attachmentsLoading ? <Skeleton className="h-20" /> : attachments.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-6">{t('tasks.attachments.empty')}</p>
+              <EmptyState title={t('tasks.attachments.empty')} />
             ) : (
               <div className="space-y-1">
                 {attachments.map(att => (
@@ -466,6 +468,7 @@ export default function TaskDetail() {
                     <Button
                       variant="ghost"
                       size="icon"
+                      aria-label={t('common.delete')}
                       className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                       onClick={() => removeFile(att.id)}
                     >

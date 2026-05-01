@@ -20,6 +20,7 @@ import {
 import { Plus, Pencil, Trash2, FileText, Search, CheckSquare } from 'lucide-react';
 import { useTaskTemplates, type CreateTemplateInput } from '@/features/tasks/hooks/useTaskTemplates';
 import { typography } from "@/theme/tokens";
+import { EmptyState } from '@/shared/empty/EmptyState';
 
 const PRIORITIES = [
   { value: 'low', label: 'tasks.priority.low' },
@@ -152,9 +153,11 @@ export default function TaskTemplates() {
         <div className="text-center py-12 text-muted-foreground">{t('common.loading')}</div>
       ) : filtered.length === 0 ? (
         <Card>
-          <CardContent className="py-12 text-center">
-            <FileText className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-            <p className="text-muted-foreground">{t('taskTemplates.empty')}</p>
+          <CardContent>
+            <EmptyState
+              title={t('taskTemplates.empty')}
+              icon={<FileText className="h-7 w-7 text-muted-foreground" />}
+            />
           </CardContent>
         </Card>
       ) : (

@@ -97,10 +97,10 @@ export default function BreathingPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <StatPill icon={<Activity className="h-4 w-4" />} color={TOOLKIT.lavender} value={stats.totalSessions} label={t("mentalToolkit.breathing.totalSessions")} />
-            <StatPill icon={<Timer className="h-4 w-4" />} color={TOOLKIT.sage} value={stats.totalMinutes} label={t("mentalToolkit.breathing.totalMinutes")} />
-            <StatPill icon={<Flame className="h-4 w-4" />} color={TOOLKIT.lavender} value={`${stats.currentStreak}d`} label={t("mentalToolkit.moodDashboard.currentStreak")} />
-            <StatPill icon={<TrendingUp className="h-4 w-4" />} color={TOOLKIT.sage} value={stats.avgMoodImprovement > 0 ? `+${stats.avgMoodImprovement}` : `${stats.avgMoodImprovement}`} label={t("mentalToolkit.breathing.avgImprovement")} />
+            <StatPill icon={<Activity className="h-4 w-4" />} value={stats.totalSessions} label={t("mentalToolkit.breathing.totalSessions")} />
+            <StatPill icon={<Timer className="h-4 w-4" />} value={stats.totalMinutes} label={t("mentalToolkit.breathing.totalMinutes")} />
+            <StatPill icon={<Flame className="h-4 w-4" />} value={`${stats.currentStreak}d`} label={t("mentalToolkit.moodDashboard.currentStreak")} />
+            <StatPill icon={<TrendingUp className="h-4 w-4" />} value={stats.avgMoodImprovement > 0 ? `+${stats.avgMoodImprovement}` : `${stats.avgMoodImprovement}`} label={t("mentalToolkit.breathing.avgImprovement")} />
           </div>
         )}
 
@@ -117,9 +117,9 @@ export default function BreathingPage() {
                       key={tech}
                       onClick={() => setTechnique(tech)}
                       className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all border flex items-center gap-2 ${
-                        technique === tech ? "border-transparent shadow-sm" : "border-border bg-background text-muted-foreground hover:bg-muted"
+                        technique === tech ? "border-transparent shadow-sm bg-[hsl(var(--toolkit-lavender))] text-[hsl(var(--toolkit-plum))]" : "border-border bg-background text-muted-foreground hover:bg-muted"
                       }`}
-                      style={technique === tech ? { background: TOOLKIT.lavender, color: TOOLKIT.plum } : {}}
+                      aria-label={t(`mentalToolkit.breathing.${tech === "box" ? "boxBreathing" : tech === "sigh" ? "physiologicalSigh" : "grounding"}`)}
                     >
                       <span>{TECHNIQUE_INFO[tech].emoji}</span>
                       {tech === "box" ? t("mentalToolkit.breathing.boxBreathing")
@@ -142,9 +142,9 @@ export default function BreathingPage() {
                           key={len}
                           onClick={() => setSessionLength(len)}
                           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
-                            sessionLength === len ? "border-transparent shadow-sm" : "border-border bg-background text-muted-foreground hover:bg-muted"
+                            sessionLength === len ? "border-transparent shadow-sm bg-[hsl(var(--toolkit-sage))] text-[hsl(var(--toolkit-plum))]" : "border-border bg-background text-muted-foreground hover:bg-muted"
                           }`}
-                          style={sessionLength === len ? { background: TOOLKIT.sage, color: TOOLKIT.plum } : {}}
+                          aria-label={t(`mentalToolkit.breathing.${labelKey}`)}
                         >
                           {t(`mentalToolkit.breathing.${labelKey}`)}
                         </button>
@@ -162,6 +162,7 @@ export default function BreathingPage() {
                     <button
                       key={mood.key}
                       onClick={() => setMoodBefore(mood.score)}
+                      aria-label={isRTL ? mood.label_ar : mood.label_en}
                       className={`text-3xl transition-all rounded-full p-1 ${moodBefore === mood.score ? "ring-2 ring-offset-2 ring-offset-background scale-110" : "opacity-60 hover:opacity-100"}`}
                       title={isRTL ? mood.label_ar : mood.label_en}
                     >
@@ -216,6 +217,7 @@ export default function BreathingPage() {
                     <button
                       key={mood.key}
                       onClick={() => setMoodAfter(mood.score)}
+                      aria-label={isRTL ? mood.label_ar : mood.label_en}
                       className={`text-3xl transition-all rounded-full p-1 ${moodAfter === mood.score ? "ring-2 ring-offset-2 ring-offset-background scale-110" : "opacity-60 hover:opacity-100"}`}
                       title={isRTL ? mood.label_ar : mood.label_en}
                     >
@@ -227,7 +229,7 @@ export default function BreathingPage() {
 
               {/* Encouragement */}
               {moodChange !== null && (
-                <p className="text-sm font-medium" style={{ color: moodChange > 0 ? TOOLKIT.sage : moodChange === 0 ? TOOLKIT.lavender : TOOLKIT.plum }}>
+                <p className={`text-sm font-medium ${moodChange > 0 ? "text-[hsl(var(--toolkit-sage))]" : moodChange === 0 ? "text-[hsl(var(--toolkit-lavender))]" : "text-[hsl(var(--toolkit-plum))]"}`}>
                   {moodChange > 0
                     ? t("mentalToolkit.breathing.encouragementImproved")
                     : moodChange === 0
@@ -237,7 +239,7 @@ export default function BreathingPage() {
               )}
 
               <div className="flex gap-3 justify-center pt-2">
-                <Button onClick={handleSaveAndReset} className="rounded-xl" style={{ background: TOOLKIT.sage, color: TOOLKIT.plum }}>
+                <Button onClick={handleSaveAndReset} className="rounded-xl bg-[hsl(var(--toolkit-sage))] text-[hsl(var(--toolkit-plum))]">
                   <RotateCcw className="h-4 w-4 me-1" /> {t("mentalToolkit.breathing.practiceAgain")}
                 </Button>
               </div>
@@ -276,14 +278,11 @@ export default function BreathingPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       {s.mood_before != null && s.mood_after != null && (
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{
-                          backgroundColor: s.mood_after >= s.mood_before ? `${TOOLKIT.sage}33` : `${TOOLKIT.lavender}33`,
-                          color: s.mood_after >= s.mood_before ? TOOLKIT.sage : TOOLKIT.plum,
-                        }}>
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${s.mood_after >= s.mood_before ? "bg-[hsl(var(--toolkit-sage)/0.2)] text-[hsl(var(--toolkit-sage))]" : "bg-[hsl(var(--toolkit-lavender)/0.2)] text-[hsl(var(--toolkit-plum))]"}`}>
                           {s.mood_after > s.mood_before ? "+" : ""}{s.mood_after - s.mood_before}
                         </span>
                       )}
-                      {s.completed && <span className="text-xs" style={{ color: TOOLKIT.sage }}>✓</span>}
+                      {s.completed && <span className="text-xs text-[hsl(var(--toolkit-sage))]">✓</span>}
                     </div>
                   </CardContent>
                 </ToolkitCard>
@@ -296,11 +295,11 @@ export default function BreathingPage() {
   );
 }
 
-function StatPill({ icon, color, value, label }: { icon: React.ReactNode; color: string; value: string | number; label: string }) {
+function StatPill({ icon, value, label }: { icon: React.ReactNode; value: string | number; label: string }) {
   return (
     <ToolkitCard variant="stat">
       <CardContent className="p-4 flex flex-col items-center text-center gap-1">
-        <span style={{ color }}>{icon}</span>
+        <span className="text-[hsl(var(--toolkit-lavender))]">{icon}</span>
         <span className={typography.metric}>{value}</span>
         <span className="text-2xs text-muted-foreground leading-tight">{label}</span>
       </CardContent>

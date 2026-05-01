@@ -126,7 +126,7 @@ export function WorkloadCalendarView({ tasks, isPending, todos = [] }: WorkloadC
       <Card className="border-0 bg-muted/30">
         <CardContent className="p-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handlePrev}>
+            <Button variant="ghost" size="icon" aria-label={t('common.previous')} className="h-8 w-8" onClick={handlePrev}>
               <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
             </Button>
             <h2 className="text-sm font-semibold min-w-[160px] text-center">
@@ -135,7 +135,7 @@ export function WorkloadCalendarView({ tasks, isPending, todos = [] }: WorkloadC
                 : `${format(startOfWeek(currentDate, { weekStartsOn: 0 }), 'MMM d')} — ${format(endOfWeek(currentDate, { weekStartsOn: 0 }), 'MMM d, yyyy')}`
               }
             </h2>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleNext}>
+            <Button variant="ghost" size="icon" aria-label={t('common.next')} className="h-8 w-8" onClick={handleNext}>
               <ChevronRight className="h-4 w-4 rtl:rotate-180" />
             </Button>
             <Button variant="outline" size="sm" className="h-8 text-xs" onClick={handleToday}>

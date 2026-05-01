@@ -20,7 +20,6 @@ import { useSpeechToText } from "@/hooks/ui/useSpeechToText";
 import { useReframeSuggestion } from "@/hooks/wellness/useReframeSuggestion";
 import { format } from "date-fns";
 
-import { TOOLKIT } from "@/config/toolkit-colors";
 import { ToolkitPageHeader, ToolkitCard, GradientButton } from "@/components/mental-toolkit/shared";
 import { typography } from "@/theme/tokens";
 
@@ -51,6 +50,7 @@ function MicButton({
             type="button"
             variant="ghost"
             size="icon"
+            aria-label={isListening ? t("mentalToolkit.thoughtReframer.stopListening") : t("mentalToolkit.thoughtReframer.voiceInput")}
             className={`h-8 w-8 shrink-0 ${isListening ? "text-destructive animate-pulse" : "text-muted-foreground"}`}
             onClick={isListening ? stopListening : startListening}
           >
@@ -198,13 +198,11 @@ export default function ThoughtReframerPage() {
                     <div key={s} className="flex items-center">
                       <div className="flex flex-col items-center">
                         <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300"
-                          style={{
-                            background: i <= step
-                              ? `linear-gradient(135deg, ${TOOLKIT.lavender}, ${TOOLKIT.sage})`
-                              : "hsl(var(--muted))",
-                            color: i <= step ? "#fff" : "hsl(var(--muted-foreground))",
-                          }}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                            i <= step
+                              ? "bg-[linear-gradient(135deg,hsl(var(--toolkit-lavender)),hsl(var(--toolkit-sage)))] text-white"
+                              : "bg-muted text-muted-foreground"
+                          }`}
                         >
                           {i + 1}
                         </div>
@@ -213,12 +211,7 @@ export default function ThoughtReframerPage() {
                         </span>
                       </div>
                       {i < STEPS.length - 1 && (
-                        <div
-                          className="w-12 h-0.5 mx-1 mt-[-12px] rounded transition-all duration-300"
-                          style={{
-                            backgroundColor: i < step ? TOOLKIT.lavender : "hsl(var(--border))",
-                          }}
-                        />
+                        <div className={`w-12 h-0.5 mx-1 mt-[-12px] rounded transition-all duration-300 ${i < step ? "bg-[hsl(var(--toolkit-lavender))]" : "bg-border"}`} />
                       )}
                     </div>
                   ))}
@@ -230,9 +223,9 @@ export default function ThoughtReframerPage() {
               {/* Step 1: Identify */}
               {step === 0 && !showSummary && (
                 <div className="space-y-3 animate-in fade-in duration-300">
-                  <div className="rounded-xl p-4" style={{ background: `${TOOLKIT.lavender}15` }}>
+                  <div className="rounded-xl p-4 bg-[hsl(var(--toolkit-lavender)/0.15)]">
                     <div className="flex items-start gap-2 mb-2">
-                      <Brain className="h-5 w-5 mt-0.5 shrink-0" style={{ color: TOOLKIT.plum }} />
+                      <Brain className="h-5 w-5 mt-0.5 shrink-0 text-[hsl(var(--toolkit-plum))]" />
                       <label className="text-sm font-medium text-foreground flex-1">
                         {t("mentalToolkit.thoughtReframer.step1Prompt")}
                       </label>
@@ -249,8 +242,7 @@ export default function ThoughtReframerPage() {
                   <Button
                     disabled={!negativeThought.trim()}
                     onClick={() => setStep(1)}
-                    className="w-full rounded-xl"
-                    style={{ background: TOOLKIT.lavender, color: TOOLKIT.plum }}
+                    className="w-full rounded-xl bg-[hsl(var(--toolkit-lavender))] text-[hsl(var(--toolkit-plum))]"
                   >
                     {t("mentalToolkit.thoughtReframer.continueBtn")}
                     <ArrowRight className="h-4 w-4 ms-1 rtl:-scale-x-100" />
@@ -262,9 +254,9 @@ export default function ThoughtReframerPage() {
               {step === 1 && !showSummary && (
                 <div className="space-y-3 animate-in fade-in duration-300">
                   {(["q1", "q2", "q3"] as const).map((key, i) => (
-                    <div key={key} className="rounded-xl p-3 border border-border/50" style={{ background: `${TOOLKIT.lavender}08` }}>
+                    <div key={key} className="rounded-xl p-3 border border-border/50 bg-[hsl(var(--toolkit-lavender)/0.08)]">
                       <div className="flex items-start gap-2 mb-2">
-                        <HelpCircle className="h-4 w-4 mt-0.5 shrink-0" style={{ color: TOOLKIT.lavender }} />
+                        <HelpCircle className="h-4 w-4 mt-0.5 shrink-0 text-[hsl(var(--toolkit-lavender))]" />
                         <label className="text-sm font-medium text-foreground flex-1">
                           {t(`mentalToolkit.thoughtReframer.${key}`)}
                         </label>
@@ -283,8 +275,7 @@ export default function ThoughtReframerPage() {
                       <ArrowLeft className="h-4 w-4 me-1 rtl:-scale-x-100" />
                       {t("mentalToolkit.thoughtReframer.backBtn")}
                     </Button>
-                    <Button onClick={() => setStep(2)} className="flex-1 rounded-xl"
-                      style={{ background: TOOLKIT.lavender, color: TOOLKIT.plum }}>
+                    <Button onClick={() => setStep(2)} className="flex-1 rounded-xl bg-[hsl(var(--toolkit-lavender))] text-[hsl(var(--toolkit-plum))]">
                       {t("mentalToolkit.thoughtReframer.continueBtn")}
                       <ArrowRight className="h-4 w-4 ms-1 rtl:-scale-x-100" />
                     </Button>
@@ -296,19 +287,14 @@ export default function ThoughtReframerPage() {
               {step === 2 && !showSummary && (
                 <div className="space-y-3 animate-in fade-in duration-300">
                   {/* Original thought card */}
-                  <div className="rounded-xl p-3" style={{
-                    background: `${TOOLKIT.lavender}15`,
-                    borderInlineStartColor: TOOLKIT.lavender,
-                    borderInlineStartWidth: "3px",
-                    borderInlineStartStyle: "solid",
-                  }}>
+                  <div className="rounded-xl p-3 bg-[hsl(var(--toolkit-lavender)/0.15)] border-s-[3px] border-[hsl(var(--toolkit-lavender))]">
                     <p className="text-xs text-muted-foreground mb-1">{t("mentalToolkit.thoughtReframer.originalLabel")}</p>
                     <p className="text-sm text-foreground italic">"{negativeThought}"</p>
                   </div>
 
-                  <div className="rounded-xl p-4" style={{ background: `${TOOLKIT.sage}12` }}>
+                  <div className="rounded-xl p-4 bg-[hsl(var(--toolkit-sage)/0.12)]">
                     <div className="flex items-start gap-2 mb-2">
-                      <Sparkles className="h-5 w-5 mt-0.5 shrink-0" style={{ color: TOOLKIT.sage }} />
+                      <Sparkles className="h-5 w-5 mt-0.5 shrink-0 text-[hsl(var(--toolkit-sage))]" />
                       <label className="text-sm font-medium text-foreground flex-1">
                         {t("mentalToolkit.thoughtReframer.step3Prompt")}
                       </label>
@@ -371,14 +357,14 @@ export default function ThoughtReframerPage() {
                     {t("mentalToolkit.thoughtReframer.summaryTitle")} ✨
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="rounded-lg p-4 space-y-2" style={{ background: `${TOOLKIT.lavender}20`, border: `1px solid ${TOOLKIT.lavender}` }}>
-                      <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: TOOLKIT.plum }}>
+                    <div className="rounded-lg p-4 space-y-2 bg-[hsl(var(--toolkit-lavender)/0.2)] border border-[hsl(var(--toolkit-lavender))]">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[hsl(var(--toolkit-plum))]">
                         {t("mentalToolkit.thoughtReframer.originalLabel")}
                       </p>
                       <p className="text-sm text-foreground">{negativeThought}</p>
                     </div>
-                    <div className="rounded-lg p-4 space-y-2" style={{ background: `${TOOLKIT.sage}20`, border: `1px solid ${TOOLKIT.sage}` }}>
-                      <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#2d6b3f" }}>
+                    <div className="rounded-lg p-4 space-y-2 bg-[hsl(var(--toolkit-sage)/0.2)] border border-[hsl(var(--toolkit-sage))]">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[#2d6b3f]">
                         {t("mentalToolkit.thoughtReframer.reframedLabel")}
                       </p>
                       <p className="text-sm text-foreground">{reframedThought}</p>
@@ -407,7 +393,7 @@ export default function ThoughtReframerPage() {
         {/* Reframe Journal */}
         <div className="space-y-3">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <BookOpen className="h-4 w-4" style={{ color: TOOLKIT.lavender }} />
+            <BookOpen className="h-4 w-4 text-[hsl(var(--toolkit-lavender))]" />
             {t("mentalToolkit.thoughtReframer.journalTitle")}
           </h2>
 
@@ -433,19 +419,19 @@ export default function ThoughtReframerPage() {
                             {format(new Date(entry.created_at), "MMM dd, yyyy")}
                           </p>
                           <p className="text-sm text-foreground line-clamp-2">{entry.negative_thought}</p>
-                          <p className="text-sm font-medium mt-1" style={{ color: "#2d6b3f" }}>
+                          <p className="text-sm font-medium mt-1 text-[#2d6b3f]">
                             <ArrowRight className="h-3 w-3 inline-block me-1 rtl:-scale-x-100" />
                             {entry.reframed_thought}
                           </p>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
-                          <Button variant="ghost" size="icon" className="h-8 w-8"
+                          <Button variant="ghost" size="icon" aria-label={t("common.expand")} className="h-8 w-8"
                             onClick={() => setExpandedId(isExpanded ? null : entry.id)}>
                             <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                              <Button variant="ghost" size="icon" aria-label={t("common.delete")} className="h-8 w-8 text-destructive hover:text-destructive">
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </AlertDialogTrigger>
@@ -470,7 +456,7 @@ export default function ThoughtReframerPage() {
                           <p className={typography.statLabel}>{t("mentalToolkit.thoughtReframer.challengeAnswers")}</p>
                           {(["q1", "q2", "q3"] as const).map((key) =>
                             ca[key] ? (
-                              <div key={key} className="rounded-lg p-2" style={{ background: `${TOOLKIT.lavender}08` }}>
+                              <div key={key} className="rounded-lg p-2 bg-[hsl(var(--toolkit-lavender)/0.08)]">
                                 <p className={typography.statLabel}>{t(`mentalToolkit.thoughtReframer.${key}`)}</p>
                                 <p className="text-xs text-foreground mt-0.5">{ca[key]}</p>
                               </div>

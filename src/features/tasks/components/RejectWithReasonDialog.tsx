@@ -6,6 +6,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { DIALOG_SIZES } from '@/components/ui/dialog-sizes';
 
 interface Props {
   open: boolean;
@@ -27,7 +28,7 @@ export function RejectWithReasonDialog({ open, onOpenChange, taskTitle, onConfir
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px]">
+      <DialogContent className={DIALOG_SIZES.sm}>
         <DialogHeader>
           <DialogTitle>{t('tasks.rejectTask')}</DialogTitle>
           <DialogDescription>{t('tasks.rejectTaskDesc', { title: taskTitle })}</DialogDescription>
