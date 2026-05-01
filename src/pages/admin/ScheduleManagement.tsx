@@ -5,20 +5,21 @@
  * ZERO behaviour change.
  */
 
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Plus, CalendarClock, Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Plus, CalendarClock, ChevronLeft, ChevronRight, ClipboardCheck, Loader2, TriangleAlert, Users } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import SchedulePreviewDialog from '@/components/schedules/SchedulePreviewDialog';
 import ScheduleForm from '@/components/schedules/ScheduleForm';
 import ScheduleAudienceSelector from '@/components/schedules/ScheduleAudienceSelector';
 import ScheduleTimingConfig from '@/components/schedules/ScheduleTimingConfig';
 import SchedulePreviewSection from '@/components/schedules/SchedulePreviewSection';
-import { ScheduleStatCards } from '@/components/schedules/ScheduleStatCards';
 import { ScheduleListTable } from '@/components/schedules/ScheduleListTable';
 import { useQuestionSchedules } from '@/hooks/questions/useQuestionSchedules';
 import { useQuestionBatches } from '@/hooks/questions/useQuestionBatches';
@@ -33,7 +34,7 @@ import { useAudienceResolver } from '@/hooks/admin/useAudienceResolver';
 import { toast } from 'sonner';
 
 export default function ScheduleManagement() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { profile } = useProfile();
   const tenantId = profile?.tenant_id || undefined;
   const { schedules, isPending, createSchedule, updateSchedule, toggleStatus, deleteSchedule } = useQuestionSchedules(tenantId);
@@ -56,6 +57,33 @@ export default function ScheduleManagement() {
   );
 
   const linkedPeriod = state.linkedPeriodId ? periods.find(p => p.id === state.linkedPeriodId) : null;
+  const [weekOffset, setWeekOffset] = useState(0);
+  const isRTL = i18n.language === 'ar';
+  const activeSchedules = schedules.filter((schedule) => schedule.status === 'active').length;
+  const coverageRate = schedules.length > 0 ? Math.round((activeSchedules / schedules.length) * 100) : 0;
+  const exceptionsCount = schedules.filter((schedule) => schedule.status === 'paused' || (schedule.schedule_type === 'survey' && !!schedule.end_date && new Date(schedule.end_date) < new Date())).length;
+  const pendingApprovals = schedules.filter((schedule) => schedule.status === 'draft').length;
+  const openTeamScopes = schedules.filter((schedule) => schedule.target_audience?.all || (schedule.target_audience?.departments?.length ?? 0) > 0).length;
+  const dateWindow = useMemo(() => {
+    const start = new Date();
+    start.setDate(start.getDate() - start.getDay() + weekOffset * 7);
+    const days = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(start);
+      date.setDate(start.getDate() + index);
+      return date;
+    });
+    const formatter = new Intl.DateTimeFormat(isRTL ? 'ar-SA' : 'en-US', { weekday: 'short', day: 'numeric' });
+    const rangeFormatter = new Intl.DateTimeFormat(isRTL ? 'ar-SA' : 'en-US', { month: 'short', day: 'numeric' });
+
+    return {
+      label: `${rangeFormatter.format(days[0])} — ${rangeFormatter.format(days[6])}`,
+      days: days.map((day) => ({
+        key: day.toISOString(),
+        label: formatter.format(day),
+        isToday: day.toDateString() === new Date().toDateString(),
+      })),
+    };
+  }, [isRTL, weekOffset]);
 
   const buildTargetAudience = () => {
     if (state.audienceType === 'departments' && state.selectedDepartments.length > 0)
@@ -143,7 +171,6 @@ export default function ScheduleManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <PageHeader
         icon={<CalendarClock className="h-5 w-5 text-primary" />}
         title={t('schedules.title')}
@@ -157,7 +184,76 @@ export default function ScheduleManagement() {
         }
       />
 
-      <ScheduleStatCards schedules={schedules} />
+      <section className="grid gap-4 xl:grid-cols-[1.3fr_0.7fr]">
+        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">Operational overview</p>
+              <h2 className="mt-1 text-xl font-semibold tracking-[-0.02em] text-[var(--text-primary)]">Coverage, exceptions, and approval readiness</h2>
+            </div>
+            <Badge variant="outline" className="rounded-full border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)]">
+              {openTeamScopes} team scopes live
+            </Badge>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] p-4">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">Coverage</p>
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--brand-primary-soft)] text-[var(--brand-primary)]">
+                  <Users className="h-4 w-4" />
+                </div>
+              </div>
+              <p className="mt-3 text-3xl font-bold tracking-[-0.03em] text-[var(--text-primary)]">{coverageRate}%</p>
+              <p className="mt-1 text-xs text-[var(--text-secondary)]">{activeSchedules} active schedules currently supporting workforce coverage.</p>
+            </div>
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] p-4">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">Exceptions</p>
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[rgba(245,158,11,0.14)] text-[#FBBF24]">
+                  <TriangleAlert className="h-4 w-4" />
+                </div>
+              </div>
+              <p className="mt-3 text-3xl font-bold tracking-[-0.03em] text-[var(--text-primary)]">{exceptionsCount}</p>
+              <p className="mt-1 text-xs text-[var(--text-secondary)]">Paused or expired schedule windows needing operational review.</p>
+            </div>
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] p-4">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">Pending approvals</p>
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[rgba(59,130,246,0.14)] text-[#93C5FD]">
+                  <ClipboardCheck className="h-4 w-4" />
+                </div>
+              </div>
+              <p className="mt-3 text-3xl font-bold tracking-[-0.03em] text-[var(--text-primary)]">{pendingApprovals}</p>
+              <p className="mt-1 text-xs text-[var(--text-secondary)]">Draft schedules still awaiting completion or final operational approval.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">Date navigation</p>
+              <h2 className="mt-1 text-lg font-semibold text-[var(--text-primary)]">{dateWindow.label}</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]" onClick={() => setWeekOffset((current) => current + (isRTL ? 1 : -1))}>
+                {isRTL ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              </Button>
+              <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]" onClick={() => setWeekOffset((current) => current + (isRTL ? -1 : 1))}>
+                {isRTL ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7" dir={isRTL ? 'rtl' : 'ltr'}>
+            {dateWindow.days.map((day) => (
+              <div key={day.key} className={`rounded-2xl border p-3 text-center ${day.isToday ? 'border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] text-[var(--brand-primary)]' : 'border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)]'}`}>
+                <p className="text-xs font-semibold uppercase tracking-[0.08em]">{day.label}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 text-xs leading-5 text-[var(--text-secondary)]">Adaptive week controls keep schedule review easy on mobile layouts and in RTL locales.</p>
+        </div>
+      </section>
 
       <ScheduleListTable
         schedules={schedules}

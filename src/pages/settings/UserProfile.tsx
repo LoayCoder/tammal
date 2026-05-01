@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-import { User, Shield, Key, Mail, Calendar, Pencil, Lock, Smartphone, Monitor, Trash2, History, BookOpen } from 'lucide-react';
+import { User, Shield, Key, Mail, Calendar, Pencil, Lock, Smartphone, Monitor, Trash2, History, BookOpen, Bell, CheckCircle2 } from 'lucide-react';
 import { PageHeader } from '@/components/system';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,6 +38,7 @@ export default function UserProfile() {
   const [sessionDialogOpen, setSessionDialogOpen] = useState(false);
   const [mfaDialogOpen, setMfaDialogOpen] = useState(false);
   const [loginActivityDialogOpen, setLoginActivityDialogOpen] = useState(false);
+  const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
 
   // Fetch profile data
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -88,6 +89,28 @@ export default function UserProfile() {
   }, {} as Record<string, typeof permissionDetails>) || {};
 
   const isRTL = i18n.language === 'ar';
+  const sectionCards = [
+    {
+      title: t('profile.personalInfo', 'Personal information'),
+      description: t('profile.accountInfoDescription'),
+      icon: User,
+    },
+    {
+      title: t('profile.preferences', 'Preferences'),
+      description: t('spiritual.insights.subtitle'),
+      icon: Bell,
+    },
+    {
+      title: t('profile.securitySettings'),
+      description: t('profile.sessionManagementDescription'),
+      icon: Shield,
+    },
+    {
+      title: t('profile.notifications', 'Notifications'),
+      description: t('profile.loginActivityDescription'),
+      icon: CheckCircle2,
+    },
+  ];
 
   const getInitials = (name: string | null | undefined) => {
     if (!name) return user?.email?.charAt(0).toUpperCase() || 'U';
@@ -128,10 +151,83 @@ export default function UserProfile() {
         variant="card"
       />
 
+      <section className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+        <Card className="rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)] p-1 shadow-[var(--shadow-xs)]">
+          <CardContent className="space-y-5 p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-4">
+                <Avatar className="h-20 w-20 rounded-2xl">
+                  <AvatarImage src={profile?.avatar_url || ''} />
+                  <AvatarFallback className="rounded-2xl bg-[var(--brand-primary-soft)] text-xl text-[var(--brand-primary)]">
+                    {getInitials(profile?.full_name)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[var(--text-primary)]">{profile?.full_name || t('profile.noName')}</h2>
+                  <p className="text-sm text-[var(--text-secondary)]">{user?.email}</p>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <Badge variant="outline" className="rounded-full border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)]">
+                      {userRoles.length > 0 ? userRoles.length : 1} role{userRoles.length === 1 ? '' : 's'}
+                    </Badge>
+                    <Badge variant="outline" className="rounded-full border-[rgba(52,211,153,0.24)] bg-[rgba(52,211,153,0.12)] text-[#86EFAC]">
+                      Account active
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <Button variant="outline" size="sm" className="rounded-xl border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]" onClick={() => setEditDialogOpen(true)}>
+                <Pencil className="me-2 h-4 w-4" />
+                {t('profile.editProfile')}
+              </Button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] p-4">
+                <p className={typography.statLabel}>{t('profile.memberSince')}</p>
+                <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{user?.created_at ? formatDate(user.created_at) : '-'}</p>
+                <p className="mt-1 text-xs text-[var(--text-secondary)]">Organization join date</p>
+              </div>
+              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] p-4">
+                <p className={typography.statLabel}>{t('profile.lastSignIn')}</p>
+                <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{user?.last_sign_in_at ? formatDate(user.last_sign_in_at) : '-'}</p>
+                <p className="mt-1 text-xs text-[var(--text-secondary)]">Last successful account access</p>
+              </div>
+              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] p-4">
+                <p className={typography.statLabel}>Organization</p>
+                <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{profile?.department || 'Default workspace'}</p>
+                <p className="mt-1 text-xs text-[var(--text-secondary)]">Role and access grouped by workspace context</p>
+              </div>
+            </div>
+
+            {saveFeedback && (
+              <div className="rounded-2xl border border-[rgba(52,211,153,0.24)] bg-[rgba(52,211,153,0.12)] px-4 py-3 text-sm text-[#BBF7D0]">
+                {saveFeedback}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          {sectionCards.map((section) => (
+            <Card key={section.title} className="rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+              <CardContent className="flex h-full items-start gap-3 p-5">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--brand-primary-soft)] text-[var(--brand-primary)]">
+                  <section.icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[var(--text-primary)]">{section.title}</p>
+                  <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">{section.description}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}>
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
         {/* User Info Card */}
-        <Card className={cardVariants.glass}>
+        <Card className="rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)]">
           <CardHeader className="flex flex-row items-start justify-between space-y-0">
             <div className="space-y-1">
               <CardTitle className="flex items-center gap-2">
@@ -143,6 +239,7 @@ export default function UserProfile() {
             <Button 
               variant="outline" 
               size="sm" 
+              className="rounded-xl border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]"
               onClick={() => setEditDialogOpen(true)}
             >
               <Pencil className="me-2 h-4 w-4" />
@@ -193,6 +290,7 @@ export default function UserProfile() {
                 <Button 
                   variant="outline" 
                   size="sm"
+                  className="rounded-xl border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]"
                   onClick={() => setEmailDialogOpen(true)}
                 >
                   <Mail className="me-2 h-4 w-4" />
@@ -201,6 +299,7 @@ export default function UserProfile() {
                 <Button 
                   variant="outline" 
                   size="sm"
+                  className="rounded-xl border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]"
                   onClick={() => setPasswordDialogOpen(true)}
                 >
                   <Lock className="me-2 h-4 w-4" />
@@ -209,6 +308,7 @@ export default function UserProfile() {
                 <Button 
                   variant="outline" 
                   size="sm"
+                  className="rounded-xl border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]"
                   onClick={() => setMfaDialogOpen(true)}
                 >
                   <Smartphone className="me-2 h-4 w-4" />
@@ -217,6 +317,7 @@ export default function UserProfile() {
                 <Button 
                   variant="outline" 
                   size="sm"
+                  className="rounded-xl border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]"
                   onClick={() => setSessionDialogOpen(true)}
                 >
                   <Monitor className="me-2 h-4 w-4" />
@@ -225,6 +326,7 @@ export default function UserProfile() {
                 <Button 
                   variant="outline" 
                   size="sm"
+                  className="rounded-xl border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]"
                   onClick={() => setLoginActivityDialogOpen(true)}
                 >
                   <History className="me-2 h-4 w-4" />
@@ -234,6 +336,7 @@ export default function UserProfile() {
               <Button
                 variant="outline"
                 size="sm"
+                className="rounded-xl border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]"
                 onClick={resetTour}
                 disabled={isResetting}
               >
@@ -261,7 +364,7 @@ export default function UserProfile() {
         </Card>
 
         {/* Roles Card */}
-        <Card className={cardVariants.glass}>
+        <Card className="rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5" />
@@ -321,7 +424,7 @@ export default function UserProfile() {
 
       {/* Permissions Card */}
       <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}>
-      <Card className={cardVariants.glass}>
+      <Card className="rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)]">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Key className="h-5 w-5" />
@@ -348,7 +451,7 @@ export default function UserProfile() {
               {Object.entries(groupedPermissions).map(([category, perms]) => (
                 <div 
                   key={category} 
-                  className="border rounded-lg p-4 space-y-2"
+                  className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] p-4 space-y-2"
                 >
                   <h4 className="font-medium capitalize text-sm text-primary">
                     {category}
@@ -387,7 +490,8 @@ export default function UserProfile() {
           email: user?.email,
         }}
         onSuccess={() => {
-          // Refetch is handled by the hook
+          setSaveFeedback(t('common.saved', 'Changes saved successfully.'));
+          setTimeout(() => setSaveFeedback(null), 3000);
         }}
       />
 

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -36,6 +37,32 @@ export default function MyNominationsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const showApprovalsTab = isManager || isTenantAdmin;
+  const nominationMetrics = [
+    {
+      label: 'Submitted',
+      value: myNominations.length,
+      detail: `${myNominations.filter((nomination) => nomination.status === 'submitted').length} awaiting outcome`,
+      tone: 'bg-[var(--brand-primary-soft)] text-[var(--brand-primary)]',
+    },
+    {
+      label: 'Received',
+      value: receivedNominations.length,
+      detail: `${receivedNominations.filter((nomination) => nomination.manager_approval_status === 'approved').length} approved recognitions`,
+      tone: 'bg-[rgba(59,130,246,0.14)] text-[#93C5FD]',
+    },
+    {
+      label: 'Endorsements',
+      value: myEndorsementRequests.length,
+      detail: `${myEndorsementRequests.filter((nomination) => nomination.manager_approval_status === 'approved' || nomination.manager_approval_status === 'not_required').length} ready for peer proof`,
+      tone: 'bg-[rgba(245,158,11,0.14)] text-[#FBBF24]',
+    },
+    {
+      label: 'Approvals',
+      value: pendingApprovals.length,
+      detail: showApprovalsTab ? 'Manager queue requiring decisions' : 'Visible to approvers only',
+      tone: 'bg-[rgba(139,92,246,0.14)] text-[#C4B5FD]',
+    },
+  ];
 
   // Resolve employee names for approval cards + endorsement requests
   const allUserIds = [
@@ -78,23 +105,49 @@ export default function MyNominationsPage() {
         }
       />
 
+      <section className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">Recognition summary</p>
+            <h2 className="mt-1 text-xl font-semibold tracking-[-0.02em] text-[var(--text-primary)]">Track momentum, approval posture, and social proof</h2>
+          </div>
+          <Badge variant="outline" className="rounded-full border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)]">
+            Enterprise recognition workflow
+          </Badge>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {nominationMetrics.map((metric) => (
+            <div key={metric.label} className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">{metric.label}</p>
+                <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${metric.tone}`}>
+                  Live
+                </span>
+              </div>
+              <p className="mt-3 text-3xl font-bold tracking-[-0.03em] text-[var(--text-primary)]">{metric.value}</p>
+              <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">{metric.detail}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <ErrorBoundary title={t('common.sectionError')} description={t('common.sectionErrorDescription')}>
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList>
-          <TabsTrigger value="sent" className="flex items-center gap-1.5">
+        <TabsList className="h-auto flex-wrap justify-start gap-2 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-2">
+          <TabsTrigger value="sent" className="flex items-center gap-1.5 rounded-xl border border-transparent px-4 data-[state=active]:border-[var(--border-default)] data-[state=active]:bg-[var(--bg-surface-elevated)] data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none">
             <Send className="h-3.5 w-3.5" />
             {t('recognition.nominations.sent')} ({myNominations.length})
           </TabsTrigger>
-          <TabsTrigger value="received" className="flex items-center gap-1.5">
+          <TabsTrigger value="received" className="flex items-center gap-1.5 rounded-xl border border-transparent px-4 data-[state=active]:border-[var(--border-default)] data-[state=active]:bg-[var(--bg-surface-elevated)] data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none">
             <Inbox className="h-3.5 w-3.5" />
             {t('recognition.nominations.received')} ({receivedNominations.length})
           </TabsTrigger>
-          <TabsTrigger value="endorse" className="flex items-center gap-1.5">
+          <TabsTrigger value="endorse" className="flex items-center gap-1.5 rounded-xl border border-transparent px-4 data-[state=active]:border-[var(--border-default)] data-[state=active]:bg-[var(--bg-surface-elevated)] data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none">
             <ThumbsUp className="h-3.5 w-3.5" />
             {t('recognition.endorsements.endorseTab')} ({myEndorsementRequests.length})
           </TabsTrigger>
           {showApprovalsTab && (
-            <TabsTrigger value="approvals" className="flex items-center gap-1.5">
+            <TabsTrigger value="approvals" className="flex items-center gap-1.5 rounded-xl border border-transparent px-4 data-[state=active]:border-[var(--border-default)] data-[state=active]:bg-[var(--bg-surface-elevated)] data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none">
               <ShieldCheck className="h-3.5 w-3.5" />
               {t('recognition.nominations.managerApproval')} ({pendingApprovals.length})
             </TabsTrigger>
@@ -176,18 +229,26 @@ export default function MyNominationsPage() {
               {myEndorsementRequests.map(n => (
                 <Card
                   key={n.id}
-                  className="cursor-pointer hover:border-primary/50 transition-colors"
+                  className="cursor-pointer rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)] transition-colors hover:border-[var(--border-default)]"
                   onClick={() => setSelectedNomination(n as unknown as Nomination)}
                 >
-                  <CardContent className="py-4 space-y-2">
-                    <h3 className="font-medium">{n.headline}</h3>
+                  <CardContent className="space-y-3 py-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-[var(--text-primary)]">{n.headline}</p>
+                        <p className="mt-1 text-xs text-[var(--text-secondary)]">Provide peer context to strengthen recognition proof.</p>
+                      </div>
+                      <Badge variant="outline" className="rounded-full border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)]">
+                        Request
+                      </Badge>
+                    </div>
                     <p className="text-sm text-muted-foreground line-clamp-2">{n.justification}</p>
                     {employeeMap[n.nominee_id] && (
                       <p className="text-xs text-muted-foreground">
                         {t('recognition.nominations.nominee')}: {employeeMap[n.nominee_id]}
                       </p>
                     )}
-                    <Button variant="outline" size="sm" className="mt-2">
+                    <Button variant="outline" size="sm" className="mt-1 rounded-xl border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]">
                       <ThumbsUp className="h-3.5 w-3.5 me-1.5" />
                       {t('recognition.endorsements.submitEndorsement')}
                     </Button>

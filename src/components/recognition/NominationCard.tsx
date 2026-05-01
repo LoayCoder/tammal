@@ -56,10 +56,22 @@ export function NominationCard({
       : nomination.endorsement_status;
 
   return (
-    <Card>
+    <Card className="rounded-2xl border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-[var(--shadow-xs)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:shadow-[var(--shadow-sm)]">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-base line-clamp-1">{nomination.headline}</CardTitle>
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline" className="rounded-full border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)]">
+                {nomination.status === 'submitted' ? 'In review' : nomination.status}
+              </Badge>
+              {nomination.manager_approval_status && nomination.manager_approval_status !== 'not_required' && (
+                <Badge className={managerApprovalColors[nomination.manager_approval_status] || ''} variant="outline">
+                  {t(`recognition.nominations.managerApprovalStatus.${nomination.manager_approval_status}`, nomination.manager_approval_status)}
+                </Badge>
+              )}
+            </div>
+            <CardTitle className="text-base line-clamp-1 text-[var(--text-primary)]">{nomination.headline}</CardTitle>
+          </div>
           <div className="flex items-center gap-1.5 shrink-0">
             <Badge className={statusColors[nomination.status] || ''}>
               {t(`recognition.nominations.status.${nomination.status}`, nomination.status)}
@@ -87,15 +99,23 @@ export function NominationCard({
         )}
         <p className="text-sm text-muted-foreground line-clamp-3">{nomination.justification}</p>
 
-        {nomination.manager_approval_status && nomination.manager_approval_status !== 'not_required' && (
-          <div className="space-y-1">
-            <Badge className={managerApprovalColors[nomination.manager_approval_status] || ''} variant="outline">
+        <div className="grid gap-2 sm:grid-cols-2">
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">Approval state</p>
+            <p className="mt-2 text-sm font-medium text-[var(--text-primary)]">
               {t(`recognition.nominations.managerApprovalStatus.${nomination.manager_approval_status}`, nomination.manager_approval_status)}
-            </Badge>
-            {nomination.manager_approval_status === 'rejected' && nomination.manager_rejection_reason && (
-              <p className="text-xs text-destructive">{nomination.manager_rejection_reason}</p>
-            )}
+            </p>
           </div>
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">Peer proof</p>
+            <p className="mt-2 text-sm font-medium text-[var(--text-primary)]">
+              {t(`recognition.endorsements.status.${displayedEndorsementStatus}`, displayedEndorsementStatus)}
+            </p>
+          </div>
+        </div>
+
+        {nomination.manager_approval_status === 'rejected' && nomination.manager_rejection_reason && (
+          <p className="rounded-xl border border-[rgba(248,113,113,0.2)] bg-[rgba(248,113,113,0.08)] p-3 text-xs text-destructive">{nomination.manager_rejection_reason}</p>
         )}
 
         <div className="flex items-center justify-between pt-1">

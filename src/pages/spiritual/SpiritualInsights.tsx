@@ -199,6 +199,23 @@ export default function SpiritualInsights() {
   const { sessions: quranSessions, totalMinutes: quranMinutes } = useQuranSessions({ from: thirtyDaysAgo, to: today });
   const { logs: fastingLogs } = useFastingLogs({ from: thirtyDaysAgo, to: today });
   const { moodData, avgMood7d } = useMoodHistory(employee?.id ?? null);
+  const premiumHighlights = [
+    {
+      label: 'Mood cadence',
+      value: avgMood7d ? `${avgMood7d}/5` : '—',
+      description: 'Seven-day emotional rhythm paired with spiritual practices.',
+    },
+    {
+      label: 'Quran minutes',
+      value: `${quranMinutes || 0}`,
+      description: 'Recent recitation minutes shaping reflection patterns.',
+    },
+    {
+      label: 'Prayer logs',
+      value: `${prayerLogs.length}`,
+      description: 'Entries available for correlation and insight generation.',
+    },
+  ];
 
   // Compute correlations (same as before)
   const insights = useMemo(() => {
@@ -280,7 +297,7 @@ export default function SpiritualInsights() {
   if (!isEnabled) {
     return (
       <div className="container mx-auto py-6">
-        <Card className={cardVariants.glass}>
+        <Card className="rounded-[28px] border-[var(--border-subtle)] bg-[linear-gradient(180deg,rgba(23,32,51,0.92),rgba(17,24,39,0.94))]">
           <CardContent className="p-12 text-center space-y-4">
             <Sparkles className="h-12 w-12 mx-auto text-muted-foreground" />
             <h2 className="text-xl font-semibold">{t('spiritual.insights.notEnabled')}</h2>
@@ -294,31 +311,46 @@ export default function SpiritualInsights() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <Sparkles className="h-8 w-8 text-primary" />
-        <div>
-          <h1 className={typography.metric}>{t('spiritual.insights.title')}</h1>
-          <p className="text-muted-foreground">{t('spiritual.insights.subtitle')}</p>
-        </div>
-      </div>
+      <section className="relative overflow-hidden rounded-[32px] border border-[rgba(148,163,184,0.14)] bg-[linear-gradient(180deg,rgba(23,32,51,0.92),rgba(11,16,32,0.96))] p-6 shadow-[var(--shadow-sm)]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(20,184,166,0.08),transparent_26%),radial-gradient(circle_at_bottom_right,rgba(139,92,246,0.08),transparent_28%)]" />
+        <div className="relative space-y-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[rgba(20,184,166,0.14)] text-[var(--brand-primary)]">
+              <Sparkles className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">Reflective analytics</p>
+              <h1 className="text-[32px] font-bold tracking-[-0.03em] text-[var(--text-primary)]">{t('spiritual.insights.title')}</h1>
+              <p className="mt-1 max-w-2xl text-sm leading-7 text-[var(--text-secondary)]">{t('spiritual.insights.subtitle')}</p>
+            </div>
+          </div>
 
-      {/* Current mood */}
-      <Card className={cardVariants.glass}>
-        <CardContent className="p-4 flex items-center gap-4">
-          <div className="text-3xl font-bold text-primary">{avgMood7d || '—'}</div>
+          <div className="grid gap-3 md:grid-cols-3">
+            {premiumHighlights.map((item) => (
+              <div key={item.label} className="rounded-2xl border border-[rgba(148,163,184,0.14)] bg-[rgba(23,32,51,0.78)] p-4 backdrop-blur">
+                <p className={typography.statLabel}>{item.label}</p>
+                <p className="mt-2 text-3xl font-bold tracking-[-0.03em] text-[var(--text-primary)]">{item.value}</p>
+                <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <Card className="rounded-2xl border-[rgba(148,163,184,0.14)] bg-[rgba(23,32,51,0.78)]">
+        <CardContent className="flex items-center gap-4 p-5">
+          <div className="text-4xl font-bold tracking-[-0.03em] text-[var(--brand-primary)]">{avgMood7d || '—'}</div>
           <div>
-            <p className="text-sm font-medium">{t('spiritual.insights.currentMood')}</p>
-            <p className="text-xs text-muted-foreground">{t('spiritual.insights.sevenDayAvg')}</p>
+            <p className="text-sm font-medium text-[var(--text-primary)]">{t('spiritual.insights.currentMood')}</p>
+            <p className="text-sm leading-6 text-[var(--text-secondary)]">{t('spiritual.insights.sevenDayAvg')}</p>
           </div>
         </CardContent>
       </Card>
 
-      {/* Tabs: Correlations / AI Reports */}
       <Tabs defaultValue="correlations" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="correlations">{t('spiritual.insights.correlationsTab')}</TabsTrigger>
-          <TabsTrigger value="reports">{t('spiritual.insights.reportsTab')}</TabsTrigger>
+        <TabsList className="h-auto flex-wrap justify-start gap-2 rounded-2xl border border-[rgba(148,163,184,0.14)] bg-[rgba(23,32,51,0.78)] p-2">
+          <TabsTrigger className="rounded-xl border border-transparent px-4 data-[state=active]:border-[rgba(20,184,166,0.18)] data-[state=active]:bg-[rgba(20,184,166,0.12)] data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none" value="correlations">{t('spiritual.insights.correlationsTab')}</TabsTrigger>
+          <TabsTrigger className="rounded-xl border border-transparent px-4 data-[state=active]:border-[rgba(20,184,166,0.18)] data-[state=active]:bg-[rgba(20,184,166,0.12)] data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-none" value="reports">{t('spiritual.insights.reportsTab')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="correlations">
@@ -326,11 +358,11 @@ export default function SpiritualInsights() {
         </TabsContent>
 
         <TabsContent value="reports" className="space-y-4">
-          {/* Generate buttons */}
           <div className="flex flex-wrap gap-3">
             <Button
               variant="outline"
               size="sm"
+              className="rounded-xl border-[rgba(148,163,184,0.14)] bg-[rgba(23,32,51,0.78)]"
               onClick={() => handleGenerateReport('weekly')}
               disabled={generateReport.isPending}
             >
@@ -340,6 +372,7 @@ export default function SpiritualInsights() {
             <Button
               variant="outline"
               size="sm"
+              className="rounded-xl border-[rgba(148,163,184,0.14)] bg-[rgba(23,32,51,0.78)]"
               onClick={() => handleGenerateReport('monthly')}
               disabled={generateReport.isPending}
             >
@@ -348,11 +381,10 @@ export default function SpiritualInsights() {
             </Button>
           </div>
 
-          {/* Reports list */}
           {reportsLoading ? (
             <Skeleton className="h-48" />
           ) : reports.length === 0 ? (
-            <Card className={cardVariants.glass}>
+            <Card className="rounded-2xl border-[rgba(148,163,184,0.14)] bg-[rgba(23,32,51,0.78)]">
               <CardContent className="p-8 text-center space-y-2">
                 <FileText className="h-8 w-8 mx-auto text-muted-foreground" />
                 <p className={typography.subtitle}>{t('spiritual.insights.noReports')}</p>
